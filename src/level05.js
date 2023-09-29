@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 const LEVEL_05 = {
+  name: 'panopticon',
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 40,
   layout: `

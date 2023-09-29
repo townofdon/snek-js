@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 const LEVEL_09 = {
+  name: 'racetrack',
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 50,
   numApplesStart: 10,

@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 const LEVEL_07 = {
+  name: 'factory floor',
   timeToClear: 1000 * 60 * 1.7,
   applesToClear: 40,
   numApplesStart: 5,

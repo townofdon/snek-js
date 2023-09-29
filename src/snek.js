@@ -1,7 +1,8 @@
-const title = `🇸​​​​​🇳​​​​​🇪​​​​​🇰`;
+const title = 'SNEK';
 
 const DIMENSIONS = { x: 600, y: 600 };
 const GRIDCOUNT = { x: 30, y: 30 };
+const STROKE_SIZE = 4;
 const BASE_TICK_MS = 300;
 const MAX_MOVES = 4;
 const START_SNAKE_SIZE = 3;
@@ -42,15 +43,19 @@ let difficulty = {
 
 let score = 0;
 let totalScore = 0;
+let totalApplesEaten = 0;
 
-let state;
-let player;
+let state = {};
+let player = {};
 let moves = [];
 let segments = [];
 let apples = [];
 let barriers = [];
 let doors = [];
 let nospawns = [];
+
+let decoratives1 = [];
+let decoratives2 = [];
 
 let barriersMap = {};
 let doorsMap = {};
@@ -66,43 +71,15 @@ function setup() {
 
   score = 0;
   totalScore = 0;
+  totalApplesEaten = 0;
   state.isStarted = false;
 
-  let div = createDiv();
-  div.style('position', 'absolute');
-  div.style('top', '0');
-  div.style('bottom', '0');
-  div.style('left', '0');
-  div.style('right', '0');
-  div.style('background-color', 'rgb(7 11 15 / 52%)');
-  div.parent("main");
-  uiElements.push(div);
-
-  const drawTitle = (textColor, offset) => {
-    const p = createP(title);
-    p.style('font-size', '9.3em');
-    p.style('color', textColor);
-    p.style('line-height', '1em');
-    p.style('white-space', 'nowrap');
-    p.position(0 + offset, -163 + offset);
-    p.parent("main");
-    uiElements.push(p);
-  }
-
-  drawTitle("#000", 5);
-  drawTitle("#cdeaff", 0);
-
-  const drawButton = (textStr, x, y, dif) => {
-    const button = createButton(textStr);
-    button.position(x, y);
-    button.mousePressed(() => startGame(dif));
-    button.parent("main");
-    uiElements.push(button);
-  }
-
-  drawButton("EASY", 150, 280, 1);
-  drawButton("MEDIUM", 255, 280, 2);
-  drawButton("HARD", 370, 280, 3);
+  UI.drawDarkOverlay(uiElements);
+  UI.drawTitle(title, "#ffc000", 5, true, uiElements);
+  UI.drawTitle(title, "#cdeaff", 0, false, uiElements);
+  UI.drawButton("EASY", 150, 280, () => startGame(1), uiElements);
+  UI.drawButton("MEDIUM", 255, 280, () => startGame(2), uiElements);
+  UI.drawButton("HARD", 370, 280, () => startGame(3), uiElements);
 }
 
 function startGame(dif = 0) {
@@ -133,6 +110,7 @@ function startGame(dif = 0) {
   }
   state.isStarted = true;
   clearUI();
+  UI.drawLevelName(level.name, "#fff", uiElements);
 }
 
 function clearUI() {
@@ -143,6 +121,7 @@ function clearUI() {
 function init() {
   clearUI();
   createCanvas(DIMENSIONS.x, DIMENSIONS.y);
+  UI.drawLevelName(level.name, "#fff", uiElements);
 
   score = 0;
   player = {
@@ -166,6 +145,9 @@ function init() {
   segments = []
   nospawns = [];
 
+  decoratives1 = [];
+  decoratives2 = [];
+
   barriersMap = {};
   doorsMap = {};
   nospawnsMap = {};
@@ -174,23 +156,53 @@ function init() {
   const layoutRows = level.layout.trim().split('\n');
   for (let y = 0; y < layoutRows.length; y++) {
     const rowStr = layoutRows[y];
+
     for (let x = 0; x < rowStr.length; x++) {
       if (x >= GRIDCOUNT.x) { console.warn("level layout is too wide"); break; }
-      const char = rowStr[x];
-      if (char.toLowerCase() === 'x') {
-        const barrier = createVector(x, y);
-        barriers.push(barrier);
-        barriersMap[getCoordIndex(barrier)] = true;
-      } else if (char.toLowerCase() === 'd') {
-        const door = createVector(x, y);
-        doors.push(door);
-        doorsMap[getCoordIndex(door)] = true;
-      } else if (char.toLowerCase() === '~') {
-        const nospawn = createVector(x, y);
-        nospawns.push(nospawn);
-        nospawnsMap[getCoordIndex(nospawn)] = true;
-      } else if (char.toLowerCase() === 'o') {
-        player.position = createVector(x, y);
+
+      const char = rowStr.charAt(x);
+      if (char === ' ') {
+        continue;
+      }
+
+      const vec = createVector(x, y);
+
+      switch (char.toLowerCase()) {
+        case 'x':
+          barriers.push(vec);
+          barriersMap[getCoordIndex(vec)] = true;
+          break;
+        case 'd':
+          doors.push(vec);
+          doorsMap[getCoordIndex(vec)] = true;
+          break;
+        case 'o':
+          player.position = vec;
+          break;
+
+        // no-spawns
+        case '~':
+          nospawns.push(vec);
+          nospawnsMap[getCoordIndex(vec)] = true;
+          break;
+        case '_':
+          decoratives1.push(vec);
+          nospawns.push(vec);
+          nospawnsMap[getCoordIndex(vec)] = true;
+          break;
+        case '+':
+          decoratives2.push(vec);
+          nospawns.push(vec);
+          nospawnsMap[getCoordIndex(vec)] = true;
+          break;
+
+        // decorative
+        case '-':
+          decoratives1.push(vec);
+          break;
+        case '=':
+          decoratives2.push(vec);
+          break;
       }
     }
     if (y >= GRIDCOUNT.y) { console.warn("level layout is too tall"); break; }
@@ -256,10 +268,18 @@ function draw() {
     return;
   }
 
-  background(50);
+  drawBackground();
+
+  for (let i = 0; i < decoratives1.length; i++) {
+    drawDecorative1(decoratives1[i]);
+  }
+
+  for (let i = 0; i < decoratives2.length; i++) {
+    drawDecorative2(decoratives2[i]);
+  }
 
   for (let i = 0; i < barriers.length; i++) {
-    drawBorder(barriers[i]);
+    drawBarrier(barriers[i]);
   }
 
   for (let i = 0; i < doors.length; i++) {
@@ -425,6 +445,10 @@ function addSegment() {
   segments.push(segments[segments.length - 1].copy());
 }
 
+function drawBackground() {
+  background("#505050");
+}
+
 function drawPlayer(vec) {
   drawSquare(vec.x, vec.y, "#fa0", "#fa0");
 }
@@ -437,7 +461,7 @@ function drawApple(vec) {
   drawSquare(vec.x, vec.y, "#FF4B00", "#742A2A");
 }
 
-function drawBorder(vec) {
+function drawBarrier(vec) {
   drawSquare(vec.x, vec.y, "#1579B6", "#607D8B");
 }
 
@@ -445,46 +469,30 @@ function drawDoor(vec) {
   drawSquare(vec.x, vec.y, "#B6B115", "#8B8A60");
 }
 
-function drawSquare(x, y, background = "#1579B6", lineColor = "fff") {
+function drawDecorative1(vec) {
+  drawSquare(vec.x, vec.y, "#535353", "#515151");
+}
+
+function drawDecorative2(vec) {
+  drawSquare(vec.x, vec.y, "#595959", "#555555");
+}
+
+function drawSquare(x, y, background = "pink", lineColor = "fff") {
   fill(background)
   stroke(lineColor)
-  strokeWeight(4);
-  square(x * DIMENSIONS.x / GRIDCOUNT.x, y * DIMENSIONS.y / GRIDCOUNT.y, 600 / 30);
+  strokeWeight(STROKE_SIZE);
+  square(x * DIMENSIONS.x / GRIDCOUNT.x, y * DIMENSIONS.y / GRIDCOUNT.y, 600 / 30 - STROKE_SIZE);
 }
 
 function showGameOver() {
-  const startButton = createButton("TRY AGAIN");
-  startButton.position(250, 280);
-  startButton.mousePressed(init);
-  startButton.parent("main");
-  uiElements.push(startButton);
-
-  const menuButton = createButton("MAIN MENU");
-  menuButton.position(20, 20);
-  menuButton.mousePressed(setup);
-  menuButton.parent("main");
-  uiElements.push(menuButton);
-
-  const scoreText = createP(`SCORE: ${parseInt(totalScore + score, 10)}`);
-  scoreText.style('font-size', '40px');
-  scoreText.style('font-family', 'Courier New');
-  scoreText.style('color', '#fff');
-  scoreText.style('text-shadow', '0px 3px 3px black');
-  scoreText.position(200, 370);
-  scoreText.parent("main");
-  uiElements.push(scoreText);
-
-  const applesText = createP(`APPLES: ${state.numApplesEaten}`);
-  applesText.style('font-size', '26px');
-  applesText.style('font-family', 'Courier New');
-  applesText.style('color', '#fff');
-  applesText.style('text-shadow', '0px 3px 3px black');
-  applesText.position(233, 443);
-  applesText.parent("main");
-  uiElements.push(applesText);
-
+  UI.drawButton("TRY AGAIN", 250, 280, init, uiElements);
+  UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
+  UI.drawText(`SCORE: ${parseInt(totalScore + score, 10)}`, '40px', 370, uiElements);
+  UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
   score = 0;
   totalScore = 0;
+  state.numApplesEaten = 0;
+  totalApplesEaten = 0;
 }
 
 function openDoors() {
@@ -497,6 +505,8 @@ function gotoNextLevel() {
   score += LEVEL_BONUS * difficulty.scoreMod;
   totalScore += score;
   score = 0;
+  totalApplesEaten += state.numApplesEaten;
+  state.numApplesEaten = 0;
   level = getNextLevel();
   init();
 }

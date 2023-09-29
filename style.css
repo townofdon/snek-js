@@ -19,3 +19,26 @@ canvas {
 main {
   position: relative;
 }
+
+p {
+  font-family: 'VT323', monospace;
+  text-shadow: 0px 3px 3px black;
+}
+
+button {
+  padding: 5px 20px;
+  border-radius: 10px;
+  background: #cdeaff;
+  color: #111;
+  border: none;
+  box-shadow: 0px 3px 2px 2px black;
+  font-family: 'VT323', monospace;
+  font-size: 1.2em;
+}
+
+button:hover,
+button:active,
+button:focus
+{
+  background-color: #dbd57a;
+}
