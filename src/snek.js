@@ -1,16 +1,7 @@
-// import "p5"
-
-// import { LEVEL_01 } from "./level01";
-// import { LEVEL_02 } from "./level02";
-// import { LEVEL_03 } from "./level03";
-// import { LEVEL_04 } from "./level04";
-// import { LEVEL_05 } from "./level05";
-
-// eslint-disable-next-line no-irregular-whitespace
 const title = `🇸​​​​​🇳​​​​​🇪​​​​​🇰`;
 
 const DIMENSIONS = { x: 600, y: 600 };
-const GRIDPARTS = { x: 30, y: 30 };
+const GRIDCOUNT = { x: 30, y: 30 };
 const BASE_TICK_MS = 300;
 const MAX_MOVES = 4;
 const START_SNAKE_SIZE = 3;
@@ -33,6 +24,8 @@ const SCORE_MOD_EASY = .5;
 const SCORE_MOD_MEDIUM = 2;
 const SCORE_MOD_HARD = 5;
 
+const INITIAL_LEVEL = LEVEL_01;
+
 const DIR = {
   UP: 'UP',
   DOWN: 'DOWN',
@@ -40,7 +33,7 @@ const DIR = {
   RIGHT: 'RIGHT',
 }
 
-let level = LEVEL_01;
+let level = INITIAL_LEVEL;
 let difficulty = {
   speedMod: SPEED_MOD_EASY,
   applesMod: NUM_APPLES_MOD_EASY,
@@ -66,6 +59,7 @@ let nospawnsMap = {};
 let uiElements = [];
 
 function setup() {
+  level = INITIAL_LEVEL;
   frameRate(30);
   clearUI();
   init();
@@ -181,7 +175,7 @@ function init() {
   for (let y = 0; y < layoutRows.length; y++) {
     const rowStr = layoutRows[y];
     for (let x = 0; x < rowStr.length; x++) {
-      if (x >= GRIDPARTS.x) { console.warn("level layout is too wide"); break; }
+      if (x >= GRIDCOUNT.x) { console.warn("level layout is too wide"); break; }
       const char = rowStr[x];
       if (char.toLowerCase() === 'x') {
         const barrier = createVector(x, y);
@@ -199,7 +193,7 @@ function init() {
         player.position = createVector(x, y);
       }
     }
-    if (y >= GRIDPARTS.y) { console.warn("level layout is too tall"); break; }
+    if (y >= GRIDCOUNT.y) { console.warn("level layout is too tall"); break; }
   }
 
   // create snake parts
@@ -341,9 +335,9 @@ function draw() {
   }
 
   if (
-    player.position.x > GRIDPARTS.x - 1 ||
+    player.position.x > GRIDCOUNT.x - 1 ||
     player.position.x < 0 ||
-    player.position.y > GRIDPARTS.y - 1 ||
+    player.position.y > GRIDCOUNT.y - 1 ||
     player.position.y < 0
   ) {
     gotoNextLevel();
@@ -357,7 +351,7 @@ function getHasClearedLevel() {
 }
 
 function getCoordIndex(vec) {
-  return clamp(vec.x, 0, GRIDPARTS.x - 1) + clamp(vec.y, 0, GRIDPARTS.y - 1) * GRIDPARTS.x
+  return clamp(vec.x, 0, GRIDCOUNT.x - 1) + clamp(vec.y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
 }
 
 function clamp(val, minVal, maxVal) {
@@ -414,8 +408,8 @@ function removeApple(index) {
 }
 
 function addApple(numTries = 0) {
-  const x = parseInt(random(GRIDPARTS.x - 2), 10) + 1;
-  const y = parseInt(random(GRIDPARTS.y - 2), 10) + 1;
+  const x = parseInt(random(GRIDCOUNT.x - 2), 10) + 1;
+  const y = parseInt(random(GRIDCOUNT.y - 2), 10) + 1;
   const apple = createVector(x, y);
   const spawnedInsideOfSomething = barriersMap[getCoordIndex(apple)]
     || doorsMap[getCoordIndex(apple)]
@@ -455,7 +449,7 @@ function drawSquare(x, y, background = "#1579B6", lineColor = "fff") {
   fill(background)
   stroke(lineColor)
   strokeWeight(4);
-  square(x * DIMENSIONS.x / GRIDPARTS.x, y * DIMENSIONS.y / GRIDPARTS.y, 600 / 30);
+  square(x * DIMENSIONS.x / GRIDCOUNT.x, y * DIMENSIONS.y / GRIDCOUNT.y, 600 / 30);
 }
 
 function showGameOver() {
