@@ -1,0 +1,21 @@
+{
+  "name": "snekjs",
+  "version": "1.0.0",
+  "description": "snake game made with p5.js",
+  "private": true,
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "http-server . -p 3000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "townofdon",
+  "license": "MIT",
+  "dependencies": {
+    "p5": "^1.7.0"
+  },
+  "devDependencies": {
+    "@fal-works/eslint-config-p5js": "^1.0.3",
+    "eslint": "^8.50.0",
+    "http-server": "^14.1.1"
+  }
+}

@@ -1,0 +1,38 @@
+// eslint-disable-next-line no-unused-vars
+const LEVEL_04 = {
+  timeToClear: 1000 * 60 * 1.5,
+  applesToClear: 40,
+  numApplesStart: 5,
+  layout: `
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X~~~~              ~~~~XXXXXXX
+X~~                   ~~~XXXXX
+X~         ~~           ~~~XXX
+X         ~DDXXX~         ~~~X
+X         ~DDXXX~~~        ~~X
+X          ~~~~~X~~~~~      ~X
+X    XX~       ~~XXDDD~      X
+X    XX~~       ~XXDDD~      X
+X    ~~X~~       ~~~~~       X
+X~    ~~XX                   X
+X~     ~XX             ~~~   X
+X~      DD             DD~   X
+X~      DD     XX      DD~   X
+XX             XX      ~XX   X
+DD                     ~XX   X
+DD                     ~XX   X
+DD                     ~XX   X
+XX         DD         ~~XX   X
+X~         DD         ~~XX   X
+X~   ~~               ~~XX   X
+X~   xx~              XX~~   X
+X~   xx~              XX~~  ~X
+X~   ~~                     ~X
+X~                         ~~X
+X~    O                   ~~~X
+X~~                     ~~~XXX
+XXXXXXXXXXX~          ~~~XXXXX
+XXXXXXXXXXX~~~      ~~~XXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+`,
+};

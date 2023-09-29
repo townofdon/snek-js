@@ -1,0 +1,30 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": [
+        "eslint:recommended",
+        "@fal-works/p5js"
+    ],
+    "parserOptions": {
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "ignorePatterns": ["webpack.config.js", "dev-server.js", "lib/*"],
+    "rules": {
+    },
+    "globals": {
+        "LEVEL_01": true,
+        "LEVEL_02": true,
+        "LEVEL_03": true,
+        "LEVEL_04": true,
+        "LEVEL_05": true,
+        "LEVEL_06": true,
+        "LEVEL_07": true,
+        "LEVEL_08": true,
+        "LEVEL_09": true,
+        "LEVEL_10": true,
+        "LEVEL_99": true
+    }
+}
