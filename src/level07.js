@@ -9,25 +9,25 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
 X~~  ~ ~ ~~~~XDDX~~~~  ~ ~ ~~X
 X~          ~XDDX~          ~X
 X~                          ~X
-X   XXX~              ~XXX  ~X
-X~  XXX~              ~XXX~  X
+X   XXX_====-====-====_XXX  ~X
+X~  XXX~---- ---- ----~XXX~  X
 X  ~XXX~              ~XXX  ~X
 X~ ~XXX~              ~XXX~ ~X
 X  ~XXX~~~ ~    ~ ~ ~~~XXX~ ~X
 X~ ~XXXXXXXXXDDDDXXXXXXXXX~  X
 X~      ~  ~  ~   ~  ~       X
 X~                          ~X
-X~~~~~~                ~~~~~~X
-XDDDXXX~              ~XXXDDDX
-X~~~~~~                ~~~~~~X
+X~~~~~~ ---- ---- ---- ~~~~~~X
+XDDDXXX_====-====-====_XXXDDDX
+X~~~~~~ ---- ---- ---- ~~~~~~X
 X~     O                    ~X
 X      ~  ~  ~ ~  ~  ~   ~  ~X
 X   XXXXXXXXXDDDDXXXXXXXXX~  X
 X~  XXX~~~          ~~~XXX  ~X
 X  ~XXX~              ~XXX~ ~X
 X  ~XXX~              ~XXX~ ~X
-X~ ~XXX~              ~XXX~ ~X
-X~  XXX~              ~XXX   X
+X~ ~XXX~---- ---- ----~XXX~ ~X
+X~  XXX_====-====-====_XXX   X
 X                           ~X
 X~                          ~X
 X~                           X
@@ -36,4 +36,5 @@ X~~       ~XX~~~~XX~       ~~X
 XXXXXXX~~~~XXDDDDXX~~~~XXXXXXX
 XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   `,
+  colors: PALETTE.violetSunset,
 };

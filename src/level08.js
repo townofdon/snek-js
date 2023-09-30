@@ -10,20 +10,20 @@ XXXXXX~~~~~~~~~~~~~XX~~~XXXXXX
 DX~~~~                 ~~~~~XD
 DX~~~                     ~~XD
 XXX~                      ~XXX
-XXX~       ~              ~XXX
-XX~~     ~XX              ~XXX
-XX~~      XX~             ~~XX
-XX~       ~                ~XX
-XX~                        ~XX
-XX~                 XX    ~~~X
-XX~                ~XX     ~~X
-X~~                        ~~X
-X~~                        ~XX
-X~~                       ~~XX
-X~~                       ~XXX
-X~~                      ~XDDD
-X~~                      ~XDDD
-X~~                      ~~XXX
+XXX~       _-             ~XXX
+XX~~     ~XX=-            ~XXX
+XX~~     -XX_             ~~XX
+XX_-     -+-        -      ~XX
+XX+=-     -        -=-     ~XX
+XX+==-             -XX-   ~~~X
+XX+--              ~XX=-   ~~X
+X__                 -=-    ~~X
+X~_       -          -     ~XX
+X~~      -=-    ---  -    ~~XX
+X~~     -===- --===--=-   ~XXX
+X~~     -==-    -=-  -   ~XDDD
+X~~     -=-      -       ~XDDD
+X~~      -               ~~XXX
 X~~               ~       ~XXX
 X~~               XX~     ~XXX
 X~~              ~XX      ~~XX
@@ -36,4 +36,5 @@ XX~~~~~~~~~XXDDDDXX~~~~~~~~XXX
 XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
 XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
   `,
+  colors: PALETTE.forest,
 };

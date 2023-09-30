@@ -16,6 +16,7 @@
     },
     "globals": {
         "UI": true,
+        "PALETTE": true,
         "LEVEL_01": true,
         "LEVEL_02": true,
         "LEVEL_03": true,

@@ -26,6 +26,17 @@ const SCORE_MOD_MEDIUM = 2;
 const SCORE_MOD_HARD = 5;
 
 const INITIAL_LEVEL = LEVEL_01;
+const KEYCODE_J = 74;
+const KEYCODE_0 = 48;
+const KEYCODE_1 = 49;
+const KEYCODE_2 = 50;
+const KEYCODE_3 = 51;
+const KEYCODE_4 = 52;
+const KEYCODE_5 = 53;
+const KEYCODE_6 = 54;
+const KEYCODE_7 = 55;
+const KEYCODE_8 = 56;
+const KEYCODE_9 = 57;
 
 const DIR = {
   UP: 'UP',
@@ -45,8 +56,21 @@ let score = 0;
 let totalScore = 0;
 let totalApplesEaten = 0;
 
-let state = {};
-let player = {};
+let state = {
+  isPaused: false,
+  isStarted: true,
+  isLost: false,
+  isDoorsOpen: false,
+  timeElapsed: 0,
+  timeSinceLastMove: Infinity,
+  speed: 1,
+  numApplesEaten: 0,
+};
+let player = {
+  position: null,
+  direction: DIR.RIGHT,
+};
+
 let moves = [];
 let segments = [];
 let apples = [];
@@ -82,7 +106,7 @@ function setup() {
   UI.drawButton("HARD", 370, 280, () => startGame(3), uiElements);
 }
 
-function startGame(dif = 0) {
+function startGame(dif = 2) {
   switch (dif) {
     case 1:
       difficulty = {
@@ -110,44 +134,37 @@ function startGame(dif = 0) {
   }
   state.isStarted = true;
   clearUI();
-  UI.drawLevelName(level.name, "#fff", uiElements);
 }
 
 function clearUI() {
   uiElements.forEach(element => element.remove())
   uiElements = [];
+  UI.drawLevelName(level.name, "#fff", uiElements);
 }
 
 function init() {
   clearUI();
   createCanvas(DIMENSIONS.x, DIMENSIONS.y);
-  UI.drawLevelName(level.name, "#fff", uiElements);
 
   score = 0;
-  player = {
-    position: createVector(15, 15),
-    direction: DIR.RIGHT,
-  }
-  state = {
-    isStarted: true,
-    isLost: false,
-    isDoorsOpen: false,
-    timeElapsed: 0,
-    timeSinceLastMove: Infinity,
-    speed: 1,
-    numApplesEaten: 0,
-  }
-
+  player.position = createVector(15, 15);
+  player.direction = DIR.RIGHT;
+  state.isPaused = false;
+  state.isStarted = true;
+  state.isLost = false;
+  state.isDoorsOpen = false;
+  state.timeElapsed = 0;
+  state.timeSinceLastMove = Infinity;
+  state.speed = 1;
+  state.numApplesEaten = 0;
   moves = [];
   barriers = [];
   doors = [];
   apples = [];
   segments = []
   nospawns = [];
-
   decoratives1 = [];
   decoratives2 = [];
-
   barriersMap = {};
   doorsMap = {};
   nospawnsMap = {};
@@ -228,6 +245,31 @@ function keyPressed() {
   }
 
   if (!state.isStarted) {
+    if (keyCode === ENTER) startGame();
+    return;
+  }
+
+  if (keyCode === KEYCODE_J) {
+    if (state.isPaused) {
+      state.isPaused = false;
+      clearUI();
+    } else {
+      state.isPaused = true;
+      showPortalUI();
+    }
+  }
+
+  if (state.isPaused) {
+    if (keyCode === KEYCODE_0) warpToLevel(10);
+    else if (keyCode === KEYCODE_1) warpToLevel(1);
+    else if (keyCode === KEYCODE_2) warpToLevel(2);
+    else if (keyCode === KEYCODE_3) warpToLevel(3);
+    else if (keyCode === KEYCODE_4) warpToLevel(4);
+    else if (keyCode === KEYCODE_5) warpToLevel(5);
+    else if (keyCode === KEYCODE_6) warpToLevel(6);
+    else if (keyCode === KEYCODE_7) warpToLevel(7);
+    else if (keyCode === KEYCODE_8) warpToLevel(8);
+    else if (keyCode === KEYCODE_9) warpToLevel(9);
     return;
   }
 
@@ -264,9 +306,8 @@ function validateMove(prev, current) {
 }
 
 function draw() {
-  if (state.isLost) {
-    return;
-  }
+  if (state.isLost) return;
+  if (state.isPaused) return;
 
   drawBackground();
 
@@ -446,35 +487,35 @@ function addSegment() {
 }
 
 function drawBackground() {
-  background("#505050");
+  background(level.colors.background);
 }
 
 function drawPlayer(vec) {
-  drawSquare(vec.x, vec.y, "#fa0", "#fa0");
+  drawSquare(vec.x, vec.y, level.colors.playerHead, level.colors.playerHead);
 }
 
 function drawPlayerPart(vec) {
-  drawSquare(vec.x, vec.y, "#CA8F17", "#E9D3A7");
+  drawSquare(vec.x, vec.y, level.colors.playerTail, level.colors.playerTailStroke);
 }
 
 function drawApple(vec) {
-  drawSquare(vec.x, vec.y, "#FF4B00", "#742A2A");
+  drawSquare(vec.x, vec.y, level.colors.apple, level.colors.appleStroke);
 }
 
 function drawBarrier(vec) {
-  drawSquare(vec.x, vec.y, "#1579B6", "#607D8B");
+  drawSquare(vec.x, vec.y, level.colors.barrier, level.colors.barrierStroke);
 }
 
 function drawDoor(vec) {
-  drawSquare(vec.x, vec.y, "#B6B115", "#8B8A60");
+  drawSquare(vec.x, vec.y, level.colors.door, level.colors.doorStroke);
 }
 
 function drawDecorative1(vec) {
-  drawSquare(vec.x, vec.y, "#535353", "#515151");
+  drawSquare(vec.x, vec.y, level.colors.deco1, level.colors.deco1Stroke);
 }
 
 function drawDecorative2(vec) {
-  drawSquare(vec.x, vec.y, "#595959", "#555555");
+  drawSquare(vec.x, vec.y, level.colors.deco2, level.colors.deco2Stroke);
 }
 
 function drawSquare(x, y, background = "pink", lineColor = "fff") {
@@ -485,7 +526,8 @@ function drawSquare(x, y, background = "pink", lineColor = "fff") {
 }
 
 function showGameOver() {
-  UI.drawButton("TRY AGAIN", 250, 280, init, uiElements);
+  UI.drawDarkOverlay(uiElements);
+  UI.drawButton("TRY AGAIN", 236, 280, init, uiElements);
   UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
   UI.drawText(`SCORE: ${parseInt(totalScore + score, 10)}`, '40px', 370, uiElements);
   UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
@@ -493,6 +535,35 @@ function showGameOver() {
   totalScore = 0;
   state.numApplesEaten = 0;
   totalApplesEaten = 0;
+}
+
+const warpToLevel = (levelNum = 1) => {
+  level = getLevelFromNum(levelNum);
+  init();
+}
+
+function showPortalUI() {
+  UI.drawDarkOverlay(uiElements);
+  UI.drawText('JUMP TO LEVEL', '40px', 100, uiElements);
+  UI.drawText('Press \'J\' To Unpause', '26px', 150, uiElements);
+
+  const xInitial = 120;
+  const offset = 60;
+  const yRow1 = 280;
+  const yRow2 = 320;
+  let x = xInitial;
+  UI.drawButton("1", x, yRow1, () => warpToLevel(1), uiElements);
+  UI.drawButton("2", x += offset, yRow1, () => warpToLevel(2), uiElements);
+  UI.drawButton("3", x += offset, yRow1, () => warpToLevel(3), uiElements);
+  UI.drawButton("4", x += offset, yRow1, () => warpToLevel(4), uiElements);
+  UI.drawButton("5", x += offset, yRow1, () => warpToLevel(5), uiElements);
+  UI.drawButton("6", x += offset, yRow1, () => warpToLevel(6), uiElements);
+  x = xInitial;
+  UI.drawButton("7", x, yRow2, () => warpToLevel(7), uiElements);
+  UI.drawButton("8", x += offset, yRow2, () => warpToLevel(8), uiElements);
+  UI.drawButton("9", x += offset, yRow2, () => warpToLevel(9), uiElements);
+  UI.drawButton("10", x += offset, yRow2, () => warpToLevel(10), uiElements);
+  UI.drawButton("99", x += offset, yRow2, () => warpToLevel(99), uiElements);
 }
 
 function openDoors() {
@@ -532,6 +603,35 @@ function getNextLevel() {
     case LEVEL_09:
       return LEVEL_10;
     case LEVEL_10:
+      return LEVEL_99;
+    default:
+      return LEVEL_01;
+  }
+}
+
+function getLevelFromNum(levelNum) {
+  switch (levelNum) {
+    case 1:
+      return LEVEL_01;
+    case 2:
+      return LEVEL_02;
+    case 3:
+      return LEVEL_03;
+    case 4:
+      return LEVEL_04;
+    case 5:
+      return LEVEL_05;
+    case 6:
+      return LEVEL_06;
+    case 7:
+      return LEVEL_07;
+    case 8:
+      return LEVEL_08;
+    case 9:
+      return LEVEL_09;
+    case 10:
+      return LEVEL_10;
+    case 99:
       return LEVEL_99;
     default:
       return LEVEL_01;

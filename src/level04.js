@@ -6,34 +6,35 @@ const LEVEL_04 = {
   numApplesStart: 5,
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-X~~~~              ~~~~XXXXXXX
-X~~                   ~~~XXXXX
-X~         ~~           ~~~XXX
-X         ~DDXXX~         ~~~X
-X         ~DDXXX~~~        ~~X
-X          ~~~~~X~~~~~      ~X
-X    XX~       ~~XXDDD~      X
-X    XX~~       ~XXDDD~      X
-X    ~~X~~       ~~~~~       X
+X++++==----=====---++++XXXXXXX
+X+_----    -----   ---___XXXXX
+X+-       -++===-       ~~~XXX
+X=-      -+DDXXX+--       ~~~X
+X=-      -+DDXXX+++-       ~~X
+X=-       -+++++X+++__      ~X
+X-   XX~    ---++XXDDD_      X
+X-   XX~~      -+XXDDD_      X
+X    ~~X~~      -_____       X
 X~    ~~XX                   X
-X~     ~XX             ~~~   X
-X~      DD             DD~   X
-X~      DD     XX      DD~   X
-XX             XX      ~XX   X
-DD                     ~XX   X
-DD                     ~XX   X
-DD                     ~XX   X
-XX         DD         ~~XX   X
-X~         DD         ~~XX   X
-X~   ~~               ~~XX   X
-X~   xx~              XX~~   X
-X~   xx~              XX~~  ~X
-X~   ~~                     ~X
+X~     ~XX     --      ~~~- -X
+X~      DD    -==-     DD+=-=X
+X~      DD   -=XX=-    DD+=-=X
+XX           -=XX=-    ~XX=-=X
+DD            -==-     ~XX=-=X
+DD             ==      ~XX=-=X
+DD             ==      ~XX=-=X
+XX   ======DD====     ~~XX=-=X
+X~   ======DD====     ~~XX=-=X
+X~   ++               ~~XX=-=X
+X~   xx~              XX++=-=X
+X~   xx~              XX++=-+X
+X~   ~~                ---- ~X
 X~                         ~~X
-X~    O                   ~~~X
-X~~                     ~~~XXX
-XXXXXXXXXXX~          ~~~XXXXX
-XXXXXXXXXXX~~~      ~~~XXXXXXX
+X~    O --                ~~~X
+X~~--=====-             ~~~XXX
+XXXXXXXXXXX_-         ~~~XXXXX
+XXXXXXXXXXX++_---   ~~~XXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 `,
+  colors: PALETTE.hospital,
 };

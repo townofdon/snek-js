@@ -6,34 +6,35 @@ const LEVEL_99 = {
   numApplesStart: 20,
   layout: `
 XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
-X~~~~~~~~~~~XXDDXX~~~~~~~~~~~X
-X~~       ~~~~~~~~~~       ~~X
-X~          ~~~~~~          ~X
-X~                          ~X
-X~                          ~X
-X~                          ~X
-X~                          ~X
-X~                          ~X
-X~                          ~X
-X~                          ~X
-X~~                         ~X
-XX~                        ~~X
-XX~~                      ~~XX
-DD~~                      ~~DD
-DD~~                      ~~DD
-XX~~                      ~~XX
-XX~                        ~~X
-X~~                         ~X
-X~                          ~X
-X~                          ~X
-X~                          ~X
-X~                          ~X
-X~                          ~X
-X~                          ~X
-X~                          ~X
-X~          ~~~~~~          ~X
-X~~       ~~~~~~~~~~       ~~X
-X~~~~~~~~~~~XXDDXX~~~~~~~~~~~X
+X~~~~~__~~~~XXDDXX~~~~__~~~~~X
+X~~   --  ~~~~__~~~~  --   ~~X
+X~    --    ~~__~~    --    ~X
+X~    --      ==      --    ~X
+X~    --      ==      --    ~X
+X~    --      --      --    ~X
+X_----==      --      ==    ~X
+X_----==      --      ==    ~X
+X~            --            ~X
+X~            --            ~X
+X~~           --            ~X
+XX~           ==           ~~X
+XX~~        --==--        ~~XX
+DD__==------==  ==------==__DD
+DD__==------==  ==------==__DD
+XX~~        --==--        ~~XX
+XX~           ==           ~~X
+X~~           --            ~X
+X~            --            ~X
+X~            --            ~X
+X_----==      --      ==----_X
+X_----==      --      ==----_X
+X~    --      --      --    ~X
+X~    --      ==      --    ~X
+X~    --      ==      --    ~X
+X~    --    ~~__~~    --    ~X
+X~~   --  ~~~~__~~~~  --   ~~X
+X~~~~~__~~~~XXDDXX~~~~__~~~~~X
 XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
-`,
+  `,
+  colors: PALETTE.boxcar,
 };
