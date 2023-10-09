@@ -573,7 +573,15 @@ function growSnake(appleIndex) {
   let bonus = 0;
   startScreenShake({ magnitude: 0.4, normalizedTime: 0.8 });
   removeApple(appleIndex);
-  addSnakeSegment();
+  const numSegmentsToAdd = (() => {
+    return Math.max(
+      (difficulty.index - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
+      1
+    );
+  })()
+  for (let i = 0; i < numSegmentsToAdd; i++) {
+    addSnakeSegment();
+  }
   if (!state.isDoorsOpen) {
     addApple();
   } else {

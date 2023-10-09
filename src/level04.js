@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 const LEVEL_04 = {
-  name: 'the facility',
+  name: 'midnight city',
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 40,
   numApplesStart: 5,

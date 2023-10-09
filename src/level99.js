@@ -4,6 +4,7 @@ const LEVEL_99 = {
   timeToClear: 1000 * 60 * 10,
   applesToClear: 200,
   numApplesStart: 20,
+  growthMod: 0.9,
   layout: `
 XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
 X~~~~~__~~~~XXDDXX~~~~__~~~~~X
