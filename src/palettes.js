@@ -17,23 +17,6 @@ const PALETTE = {
     deco2: "#595959",
     deco2Stroke: "#555555",
   },
-  athlete: {
-    // TODO: ADD ATHLETE COLOURS
-    background: "#505050",
-    playerHead: "#fa0",
-    playerTail: "#CA8F17",
-    playerTailStroke: "#E9D3A7",
-    barrier: "#1579B6",
-    barrierStroke: "#607D8B",
-    apple: "#FF4B00",
-    appleStroke: "#742A2A",
-    door: "#B6B115",
-    doorStroke: "#8B8A60",
-    deco1: "#535353",
-    deco1Stroke: "#515151",
-    deco2: "#595959",
-    deco2Stroke: "#555555",
-  },
   boxcar: {
     background: "#505050",
     playerHead: "#F4A261",

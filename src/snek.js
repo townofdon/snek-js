@@ -2,6 +2,7 @@ const title = 'SNEK';
 
 const DIMENSIONS = { x: 600, y: 600 };
 const GRIDCOUNT = { x: 30, y: 30 };
+const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x, y: DIMENSIONS.y / GRIDCOUNT.y };
 const STROKE_SIZE = 4;
 const BASE_TICK_MS = 300;
 const MAX_MOVES = 4;
@@ -95,6 +96,39 @@ let doorsMap = {};
 let nospawnsMap = {};
 
 let uiElements = [];
+let particleSystems = [];
+
+class AppleParticleSystem extends ParticleSystem {
+  /** 
+   * @param {p5.Vector} origin
+   */
+  constructor(origin, { spawnMod = 1, speedMod = 1, scaleMod = 1 } = {}) {
+    const lifetime = 1000;
+    const numParticles = 10 * spawnMod;
+    const speed = 1 * speedMod;
+    const speedVariance = 1.5 * speedMod;
+    const scaleStart = .6 * scaleMod;
+    const scaleEnd = 0.3 * scaleMod;
+    const scaleVariance = 0.2 * scaleMod;
+    const colorStart = level.colors.appleStroke;
+    const colorEnd = level.colors.background;
+    const easingFnc = Easing.outCubic;
+    super({
+      BLOCK_SIZE,
+      origin,
+      colorStart: color(colorStart),
+      colorEnd: color(colorEnd),
+      lifetime,
+      numParticles,
+      speed,
+      speedVariance,
+      scaleStart,
+      scaleEnd,
+      scaleVariance,
+      easingFnc,
+    });
+  }
+}
 
 function setup() {
   level = INITIAL_LEVEL;
@@ -106,6 +140,7 @@ function setup() {
   totalScore = 0;
   totalApplesEaten = 0;
   state.isStarted = false;
+  UI.disableScreenScroll();
 
   UI.drawDarkOverlay(uiElements);
   UI.drawTitle(title, "#ffc000", 5, true, uiElements);
@@ -142,6 +177,7 @@ function startGame(dif = 2) {
       throw new Error(`Unexpected difficulty: ${difficulty}`)
   }
   state.isStarted = true;
+  UI.disableScreenScroll();
   clearUI();
 }
 
@@ -154,6 +190,7 @@ function clearUI() {
 function init() {
   clearUI();
   createCanvas(DIMENSIONS.x, DIMENSIONS.y);
+  UI.disableScreenScroll();
 
   score = 0;
   player.position = createVector(15, 15);
@@ -176,6 +213,7 @@ function init() {
   nospawns = [];
   decoratives1 = [];
   decoratives2 = [];
+  particleSystems = [];
   barriersMap = {};
   doorsMap = {};
   nospawnsMap = {};
@@ -334,6 +372,8 @@ function draw() {
     drawDecorative2(decoratives2[i]);
   }
 
+  drawParticles();
+
   for (let i = 0; i < barriers.length; i++) {
     drawBarrier(barriers[i]);
   }
@@ -358,6 +398,7 @@ function draw() {
     const appleFound = applesMap[getCoordIndex(segments[i])];
     if (appleFound != undefined && appleFound >= 0) {
       applesMap[getCoordIndex(segments[i])] = -1;
+      spawnAppleParticles(segments[i]);
       growSnake(appleFound);
     }
   }
@@ -370,6 +411,7 @@ function draw() {
   // check if head has reached an apple
   const appleFound = applesMap[getCoordIndex(player.position)];
   if (appleFound != undefined && appleFound >= 0) {
+    spawnAppleParticles(player.position);
     growSnake(appleFound);
   }
 
@@ -423,6 +465,11 @@ function draw() {
   }
 }
 
+function spawnAppleParticles(position) {
+  particleSystems.push(new AppleParticleSystem(position));
+  particleSystems.push(new AppleParticleSystem(position, { spawnMod: .3, speedMod: 4, scaleMod: .5 }));
+}
+
 function startScreenShake({ magnitude = 1, normalizedTime = 0 } = {}) {
   screenShake.timeSinceStarted = normalizedTime * SCREEN_SHAKE_DURATION_MS;
   screenShake.magnitude = magnitude;
@@ -448,11 +495,7 @@ function getHasClearedLevel() {
 }
 
 function getCoordIndex(vec) {
-  return clamp(vec.x, 0, GRIDCOUNT.x - 1) + clamp(vec.y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
-}
-
-function clamp(val, minVal, maxVal) {
-  return max(min(val, maxVal), minVal);
+  return Utils.clamp(vec.x, 0, GRIDCOUNT.x - 1) + Utils.clamp(vec.y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
 }
 
 function movePlayer() {
@@ -557,15 +600,30 @@ function drawDecorative2(vec) {
 }
 
 function drawSquare(x, y, background = "pink", lineColor = "fff") {
-  fill(background)
-  stroke(lineColor)
+  fill(background);
+  stroke(lineColor);
   strokeWeight(STROKE_SIZE);
   const position = {
-    x: x * DIMENSIONS.x / GRIDCOUNT.x + screenShake.offset.x,
-    y: y * DIMENSIONS.y / GRIDCOUNT.y + screenShake.offset.y,
+    x: x * BLOCK_SIZE.x + screenShake.offset.x,
+    y: y * BLOCK_SIZE.y + screenShake.offset.y,
   }
-  const size = 600 / 30 - STROKE_SIZE;
+  const size = BLOCK_SIZE.x - STROKE_SIZE;
   square(position.x, position.y, size);
+}
+
+function drawParticles() {
+  const tempParticleSystems = [];
+  for (let i = 0; i < particleSystems.length; i++) {
+    particleSystems[i].draw(BLOCK_SIZE, screenShake);
+    particleSystems[i].tick();
+    // cleanup inactive particle systems
+    if (particleSystems[i].isActive()) {
+      tempParticleSystems.push(particleSystems[i]);
+    } else {
+      delete particleSystems[i];
+    }
+  }
+  particleSystems = tempParticleSystems;
 }
 
 function showGameOver() {
@@ -574,6 +632,7 @@ function showGameOver() {
   UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
   UI.drawText(`SCORE: ${parseInt(totalScore + score, 10)}`, '40px', 370, uiElements);
   UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
+  UI.enableScreenScroll();
 }
 
 function resetScore() {
