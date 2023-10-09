@@ -1,5 +1,6 @@
 const {
   TITLE,
+  FRAMERATE,
   DIMENSIONS,
   GRIDCOUNT,
   BLOCK_SIZE,
@@ -15,12 +16,19 @@ const {
   SPEED_MOD_EASY,
   SPEED_MOD_MEDIUM,
   SPEED_MOD_HARD,
+  SPEED_MOD_ULTRA,
   NUM_APPLES_MOD_EASY,
   NUM_APPLES_MOD_MEDIUM,
   NUM_APPLES_MOD_HARD,
+  NUM_APPLES_MOD_ULTRA,
   SCORE_MOD_EASY,
   SCORE_MOD_MEDIUM,
   SCORE_MOD_HARD,
+  SCORE_MOD_ULTRA,
+  SPEED_LIMIT_EASY,
+  SPEED_LIMIT_MEDIUM,
+  SPEED_LIMIT_HARD,
+  SPEED_LIMIT_ULTRA,
   INITIAL_LEVEL,
   KEYCODE_J,
   KEYCODE_0,
@@ -47,9 +55,11 @@ const DIR = {
 
 let level = INITIAL_LEVEL;
 let difficulty = {
+  index: 1,
   speedMod: SPEED_MOD_EASY,
   applesMod: NUM_APPLES_MOD_EASY,
   scoreMod: SCORE_MOD_EASY,
+  speedLimit: SPEED_LIMIT_EASY,
 };
 
 let score = 0;
@@ -126,7 +136,7 @@ class AppleParticleSystem extends ParticleSystem {
 
 function setup() {
   level = INITIAL_LEVEL;
-  frameRate(30);
+  frameRate(FRAMERATE);
   clearUI();
   init();
 
@@ -142,29 +152,45 @@ function setup() {
   UI.drawButton("EASY", 150, 280, () => startGame(1), uiElements);
   UI.drawButton("MEDIUM", 255, 280, () => startGame(2), uiElements);
   UI.drawButton("HARD", 370, 280, () => startGame(3), uiElements);
+  UI.drawButton("ULTRA", 485, 530, () => startGame(4), uiElements);
 }
 
 function startGame(dif = 2) {
   switch (dif) {
     case 1:
       difficulty = {
+        index: 1,
         speedMod: SPEED_MOD_EASY,
         applesMod: NUM_APPLES_MOD_EASY,
         scoreMod: SCORE_MOD_EASY,
+        speedLimit: SPEED_LIMIT_EASY,
       }
       break;
     case 2:
       difficulty = {
+        index: 2,
         speedMod: SPEED_MOD_MEDIUM,
         applesMod: NUM_APPLES_MOD_MEDIUM,
         scoreMod: SCORE_MOD_MEDIUM,
+        speedLimit: SPEED_LIMIT_MEDIUM,
       }
       break;
     case 3:
       difficulty = {
+        index: 3,
         speedMod: SPEED_MOD_HARD,
         applesMod: NUM_APPLES_MOD_HARD,
         scoreMod: SCORE_MOD_HARD,
+        speedLimit: SPEED_LIMIT_HARD,
+      }
+      break;
+    case 4:
+      difficulty = {
+        index: 4,
+        speedMod: SPEED_MOD_ULTRA,
+        applesMod: NUM_APPLES_MOD_ULTRA,
+        scoreMod: SCORE_MOD_ULTRA,
+        speedLimit: SPEED_LIMIT_ULTRA,
       }
       break;
     default:
@@ -288,7 +314,11 @@ function keyPressed() {
   }
 
   if (!state.isStarted) {
-    if (keyCode === ENTER) startGame();
+    if (keyCode === KEYCODE_1) startGame(1);
+    else if (keyCode === KEYCODE_2) startGame(2);
+    else if (keyCode === KEYCODE_3) startGame(3);
+    else if (keyCode === KEYCODE_4) startGame(4);
+    else if (keyCode === ENTER) startGame();
     return;
   }
 
@@ -407,6 +437,7 @@ function draw() {
   if (appleFound != undefined && appleFound >= 0) {
     spawnAppleParticles(player.position);
     growSnake(appleFound);
+    increaseSpeed();
   }
 
   const playerPositionDisplay = `(${player.position.x},${player.position.y})`;
@@ -438,7 +469,8 @@ function draw() {
     return;
   }
 
-  if (state.timeSinceLastMove >= BASE_TICK_MS / max(state.speed * difficulty.speedMod, 1)) {
+  const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
+  if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
     movePlayer();
   } else {
     state.timeSinceLastMove += deltaTime;
@@ -457,6 +489,19 @@ function draw() {
   ) {
     gotoNextLevel();
   }
+}
+
+function getTimeNeededUntilNextMove() {
+  if (difficulty.index === 4) {
+    if (state.speed <= 1) return SPEED_LIMIT_EASY;
+    if (state.speed <= 2) return SPEED_LIMIT_MEDIUM;
+    if (state.speed <= 3) return SPEED_LIMIT_HARD;
+    return SPEED_LIMIT_ULTRA;
+  }
+  return Math.max(
+    BASE_TICK_MS / Math.max(state.speed * difficulty.speedMod, 1),
+    difficulty.speedLimit
+  );
 }
 
 function spawnAppleParticles(position) {
@@ -534,9 +579,17 @@ function growSnake(appleIndex) {
   } else {
     bonus = CLEAR_BONUS * difficulty.scoreMod;
   }
-  state.speed += SPEED_INCREMENT * min(difficulty.speedMod, 1);
   state.numApplesEaten += 1;
   score += SCORE_INCREMENT * difficulty.scoreMod + bonus;
+}
+
+function increaseSpeed() {
+  if (state.isLost) return;
+  if (difficulty.index === 4) {
+    state.speed += 1;
+  } else {
+    state.speed += SPEED_INCREMENT * min(difficulty.speedMod, 1);
+  }
 }
 
 function removeApple(index) {

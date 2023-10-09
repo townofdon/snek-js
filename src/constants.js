@@ -3,6 +3,7 @@
 const CONSTANTS = (() => {
   const TITLE = 'SNEK';
 
+  const FRAMERATE = 30;
   const DIMENSIONS = { x: 600, y: 600 };
   const GRIDCOUNT = { x: 30, y: 30 };
   const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x, y: DIMENSIONS.y / GRIDCOUNT.y };
@@ -20,14 +21,22 @@ const CONSTANTS = (() => {
   const SPEED_MOD_EASY = .35;
   const SPEED_MOD_MEDIUM = .75;
   const SPEED_MOD_HARD = 1.6;
+  const SPEED_MOD_ULTRA = 1;
 
   const NUM_APPLES_MOD_EASY = .5;
   const NUM_APPLES_MOD_MEDIUM = .9;
   const NUM_APPLES_MOD_HARD = 1;
+  const NUM_APPLES_MOD_ULTRA = 1.5;
 
   const SCORE_MOD_EASY = .5;
   const SCORE_MOD_MEDIUM = 2;
   const SCORE_MOD_HARD = 5;
+  const SCORE_MOD_ULTRA = 20;
+
+  const SPEED_LIMIT_EASY = 110;
+  const SPEED_LIMIT_MEDIUM = 50;
+  const SPEED_LIMIT_HARD = 20;
+  const SPEED_LIMIT_ULTRA = 0;
 
   const INITIAL_LEVEL = LEVEL_01;
   const KEYCODE_J = 74;
@@ -48,6 +57,7 @@ const CONSTANTS = (() => {
 
   return {
     TITLE,
+    FRAMERATE,
     DIMENSIONS,
     GRIDCOUNT,
     BLOCK_SIZE,
@@ -63,12 +73,19 @@ const CONSTANTS = (() => {
     SPEED_MOD_EASY,
     SPEED_MOD_MEDIUM,
     SPEED_MOD_HARD,
+    SPEED_MOD_ULTRA,
     NUM_APPLES_MOD_EASY,
     NUM_APPLES_MOD_MEDIUM,
     NUM_APPLES_MOD_HARD,
+    NUM_APPLES_MOD_ULTRA,
     SCORE_MOD_EASY,
     SCORE_MOD_MEDIUM,
     SCORE_MOD_HARD,
+    SCORE_MOD_ULTRA,
+    SPEED_LIMIT_EASY,
+    SPEED_LIMIT_MEDIUM,
+    SPEED_LIMIT_HARD,
+    SPEED_LIMIT_ULTRA,
     INITIAL_LEVEL,
     KEYCODE_J,
     KEYCODE_0,
