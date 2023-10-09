@@ -261,7 +261,7 @@ function keyPressed() {
   }
 
   if (keyCode === KEYCODE_SPACE) {
-    screenShake.timeSinceStarted = 0;
+    startScreenShake();
   }
 
   if (keyCode === KEYCODE_J) {
