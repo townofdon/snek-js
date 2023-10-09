@@ -37,6 +37,10 @@ const KEYCODE_6 = 54;
 const KEYCODE_7 = 55;
 const KEYCODE_8 = 56;
 const KEYCODE_9 = 57;
+const KEYCODE_SPACE = 32;
+
+const SCREEN_SHAKE_DURATION_MS = 1000;
+const SCREEN_SHAKE_MAGNITUDE_PX = 4;
 
 const DIR = {
   UP: 'UP',
@@ -67,8 +71,13 @@ let state = {
   numApplesEaten: 0,
 };
 let player = {
-  position: null,
+  position: null, // vector2
   direction: DIR.RIGHT,
+};
+let screenShake = {
+  offset: null, // vector2
+  timeSinceStarted: Infinity,
+  magnitude: 1,
 };
 
 let moves = [];
@@ -155,6 +164,8 @@ function init() {
   state.isDoorsOpen = false;
   state.timeElapsed = 0;
   state.timeSinceLastMove = Infinity;
+  screenShake.timeSinceStarted = Infinity;
+  screenShake.magnitude = 1;
   state.speed = 1;
   state.numApplesEaten = 0;
   moves = [];
@@ -249,6 +260,10 @@ function keyPressed() {
     return;
   }
 
+  if (keyCode === KEYCODE_SPACE) {
+    screenShake.timeSinceStarted = 0;
+  }
+
   if (keyCode === KEYCODE_J) {
     if (state.isPaused) {
       state.isPaused = false;
@@ -306,9 +321,9 @@ function validateMove(prev, current) {
 }
 
 function draw() {
-  if (state.isLost) return;
   if (state.isPaused) return;
 
+  updateScreenShake();
   drawBackground();
 
   for (let i = 0; i < decoratives1.length; i++) {
@@ -331,12 +346,14 @@ function draw() {
   for (let i = 0; i < apples.length; i++) {
     if (!apples[i]) continue;
     drawApple(apples[i]);
+    if (state.isLost) continue;
     applesMap[getCoordIndex(apples[i])] = i;
   }
 
   const snakePositionsMap = {};
   for (let i = 0; i < segments.length; i++) {
     drawPlayerPart(segments[i]);
+    if (state.isLost) continue;
     snakePositionsMap[getCoordIndex(segments[i])] = true;
     const appleFound = applesMap[getCoordIndex(segments[i])];
     if (appleFound != undefined && appleFound >= 0) {
@@ -347,9 +364,8 @@ function draw() {
 
   drawPlayer(player.position);
 
-  if (!state.isStarted) {
-    return;
-  }
+  if (state.isLost) return;
+  if (!state.isStarted) return;
 
   // check if head has reached an apple
   const appleFound = applesMap[getCoordIndex(player.position)];
@@ -380,7 +396,9 @@ function draw() {
   apples = apples.filter(apple => !!apple);
 
   if (state.isLost) {
+    startScreenShake();
     showGameOver();
+    resetScore();
     return;
   }
 
@@ -402,6 +420,24 @@ function draw() {
     player.position.y < 0
   ) {
     gotoNextLevel();
+  }
+}
+
+function startScreenShake({ magnitude = 1, normalizedTime = 0 } = {}) {
+  screenShake.timeSinceStarted = normalizedTime * SCREEN_SHAKE_DURATION_MS;
+  screenShake.magnitude = magnitude;
+}
+
+function updateScreenShake() {
+  screenShake.timeSinceStarted += deltaTime;
+  if (screenShake.offset == null) screenShake.offset = createVector(0, 0);
+  if (screenShake.timeSinceStarted < SCREEN_SHAKE_DURATION_MS) {
+    screenShake.offset.x = (random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
+    screenShake.offset.y = (random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
+  } else {
+    screenShake.offset.x = 0;
+    screenShake.offset.y = 0;
+    screenShake.magnitude = 1;
   }
 }
 
@@ -451,9 +487,11 @@ function movePlayer() {
 }
 
 function growSnake(appleIndex) {
+  if (state.isLost) return;
   let bonus = 0;
+  startScreenShake({ magnitude: 0.4, normalizedTime: 0.8 });
   removeApple(appleIndex);
-  addSegment();
+  addSnakeSegment();
   if (!state.isDoorsOpen) {
     addApple();
   } else {
@@ -482,7 +520,7 @@ function addApple(numTries = 0) {
   }
 }
 
-function addSegment() {
+function addSnakeSegment() {
   segments.push(segments[segments.length - 1].copy());
 }
 
@@ -522,7 +560,12 @@ function drawSquare(x, y, background = "pink", lineColor = "fff") {
   fill(background)
   stroke(lineColor)
   strokeWeight(STROKE_SIZE);
-  square(x * DIMENSIONS.x / GRIDCOUNT.x, y * DIMENSIONS.y / GRIDCOUNT.y, 600 / 30 - STROKE_SIZE);
+  const position = {
+    x: x * DIMENSIONS.x / GRIDCOUNT.x + screenShake.offset.x,
+    y: y * DIMENSIONS.y / GRIDCOUNT.y + screenShake.offset.y,
+  }
+  const size = 600 / 30 - STROKE_SIZE;
+  square(position.x, position.y, size);
 }
 
 function showGameOver() {
@@ -531,13 +574,17 @@ function showGameOver() {
   UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
   UI.drawText(`SCORE: ${parseInt(totalScore + score, 10)}`, '40px', 370, uiElements);
   UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
+}
+
+function resetScore() {
   score = 0;
   totalScore = 0;
   state.numApplesEaten = 0;
   totalApplesEaten = 0;
 }
 
-const warpToLevel = (levelNum = 1) => {
+function warpToLevel(levelNum = 1) {
+  resetScore();
   level = getLevelFromNum(levelNum);
   init();
 }
