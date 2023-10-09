@@ -28,8 +28,9 @@ class Particle {
     this._scaleEnd = scaleEnd;
   }
 
-  draw(BLOCK_SIZE, screenShake, normalizedTimeElapsed) {
+  draw(screenShake, normalizedTimeElapsed) {
     if (!this._colorStart) return;
+    const { BLOCK_SIZE } = CONSTANTS;
     const scale = lerp(this._scaleStart, this._scaleEnd, normalizedTimeElapsed);
     const calcColor = lerpColor(this._colorStart, this._colorEnd, Utils.clamp(normalizedTimeElapsed * 10 - 9, 0, 1));
     const position = p5.Vector.lerp(this._positionStart, this._positionEnd, normalizedTimeElapsed);
@@ -99,7 +100,7 @@ class ParticleSystem {
     this._timeElapsed += deltaTime;
   }
 
-  draw(BLOCK_SIZE, screenShake) {
+  draw(screenShake) {
     if (this._destroyed || !this._particles) {
       return;
     }
@@ -108,7 +109,7 @@ class ParticleSystem {
       normalizedTimeElapsed = this._easingFnc(normalizedTimeElapsed);
     }
     for (let i = 0; i < this._particles.length; i++) {
-      this._particles[i].draw(BLOCK_SIZE, screenShake, normalizedTimeElapsed);
+      this._particles[i].draw(screenShake, normalizedTimeElapsed);
     }
   }
 }

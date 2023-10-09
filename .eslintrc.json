@@ -18,6 +18,7 @@
         "Easing": true,
         "ParticleSystem": true,
         "Utils": true,
+        "CONSTANTS": true,
         "UI": true,
         "PALETTE": true,
         "LEVEL_01": true,

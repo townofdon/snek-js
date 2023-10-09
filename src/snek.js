@@ -1,47 +1,42 @@
-const title = 'SNEK';
-
-const DIMENSIONS = { x: 600, y: 600 };
-const GRIDCOUNT = { x: 30, y: 30 };
-const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x, y: DIMENSIONS.y / GRIDCOUNT.y };
-const STROKE_SIZE = 4;
-const BASE_TICK_MS = 300;
-const MAX_MOVES = 4;
-const START_SNAKE_SIZE = 3;
-const SPEED_INCREMENT = 1;
-const NUM_APPLES_START = 3;
-
-const SCORE_INCREMENT = 10;
-const CLEAR_BONUS = 50;
-const LEVEL_BONUS = 100;
-
-const SPEED_MOD_EASY = .35;
-const SPEED_MOD_MEDIUM = .75;
-const SPEED_MOD_HARD = 1.6;
-
-const NUM_APPLES_MOD_EASY = .5;
-const NUM_APPLES_MOD_MEDIUM = .9;
-const NUM_APPLES_MOD_HARD = 1;
-
-const SCORE_MOD_EASY = .5;
-const SCORE_MOD_MEDIUM = 2;
-const SCORE_MOD_HARD = 5;
-
-const INITIAL_LEVEL = LEVEL_01;
-const KEYCODE_J = 74;
-const KEYCODE_0 = 48;
-const KEYCODE_1 = 49;
-const KEYCODE_2 = 50;
-const KEYCODE_3 = 51;
-const KEYCODE_4 = 52;
-const KEYCODE_5 = 53;
-const KEYCODE_6 = 54;
-const KEYCODE_7 = 55;
-const KEYCODE_8 = 56;
-const KEYCODE_9 = 57;
-const KEYCODE_SPACE = 32;
-
-const SCREEN_SHAKE_DURATION_MS = 1000;
-const SCREEN_SHAKE_MAGNITUDE_PX = 4;
+const {
+  TITLE,
+  DIMENSIONS,
+  GRIDCOUNT,
+  BLOCK_SIZE,
+  STROKE_SIZE,
+  BASE_TICK_MS,
+  MAX_MOVES,
+  START_SNAKE_SIZE,
+  SPEED_INCREMENT,
+  NUM_APPLES_START,
+  SCORE_INCREMENT,
+  CLEAR_BONUS,
+  LEVEL_BONUS,
+  SPEED_MOD_EASY,
+  SPEED_MOD_MEDIUM,
+  SPEED_MOD_HARD,
+  NUM_APPLES_MOD_EASY,
+  NUM_APPLES_MOD_MEDIUM,
+  NUM_APPLES_MOD_HARD,
+  SCORE_MOD_EASY,
+  SCORE_MOD_MEDIUM,
+  SCORE_MOD_HARD,
+  INITIAL_LEVEL,
+  KEYCODE_J,
+  KEYCODE_0,
+  KEYCODE_1,
+  KEYCODE_2,
+  KEYCODE_3,
+  KEYCODE_4,
+  KEYCODE_5,
+  KEYCODE_6,
+  KEYCODE_7,
+  KEYCODE_8,
+  KEYCODE_9,
+  KEYCODE_SPACE,
+  SCREEN_SHAKE_DURATION_MS,
+  SCREEN_SHAKE_MAGNITUDE_PX,
+} = CONSTANTS;
 
 const DIR = {
   UP: 'UP',
@@ -114,7 +109,6 @@ class AppleParticleSystem extends ParticleSystem {
     const colorEnd = level.colors.background;
     const easingFnc = Easing.outCubic;
     super({
-      BLOCK_SIZE,
       origin,
       colorStart: color(colorStart),
       colorEnd: color(colorEnd),
@@ -143,8 +137,8 @@ function setup() {
   UI.disableScreenScroll();
 
   UI.drawDarkOverlay(uiElements);
-  UI.drawTitle(title, "#ffc000", 5, true, uiElements);
-  UI.drawTitle(title, "#cdeaff", 0, false, uiElements);
+  UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
+  UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
   UI.drawButton("EASY", 150, 280, () => startGame(1), uiElements);
   UI.drawButton("MEDIUM", 255, 280, () => startGame(2), uiElements);
   UI.drawButton("HARD", 370, 280, () => startGame(3), uiElements);
@@ -614,7 +608,7 @@ function drawSquare(x, y, background = "pink", lineColor = "fff") {
 function drawParticles() {
   const tempParticleSystems = [];
   for (let i = 0; i < particleSystems.length; i++) {
-    particleSystems[i].draw(BLOCK_SIZE, screenShake);
+    particleSystems[i].draw(screenShake);
     particleSystems[i].tick();
     // cleanup inactive particle systems
     if (particleSystems[i].isActive()) {
