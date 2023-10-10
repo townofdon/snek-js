@@ -173,7 +173,7 @@ export class UI {
     const drawHeart = (index = 0) => {
       const element = UI.p5.createP(index < numLives ? "♥︎" : "♡");
       element.style('display', 'inline-block');
-      element.style('font-size', '8px');
+      element.style('font-size', '15px');
       element.style('color', numLives === 0 ? '#f50' : index < numLives ? '#fff' : '#888');
       element.style('text-shadow', '0px 3px 3px black');
       element.style('text-align', 'center');
