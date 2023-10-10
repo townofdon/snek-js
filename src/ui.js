@@ -66,8 +66,47 @@ class UI {
     div.style('left', '0');
     div.style('right', '0');
     div.style('background-color', 'rgb(7 11 15 / 52%)');
+    div.style('mix-blend-mode', 'color-burn');
     div.parent("main");
     uiElements.push(div);
+  }
+
+  static drawScreenFlash() {
+    const containerId = "screen-flash-overlay";
+    let div = createDiv();
+    div.style('position', 'absolute');
+    div.style('top', '0');
+    div.style('bottom', '0');
+    div.style('left', '0');
+    div.style('right', '0');
+    div.style('z-index', '10');
+    div.style('background-color', '#ff550099');
+    div.style('mix-blend-mode', 'hard-light');
+    div.id(containerId);
+    div.parent("main");
+    return div;
+  }
+
+  static invertScreen() {
+    UI.clearScreenInvert();
+    const containerId = "screen-invert";
+    let div = createDiv();
+    div.style('position', 'absolute');
+    div.style('top', '0');
+    div.style('bottom', '0');
+    div.style('left', '0');
+    div.style('right', '0');
+    div.style('z-index', '10');
+    div.style('background-color', '#fff');
+    div.style('mix-blend-mode', 'difference');
+    div.id(containerId);
+    div.parent("main");
+    document.getElementById("main").style.mixBlendMode = 'luminosity';
+  }
+
+  static clearScreenInvert() {
+    document.getElementById("screen-invert")?.remove();
+    document.getElementById("main").style.mixBlendMode = 'inherit';
   }
 
   static renderHearts(numLives = 3, uiElements) {

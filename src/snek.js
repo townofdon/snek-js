@@ -89,7 +89,9 @@ let player = {
 let screenShake = {
   offset: null, // vector2
   timeSinceStarted: Infinity,
+  timeSinceLastStep: Infinity,
   magnitude: 1,
+  timeScale: 1,
 };
 
 let moves = [];
@@ -108,6 +110,9 @@ let nospawnsMap = {};
 
 let uiElements = [];
 let particleSystems = [];
+let timeouts = [];
+
+let screenFlashElement;
 
 class AppleParticleSystem extends ParticleSystem {
   /** 
@@ -212,6 +217,7 @@ function clearUI() {
   uiElements = [];
   UI.drawLevelName(level.name, "#fff", uiElements);
   UI.renderHearts(state.lives, uiElements);
+  UI.clearScreenInvert();
 }
 
 function init() {
@@ -231,7 +237,9 @@ function init() {
   state.timeSinceHurt = Infinity;
   state.lives = MAX_LIVES;
   screenShake.timeSinceStarted = Infinity;
+  screenShake.timeSinceLastStep = Infinity;
   screenShake.magnitude = 1;
+  screenShake.timeScale = 1;
   state.speed = 1;
   state.numApplesEaten = 0;
   moves = [];
@@ -248,6 +256,12 @@ function init() {
   nospawnsMap = {};
 
   UI.renderHearts(state.lives, uiElements);
+
+  // clear any pending timeouts
+  for (let i = 0; i < timeouts.length; i++) {
+    if (timeouts[i]) clearTimeout(timeouts[i]);
+  }
+  timeouts = [];
 
   // parse level data - add barriers and doors
   const layoutRows = level.layout.trim().split('\n');
@@ -479,14 +493,14 @@ function draw() {
     state.lives -= 1;
     state.timeSinceHurt = 0;
     hurtSnake();
+    flashScreen();
   }
 
   if (state.isLost) {
     state.lives = 0;
     UI.renderHearts(state.lives, uiElements);
-    startScreenShake();
+    flashScreen();
     showGameOver();
-    resetScore();
     return;
   }
 
@@ -534,21 +548,34 @@ function spawnAppleParticles(position) {
   particleSystems.push(new AppleParticleSystem(position, { spawnMod: .3, speedMod: 4, scaleMod: .5 }));
 }
 
-function startScreenShake({ magnitude = 1, normalizedTime = 0 } = {}) {
+function flashScreen() {
+  screenFlashElement = UI.drawScreenFlash();
+  setTimeout(() => {
+    screenFlashElement?.remove();
+  }, FRAMERATE * 2)
+}
+
+function startScreenShake({ magnitude = 1, normalizedTime = 0, timeScale = 1 } = {}) {
   screenShake.timeSinceStarted = normalizedTime * SCREEN_SHAKE_DURATION_MS;
   screenShake.magnitude = magnitude;
+  screenShake.timeScale = timeScale;
 }
 
 function updateScreenShake() {
   screenShake.timeSinceStarted += deltaTime;
+  screenShake.timeSinceLastStep += deltaTime * screenShake.timeScale;
   if (screenShake.offset == null) screenShake.offset = createVector(0, 0);
   if (screenShake.timeSinceStarted < SCREEN_SHAKE_DURATION_MS) {
-    screenShake.offset.x = (random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
-    screenShake.offset.y = (random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
+    if (screenShake.timeSinceLastStep >= FRAMERATE * 0.75) {
+      screenShake.offset.x = (random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
+      screenShake.offset.y = (random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
+      screenShake.timeSinceLastStep = 0;
+    }
   } else {
     screenShake.offset.x = 0;
     screenShake.offset.y = 0;
     screenShake.magnitude = 1;
+    screenShake.timeScale = 1;
   }
 }
 
@@ -743,12 +770,22 @@ function hurtSnake() {
 }
 
 function showGameOver() {
-  UI.drawDarkOverlay(uiElements);
-  UI.drawButton("TRY AGAIN", 236, 280, init, uiElements);
-  UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
-  UI.drawText(`SCORE: ${parseInt(totalScore + score, 10)}`, '40px', 370, uiElements);
-  UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
-  UI.enableScreenScroll();
+  startScreenShake();
+  timeouts.push(setTimeout(() => {
+    startScreenShake({ magnitude: 3, normalizedTime: -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, timeScale: 0.1 });
+    UI.invertScreen();
+    timeouts.push(setTimeout(() => {
+      UI.clearScreenInvert();
+      startScreenShake();
+      UI.drawDarkOverlay(uiElements);
+      UI.drawButton("TRY AGAIN", 236, 280, init, uiElements);
+      UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
+      UI.drawText(`SCORE: ${parseInt(totalScore + score, 10)}`, '40px', 370, uiElements);
+      UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
+      UI.enableScreenScroll();
+      resetScore();
+    }, HURT_STUN_TIME * 2.5));
+  }, 200));
 }
 
 function resetScore() {
