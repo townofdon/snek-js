@@ -75,6 +75,7 @@ let state = {
   isStarted: true,
   isLost: false,
   isDoorsOpen: false,
+  isExitingLevel: false,
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
   timeSinceHurt: Infinity,
@@ -233,6 +234,7 @@ function init() {
   state.isStarted = true;
   state.isLost = false;
   state.isDoorsOpen = false;
+  state.isExitingLevel = false;
   state.timeElapsed = 0;
   state.timeSinceLastMove = Infinity;
   state.timeSinceHurt = Infinity;
@@ -437,14 +439,14 @@ function draw() {
   for (let i = 0; i < apples.length; i++) {
     if (!apples[i]) continue;
     drawApple(apples[i]);
-    if (state.isLost) continue;
+    if (state.isLost || state.isExitingLevel) continue;
     applesMap[getCoordIndex(apples[i])] = i;
   }
 
   const snakePositionsMap = {};
   for (let i = 0; i < segments.length; i++) {
     drawPlayerPart(segments[i]);
-    if (state.isLost) continue;
+    if (state.isLost || state.isExitingLevel) continue;
     snakePositionsMap[getCoordIndex(segments[i])] = true;
     const appleFound = applesMap[getCoordIndex(segments[i])];
     if (appleFound != undefined && appleFound >= 0) {
@@ -470,26 +472,26 @@ function draw() {
   const playerPositionDisplay = `(${player.position.x},${player.position.y})`;
 
   // check to see if snake ran into itself
-  if (snakePositionsMap[getCoordIndex(player.position)]) {
+  if (!state.isExitingLevel && snakePositionsMap[getCoordIndex(player.position)]) {
     console.log(`snake ran into itself - position ${playerPositionDisplay}`);
     state.isLost = true;
   }
 
   // check if player has hit a door
-  if (doorsMap[getCoordIndex(player.position)]) {
+  if (!state.isExitingLevel && doorsMap[getCoordIndex(player.position)]) {
     console.log(`snake hit a door - position ${playerPositionDisplay}`);
     state.isLost = true;
   }
 
   // check if player has hit a barrier
-  if (barriersMap[getCoordIndex(player.position)]) {
+  if (!state.isExitingLevel && barriersMap[getCoordIndex(player.position)]) {
     console.log(`snake hit a barrier - position ${playerPositionDisplay}`);
     state.isLost = true;
   }
 
   apples = apples.filter(apple => !!apple);
 
-  // rescue isLost state
+  // handle snake hurt
   if (state.isLost && state.lives > 0) {
     state.isLost = false;
     state.lives -= 1;
@@ -498,6 +500,7 @@ function draw() {
     flashScreen();
   }
 
+  // handle snake death
   if (state.isLost) {
     state.lives = 0;
     UI.renderHearts(state.lives, uiElements);
@@ -519,17 +522,19 @@ function draw() {
     openDoors();
   }
 
-  if (
-    player.position.x > GRIDCOUNT.x - 1 ||
-    player.position.x < 0 ||
-    player.position.y > GRIDCOUNT.y - 1 ||
-    player.position.y < 0
-  ) {
+  if (!state.isExitingLevel && getHasSegmentExited(player.position)) {
+    state.isExitingLevel = true;
+  }
+
+  if (state.isExitingLevel && segments.every(segment => getHasSegmentExited(segment))) {
     gotoNextLevel();
   }
 }
 
 function getTimeNeededUntilNextMove() {
+  if (state.isExitingLevel) {
+    return SPEED_LIMIT_ULTRA;
+  }
   if (state.timeSinceHurt < HURT_STUN_TIME) {
     return Infinity;
   }
@@ -587,12 +592,21 @@ function getHasClearedLevel() {
   return false;
 }
 
+function getHasSegmentExited(vec) {
+  return (
+    vec.x > GRIDCOUNT.x - 1 ||
+    vec.x < 0 ||
+    vec.y > GRIDCOUNT.y - 1 ||
+    vec.y < 0
+  );
+}
+
 function getCoordIndex(vec) {
   return Utils.clamp(vec.x, 0, GRIDCOUNT.x - 1) + Utils.clamp(vec.y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
 }
 
 function movePlayer() {
-  if (moves.length > 0) {
+  if (moves.length > 0 && !state.isExitingLevel) {
     player.direction = moves.shift()
   }
   let direction;
