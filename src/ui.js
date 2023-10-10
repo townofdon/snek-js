@@ -1,10 +1,16 @@
 
 const UI_LABEL_OFFSET = '18px';
 
-// eslint-disable-next-line no-unused-vars
-class UI {
+
+export class UI {
+  static p5;
+
+  static setP5Instance(p5) {
+    UI.p5 = p5;
+  }
+
   static drawTitle(title, textColor, offset, hasShadow, uiElements) {
-    const p = createP(title);
+    const p = UI.p5.createP(title);
     p.id('title');
     p.style('font-size', '6em');
     p.style('letter-spacing', '65px');
@@ -21,7 +27,7 @@ class UI {
   }
 
   static drawLevelName(levelName, textColor, uiElements) {
-    const p = createP(levelName);
+    const p = UI.p5.createP(levelName);
     p.position(0, 0);
     p.id('level-name-field');
     p.style('font-size', '1em');
@@ -43,7 +49,7 @@ class UI {
   static renderScore(score) {
     const id = 'score-field';
     document.getElementById(id)?.remove();
-    const p = createP(String(score).padStart(8, '0'));
+    const p = UI.p5.createP(String(score).padStart(8, '0'));
     p.position(0, 0);
     p.id(id);
     p.style('font-size', '1em');
@@ -69,7 +75,7 @@ class UI {
       if (difficultyIndex >= 1) return 'EASY';
     })()
     document.getElementById(id)?.remove();
-    const p = createP(difficultyText);
+    const p = UI.p5.createP(difficultyText);
     p.position(0, 0);
     p.id(id);
     p.style('font-size', '1em');
@@ -85,7 +91,7 @@ class UI {
   }
 
   static drawButton(textStr, x, y, onClick, uiElements) {
-    const button = createButton(textStr);
+    const button = UI.p5.createButton(textStr);
     button.position(x, y);
     button.mousePressed(onClick);
     button.parent("main");
@@ -93,7 +99,7 @@ class UI {
   }
 
   static drawText(textStr, fontSize, y, uiElements) {
-    const element = createP(textStr);
+    const element = UI.p5.createP(textStr);
     element.style('font-size', fontSize);
     element.style('color', '#fff');
     element.style('text-shadow', '0px 3px 3px black');
@@ -105,7 +111,7 @@ class UI {
   }
 
   static drawDarkOverlay(uiElements) {
-    let div = createDiv();
+    let div = UI.p5.createDiv();
     div.id('dark-overlay');
     div.style('position', 'absolute');
     div.style('top', '0');
@@ -120,7 +126,7 @@ class UI {
 
   static drawScreenFlash() {
     const id = "screen-flash-overlay";
-    let div = createDiv();
+    let div = UI.p5.createDiv();
     div.id(id);
     div.style('position', 'absolute');
     div.style('top', '0');
@@ -137,7 +143,7 @@ class UI {
   static invertScreen() {
     UI.clearScreenInvert();
     const id = "screen-invert";
-    let div = createDiv();
+    let div = UI.p5.createDiv();
     div.id(id);
     div.style('position', 'absolute');
     div.style('top', '0');
@@ -160,10 +166,10 @@ class UI {
     const containerId = "hearts-container";
     const className = "hearts-container";
     document.getElementById(containerId)?.remove();
-    let div = createDiv();
+    let div = UI.p5.createDiv();
     const numHearts = 3;
     const drawHeart = (index = 0) => {
-      const element = createP(index < numLives ? "♥︎" : "♡");
+      const element = UI.p5.createP(index < numLives ? "♥︎" : "♡");
       element.style('display', 'inline-block');
       element.style('font-size', 8);
       element.style('color', numLives === 0 ? '#f50' : index < numLives ? '#fff' : '#888');

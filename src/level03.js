@@ -1,5 +1,6 @@
-// eslint-disable-next-line no-unused-vars
-const LEVEL_03 = {
+import { PALETTE } from "./palettes";
+
+export const LEVEL_03 = {
   name: 'metro station',
   timeToClear: 1000 * 60 * 1.3,
   applesToClear: 30,

@@ -1,7 +1,6 @@
 // https://easings.net
 
-// eslint-disable-next-line no-unused-vars
-class Easing {
+export class Easing {
   static linear(x) {
     return x;
   }

@@ -1,5 +1,6 @@
-// eslint-disable-next-line no-unused-vars
-const LEVEL_10 = {
+import { PALETTE } from "./palettes";
+
+export const LEVEL_10 = {
   name: 'x-factor',
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 50,

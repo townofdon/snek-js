@@ -1,5 +1,6 @@
-// eslint-disable-next-line no-unused-vars
-const LEVEL_99 = {
+import { PALETTE } from "./palettes";
+
+export const LEVEL_99 = {
   name: 'survival',
   timeToClear: 1000 * 60 * 10,
   applesToClear: 200,

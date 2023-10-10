@@ -1,5 +1,6 @@
-// eslint-disable-next-line no-unused-vars
-const LEVEL_08 = {
+import { PALETTE } from "./palettes";
+
+export const LEVEL_08 = {
   name: 'courtyard',
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 70,

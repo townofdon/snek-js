@@ -6,7 +6,11 @@
   "scripts": {
     "start": "npm run dev",
     "dev": "http-server . -p 3000 -c-1",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --mode=production --node-env=production",
+    "build:dev": "webpack --mode=development",
+    "build:prod": "webpack --mode=production --node-env=production",
+    "watch": "webpack --watch"
   },
   "author": "townofdon",
   "license": "MIT",
@@ -15,7 +19,13 @@
   },
   "devDependencies": {
     "@fal-works/eslint-config-p5js": "^1.0.3",
+    "@types/p5": "^1.7.0",
+    "@webpack-cli/generators": "^3.0.7",
     "eslint": "^8.50.0",
-    "http-server": "^14.1.1"
+    "http-server": "^14.1.1",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.2.2",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
   }
 }

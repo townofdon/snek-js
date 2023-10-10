@@ -12,3 +12,17 @@ You can [play the demo here](https://townofdon.github.io/snek-js/)!
     <a href="https://townofdon.github.io/snek-js/" target="_blank" ref="noopener noreferrer"><img alt="screenshot of game" src="./readme/screenshot-03.png" width="400" align="bottom"/></a>
     <a href="https://townofdon.github.io/snek-js/" target="_blank" ref="noopener noreferrer"><img alt="screenshot of game" src="./readme/screenshot-04.png" width="400" align="bottom"/></a>
 </p>
+
+## Development
+
+Start dev server:
+
+```
+npm start
+```
+
+In a separate tap, watch for JS file changes:
+
+```
+npm run watch
+```

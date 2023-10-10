@@ -1,113 +1,59 @@
 
-// eslint-disable-next-line no-unused-vars
-const CONSTANTS = (() => {
-  const TITLE = 'SNEK';
+export const TITLE = 'SNEK';
 
-  const FRAMERATE = 90;
-  const DIMENSIONS = { x: 600, y: 600 };
-  const GRIDCOUNT = { x: 30, y: 30 };
-  const STROKE_SIZE = 4;
-  const STRANGELY_NEEDED_OFFSET = { x: STROKE_SIZE / GRIDCOUNT.x, y: STROKE_SIZE / GRIDCOUNT.y };
-  const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x + STRANGELY_NEEDED_OFFSET.x, y: DIMENSIONS.y / GRIDCOUNT.y + STRANGELY_NEEDED_OFFSET.y };
-  const BASE_TICK_MS = 300;
-  const MAX_MOVES = 4;
-  const MAX_LIVES = 3;
-  const START_SNAKE_SIZE = 3;
-  const SPEED_INCREMENT = 1;
-  const NUM_APPLES_START = 3;
+export const FRAMERATE = 90;
+export const DIMENSIONS = { x: 600, y: 600 };
+export const GRIDCOUNT = { x: 30, y: 30 };
+export const STROKE_SIZE = 4;
+export const STRANGELY_NEEDED_OFFSET = { x: STROKE_SIZE / GRIDCOUNT.x, y: STROKE_SIZE / GRIDCOUNT.y };
+export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x + STRANGELY_NEEDED_OFFSET.x, y: DIMENSIONS.y / GRIDCOUNT.y + STRANGELY_NEEDED_OFFSET.y };
+export const BASE_TICK_MS = 300;
+export const MAX_MOVES = 4;
+export const MAX_LIVES = 3;
+export const START_SNAKE_SIZE = 3;
+export const SPEED_INCREMENT = 1;
+export const NUM_APPLES_START = 3;
 
-  const SCORE_INCREMENT = 10;
-  const CLEAR_BONUS = 50;
-  const LEVEL_BONUS = 100;
+export const SCORE_INCREMENT = 10;
+export const CLEAR_BONUS = 50;
+export const LEVEL_BONUS = 100;
 
-  const SPEED_MOD_EASY = .35;
-  const SPEED_MOD_MEDIUM = .75;
-  const SPEED_MOD_HARD = 1.6;
-  const SPEED_MOD_ULTRA = 1;
+export const SPEED_MOD_EASY = .35;
+export const SPEED_MOD_MEDIUM = .75;
+export const SPEED_MOD_HARD = 1.6;
+export const SPEED_MOD_ULTRA = 1;
 
-  const NUM_APPLES_MOD_EASY = .5;
-  const NUM_APPLES_MOD_MEDIUM = .9;
-  const NUM_APPLES_MOD_HARD = 1;
-  const NUM_APPLES_MOD_ULTRA = 1.5;
+export const NUM_APPLES_MOD_EASY = .5;
+export const NUM_APPLES_MOD_MEDIUM = .9;
+export const NUM_APPLES_MOD_HARD = 1;
+export const NUM_APPLES_MOD_ULTRA = 1.5;
 
-  const SCORE_MOD_EASY = .5;
-  const SCORE_MOD_MEDIUM = 2;
-  const SCORE_MOD_HARD = 5;
-  const SCORE_MOD_ULTRA = 10;
+export const SCORE_MOD_EASY = .5;
+export const SCORE_MOD_MEDIUM = 2;
+export const SCORE_MOD_HARD = 5;
+export const SCORE_MOD_ULTRA = 10;
 
-  const SPEED_LIMIT_EASY = 110;
-  const SPEED_LIMIT_MEDIUM = 45;
-  const SPEED_LIMIT_HARD = 35;
-  const SPEED_LIMIT_ULTRA = 25;
+export const SPEED_LIMIT_EASY = 110;
+export const SPEED_LIMIT_MEDIUM = 45;
+export const SPEED_LIMIT_HARD = 35;
+export const SPEED_LIMIT_ULTRA = 25;
 
-  const KEYCODE_J = 74;
-  const KEYCODE_0 = 48;
-  const KEYCODE_1 = 49;
-  const KEYCODE_2 = 50;
-  const KEYCODE_3 = 51;
-  const KEYCODE_4 = 52;
-  const KEYCODE_5 = 53;
-  const KEYCODE_6 = 54;
-  const KEYCODE_7 = 55;
-  const KEYCODE_8 = 56;
-  const KEYCODE_9 = 57;
-  const KEYCODE_SPACE = 32;
+export const KEYCODE_J = 74;
+export const KEYCODE_0 = 48;
+export const KEYCODE_1 = 49;
+export const KEYCODE_2 = 50;
+export const KEYCODE_3 = 51;
+export const KEYCODE_4 = 52;
+export const KEYCODE_5 = 53;
+export const KEYCODE_6 = 54;
+export const KEYCODE_7 = 55;
+export const KEYCODE_8 = 56;
+export const KEYCODE_9 = 57;
+export const KEYCODE_SPACE = 32;
 
-  const SCREEN_SHAKE_DURATION_MS = 1000;
-  const SCREEN_SHAKE_MAGNITUDE_PX = 4;
+export const SCREEN_SHAKE_DURATION_MS = 1000;
+export const SCREEN_SHAKE_MAGNITUDE_PX = 4;
 
-  const HURT_STUN_TIME = 600;
-  const HURT_FLASH_RATE = 55;
-  const HURT_GRACE_TIME = 30;
-
-  return {
-    TITLE,
-    FRAMERATE,
-    DIMENSIONS,
-    GRIDCOUNT,
-    BLOCK_SIZE,
-    STROKE_SIZE,
-    BASE_TICK_MS,
-    MAX_MOVES,
-    MAX_LIVES,
-    START_SNAKE_SIZE,
-    SPEED_INCREMENT,
-    NUM_APPLES_START,
-    SCORE_INCREMENT,
-    CLEAR_BONUS,
-    LEVEL_BONUS,
-    SPEED_MOD_EASY,
-    SPEED_MOD_MEDIUM,
-    SPEED_MOD_HARD,
-    SPEED_MOD_ULTRA,
-    NUM_APPLES_MOD_EASY,
-    NUM_APPLES_MOD_MEDIUM,
-    NUM_APPLES_MOD_HARD,
-    NUM_APPLES_MOD_ULTRA,
-    SCORE_MOD_EASY,
-    SCORE_MOD_MEDIUM,
-    SCORE_MOD_HARD,
-    SCORE_MOD_ULTRA,
-    SPEED_LIMIT_EASY,
-    SPEED_LIMIT_MEDIUM,
-    SPEED_LIMIT_HARD,
-    SPEED_LIMIT_ULTRA,
-    KEYCODE_J,
-    KEYCODE_0,
-    KEYCODE_1,
-    KEYCODE_2,
-    KEYCODE_3,
-    KEYCODE_4,
-    KEYCODE_5,
-    KEYCODE_6,
-    KEYCODE_7,
-    KEYCODE_8,
-    KEYCODE_9,
-    KEYCODE_SPACE,
-    SCREEN_SHAKE_DURATION_MS,
-    SCREEN_SHAKE_MAGNITUDE_PX,
-    HURT_STUN_TIME,
-    HURT_FLASH_RATE,
-    HURT_GRACE_TIME,
-  };
-})()
+export const HURT_STUN_TIME = 600;
+export const HURT_FLASH_RATE = 55;
+export const HURT_GRACE_TIME = 30;

@@ -1,6 +1,5 @@
 
-// eslint-disable-next-line no-unused-vars
-const PALETTE = {
+export const PALETTE = {
   default: {
     background: "#505050",
     playerHead: "#fa0",
