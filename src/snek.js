@@ -46,6 +46,7 @@ const {
   SCREEN_SHAKE_MAGNITUDE_PX,
   HURT_STUN_TIME,
   HURT_FLASH_RATE,
+  HURT_GRACE_TIME,
 } = CONSTANTS;
 
 const INITIAL_LEVEL = LEVEL_01;
@@ -79,6 +80,7 @@ let state = {
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
   timeSinceHurt: Infinity,
+  hurtGraceTime: HURT_GRACE_TIME,
   lives: MAX_LIVES,
   speed: 1,
   numApplesEaten: 0,
@@ -238,6 +240,7 @@ function init() {
   state.timeElapsed = 0;
   state.timeSinceLastMove = Infinity;
   state.timeSinceHurt = Infinity;
+  state.hurtGraceTime = HURT_GRACE_TIME;
   state.lives = MAX_LIVES;
   screenShake.timeSinceStarted = Infinity;
   screenShake.timeSinceLastStep = Infinity;
@@ -469,25 +472,7 @@ function draw() {
     increaseSpeed();
   }
 
-  const playerPositionDisplay = `(${player.position.x},${player.position.y})`;
-
-  // check to see if snake ran into itself
-  if (!state.isExitingLevel && snakePositionsMap[getCoordIndex(player.position)]) {
-    console.log(`snake ran into itself - position ${playerPositionDisplay}`);
-    state.isLost = true;
-  }
-
-  // check if player has hit a door
-  if (!state.isExitingLevel && doorsMap[getCoordIndex(player.position)]) {
-    console.log(`snake hit a door - position ${playerPositionDisplay}`);
-    state.isLost = true;
-  }
-
-  // check if player has hit a barrier
-  if (!state.isExitingLevel && barriersMap[getCoordIndex(player.position)]) {
-    console.log(`snake hit a barrier - position ${playerPositionDisplay}`);
-    state.isLost = true;
-  }
+  state.isLost = checkHasHit(player.position, snakePositionsMap);
 
   apples = apples.filter(apple => !!apple);
 
@@ -511,7 +496,7 @@ function draw() {
 
   const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
   if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
-    movePlayer();
+    movePlayer(snakePositionsMap);
   } else {
     state.timeSinceLastMove += deltaTime;
   }
@@ -524,6 +509,13 @@ function draw() {
 
   if (!state.isExitingLevel && getHasSegmentExited(player.position)) {
     state.isExitingLevel = true;
+    score += LEVEL_BONUS * difficulty.scoreMod;
+    score += LEVEL_BONUS * 10 * state.lives * difficulty.scoreMod;
+  }
+
+  if (state.isExitingLevel) {
+    score += SCORE_INCREMENT;
+    UI.renderScore(score + totalScore);
   }
 
   if (state.isExitingLevel && segments.every(segment => getHasSegmentExited(segment))) {
@@ -533,7 +525,7 @@ function draw() {
 
 function getTimeNeededUntilNextMove() {
   if (state.isExitingLevel) {
-    return SPEED_LIMIT_ULTRA;
+    return 1;
   }
   if (state.timeSinceHurt < HURT_STUN_TIME) {
     return Infinity;
@@ -573,7 +565,7 @@ function updateScreenShake() {
   screenShake.timeSinceLastStep += deltaTime * screenShake.timeScale;
   if (screenShake.offset == null) screenShake.offset = createVector(0, 0);
   if (screenShake.timeSinceStarted < SCREEN_SHAKE_DURATION_MS) {
-    if (screenShake.timeSinceLastStep >= FRAMERATE * 0.75) {
+    if (screenShake.timeSinceLastStep >= 25) {
       screenShake.offset.x = (random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
       screenShake.offset.y = (random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
       screenShake.timeSinceLastStep = 0;
@@ -605,7 +597,27 @@ function getCoordIndex(vec) {
   return Utils.clamp(vec.x, 0, GRIDCOUNT.x - 1) + Utils.clamp(vec.y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
 }
 
-function movePlayer() {
+function checkHasHit(vec, snakePositionsMap = null) {
+  // check to see if snake ran into itself
+  if (!state.isExitingLevel && snakePositionsMap && snakePositionsMap[getCoordIndex(vec)]) {
+    return true;
+  }
+
+  // check if player has hit a door
+  if (!state.isExitingLevel && doorsMap[getCoordIndex(vec)]) {
+    return true;
+  }
+
+  // check if player has hit a barrier
+  if (!state.isExitingLevel && barriersMap[getCoordIndex(vec)]) {
+    return true;
+  }
+
+  return false;
+}
+
+function movePlayer(snakePositionsMap) {
+  state.timeSinceLastMove = 0;
   if (moves.length > 0 && !state.isExitingLevel) {
     player.direction = moves.shift()
   }
@@ -626,6 +638,15 @@ function movePlayer() {
     default:
       direction = createVector(0, 0);
   }
+
+  // determine if next move will be into something, allow for grace period before injuring snakey
+  const willHitSomething = checkHasHit(player.position.copy().add(direction), snakePositionsMap);
+  if (willHitSomething && state.hurtGraceTime > 0) {
+    state.hurtGraceTime -= deltaTime;
+    return;
+  }
+
+  // apply movement
   for (let i = segments.length - 1; i >= 0; i--) {
     if (i === 0) {
       segments[i].set(player.position);
@@ -634,7 +655,7 @@ function movePlayer() {
     }
   }
   player.position.add(direction);
-  state.timeSinceLastMove = 0;
+  state.hurtGraceTime = HURT_GRACE_TIME;
 }
 
 function reboundSnake(numTimes = 2) {
@@ -850,8 +871,6 @@ function openDoors() {
 }
 
 function gotoNextLevel() {
-  score += LEVEL_BONUS * difficulty.scoreMod;
-  score += LEVEL_BONUS * 10 * state.lives * difficulty.scoreMod;
   totalScore += score;
   score = 0;
   totalApplesEaten += state.numApplesEaten;

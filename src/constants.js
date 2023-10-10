@@ -4,7 +4,7 @@ const CONSTANTS = (() => {
   const TITLE = 'SNEK';
 
 
-  const FRAMERATE = 30;
+  const FRAMERATE = 60;
   const DIMENSIONS = { x: 600, y: 600 };
   const GRIDCOUNT = { x: 30, y: 30 };
   const STROKE_SIZE = 4;
@@ -37,9 +37,10 @@ const CONSTANTS = (() => {
   const SCORE_MOD_ULTRA = 10;
 
   const SPEED_LIMIT_EASY = 110;
-  const SPEED_LIMIT_MEDIUM = 50;
-  const SPEED_LIMIT_HARD = 20;
-  const SPEED_LIMIT_ULTRA = 0;
+  const SPEED_LIMIT_MEDIUM = (1000 / 60) * 3 + .6;
+  const SPEED_LIMIT_HARD = (1000 / 60) * 2 + .4;
+  const SPEED_LIMIT_ULTRA = (1000 / 60) * 1 + .3;
+
 
   const KEYCODE_J = 74;
   const KEYCODE_0 = 48;
@@ -59,6 +60,7 @@ const CONSTANTS = (() => {
 
   const HURT_STUN_TIME = 600;
   const HURT_FLASH_RATE = 55;
+  const HURT_GRACE_TIME = 30;
 
   return {
     TITLE,
@@ -108,5 +110,6 @@ const CONSTANTS = (() => {
     SCREEN_SHAKE_MAGNITUDE_PX,
     HURT_STUN_TIME,
     HURT_FLASH_RATE,
+    HURT_GRACE_TIME,
   };
 })()
