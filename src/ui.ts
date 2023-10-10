@@ -1,15 +1,16 @@
+import P5, {Element, Vector} from 'p5';
 
 const UI_LABEL_OFFSET = '18px';
 
 
 export class UI {
-  static p5;
+  static p5: P5;
 
-  static setP5Instance(p5) {
+  static setP5Instance(p5: P5) {
     UI.p5 = p5;
   }
 
-  static drawTitle(title, textColor, offset, hasShadow, uiElements) {
+  static drawTitle(title = '', textColor = '#fff', offset: number, hasShadow: boolean, uiElements: Element[]) {
     const p = UI.p5.createP(title);
     p.id('title');
     p.style('font-size', '6em');
@@ -26,7 +27,7 @@ export class UI {
     uiElements.push(p);
   }
 
-  static drawLevelName(levelName, textColor, uiElements) {
+  static drawLevelName(levelName = '', textColor = '#fff', uiElements: Element[]) {
     const p = UI.p5.createP(levelName);
     p.position(0, 0);
     p.id('level-name-field');
@@ -46,7 +47,7 @@ export class UI {
     uiElements.push(p);
   }
 
-  static renderScore(score) {
+  static renderScore(score = 0) {
     const id = 'score-field';
     document.getElementById(id)?.remove();
     const p = UI.p5.createP(String(score).padStart(8, '0'));
@@ -66,13 +67,14 @@ export class UI {
     p.parent("main");
   }
 
-  static renderDifficulty(difficultyIndex) {
+  static renderDifficulty(difficultyIndex = 0) {
     const id = 'difficulty-field';
     const difficultyText = (() => {
       if (difficultyIndex >= 4) return 'ULTRA';
       if (difficultyIndex >= 3) return 'HARD';
       if (difficultyIndex >= 2) return 'MEDIUM';
       if (difficultyIndex >= 1) return 'EASY';
+      return 'UNKNOWN'
     })()
     document.getElementById(id)?.remove();
     const p = UI.p5.createP(difficultyText);
@@ -90,7 +92,7 @@ export class UI {
     p.parent("main");
   }
 
-  static drawButton(textStr, x, y, onClick, uiElements) {
+  static drawButton(textStr = '', x = 0, y = 0, onClick: () => void, uiElements: Element[]) {
     const button = UI.p5.createButton(textStr);
     button.position(x, y);
     button.mousePressed(onClick);
@@ -98,7 +100,7 @@ export class UI {
     uiElements.push(button);
   }
 
-  static drawText(textStr, fontSize, y, uiElements) {
+  static drawText(textStr = '', fontSize = '12px', y = 0, uiElements: Element[]) {
     const element = UI.p5.createP(textStr);
     element.style('font-size', fontSize);
     element.style('color', '#fff');
@@ -110,7 +112,7 @@ export class UI {
     uiElements.push(element);
   }
 
-  static drawDarkOverlay(uiElements) {
+  static drawDarkOverlay(uiElements: Element[]) {
     let div = UI.p5.createDiv();
     div.id('dark-overlay');
     div.style('position', 'absolute');
@@ -162,7 +164,7 @@ export class UI {
     document.getElementById("main").style.mixBlendMode = 'inherit';
   }
 
-  static renderHearts(numLives = 3, uiElements) {
+  static renderHearts(numLives = 3, uiElements: Element[]) {
     const containerId = "hearts-container";
     const className = "hearts-container";
     document.getElementById(containerId)?.remove();
@@ -171,7 +173,7 @@ export class UI {
     const drawHeart = (index = 0) => {
       const element = UI.p5.createP(index < numLives ? "♥︎" : "♡");
       element.style('display', 'inline-block');
-      element.style('font-size', 8);
+      element.style('font-size', '8px');
       element.style('color', numLives === 0 ? '#f50' : index < numLives ? '#fff' : '#888');
       element.style('text-shadow', '0px 3px 3px black');
       element.style('text-align', 'center');

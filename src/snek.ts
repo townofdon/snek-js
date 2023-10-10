@@ -1,4 +1,4 @@
-// import P5 from 'p5';
+import P5, { Element, Vector } from 'p5';
 
 import { LEVEL_01 } from './level01';
 import { LEVEL_02 } from './level02';
@@ -65,18 +65,12 @@ import { clamp } from './utils';
 import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
+import { DIR, Difficulty, GameState, Level, PlayerState, ScreenShakeState } from './types';
 
 const INITIAL_LEVEL = LEVEL_01;
 
-const DIR = {
-  UP: 'UP',
-  DOWN: 'DOWN',
-  LEFT: 'LEFT',
-  RIGHT: 'RIGHT',
-}
-
-let level = INITIAL_LEVEL;
-let difficulty = {
+let level: Level = INITIAL_LEVEL;
+let difficulty: Difficulty = {
   index: 1,
   speedMod: SPEED_MOD_EASY,
   applesMod: NUM_APPLES_MOD_EASY,
@@ -88,7 +82,7 @@ let score = 0;
 let totalScore = 0;
 let totalApplesEaten = 0;
 
-let state = {
+let state: GameState = {
   isPaused: false,
   isStarted: true,
   isLost: false,
@@ -102,39 +96,38 @@ let state = {
   speed: 1,
   numApplesEaten: 0,
 };
-let player = {
-  position: null, // vector2
+let player: PlayerState = {
+  position: null,
   direction: DIR.RIGHT,
 };
-let screenShake = {
-  offset: null, // vector2
+let screenShake: ScreenShakeState = {
+  offset: null,
   timeSinceStarted: Infinity,
   timeSinceLastStep: Infinity,
   magnitude: 1,
   timeScale: 1,
 };
 
-let moves = [];
-let segments = [];
-let apples = [];
-let barriers = [];
-let doors = [];
-let nospawns = [];
+let moves: DIR[] = [];
+let segments: Vector[] = [];
+let apples: Vector[] = [];
+let barriers: Vector[] = [];
+let doors: Vector[] = [];
+let nospawns: Vector[] = [];
+let decoratives1: Vector[] = [];
+let decoratives2: Vector[] = [];
 
-let decoratives1 = [];
-let decoratives2 = [];
+let barriersMap: Record<number, boolean> = {};
+let doorsMap: Record<number, boolean> = {};
+let nospawnsMap: Record<number, boolean> = {};
 
-let barriersMap = {};
-let doorsMap = {};
-let nospawnsMap = {};
+let uiElements: Element[] = [];
+let particleSystems: ParticleSystem[] = [];
+let timeouts: NodeJS.Timeout[] = [];
 
-let uiElements = [];
-let particleSystems = [];
-let timeouts = [];
+let screenFlashElement: Element;
 
-let screenFlashElement;
-
-export const sketch = (p5) => {
+export const sketch = (p5: P5) => {
 
   p5.preload = preload;
   p5.setup = setup;
@@ -146,7 +139,7 @@ export const sketch = (p5) => {
      * @param {P5} p5
      * @param {P5.Vector} origin
      */
-    constructor(p5, origin, { spawnMod = 1, speedMod = 1, scaleMod = 1 } = {}) {
+    constructor(p5: P5, origin: Vector, { spawnMod = 1, speedMod = 1, scaleMod = 1 } = {}) {
       const lifetime = 1000;
       const numParticles = 10 * spawnMod;
       const speed = 1 * speedMod;
@@ -437,7 +430,7 @@ export const sketch = (p5) => {
     moves.push(currentMove);
   }
 
-  function validateMove(prev, current) {
+  function validateMove(prev: DIR, current: DIR) {
     if (!current) return false;
     if (prev === current) return false;
     if (prev === DIR.UP && current === DIR.DOWN) return false;
@@ -471,7 +464,7 @@ export const sketch = (p5) => {
       drawDoor(doors[i]);
     }
 
-    const applesMap = {};
+    const applesMap: Record<string, number> = {};
     for (let i = 0; i < apples.length; i++) {
       if (!apples[i]) continue;
       drawApple(apples[i]);
@@ -479,7 +472,7 @@ export const sketch = (p5) => {
       applesMap[getCoordIndex(apples[i])] = i;
     }
 
-    const snakePositionsMap = {};
+    const snakePositionsMap: Record<number, boolean> = {};
     for (let i = 0; i < segments.length; i++) {
       drawPlayerPart(segments[i]);
       if (state.isLost || state.isExitingLevel) continue;
@@ -575,7 +568,7 @@ export const sketch = (p5) => {
     );
   }
 
-  function spawnAppleParticles(position) {
+  function spawnAppleParticles(position: Vector) {
     particleSystems.push(new AppleParticleSystem(p5, position));
     particleSystems.push(new AppleParticleSystem(p5, position, { spawnMod: .3, speedMod: 4, scaleMod: .5 }));
   }
@@ -617,7 +610,7 @@ export const sketch = (p5) => {
     return false;
   }
 
-  function getHasSegmentExited(vec) {
+  function getHasSegmentExited(vec: Vector): boolean {
     return (
       vec.x > GRIDCOUNT.x - 1 ||
       vec.x < 0 ||
@@ -626,11 +619,11 @@ export const sketch = (p5) => {
     );
   }
 
-  function getCoordIndex(vec) {
+  function getCoordIndex(vec: Vector): number {
     return clamp(vec.x, 0, GRIDCOUNT.x - 1) + clamp(vec.y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
   }
 
-  function checkHasHit(vec, snakePositionsMap = null) {
+  function checkHasHit(vec: Vector, snakePositionsMap: Record<number, boolean> = null) {
     // check to see if snake ran into itself
     if (!state.isExitingLevel && snakePositionsMap && snakePositionsMap[getCoordIndex(vec)]) {
       return true;
@@ -649,7 +642,7 @@ export const sketch = (p5) => {
     return false;
   }
 
-  function movePlayer(snakePositionsMap) {
+  function movePlayer(snakePositionsMap: Record<number, boolean>) {
     state.timeSinceLastMove = 0;
     if (moves.length > 0 && !state.isExitingLevel) {
       player.direction = moves.shift()
@@ -700,8 +693,9 @@ export const sketch = (p5) => {
     }
   }
 
-  function growSnake(appleIndex) {
+  function growSnake(appleIndex = -1) {
     if (state.isLost) return;
+    if (appleIndex < 0) return;
     let bonus = 0;
     startScreenShake({ magnitude: 0.4, normalizedTime: 0.8 });
     removeApple(appleIndex);
@@ -733,13 +727,14 @@ export const sketch = (p5) => {
     }
   }
 
-  function removeApple(index) {
+  function removeApple(index = -1) {
+    if (index < 0) return;
     apples = apples.slice(0, index).concat(apples.slice(index + 1))
   }
 
   function addApple(numTries = 0) {
-    const x = parseInt(p5.random(GRIDCOUNT.x - 2), 10) + 1;
-    const y = parseInt(p5.random(GRIDCOUNT.y - 2), 10) + 1;
+    const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
+    const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
     const apple = p5.createVector(x, y);
     const spawnedInsideOfSomething = barriersMap[getCoordIndex(apple)]
       || doorsMap[getCoordIndex(apple)]
@@ -759,11 +754,11 @@ export const sketch = (p5) => {
     p5.background(level.colors.background);
   }
 
-  function drawPlayer(vec) {
+  function drawPlayer(vec: Vector) {
     drawSquare(vec.x, vec.y, level.colors.playerHead, level.colors.playerHead);
   }
 
-  function drawPlayerPart(vec) {
+  function drawPlayerPart(vec: Vector) {
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
         drawSquare(vec.x, vec.y, "#000", "#000");
@@ -775,27 +770,27 @@ export const sketch = (p5) => {
     }
   }
 
-  function drawApple(vec) {
+  function drawApple(vec: Vector) {
     drawSquare(vec.x, vec.y, level.colors.apple, level.colors.appleStroke);
   }
 
-  function drawBarrier(vec) {
+  function drawBarrier(vec: Vector) {
     drawSquare(vec.x, vec.y, level.colors.barrier, level.colors.barrierStroke);
   }
 
-  function drawDoor(vec) {
+  function drawDoor(vec: Vector) {
     drawSquare(vec.x, vec.y, level.colors.door, level.colors.doorStroke);
   }
 
-  function drawDecorative1(vec) {
+  function drawDecorative1(vec: Vector) {
     drawSquare(vec.x, vec.y, level.colors.deco1, level.colors.deco1Stroke);
   }
 
-  function drawDecorative2(vec) {
+  function drawDecorative2(vec: Vector) {
     drawSquare(vec.x, vec.y, level.colors.deco2, level.colors.deco2Stroke);
   }
 
-  function drawSquare(x, y, background = "pink", lineColor = "fff") {
+  function drawSquare(x: number, y: number, background = "pink", lineColor = "fff") {
     p5.fill(background);
     p5.stroke(lineColor);
     p5.strokeWeight(STROKE_SIZE);
@@ -851,7 +846,7 @@ export const sketch = (p5) => {
         UI.drawDarkOverlay(uiElements);
         UI.drawButton("TRY AGAIN", 236, 280, init, uiElements);
         UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
-        UI.drawText(`SCORE: ${parseInt(totalScore + score, 10)}`, '40px', 370, uiElements);
+        UI.drawText(`SCORE: ${Math.floor(totalScore + score)}`, '40px', 370, uiElements);
         UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
         UI.enableScreenScroll();
         UI.renderScore(score + totalScore);
@@ -939,7 +934,7 @@ export const sketch = (p5) => {
     }
   }
 
-  function getLevelFromNum(levelNum) {
+  function getLevelFromNum(levelNum: number) {
     switch (levelNum) {
       case 1:
         return LEVEL_01;

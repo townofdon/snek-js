@@ -1,6 +1,7 @@
 import { PALETTE } from "./palettes";
+import { Level } from "./types";
 
-export const LEVEL_08 = {
+export const LEVEL_08: Level = {
   name: 'courtyard',
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 70,

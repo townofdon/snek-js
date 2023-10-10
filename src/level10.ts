@@ -1,6 +1,7 @@
 import { PALETTE } from "./palettes";
+import { Level } from "./types";
 
-export const LEVEL_10 = {
+export const LEVEL_10: Level = {
   name: 'x-factor',
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 50,

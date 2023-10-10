@@ -1,6 +1,7 @@
 import { PALETTE } from "./palettes";
+import { Level } from "./types";
 
-export const LEVEL_99 = {
+export const LEVEL_99: Level = {
   name: 'survival',
   timeToClear: 1000 * 60 * 10,
   applesToClear: 200,

@@ -1,5 +1,6 @@
+import { Palette } from "./types";
 
-export const PALETTE = {
+export const PALETTE: Record<string, Palette> = {
   default: {
     background: "#505050",
     playerHead: "#fa0",

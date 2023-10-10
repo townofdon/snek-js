@@ -3,8 +3,7 @@ import P5, { Vector, Color } from 'p5';
 
 import { clamp } from './utils';
 import { BLOCK_SIZE } from './constants';
-
-import { vecToString } from './utils';
+import { ScreenShakeState } from './types';
 
 interface ParticleConstructorArgs {
   positionStart: Vector
@@ -45,16 +44,12 @@ class Particle {
     this._scaleEnd = scaleEnd;
   }
 
-  draw(p5: P5, screenShake: any, normalizedTimeElapsed = 0) {
+  draw(p5: P5, screenShake: ScreenShakeState, normalizedTimeElapsed = 0) {
     if (!this._colorStart) return;
     if (!p5) return;
     const scale = p5.lerp(this._scaleStart, this._scaleEnd, normalizedTimeElapsed);
     const calcColor = p5.lerpColor(this._colorStart, this._colorEnd, clamp(normalizedTimeElapsed * 10 - 9, 0, 1));
     const position = Vector.lerp(this._positionStart, this._positionEnd, normalizedTimeElapsed);
-    // const position = p5.createVector(
-    //   p5.lerp(this._positionStart.x, this._positionEnd.x, normalizedTimeElapsed),
-    //   p5.lerp(this._positionStart.y, this._positionEnd.y, normalizedTimeElapsed)
-    // );
     const drawPosition = {
       x: position.x * BLOCK_SIZE.x + screenShake.offset.x,
       y: position.y * BLOCK_SIZE.y + screenShake.offset.y,
@@ -63,8 +58,6 @@ class Particle {
     p5.stroke(calcColor);
     p5.strokeWeight(0);
     p5.square(drawPosition.x, drawPosition.y, BLOCK_SIZE.x * scale);
-
-    console.log(drawPosition.x, drawPosition.y, calcColor.toString())
   }
 }
 
@@ -73,7 +66,7 @@ interface ParticleSystemConstructorArgs {
   origin: Vector
   colorStart: Color
   colorEnd: Color
-  easingFnc: any
+  easingFnc?: (x: number) => number
   lifetime: number
   numParticles: number
   speed: number
@@ -88,7 +81,7 @@ export class ParticleSystem {
   _lifetime = 0;
   _timeElapsed = 0;
   _destroyed = false;
-  _easingFnc;
+  _easingFnc?: (x: number) => number;
   _p5: P5;
 
   constructor({ p5,
@@ -147,11 +140,11 @@ export class ParticleSystem {
     this._timeElapsed += p5.deltaTime;
   }
 
-  draw(p5: P5, screenShake: any) {
+  draw(p5: P5, screenShake: ScreenShakeState) {
     if (this._destroyed || !this._particles) {
       return;
     }
-    let normalizedTimeElapsed = clamp(this._timeElapsed / this._lifetime);
+    let normalizedTimeElapsed = clamp(this._timeElapsed / this._lifetime, 0, 1);
     if (this._easingFnc) {
       normalizedTimeElapsed = this._easingFnc(normalizedTimeElapsed);
     }
