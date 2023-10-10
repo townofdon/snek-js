@@ -32,7 +32,7 @@ const CONSTANTS = (() => {
   const SCORE_MOD_EASY = .5;
   const SCORE_MOD_MEDIUM = 2;
   const SCORE_MOD_HARD = 5;
-  const SCORE_MOD_ULTRA = 20;
+  const SCORE_MOD_ULTRA = 10;
 
   const SPEED_LIMIT_EASY = 110;
   const SPEED_LIMIT_MEDIUM = 50;

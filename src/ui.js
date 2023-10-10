@@ -153,7 +153,7 @@ class UI {
 
   static clearScreenInvert() {
     document.getElementById("screen-invert")?.remove();
-    document.getElementById("main").style.mixBlendMode = undefined;
+    document.getElementById("main").style.mixBlendMode = 'inherit';
   }
 
   static renderHearts(numLives = 3, uiElements) {
