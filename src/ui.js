@@ -1,4 +1,6 @@
 
+const UI_LABEL_OFFSET = '18px';
+
 // eslint-disable-next-line no-unused-vars
 class UI {
   static drawTitle(title, textColor, offset, hasShadow, uiElements) {
@@ -30,11 +32,9 @@ class UI {
     p.style('top', 'inherit');
     p.style('left', 'inherit');
     p.style('bottom', '0');
-    p.style('right', '22px');
+    p.style('right', UI_LABEL_OFFSET);
     p.style('margin', '0');
-    p.style('padding', '3px');
-    p.style('padding-left', '8px');
-    p.style('padding-right', '8px');
+    p.style('padding', '1px 8px');
     p.style('text-align', 'right');
     p.parent("main");
     uiElements.push(p);
@@ -53,9 +53,9 @@ class UI {
     p.style('white-space', 'nowrap');
     p.style('top', 'inherit');
     p.style('bottom', '0');
-    p.style('left', '22px');
+    p.style('left', UI_LABEL_OFFSET);
     p.style('margin', '0');
-    p.style('padding', '3px 8px');
+    p.style('padding', '1px 8px');
     p.style('text-align', 'left');
     p.parent("main");
   }
@@ -77,7 +77,7 @@ class UI {
     p.style('background-color', 'rgba(0,0,0, 0.5)');
     p.style('line-height', '1em');
     p.style('white-space', 'nowrap');
-    p.style('left', '22px');
+    p.style('left', UI_LABEL_OFFSET);
     p.style('margin', '0');
     p.style('padding', '1px 8px');
     p.style('text-align', 'left');
@@ -177,7 +177,7 @@ class UI {
     }
     div.position(0, 0);
     div.style('left', 'inherit');
-    div.style('right', '22px');
+    div.style('right', UI_LABEL_OFFSET);
     div.style('padding', '0 5px');
     div.style('background-color', numLives === 0 ? '#631705db' : 'rgb(7 11 15 / 52%)');
     div.class(className);
@@ -194,6 +194,4 @@ class UI {
     document.body.style.overflowY = "auto";
   }
 }
-
-
 

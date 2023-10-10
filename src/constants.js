@@ -3,11 +3,13 @@
 const CONSTANTS = (() => {
   const TITLE = 'SNEK';
 
+
   const FRAMERATE = 30;
   const DIMENSIONS = { x: 600, y: 600 };
   const GRIDCOUNT = { x: 30, y: 30 };
-  const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x, y: DIMENSIONS.y / GRIDCOUNT.y };
   const STROKE_SIZE = 4;
+  const STRANGELY_NEEDED_OFFSET = { x: STROKE_SIZE / GRIDCOUNT.x, y: STROKE_SIZE / GRIDCOUNT.y };
+  const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x + STRANGELY_NEEDED_OFFSET.x, y: DIMENSIONS.y / GRIDCOUNT.y + STRANGELY_NEEDED_OFFSET.y };
   const BASE_TICK_MS = 300;
   const MAX_MOVES = 4;
   const MAX_LIVES = 3;
