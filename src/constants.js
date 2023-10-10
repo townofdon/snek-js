@@ -10,6 +10,7 @@ const CONSTANTS = (() => {
   const STROKE_SIZE = 4;
   const BASE_TICK_MS = 300;
   const MAX_MOVES = 4;
+  const MAX_LIVES = 3;
   const START_SNAKE_SIZE = 3;
   const SPEED_INCREMENT = 1;
   const NUM_APPLES_START = 3;
@@ -38,7 +39,6 @@ const CONSTANTS = (() => {
   const SPEED_LIMIT_HARD = 20;
   const SPEED_LIMIT_ULTRA = 0;
 
-  const INITIAL_LEVEL = LEVEL_01;
   const KEYCODE_J = 74;
   const KEYCODE_0 = 48;
   const KEYCODE_1 = 49;
@@ -55,6 +55,9 @@ const CONSTANTS = (() => {
   const SCREEN_SHAKE_DURATION_MS = 1000;
   const SCREEN_SHAKE_MAGNITUDE_PX = 4;
 
+  const HURT_STUN_TIME = 600;
+  const HURT_FLASH_RATE = 55;
+
   return {
     TITLE,
     FRAMERATE,
@@ -64,6 +67,7 @@ const CONSTANTS = (() => {
     STROKE_SIZE,
     BASE_TICK_MS,
     MAX_MOVES,
+    MAX_LIVES,
     START_SNAKE_SIZE,
     SPEED_INCREMENT,
     NUM_APPLES_START,
@@ -86,7 +90,6 @@ const CONSTANTS = (() => {
     SPEED_LIMIT_MEDIUM,
     SPEED_LIMIT_HARD,
     SPEED_LIMIT_ULTRA,
-    INITIAL_LEVEL,
     KEYCODE_J,
     KEYCODE_0,
     KEYCODE_1,
@@ -101,5 +104,7 @@ const CONSTANTS = (() => {
     KEYCODE_SPACE,
     SCREEN_SHAKE_DURATION_MS,
     SCREEN_SHAKE_MAGNITUDE_PX,
+    HURT_STUN_TIME,
+    HURT_FLASH_RATE,
   };
 })()

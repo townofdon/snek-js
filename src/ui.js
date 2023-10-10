@@ -70,6 +70,36 @@ class UI {
     uiElements.push(div);
   }
 
+  static renderHearts(numLives = 3, uiElements) {
+    const containerId = "hearts-container";
+    const className = "hearts-container";
+    document.getElementById(containerId)?.remove();
+    let div = createDiv();
+    const numHearts = 3;
+    const drawHeart = (index = 0) => {
+      const element = createP(index < numLives ? "♥︎" : "♡");
+      element.style('display', 'inline-block');
+      element.style('font-size', 8);
+      element.style('color', numLives === 0 ? '#f50' : index < numLives ? '#fff' : '#888');
+      element.style('text-shadow', '0px 3px 3px black');
+      element.style('text-align', 'center');
+      element.style('margin', '0 8px');
+      element.parent(div);
+    }
+    for (let i = 0; i < numHearts; i++) {
+      drawHeart(i);
+    }
+    div.position(0, 0);
+    div.style('left', 'inherit');
+    div.style('right', '22px');
+    div.style('padding', '0 5px');
+    div.style('background-color', numLives === 0 ? '#631705db' : 'rgb(7 11 15 / 52%)');
+    div.class(className);
+    div.id(containerId);
+    div.parent("main");
+    uiElements.push(div);
+  }
+
   static disableScreenScroll() {
     document.body.style.overflowY = "hidden";
   }

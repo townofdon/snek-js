@@ -7,6 +7,7 @@ const {
   STROKE_SIZE,
   BASE_TICK_MS,
   MAX_MOVES,
+  MAX_LIVES,
   START_SNAKE_SIZE,
   SPEED_INCREMENT,
   NUM_APPLES_START,
@@ -29,7 +30,6 @@ const {
   SPEED_LIMIT_MEDIUM,
   SPEED_LIMIT_HARD,
   SPEED_LIMIT_ULTRA,
-  INITIAL_LEVEL,
   KEYCODE_J,
   KEYCODE_0,
   KEYCODE_1,
@@ -44,7 +44,11 @@ const {
   KEYCODE_SPACE,
   SCREEN_SHAKE_DURATION_MS,
   SCREEN_SHAKE_MAGNITUDE_PX,
+  HURT_STUN_TIME,
+  HURT_FLASH_RATE,
 } = CONSTANTS;
+
+const INITIAL_LEVEL = LEVEL_01;
 
 const DIR = {
   UP: 'UP',
@@ -73,6 +77,8 @@ let state = {
   isDoorsOpen: false,
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
+  timeSinceHurt: Infinity,
+  lives: MAX_LIVES,
   speed: 1,
   numApplesEaten: 0,
 };
@@ -205,6 +211,7 @@ function clearUI() {
   uiElements.forEach(element => element.remove())
   uiElements = [];
   UI.drawLevelName(level.name, "#fff", uiElements);
+  UI.renderHearts(state.lives, uiElements);
 }
 
 function init() {
@@ -221,6 +228,8 @@ function init() {
   state.isDoorsOpen = false;
   state.timeElapsed = 0;
   state.timeSinceLastMove = Infinity;
+  state.timeSinceHurt = Infinity;
+  state.lives = MAX_LIVES;
   screenShake.timeSinceStarted = Infinity;
   screenShake.magnitude = 1;
   state.speed = 1;
@@ -237,6 +246,8 @@ function init() {
   barriersMap = {};
   doorsMap = {};
   nospawnsMap = {};
+
+  UI.renderHearts(state.lives, uiElements);
 
   // parse level data - add barriers and doors
   const layoutRows = level.layout.trim().split('\n');
@@ -351,7 +362,7 @@ function keyPressed() {
   }
 
   const prevMove = moves.length > 0
-    ? (moves.length === 1 ? moves[0] : moves[moves.length - 1])
+    ? moves[moves.length - 1]
     : player.direction;
   let currentMove = null;
 
@@ -462,7 +473,17 @@ function draw() {
 
   apples = apples.filter(apple => !!apple);
 
+  // rescue isLost state
+  if (state.isLost && state.lives > 0) {
+    state.isLost = false;
+    state.lives -= 1;
+    state.timeSinceHurt = 0;
+    hurtSnake();
+  }
+
   if (state.isLost) {
+    state.lives = 0;
+    UI.renderHearts(state.lives, uiElements);
     startScreenShake();
     showGameOver();
     resetScore();
@@ -476,6 +497,7 @@ function draw() {
     state.timeSinceLastMove += deltaTime;
   }
   state.timeElapsed += deltaTime;
+  state.timeSinceHurt += deltaTime;
 
   if (getHasClearedLevel() && !state.isDoorsOpen) {
     openDoors();
@@ -492,6 +514,9 @@ function draw() {
 }
 
 function getTimeNeededUntilNextMove() {
+  if (state.timeSinceHurt < HURT_STUN_TIME) {
+    return Infinity;
+  }
   if (difficulty.index === 4) {
     if (state.speed <= 1) return SPEED_LIMIT_EASY;
     if (state.speed <= 2) return SPEED_LIMIT_MEDIUM;
@@ -558,14 +583,24 @@ function movePlayer() {
     default:
       direction = createVector(0, 0);
   }
-  let next = player.position;
-  for (let i = 0; i < segments.length; i++) {
-    const temp = segments[i].copy();
-    segments[i].set(next.x, next.y);
-    next = temp;
+  for (let i = segments.length - 1; i >= 0; i--) {
+    if (i === 0) {
+      segments[i].set(player.position);
+    } else {
+      segments[i].set(segments[i - 1]);
+    }
   }
   player.position.add(direction);
   state.timeSinceLastMove = 0;
+}
+
+function reboundSnake(numTimes = 2) {
+  for (let times = 0; times < numTimes; times++) {
+    if (segments.length > 1) { player.position.set(segments[0]); }
+    for (let i = 0; i < segments.length - 1; i++) {
+      segments[i].set(segments[i + 1]);
+    }
+  }
 }
 
 function growSnake(appleIndex) {
@@ -631,7 +666,15 @@ function drawPlayer(vec) {
 }
 
 function drawPlayerPart(vec) {
-  drawSquare(vec.x, vec.y, level.colors.playerTail, level.colors.playerTailStroke);
+  if (state.timeSinceHurt < HURT_STUN_TIME) {
+    if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
+      drawSquare(vec.x, vec.y, "#000", "#000");
+    } else {
+      drawSquare(vec.x, vec.y, "#fff", "#fff");
+    }
+  } else {
+    drawSquare(vec.x, vec.y, level.colors.playerTail, level.colors.playerTailStroke);
+  }
 }
 
 function drawApple(vec) {
@@ -679,6 +722,24 @@ function drawParticles() {
     }
   }
   particleSystems = tempParticleSystems;
+}
+
+function hurtSnake() {
+  reboundSnake(segments.length > 3 ? 2 : 1);
+  startScreenShake();
+  UI.renderHearts(state.lives, uiElements);
+  // reset any queued up moves so that next action player takes feels more intentional
+  moves = [];
+  // set current direction to be the direction from the first segment towards the snake head
+  const dirToFirstSegment = (() => {
+    const diff = player.position.copy().sub(segments[0]);
+    if (diff.x === -1) return DIR.LEFT;
+    if (diff.x === 1) return DIR.RIGHT;
+    if (diff.y === -1) return DIR.UP;
+    if (diff.y === 1) return DIR.DOWN;
+    return DIR.RIGHT;
+  })();
+  player.direction = dirToFirstSegment;
 }
 
 function showGameOver() {
