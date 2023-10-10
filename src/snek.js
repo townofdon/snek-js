@@ -209,6 +209,7 @@ function startGame(dif = 2) {
   }
   state.isStarted = true;
   UI.disableScreenScroll();
+  UI.renderDifficulty(difficulty.index);
   clearUI();
 }
 
@@ -256,6 +257,7 @@ function init() {
   nospawnsMap = {};
 
   UI.renderHearts(state.lives, uiElements);
+  UI.renderScore(score + totalScore);
 
   // clear any pending timeouts
   for (let i = 0; i < timeouts.length; i++) {
@@ -651,6 +653,7 @@ function growSnake(appleIndex) {
   }
   state.numApplesEaten += 1;
   score += SCORE_INCREMENT * difficulty.scoreMod + bonus;
+  UI.renderScore(score + totalScore);
 }
 
 function increaseSpeed() {
@@ -783,6 +786,7 @@ function showGameOver() {
       UI.drawText(`SCORE: ${parseInt(totalScore + score, 10)}`, '40px', 370, uiElements);
       UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
       UI.enableScreenScroll();
+      UI.renderScore(score + totalScore);
       resetScore();
     }, HURT_STUN_TIME * 2.5));
   }, 200));
@@ -833,6 +837,7 @@ function openDoors() {
 
 function gotoNextLevel() {
   score += LEVEL_BONUS * difficulty.scoreMod;
+  score += LEVEL_BONUS * 10 * state.lives * difficulty.scoreMod;
   totalScore += score;
   score = 0;
   totalApplesEaten += state.numApplesEaten;

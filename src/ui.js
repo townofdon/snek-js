@@ -3,6 +3,7 @@
 class UI {
   static drawTitle(title, textColor, offset, hasShadow, uiElements) {
     const p = createP(title);
+    p.id('title');
     p.style('font-size', '6em');
     p.style('letter-spacing', '65px');
     p.style('color', textColor);
@@ -20,6 +21,7 @@ class UI {
   static drawLevelName(levelName, textColor, uiElements) {
     const p = createP(levelName);
     p.position(0, 0);
+    p.id('level-name-field');
     p.style('font-size', '1em');
     p.style('color', textColor);
     p.style('background-color', 'rgba(0,0,0, 0.5)');
@@ -36,6 +38,50 @@ class UI {
     p.style('text-align', 'right');
     p.parent("main");
     uiElements.push(p);
+  }
+
+  static renderScore(score) {
+    const id = 'score-field';
+    document.getElementById(id)?.remove();
+    const p = createP(String(score).padStart(8, '0'));
+    p.position(0, 0);
+    p.id(id);
+    p.style('font-size', '1em');
+    p.style('color', '#fff');
+    p.style('background-color', 'rgba(0,0,0, 0.5)');
+    p.style('line-height', '1em');
+    p.style('white-space', 'nowrap');
+    p.style('top', 'inherit');
+    p.style('bottom', '0');
+    p.style('left', '22px');
+    p.style('margin', '0');
+    p.style('padding', '3px 8px');
+    p.style('text-align', 'left');
+    p.parent("main");
+  }
+
+  static renderDifficulty(difficultyIndex) {
+    const id = 'difficulty-field';
+    const difficultyText = (() => {
+      if (difficultyIndex >= 4) return 'ULTRA';
+      if (difficultyIndex >= 3) return 'HARD';
+      if (difficultyIndex >= 2) return 'MEDIUM';
+      if (difficultyIndex >= 1) return 'EASY';
+    })()
+    document.getElementById(id)?.remove();
+    const p = createP(difficultyText);
+    p.position(0, 0);
+    p.id(id);
+    p.style('font-size', '1em');
+    p.style('color', '#fff');
+    p.style('background-color', 'rgba(0,0,0, 0.5)');
+    p.style('line-height', '1em');
+    p.style('white-space', 'nowrap');
+    p.style('left', '22px');
+    p.style('margin', '0');
+    p.style('padding', '1px 8px');
+    p.style('text-align', 'left');
+    p.parent("main");
   }
 
   static drawButton(textStr, x, y, onClick, uiElements) {
@@ -60,6 +106,7 @@ class UI {
 
   static drawDarkOverlay(uiElements) {
     let div = createDiv();
+    div.id('dark-overlay');
     div.style('position', 'absolute');
     div.style('top', '0');
     div.style('bottom', '0');
@@ -72,8 +119,9 @@ class UI {
   }
 
   static drawScreenFlash() {
-    const containerId = "screen-flash-overlay";
+    const id = "screen-flash-overlay";
     let div = createDiv();
+    div.id(id);
     div.style('position', 'absolute');
     div.style('top', '0');
     div.style('bottom', '0');
@@ -82,15 +130,15 @@ class UI {
     div.style('z-index', '10');
     div.style('background-color', '#ff550099');
     div.style('mix-blend-mode', 'hard-light');
-    div.id(containerId);
     div.parent("main");
     return div;
   }
 
   static invertScreen() {
     UI.clearScreenInvert();
-    const containerId = "screen-invert";
+    const id = "screen-invert";
     let div = createDiv();
+    div.id(id);
     div.style('position', 'absolute');
     div.style('top', '0');
     div.style('bottom', '0');
@@ -99,14 +147,13 @@ class UI {
     div.style('z-index', '10');
     div.style('background-color', '#fff');
     div.style('mix-blend-mode', 'difference');
-    div.id(containerId);
     div.parent("main");
     document.getElementById("main").style.mixBlendMode = 'luminosity';
   }
 
   static clearScreenInvert() {
     document.getElementById("screen-invert")?.remove();
-    document.getElementById("main").style.mixBlendMode = 'inherit';
+    document.getElementById("main").style.mixBlendMode = undefined;
   }
 
   static renderHearts(numLives = 3, uiElements) {
