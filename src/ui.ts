@@ -186,28 +186,6 @@ export class UI {
     return div;
   }
 
-  static invertScreen() {
-    UI.clearScreenInvert();
-    const id = "screen-invert";
-    let div = UI.p5.createDiv();
-    div.id(id);
-    div.style('position', 'absolute');
-    div.style('top', '0');
-    div.style('bottom', '0');
-    div.style('left', '0');
-    div.style('right', '0');
-    div.style('z-index', '10');
-    div.style('background-color', '#fff');
-    div.style('mix-blend-mode', 'difference');
-    div.parent("main");
-    document.getElementById("main").style.mixBlendMode = 'luminosity';
-  }
-
-  static clearScreenInvert() {
-    document.getElementById("screen-invert")?.remove();
-    document.getElementById("main").style.mixBlendMode = 'inherit';
-  }
-
   static disableScreenScroll() {
     document.body.style.overflowY = "hidden";
   }

@@ -1,5 +1,6 @@
 import P5, { Element, Vector } from 'p5';
 
+import { LEVELS } from './levels';
 import { LEVEL_01 } from './level01';
 import { LEVEL_02 } from './level02';
 import { LEVEL_03 } from './level03';
@@ -68,9 +69,8 @@ import { UI } from './ui';
 import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState } from './types';
 import { PALETTE } from './palettes';
 
-const INITIAL_LEVEL = LEVEL_01;
-
-let level: Level = INITIAL_LEVEL;
+let levelIndex = 0;
+let level: Level = LEVELS[0];
 let difficulty: Difficulty = {
   index: 1,
   speedMod: SPEED_MOD_EASY,
@@ -174,7 +174,7 @@ export const sketch = (p5: P5) => {
   }
 
   function setup() {
-    level = INITIAL_LEVEL;
+    level = LEVELS[0];
     p5.frameRate(FRAMERATE);
     clearUI();
     init();
@@ -245,8 +245,15 @@ export const sketch = (p5: P5) => {
     uiElements.forEach(element => element.remove())
     uiElements = [];
     UI.renderLevelName(level.name, state.isShowingDeathColours);
+    renderHeartsUI();
+  }
+
+  function renderHeartsUI() {
     UI.renderHearts(state.lives, state.isShowingDeathColours);
-    UI.clearScreenInvert();
+  }
+
+  function renderScoreUI() {
+    UI.renderScore(score + totalScore, state.isShowingDeathColours);
   }
 
   function init() {
@@ -288,8 +295,8 @@ export const sketch = (p5: P5) => {
     doorsMap = {};
     nospawnsMap = {};
 
-    UI.renderHearts(state.lives, state.isShowingDeathColours);
-    UI.renderScore(score + totalScore, state.isShowingDeathColours);
+    renderHeartsUI();
+    renderScoreUI();
 
     // clear any pending timeouts
     for (let i = 0; i < timeouts.length; i++) {
@@ -512,14 +519,16 @@ export const sketch = (p5: P5) => {
       state.isLost = false;
       state.lives -= 1;
       state.timeSinceHurt = 0;
-      hurtSnake();
       flashScreen();
+      startScreenShake();
+      renderHeartsUI();
+      hurtSnake();
     }
 
     // handle snake death
     if (state.isLost) {
       state.lives = 0;
-      UI.renderHearts(state.lives, state.isShowingDeathColours);
+      renderHeartsUI();
       flashScreen();
       showGameOver();
       return;
@@ -546,7 +555,7 @@ export const sketch = (p5: P5) => {
 
     if (state.isExitingLevel) {
       score += SCORE_INCREMENT;
-      UI.renderScore(score + totalScore, state.isShowingDeathColours);
+      renderScoreUI();
     }
 
     if (state.isExitingLevel && segments.every(segment => getHasSegmentExited(segment))) {
@@ -720,7 +729,7 @@ export const sketch = (p5: P5) => {
     }
     state.numApplesEaten += 1;
     score += SCORE_INCREMENT * difficulty.scoreMod + bonus;
-    UI.renderScore(score + totalScore, state.isShowingDeathColours);
+    renderScoreUI();
   }
 
   function increaseSpeed() {
@@ -838,8 +847,6 @@ export const sketch = (p5: P5) => {
 
   function hurtSnake() {
     reboundSnake(segments.length > 3 ? 2 : 1);
-    startScreenShake();
-    UI.renderHearts(state.lives, state.isShowingDeathColours);
     // reset any queued up moves so that next action player takes feels more intentional
     moves = [];
     // set current direction to be the direction from the first segment towards the snake head
@@ -863,9 +870,7 @@ export const sketch = (p5: P5) => {
     yield* waitForTime(200);
     startScreenShake({ magnitude: 3, normalizedTime: -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, timeScale: 0.1 });
     state.isShowingDeathColours = true;
-    // UI.invertScreen();
     yield* waitForTime(HURT_STUN_TIME * 2.5);
-    // UI.clearScreenInvert();
     state.isShowingDeathColours = false;
     startScreenShake();
     UI.drawDarkOverlay(uiElements);
@@ -874,7 +879,7 @@ export const sketch = (p5: P5) => {
     UI.drawText(`SCORE: ${Math.floor(totalScore + score)}`, '40px', 370, uiElements);
     UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
     UI.enableScreenScroll();
-    UI.renderScore(score + totalScore, state.isShowingDeathColours);
+    renderScoreUI();
     resetScore();
   }
 
@@ -926,35 +931,9 @@ export const sketch = (p5: P5) => {
     score = 0;
     totalApplesEaten += state.numApplesEaten;
     state.numApplesEaten = 0;
-    level = getNextLevel();
+    levelIndex++;
+    level = LEVELS[levelIndex % LEVELS.length];
     init();
-  }
-
-  function getNextLevel() {
-    switch (level) {
-      case LEVEL_01:
-        return LEVEL_02;
-      case LEVEL_02:
-        return LEVEL_03;
-      case LEVEL_03:
-        return LEVEL_04;
-      case LEVEL_04:
-        return LEVEL_05;
-      case LEVEL_05:
-        return LEVEL_06;
-      case LEVEL_06:
-        return LEVEL_07;
-      case LEVEL_07:
-        return LEVEL_08;
-      case LEVEL_08:
-        return LEVEL_09;
-      case LEVEL_09:
-        return LEVEL_10;
-      case LEVEL_10:
-        return LEVEL_99;
-      default:
-        return LEVEL_01;
-    }
   }
 
   function getLevelFromNum(levelNum: number) {
