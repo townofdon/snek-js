@@ -989,12 +989,7 @@ export const sketch = (p5: P5) => {
     for (let i = 0; i < coroutines.length; i++) {
       if (!coroutines[i]) continue;
       const value = coroutines[i].next();
-      const done = value.done;
-      let nested = value;
-      do {
-        // run nested enumerators
-      } while (nested = nested.value && nested.value.next());
-      if (done) delete coroutines[i];
+      if (value.done) delete coroutines[i];
     }
     coroutines = coroutines.filter(c => !!c);
   }
