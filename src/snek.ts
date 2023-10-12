@@ -1,17 +1,19 @@
 import P5, { Element, Vector } from 'p5';
 
-import { LEVELS } from './levels';
-import { LEVEL_01 } from './level01';
-import { LEVEL_02 } from './level02';
-import { LEVEL_03 } from './level03';
-import { LEVEL_04 } from './level04';
-import { LEVEL_05 } from './level05';
-import { LEVEL_06 } from './level06';
-import { LEVEL_07 } from './level07';
-import { LEVEL_08 } from './level08';
-import { LEVEL_09 } from './level09';
-import { LEVEL_10 } from './level10';
-import { LEVEL_99 } from './level99';
+import {
+  LEVELS,
+  LEVEL_01,
+  LEVEL_02,
+  LEVEL_03,
+  LEVEL_04,
+  LEVEL_05,
+  LEVEL_06,
+  LEVEL_07,
+  LEVEL_08,
+  LEVEL_09,
+  LEVEL_10,
+  LEVEL_99,
+} from './levels';
 import {
   TITLE,
   FRAMERATE,
@@ -176,7 +178,6 @@ export const sketch = (p5: P5) => {
   function setup() {
     level = LEVELS[0];
     p5.frameRate(FRAMERATE);
-    clearUI();
     init();
 
     score = 0;
@@ -257,9 +258,7 @@ export const sketch = (p5: P5) => {
   }
 
   function init() {
-    clearUI();
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
-    UI.disableScreenScroll();
     stopAllCoroutines();
 
     score = 0;
@@ -295,8 +294,10 @@ export const sketch = (p5: P5) => {
     doorsMap = {};
     nospawnsMap = {};
 
+    UI.disableScreenScroll();
     renderHeartsUI();
     renderScoreUI();
+    clearUI();
 
     // clear any pending timeouts
     for (let i = 0; i < timeouts.length; i++) {
@@ -784,20 +785,20 @@ export const sketch = (p5: P5) => {
     } else {
       drawSquare(vec.x, vec.y,
         state.isShowingDeathColours ? PALETTE.deathInvert.playerTail : level.colors.playerTail,
-        state.isShowingDeathColours ? PALETTE.deathInvert.playerTailStroke :level.colors.playerTailStroke);
+        state.isShowingDeathColours ? PALETTE.deathInvert.playerTailStroke : level.colors.playerTailStroke);
     }
   }
 
   function drawApple(vec: Vector) {
     drawSquare(vec.x, vec.y,
       state.isShowingDeathColours ? PALETTE.deathInvert.apple : level.colors.apple,
-      state.isShowingDeathColours ? PALETTE.deathInvert.appleStroke :level.colors.appleStroke);
+      state.isShowingDeathColours ? PALETTE.deathInvert.appleStroke : level.colors.appleStroke);
   }
 
   function drawBarrier(vec: Vector) {
     drawSquare(vec.x, vec.y,
       state.isShowingDeathColours ? PALETTE.deathInvert.barrier : level.colors.barrier,
-      state.isShowingDeathColours ? PALETTE.deathInvert.barrierStroke :level.colors.barrierStroke);
+      state.isShowingDeathColours ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
   }
 
   function drawDoor(vec: Vector) {
@@ -809,7 +810,7 @@ export const sketch = (p5: P5) => {
   function drawDecorative1(vec: Vector) {
     drawSquare(vec.x, vec.y,
       state.isShowingDeathColours ? PALETTE.deathInvert.deco1 : level.colors.deco1,
-      state.isShowingDeathColours ? PALETTE.deathInvert.deco1Stroke :level.colors.deco1Stroke);
+      state.isShowingDeathColours ? PALETTE.deathInvert.deco1Stroke : level.colors.deco1Stroke);
   }
 
   function drawDecorative2(vec: Vector) {
@@ -865,7 +866,7 @@ export const sketch = (p5: P5) => {
     startCoroutine(showGameOverRoutine());
   }
 
-  function *showGameOverRoutine(): IEnumerator {
+  function* showGameOverRoutine(): IEnumerator {
     startScreenShake();
     yield* waitForTime(200);
     startScreenShake({ magnitude: 3, normalizedTime: -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, timeScale: 0.1 });
@@ -893,6 +894,13 @@ export const sketch = (p5: P5) => {
   function warpToLevel(levelNum = 1) {
     resetScore();
     level = getLevelFromNum(levelNum);
+    levelIndex = 0;
+    for (let i = 0; i < LEVELS.length; i++) {
+      if (level === LEVELS[i]) {
+        levelIndex = i;
+        break;
+      }
+    }
     init();
   }
 

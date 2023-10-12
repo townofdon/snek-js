@@ -1,4 +1,4 @@
-import { Level } from "./types";
+import { Level } from "../types";
 import { LEVEL_01 } from "./level01";
 import { LEVEL_02 } from "./level02";
 import { LEVEL_03 } from "./level03";

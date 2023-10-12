@@ -3,9 +3,11 @@
     "outDir": "./dist/",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
-    "module": "es6",
+    "module": "NodeNext",
     "target": "es2015",
-    "allowJs": true
+    "allowJs": true,
+    "baseUrl": ".",
+    "moduleResolution": "nodenext"
   },
   "include": ["src/**/*"]
 }

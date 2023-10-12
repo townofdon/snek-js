@@ -1,5 +1,5 @@
-import { PALETTE } from "./palettes";
-import { Level } from "./types";
+import { PALETTE } from "../palettes";
+import { Level } from "../types";
 
 export const LEVEL_05: Level = {
   name: 'panopticon',
