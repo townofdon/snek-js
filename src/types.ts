@@ -7,7 +7,7 @@ import { Vector } from "p5";
  * function* testEnumerator(): IEnumerator {
  *   for (let i = 1; i < 11; i++) {
  *     console.log(i);
- *     yield* waitForSeconds(1);
+ *     yield* waitForDuration(1000);
  *   }
  * }
  * ```

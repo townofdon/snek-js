@@ -252,6 +252,7 @@ export const sketch = (p5: P5) => {
     clearUI();
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
     UI.disableScreenScroll();
+    stopAllCoroutines();
 
     score = 0;
     player.position = p5.createVector(15, 15);
@@ -839,23 +840,25 @@ export const sketch = (p5: P5) => {
   }
 
   function showGameOver() {
+    startCoroutine(showGameOverRoutine());
+  }
+
+  function *showGameOverRoutine(): IEnumerator {
     startScreenShake();
-    timeouts.push(setTimeout(() => {
-      startScreenShake({ magnitude: 3, normalizedTime: -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, timeScale: 0.1 });
-      UI.invertScreen();
-      timeouts.push(setTimeout(() => {
-        UI.clearScreenInvert();
-        startScreenShake();
-        UI.drawDarkOverlay(uiElements);
-        UI.drawButton("TRY AGAIN", 236, 280, init, uiElements);
-        UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
-        UI.drawText(`SCORE: ${Math.floor(totalScore + score)}`, '40px', 370, uiElements);
-        UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
-        UI.enableScreenScroll();
-        UI.renderScore(score + totalScore);
-        resetScore();
-      }, HURT_STUN_TIME * 2.5));
-    }, 200));
+    yield* waitForTime(200);
+    startScreenShake({ magnitude: 3, normalizedTime: -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, timeScale: 0.1 });
+    UI.invertScreen();
+    yield* waitForTime(HURT_STUN_TIME * 2.5);
+    UI.clearScreenInvert();
+    startScreenShake();
+    UI.drawDarkOverlay(uiElements);
+    UI.drawButton("TRY AGAIN", 236, 280, init, uiElements);
+    UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
+    UI.drawText(`SCORE: ${Math.floor(totalScore + score)}`, '40px', 370, uiElements);
+    UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
+    UI.enableScreenScroll();
+    UI.renderScore(score + totalScore);
+    resetScore();
   }
 
   function resetScore() {
@@ -1000,10 +1003,10 @@ export const sketch = (p5: P5) => {
     coroutines = coroutines.filter(c => !!c);
   }
 
-  function* waitForSeconds(seconds: number): IEnumerator {
-    let timeRemaining = seconds;
+  function* waitForTime(durationMs: number): IEnumerator {
+    let timeRemaining = durationMs;
     while (timeRemaining > 0) {
-      timeRemaining -= p5.deltaTime * 0.001;
+      timeRemaining -= p5.deltaTime;
       yield null;
     }
   }
