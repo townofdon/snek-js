@@ -39,5 +39,11 @@ X~~   --  ~~~~__~~~~  --   ~~X
 X~~~~~__~~~~XXDDXX~~~~__~~~~~X
 XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   `,
-  colors: PALETTE.boxcar,
+  // colors: {
+  //   ...PALETTE.hospital,
+  //   playerHead: PALETTE.plumsea.playerHead,
+  //   playerTail: PALETTE.plumsea.playerTail,
+  //   playerTailStroke: PALETTE.plumsea.playerTailStroke,
+  // },
+  colors: PALETTE.cornflower,
 };
