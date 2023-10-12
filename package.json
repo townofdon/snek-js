@@ -15,10 +15,12 @@
   "author": "townofdon",
   "license": "MIT",
   "dependencies": {
+    "color": "^4.2.3",
     "p5": "^1.7.0"
   },
   "devDependencies": {
     "@fal-works/eslint-config-p5js": "^1.0.3",
+    "@types/color": "^3.0.4",
     "@types/p5": "^1.7.0",
     "@webpack-cli/generators": "^3.0.7",
     "eslint": "^8.50.0",

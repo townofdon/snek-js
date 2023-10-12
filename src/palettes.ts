@@ -1,4 +1,6 @@
 import { Palette } from "./types";
+import Color from 'color';
+
 
 export const PALETTE: Record<string, Palette> = {
   default: {
@@ -32,6 +34,22 @@ export const PALETTE: Record<string, Palette> = {
     deco1Stroke: "#C0C0C0",
     deco2: "#B9B9B9",
     deco2Stroke: "#BCBCBC",
+  },
+  blackWhite: {
+    background: Color("#C1C1C1").negate().hex(),
+    playerHead: Color("#5A5A5A").negate().hex(),
+    playerTail: Color("#474747").negate().hex(),
+    playerTailStroke: Color("#1A1A1A").negate().hex(),
+    barrier: Color("#CFCFCF").negate().hex(),
+    barrierStroke: Color("#E1E1E1").negate().hex(),
+    apple: Color("#818181").negate().hex(),
+    appleStroke: Color("#999999").negate().hex(),
+    door: Color("#A0A0A0").negate().hex(),
+    doorStroke: Color("#939393").negate().hex(),
+    deco1: Color("#BEBEBE").negate().hex(),
+    deco1Stroke: Color("#C0C0C0").negate().hex(),
+    deco2: Color("#B9B9B9").negate().hex(),
+    deco2Stroke: Color("#BCBCBC").negate().hex(),
   },
   boxcar: {
     background: "#505050",
@@ -142,8 +160,8 @@ export const PALETTE: Record<string, Palette> = {
     playerHead: "#A4D4B4",
     playerTail: "#66B781",
     playerTailStroke: "#82C498",
-    apple: "#CA054D",
-    appleStroke: "#9F043D",
+    apple: Color("#CA054D").lighten(0.2).hex(),
+    appleStroke: Color("#9F043D").lighten(0.1).hex(),
   },
   cornflower: {
     background: "#2B4150",
@@ -158,8 +176,8 @@ export const PALETTE: Record<string, Palette> = {
     playerHead: "#F6AE2D",
     playerTail: "#D78F09",
     playerTailStroke: "#F9CB76",
-    apple: "#F26419",
-    appleStroke: "#C14B0B",
+    apple: Color("#F26419").darken(0.1).hex(),
+    appleStroke: Color("#C14B0B").darken(0.1).hex(),
   },
   plumsea: {
     background: "#25283D",
