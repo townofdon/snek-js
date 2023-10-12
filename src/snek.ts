@@ -1,6 +1,7 @@
 import P5, { Element, Vector } from 'p5';
 
 import {
+  INITIAL_LEVEL,
   LEVELS,
   LEVEL_01,
   LEVEL_02,
@@ -71,8 +72,8 @@ import { UI } from './ui';
 import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState } from './types';
 import { PALETTE } from './palettes';
 
+let level: Level = INITIAL_LEVEL;
 let levelIndex = 0;
-let level: Level = LEVELS[0];
 let difficulty: Difficulty = {
   index: 1,
   speedMod: SPEED_MOD_EASY,
@@ -127,7 +128,6 @@ let nospawnsMap: Record<number, boolean> = {};
 
 let uiElements: Element[] = [];
 let particleSystems: ParticleSystem[] = [];
-let timeouts: NodeJS.Timeout[] = [];
 
 let screenFlashElement: Element;
 
@@ -176,7 +176,8 @@ export const sketch = (p5: P5) => {
   }
 
   function setup() {
-    level = LEVELS[0];
+    level = INITIAL_LEVEL;
+    setLevelIndexFromCurrentLevel();
     p5.frameRate(FRAMERATE);
     init();
 
@@ -299,12 +300,6 @@ export const sketch = (p5: P5) => {
     renderScoreUI();
     clearUI();
 
-    // clear any pending timeouts
-    for (let i = 0; i < timeouts.length; i++) {
-      if (timeouts[i]) clearTimeout(timeouts[i]);
-    }
-    timeouts = [];
-
     // parse level data - add barriers and doors
     const layoutRows = level.layout.trim().split('\n');
     for (let y = 0; y < layoutRows.length; y++) {
@@ -356,6 +351,10 @@ export const sketch = (p5: P5) => {
           case '=':
             decoratives2.push(vec);
             break;
+
+          // manually-spawned apples
+          case 'a':
+            apples.push(vec);
         }
       }
       if (y >= GRIDCOUNT.y) { console.warn("level layout is too tall"); break; }
@@ -363,8 +362,9 @@ export const sketch = (p5: P5) => {
 
     // create snake parts
     let x = player.position.x;
-    for (let i = 0; i < START_SNAKE_SIZE; i++) {
-      segments.push(p5.createVector(--x, player.position.y));
+    for (let i = 0; i < (level.snakeStartSizeOverride || START_SNAKE_SIZE); i++) {
+      if (i < 3) x--;
+      segments.push(p5.createVector(x, player.position.y));
     }
 
     // add initial apples
@@ -748,6 +748,7 @@ export const sketch = (p5: P5) => {
   }
 
   function addApple(numTries = 0) {
+    if (level.disableAppleSpawn) return;
     const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
     const apple = p5.createVector(x, y);
@@ -894,13 +895,7 @@ export const sketch = (p5: P5) => {
   function warpToLevel(levelNum = 1) {
     resetScore();
     level = getLevelFromNum(levelNum);
-    levelIndex = 0;
-    for (let i = 0; i < LEVELS.length; i++) {
-      if (level === LEVELS[i]) {
-        levelIndex = i;
-        break;
-      }
-    }
+    setLevelIndexFromCurrentLevel();
     init();
   }
 
@@ -942,6 +937,16 @@ export const sketch = (p5: P5) => {
     levelIndex++;
     level = LEVELS[levelIndex % LEVELS.length];
     init();
+  }
+
+  function setLevelIndexFromCurrentLevel() {
+    levelIndex = 0;
+    for (let i = 0; i < LEVELS.length; i++) {
+      if (level === LEVELS[i]) {
+        levelIndex = i;
+        break;
+      }
+    }
   }
 
   function getLevelFromNum(levelNum: number) {

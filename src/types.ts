@@ -79,8 +79,10 @@ export interface Level {
   name: string,
   timeToClear: number,
   applesToClear: number,
-  numApplesStart?: number,
-  growthMod?: number,
   layout: string,
   colors: Palette,
+  numApplesStart?: number,
+  growthMod?: number,
+  snakeStartSizeOverride?: number
+  disableAppleSpawn?: boolean
 }

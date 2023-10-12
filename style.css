@@ -14,10 +14,15 @@ body {
 
 canvas {
   display: block;
+  cursor: crosshair;
 }
 
 main {
   position: relative;
+}
+
+main div {
+  cursor: crosshair
 }
 
 p {
