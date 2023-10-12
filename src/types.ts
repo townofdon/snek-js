@@ -1,5 +1,19 @@
 import { Vector } from "p5";
 
+/**
+ * USAGE:
+ *
+ * ```
+ * function* testEnumerator(): IEnumerator {
+ *   for (let i = 1; i < 11; i++) {
+ *     console.log(i);
+ *     yield* waitForSeconds(1);
+ *   }
+ * }
+ * ```
+ */
+export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, unknown>
+
 export enum DIR {
   UP = 'UP',
   DOWN = 'DOWN',
@@ -34,6 +48,7 @@ export interface GameState {
   isLost: boolean,
   isDoorsOpen: boolean,
   isExitingLevel: boolean,
+  isInverted: boolean,
   timeElapsed: number,
   timeSinceLastMove: number,
   timeSinceHurt: number,

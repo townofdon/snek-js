@@ -65,7 +65,7 @@ import { clamp } from './utils';
 import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
-import { DIR, Difficulty, GameState, Level, PlayerState, ScreenShakeState } from './types';
+import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState } from './types';
 
 const INITIAL_LEVEL = LEVEL_01;
 
@@ -88,6 +88,7 @@ let state: GameState = {
   isLost: false,
   isDoorsOpen: false,
   isExitingLevel: false,
+  isInverted: false,
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
   timeSinceHurt: Infinity,
@@ -166,7 +167,6 @@ export const sketch = (p5: P5) => {
       });
     }
   }
-
 
   function preload() {
     UI.setP5Instance(p5);
@@ -261,6 +261,7 @@ export const sketch = (p5: P5) => {
     state.isLost = false;
     state.isDoorsOpen = false;
     state.isExitingLevel = false;
+    state.isInverted = false;
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
     state.timeSinceHurt = Infinity;
@@ -442,6 +443,8 @@ export const sketch = (p5: P5) => {
 
   function draw() {
     if (state.isPaused) return;
+
+    setTimeout(() => { tickCoroutines(); }, 0);
 
     updateScreenShake();
     drawBackground();
@@ -962,4 +965,47 @@ export const sketch = (p5: P5) => {
         return LEVEL_01;
     }
   }
+
+  //#region --- COROUTINES ---
+  let coroutines: IEnumerator[] = []
+
+  function startCoroutine(enumerator: IEnumerator): number {
+    coroutines.push(enumerator);
+    const index = coroutines.length - 1;
+    return index;
+  }
+
+  function stopCoroutine(index: number) {
+    if (index < 0) return;
+    if (index >= coroutines.length) return;
+    delete coroutines[index];
+    coroutines = coroutines.slice(0, index).concat(coroutines.slice(index + 1))
+  }
+
+  function stopAllCoroutines() {
+    coroutines = [];
+  }
+
+  function tickCoroutines() {
+    for (let i = 0; i < coroutines.length; i++) {
+      if (!coroutines[i]) continue;
+      const value = coroutines[i].next();
+      const done = value.done;
+      let nested = value;
+      do {
+        // run nested enumerators
+      } while (nested = nested.value && nested.value.next());
+      if (done) delete coroutines[i];
+    }
+    coroutines = coroutines.filter(c => !!c);
+  }
+
+  function* waitForSeconds(seconds: number): IEnumerator {
+    let timeRemaining = seconds;
+    while (timeRemaining > 0) {
+      timeRemaining -= p5.deltaTime * 0.001;
+      yield null;
+    }
+  }
+  //#endregion --- COROUTINES ---
 }
