@@ -2,6 +2,10 @@ import P5, {Element, Vector} from 'p5';
 
 const UI_LABEL_OFFSET = '18px';
 
+const LABEL_COLOR = '#fff';
+const LABEL_COLOR_INVERTED = '#000';
+const LABEL_BG_COLOR = 'rgba(0,0,0, 0.5)';
+const LABEL_BG_COLOR_INVERTED = 'rgba(255,255,255, 0.5)';
 
 export class UI {
   static p5: P5;
@@ -27,13 +31,15 @@ export class UI {
     uiElements.push(p);
   }
 
-  static drawLevelName(levelName = '', textColor = '#fff', uiElements: Element[]) {
+  static renderLevelName(levelName = '', isShowingDeathColours: boolean) {
+    const id = 'level-name-field'
+    document.getElementById(id)?.remove();
     const p = UI.p5.createP(levelName);
     p.position(0, 0);
-    p.id('level-name-field');
+    p.id(id);
     p.style('font-size', '1em');
-    p.style('color', textColor);
-    p.style('background-color', 'rgba(0,0,0, 0.5)');
+    p.style('color', isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
+    p.style('background-color', isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
     p.style('line-height', '1em');
     p.style('white-space', 'nowrap');
     p.style('top', 'inherit');
@@ -44,18 +50,56 @@ export class UI {
     p.style('padding', '1px 8px');
     p.style('text-align', 'right');
     p.parent("main");
-    uiElements.push(p);
   }
 
-  static renderScore(score = 0) {
+  static renderHearts(numLives = 3, isShowingDeathColours: boolean) {
+    const containerId = "hearts-container";
+    const className = "hearts-container";
+    const getLabelColor = (index: number) => {
+      if (isShowingDeathColours) return LABEL_COLOR_INVERTED;
+      if (numLives === 0) return '#f50';
+      if (index < numLives) return '#fff';
+      return '#888';
+    }
+    const labelBackgroundColor = (() => {
+      if (isShowingDeathColours) return LABEL_COLOR_INVERTED;
+      return numLives === 0 ? '#631705db' : 'rgb(7 11 15 / 52%)';
+    })()
+    document.getElementById(containerId)?.remove();
+    let div = UI.p5.createDiv();
+    const numHearts = 3;
+    const drawHeart = (index = 0) => {
+      const element = UI.p5.createP(index < numLives ? "♥︎" : "♡");
+      element.style('display', 'inline-block');
+      element.style('font-size', '15px');
+      element.style('color', getLabelColor(index));
+      element.style('text-shadow', '0px 3px 3px black');
+      element.style('text-align', 'center');
+      element.style('margin', '0 8px');
+      element.parent(div);
+    }
+    for (let i = 0; i < numHearts; i++) {
+      drawHeart(i);
+    }
+    div.position(0, 0);
+    div.style('left', 'inherit');
+    div.style('right', UI_LABEL_OFFSET);
+    div.style('padding', '0 5px');
+    div.style('background-color', labelBackgroundColor);
+    div.class(className);
+    div.id(containerId);
+    div.parent("main");
+  }
+
+  static renderScore(score = 0, isShowingDeathColours: boolean) {
     const id = 'score-field';
     document.getElementById(id)?.remove();
     const p = UI.p5.createP(String(score).padStart(8, '0'));
     p.position(0, 0);
     p.id(id);
     p.style('font-size', '1em');
-    p.style('color', '#fff');
-    p.style('background-color', 'rgba(0,0,0, 0.5)');
+    p.style('color', isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
+    p.style('background-color', isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
     p.style('line-height', '1em');
     p.style('white-space', 'nowrap');
     p.style('top', 'inherit');
@@ -67,7 +111,7 @@ export class UI {
     p.parent("main");
   }
 
-  static renderDifficulty(difficultyIndex = 0) {
+  static renderDifficulty(difficultyIndex = 0, isShowingDeathColours: boolean) {
     const id = 'difficulty-field';
     const difficultyText = (() => {
       if (difficultyIndex >= 4) return 'ULTRA';
@@ -81,8 +125,8 @@ export class UI {
     p.position(0, 0);
     p.id(id);
     p.style('font-size', '1em');
-    p.style('color', '#fff');
-    p.style('background-color', 'rgba(0,0,0, 0.5)');
+    p.style('color', isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
+    p.style('background-color', isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
     p.style('line-height', '1em');
     p.style('white-space', 'nowrap');
     p.style('left', UI_LABEL_OFFSET);
@@ -162,36 +206,6 @@ export class UI {
   static clearScreenInvert() {
     document.getElementById("screen-invert")?.remove();
     document.getElementById("main").style.mixBlendMode = 'inherit';
-  }
-
-  static renderHearts(numLives = 3, uiElements: Element[]) {
-    const containerId = "hearts-container";
-    const className = "hearts-container";
-    document.getElementById(containerId)?.remove();
-    let div = UI.p5.createDiv();
-    const numHearts = 3;
-    const drawHeart = (index = 0) => {
-      const element = UI.p5.createP(index < numLives ? "♥︎" : "♡");
-      element.style('display', 'inline-block');
-      element.style('font-size', '15px');
-      element.style('color', numLives === 0 ? '#f50' : index < numLives ? '#fff' : '#888');
-      element.style('text-shadow', '0px 3px 3px black');
-      element.style('text-align', 'center');
-      element.style('margin', '0 8px');
-      element.parent(div);
-    }
-    for (let i = 0; i < numHearts; i++) {
-      drawHeart(i);
-    }
-    div.position(0, 0);
-    div.style('left', 'inherit');
-    div.style('right', UI_LABEL_OFFSET);
-    div.style('padding', '0 5px');
-    div.style('background-color', numLives === 0 ? '#631705db' : 'rgb(7 11 15 / 52%)');
-    div.class(className);
-    div.id(containerId);
-    div.parent("main");
-    uiElements.push(div);
   }
 
   static disableScreenScroll() {

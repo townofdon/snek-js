@@ -66,6 +66,7 @@ import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
 import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState } from './types';
+import { PALETTE } from './palettes';
 
 const INITIAL_LEVEL = LEVEL_01;
 
@@ -88,7 +89,7 @@ let state: GameState = {
   isLost: false,
   isDoorsOpen: false,
   isExitingLevel: false,
-  isInverted: false,
+  isShowingDeathColours: false,
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
   timeSinceHurt: Infinity,
@@ -236,15 +237,15 @@ export const sketch = (p5: P5) => {
     }
     state.isStarted = true;
     UI.disableScreenScroll();
-    UI.renderDifficulty(difficulty.index);
+    UI.renderDifficulty(difficulty.index, state.isShowingDeathColours);
     clearUI();
   }
 
   function clearUI() {
     uiElements.forEach(element => element.remove())
     uiElements = [];
-    UI.drawLevelName(level.name, "#fff", uiElements);
-    UI.renderHearts(state.lives, uiElements);
+    UI.renderLevelName(level.name, state.isShowingDeathColours);
+    UI.renderHearts(state.lives, state.isShowingDeathColours);
     UI.clearScreenInvert();
   }
 
@@ -262,7 +263,7 @@ export const sketch = (p5: P5) => {
     state.isLost = false;
     state.isDoorsOpen = false;
     state.isExitingLevel = false;
-    state.isInverted = false;
+    state.isShowingDeathColours = false;
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
     state.timeSinceHurt = Infinity;
@@ -287,8 +288,8 @@ export const sketch = (p5: P5) => {
     doorsMap = {};
     nospawnsMap = {};
 
-    UI.renderHearts(state.lives, uiElements);
-    UI.renderScore(score + totalScore);
+    UI.renderHearts(state.lives, state.isShowingDeathColours);
+    UI.renderScore(score + totalScore, state.isShowingDeathColours);
 
     // clear any pending timeouts
     for (let i = 0; i < timeouts.length; i++) {
@@ -518,7 +519,7 @@ export const sketch = (p5: P5) => {
     // handle snake death
     if (state.isLost) {
       state.lives = 0;
-      UI.renderHearts(state.lives, uiElements);
+      UI.renderHearts(state.lives, state.isShowingDeathColours);
       flashScreen();
       showGameOver();
       return;
@@ -545,7 +546,7 @@ export const sketch = (p5: P5) => {
 
     if (state.isExitingLevel) {
       score += SCORE_INCREMENT;
-      UI.renderScore(score + totalScore);
+      UI.renderScore(score + totalScore, state.isShowingDeathColours);
     }
 
     if (state.isExitingLevel && segments.every(segment => getHasSegmentExited(segment))) {
@@ -719,7 +720,7 @@ export const sketch = (p5: P5) => {
     }
     state.numApplesEaten += 1;
     score += SCORE_INCREMENT * difficulty.scoreMod + bonus;
-    UI.renderScore(score + totalScore);
+    UI.renderScore(score + totalScore, state.isShowingDeathColours);
   }
 
   function increaseSpeed() {
@@ -755,11 +756,13 @@ export const sketch = (p5: P5) => {
   }
 
   function drawBackground() {
-    p5.background(level.colors.background);
+    p5.background(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background);
   }
 
   function drawPlayer(vec: Vector) {
-    drawSquare(vec.x, vec.y, level.colors.playerHead, level.colors.playerHead);
+    drawSquare(vec.x, vec.y,
+      state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
+      state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead);
   }
 
   function drawPlayerPart(vec: Vector) {
@@ -770,28 +773,40 @@ export const sketch = (p5: P5) => {
         drawSquare(vec.x, vec.y, "#fff", "#fff");
       }
     } else {
-      drawSquare(vec.x, vec.y, level.colors.playerTail, level.colors.playerTailStroke);
+      drawSquare(vec.x, vec.y,
+        state.isShowingDeathColours ? PALETTE.deathInvert.playerTail : level.colors.playerTail,
+        state.isShowingDeathColours ? PALETTE.deathInvert.playerTailStroke :level.colors.playerTailStroke);
     }
   }
 
   function drawApple(vec: Vector) {
-    drawSquare(vec.x, vec.y, level.colors.apple, level.colors.appleStroke);
+    drawSquare(vec.x, vec.y,
+      state.isShowingDeathColours ? PALETTE.deathInvert.apple : level.colors.apple,
+      state.isShowingDeathColours ? PALETTE.deathInvert.appleStroke :level.colors.appleStroke);
   }
 
   function drawBarrier(vec: Vector) {
-    drawSquare(vec.x, vec.y, level.colors.barrier, level.colors.barrierStroke);
+    drawSquare(vec.x, vec.y,
+      state.isShowingDeathColours ? PALETTE.deathInvert.barrier : level.colors.barrier,
+      state.isShowingDeathColours ? PALETTE.deathInvert.barrierStroke :level.colors.barrierStroke);
   }
 
   function drawDoor(vec: Vector) {
-    drawSquare(vec.x, vec.y, level.colors.door, level.colors.doorStroke);
+    drawSquare(vec.x, vec.y,
+      state.isShowingDeathColours ? PALETTE.deathInvert.door : level.colors.door,
+      state.isShowingDeathColours ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke);
   }
 
   function drawDecorative1(vec: Vector) {
-    drawSquare(vec.x, vec.y, level.colors.deco1, level.colors.deco1Stroke);
+    drawSquare(vec.x, vec.y,
+      state.isShowingDeathColours ? PALETTE.deathInvert.deco1 : level.colors.deco1,
+      state.isShowingDeathColours ? PALETTE.deathInvert.deco1Stroke :level.colors.deco1Stroke);
   }
 
   function drawDecorative2(vec: Vector) {
-    drawSquare(vec.x, vec.y, level.colors.deco2, level.colors.deco2Stroke);
+    drawSquare(vec.x, vec.y,
+      state.isShowingDeathColours ? PALETTE.deathInvert.deco2 : level.colors.deco2,
+      state.isShowingDeathColours ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke);
   }
 
   function drawSquare(x: number, y: number, background = "pink", lineColor = "fff") {
@@ -824,7 +839,7 @@ export const sketch = (p5: P5) => {
   function hurtSnake() {
     reboundSnake(segments.length > 3 ? 2 : 1);
     startScreenShake();
-    UI.renderHearts(state.lives, uiElements);
+    UI.renderHearts(state.lives, state.isShowingDeathColours);
     // reset any queued up moves so that next action player takes feels more intentional
     moves = [];
     // set current direction to be the direction from the first segment towards the snake head
@@ -847,9 +862,11 @@ export const sketch = (p5: P5) => {
     startScreenShake();
     yield* waitForTime(200);
     startScreenShake({ magnitude: 3, normalizedTime: -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, timeScale: 0.1 });
-    UI.invertScreen();
+    state.isShowingDeathColours = true;
+    // UI.invertScreen();
     yield* waitForTime(HURT_STUN_TIME * 2.5);
-    UI.clearScreenInvert();
+    // UI.clearScreenInvert();
+    state.isShowingDeathColours = false;
     startScreenShake();
     UI.drawDarkOverlay(uiElements);
     UI.drawButton("TRY AGAIN", 236, 280, init, uiElements);
@@ -857,7 +874,7 @@ export const sketch = (p5: P5) => {
     UI.drawText(`SCORE: ${Math.floor(totalScore + score)}`, '40px', 370, uiElements);
     UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
     UI.enableScreenScroll();
-    UI.renderScore(score + totalScore);
+    UI.renderScore(score + totalScore, state.isShowingDeathColours);
     resetScore();
   }
 
