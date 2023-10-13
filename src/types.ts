@@ -1,4 +1,4 @@
-import { Vector } from "p5";
+import P5, { Vector } from "p5";
 
 /**
  * USAGE:
@@ -7,7 +7,7 @@ import { Vector } from "p5";
  * function* testEnumerator(): IEnumerator {
  *   for (let i = 1; i < 11; i++) {
  *     console.log(i);
- *     yield* waitForDuration(1000);
+ *     yield* waitForTime(1000);
  *   }
  * }
  * ```
@@ -44,7 +44,8 @@ export interface Difficulty {
 
 export interface GameState {
   isPaused: boolean,
-  isStarted: boolean,
+  isGameStarted: boolean,
+  isTransitionSceneShowing: boolean,
   isLost: boolean,
   isDoorsOpen: boolean,
   isExitingLevel: boolean,
@@ -85,4 +86,24 @@ export interface Level {
   growthMod?: number,
   snakeStartSizeOverride?: number
   disableAppleSpawn?: boolean
+}
+
+export interface FontVariants {
+  miniMood: P5.Font
+}
+
+export interface Scene {
+  draw: () => void
+  keyPressed: (event?: object) => void
+  cleanup: () => void
+  action: () => IEnumerator
+}
+
+export interface SceneCallbacks {
+  onSceneEnded?: () => void
+}
+
+export interface SceneCachedCallbacks {
+  draw: () => void
+  keyPressed: (event?: object) => void
 }

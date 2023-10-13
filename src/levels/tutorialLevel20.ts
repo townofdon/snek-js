@@ -2,7 +2,7 @@ import { PALETTE } from "../palettes";
 import { Level } from "../types";
 
 export const TUTORIAL_LEVEL_20: Level = {
-  name: 'getmeoutahere',
+  name: 'turnonadime',
   timeToClear: 1000 * 60 * 5,
   applesToClear: 43,
   numApplesStart: -1,
@@ -17,7 +17,7 @@ XaXXX--XXX XXX--XXX -
 XaX-X--X-XaX X--X XX----------
 XaX-X--X-XaX X--X X X X X X X 
 X X-X--X-XaXXX--XXXXXXXXXXXXXX
-X X-XXXX-XaXXXXXXXXXXXXXXXXXXX 
+X X-XXXX-XaXXXXXXXXXXXXXXXXXXX
 X X-X--X-XaXXX--XXXXXXX--XXXXX
 X X-X--X-XaX-X--X-XXX-X--X-XXX
 X X-X--X-XaX-X--X-XXX-X--X-XXX

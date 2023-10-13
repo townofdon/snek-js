@@ -2,7 +2,7 @@ import { PALETTE } from "../palettes";
 import { Level } from "../types";
 
 export const LEVEL_04: Level = {
-  name: 'midnight city',
+  name: 'the facility',
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 40,
   numApplesStart: 5,

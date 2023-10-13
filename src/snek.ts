@@ -71,6 +71,9 @@ import { Easing } from './easing';
 import { UI } from './ui';
 import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState } from './types';
 import { PALETTE } from './palettes';
+import { Coroutines } from './coroutines';
+import { TransitionSceneL1L2 } from './scenes/transition-scene-L1-L2';
+import { Fonts } from './fonts';
 
 let level: Level = INITIAL_LEVEL;
 let levelIndex = 0;
@@ -88,7 +91,8 @@ let totalApplesEaten = 0;
 
 let state: GameState = {
   isPaused: false,
-  isStarted: true,
+  isGameStarted: true,
+  isTransitionSceneShowing: false,
   isLost: false,
   isDoorsOpen: false,
   isExitingLevel: false,
@@ -138,6 +142,14 @@ export const sketch = (p5: P5) => {
   p5.draw = draw;
   p5.keyPressed = keyPressed;
 
+  const coroutines = new Coroutines(p5);
+  const startCoroutine = coroutines.start;
+  const stopAllCoroutines = coroutines.stopAll;
+  const tickCoroutines = coroutines.tick;
+  const waitForTime = coroutines.waitForTime;
+
+  const fonts = new Fonts(p5);
+
   class AppleParticleSystem extends ParticleSystem {
     /** 
      * @param {P5} p5
@@ -172,6 +184,7 @@ export const sketch = (p5: P5) => {
   }
 
   function preload() {
+    fonts.load();
     UI.setP5Instance(p5);
   }
 
@@ -184,16 +197,24 @@ export const sketch = (p5: P5) => {
     score = 0;
     totalScore = 0;
     totalApplesEaten = 0;
-    state.isStarted = false;
+    state.isGameStarted = false;
+    state.isTransitionSceneShowing = false;
     UI.disableScreenScroll();
 
-    UI.drawDarkOverlay(uiElements);
-    UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
-    UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
-    UI.drawButton("EASY", 150, 280, () => startGame(1), uiElements);
-    UI.drawButton("MEDIUM", 255, 280, () => startGame(2), uiElements);
-    UI.drawButton("HARD", 370, 280, () => startGame(3), uiElements);
-    UI.drawButton("ULTRA", 485, 530, () => startGame(4), uiElements);
+    state.isTransitionSceneShowing = true;
+    const onSceneEnded = () => {
+      console.log("teh scene has ended");
+      state.isTransitionSceneShowing = false;
+
+      UI.drawDarkOverlay(uiElements);
+      UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
+      UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
+      UI.drawButton("EASY", 150, 280, () => startGame(1), uiElements);
+      UI.drawButton("MEDIUM", 255, 280, () => startGame(2), uiElements);
+      UI.drawButton("HARD", 370, 280, () => startGame(3), uiElements);
+      UI.drawButton("ULTRA", 485, 530, () => startGame(4), uiElements);
+    }
+    new TransitionSceneL1L2(p5, fonts, { onSceneEnded })
   }
 
   function startGame(dif = 2) {
@@ -237,7 +258,7 @@ export const sketch = (p5: P5) => {
       default:
         throw new Error(`Unexpected difficulty: ${difficulty}`)
     }
-    state.isStarted = true;
+    state.isGameStarted = true;
     UI.disableScreenScroll();
     UI.renderDifficulty(difficulty.index, state.isShowingDeathColours);
     clearUI();
@@ -266,7 +287,7 @@ export const sketch = (p5: P5) => {
     player.position = p5.createVector(15, 15);
     player.direction = DIR.RIGHT;
     state.isPaused = false;
-    state.isStarted = true;
+    state.isGameStarted = true;
     state.isLost = false;
     state.isDoorsOpen = false;
     state.isExitingLevel = false;
@@ -382,7 +403,7 @@ export const sketch = (p5: P5) => {
       return;
     }
 
-    if (!state.isStarted) {
+    if (!state.isGameStarted) {
       if (keyCode === KEYCODE_1) startGame(1);
       else if (keyCode === KEYCODE_2) startGame(2);
       else if (keyCode === KEYCODE_3) startGame(3);
@@ -501,7 +522,7 @@ export const sketch = (p5: P5) => {
     drawPlayer(player.position);
 
     if (state.isLost) return;
-    if (!state.isStarted) return;
+    if (!state.isGameStarted) return;
 
     // check if head has reached an apple
     const appleFound = applesMap[getCoordIndex(player.position)];
@@ -977,42 +998,4 @@ export const sketch = (p5: P5) => {
         return LEVEL_01;
     }
   }
-
-  //#region --- COROUTINES ---
-  let coroutines: IEnumerator[] = []
-
-  function startCoroutine(enumerator: IEnumerator): number {
-    coroutines.push(enumerator);
-    const index = coroutines.length - 1;
-    return index;
-  }
-
-  function stopCoroutine(index: number) {
-    if (index < 0) return;
-    if (index >= coroutines.length) return;
-    delete coroutines[index];
-    coroutines = coroutines.slice(0, index).concat(coroutines.slice(index + 1))
-  }
-
-  function stopAllCoroutines() {
-    coroutines = [];
-  }
-
-  function tickCoroutines() {
-    for (let i = 0; i < coroutines.length; i++) {
-      if (!coroutines[i]) continue;
-      const value = coroutines[i].next();
-      if (value.done) delete coroutines[i];
-    }
-    coroutines = coroutines.filter(c => !!c);
-  }
-
-  function* waitForTime(durationMs: number): IEnumerator {
-    let timeRemaining = durationMs;
-    while (timeRemaining > 0) {
-      timeRemaining -= p5.deltaTime;
-      yield null;
-    }
-  }
-  //#endregion --- COROUTINES ---
 }

@@ -2,7 +2,7 @@ import { PALETTE } from "../palettes";
 import { Level } from "../types";
 
 export const LEVEL_03: Level = {
-  name: 'metro station',
+  name: 'metro',
   timeToClear: 1000 * 60 * 1.3,
   applesToClear: 30,
   layout: `
