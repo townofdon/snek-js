@@ -1,8 +1,10 @@
 
 export const TITLE = 'SNEK';
 
+const windowWidth = window.innerWidth;
+
 export const FRAMERATE = 90;
-export const DIMENSIONS = { x: 600, y: 600 };
+export const DIMENSIONS = { x: Math.min(windowWidth, 600), y: Math.min(windowWidth, 600) };
 export const GRIDCOUNT = { x: 30, y: 30 };
 export const STROKE_SIZE = 4;
 export const STRANGELY_NEEDED_OFFSET = { x: STROKE_SIZE / GRIDCOUNT.x, y: STROKE_SIZE / GRIDCOUNT.y };

@@ -61,7 +61,7 @@ import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShak
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
-import { handleKeyPressed } from './controls';
+import { bindButtonActions, handleKeyPressed } from './controls';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
 
@@ -195,15 +195,27 @@ export const sketch = (p5: P5) => {
     totalApplesEaten = 0;
     state.isGameStarted = false;
     state.isTransitionSceneShowing = false;
-    UI.disableScreenScroll();
+    UI.enableScreenScroll();
+    UI.clearLabels();
+
+    bindButtonActions(player, moves, {
+      onInit: () => init(false),
+      onStartGame: startGame,
+      onClearUI: clearUI,
+      onShowPortalUI: showPortalUI,
+      onWarpToLevel: warpToLevel,
+      onStartMoving: () => { state.isMoving = true; },
+      onAddMove: move => moves.push(move),
+    });
 
     UI.drawDarkOverlay(uiElements);
     UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
     UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
-    UI.drawButton("EASY", 150, 280, () => startGame(1), uiElements);
-    UI.drawButton("MEDIUM", 255, 280, () => startGame(2), uiElements);
-    UI.drawButton("HARD", 370, 280, () => startGame(3), uiElements);
-    UI.drawButton("ULTRA", 485, 530, () => startGame(4), uiElements);
+    const offsetLeft = window.innerWidth <= 700 ? 80 : 150;
+    UI.drawButton("EASY", 0 + offsetLeft, 280, () => startGame(1), uiElements);
+    UI.drawButton("MEDIUM", 105 + offsetLeft, 280, () => startGame(2), uiElements);
+    UI.drawButton("HARD", 220 + offsetLeft, 280, () => startGame(3), uiElements);
+    UI.drawButton("ULTRA", 108 + offsetLeft, 340, () => startGame(4), uiElements);
   }
 
   /**
@@ -225,7 +237,8 @@ export const sketch = (p5: P5) => {
       onClearUI: clearUI,
       onShowPortalUI: showPortalUI,
       onWarpToLevel: warpToLevel,
-      onStartMoving: () => { state.isMoving = true; }
+      onStartMoving: () => { state.isMoving = true; },
+      onAddMove: move => moves.push(move),
     });
   }
 
@@ -274,15 +287,15 @@ export const sketch = (p5: P5) => {
     }
     state.isGameStarted = true;
     UI.disableScreenScroll();
-    UI.renderDifficulty(difficulty.index, state.isShowingDeathColours);
-    clearUI();
   }
 
   function clearUI() {
     uiElements.forEach(element => element.remove())
     uiElements = [];
-    UI.renderLevelName(level.name, state.isShowingDeathColours);
-    renderHeartsUI();
+  }
+
+  function renderDifficultyUI() {
+    UI.renderDifficulty(difficulty.index, state.isShowingDeathColours);
   }
 
   function renderHeartsUI() {
@@ -291,6 +304,10 @@ export const sketch = (p5: P5) => {
 
   function renderScoreUI() {
     UI.renderScore(score + totalScore, state.isShowingDeathColours);
+  }
+
+  function renderLevelName() {
+    UI.renderLevelName(level.name, state.isShowingDeathColours);
   }
 
   function init(shouldShowTransitions = true) {
@@ -331,8 +348,7 @@ export const sketch = (p5: P5) => {
     nospawnsMap = {};
 
     UI.disableScreenScroll();
-    renderHeartsUI();
-    renderScoreUI();
+    UI.clearLabels();
     clearUI();
 
     if (shouldShowTransitions) {
@@ -345,6 +361,10 @@ export const sketch = (p5: P5) => {
           console.error(err);
         }).finally(() => {
           state.isTransitionSceneShowing = false;
+          renderDifficultyUI();
+          renderHeartsUI();
+          renderScoreUI();
+          renderLevelName();
         })
     }
 

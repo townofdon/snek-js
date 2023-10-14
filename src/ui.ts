@@ -1,4 +1,4 @@
-import P5, {Element, Vector} from 'p5';
+import P5, { Element, Vector } from 'p5';
 
 const UI_LABEL_OFFSET = '18px';
 
@@ -15,10 +15,12 @@ export class UI {
   }
 
   static drawTitle(title = '', textColor = '#fff', offset: number, hasShadow: boolean, uiElements: Element[]) {
+    const letterSpacing = window.innerWidth <= 700 ? '45px' : '65px';
+    const positionLeft = window.innerWidth <= 700 ? 64 : 84;
     const p = UI.p5.createP(title);
     p.id('title');
     p.style('font-size', '6em');
-    p.style('letter-spacing', '65px');
+    p.style('letter-spacing', letterSpacing);
     p.style('color', textColor);
     p.style('line-height', '1em');
     p.style('font-family', "'Monofett', monospace");
@@ -26,9 +28,16 @@ export class UI {
     if (hasShadow) {
       p.style('text-shadow', '6px 6px 3px black');
     }
-    p.position(84 + offset, 7 + offset);
+    p.position(positionLeft + offset, 7 + offset);
     p.parent("main");
     uiElements.push(p);
+  }
+
+  static clearLabels() {
+    document.getElementById('level-name-field')?.remove();
+    document.getElementById('hearts-container')?.remove();
+    document.getElementById('score-field')?.remove();
+    document.getElementById('difficulty-field')?.remove();
   }
 
   static renderLevelName(levelName = '', isShowingDeathColours: boolean) {

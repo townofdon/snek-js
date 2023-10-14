@@ -17,7 +17,7 @@ import {
   KEYCODE_D,
   KEYCODE_S,
 } from './constants';
-import { DIR, GameState } from "./types";
+import { DIR, GameState, PlayerState } from "./types";
 
 export interface InputCallbacks {
   onInit: () => void
@@ -26,6 +26,18 @@ export interface InputCallbacks {
   onShowPortalUI: () => void
   onWarpToLevel: (level: number) => void
   onStartMoving: () => void
+  onAddMove: (move: DIR) => void
+}
+
+export function bindButtonActions(player: PlayerState, moves: DIR[], callbacks: InputCallbacks) {
+  const handleClick = (ev: Event) => {
+    if (!ev.target) return;
+    const element = ev.target as HTMLElement;
+    const buttonDir: DIR | null = (element.dataset.direction || null) as (DIR | null);
+    handleMove(buttonDir, player.direction, moves, callbacks);
+  }
+  // document.getElementById('control-button-up')
+  document.addEventListener('click', handleClick);
 }
 
 export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
@@ -36,7 +48,6 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     onClearUI,
     onShowPortalUI,
     onWarpToLevel,
-    onStartMoving,
   } = callbacks
 
   if (state.isLost) {
@@ -77,10 +88,7 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     return;
   }
 
-  const prevMove = moves.length > 0
-    ? moves[moves.length - 1]
-    : playerDirection;
-  let currentMove = null;
+  let currentMove: DIR | null = null;
 
   if (keyCode === LEFT_ARROW || keyCode === KEYCODE_A) {
     currentMove = DIR.LEFT;
@@ -92,15 +100,25 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     currentMove = DIR.DOWN;
   }
 
+  handleMove(currentMove, playerDirection, moves, callbacks);
+}
+
+function handleMove(currentMove: DIR | null, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
+  const { onStartMoving, onAddMove } = callbacks
+
   if (currentMove) {
     onStartMoving();
   }
+
+  const prevMove = moves.length > 0
+    ? moves[moves.length - 1]
+    : playerDirection;
 
   // validate current move
   if (moves.length >= MAX_MOVES) return;
   if (!validateMove(prevMove, currentMove)) return;
 
-  moves.push(currentMove);
+  onAddMove(currentMove);
 }
 
 function validateMove(prev: DIR, current: DIR) {
