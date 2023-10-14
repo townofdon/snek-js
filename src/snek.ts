@@ -48,18 +48,6 @@ import {
   SPEED_LIMIT_MEDIUM,
   SPEED_LIMIT_HARD,
   SPEED_LIMIT_ULTRA,
-  KEYCODE_J,
-  KEYCODE_0,
-  KEYCODE_1,
-  KEYCODE_2,
-  KEYCODE_3,
-  KEYCODE_4,
-  KEYCODE_5,
-  KEYCODE_6,
-  KEYCODE_7,
-  KEYCODE_8,
-  KEYCODE_9,
-  KEYCODE_SPACE,
   SCREEN_SHAKE_DURATION_MS,
   SCREEN_SHAKE_MAGNITUDE_PX,
   HURT_STUN_TIME,
@@ -70,11 +58,13 @@ import { clamp } from './utils';
 import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
-import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState } from './types';
+import { DIR, Difficulty, FontsInstance, GameState, IEnumerator, Level, PlayerState, Scene, SceneCallbacks, ScreenShakeState } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
 import { handleKeyPressed } from './controls';
+import { BaseScene } from './scenes/BaseScene';
+import { buildSceneActionFactory } from './scenes/sceneUtils';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
@@ -317,60 +307,17 @@ export const sketch = (p5: P5) => {
     renderScoreUI();
     clearUI();
 
-    let showTitleScene = async () => { }
-    let showStoryScene = async () => { }
-    let showCreditsScene = async () => { }
-
-    if (level.storyScene) {
-      showStoryScene = () => new Promise((resolve, reject) => {
-        try {
-          const onSceneEnded = () => {
-            resolve()
-          }
-          state.isTransitionSceneShowing = true;
-          level.titleScene(p5, fonts, { onSceneEnded })
-        } catch (err) {
-          reject(err)
-        }
-      })
-    }
-
-    if (level.titleScene) {
-      showTitleScene = () => new Promise((resolve, reject) => {
-        try {
-          const onSceneEnded = () => {
-            resolve()
-          }
-          state.isTransitionSceneShowing = true;
-          level.titleScene(p5, fonts, { onSceneEnded })
-        } catch (err) {
-          reject(err)
-        }
-      })
-    }
-
-    if (level.creditsScene) {
-      showCreditsScene = () => new Promise((resolve, reject) => {
-        try {
-          const onSceneEnded = () => {
-            setup()
-            resolve()
-          }
-          state.isTransitionSceneShowing = true;
-          level.creditsScene(p5, fonts, { onSceneEnded })
-        } catch (err) {
-          reject(err)
-        }
-      })
-    }
-
     if (shouldShowTransitions) {
-      state.isGameStarted = true;
-      showStoryScene().then(showTitleScene).then(showCreditsScene).catch(err => {
-        console.error(err);
-      }).finally(() => {
-        state.isTransitionSceneShowing = false;
-      })
+      const buildSceneAction = buildSceneActionFactory(p5, fonts, state);
+      Promise.resolve()
+        .then(buildSceneAction(level.storyScene))
+        .then(buildSceneAction(level.titleScene))
+        .then(buildSceneAction(level.creditsScene))
+        .catch(err => {
+          console.error(err);
+        }).finally(() => {
+          state.isTransitionSceneShowing = false;
+        })
     }
 
     // parse level data - add barriers and doors

@@ -42,10 +42,6 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     return;
   }
 
-  if (p5.keyIsPressed) {
-    console.log(p5.keyCode);
-  }
-
   if (!state.isGameStarted) {
     if (keyCode === KEYCODE_1) onStartGame(1);
     else if (keyCode === KEYCODE_2) onStartGame(2);
