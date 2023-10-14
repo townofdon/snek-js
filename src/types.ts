@@ -46,6 +46,7 @@ export interface GameState {
   isPaused: boolean,
   isGameStarted: boolean,
   isTransitionSceneShowing: boolean,
+  isMoving: boolean,
   isLost: boolean,
   isDoorsOpen: boolean,
   isExitingLevel: boolean,

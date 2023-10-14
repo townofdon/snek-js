@@ -83,6 +83,7 @@ let state: GameState = {
   isPaused: false,
   isGameStarted: true,
   isTransitionSceneShowing: false,
+  isMoving: false,
   isLost: false,
   isDoorsOpen: false,
   isExitingLevel: false,
@@ -224,6 +225,7 @@ export const sketch = (p5: P5) => {
       onClearUI: clearUI,
       onShowPortalUI: showPortalUI,
       onWarpToLevel: warpToLevel,
+      onStartMoving: () => { state.isMoving = true; }
     });
   }
 
@@ -300,6 +302,7 @@ export const sketch = (p5: P5) => {
     player.direction = DIR.RIGHT;
     state.isPaused = false;
     state.isGameStarted = true;
+    state.isMoving = false;
     state.isLost = false;
     state.isDoorsOpen = false;
     state.isExitingLevel = false;
@@ -454,14 +457,16 @@ export const sketch = (p5: P5) => {
       return;
     }
 
-    const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
-    if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
-      movePlayer(snakePositionsMap);
-    } else {
-      state.timeSinceLastMove += p5.deltaTime;
+    if (state.isMoving) {
+      const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
+      if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
+        movePlayer(snakePositionsMap);
+      } else {
+        state.timeSinceLastMove += p5.deltaTime;
+      }
+      state.timeElapsed += p5.deltaTime;
+      state.timeSinceHurt += p5.deltaTime;
     }
-    state.timeElapsed += p5.deltaTime;
-    state.timeSinceHurt += p5.deltaTime;
 
     if (getHasClearedLevel() && !state.isDoorsOpen) {
       openDoors();
@@ -573,6 +578,7 @@ export const sketch = (p5: P5) => {
   }
 
   function movePlayer(snakePositionsMap: Record<number, boolean>) {
+    if (!state.isMoving) return;
     state.timeSinceLastMove = 0;
     if (moves.length > 0 && !state.isExitingLevel) {
       player.direction = moves.shift()

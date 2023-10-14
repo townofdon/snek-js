@@ -25,6 +25,7 @@ export interface InputCallbacks {
   onClearUI: () => void
   onShowPortalUI: () => void
   onWarpToLevel: (level: number) => void
+  onStartMoving: () => void
 }
 
 export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
@@ -35,6 +36,7 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     onClearUI,
     onShowPortalUI,
     onWarpToLevel,
+    onStartMoving,
   } = callbacks
 
   if (state.isLost) {
@@ -88,6 +90,10 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     currentMove = DIR.UP;
   } else if (keyCode === DOWN_ARROW || keyCode === KEYCODE_S) {
     currentMove = DIR.DOWN;
+  }
+
+  if (currentMove) {
+    onStartMoving();
   }
 
   // validate current move
