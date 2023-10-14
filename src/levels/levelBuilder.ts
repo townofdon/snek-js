@@ -8,7 +8,7 @@ interface BuildLevelParams {
   level: Level
 }
 
-interface BuiltLevelData {
+interface LevelData {
   barriers: Vector[]
   barriersMap: Record<number, boolean>
   doors: Vector[]
@@ -22,7 +22,7 @@ interface BuiltLevelData {
 }
 
 export function buildLevel({ p5, level }: BuildLevelParams) {
-  const data: BuiltLevelData = {
+  const data: LevelData = {
     barriers: [],
     barriersMap: {},
     doors: [],

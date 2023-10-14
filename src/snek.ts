@@ -24,7 +24,6 @@ import {
   BLOCK_SIZE,
   STROKE_SIZE,
   BASE_TICK_MS,
-  MAX_MOVES,
   MAX_LIVES,
   START_SNAKE_SIZE,
   SPEED_INCREMENT,
@@ -54,16 +53,15 @@ import {
   HURT_FLASH_RATE,
   HURT_GRACE_TIME,
 } from './constants';
-import { clamp, getCoordIndex } from './utils';
+import { getCoordIndex } from './utils';
 import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
-import { DIR, Difficulty, FontsInstance, GameState, IEnumerator, Level, PlayerState, Scene, SceneCallbacks, ScreenShakeState } from './types';
+import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
 import { handleKeyPressed } from './controls';
-import { BaseScene } from './scenes/BaseScene';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
 
@@ -109,18 +107,17 @@ let screenShake: ScreenShakeState = {
   timeScale: 1,
 };
 
-let moves: DIR[] = [];
-let segments: Vector[] = [];
-let apples: Vector[] = [];
-let barriers: Vector[] = [];
-let doors: Vector[] = [];
-let nospawns: Vector[] = [];
-let decoratives1: Vector[] = [];
-let decoratives2: Vector[] = [];
+let moves: DIR[] = []; // moves that the player has queued up
+let segments: Vector[] = []; // snake segments
+let apples: Vector[] = []; // food that the snake can eat to grow and score points
+let barriers: Vector[] = []; // permanent structures that damage the snake
+let doors: Vector[] = []; // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
+let decoratives1: Vector[] = []; // bg decorative elements
+let decoratives2: Vector[] = []; // bg decorative elements
 
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
-let nospawnsMap: Record<number, boolean> = {};
+let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
 
 let uiElements: Element[] = [];
 let particleSystems: ParticleSystem[] = [];
@@ -128,11 +125,6 @@ let particleSystems: ParticleSystem[] = [];
 let screenFlashElement: Element;
 
 export const sketch = (p5: P5) => {
-
-  p5.preload = preload;
-  p5.setup = setup;
-  p5.draw = draw;
-  p5.keyPressed = keyPressed;
 
   const coroutines = new Coroutines(p5);
   const startCoroutine = coroutines.start;
@@ -175,11 +167,19 @@ export const sketch = (p5: P5) => {
     }
   }
 
+  /**
+   * https://p5js.org/reference/#/p5/preload
+   */
+  p5.preload = preload;
   function preload() {
     fonts.load();
     UI.setP5Instance(p5);
   }
 
+  /**
+   * https://p5js.org/reference/#/p5/setup
+   */
+  p5.setup = setup;
   function setup() {
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
     p5.frameRate(FRAMERATE);
@@ -203,6 +203,28 @@ export const sketch = (p5: P5) => {
     UI.drawButton("MEDIUM", 255, 280, () => startGame(2), uiElements);
     UI.drawButton("HARD", 370, 280, () => startGame(3), uiElements);
     UI.drawButton("ULTRA", 485, 530, () => startGame(4), uiElements);
+  }
+
+  /**
+   * https://p5js.org/reference/#/p5/draw
+   */
+  p5.draw = draw;
+  function draw() {
+    handleDraw();
+  }
+
+  /**
+   * https://p5js.org/reference/#/p5/keyPressed
+   */
+  p5.keyPressed = keyPressed;
+  function keyPressed() {
+    handleKeyPressed(p5, state, player.direction, moves, {
+      onInit: () => init(false),
+      onStartGame: startGame,
+      onClearUI: clearUI,
+      onShowPortalUI: showPortalUI,
+      onWarpToLevel: warpToLevel,
+    });
   }
 
   function startGame(dif = 2) {
@@ -298,7 +320,6 @@ export const sketch = (p5: P5) => {
     doors = [];
     apples = [];
     segments = []
-    nospawns = [];
     decoratives1 = [];
     decoratives2 = [];
     particleSystems = [];
@@ -324,17 +345,16 @@ export const sketch = (p5: P5) => {
         })
     }
 
-    const builtLevelData = buildLevel({ p5, level });
-    player.position = builtLevelData.playerSpawnPosition;
-    barriers = builtLevelData.barriers;
-    barriersMap = builtLevelData.barriersMap;
-    doors = builtLevelData.doors;
-    doorsMap = builtLevelData.doorsMap;
-    apples = builtLevelData.apples;
-    decoratives1 = builtLevelData.decoratives1;
-    decoratives2 = builtLevelData.decoratives2;
-    nospawns = builtLevelData.nospawns;
-    nospawnsMap = builtLevelData.nospawnsMap;
+    const levelData = buildLevel({ p5, level });
+    player.position = levelData.playerSpawnPosition;
+    barriers = levelData.barriers;
+    barriersMap = levelData.barriersMap;
+    doors = levelData.doors;
+    doorsMap = levelData.doorsMap;
+    apples = levelData.apples;
+    decoratives1 = levelData.decoratives1;
+    decoratives2 = levelData.decoratives2;
+    nospawnsMap = levelData.nospawnsMap;
 
     // create snake parts
     let x = player.position.x;
@@ -350,17 +370,7 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  function keyPressed() {
-    handleKeyPressed(p5, state, player.direction, moves, {
-      onInit: () => init(false),
-      onStartGame: startGame,
-      onClearUI: clearUI,
-      onShowPortalUI: showPortalUI,
-      onWarpToLevel: warpToLevel,
-    });
-  }
-
-  function draw() {
+  function handleDraw() {
     if (state.isPaused) return;
 
     setTimeout(() => { tickCoroutines(); }, 0);
@@ -396,7 +406,7 @@ export const sketch = (p5: P5) => {
 
     const snakePositionsMap: Record<number, boolean> = {};
     for (let i = 0; i < segments.length; i++) {
-      drawPlayerPart(segments[i]);
+      drawPlayerSegment(segments[i]);
       if (state.isLost || state.isExitingLevel) continue;
       snakePositionsMap[getCoordIndex(segments[i])] = true;
       const appleFound = applesMap[getCoordIndex(segments[i])];
@@ -407,7 +417,7 @@ export const sketch = (p5: P5) => {
       }
     }
 
-    drawPlayer(player.position);
+    drawPlayerHead(player.position);
 
     if (state.isLost) return;
     if (!state.isGameStarted) return;
@@ -604,6 +614,28 @@ export const sketch = (p5: P5) => {
     state.hurtGraceTime = HURT_GRACE_TIME;
   }
 
+  /**
+   * actions to apply when snake has taken damage
+   */
+  function hurtSnake() {
+    reboundSnake(segments.length > 3 ? 2 : 1);
+    // reset any queued up moves so that next action player takes feels more intentional
+    moves = [];
+    // set current direction to be the direction from the first segment towards the snake head
+    const dirToFirstSegment = (() => {
+      const diff = player.position.copy().sub(segments[0]);
+      if (diff.x === -1) return DIR.LEFT;
+      if (diff.x === 1) return DIR.RIGHT;
+      if (diff.y === -1) return DIR.UP;
+      if (diff.y === 1) return DIR.DOWN;
+      return DIR.RIGHT;
+    })();
+    player.direction = dirToFirstSegment;
+  }
+
+  /**
+   * Move snake back after it hits something
+   */
   function reboundSnake(numTimes = 2) {
     for (let times = 0; times < numTimes; times++) {
       if (segments.length > 1) { player.position.set(segments[0]); }
@@ -613,6 +645,9 @@ export const sketch = (p5: P5) => {
     }
   }
 
+  /**
+   * actions to apply when snake eats an apple
+   */
   function growSnake(appleIndex = -1) {
     if (state.isLost) return;
     if (appleIndex < 0) return;
@@ -675,13 +710,13 @@ export const sketch = (p5: P5) => {
     p5.background(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background);
   }
 
-  function drawPlayer(vec: Vector) {
+  function drawPlayerHead(vec: Vector) {
     drawSquare(vec.x, vec.y,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead);
   }
 
-  function drawPlayerPart(vec: Vector) {
+  function drawPlayerSegment(vec: Vector) {
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
         drawSquare(vec.x, vec.y, "#000", "#000");
@@ -750,22 +785,6 @@ export const sketch = (p5: P5) => {
       }
     }
     particleSystems = tempParticleSystems;
-  }
-
-  function hurtSnake() {
-    reboundSnake(segments.length > 3 ? 2 : 1);
-    // reset any queued up moves so that next action player takes feels more intentional
-    moves = [];
-    // set current direction to be the direction from the first segment towards the snake head
-    const dirToFirstSegment = (() => {
-      const diff = player.position.copy().sub(segments[0]);
-      if (diff.x === -1) return DIR.LEFT;
-      if (diff.x === 1) return DIR.RIGHT;
-      if (diff.y === -1) return DIR.UP;
-      if (diff.y === 1) return DIR.DOWN;
-      return DIR.RIGHT;
-    })();
-    player.direction = dirToFirstSegment;
   }
 
   function showGameOver() {
