@@ -1,5 +1,5 @@
 import P5 from "p5"
-import { FontVariants } from "./types";
+import { FontsInstance, FontVariants } from "./types";
 
 /**
  * Usage
@@ -16,7 +16,7 @@ import { FontVariants } from "./types";
  * }
  * ```
  */
-export class Fonts {
+export class Fonts implements FontsInstance {
   private _p5: P5;
 
   variants: FontVariants = {

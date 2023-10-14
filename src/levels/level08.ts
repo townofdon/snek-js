@@ -1,8 +1,11 @@
 import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
+const name = 'courtyard';
+
 export const LEVEL_08: Level = {
-  name: 'courtyard',
+  name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 70,
   numApplesStart: 10,
@@ -39,4 +42,5 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
 XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
   `,
   colors: PALETTE.forest,
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };

@@ -1,8 +1,11 @@
 import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
+const name = 'turnaround';
+
 export const TUTORIAL_LEVEL_10: Level = {
-  name: 'turnaround',
+  name,
   timeToClear: 1000 * 60 * 5,
   applesToClear: 10,
   numApplesStart: -1,
@@ -42,4 +45,5 @@ XXXXXXXXXXXXDDXXDDXXXXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   `,
   colors: PALETTE.hospital,
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };

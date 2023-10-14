@@ -86,6 +86,14 @@ export interface Level {
   growthMod?: number,
   snakeStartSizeOverride?: number
   disableAppleSpawn?: boolean
+  titleScene?: (p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
+  storyScene?: (p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
+  creditsScene?: (p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
+}
+
+export interface FontsInstance {
+  variants: FontVariants
+  load: () => void
 }
 
 export interface FontVariants {

@@ -1,8 +1,11 @@
 import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
+const name = 'x-factor';
+
 export const LEVEL_10: Level = {
-  name: 'x-factor',
+  name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 50,
   numApplesStart: 20,
@@ -40,4 +43,5 @@ X~~~~~~~~~~~XXDDXX~~~~~~~~~~~X
 XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   `,
   colors: PALETTE.burningCity,
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };

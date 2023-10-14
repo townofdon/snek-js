@@ -1,4 +1,5 @@
 import { Level } from "../types";
+import { LEVEL_00 } from "./level00";
 import { LEVEL_01 } from "./level01";
 import { LEVEL_02 } from "./level02";
 import { LEVEL_03 } from "./level03";
@@ -28,4 +29,7 @@ export const LEVELS: Level[] = [
     LEVEL_10,
     LEVEL_99,
 ];
-export const INITIAL_LEVEL = LEVEL_01;
+
+export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;
+
+export const START_LEVEL = LEVEL_01;

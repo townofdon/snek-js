@@ -1,20 +1,20 @@
 import P5 from "p5";
 
-import { IEnumerator, Scene, SceneCachedCallbacks, SceneCallbacks } from '../types';
+import { FontsInstance, IEnumerator, Scene, SceneCachedCallbacks, SceneCallbacks } from '../types';
 import { Coroutines } from "../coroutines";
 import { DIMENSIONS } from "../constants";
-import { Fonts } from "../fonts";
 
-interface TransitionSceneProps {
+
+interface BaseTransitionSceneProps {
   p5: P5
   cachedCallbacks: SceneCachedCallbacks
   callbacks: SceneCallbacks
   coroutines: Coroutines
-  fonts: Fonts
+  fonts: FontsInstance
 }
 
-export class TransitionSceneL1L2 implements Scene {
-  private props: TransitionSceneProps = {
+export class BaseTransitionScene implements Scene {
+  private props: BaseTransitionSceneProps = {
     p5: null,
     cachedCallbacks: {
       draw: () => { },
@@ -32,7 +32,7 @@ export class TransitionSceneL1L2 implements Scene {
     isCleaningUp: false,
   }
 
-  constructor(p5: P5, fonts: Fonts, callbacks: SceneCallbacks = {}) {
+  constructor(p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     this.props.p5 = p5;
     this.props.fonts = fonts;
     this.props.callbacks = callbacks;
@@ -47,21 +47,22 @@ export class TransitionSceneL1L2 implements Scene {
   *action() {
     const { coroutines, p5, fonts } = this.props;
     this.state.isTimeElapsed = true;
+    yield* coroutines.waitForTime(1500);
 
-    const flashTime = 400;
-    yield* coroutines.waitForTime(flashTime);
-    for (let i = 0; i < 3; i++) {
-      yield* coroutines.waitForTime(flashTime, () => {
-        p5.fill('#fff');
-        p5.noStroke();
-        p5.textFont(fonts.variants.miniMood);
-        p5.textSize(16);
-        p5.textAlign(p5.LEFT, p5.TOP);
-        p5.textAlign(p5.CENTER, p5.TOP);
-        p5.text('GET READY!', ...this.getPosition(0.5, 0.62));
-      });
-      yield* coroutines.waitForTime(flashTime);
-    }
+    // const flashTime = 400;
+    // yield* coroutines.waitForTime(flashTime);
+    // for (let i = 0; i < 3; i++) {
+    //   yield* coroutines.waitForTime(flashTime, () => {
+    //     p5.fill('#fff');
+    //     p5.noStroke();
+    //     p5.textFont(fonts.variants.miniMood);
+    //     p5.textSize(16);
+    //     p5.textAlign(p5.LEFT, p5.TOP);
+    //     p5.textAlign(p5.CENTER, p5.TOP);
+    //     p5.text('GET READY!', ...this.getPosition(0.5, 0.62));
+    //   });
+    //   yield* coroutines.waitForTime(flashTime);
+    // }
     this.cleanup();
   }
 
@@ -77,13 +78,10 @@ export class TransitionSceneL1L2 implements Scene {
   }
 
   keyPressed = () => {
-    if (!this.state.isTimeElapsed) return;
-    if (this.state.isCleaningUp) return;
-    if (!this.props.p5.keyIsPressed) return;
-    // this.cleanup();
+    // if (this.state.isCleaningUp) return;
+    // if (!this.props.p5.keyIsPressed) return;
+    // // this.cleanup();
   }
-
-  // abstract test(): void;
 
   draw = () => {
     const { p5, fonts } = this.props;
@@ -108,7 +106,7 @@ export class TransitionSceneL1L2 implements Scene {
     p5.fill('#000');
     p5.stroke('#fff');
     p5.strokeWeight(1);
-    p5.square(0, 0, Math.max(DIMENSIONS.x, DIMENSIONS.y));
+    p5.square(-1, -1, Math.max(DIMENSIONS.x, DIMENSIONS.y) + 2);
   }
 
   private getPosition = (x: number, y: number): [number, number] => {

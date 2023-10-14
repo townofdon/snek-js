@@ -1,7 +1,8 @@
 import P5, { Element, Vector } from 'p5';
 
 import {
-  INITIAL_LEVEL,
+  MAIN_TITLE_SCREEN_LEVEL,
+  START_LEVEL,
   LEVELS,
   LEVEL_01,
   LEVEL_02,
@@ -72,10 +73,9 @@ import { UI } from './ui';
 import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
-import { TransitionSceneL1L2 } from './scenes/transition-scene-L1-L2';
 import { Fonts } from './fonts';
 
-let level: Level = INITIAL_LEVEL;
+let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
 let difficulty: Difficulty = {
   index: 1,
@@ -189,10 +189,10 @@ export const sketch = (p5: P5) => {
   }
 
   function setup() {
-    level = INITIAL_LEVEL;
+    level = MAIN_TITLE_SCREEN_LEVEL;
     setLevelIndexFromCurrentLevel();
     p5.frameRate(FRAMERATE);
-    init();
+    init(false);
 
     score = 0;
     totalScore = 0;
@@ -201,23 +201,18 @@ export const sketch = (p5: P5) => {
     state.isTransitionSceneShowing = false;
     UI.disableScreenScroll();
 
-    state.isTransitionSceneShowing = true;
-    const onSceneEnded = () => {
-      console.log("teh scene has ended");
-      state.isTransitionSceneShowing = false;
-
-      UI.drawDarkOverlay(uiElements);
-      UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
-      UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
-      UI.drawButton("EASY", 150, 280, () => startGame(1), uiElements);
-      UI.drawButton("MEDIUM", 255, 280, () => startGame(2), uiElements);
-      UI.drawButton("HARD", 370, 280, () => startGame(3), uiElements);
-      UI.drawButton("ULTRA", 485, 530, () => startGame(4), uiElements);
-    }
-    new TransitionSceneL1L2(p5, fonts, { onSceneEnded })
+    UI.drawDarkOverlay(uiElements);
+    UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
+    UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
+    UI.drawButton("EASY", 150, 280, () => startGame(1), uiElements);
+    UI.drawButton("MEDIUM", 255, 280, () => startGame(2), uiElements);
+    UI.drawButton("HARD", 370, 280, () => startGame(3), uiElements);
+    UI.drawButton("ULTRA", 485, 530, () => startGame(4), uiElements);
   }
 
   function startGame(dif = 2) {
+    level = START_LEVEL
+    init()
     switch (dif) {
       case 1:
         difficulty = {
@@ -279,7 +274,7 @@ export const sketch = (p5: P5) => {
     UI.renderScore(score + totalScore, state.isShowingDeathColours);
   }
 
-  function init() {
+  function init(shouldShowTransitions = true) {
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
     stopAllCoroutines();
 
@@ -320,6 +315,62 @@ export const sketch = (p5: P5) => {
     renderHeartsUI();
     renderScoreUI();
     clearUI();
+
+    let showTitleScene = async () => { }
+    let showStoryScene = async () => { }
+    let showCreditsScene = async () => { }
+
+    if (level.storyScene) {
+      showStoryScene = () => new Promise((resolve, reject) => {
+        try {
+          const onSceneEnded = () => {
+            resolve()
+          }
+          state.isTransitionSceneShowing = true;
+          level.titleScene(p5, fonts, { onSceneEnded })
+        } catch (err) {
+          reject(err)
+        }
+      })
+    }
+
+    if (level.titleScene) {
+      showTitleScene = () => new Promise((resolve, reject) => {
+        try {
+          const onSceneEnded = () => {
+            resolve()
+          }
+          state.isTransitionSceneShowing = true;
+          level.titleScene(p5, fonts, { onSceneEnded })
+        } catch (err) {
+          reject(err)
+        }
+      })
+    }
+
+    if (level.creditsScene) {
+      showCreditsScene = () => new Promise((resolve, reject) => {
+        try {
+          const onSceneEnded = () => {
+            setup()
+            resolve()
+          }
+          state.isTransitionSceneShowing = true;
+          level.creditsScene(p5, fonts, { onSceneEnded })
+        } catch (err) {
+          reject(err)
+        }
+      })
+    }
+
+    if (shouldShowTransitions) {
+      state.isGameStarted = true;
+      showStoryScene().then(showTitleScene).then(showCreditsScene).catch(err => {
+        console.error(err);
+      }).finally(() => {
+        state.isTransitionSceneShowing = false;
+      })
+    }
 
     // parse level data - add barriers and doors
     const layoutRows = level.layout.trim().split('\n');
@@ -399,7 +450,7 @@ export const sketch = (p5: P5) => {
     const { keyCode, ENTER, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
 
     if (state.isLost) {
-      if (keyCode === p5.ENTER) init();
+      if (keyCode === p5.ENTER) init(false);
       return;
     }
 
@@ -897,7 +948,7 @@ export const sketch = (p5: P5) => {
     state.isShowingDeathColours = false;
     startScreenShake();
     UI.drawDarkOverlay(uiElements);
-    UI.drawButton("TRY AGAIN", 236, 280, init, uiElements);
+    UI.drawButton("TRY AGAIN", 236, 280, () => init(false), uiElements);
     UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
     UI.drawText(`SCORE: ${Math.floor(totalScore + score)}`, '40px', 370, uiElements);
     UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);

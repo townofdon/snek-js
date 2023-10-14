@@ -1,8 +1,11 @@
 import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
+const name = 'lobby';
+
 export const LEVEL_06: Level = {
-  name: 'lobby',
+  name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 40,
   numApplesStart: 5,
@@ -39,4 +42,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: PALETTE.cornflower,
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };

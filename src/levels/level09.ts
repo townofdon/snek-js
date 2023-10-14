@@ -1,8 +1,11 @@
 import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
+const name = 'labyrinth';
+
 export const LEVEL_09: Level = {
-  name: 'labyrinth',
+  name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 50,
   numApplesStart: 10,
@@ -39,4 +42,5 @@ X++===+===+======+===+==+=+++X
 XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   `,
   colors: PALETTE.mintJulip,
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };

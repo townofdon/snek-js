@@ -1,8 +1,11 @@
 import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
+const name = 'survival'
+
 export const LEVEL_99: Level = {
-  name: 'survival',
+  name,
   timeToClear: 1000 * 60 * 10,
   applesToClear: 200,
   numApplesStart: 20,
@@ -46,4 +49,5 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   //   playerTailStroke: PALETTE.plumsea.playerTailStroke,
   // },
   colors: PALETTE.cornflower,
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };

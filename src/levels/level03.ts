@@ -1,8 +1,11 @@
 import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
+const name = 'metro'
+
 export const LEVEL_03: Level = {
-  name: 'metro',
+  name,
   timeToClear: 1000 * 60 * 1.3,
   applesToClear: 30,
   layout: `
@@ -38,4 +41,5 @@ XXX~~=-=     =-=     =-= ~~XXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 `,
   colors: PALETTE.atomic,
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };

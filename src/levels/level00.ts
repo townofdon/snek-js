@@ -1,10 +1,9 @@
 import { PALETTE } from "../palettes";
-import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
-const name = 'turnonadime';
+const name = 'INIT';
 
-export const TUTORIAL_LEVEL_20: Level = {
+export const LEVEL_00: Level = {
   name,
   timeToClear: 1000 * 60 * 5,
   applesToClear: 43,
@@ -50,5 +49,4 @@ XXXXXXXXXXaX-X--X-X XXXDDXXX X
     playerTail: PALETTE.plumsea.playerTail,
     playerTailStroke: PALETTE.plumsea.playerTailStroke,
   },
-  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };

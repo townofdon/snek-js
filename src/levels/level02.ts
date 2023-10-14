@@ -1,8 +1,11 @@
 import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
+const name = 'arena'
+
 export const LEVEL_02: Level = {
-  name: 'arena',
+  name,
   timeToClear: 1000 * 60 * 1.2,
   applesToClear: 20,
   layout: `
@@ -38,4 +41,5 @@ XXXX~~   ~   -_-   ~    ~~XXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: PALETTE.plumsea,
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };

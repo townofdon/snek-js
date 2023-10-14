@@ -1,8 +1,11 @@
 import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
+const name = 'panopticon';
+
 export const LEVEL_05: Level = {
-  name: 'panopticon',
+  name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 40,
   layout: `
@@ -38,4 +41,5 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
 XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
 `,
   colors: PALETTE.panopticon,
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };

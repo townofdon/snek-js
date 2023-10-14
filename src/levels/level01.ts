@@ -1,8 +1,11 @@
 import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
+const name = 'classic'
+
 export const LEVEL_01: Level = {
-  name: 'classic',
+  name,
   timeToClear: 1000 * 60 * 1,
   applesToClear: 15,
   layout: "\
@@ -38,4 +41,5 @@ X~~ ~ _-~ ~ ~=+=~ ~ ~-_ ~  ~~X\n\
 XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX\n\
   ",
   colors: PALETTE.boxcar,
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
 };
