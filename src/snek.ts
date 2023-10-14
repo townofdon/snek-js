@@ -54,7 +54,7 @@ import {
   HURT_FLASH_RATE,
   HURT_GRACE_TIME,
 } from './constants';
-import { clamp } from './utils';
+import { clamp, getCoordIndex } from './utils';
 import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
@@ -65,6 +65,7 @@ import { Fonts } from './fonts';
 import { handleKeyPressed } from './controls';
 import { BaseScene } from './scenes/BaseScene';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
+import { buildLevel } from './levels/levelBuilder';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
@@ -180,11 +181,14 @@ export const sketch = (p5: P5) => {
   }
 
   function setup() {
+    p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
+    p5.frameRate(FRAMERATE);
+
     level = MAIN_TITLE_SCREEN_LEVEL;
     setLevelIndexFromCurrentLevel();
-    p5.frameRate(FRAMERATE);
     init(false);
 
+    // init state for game
     score = 0;
     totalScore = 0;
     totalApplesEaten = 0;
@@ -266,9 +270,9 @@ export const sketch = (p5: P5) => {
   }
 
   function init(shouldShowTransitions = true) {
-    p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
     stopAllCoroutines();
 
+    // init state for new level
     score = 0;
     player.position = p5.createVector(15, 15);
     player.direction = DIR.RIGHT;
@@ -320,65 +324,17 @@ export const sketch = (p5: P5) => {
         })
     }
 
-    // parse level data - add barriers and doors
-    const layoutRows = level.layout.trim().split('\n');
-    for (let y = 0; y < layoutRows.length; y++) {
-      const rowStr = layoutRows[y];
-
-      for (let x = 0; x < rowStr.length; x++) {
-        if (x >= GRIDCOUNT.x) { console.warn("level layout is too wide"); break; }
-
-        const char = rowStr.charAt(x);
-        if (char === ' ') {
-          continue;
-        }
-
-        const vec = p5.createVector(x, y);
-
-        switch (char.toLowerCase()) {
-          case 'x':
-            barriers.push(vec);
-            barriersMap[getCoordIndex(vec)] = true;
-            break;
-          case 'd':
-            doors.push(vec);
-            doorsMap[getCoordIndex(vec)] = true;
-            break;
-          case 'o':
-            player.position = vec;
-            break;
-
-          // no-spawns
-          case '~':
-            nospawns.push(vec);
-            nospawnsMap[getCoordIndex(vec)] = true;
-            break;
-          case '_':
-            decoratives1.push(vec);
-            nospawns.push(vec);
-            nospawnsMap[getCoordIndex(vec)] = true;
-            break;
-          case '+':
-            decoratives2.push(vec);
-            nospawns.push(vec);
-            nospawnsMap[getCoordIndex(vec)] = true;
-            break;
-
-          // decorative
-          case '-':
-            decoratives1.push(vec);
-            break;
-          case '=':
-            decoratives2.push(vec);
-            break;
-
-          // manually-spawned apples
-          case 'a':
-            apples.push(vec);
-        }
-      }
-      if (y >= GRIDCOUNT.y) { console.warn("level layout is too tall"); break; }
-    }
+    const builtLevelData = buildLevel({ p5, level });
+    player.position = builtLevelData.playerSpawnPosition;
+    barriers = builtLevelData.barriers;
+    barriersMap = builtLevelData.barriersMap;
+    doors = builtLevelData.doors;
+    doorsMap = builtLevelData.doorsMap;
+    apples = builtLevelData.apples;
+    decoratives1 = builtLevelData.decoratives1;
+    decoratives2 = builtLevelData.decoratives2;
+    nospawns = builtLevelData.nospawns;
+    nospawnsMap = builtLevelData.nospawnsMap;
 
     // create snake parts
     let x = player.position.x;
@@ -585,10 +541,6 @@ export const sketch = (p5: P5) => {
       vec.y > GRIDCOUNT.y - 1 ||
       vec.y < 0
     );
-  }
-
-  function getCoordIndex(vec: Vector): number {
-    return clamp(vec.x, 0, GRIDCOUNT.x - 1) + clamp(vec.y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
   }
 
   function checkHasHit(vec: Vector, snakePositionsMap: Record<number, boolean> = null) {
