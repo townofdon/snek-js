@@ -38,6 +38,10 @@ export const SPEED_LIMIT_MEDIUM = 45;
 export const SPEED_LIMIT_HARD = 35;
 export const SPEED_LIMIT_ULTRA = 25;
 
+export const KEYCODE_W = 87;
+export const KEYCODE_A = 65;
+export const KEYCODE_S = 83;
+export const KEYCODE_D = 68;
 export const KEYCODE_J = 74;
 export const KEYCODE_0 = 48;
 export const KEYCODE_1 = 49;

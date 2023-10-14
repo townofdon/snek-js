@@ -74,6 +74,7 @@ import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShak
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
+import { handleKeyPressed } from './controls';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
@@ -447,80 +448,13 @@ export const sketch = (p5: P5) => {
   }
 
   function keyPressed() {
-    const { keyCode, ENTER, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
-
-    if (state.isLost) {
-      if (keyCode === p5.ENTER) init(false);
-      return;
-    }
-
-    if (!state.isGameStarted) {
-      if (keyCode === KEYCODE_1) startGame(1);
-      else if (keyCode === KEYCODE_2) startGame(2);
-      else if (keyCode === KEYCODE_3) startGame(3);
-      else if (keyCode === KEYCODE_4) startGame(4);
-      else if (keyCode === ENTER) startGame();
-      return;
-    }
-
-    if (keyCode === KEYCODE_SPACE) {
-      startScreenShake();
-    }
-
-    if (keyCode === KEYCODE_J) {
-      if (state.isPaused) {
-        state.isPaused = false;
-        clearUI();
-      } else {
-        state.isPaused = true;
-        showPortalUI();
-      }
-    }
-
-    if (state.isPaused) {
-      if (keyCode === KEYCODE_0) warpToLevel(10);
-      else if (keyCode === KEYCODE_1) warpToLevel(1);
-      else if (keyCode === KEYCODE_2) warpToLevel(2);
-      else if (keyCode === KEYCODE_3) warpToLevel(3);
-      else if (keyCode === KEYCODE_4) warpToLevel(4);
-      else if (keyCode === KEYCODE_5) warpToLevel(5);
-      else if (keyCode === KEYCODE_6) warpToLevel(6);
-      else if (keyCode === KEYCODE_7) warpToLevel(7);
-      else if (keyCode === KEYCODE_8) warpToLevel(8);
-      else if (keyCode === KEYCODE_9) warpToLevel(9);
-      return;
-    }
-
-    const prevMove = moves.length > 0
-      ? moves[moves.length - 1]
-      : player.direction;
-    let currentMove = null;
-
-    if (keyCode === LEFT_ARROW) {
-      currentMove = DIR.LEFT;
-    } else if (keyCode === RIGHT_ARROW) {
-      currentMove = DIR.RIGHT;
-    } else if (keyCode === UP_ARROW) {
-      currentMove = DIR.UP;
-    } else if (keyCode === DOWN_ARROW) {
-      currentMove = DIR.DOWN;
-    }
-
-    // validate current move
-    if (moves.length >= MAX_MOVES) return;
-    if (!validateMove(prevMove, currentMove)) return;
-
-    moves.push(currentMove);
-  }
-
-  function validateMove(prev: DIR, current: DIR) {
-    if (!current) return false;
-    if (prev === current) return false;
-    if (prev === DIR.UP && current === DIR.DOWN) return false;
-    if (prev === DIR.DOWN && current === DIR.UP) return false;
-    if (prev === DIR.LEFT && current === DIR.RIGHT) return false;
-    if (prev === DIR.RIGHT && current === DIR.LEFT) return false;
-    return true;
+    handleKeyPressed(p5, state, player.direction, moves, {
+      onInit: () => init(false),
+      onStartGame: startGame,
+      onClearUI: clearUI,
+      onShowPortalUI: showPortalUI,
+      onWarpToLevel: warpToLevel,
+    });
   }
 
   function draw() {
