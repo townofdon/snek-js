@@ -29,6 +29,6 @@ export class Fonts implements FontsInstance {
 
   load() {
     const p5 = this._p5;
-    this.variants.miniMood = p5.loadFont('/src/assets/MiniMOOD.ttf');
+    this.variants.miniMood = p5.loadFont(`${window.location.pathname}src/assets/MiniMOOD.ttf`);
   }
 }

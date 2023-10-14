@@ -2,7 +2,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
-const name = 'arena'
+const name = 'barracks'
 
 export const LEVEL_02: Level = {
   name,
