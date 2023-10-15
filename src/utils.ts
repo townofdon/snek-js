@@ -13,3 +13,9 @@ export function getCoordIndex(vec: Vector): number {
 export function vecToString(vec: Vector) {
   return vec ? `(${vec.x}, ${vec.y})` : 'Nil';
 }
+
+export function removeArrayElement<T>(items: T[], index = -1): T[] {
+  if (index < 0) return items;
+  if (index >= items.length) return items;
+  return items.slice(0, index).concat(items.slice(index + 1))
+}

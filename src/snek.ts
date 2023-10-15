@@ -53,7 +53,7 @@ import {
   HURT_FLASH_RATE,
   HURT_GRACE_TIME,
 } from './constants';
-import { getCoordIndex } from './utils';
+import { getCoordIndex, removeArrayElement } from './utils';
 import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
@@ -61,7 +61,7 @@ import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShak
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
-import { quotes } from './quotes';
+import { quotes as allQuotes } from './quotes';
 import { bindButtonActions, handleKeyPressed } from './controls';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
@@ -124,8 +124,9 @@ let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots
 
 let uiElements: Element[] = [];
 let particleSystems: ParticleSystem[] = [];
-
 let screenFlashElement: Element;
+
+let quotes = allQuotes.slice();
 
 export const sketch = (p5: P5) => {
 
@@ -918,7 +919,10 @@ export const sketch = (p5: P5) => {
     level = LEVELS[levelIndex % LEVELS.length];
 
     if (showQuoteOnLevelWin) {
-      const quote = quotes[Math.floor(p5.random(0, quotes.length))];
+      const quoteIndex = Math.floor(p5.random(0, quotes.length));
+      const quote = quotes[quoteIndex];
+      quotes = removeArrayElement(quotes, quoteIndex);
+      if (quotes.length <= 1) quotes = allQuotes.slice();
       const onSceneEnded = () => {
         init();
       }
