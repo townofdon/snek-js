@@ -53,11 +53,11 @@ import {
   HURT_FLASH_RATE,
   HURT_GRACE_TIME,
 } from './constants';
-import { getCoordIndex, removeArrayElement } from './utils';
+import { clamp, getCoordIndex, removeArrayElement } from './utils';
 import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
-import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState } from './types';
+import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState, Sound } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -66,6 +66,7 @@ import { bindButtonActions, handleKeyPressed } from './controls';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
 import { QuoteScene } from './scenes/QuoteScene';
+import { SFX } from './sfx';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
@@ -96,6 +97,7 @@ let state: GameState = {
   hurtGraceTime: HURT_GRACE_TIME,
   lives: MAX_LIVES,
   speed: 1,
+  steps: 0,
   numApplesEaten: 0,
 };
 let player: PlayerState = {
@@ -137,6 +139,7 @@ export const sketch = (p5: P5) => {
   const waitForTime = coroutines.waitForTime;
 
   const fonts = new Fonts(p5);
+  const sfx = new SFX(p5);
 
   class AppleParticleSystem extends ParticleSystem {
     /** 
@@ -176,8 +179,9 @@ export const sketch = (p5: P5) => {
    */
   p5.preload = preload;
   function preload() {
-    fonts.load();
     UI.setP5Instance(p5);
+    fonts.load();
+    sfx.load();
   }
 
   /**
@@ -185,6 +189,7 @@ export const sketch = (p5: P5) => {
    */
   p5.setup = setup;
   function setup() {
+    UI.setP5Instance(p5);
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
     p5.frameRate(FRAMERATE);
 
@@ -207,7 +212,7 @@ export const sketch = (p5: P5) => {
       onClearUI: clearUI,
       onShowPortalUI: showPortalUI,
       onWarpToLevel: warpToLevel,
-      onStartMoving: () => { state.isMoving = true; },
+      onStartMoving: startMoving,
       onAddMove: move => moves.push(move),
     });
 
@@ -240,7 +245,7 @@ export const sketch = (p5: P5) => {
       onClearUI: clearUI,
       onShowPortalUI: showPortalUI,
       onWarpToLevel: warpToLevel,
-      onStartMoving: () => { state.isMoving = true; },
+      onStartMoving: startMoving,
       onAddMove: move => moves.push(move),
     });
   }
@@ -248,6 +253,7 @@ export const sketch = (p5: P5) => {
   function startGame(dif = 2) {
     level = START_LEVEL
     init()
+    sfx.play(Sound.uiConfirm);
     switch (dif) {
       case 1:
         difficulty = {
@@ -313,6 +319,13 @@ export const sketch = (p5: P5) => {
     UI.renderLevelName(level.name, state.isShowingDeathColours);
   }
 
+  function startMoving() {
+    if (!state.isMoving) {
+      sfx.play(Sound.moveStart);
+    }
+    state.isMoving = true;
+  }
+
   function init(shouldShowTransitions = true) {
     stopAllCoroutines();
 
@@ -337,6 +350,7 @@ export const sketch = (p5: P5) => {
     screenShake.magnitude = 1;
     screenShake.timeScale = 1;
     state.speed = 1;
+    state.steps = 0;
     state.numApplesEaten = 0;
     moves = [];
     barriers = [];
@@ -457,6 +471,7 @@ export const sketch = (p5: P5) => {
       spawnAppleParticles(player.position);
       growSnake(appleFound);
       increaseSpeed();
+      sfx.play(Sound.eat);
     }
 
     state.isLost = checkHasHit(player.position, snakePositionsMap);
@@ -472,6 +487,17 @@ export const sketch = (p5: P5) => {
       startScreenShake();
       renderHeartsUI();
       hurtSnake();
+      switch (state.lives) {
+        case 2:
+          sfx.play(Sound.hurt1);
+          break;
+        case 1:
+          sfx.play(Sound.hurt2);
+          break;
+        case 0:
+          sfx.play(Sound.hurt3);
+          break;
+      }
     }
 
     // handle snake death
@@ -480,13 +506,15 @@ export const sketch = (p5: P5) => {
       renderHeartsUI();
       flashScreen();
       showGameOver();
+      sfx.play(Sound.death);
       return;
     }
 
     if (state.isMoving) {
       const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
+      const normalizedSpeed = clamp(difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
       if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
-        movePlayer(snakePositionsMap);
+        movePlayer(snakePositionsMap, normalizedSpeed);
       } else {
         state.timeSinceLastMove += p5.deltaTime;
       }
@@ -496,6 +524,7 @@ export const sketch = (p5: P5) => {
 
     if (getHasClearedLevel() && !state.isDoorsOpen) {
       openDoors();
+      sfx.play(Sound.doorOpen);
     }
 
     if (!state.isExitingLevel && getHasSegmentExited(player.position)) {
@@ -603,7 +632,7 @@ export const sketch = (p5: P5) => {
     return false;
   }
 
-  function movePlayer(snakePositionsMap: Record<number, boolean>) {
+  function movePlayer(snakePositionsMap: Record<number, boolean>, normalizedSpeed = 0) {
     if (!state.isMoving) return;
     state.timeSinceLastMove = 0;
     if (moves.length > 0 && !state.isExitingLevel) {
@@ -644,6 +673,15 @@ export const sketch = (p5: P5) => {
     }
     player.position.add(direction);
     state.hurtGraceTime = HURT_GRACE_TIME;
+
+    // play step sfx
+    const volume = p5.lerp(1, 0.5, normalizedSpeed);
+    if (state.steps % 2 === 0) {
+      sfx.play(Sound.step1, volume);
+    } else {
+      sfx.play(Sound.step2, volume);
+    }
+    state.steps += 1;
   }
 
   /**
@@ -927,7 +965,7 @@ export const sketch = (p5: P5) => {
         init();
       }
       UI.clearLabels();
-      new QuoteScene(quote, p5, fonts, { onSceneEnded });
+      new QuoteScene(quote, p5, sfx, fonts, { onSceneEnded });
     } else {
       init();
     }

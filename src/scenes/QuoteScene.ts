@@ -1,12 +1,14 @@
 import P5 from "p5";
-import { FontsInstance, SceneCallbacks } from "../types";
+import { FontsInstance, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 
 export class QuoteScene extends BaseScene {
   _quotes: string[];
+  _sfx: SFXInstance;
 
-  constructor(quote: (string | string[]), p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+  constructor(quote: (string | string[]), p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     super(p5, fonts, callbacks)
+    this._sfx = sfx;
     if (Array.isArray(quote)) {
       this._quotes = quote;
     } else {
@@ -17,13 +19,17 @@ export class QuoteScene extends BaseScene {
 
   *action() {
     const { coroutines } = this.props;
-
+    const sfx = this._sfx;
     for (let i = 0; i < this._quotes.length; i++) {
       const quote = this._quotes[i];
       const numLetters = quote.length;
       for (let j = 1; j <= numLetters; j++) {
-        this.drawPartialQuote(quote, j);
-        yield null;
+        yield* coroutines.waitForTime(15, () => {
+          this.drawPartialQuote(quote, j);
+          if (j < numLetters) {
+            sfx.play(Sound.uiChip);
+          }
+        })
       }
       yield* coroutines.waitForAnyKey(() => {
         this.drawPartialQuote(quote, numLetters);

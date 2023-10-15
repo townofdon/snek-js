@@ -30,8 +30,8 @@ export class Fonts implements FontsInstance {
 
   load() {
     const p5 = this._p5;
-    const loadFont = (path: string) => p5.loadFont(`${window.location.pathname}${path}`);
-    this.variants.miniMood = loadFont('src/assets/fonts/MiniMOOD.ttf');
-    this.variants.zicons = loadFont('src/assets/fonts/Zicons.ttf')
+    const loadFont = (fontFile: string) => p5.loadFont(`${window.location.pathname}src/assets/fonts/${fontFile}`);
+    this.variants.miniMood = loadFont('MiniMOOD.ttf');
+    this.variants.zicons = loadFont('Zicons.ttf')
   }
 }

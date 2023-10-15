@@ -1,4 +1,4 @@
-import P5, { Vector } from "p5";
+import p5, { Vector } from "p5";
 
 /**
  * USAGE:
@@ -57,6 +57,7 @@ export interface GameState {
   hurtGraceTime: number,
   lives: number,
   speed: number,
+  steps: number,
   numApplesEaten: number,
 }
 
@@ -88,8 +89,8 @@ export interface Level {
   snakeStartSizeOverride?: number
   disableAppleSpawn?: boolean
   showQuoteOnLevelWin?: boolean
-  titleScene?: (p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
-  creditsScene?: (p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
+  titleScene?: (p5: p5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
+  creditsScene?: (p5: p5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
 }
 
 export interface FontsInstance {
@@ -98,9 +99,30 @@ export interface FontsInstance {
 }
 
 export interface FontVariants {
-  miniMood: P5.Font
-  zicons: P5.Font
+  miniMood: p5.Font
+  zicons: p5.Font
 }
+
+export interface SFXInstance {
+  play: (sound: keyof SoundVariants) => void
+  load: () => void
+}
+
+export enum Sound {
+  death = 'death',
+  doorOpen = 'doorOpen',
+  eat = 'eat',
+  hurt1 = 'hurt1',
+  hurt2 = 'hurt2',
+  hurt3 = 'hurt3',
+  moveStart = 'moveStart',
+  step1 = 'step1',
+  step2 = 'step2',
+  uiChip = 'uiChip',
+  uiConfirm = 'uiConfirm',
+}
+
+export type SoundVariants = Record<keyof typeof Sound, p5.SoundFile>
 
 export interface Scene {
   draw: () => void
