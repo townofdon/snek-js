@@ -41,5 +41,5 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
 XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
 `,
   colors: PALETTE.panopticon,
-  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks),
 };

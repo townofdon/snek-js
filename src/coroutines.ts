@@ -39,11 +39,22 @@ export class Coroutines {
     return this._waitForTime(durationMs, callback);
   }
 
+  waitForAnyKey = (callback?: () => void): IEnumerator => {
+    return this._waitForAnyKey(callback);
+  }
+
   // make private so that we can expose `waitForTime` as an arrow function, retaining `this` scope
   private *_waitForTime(durationMs: number, callback?: () => void): IEnumerator {
     let timeRemaining = durationMs;
     while (timeRemaining > 0) {
       timeRemaining -= this._p5.deltaTime;
+      if (callback) callback();
+      yield null;
+    }
+  }
+
+  private *_waitForAnyKey(callback?: () => void): IEnumerator {
+    while (!this._p5.keyIsPressed) {
       if (callback) callback();
       yield null;
     }

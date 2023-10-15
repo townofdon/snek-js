@@ -42,5 +42,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: PALETTE.cornflower,
-  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks),
+  showQuoteOnLevelWin: true,
 };

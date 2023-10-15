@@ -50,5 +50,5 @@ XXXXXXXXXXaX-X--X-X XXXDDXXX X
     playerTail: PALETTE.plumsea.playerTail,
     playerTailStroke: PALETTE.plumsea.playerTailStroke,
   },
-  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks),
 };

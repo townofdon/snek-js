@@ -87,8 +87,8 @@ export interface Level {
   growthMod?: number,
   snakeStartSizeOverride?: number
   disableAppleSpawn?: boolean
+  showQuoteOnLevelWin?: boolean
   titleScene?: (p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
-  storyScene?: (p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
   creditsScene?: (p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
 }
 

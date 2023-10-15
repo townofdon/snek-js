@@ -12,15 +12,17 @@
 html, body {
   margin: 0;
   padding: 0;
-  background: #000;
-
-  
   justify-content: center;
   align-items: center;
 }
 
+html {
+  background: #030303;
+}
+
 body {
   padding-top: 20px;
+  background: transparent;
 }
 
 canvas {

@@ -42,5 +42,5 @@ XXXXXXX~~~~XXDDDDXX~~~~XXXXXXX
 XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   `,
   colors: PALETTE.violetSunset,
-  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks),
 };

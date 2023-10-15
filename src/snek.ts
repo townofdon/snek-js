@@ -61,9 +61,11 @@ import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShak
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
+import { quotes } from './quotes';
 import { bindButtonActions, handleKeyPressed } from './controls';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
+import { QuoteScene } from './scenes/QuoteScene';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
@@ -354,7 +356,6 @@ export const sketch = (p5: P5) => {
     if (shouldShowTransitions) {
       const buildSceneAction = buildSceneActionFactory(p5, fonts, state);
       Promise.resolve()
-        .then(buildSceneAction(level.storyScene))
         .then(buildSceneAction(level.titleScene))
         .then(buildSceneAction(level.creditsScene))
         .catch(err => {
@@ -908,13 +909,24 @@ export const sketch = (p5: P5) => {
   }
 
   function gotoNextLevel() {
+    const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin;
     totalScore += score;
     score = 0;
     totalApplesEaten += state.numApplesEaten;
     state.numApplesEaten = 0;
     levelIndex++;
     level = LEVELS[levelIndex % LEVELS.length];
-    init();
+
+    if (showQuoteOnLevelWin) {
+      const quote = quotes[Math.floor(p5.random(0, quotes.length))];
+      const onSceneEnded = () => {
+        init();
+      }
+      UI.clearLabels();
+      new QuoteScene(quote, p5, fonts, { onSceneEnded });
+    } else {
+      init();
+    }
   }
 
   function setLevelIndexFromCurrentLevel() {

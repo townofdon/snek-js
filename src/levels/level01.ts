@@ -41,5 +41,6 @@ X~~ ~ _-~ ~ ~=+=~ ~ ~-_ ~  ~~X\n\
 XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX\n\
   ",
   colors: PALETTE.boxcar,
-  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks)
+  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks),
+  showQuoteOnLevelWin: true,
 };
