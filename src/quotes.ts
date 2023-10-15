@@ -30,9 +30,6 @@ Many are stubborn in pursuit of the path they have chosen, few in
 pursuit of the goal.
 `),
 STR(`
-Success has always been a great liar.
-`),
-STR(`
 The irrationality of a thing is no argument against its existence,
 rather a condition of it.
 `),
@@ -62,6 +59,9 @@ so that you will be able to climb higher tomorrow
 STR(`
 Nobody dies nowadays of fatal truths: there are too many antidotes
 to them.
+`),
+STR(`
+Without music, life would be a mistake.
 `),
 STR(`
 What is happiness? The feeling that power increases - that resistance
