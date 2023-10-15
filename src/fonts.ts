@@ -21,6 +21,7 @@ export class Fonts implements FontsInstance {
 
   variants: FontVariants = {
     miniMood: null,
+    zicons: null,
   }
 
   constructor(p5: P5) {
@@ -29,6 +30,8 @@ export class Fonts implements FontsInstance {
 
   load() {
     const p5 = this._p5;
-    this.variants.miniMood = p5.loadFont(`${window.location.pathname}src/assets/MiniMOOD.ttf`);
+    const loadFont = (path: string) => p5.loadFont(`${window.location.pathname}${path}`);
+    this.variants.miniMood = loadFont('src/assets/MiniMOOD.ttf');
+    this.variants.zicons = loadFont('src/assets/Zicons.ttf')
   }
 }

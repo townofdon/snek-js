@@ -99,6 +99,7 @@ export interface FontsInstance {
 
 export interface FontVariants {
   miniMood: P5.Font
+  zicons: P5.Font
 }
 
 export interface Scene {

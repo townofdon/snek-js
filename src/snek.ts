@@ -427,6 +427,10 @@ export const sketch = (p5: P5) => {
       applesMap[getCoordIndex(apples[i])] = i;
     }
 
+    if (state.isGameStarted && !state.isMoving) {
+      drawPlayerMoveArrows(player.position);
+    }
+
     const snakePositionsMap: Record<number, boolean> = {};
     for (let i = 0; i < segments.length; i++) {
       drawPlayerSegment(segments[i]);
@@ -742,6 +746,30 @@ export const sketch = (p5: P5) => {
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead);
   }
 
+  function drawPlayerMoveArrows(vec: Vector) {
+    type ArrowBlock = { x: number, y: number, text: string }
+    const arrowBlocks: ArrowBlock[] = [
+      { x: vec.x, y: vec.y - 1, text: 'P' },
+      { x: vec.x, y: vec.y + 1, text: 'Q' },
+      { x: vec.x - 1, y: vec.y, text: 'N' },
+      { x: vec.x + 1, y: vec.y, text: 'O' },
+    ]
+    for (let i = 0; i < arrowBlocks.length; i++) {
+      const arrow = arrowBlocks[i];
+      const position = {
+        x: arrow.x * BLOCK_SIZE.x + BLOCK_SIZE.x * 0.4 + screenShake.offset.x,
+        y: arrow.y * BLOCK_SIZE.y + BLOCK_SIZE.y * 0.35 + screenShake.offset.y,
+      }
+      p5.fill("#fff");
+      p5.stroke("#000");
+      p5.strokeWeight(4);
+      p5.textSize(12);
+      p5.textAlign(p5.CENTER, p5.CENTER);
+      p5.textFont(fonts.variants.zicons);
+      p5.text(arrow.text, position.x, position.y);
+    }
+  }
+
   function drawPlayerSegment(vec: Vector) {
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
@@ -786,15 +814,15 @@ export const sketch = (p5: P5) => {
       state.isShowingDeathColours ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke);
   }
 
-  function drawSquare(x: number, y: number, background = "pink", lineColor = "fff") {
+  function drawSquare(x: number, y: number, background = "pink", lineColor = "fff", strokeSize = STROKE_SIZE) {
     p5.fill(background);
     p5.stroke(lineColor);
-    p5.strokeWeight(STROKE_SIZE);
+    p5.strokeWeight(strokeSize);
     const position = {
       x: x * BLOCK_SIZE.x + screenShake.offset.x,
       y: y * BLOCK_SIZE.y + screenShake.offset.y,
     }
-    const size = BLOCK_SIZE.x - STROKE_SIZE;
+    const size = BLOCK_SIZE.x - strokeSize;
     p5.square(position.x, position.y, size);
   }
 
