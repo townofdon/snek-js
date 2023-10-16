@@ -1,11 +1,7 @@
+import { Howl } from 'howler';
 
-
-import P5 from "p5"
-import 'p5/lib/addons/p5.sound';
 import { SFXInstance, SoundVariants } from "./types";
 
-// @ts-ignore
-window.p5 = P5
 
 /**
  * Usage
@@ -23,7 +19,6 @@ window.p5 = P5
  * ```
  */
 export class SFX implements SFXInstance {
-  private _p5: P5;
 
   private sounds: SoundVariants = {
     death: null,
@@ -39,18 +34,18 @@ export class SFX implements SFXInstance {
     uiConfirm: null,
   }
 
-  constructor(p5: P5) {
-    this._p5 = p5;
-  }
-
   play(sound: keyof SoundVariants, volume = 1) {
-    if (!this.sounds[sound]) {
-      console.warn(`Sound not loaded: ${sound}`);
-      return;
+    try {
+      if (!this.sounds[sound]) {
+        console.warn(`Sound not loaded: ${sound}`);
+        return;
+      }
+      this.sounds[sound].volume(volume);
+      this.sounds[sound].stop();
+      this.sounds[sound].play();
+    } catch (err) {
+      console.error(err);
     }
-    this.sounds[sound].setVolume(volume);
-    this.sounds[sound].stop();
-    this.sounds[sound].play();
   }
 
   stop(sound: keyof SoundVariants) {
@@ -62,8 +57,7 @@ export class SFX implements SFXInstance {
   }
 
   load() {
-    const p5 = this._p5;
-    const loadSound = (soundFile: string) => p5.loadSound(`${window.location.pathname}src/assets/sounds/${soundFile}`);
+    const loadSound = (soundFile: string) => new Howl({ src: [`${window.location.pathname}src/assets/sounds/${soundFile}`] });
     this.sounds.death = loadSound('death.wav');
     this.sounds.doorOpen = loadSound('door-open.wav');
     this.sounds.eat = loadSound('eat.wav');

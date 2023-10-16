@@ -54,6 +54,7 @@ export class Coroutines {
   }
 
   private *_waitForAnyKey(callback?: () => void): IEnumerator {
+    this._p5.keyIsPressed = false;
     while (!this._p5.keyIsPressed) {
       if (callback) callback();
       yield null;

@@ -47,6 +47,7 @@ export abstract class BaseScene implements Scene {
     const { p5 } = this.props;
     p5.draw = this.draw;
     p5.keyPressed = this.keyPressed;
+    p5.keyIsPressed = false;
     this.startCoroutine(this.action());
   }
 

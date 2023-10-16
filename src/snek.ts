@@ -139,7 +139,7 @@ export const sketch = (p5: P5) => {
   const waitForTime = coroutines.waitForTime;
 
   const fonts = new Fonts(p5);
-  const sfx = new SFX(p5);
+  const sfx = new SFX();
 
   class AppleParticleSystem extends ParticleSystem {
     /** 
@@ -253,7 +253,6 @@ export const sketch = (p5: P5) => {
   function startGame(dif = 2) {
     level = START_LEVEL
     init()
-    sfx.play(Sound.uiConfirm);
     switch (dif) {
       case 1:
         difficulty = {
@@ -296,6 +295,7 @@ export const sketch = (p5: P5) => {
     }
     state.isGameStarted = true;
     UI.disableScreenScroll();
+    sfx.play(Sound.uiConfirm);
   }
 
   function clearUI() {
@@ -382,6 +382,11 @@ export const sketch = (p5: P5) => {
           renderScoreUI();
           renderLevelName();
         })
+    } else {
+      renderDifficultyUI();
+      renderHeartsUI();
+      renderScoreUI();
+      renderLevelName();
     }
 
     const levelData = buildLevel({ p5, level });
@@ -512,9 +517,13 @@ export const sketch = (p5: P5) => {
 
     if (state.isMoving) {
       const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
-      const normalizedSpeed = clamp(difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
       if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
+        const normalizedSpeed = clamp(difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
         movePlayer(snakePositionsMap, normalizedSpeed);
+        if (state.isExitingLevel) {
+          score += SCORE_INCREMENT;
+          renderScoreUI();
+        }
       } else {
         state.timeSinceLastMove += p5.deltaTime;
       }
@@ -533,11 +542,6 @@ export const sketch = (p5: P5) => {
       score += LEVEL_BONUS * 10 * state.lives * difficulty.scoreMod;
     }
 
-    if (state.isExitingLevel) {
-      score += SCORE_INCREMENT;
-      renderScoreUI();
-    }
-
     if (state.isExitingLevel && segments.every(segment => getHasSegmentExited(segment))) {
       gotoNextLevel();
     }
@@ -545,7 +549,7 @@ export const sketch = (p5: P5) => {
 
   function getTimeNeededUntilNextMove() {
     if (state.isExitingLevel) {
-      return 1;
+      return 0;
     }
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       return Infinity;
@@ -965,6 +969,7 @@ export const sketch = (p5: P5) => {
         init();
       }
       UI.clearLabels();
+      stopAllCoroutines();
       new QuoteScene(quote, p5, sfx, fonts, { onSceneEnded });
     } else {
       init();

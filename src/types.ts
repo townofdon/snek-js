@@ -1,4 +1,5 @@
 import p5, { Vector } from "p5";
+import { Howl } from 'howler';
 
 /**
  * USAGE:
@@ -122,7 +123,7 @@ export enum Sound {
   uiConfirm = 'uiConfirm',
 }
 
-export type SoundVariants = Record<keyof typeof Sound, p5.SoundFile>
+export type SoundVariants = Record<keyof typeof Sound, Howl>
 
 export interface Scene {
   draw: () => void
