@@ -219,7 +219,7 @@ export const sketch = (p5: P5) => {
     UI.drawDarkOverlay(uiElements);
     UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
     UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
-    const offsetLeft = window.innerWidth <= 700 ? 80 : 150;
+    const offsetLeft = 150;
     UI.drawButton("EASY", 0 + offsetLeft, 280, () => startGame(1), uiElements);
     UI.drawButton("MEDIUM", 105 + offsetLeft, 280, () => startGame(2), uiElements);
     UI.drawButton("HARD", 220 + offsetLeft, 280, () => startGame(3), uiElements);

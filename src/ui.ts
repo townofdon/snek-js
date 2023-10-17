@@ -15,12 +15,10 @@ export class UI {
   }
 
   static drawTitle(title = '', textColor = '#fff', offset: number, hasShadow: boolean, uiElements: Element[]) {
-    const letterSpacing = window.innerWidth <= 700 ? '45px' : '65px';
-    const positionLeft = window.innerWidth <= 700 ? 64 : 84;
     const p = UI.p5.createP(title);
     p.id('title');
     p.style('font-size', '6em');
-    p.style('letter-spacing', letterSpacing);
+    p.style('letter-spacing', '65px');
     p.style('color', textColor);
     p.style('line-height', '1em');
     p.style('font-family', "'Monofett', monospace");
@@ -28,7 +26,7 @@ export class UI {
     if (hasShadow) {
       p.style('text-shadow', '6px 6px 3px black');
     }
-    p.position(positionLeft + offset, 7 + offset);
+    p.position(84 + offset, 7 + offset);
     p.parent("main");
     uiElements.push(p);
   }
