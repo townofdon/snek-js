@@ -29,9 +29,14 @@ export class Fonts implements FontsInstance {
   }
 
   load() {
-    const p5 = this._p5;
-    const loadFont = (fontFile: string) => p5.loadFont(`${window.location.pathname}src/assets/fonts/${fontFile}`);
-    this.variants.miniMood = loadFont('MiniMOOD.ttf');
-    this.variants.zicons = loadFont('Zicons.ttf')
+    try {
+      const p5 = this._p5;
+      const relativeDir = process.env.NODE_ENV === 'production' ? '' : window.location.pathname;
+      const loadFont = (fontFile: string) => p5.loadFont(`${relativeDir}assets/fonts/${fontFile}`);
+      this.variants.miniMood = loadFont('MiniMOOD.ttf');
+      this.variants.zicons = loadFont('Zicons.ttf')
+    } catch (err) {
+      console.error(err);
+    }
   }
 }

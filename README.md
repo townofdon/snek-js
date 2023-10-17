@@ -26,3 +26,9 @@ In a separate tap, watch for JS file changes:
 ```
 npm run watch
 ```
+
+## Deployment - GH
+
+```
+git subtree push --prefix dist origin gh-pages
+```

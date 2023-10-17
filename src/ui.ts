@@ -173,8 +173,8 @@ export class UI {
     div.style('bottom', '0');
     div.style('left', '0');
     div.style('right', '0');
-    div.style('background-color', 'rgb(7 11 15 / 52%)');
-    div.style('mix-blend-mode', 'color-burn');
+    div.style('background-color', 'rgb(7 11 15 / 72%)');
+    // div.style('mix-blend-mode', 'color-burn');
     div.parent("main");
     uiElements.push(div);
   }

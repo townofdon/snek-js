@@ -19,3 +19,7 @@ export function removeArrayElement<T>(items: T[], index = -1): T[] {
   if (index >= items.length) return items;
   return items.slice(0, index).concat(items.slice(index + 1))
 }
+
+export function stripLeadingSlash(str: string): string {
+  return str.replace(/^\//, '');
+}

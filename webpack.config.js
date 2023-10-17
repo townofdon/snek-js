@@ -2,6 +2,7 @@
 
 const path = require('path');
 var webpack = require('webpack');
+const CopyPlugin = require("copy-webpack-plugin");
 
 const isProduction = process.env.NODE_ENV == 'production';
 
@@ -17,7 +18,12 @@ const config = {
     // Learn more about plugins from https://webpack.js.org/configuration/plugins/
     new webpack.ProvidePlugin({
       p5: 'p5',
-    })
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: "public" },
+      ],
+    }),
   ],
   module: {
     rules: [

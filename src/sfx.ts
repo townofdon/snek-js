@@ -57,17 +57,22 @@ export class SFX implements SFXInstance {
   }
 
   load() {
-    const loadSound = (soundFile: string) => new Howl({ src: [`${window.location.pathname}src/assets/sounds/${soundFile}`] });
-    this.sounds.death = loadSound('death.wav');
-    this.sounds.doorOpen = loadSound('door-open.wav');
-    this.sounds.eat = loadSound('eat.wav');
-    this.sounds.hurt1 = loadSound('hurt-1.wav');
-    this.sounds.hurt2 = loadSound('hurt-2.wav');
-    this.sounds.hurt3 = loadSound('hurt-3.wav');
-    this.sounds.moveStart = loadSound('move-start.wav');
-    this.sounds.step1 = loadSound('step-1.wav');
-    this.sounds.step2 = loadSound('step-2.wav');
-    this.sounds.uiChip = loadSound('ui-chip.wav');
-    this.sounds.uiConfirm = loadSound('ui-confirm.wav');
+    try {
+      const relativeDir = process.env.NODE_ENV === 'production' ? '' : window.location.pathname;
+      const loadSound = (soundFile: string) => new Howl({ src: [`${relativeDir}assets/sounds/${soundFile}`] });
+      this.sounds.death = loadSound('death.wav');
+      this.sounds.doorOpen = loadSound('door-open.wav');
+      this.sounds.eat = loadSound('eat.wav');
+      this.sounds.hurt1 = loadSound('hurt-1.wav');
+      this.sounds.hurt2 = loadSound('hurt-2.wav');
+      this.sounds.hurt3 = loadSound('hurt-3.wav');
+      this.sounds.moveStart = loadSound('move-start.wav');
+      this.sounds.step1 = loadSound('step-1.wav');
+      this.sounds.step2 = loadSound('step-2.wav');
+      this.sounds.uiChip = loadSound('ui-chip.wav');
+      this.sounds.uiConfirm = loadSound('ui-confirm.wav');
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
