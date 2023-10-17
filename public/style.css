@@ -65,19 +65,3 @@ button:focus
 {
   background-color: #dbd57a;
 }
-
-.controls {
-  display: none;
-  margin-top: 20px;
-}
-
-.controls button {
-  font-family: 'VT323', monospace;
-  margin: 0 23px;
-}
-
-@media screen and (max-width: 700px) {
-  .controls {
-    display: block;
-  }
-}
