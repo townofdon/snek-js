@@ -133,7 +133,6 @@ out
 
 src/assets/sounds/test
 
-dist
 dist-prod
 dist.zip
 dist-prod.zip
