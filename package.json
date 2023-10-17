@@ -10,6 +10,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --mode=production --node-env=production",
     "deploy": "cd bin && ./deploy.sh",
+    "deploy-gh-pages": "git subtree push --prefix dist origin gh-pages",
     "watch": "webpack --watch --node-env=development"
   },
   "author": "townofdon",
