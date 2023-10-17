@@ -8,9 +8,7 @@
     "dev": "http-server ./dist -p 3000 -c-1",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --mode=production --node-env=production",
-    "build:dev": "webpack --mode=development",
-    "build:prod": "webpack --mode=production --node-env=production",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch --node-env=development"
   },
   "author": "townofdon",
   "license": "MIT",

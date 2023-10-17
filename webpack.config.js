@@ -11,7 +11,7 @@ const config = {
   entry: './src/index.ts',
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, isProduction ? 'dist-prod' : 'dist')
   },
   plugins: [
     // Add your plugins here

@@ -133,4 +133,7 @@ out
 
 src/assets/sounds/test
 
+dist
+dist-prod
+
 TODO.md

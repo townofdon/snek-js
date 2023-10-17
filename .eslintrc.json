@@ -10,6 +10,6 @@
         "ecmaVersion": "latest",
         "sourceType": "module"
     },
-    "ignorePatterns": ["webpack.config.js", "dev-server.js", "lib/*", "dist/*"],
+    "ignorePatterns": ["webpack.config.js", "webpack.config.prod.js", "dev-server.js", "lib/*", "dist/*"],
     "rules": {}
 }
