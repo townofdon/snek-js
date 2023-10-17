@@ -133,8 +133,11 @@ out
 
 src/assets/sounds/test
 
+# builds
+.env
 dist-prod
 dist.zip
 dist-prod.zip
+archives
 
 TODO.md
