@@ -40,12 +40,6 @@ const config = {
       // Add your rules for custom modules here
       // Learn more about loaders from https://webpack.js.org/loaders/
     ],
-    loaders: [
-      {
-        test: /\.json$/,
-        loader: 'json-loader'
-      }
-    ],
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js', '...'],
