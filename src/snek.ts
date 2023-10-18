@@ -258,46 +258,7 @@ export const sketch = (p5: P5) => {
     setLevelIndexFromCurrentLevel();
     state.isGameStarted = true;
     init()
-    switch (dif) {
-      case 1:
-        difficulty = {
-          index: 1,
-          speedMod: SPEED_MOD_EASY,
-          applesMod: NUM_APPLES_MOD_EASY,
-          scoreMod: SCORE_MOD_EASY,
-          speedLimit: SPEED_LIMIT_EASY,
-        }
-        break;
-      case 2:
-        difficulty = {
-          index: 2,
-          speedMod: SPEED_MOD_MEDIUM,
-          applesMod: NUM_APPLES_MOD_MEDIUM,
-          scoreMod: SCORE_MOD_MEDIUM,
-          speedLimit: SPEED_LIMIT_MEDIUM,
-        }
-        break;
-      case 3:
-        difficulty = {
-          index: 3,
-          speedMod: SPEED_MOD_HARD,
-          applesMod: NUM_APPLES_MOD_HARD,
-          scoreMod: SCORE_MOD_HARD,
-          speedLimit: SPEED_LIMIT_HARD,
-        }
-        break;
-      case 4:
-        difficulty = {
-          index: 4,
-          speedMod: SPEED_MOD_ULTRA,
-          applesMod: NUM_APPLES_MOD_ULTRA,
-          scoreMod: SCORE_MOD_ULTRA,
-          speedLimit: SPEED_LIMIT_ULTRA,
-        }
-        break;
-      default:
-        throw new Error(`Unexpected difficulty: ${difficulty}`)
-    }
+    setDifficultyFromIndex(dif);
     state.isGameStarted = true;
     replay.difficulty = { ...difficulty };
     UI.disableScreenScroll();
@@ -1057,6 +1018,10 @@ export const sketch = (p5: P5) => {
     state.numApplesEaten = 0;
     levelIndex++;
     level = LEVELS[levelIndex % LEVELS.length];
+    if (level === START_LEVEL) {
+      difficulty.index++;
+      setDifficultyFromIndex(difficulty.index);
+    }
 
     saveReplayStateToFile();
 
@@ -1112,6 +1077,50 @@ export const sketch = (p5: P5) => {
         return LEVEL_99;
       default:
         return LEVEL_01;
+    }
+  }
+
+  function setDifficultyFromIndex(index: number) {
+    index = clamp(index, 1, 4);
+    switch (index) {
+      case 1:
+        difficulty = {
+          index: 1,
+          speedMod: SPEED_MOD_EASY,
+          applesMod: NUM_APPLES_MOD_EASY,
+          scoreMod: SCORE_MOD_EASY,
+          speedLimit: SPEED_LIMIT_EASY,
+        }
+        break;
+      case 2:
+        difficulty = {
+          index: 2,
+          speedMod: SPEED_MOD_MEDIUM,
+          applesMod: NUM_APPLES_MOD_MEDIUM,
+          scoreMod: SCORE_MOD_MEDIUM,
+          speedLimit: SPEED_LIMIT_MEDIUM,
+        }
+        break;
+      case 3:
+        difficulty = {
+          index: 3,
+          speedMod: SPEED_MOD_HARD,
+          applesMod: NUM_APPLES_MOD_HARD,
+          scoreMod: SCORE_MOD_HARD,
+          speedLimit: SPEED_LIMIT_HARD,
+        }
+        break;
+      case 4:
+        difficulty = {
+          index: 4,
+          speedMod: SPEED_MOD_ULTRA,
+          applesMod: NUM_APPLES_MOD_ULTRA,
+          scoreMod: SCORE_MOD_ULTRA,
+          speedLimit: SPEED_LIMIT_ULTRA,
+        }
+        break;
+      default:
+        throw new Error(`Unexpected difficulty: ${difficulty}`)
     }
   }
 
