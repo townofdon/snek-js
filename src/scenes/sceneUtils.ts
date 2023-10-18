@@ -20,7 +20,6 @@ export const buildSceneActionFactory = (p5: P5, fonts: FontsInstance, state: Gam
             const onSceneEnded = () => {
                 resolve()
             }
-            state.isTransitionSceneShowing = true;
             onScene(p5, fonts, { onSceneEnded });
         } catch (err) {
             reject(err)

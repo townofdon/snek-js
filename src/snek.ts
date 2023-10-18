@@ -18,6 +18,7 @@ import {
 } from './levels';
 import {
   TITLE,
+  RECORD_REPLAY_STATE,
   FRAMERATE,
   DIMENSIONS,
   GRIDCOUNT,
@@ -53,20 +54,21 @@ import {
   HURT_FLASH_RATE,
   HURT_GRACE_TIME,
 } from './constants';
-import { clamp, getCoordIndex, removeArrayElement } from './utils';
+import { clamp, getCoordIndex, removeArrayElement, shuffleArray, vecToString } from './utils';
 import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
-import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, ScreenShakeState, Sound } from './types';
+import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
 import { quotes as allQuotes } from './quotes';
-import { bindButtonActions, handleKeyPressed } from './controls';
+import { handleKeyPressed } from './controls';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
 import { QuoteScene } from './scenes/QuoteScene';
 import { SFX } from './sfx';
+import { replayClips } from './replayClips/replayClips';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
@@ -82,10 +84,9 @@ let score = 0;
 let totalScore = 0;
 let totalApplesEaten = 0;
 
-let state: GameState = {
+const state: GameState = {
   isPaused: false,
-  isGameStarted: true,
-  isTransitionSceneShowing: false,
+  isGameStarted: false,
   isMoving: false,
   isLost: false,
   isDoorsOpen: false,
@@ -98,19 +99,30 @@ let state: GameState = {
   lives: MAX_LIVES,
   speed: 1,
   steps: 0,
+  frameCount: 0,
   numApplesEaten: 0,
 };
-let player: PlayerState = {
+const player: PlayerState = {
   position: null,
   direction: DIR.RIGHT,
 };
-let screenShake: ScreenShakeState = {
+const screenShake: ScreenShakeState = {
   offset: null,
   timeSinceStarted: Infinity,
   timeSinceLastStep: Infinity,
   magnitude: 1,
   timeScale: 1,
 };
+const replay: Replay = {
+  mode: ReplayMode.Disabled,
+  levelIndex,
+  levelName: level.name,
+  difficulty: { ...difficulty },
+  applesToSpawn: [],
+  positions: {},
+  timeCaptureStarted: 'no-date',
+  shouldProceedToNextClip: false,
+}
 
 let moves: DIR[] = []; // moves that the player has queued up
 let segments: Vector[] = []; // snake segments
@@ -196,26 +208,15 @@ export const sketch = (p5: P5) => {
     level = MAIN_TITLE_SCREEN_LEVEL;
     setLevelIndexFromCurrentLevel();
     init(false);
+    startReplay();
 
     // init state for game
     score = 0;
     totalScore = 0;
     totalApplesEaten = 0;
     state.isGameStarted = false;
-    state.isTransitionSceneShowing = false;
     UI.enableScreenScroll();
     UI.clearLabels();
-
-    bindButtonActions(player, moves, {
-      onInit: () => init(false),
-      onStartGame: startGame,
-      onClearUI: clearUI,
-      onShowPortalUI: showPortalUI,
-      onWarpToLevel: warpToLevel,
-      onStartMoving: startMoving,
-      onAddMove: move => moves.push(move),
-    });
-
     UI.drawDarkOverlay(uiElements);
     UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
     UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
@@ -251,7 +252,10 @@ export const sketch = (p5: P5) => {
   }
 
   function startGame(dif = 2) {
+    stopAllCoroutines();
+    stopReplay();
     level = START_LEVEL
+    state.isGameStarted = true;
     init()
     switch (dif) {
       case 1:
@@ -294,47 +298,69 @@ export const sketch = (p5: P5) => {
         throw new Error(`Unexpected difficulty: ${difficulty}`)
     }
     state.isGameStarted = true;
+    replay.difficulty = { ...difficulty };
     UI.disableScreenScroll();
-    sfx.play(Sound.uiConfirm);
+    playSound(Sound.uiConfirm);
+  }
+
+  function playSound(sound: Sound, volume = 1) {
+    if (replay.mode === ReplayMode.Playback) return;
+    sfx.play(sound, volume);
   }
 
   function clearUI() {
+    if (replay.mode === ReplayMode.Playback) return;
     uiElements.forEach(element => element.remove())
     uiElements = [];
   }
 
   function renderDifficultyUI() {
+    if (replay.mode === ReplayMode.Playback) return;
     UI.renderDifficulty(difficulty.index, state.isShowingDeathColours);
   }
 
   function renderHeartsUI() {
+    if (replay.mode === ReplayMode.Playback) return;
     UI.renderHearts(state.lives, state.isShowingDeathColours);
   }
 
   function renderScoreUI() {
+    if (replay.mode === ReplayMode.Playback) return;
     UI.renderScore(score + totalScore, state.isShowingDeathColours);
   }
 
   function renderLevelName() {
+    if (replay.mode === ReplayMode.Playback) return;
     UI.renderLevelName(level.name, state.isShowingDeathColours);
   }
 
   function startMoving() {
     if (!state.isMoving) {
-      sfx.play(Sound.moveStart);
+      playSound(Sound.moveStart);
     }
     state.isMoving = true;
   }
 
   function init(shouldShowTransitions = true) {
-    stopAllCoroutines();
+    if (replay.mode === ReplayMode.Playback) {
+      shouldShowTransitions = false;
+      replay.shouldProceedToNextClip = true;
+    } else {
+      stopAllCoroutines();
+      replay.mode = RECORD_REPLAY_STATE ? ReplayMode.Capture : ReplayMode.Disabled;
+      replay.timeCaptureStarted = (new Date()).toISOString();
+      replay.levelIndex = levelIndex;
+      replay.levelName = level.name;
+      replay.difficulty = { ...difficulty };
+      replay.applesToSpawn = [];
+      replay.positions = {};
+    }
 
     // init state for new level
     score = 0;
     player.position = p5.createVector(15, 15);
     player.direction = DIR.RIGHT;
     state.isPaused = false;
-    state.isGameStarted = true;
     state.isMoving = false;
     state.isLost = false;
     state.isDoorsOpen = false;
@@ -351,6 +377,7 @@ export const sketch = (p5: P5) => {
     screenShake.timeScale = 1;
     state.speed = 1;
     state.steps = 0;
+    state.frameCount = 0;
     state.numApplesEaten = 0;
     moves = [];
     barriers = [];
@@ -376,7 +403,6 @@ export const sketch = (p5: P5) => {
         .catch(err => {
           console.error(err);
         }).finally(() => {
-          state.isTransitionSceneShowing = false;
           renderDifficultyUI();
           renderHeartsUI();
           renderScoreUI();
@@ -440,6 +466,10 @@ export const sketch = (p5: P5) => {
       drawDoor(doors[i]);
     }
 
+    if (replay.mode === ReplayMode.Capture) {
+      drawCaptureMode();
+    }
+
     const applesMap: Record<string, number> = {};
     for (let i = 0; i < apples.length; i++) {
       if (!apples[i]) continue;
@@ -468,7 +498,7 @@ export const sketch = (p5: P5) => {
     drawPlayerHead(player.position);
 
     if (state.isLost) return;
-    if (!state.isGameStarted) return;
+    if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
 
     // check if head has reached an apple
     const appleFound = applesMap[getCoordIndex(player.position)];
@@ -476,10 +506,11 @@ export const sketch = (p5: P5) => {
       spawnAppleParticles(player.position);
       growSnake(appleFound);
       increaseSpeed();
-      sfx.play(Sound.eat);
+      playSound(Sound.eat);
     }
 
-    state.isLost = checkHasHit(player.position, snakePositionsMap);
+    const didHit = checkHasHit(player.position, snakePositionsMap);
+    state.isLost = didHit;
 
     apples = apples.filter(apple => !!apple);
 
@@ -494,13 +525,13 @@ export const sketch = (p5: P5) => {
       hurtSnake();
       switch (state.lives) {
         case 2:
-          sfx.play(Sound.hurt1);
+          playSound(Sound.hurt1);
           break;
         case 1:
-          sfx.play(Sound.hurt2);
+          playSound(Sound.hurt2);
           break;
         case 0:
-          sfx.play(Sound.hurt3);
+          playSound(Sound.hurt3);
           break;
       }
     }
@@ -511,15 +542,19 @@ export const sketch = (p5: P5) => {
       renderHeartsUI();
       flashScreen();
       showGameOver();
-      sfx.play(Sound.death);
+      playSound(Sound.death);
       return;
     }
 
-    if (state.isMoving) {
+    // handle snake movement
+    if (state.isMoving && replay.mode !== ReplayMode.Playback) {
       const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
       if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
         const normalizedSpeed = clamp(difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
-        movePlayer(snakePositionsMap, normalizedSpeed);
+        const didMove = movePlayer(snakePositionsMap, normalizedSpeed);
+        if (didMove && replay.mode === ReplayMode.Capture) {
+          replay.positions[state.frameCount] = [player.position.x, player.position.y];
+        }
         if (state.isExitingLevel) {
           score += SCORE_INCREMENT;
           renderScoreUI();
@@ -531,9 +566,24 @@ export const sketch = (p5: P5) => {
       state.timeSinceHurt += p5.deltaTime;
     }
 
+    // handle snake movement during replay
+    if (replay.mode === ReplayMode.Playback && !didHit) {
+      const position: [number, number] | undefined = replay.positions[state.frameCount];
+      if (position != undefined) {
+        moveSegments();
+        player.position.set(position[0], position[1])
+      }
+      state.timeSinceHurt += p5.deltaTime;
+    }
+
+    // capture snake movement after hit and rebound
+    if (replay.mode === ReplayMode.Capture && didHit) {
+      replay.positions[state.frameCount] = [player.position.x, player.position.y];
+    }
+
     if (getHasClearedLevel() && !state.isDoorsOpen) {
       openDoors();
-      sfx.play(Sound.doorOpen);
+      playSound(Sound.doorOpen);
     }
 
     if (!state.isExitingLevel && getHasSegmentExited(player.position)) {
@@ -545,6 +595,8 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel && segments.every(segment => getHasSegmentExited(segment))) {
       gotoNextLevel();
     }
+
+    state.frameCount += 1;
   }
 
   function getTimeNeededUntilNextMove() {
@@ -572,6 +624,7 @@ export const sketch = (p5: P5) => {
   }
 
   function flashScreen() {
+    if (replay.mode === ReplayMode.Playback) return;
     screenFlashElement = UI.drawScreenFlash();
     setTimeout(() => {
       screenFlashElement?.remove();
@@ -579,6 +632,7 @@ export const sketch = (p5: P5) => {
   }
 
   function startScreenShake({ magnitude = 1, normalizedTime = 0, timeScale = 1 } = {}) {
+    if (replay.mode === ReplayMode.Playback) return;
     screenShake.timeSinceStarted = normalizedTime * SCREEN_SHAKE_DURATION_MS;
     screenShake.magnitude = magnitude;
     screenShake.timeScale = timeScale;
@@ -636,8 +690,8 @@ export const sketch = (p5: P5) => {
     return false;
   }
 
-  function movePlayer(snakePositionsMap: Record<number, boolean>, normalizedSpeed = 0) {
-    if (!state.isMoving) return;
+  function movePlayer(snakePositionsMap: Record<number, boolean>, normalizedSpeed = 0): boolean {
+    if (!state.isMoving) return false;
     state.timeSinceLastMove = 0;
     if (moves.length > 0 && !state.isExitingLevel) {
       player.direction = moves.shift()
@@ -664,10 +718,26 @@ export const sketch = (p5: P5) => {
     const willHitSomething = checkHasHit(player.position.copy().add(direction), snakePositionsMap);
     if (willHitSomething && state.hurtGraceTime > 0) {
       state.hurtGraceTime -= p5.deltaTime;
-      return;
+      return false;
     }
 
     // apply movement
+    moveSegments();
+    player.position.add(direction);
+    state.hurtGraceTime = HURT_GRACE_TIME;
+
+    // play step sfx
+    const volume = p5.lerp(1, 0.5, normalizedSpeed);
+    if (state.steps % 2 === 0) {
+      playSound(Sound.step1, volume);
+    } else {
+      playSound(Sound.step2, volume);
+    }
+    state.steps += 1;
+    return true;
+  }
+
+  function moveSegments() {
     for (let i = segments.length - 1; i >= 0; i--) {
       if (i === 0) {
         segments[i].set(player.position);
@@ -675,17 +745,6 @@ export const sketch = (p5: P5) => {
         segments[i].set(segments[i - 1]);
       }
     }
-    player.position.add(direction);
-    state.hurtGraceTime = HURT_GRACE_TIME;
-
-    // play step sfx
-    const volume = p5.lerp(1, 0.5, normalizedSpeed);
-    if (state.steps % 2 === 0) {
-      sfx.play(Sound.step1, volume);
-    } else {
-      sfx.play(Sound.step2, volume);
-    }
-    state.steps += 1;
   }
 
   /**
@@ -712,7 +771,9 @@ export const sketch = (p5: P5) => {
    */
   function reboundSnake(numTimes = 2) {
     for (let times = 0; times < numTimes; times++) {
-      if (segments.length > 1) { player.position.set(segments[0]); }
+      if (segments.length > 1) {
+        player.position.set(segments[0]);
+      }
       for (let i = 0; i < segments.length - 1; i++) {
         segments[i].set(segments[i + 1]);
       }
@@ -763,6 +824,13 @@ export const sketch = (p5: P5) => {
 
   function addApple(numTries = 0) {
     if (level.disableAppleSpawn) return;
+    if (replay.mode === ReplayMode.Playback) {
+      const appleToSpawn = replay.applesToSpawn.shift();
+      if (!appleToSpawn) { console.warn('ran out of apples to spawn during replay mode'); return; }
+      const apple = p5.createVector(appleToSpawn[0], appleToSpawn[1]);
+      apples.push(apple);
+      return;
+    }
     const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
     const apple = p5.createVector(x, y);
@@ -773,6 +841,9 @@ export const sketch = (p5: P5) => {
       if (numTries < 30) addApple(numTries + 1);
     } else {
       apples.push(apple);
+      if (replay.mode === ReplayMode.Capture) {
+        replay.applesToSpawn.push([apple.x, apple.y]);
+      }
     }
   }
 
@@ -858,6 +929,26 @@ export const sketch = (p5: P5) => {
       state.isShowingDeathColours ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke);
   }
 
+  function drawCaptureMode() {
+    const reds: [number, number][] = [
+      [0, 0],
+      [1, 0],
+      [0, 1],
+      [0, 28],
+      [0, 29],
+      [1, 29],
+      [28, 29],
+      [29, 28],
+      [29, 29],
+      [28, 0],
+      [29, 0],
+      [29, 1],
+    ];
+    for (let i = 0; i < reds.length; i++) {
+      drawSquare(reds[i][0], reds[i][1], "#f00", "#f00");
+    }
+  }
+
   function drawSquare(x: number, y: number, background = "pink", lineColor = "fff", strokeSize = STROKE_SIZE) {
     p5.fill(background);
     p5.stroke(lineColor);
@@ -887,6 +978,7 @@ export const sketch = (p5: P5) => {
 
   function showGameOver() {
     startCoroutine(showGameOverRoutine());
+    saveReplayStateToFile();
   }
 
   function* showGameOverRoutine(): IEnumerator {
@@ -897,14 +989,19 @@ export const sketch = (p5: P5) => {
     yield* waitForTime(HURT_STUN_TIME * 2.5);
     state.isShowingDeathColours = false;
     startScreenShake();
-    UI.drawDarkOverlay(uiElements);
-    UI.drawButton("TRY AGAIN", 236, 280, () => init(false), uiElements);
-    UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
-    UI.drawText(`SCORE: ${Math.floor(totalScore + score)}`, '40px', 370, uiElements);
-    UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
-    UI.enableScreenScroll();
-    renderScoreUI();
-    resetScore();
+    if (replay.mode === ReplayMode.Playback) {
+      yield* waitForTime(1000);
+      init(false);
+    } else {
+      UI.drawDarkOverlay(uiElements);
+      UI.drawButton("TRY AGAIN", 236, 280, () => init(false), uiElements);
+      UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
+      UI.drawText(`SCORE: ${Math.floor(totalScore + score)}`, '40px', 370, uiElements);
+      UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
+      UI.enableScreenScroll();
+      renderScoreUI();
+      resetScore();
+    }
   }
 
   function resetScore() {
@@ -960,7 +1057,9 @@ export const sketch = (p5: P5) => {
     levelIndex++;
     level = LEVELS[levelIndex % LEVELS.length];
 
-    if (showQuoteOnLevelWin) {
+    saveReplayStateToFile();
+
+    if (showQuoteOnLevelWin && replay.mode !== ReplayMode.Playback) {
       const quoteIndex = Math.floor(p5.random(0, quotes.length));
       const quote = quotes[quoteIndex];
       quotes = removeArrayElement(quotes, quoteIndex);
@@ -1012,6 +1111,63 @@ export const sketch = (p5: P5) => {
         return LEVEL_99;
       default:
         return LEVEL_01;
+    }
+  }
+
+  function startReplay() {
+    replay.mode = ReplayMode.Playback;
+    startCoroutine(replayRoutine());
+  }
+
+  function stopReplay() {
+    replay.mode = ReplayMode.Disabled;
+  }
+
+  function* replayRoutine(): IEnumerator {
+    const clips = shuffleArray(replayClips)
+    let clipIndex = 0;
+
+    while (true) {
+      const clip = clips[clipIndex % clips.length];
+      if (!clip) {
+        console.warn(`clip at index ${clipIndex} was null - clips.length=${clips.length}`);
+        break;
+      }
+
+      replay.applesToSpawn = clip.applesToSpawn.slice();
+      replay.difficulty = { ...clip.difficulty };
+      replay.levelIndex = clip.levelIndex;
+      replay.positions = clip.positions;
+
+      levelIndex = clip.levelIndex;
+      level = LEVELS[levelIndex];
+      difficulty = clip.difficulty;
+      init(false);
+      replay.shouldProceedToNextClip = false;
+      clipIndex++;
+      yield null;
+
+      while (!replay.shouldProceedToNextClip) {
+        yield null;
+      }
+    }
+  }
+
+  function saveReplayStateToFile() {
+    if (replay.mode !== ReplayMode.Capture) return;
+    try {
+      function download(content: string, fileName: string, contentType = 'text/plain') {
+        var a = document.createElement("a");
+        var file = new Blob([content], { type: contentType });
+        a.href = URL.createObjectURL(file);
+        a.download = fileName;
+        a.click();
+      }
+      const fileName = `snek-data-${replay.levelIndex}-${replay.levelName}-${replay.timeCaptureStarted}.json`;
+      download(JSON.stringify(replay), fileName, 'application/json');
+      console.log(`saved file "${fileName}"`);
+    } catch (err) {
+      console.error(err);
     }
   }
 }

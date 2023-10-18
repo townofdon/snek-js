@@ -23,3 +23,14 @@ export function removeArrayElement<T>(items: T[], index = -1): T[] {
 export function stripLeadingSlash(str: string): string {
   return str.replace(/^\//, '');
 }
+
+export function shuffleArray<T>(array: T[]) {
+  const copy = array.slice()
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const temp = copy[i];
+    copy[i] = copy[j];
+    copy[j] = temp;
+  }
+  return copy;
+}

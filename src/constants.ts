@@ -1,6 +1,8 @@
 
 export const TITLE = 'SNEK';
 
+export const RECORD_REPLAY_STATE = false;
+
 const windowWidth = window.innerWidth;
 
 export const FRAMERATE = 90;

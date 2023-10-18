@@ -46,7 +46,6 @@ export interface Difficulty {
 export interface GameState {
   isPaused: boolean,
   isGameStarted: boolean,
-  isTransitionSceneShowing: boolean,
   isMoving: boolean,
   isLost: boolean,
   isDoorsOpen: boolean,
@@ -59,6 +58,7 @@ export interface GameState {
   lives: number,
   speed: number,
   steps: number,
+  frameCount: number,
   numApplesEaten: number,
 }
 
@@ -139,4 +139,21 @@ export interface SceneCallbacks {
 export interface SceneCachedCallbacks {
   draw: () => void
   keyPressed: (event?: object) => void
+}
+
+export enum ReplayMode {
+  Disabled = 'Disabled',
+  Capture = 'Capture',
+  Playback = 'Playback',
+}
+
+export interface Replay {
+  mode: ReplayMode,
+  levelIndex: number,
+  levelName: string,
+  difficulty: Difficulty,
+  applesToSpawn: [number, number][],
+  positions: Record<number, [number, number]>
+  timeCaptureStarted: string,
+  shouldProceedToNextClip: boolean,
 }
