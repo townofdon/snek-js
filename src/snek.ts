@@ -255,6 +255,7 @@ export const sketch = (p5: P5) => {
     stopAllCoroutines();
     stopReplay();
     level = START_LEVEL
+    setLevelIndexFromCurrentLevel();
     state.isGameStarted = true;
     init()
     switch (dif) {
@@ -1140,7 +1141,7 @@ export const sketch = (p5: P5) => {
       replay.positions = clip.positions;
 
       levelIndex = clip.levelIndex;
-      level = LEVELS[levelIndex];
+      level = LEVELS[levelIndex % LEVELS.length];
       difficulty = clip.difficulty;
       init(false);
       replay.shouldProceedToNextClip = false;
