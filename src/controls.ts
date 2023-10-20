@@ -16,8 +16,9 @@ import {
   KEYCODE_A,
   KEYCODE_D,
   KEYCODE_S,
+  HURT_STUN_TIME,
 } from './constants';
-import { DIR, GameState, PlayerState } from "./types";
+import { DIR, GameState } from "./types";
 
 export interface InputCallbacks {
   onInit: () => void
@@ -29,17 +30,6 @@ export interface InputCallbacks {
   onAddMove: (move: DIR) => void
 }
 
-export function bindButtonActions(player: PlayerState, moves: DIR[], callbacks: InputCallbacks) {
-  const handleClick = (ev: Event) => {
-    if (!ev.target) return;
-    const element = ev.target as HTMLElement;
-    const buttonDir: DIR | null = (element.dataset.direction || null) as (DIR | null);
-    handleMove(buttonDir, player.direction, moves, callbacks);
-  }
-  // document.getElementById('control-button-up')
-  document.addEventListener('click', handleClick);
-}
-
 export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
   const { keyCode, ENTER, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   const {
@@ -48,6 +38,8 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     onClearUI,
     onShowPortalUI,
     onWarpToLevel,
+    onStartMoving,
+    onAddMove,
   } = callbacks
 
   if (state.isLost) {
@@ -100,12 +92,6 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     currentMove = DIR.DOWN;
   }
 
-  handleMove(currentMove, playerDirection, moves, callbacks);
-}
-
-function handleMove(currentMove: DIR | null, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
-  const { onStartMoving, onAddMove } = callbacks
-
   if (currentMove) {
     onStartMoving();
   }
@@ -114,16 +100,19 @@ function handleMove(currentMove: DIR | null, playerDirection: DIR, moves: DIR[],
     ? moves[moves.length - 1]
     : playerDirection;
 
+  // disallow same moves unless snake is currently stunned after hitting something
+  const disallowEqual = state.timeSinceHurt >= HURT_STUN_TIME;
+
   // validate current move
   if (moves.length >= MAX_MOVES) return;
-  if (!validateMove(prevMove, currentMove)) return;
+  if (!validateMove(prevMove, currentMove, disallowEqual)) return;
 
   onAddMove(currentMove);
 }
 
-function validateMove(prev: DIR, current: DIR) {
+function validateMove(prev: DIR, current: DIR, disallowEqual = true) {
   if (!current) return false;
-  if (prev === current) return false;
+  if (disallowEqual && prev === current) return false;
   if (prev === DIR.UP && current === DIR.DOWN) return false;
   if (prev === DIR.DOWN && current === DIR.UP) return false;
   if (prev === DIR.LEFT && current === DIR.RIGHT) return false;
