@@ -4,17 +4,6 @@ import {
   MAIN_TITLE_SCREEN_LEVEL,
   START_LEVEL,
   LEVELS,
-  LEVEL_01,
-  LEVEL_02,
-  LEVEL_03,
-  LEVEL_04,
-  LEVEL_05,
-  LEVEL_06,
-  LEVEL_07,
-  LEVEL_08,
-  LEVEL_09,
-  LEVEL_10,
-  LEVEL_99,
 } from './levels';
 import {
   TITLE,
@@ -32,18 +21,6 @@ import {
   SCORE_INCREMENT,
   CLEAR_BONUS,
   LEVEL_BONUS,
-  SPEED_MOD_EASY,
-  SPEED_MOD_MEDIUM,
-  SPEED_MOD_HARD,
-  SPEED_MOD_ULTRA,
-  NUM_APPLES_MOD_EASY,
-  NUM_APPLES_MOD_MEDIUM,
-  NUM_APPLES_MOD_HARD,
-  NUM_APPLES_MOD_ULTRA,
-  SCORE_MOD_EASY,
-  SCORE_MOD_MEDIUM,
-  SCORE_MOD_HARD,
-  SCORE_MOD_ULTRA,
   SPEED_LIMIT_EASY,
   SPEED_LIMIT_MEDIUM,
   SPEED_LIMIT_HARD,
@@ -53,8 +30,9 @@ import {
   HURT_STUN_TIME,
   HURT_FLASH_RATE,
   HURT_GRACE_TIME,
+  DIFFICULTY_EASY,
 } from './constants';
-import { clamp, getCoordIndex, removeArrayElement, shuffleArray, vecToString } from './utils';
+import { clamp, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, removeArrayElement, shuffleArray, vecToString } from './utils';
 import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
@@ -72,13 +50,7 @@ import { replayClips } from './replayClips/replayClips';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
-let difficulty: Difficulty = {
-  index: 1,
-  speedMod: SPEED_MOD_EASY,
-  applesMod: NUM_APPLES_MOD_EASY,
-  scoreMod: SCORE_MOD_EASY,
-  speedLimit: SPEED_LIMIT_EASY,
-};
+let difficulty: Difficulty = { ...DIFFICULTY_EASY };
 
 let score = 0;
 let totalScore = 0;
@@ -251,14 +223,14 @@ export const sketch = (p5: P5) => {
     });
   }
 
-  function startGame(dif = 2) {
+  function startGame(difficultyIndex = 2) {
     stopAllCoroutines();
     stopReplay();
     level = START_LEVEL
     setLevelIndexFromCurrentLevel();
     state.isGameStarted = true;
     init()
-    setDifficultyFromIndex(dif);
+    difficulty = getDifficultyFromIndex(difficultyIndex);
     state.isGameStarted = true;
     replay.difficulty = { ...difficulty };
     UI.disableScreenScroll();
@@ -751,12 +723,10 @@ export const sketch = (p5: P5) => {
     let bonus = 0;
     startScreenShake({ magnitude: 0.4, normalizedTime: 0.8 });
     removeApple(appleIndex);
-    const numSegmentsToAdd = (() => {
-      return Math.max(
-        (difficulty.index - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
-        1
-      );
-    })()
+    const numSegmentsToAdd = Math.max(
+      (difficulty.index - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
+      1
+    );
     for (let i = 0; i < numSegmentsToAdd; i++) {
       addSnakeSegment();
     }
@@ -940,7 +910,7 @@ export const sketch = (p5: P5) => {
 
   function showGameOver() {
     startCoroutine(showGameOverRoutine());
-    saveReplayStateToFile();
+    maybeSaveReplayStateToFile();
   }
 
   function* showGameOverRoutine(): IEnumerator {
@@ -975,7 +945,7 @@ export const sketch = (p5: P5) => {
 
   function warpToLevel(levelNum = 1) {
     resetScore();
-    level = getLevelFromNum(levelNum);
+    level = getWarpLevelFromNum(levelNum);
     setLevelIndexFromCurrentLevel();
     init();
   }
@@ -984,7 +954,6 @@ export const sketch = (p5: P5) => {
     UI.drawDarkOverlay(uiElements);
     UI.drawText('JUMP TO LEVEL', '40px', 100, uiElements);
     UI.drawText('Press \'J\' To Unpause', '26px', 150, uiElements);
-
     const xInitial = 120;
     const offset = 60;
     const yRow1 = 280;
@@ -1020,10 +989,10 @@ export const sketch = (p5: P5) => {
     level = LEVELS[levelIndex % LEVELS.length];
     if (level === START_LEVEL) {
       difficulty.index++;
-      setDifficultyFromIndex(difficulty.index);
+      difficulty = getDifficultyFromIndex(difficulty.index);
     }
 
-    saveReplayStateToFile();
+    maybeSaveReplayStateToFile();
 
     if (showQuoteOnLevelWin && replay.mode !== ReplayMode.Playback) {
       const quoteIndex = Math.floor(p5.random(0, quotes.length));
@@ -1048,79 +1017,6 @@ export const sketch = (p5: P5) => {
         levelIndex = i;
         break;
       }
-    }
-  }
-
-  function getLevelFromNum(levelNum: number) {
-    switch (levelNum) {
-      case 1:
-        return LEVEL_01;
-      case 2:
-        return LEVEL_02;
-      case 3:
-        return LEVEL_03;
-      case 4:
-        return LEVEL_04;
-      case 5:
-        return LEVEL_05;
-      case 6:
-        return LEVEL_06;
-      case 7:
-        return LEVEL_07;
-      case 8:
-        return LEVEL_08;
-      case 9:
-        return LEVEL_09;
-      case 10:
-        return LEVEL_10;
-      case 99:
-        return LEVEL_99;
-      default:
-        return LEVEL_01;
-    }
-  }
-
-  function setDifficultyFromIndex(index: number) {
-    index = clamp(index, 1, 4);
-    switch (index) {
-      case 1:
-        difficulty = {
-          index: 1,
-          speedMod: SPEED_MOD_EASY,
-          applesMod: NUM_APPLES_MOD_EASY,
-          scoreMod: SCORE_MOD_EASY,
-          speedLimit: SPEED_LIMIT_EASY,
-        }
-        break;
-      case 2:
-        difficulty = {
-          index: 2,
-          speedMod: SPEED_MOD_MEDIUM,
-          applesMod: NUM_APPLES_MOD_MEDIUM,
-          scoreMod: SCORE_MOD_MEDIUM,
-          speedLimit: SPEED_LIMIT_MEDIUM,
-        }
-        break;
-      case 3:
-        difficulty = {
-          index: 3,
-          speedMod: SPEED_MOD_HARD,
-          applesMod: NUM_APPLES_MOD_HARD,
-          scoreMod: SCORE_MOD_HARD,
-          speedLimit: SPEED_LIMIT_HARD,
-        }
-        break;
-      case 4:
-        difficulty = {
-          index: 4,
-          speedMod: SPEED_MOD_ULTRA,
-          applesMod: NUM_APPLES_MOD_ULTRA,
-          scoreMod: SCORE_MOD_ULTRA,
-          speedLimit: SPEED_LIMIT_ULTRA,
-        }
-        break;
-      default:
-        throw new Error(`Unexpected difficulty: ${difficulty}`)
     }
   }
 
@@ -1151,7 +1047,7 @@ export const sketch = (p5: P5) => {
 
       levelIndex = clip.levelIndex;
       level = LEVELS[levelIndex % LEVELS.length];
-      difficulty = clip.difficulty;
+      difficulty = { ...clip.difficulty };
       init(false);
       replay.shouldProceedToNextClip = false;
       clipIndex++;
@@ -1163,7 +1059,7 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  function saveReplayStateToFile() {
+  function maybeSaveReplayStateToFile() {
     if (replay.mode !== ReplayMode.Capture) return;
     try {
       function download(content: string, fileName: string, contentType = 'text/plain') {

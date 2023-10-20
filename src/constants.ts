@@ -1,3 +1,4 @@
+import { Difficulty } from "./types";
 
 export const TITLE = 'SNEK';
 
@@ -41,6 +42,35 @@ export const SPEED_LIMIT_EASY = 110;
 export const SPEED_LIMIT_MEDIUM = 45;
 export const SPEED_LIMIT_HARD = 35;
 export const SPEED_LIMIT_ULTRA = 25;
+
+export const DIFFICULTY_EASY: Difficulty = {
+    index: 1,
+    speedMod: SPEED_MOD_EASY,
+    applesMod: NUM_APPLES_MOD_EASY,
+    scoreMod: SCORE_MOD_EASY,
+    speedLimit: SPEED_LIMIT_EASY,
+}
+export const DIFFICULTY_MEDIUM: Difficulty = {
+    index: 2,
+    speedMod: SPEED_MOD_MEDIUM,
+    applesMod: NUM_APPLES_MOD_MEDIUM,
+    scoreMod: SCORE_MOD_MEDIUM,
+    speedLimit: SPEED_LIMIT_MEDIUM,
+}
+export const DIFFICULTY_HARD: Difficulty = {
+    index: 3,
+    speedMod: SPEED_MOD_HARD,
+    applesMod: NUM_APPLES_MOD_HARD,
+    scoreMod: SCORE_MOD_HARD,
+    speedLimit: SPEED_LIMIT_HARD,
+}
+export const DIFFICULTY_ULTRA: Difficulty = {
+    index: 4,
+    speedMod: SPEED_MOD_ULTRA,
+    applesMod: NUM_APPLES_MOD_ULTRA,
+    scoreMod: SCORE_MOD_ULTRA,
+    speedLimit: SPEED_LIMIT_ULTRA,
+}
 
 export const KEYCODE_W = 87;
 export const KEYCODE_A = 65;
