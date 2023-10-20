@@ -58,6 +58,7 @@ export interface Stats {
   score: number,
   applesEaten: number,
   applesEatenThisLevel: number,
+  totalTimeElapsed: number,
 }
 
 export interface GameState {
