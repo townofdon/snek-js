@@ -784,7 +784,7 @@ export const sketch = (p5: P5) => {
   }
 
   function drawBackground() {
-    p5.background(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background);
+    p5.background(state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background);
   }
 
   function drawPlayerHead(vec: Vector) {
@@ -794,6 +794,7 @@ export const sketch = (p5: P5) => {
   }
 
   function drawPlayerMoveArrows(vec: Vector) {
+    if (replay.mode === ReplayMode.Playback) return;
     type ArrowBlock = { x: number, y: number, text: string }
     const arrowBlocks: ArrowBlock[] = [
       { x: vec.x, y: vec.y - 1, text: 'P' },
@@ -833,32 +834,32 @@ export const sketch = (p5: P5) => {
 
   function drawApple(vec: Vector) {
     drawSquare(vec.x, vec.y,
-      state.isShowingDeathColours ? PALETTE.deathInvert.apple : level.colors.apple,
-      state.isShowingDeathColours ? PALETTE.deathInvert.appleStroke : level.colors.appleStroke);
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.apple : level.colors.apple,
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.appleStroke : level.colors.appleStroke);
   }
 
   function drawBarrier(vec: Vector) {
     drawSquare(vec.x, vec.y,
-      state.isShowingDeathColours ? PALETTE.deathInvert.barrier : level.colors.barrier,
-      state.isShowingDeathColours ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrier : level.colors.barrier,
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
   }
 
   function drawDoor(vec: Vector) {
     drawSquare(vec.x, vec.y,
-      state.isShowingDeathColours ? PALETTE.deathInvert.door : level.colors.door,
-      state.isShowingDeathColours ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke);
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.door : level.colors.door,
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke);
   }
 
   function drawDecorative1(vec: Vector) {
     drawSquare(vec.x, vec.y,
-      state.isShowingDeathColours ? PALETTE.deathInvert.deco1 : level.colors.deco1,
-      state.isShowingDeathColours ? PALETTE.deathInvert.deco1Stroke : level.colors.deco1Stroke);
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1 : level.colors.deco1,
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1Stroke : level.colors.deco1Stroke);
   }
 
   function drawDecorative2(vec: Vector) {
     drawSquare(vec.x, vec.y,
-      state.isShowingDeathColours ? PALETTE.deathInvert.deco2 : level.colors.deco2,
-      state.isShowingDeathColours ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke);
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2 : level.colors.deco2,
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke);
   }
 
   function drawCaptureMode() {
