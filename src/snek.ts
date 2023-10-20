@@ -258,9 +258,9 @@ export const sketch = (p5: P5) => {
     UI.renderHearts(state.lives, state.isShowingDeathColours);
   }
 
-  function renderScoreUI() {
+  function renderScoreUI(localScore = score + totalScore) {
     if (replay.mode === ReplayMode.Playback) return;
-    UI.renderScore(score + totalScore, state.isShowingDeathColours);
+    UI.renderScore(localScore, state.isShowingDeathColours);
   }
 
   function renderLevelName() {
@@ -914,6 +914,9 @@ export const sketch = (p5: P5) => {
   }
 
   function* showGameOverRoutine(): IEnumerator {
+    const localNumApples = state.numApplesEaten + totalApplesEaten;
+    const localScore = totalScore + score;
+    resetScore();
     startScreenShake();
     yield* waitForTime(200);
     startScreenShake({ magnitude: 3, normalizedTime: -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, timeScale: 0.1 });
@@ -928,11 +931,10 @@ export const sketch = (p5: P5) => {
       UI.drawDarkOverlay(uiElements);
       UI.drawButton("TRY AGAIN", 236, 280, () => init(false), uiElements);
       UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
-      UI.drawText(`SCORE: ${Math.floor(totalScore + score)}`, '40px', 370, uiElements);
-      UI.drawText(`APPLES: ${state.numApplesEaten + totalApplesEaten}`, '26px', 443, uiElements);
+      UI.drawText(`SCORE: ${Math.floor(localScore)}`, '40px', 370, uiElements);
+      UI.drawText(`APPLES: ${localNumApples}`, '26px', 443, uiElements);
       UI.enableScreenScroll();
-      renderScoreUI();
-      resetScore();
+      renderScoreUI(localScore);
     }
   }
 
