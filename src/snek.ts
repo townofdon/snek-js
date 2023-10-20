@@ -36,7 +36,7 @@ import { clamp, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, remo
 import { ParticleSystem } from './particle-system';
 import { Easing } from './easing';
 import { UI } from './ui';
-import { DIR, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -47,14 +47,12 @@ import { buildLevel } from './levels/levelBuilder';
 import { QuoteScene } from './scenes/QuoteScene';
 import { SFX } from './sfx';
 import { replayClips } from './replayClips/replayClips';
+import { AppleParticleSystem } from './particleSystems/AppleParticleSystem';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
 
-let score = 0;
-let totalScore = 0;
-let totalApplesEaten = 0;
 
 const state: GameState = {
   isPaused: false,
@@ -72,8 +70,17 @@ const state: GameState = {
   speed: 1,
   steps: 0,
   frameCount: 0,
-  numApplesEaten: 0,
+  lastHurtBy: HitType.Unknown,
 };
+const stats: Stats = {
+  numDeaths: 0,
+  numLevelsCleared: 0,
+  numPointsEverScored: 0,
+  numApplesEverEaten: 0,
+  score: 0,
+  applesEaten: 0,
+  applesEatenThisLevel: 0,
+}
 const player: PlayerState = {
   position: null,
   direction: DIR.RIGHT,
@@ -125,38 +132,7 @@ export const sketch = (p5: P5) => {
   const fonts = new Fonts(p5);
   const sfx = new SFX();
 
-  class AppleParticleSystem extends ParticleSystem {
-    /** 
-     * @param {P5} p5
-     * @param {P5.Vector} origin
-     */
-    constructor(p5: P5, origin: Vector, { spawnMod = 1, speedMod = 1, scaleMod = 1 } = {}) {
-      const lifetime = 1000;
-      const numParticles = 10 * spawnMod;
-      const speed = 1 * speedMod;
-      const speedVariance = 1.5 * speedMod;
-      const scaleStart = .6 * scaleMod;
-      const scaleEnd = 0.3 * scaleMod;
-      const scaleVariance = 0.2 * scaleMod;
-      const colorStart = level.colors.appleStroke;
-      const colorEnd = level.colors.background;
-      const easingFnc = Easing.outCubic;
-      super({
-        p5,
-        origin,
-        colorStart: p5.color(colorStart),
-        colorEnd: p5.color(colorEnd),
-        lifetime,
-        numParticles,
-        speed,
-        speedVariance,
-        scaleStart,
-        scaleEnd,
-        scaleVariance,
-        easingFnc,
-      });
-    }
-  }
+
 
   /**
    * https://p5js.org/reference/#/p5/preload
@@ -183,10 +159,13 @@ export const sketch = (p5: P5) => {
     startReplay();
 
     // init state for game
-    score = 0;
-    totalScore = 0;
-    totalApplesEaten = 0;
     state.isGameStarted = false;
+    stats.numDeaths = 0;
+    stats.numLevelsCleared = 0;
+    stats.numPointsEverScored = 0;
+    stats.numApplesEverEaten = 0;
+    stats.score = 0;
+    stats.applesEaten = 0;
     UI.enableScreenScroll();
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
@@ -258,9 +237,9 @@ export const sketch = (p5: P5) => {
     UI.renderHearts(state.lives, state.isShowingDeathColours);
   }
 
-  function renderScoreUI(localScore = score + totalScore) {
+  function renderScoreUI(score = stats.score) {
     if (replay.mode === ReplayMode.Playback) return;
-    UI.renderScore(localScore, state.isShowingDeathColours);
+    UI.renderScore(score, state.isShowingDeathColours);
   }
 
   function renderLevelName() {
@@ -290,8 +269,10 @@ export const sketch = (p5: P5) => {
       replay.positions = {};
     }
 
+    // init stats
+    stats.applesEatenThisLevel = 0;
+
     // init state for new level
-    score = 0;
     player.position = p5.createVector(15, 15);
     player.direction = DIR.RIGHT;
     state.isPaused = false;
@@ -312,7 +293,7 @@ export const sketch = (p5: P5) => {
     state.speed = 1;
     state.steps = 0;
     state.frameCount = 0;
-    state.numApplesEaten = 0;
+    state.lastHurtBy = HitType.Unknown;
     moves = [];
     barriers = [];
     doors = [];
@@ -426,6 +407,7 @@ export const sketch = (p5: P5) => {
         applesMap[getCoordIndex(segments[i])] = -1;
         spawnAppleParticles(segments[i]);
         growSnake(appleFound);
+        incrementScore();
       }
     }
 
@@ -439,6 +421,7 @@ export const sketch = (p5: P5) => {
     if (appleFound != undefined && appleFound >= 0) {
       spawnAppleParticles(player.position);
       growSnake(appleFound);
+      incrementScore();
       increaseSpeed();
       playSound(Sound.eat);
     }
@@ -472,7 +455,6 @@ export const sketch = (p5: P5) => {
 
     // handle snake death
     if (state.isLost) {
-      state.lives = 0;
       renderHeartsUI();
       flashScreen();
       showGameOver();
@@ -490,7 +472,7 @@ export const sketch = (p5: P5) => {
           replay.positions[state.frameCount] = [player.position.x, player.position.y];
         }
         if (state.isExitingLevel) {
-          score += SCORE_INCREMENT;
+          incrementScoreWhileExitingLevel();
           renderScoreUI();
         }
       } else {
@@ -522,8 +504,7 @@ export const sketch = (p5: P5) => {
 
     if (!state.isExitingLevel && getHasSegmentExited(player.position)) {
       state.isExitingLevel = true;
-      score += LEVEL_BONUS * difficulty.scoreMod;
-      score += LEVEL_BONUS * 10 * state.lives * difficulty.scoreMod;
+      addPoints(getLevelClearBonus() + getLivesLeftBonus());
     }
 
     if (state.isExitingLevel && segments.every(segment => getHasSegmentExited(segment))) {
@@ -553,8 +534,8 @@ export const sketch = (p5: P5) => {
   }
 
   function spawnAppleParticles(position: Vector) {
-    particleSystems.push(new AppleParticleSystem(p5, position));
-    particleSystems.push(new AppleParticleSystem(p5, position, { spawnMod: .3, speedMod: 4, scaleMod: .5 }));
+    particleSystems.push(new AppleParticleSystem(p5, level, position));
+    particleSystems.push(new AppleParticleSystem(p5, level, position, { spawnMod: .3, speedMod: 4, scaleMod: .5 }));
   }
 
   function flashScreen() {
@@ -591,8 +572,8 @@ export const sketch = (p5: P5) => {
   }
 
   function getHasClearedLevel() {
-    if (state.numApplesEaten >= level.applesToClear * difficulty.applesMod) return true;
-    if (state.timeElapsed >= level.timeToClear && state.numApplesEaten >= level.applesToClear * difficulty.applesMod * 0.5) return true;
+    if (stats.applesEatenThisLevel >= level.applesToClear * difficulty.applesMod) return true;
+    if (state.timeElapsed >= level.timeToClear && stats.applesEatenThisLevel >= level.applesToClear * difficulty.applesMod * 0.5) return true;
     return false;
   }
 
@@ -608,16 +589,19 @@ export const sketch = (p5: P5) => {
   function checkHasHit(vec: Vector, snakePositionsMap: Record<number, boolean> = null) {
     // check to see if snake ran into itself
     if (!state.isExitingLevel && snakePositionsMap && snakePositionsMap[getCoordIndex(vec)]) {
+      state.lastHurtBy = HitType.HitSelf;
       return true;
     }
 
     // check if player has hit a door
     if (!state.isExitingLevel && doorsMap[getCoordIndex(vec)]) {
+      state.lastHurtBy = HitType.HitDoor;
       return true;
     }
 
     // check if player has hit a barrier
     if (!state.isExitingLevel && barriersMap[getCoordIndex(vec)]) {
+      state.lastHurtBy = HitType.HitBarrier;
       return true;
     }
 
@@ -720,7 +704,6 @@ export const sketch = (p5: P5) => {
   function growSnake(appleIndex = -1) {
     if (state.isLost) return;
     if (appleIndex < 0) return;
-    let bonus = 0;
     startScreenShake({ magnitude: 0.4, normalizedTime: 0.8 });
     removeApple(appleIndex);
     const numSegmentsToAdd = Math.max(
@@ -732,12 +715,38 @@ export const sketch = (p5: P5) => {
     }
     if (!state.isDoorsOpen) {
       addApple();
-    } else {
+    }
+  }
+
+  function addPoints(points: number) {
+    stats.score += points;
+    stats.numPointsEverScored += points;
+  }
+
+  function getLevelClearBonus() {
+    return LEVEL_BONUS * difficulty.scoreMod;
+  }
+
+  function getLivesLeftBonus() {
+    return LEVEL_BONUS * 10 * state.lives * difficulty.scoreMod;
+  }
+
+  function incrementScore() {
+    let bonus = 0;
+    if (state.isDoorsOpen) {
       bonus = CLEAR_BONUS * difficulty.scoreMod;
     }
-    state.numApplesEaten += 1;
-    score += SCORE_INCREMENT * difficulty.scoreMod + bonus;
+    const points = SCORE_INCREMENT * difficulty.scoreMod + bonus
+    stats.applesEaten += 1;
+    stats.applesEatenThisLevel += 1;
+    stats.numApplesEverEaten += 1;
+    addPoints(points);
     renderScoreUI();
+  }
+
+  function incrementScoreWhileExitingLevel() {
+    const points = SCORE_INCREMENT;
+    addPoints(points);
   }
 
   function increaseSpeed() {
@@ -910,13 +919,15 @@ export const sketch = (p5: P5) => {
   }
 
   function showGameOver() {
+    state.lives = 0;
+    stats.numDeaths += 1;
     startCoroutine(showGameOverRoutine());
     maybeSaveReplayStateToFile();
   }
 
   function* showGameOverRoutine(): IEnumerator {
-    const localNumApples = state.numApplesEaten + totalApplesEaten;
-    const localScore = totalScore + score;
+    const applesEaten = stats.applesEaten;
+    const score = stats.score;
     resetScore();
     startScreenShake();
     yield* waitForTime(200);
@@ -932,18 +943,17 @@ export const sketch = (p5: P5) => {
       UI.drawDarkOverlay(uiElements);
       UI.drawButton("TRY AGAIN", 236, 280, () => init(false), uiElements);
       UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
-      UI.drawText(`SCORE: ${Math.floor(localScore)}`, '40px', 370, uiElements);
-      UI.drawText(`APPLES: ${localNumApples}`, '26px', 443, uiElements);
+      UI.drawText(`SCORE: ${Math.floor(score)}`, '40px', 370, uiElements);
+      UI.drawText(`APPLES: ${applesEaten}`, '26px', 443, uiElements);
       UI.enableScreenScroll();
-      renderScoreUI(localScore);
+      renderScoreUI(score);
     }
   }
 
   function resetScore() {
-    score = 0;
-    totalScore = 0;
-    state.numApplesEaten = 0;
-    totalApplesEaten = 0;
+    stats.score = 0;
+    stats.applesEaten = 0;
+    stats.applesEatenThisLevel = 0;
   }
 
   function warpToLevel(levelNum = 1) {
@@ -984,10 +994,8 @@ export const sketch = (p5: P5) => {
 
   function gotoNextLevel() {
     const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin;
-    totalScore += score;
-    score = 0;
-    totalApplesEaten += state.numApplesEaten;
-    state.numApplesEaten = 0;
+    stats.numLevelsCleared += 1;
+    stats.applesEatenThisLevel = 0;
     levelIndex++;
     level = LEVELS[levelIndex % LEVELS.length];
     if (level === START_LEVEL) {

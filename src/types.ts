@@ -43,6 +43,23 @@ export interface Difficulty {
   speedLimit: number,
 }
 
+export enum HitType {
+  Unknown,
+  HitBarrier,
+  HitDoor,
+  HitSelf,
+}
+
+export interface Stats {
+  numDeaths: number
+  numLevelsCleared: number,
+  numPointsEverScored: number, // total points scored, regardless of deaths (resets on new game)
+  numApplesEverEaten: number, // total apples eaten, regardless of deaths (resets on new game)
+  score: number,
+  applesEaten: number,
+  applesEatenThisLevel: number,
+}
+
 export interface GameState {
   isPaused: boolean,
   isGameStarted: boolean,
@@ -59,7 +76,7 @@ export interface GameState {
   speed: number,
   steps: number,
   frameCount: number,
-  numApplesEaten: number,
+  lastHurtBy: HitType,
 }
 
 export interface Palette {
