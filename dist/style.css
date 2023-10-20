@@ -50,6 +50,10 @@ main div {
   cursor: crosshair
 }
 
+.minimood {
+  font-family: 'MiniMOOD', 'VT323', monospace;
+}
+
 p {
   font-family: 'VT323', monospace;
   text-shadow: 0px 3px 3px black;

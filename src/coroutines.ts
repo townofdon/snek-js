@@ -1,5 +1,6 @@
 import P5 from "p5";
 import { IEnumerator } from "./types";
+import { clamp } from "./utils";
 
 export class Coroutines {
   private _coroutines: IEnumerator[] = []
@@ -35,7 +36,7 @@ export class Coroutines {
     this._coroutines = this._coroutines.filter(c => !!c);
   }
 
-  waitForTime = (durationMs: number, callback?: () => void): IEnumerator => {
+  waitForTime = (durationMs: number, callback?: (t: number) => void): IEnumerator => {
     return this._waitForTime(durationMs, callback);
   }
 
@@ -44,11 +45,12 @@ export class Coroutines {
   }
 
   // make private so that we can expose `waitForTime` as an arrow function, retaining `this` scope
-  private *_waitForTime(durationMs: number, callback?: () => void): IEnumerator {
+  private *_waitForTime(durationMs: number, callback?: (t: number) => void): IEnumerator {
     let timeRemaining = durationMs;
     while (timeRemaining > 0) {
       timeRemaining -= this._p5.deltaTime;
-      if (callback) callback();
+      const t = clamp((durationMs - timeRemaining) / durationMs, 0, 1);
+      if (callback) callback(t);
       yield null;
     }
   }

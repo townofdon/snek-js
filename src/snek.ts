@@ -31,10 +31,10 @@ import {
   HURT_FLASH_RATE,
   HURT_GRACE_TIME,
   DIFFICULTY_EASY,
+  DEBUG_EASY_LEVEL_EXIT,
 } from './constants';
 import { clamp, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, removeArrayElement, shuffleArray, vecToString } from './utils';
 import { ParticleSystem } from './particle-system';
-import { Easing } from './easing';
 import { UI } from './ui';
 import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats } from './types';
 import { PALETTE } from './palettes';
@@ -48,6 +48,8 @@ import { QuoteScene } from './scenes/QuoteScene';
 import { SFX } from './sfx';
 import { replayClips } from './replayClips/replayClips';
 import { AppleParticleSystem } from './particleSystems/AppleParticleSystem';
+import { WinLevelScene } from './scenes/WinLevelScene';
+import { LOSE_MESSAGES } from './messages';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
@@ -61,6 +63,7 @@ const state: GameState = {
   isLost: false,
   isDoorsOpen: false,
   isExitingLevel: false,
+  isExited: false,
   isShowingDeathColours: false,
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
@@ -80,6 +83,7 @@ const stats: Stats = {
   score: 0,
   applesEaten: 0,
   applesEatenThisLevel: 0,
+  totalTimeElapsed: 0,
 }
 const player: PlayerState = {
   position: null,
@@ -131,8 +135,7 @@ export const sketch = (p5: P5) => {
 
   const fonts = new Fonts(p5);
   const sfx = new SFX();
-
-
+  const winScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
 
   /**
    * https://p5js.org/reference/#/p5/preload
@@ -157,6 +160,7 @@ export const sketch = (p5: P5) => {
     setLevelIndexFromCurrentLevel();
     init(false);
     startReplay();
+    winScene.reset();
 
     // init state for game
     state.isGameStarted = false;
@@ -166,6 +170,9 @@ export const sketch = (p5: P5) => {
     stats.numApplesEverEaten = 0;
     stats.score = 0;
     stats.applesEaten = 0;
+    stats.applesEatenThisLevel = 0;
+    stats.totalTimeElapsed = 0;
+
     UI.enableScreenScroll();
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
@@ -280,6 +287,7 @@ export const sketch = (p5: P5) => {
     state.isLost = false;
     state.isDoorsOpen = false;
     state.isExitingLevel = false;
+    state.isExited = false;
     state.isShowingDeathColours = false;
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
@@ -309,6 +317,7 @@ export const sketch = (p5: P5) => {
     UI.disableScreenScroll();
     UI.clearLabels();
     clearUI();
+    winScene.reset();
 
     if (shouldShowTransitions) {
       const buildSceneAction = buildSceneActionFactory(p5, fonts, state);
@@ -472,13 +481,14 @@ export const sketch = (p5: P5) => {
           replay.positions[state.frameCount] = [player.position.x, player.position.y];
         }
         if (state.isExitingLevel) {
-          incrementScoreWhileExitingLevel();
+          if (!state.isExited) incrementScoreWhileExitingLevel();
           renderScoreUI();
         }
       } else {
         state.timeSinceLastMove += p5.deltaTime;
       }
       state.timeElapsed += p5.deltaTime;
+      stats.totalTimeElapsed += p5.deltaTime;
       state.timeSinceHurt += p5.deltaTime;
     }
 
@@ -504,11 +514,28 @@ export const sketch = (p5: P5) => {
 
     if (!state.isExitingLevel && getHasSegmentExited(player.position)) {
       state.isExitingLevel = true;
-      addPoints(getLevelClearBonus() + getLivesLeftBonus());
+      winScene.reset();
     }
 
-    if (state.isExitingLevel && segments.every(segment => getHasSegmentExited(segment))) {
-      gotoNextLevel();
+    if (state.isExitingLevel && replay.mode !== ReplayMode.Playback) {
+      winScene.draw();
+    }
+
+    if (!state.isExited && segments.every(segment => getHasSegmentExited(segment))) {
+      state.isExited = true;
+      if (replay.mode === ReplayMode.Playback) {
+        gotoNextLevel();
+      } else {
+        winScene.triggerLevelExit({
+          score: stats.score,
+          levelClearBonus: getLevelClearBonus(),
+          livesLeftBonus: getLivesLeftBonus(),
+          livesLeft: state.lives,
+          beforeGotoNextLevel: () => {
+            addPoints(getLevelClearBonus() + getLivesLeftBonus() * state.lives);
+          }
+        });
+      }
     }
 
     state.frameCount += 1;
@@ -572,6 +599,7 @@ export const sketch = (p5: P5) => {
   }
 
   function getHasClearedLevel() {
+    if (DEBUG_EASY_LEVEL_EXIT && stats.applesEatenThisLevel > 0) return true;
     if (stats.applesEatenThisLevel >= level.applesToClear * difficulty.applesMod) return true;
     if (state.timeElapsed >= level.timeToClear && stats.applesEatenThisLevel >= level.applesToClear * difficulty.applesMod * 0.5) return true;
     return false;
@@ -610,6 +638,7 @@ export const sketch = (p5: P5) => {
 
   function movePlayer(snakePositionsMap: Record<number, boolean>, normalizedSpeed = 0): boolean {
     if (!state.isMoving) return false;
+    if (state.isExited) return false;
     state.timeSinceLastMove = 0;
     if (moves.length > 0 && !state.isExitingLevel) {
       player.direction = moves.shift()
@@ -728,7 +757,7 @@ export const sketch = (p5: P5) => {
   }
 
   function getLivesLeftBonus() {
-    return LEVEL_BONUS * 10 * state.lives * difficulty.scoreMod;
+    return LEVEL_BONUS * 10 * difficulty.scoreMod;
   }
 
   function incrementScore() {
@@ -940,11 +969,17 @@ export const sketch = (p5: P5) => {
       yield* waitForTime(1000);
       init(false);
     } else {
+      const relevantMessages = LOSE_MESSAGES.filter(([message, callback]) => !callback || callback(state, stats, difficulty)).map((contents) => contents[0])
+      const randomMessage = relevantMessages[Math.floor(p5.random(0, relevantMessages.length))]
       UI.drawDarkOverlay(uiElements);
-      UI.drawButton("TRY AGAIN", 236, 280, () => init(false), uiElements);
       UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
-      UI.drawText(`SCORE: ${Math.floor(score)}`, '40px', 370, uiElements);
-      UI.drawText(`APPLES: ${applesEaten}`, '26px', 443, uiElements);
+      UI.drawButton("TRY AGAIN", 475, 20, () => init(false), uiElements);
+      const offset = -100
+      UI.drawText('YOU DIED!', '20px', 250 + offset, uiElements);
+      UI.drawText(randomMessage, '12px', 320 + offset, uiElements);
+      UI.drawText(`SCORE: ${Math.floor(score)}`, '30px', 370 + offset, uiElements);
+      UI.drawText(`APPLES: ${applesEaten}`, '18px', 443 + offset, uiElements);
+      UI.drawText('[ENTER] To Try Again ', '10px', 550 + offset, uiElements);
       UI.enableScreenScroll();
       renderScoreUI(score);
     }
@@ -965,8 +1000,8 @@ export const sketch = (p5: P5) => {
 
   function showPortalUI() {
     UI.drawDarkOverlay(uiElements);
-    UI.drawText('JUMP TO LEVEL', '40px', 100, uiElements);
-    UI.drawText('Press \'J\' To Unpause', '26px', 150, uiElements);
+    UI.drawText('JUMP TO LEVEL', '30px', 100, uiElements);
+    UI.drawText('Press \'J\' To Unpause', '18px', 150, uiElements);
     const xInitial = 120;
     const offset = 60;
     const yRow1 = 280;

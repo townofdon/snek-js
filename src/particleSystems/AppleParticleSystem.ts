@@ -1,4 +1,4 @@
-import P5, { Element, Vector } from 'p5';
+import P5, { Vector } from 'p5';
 import { ParticleSystem } from "../particle-system";
 import { Level } from '../types';
 import { Easing } from '../easing';

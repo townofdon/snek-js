@@ -27,7 +27,7 @@ export abstract class BaseScene implements Scene {
     fonts: null,
   };
 
-  protected state = {
+  private state = {
     isCleaningUp: false,
   }
 
@@ -48,6 +48,19 @@ export abstract class BaseScene implements Scene {
     p5.draw = this.draw;
     p5.keyPressed = this.keyPressed;
     p5.keyIsPressed = false;
+    this.stopAllCoroutines();
+    this.startCoroutine(this.action());
+  }
+
+  /**
+   * use this instead of bindActions, e.g. if you DON'T want to bind p5 functions.
+   * 
+   * note that this scene must be manually ticked by calling the `draw()` function.
+   * 
+   * make sure to call onSceneEnded callback afterwards :)
+   */
+  protected startActionsNoBind = () => {
+    this.stopAllCoroutines();
     this.startCoroutine(this.action());
   }
 
@@ -61,10 +74,11 @@ export abstract class BaseScene implements Scene {
     this.state.isCleaningUp = true;
     const { p5, cachedCallbacks, callbacks } = this.props;
     const { draw, keyPressed } = cachedCallbacks;
-    p5.draw = draw;
-    p5.keyPressed = keyPressed;
+    if (draw) p5.draw = draw;
+    if (keyPressed) p5.keyPressed = keyPressed;
     this.stopAllCoroutines();
     if (callbacks.onSceneEnded) callbacks.onSceneEnded();
+    this.state.isCleaningUp = false;
   }
 
   abstract keyPressed: () => void
@@ -78,10 +92,10 @@ export abstract class BaseScene implements Scene {
     this.tickCoroutines();
   }
 
-  protected drawBackground = () => {
+  protected drawBackground = (color = '#000') => {
     const { p5 } = this.props;
-    p5.fill('#000');
-    p5.stroke('#fff');
+    p5.fill(color);
+    p5.stroke(color);
     p5.strokeWeight(1);
     p5.square(-1, -1, Math.max(DIMENSIONS.x, DIMENSIONS.y) + 2);
   }
@@ -104,11 +118,11 @@ export abstract class BaseScene implements Scene {
     this.props.coroutines.tick();
   }
 
-  private startCoroutine = (action: IEnumerator) => {
+  protected startCoroutine = (action: IEnumerator) => {
     this.props.coroutines.start(action);
   }
 
-  private stopAllCoroutines = () => {
+  protected stopAllCoroutines = () => {
     this.props.coroutines.stopAll();
   }
 }

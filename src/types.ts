@@ -67,6 +67,7 @@ export interface GameState {
   isLost: boolean,
   isDoorsOpen: boolean,
   isExitingLevel: boolean,
+  isExited: boolean,
   isShowingDeathColours: boolean,
   timeElapsed: number,
   timeSinceLastMove: number,

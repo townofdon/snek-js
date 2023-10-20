@@ -153,10 +153,12 @@ export class UI {
 
   static drawText(textStr = '', fontSize = '12px', y = 0, uiElements: Element[]) {
     const element = UI.p5.createP(textStr);
+    element.addClass('minimood');
     element.style('font-size', fontSize);
     element.style('color', '#fff');
     element.style('text-shadow', '0px 3px 3px black');
-    element.style('width', '100%');
+    element.style('padding', '0 20px');
+    element.style('width', 'calc(100% - 80px)');
     element.style('text-align', 'center');
     element.position(0, y);
     element.parent("main");
