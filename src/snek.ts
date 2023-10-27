@@ -421,9 +421,7 @@ export const sketch = (p5: P5) => {
       applesMap[getCoordIndex(apples[i])] = i;
     }
 
-    if (state.isGameStarted && !state.isMoving) {
-      drawPlayerMoveArrows(player.position);
-    }
+    drawPlayerMoveArrows(player.position);
 
     const snakePositionsMap: Record<number, boolean> = {};
     for (let i = 0; i < segments.length; i++) {
@@ -659,29 +657,38 @@ export const sketch = (p5: P5) => {
     if (!state.isMoving) return false;
     if (state.isExited) return false;
     state.timeSinceLastMove = 0;
+    const prevDirection = player.direction;
     if (moves.length > 0 && !state.isExitingLevel) {
       player.direction = moves.shift()
     }
-    let direction;
+    let currentMove;
     switch (player.direction) {
       case DIR.LEFT:
-        direction = p5.createVector(-1, 0);
+        currentMove = p5.createVector(-1, 0);
         break;
       case DIR.RIGHT:
-        direction = p5.createVector(1, 0);
+        currentMove = p5.createVector(1, 0);
         break;
       case DIR.UP:
-        direction = p5.createVector(0, -1);
+        currentMove = p5.createVector(0, -1);
         break;
       case DIR.DOWN:
-        direction = p5.createVector(0, 1);
+        currentMove = p5.createVector(0, 1);
         break;
       default:
-        direction = p5.createVector(0, 0);
+        currentMove = p5.createVector(0, 0);
+    }
+
+    const futurePosition = player.position.copy().add(currentMove);
+
+    // disallow snake moving backwards into itself
+    if (segments.length > 0 && futurePosition.equals(segments[0].x, segments[0].y)) {
+      player.direction = prevDirection;
+      return false;
     }
 
     // determine if next move will be into something, allow for grace period before injuring snakey
-    const willHitSomething = checkHasHit(player.position.copy().add(direction), snakePositionsMap);
+    const willHitSomething = checkHasHit(futurePosition, snakePositionsMap);
     if (willHitSomething && state.hurtGraceTime > 0) {
       state.hurtGraceTime -= p5.deltaTime;
       return false;
@@ -689,7 +696,7 @@ export const sketch = (p5: P5) => {
 
     // apply movement
     moveSegments();
-    player.position.add(direction);
+    player.position.add(currentMove);
     state.hurtGraceTime = HURT_GRACE_TIME;
 
     // play step sfx
@@ -721,15 +728,17 @@ export const sketch = (p5: P5) => {
     // reset any queued up moves so that next action player takes feels more intentional
     moves = [];
     // set current direction to be the direction from the first segment towards the snake head
-    const dirToFirstSegment = (() => {
-      const diff = player.position.copy().sub(segments[0]);
-      if (diff.x === -1) return DIR.LEFT;
-      if (diff.x === 1) return DIR.RIGHT;
-      if (diff.y === -1) return DIR.UP;
-      if (diff.y === 1) return DIR.DOWN;
-      return DIR.RIGHT;
-    })();
-    player.direction = dirToFirstSegment;
+    player.direction = getDirectionToFirstSegment();
+  }
+
+  function getDirectionToFirstSegment() {
+    if (segments.length <= 0) return DIR.RIGHT;
+    const diff = player.position.copy().sub(segments[0]);
+    if (diff.x === -1) return DIR.LEFT;
+    if (diff.x === 1) return DIR.RIGHT;
+    if (diff.y === -1) return DIR.UP;
+    if (diff.y === 1) return DIR.DOWN;
+    return DIR.RIGHT;
   }
 
   /**
@@ -852,15 +861,29 @@ export const sketch = (p5: P5) => {
 
   function drawPlayerMoveArrows(vec: Vector) {
     if (replay.mode === ReplayMode.Playback) return;
-    type ArrowBlock = { x: number, y: number, text: string }
+
+    const isWaitingToStartMoving = state.isGameStarted && !state.isMoving;
+    const isStunned = state.timeSinceHurt < HURT_STUN_TIME;
+    if (!isWaitingToStartMoving && !isStunned) return;
+
+    if (isStunned) {
+      const freq = .2;
+      const t = state.timeSinceHurt / HURT_STUN_TIME;
+      const shouldShow = t % freq > freq * 0.5;
+      if (!shouldShow) return;
+    }
+
+    const dir = moves.length > 0 ? moves[0] : player.direction;
+    type ArrowBlock = { x: number, y: number, text: string, show: boolean }
     const arrowBlocks: ArrowBlock[] = [
-      { x: vec.x, y: vec.y - 1, text: 'P' },
-      { x: vec.x, y: vec.y + 1, text: 'Q' },
-      { x: vec.x - 1, y: vec.y, text: 'N' },
-      { x: vec.x + 1, y: vec.y, text: 'O' },
+      { x: vec.x, y: vec.y - 1, text: 'P', show: !isStunned || dir === DIR.UP },
+      { x: vec.x, y: vec.y + 1, text: 'Q', show: !isStunned || dir === DIR.DOWN },
+      { x: vec.x - 1, y: vec.y, text: 'N', show: !isStunned || dir === DIR.LEFT },
+      { x: vec.x + 1, y: vec.y, text: 'O', show: !isStunned || dir === DIR.RIGHT },
     ]
     for (let i = 0; i < arrowBlocks.length; i++) {
       const arrow = arrowBlocks[i];
+      if (!arrow.show) continue;
       const position = {
         x: arrow.x * BLOCK_SIZE.x + BLOCK_SIZE.x * 0.4 + screenShake.offset.x,
         y: arrow.y * BLOCK_SIZE.y + BLOCK_SIZE.y * 0.35 + screenShake.offset.y,

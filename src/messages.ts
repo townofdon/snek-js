@@ -3,7 +3,7 @@ import { Difficulty, GameState, HitType, Stats } from "./types";
 export const LOSE_MESSAGES: ([string] | [string, (state: GameState, stats: Stats, difficulty: Difficulty) => boolean])[] = [
     ["C'mon! You got this!", (state: GameState, stats: Stats) => stats.numLevelsCleared <= 1],
     ["Hey, don't blame me...", (state: GameState, stats: Stats, difficulty: Difficulty) => stats.numLevelsCleared >= 2],
-    ["Yea... it's called insane for a reason...", (state: GameState, stats: Stats, difficulty: Difficulty) => difficulty.index >= 4],
+    ["Yea... it's called ultra for a reason...", (state: GameState, stats: Stats, difficulty: Difficulty) => difficulty.index >= 4],
     ["Maybe your grampa wants to play...", (state: GameState, stats: Stats) => stats.numLevelsCleared <= 1],
     ["Snatching defeat from the jaws of victory...", (state: GameState, stats: Stats) => stats.numLevelsCleared < 4],
     ["That move from 10 seconds ago is really what did you in...", (state: GameState, stats: Stats) => stats.numLevelsCleared < 10],
