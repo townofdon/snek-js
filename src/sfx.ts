@@ -30,7 +30,9 @@ export class SFX implements SFXInstance {
     moveStart: null,
     step1: null,
     step2: null,
+    uiBlip: null,
     uiChip: null,
+    uiChipLoop: null,
     uiConfirm: null,
     levelTitle: null,
   }
@@ -70,7 +72,9 @@ export class SFX implements SFXInstance {
       this.sounds.moveStart = loadSound('move-start.wav');
       this.sounds.step1 = loadSound('step-1.wav');
       this.sounds.step2 = loadSound('step-2.wav');
+      this.sounds.uiBlip = loadSound('ui-blip.wav');
       this.sounds.uiChip = loadSound('ui-chip.wav');
+      this.sounds.uiChipLoop = loadSound('ui-chip-loop.wav');
       this.sounds.uiConfirm = loadSound('ui-confirm.wav');
       this.sounds.levelTitle = loadSound('level-title.wav');
     } catch (err) {

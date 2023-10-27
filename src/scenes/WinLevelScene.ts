@@ -1,7 +1,6 @@
-import P5, { Color } from "p5";
+import P5 from "p5";
 import { FontsInstance, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
-import { clamp } from "../utils";
 import { Easing } from "../easing";
 
 interface TriggerLevelExitParams {
@@ -68,52 +67,52 @@ export class WinLevelScene extends BaseScene {
     });
 
     // level clear bonus
-    yield* coroutines.waitForTime(500, (t) => {
-      const levelClearBonus = this.levelClearBonus * t;
-      this.drawLevelClearBonus(levelClearBonus);
-      this.drawScore(this.score);
-      sfx.play(Sound.uiChip);
-    });
-
-    yield* coroutines.waitForTime(500, () => {
+    sfx.play(Sound.levelTitle);
+    yield* coroutines.waitForTime(600, () => {
       this.drawLevelClearBonus(this.levelClearBonus);
       this.drawScore(this.score);
     });
 
     // lives left bonus
-    yield* coroutines.waitForTime(500, (t) => {
+    sfx.play(Sound.levelTitle);
+    yield* coroutines.waitForTime(600, () => {
       this.drawLevelClearBonus(this.levelClearBonus);
-      const livesLeftBonus = this.livesLeftBonus * t;
-      this.drawLivesLeftBonus(livesLeftBonus, this.livesLeft);
-      this.drawScore(this.score);
-      sfx.play(Sound.uiChip);
-    });
-
-    yield* coroutines.waitForTime(500, () => {
-      this.drawLevelClearBonus(this.levelClearBonus);
-      this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft);
+      this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
       this.drawScore(this.score);
     });
 
     const finalScore = this.score + this.levelClearBonus + this.livesLeftBonus * this.livesLeft;
 
     // increment score
+    const playingChipSound = this.startCoroutine(this.playChipSound());
     yield* coroutines.waitForTime(1000, (t) => {
       this.drawLevelClearBonus(this.levelClearBonus * (1 - t));
-      this.drawLivesLeftBonus(this.livesLeftBonus * (1 - t), this.livesLeft);
+      this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft * (1 - t));
       this.drawScore(p5.lerp(this.score, finalScore, t));
-      sfx.play(Sound.uiChip);
     });
+    this.stopCoroutine(playingChipSound);
+    sfx.stop(Sound.uiChipLoop);
+    sfx.play(Sound.uiChip, 0.75);
 
     yield* coroutines.waitForTime(700, () => {
       this.drawLevelClearBonus(0);
-      this.drawLivesLeftBonus(0, this.livesLeft);
+      this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, 0);
       this.drawScore(finalScore);
     });
 
     this.beforeGotoNextLevel();
     this.cleanup();
     this.isTriggered = false;
+  }
+
+  *playChipSound() {
+    const { coroutines } = this.props;
+    const sfx = this._sfx;
+    while (true) {
+      sfx.play(Sound.uiChipLoop, 0.75);
+      yield* coroutines.waitForTime(8);
+      sfx.stop(Sound.uiChipLoop);
+    }
   }
 
   keyPressed = () => { };
@@ -150,7 +149,7 @@ export class WinLevelScene extends BaseScene {
     p5.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.15, 0.45 + this.statOffsetY));
   }
 
-  drawLivesLeftBonus = (bonus: number, lives: number = 0) => {
+  drawLivesLeftBonus = (bonus: number, lives: number, calcBonus: number) => {
     const { p5, fonts } = this.props;
     p5.textFont(fonts.variants.miniMood);
     p5.stroke("#000")
@@ -159,8 +158,8 @@ export class WinLevelScene extends BaseScene {
     p5.textSize(14);
     p5.textAlign(p5.LEFT, p5.TOP);
     p5.text('Lives Bonus', ...this.getPosition(0.6, 0.4 + this.statOffsetY));
-    p5.text(`${lives} x`, ...this.getPosition(0.6, 0.45 + this.statOffsetY));
-    p5.text(bonus.toFixed(0).padStart(5, '0'), ...this.getPosition(0.67, 0.45 + this.statOffsetY));
+    p5.text(`${lives} x ${bonus.toFixed(0)}`, ...this.getPosition(0.6, 0.45 + this.statOffsetY));
+    p5.text(calcBonus.toFixed(0).padStart(5, '0'), ...this.getPosition(0.6, 0.5 + this.statOffsetY));
   }
 
   drawScore = (score: number) => {

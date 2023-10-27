@@ -125,7 +125,8 @@ export interface FontVariants {
 }
 
 export interface SFXInstance {
-  play: (sound: keyof SoundVariants) => void
+  play: (sound: keyof SoundVariants, volume?: number) => void
+  stop: (sound: keyof SoundVariants) => void
   load: () => void
 }
 
@@ -139,7 +140,9 @@ export enum Sound {
   moveStart = 'moveStart',
   step1 = 'step1',
   step2 = 'step2',
+  uiBlip = 'uiBlip',
   uiChip = 'uiChip',
+  uiChipLoop = 'uiChipLoop',
   uiConfirm = 'uiConfirm',
   levelTitle = 'levelTitle',
 }

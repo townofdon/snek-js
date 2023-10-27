@@ -119,7 +119,11 @@ export abstract class BaseScene implements Scene {
   }
 
   protected startCoroutine = (action: IEnumerator) => {
-    this.props.coroutines.start(action);
+    return this.props.coroutines.start(action);
+  }
+
+  protected stopCoroutine = (index: number) => {
+    this.props.coroutines.stop(index);
   }
 
   protected stopAllCoroutines = () => {

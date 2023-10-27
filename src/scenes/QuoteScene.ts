@@ -19,18 +19,17 @@ export class QuoteScene extends BaseScene {
 
   *action() {
     const { coroutines } = this.props;
-    const sfx = this._sfx;
     for (let i = 0; i < this._quotes.length; i++) {
+      // play sound as parallel coroutine to *action()
+      const playingSound = this.startCoroutine(this.playSound());
       const quote = this._quotes[i];
       const numLetters = quote.length;
       for (let j = 1; j <= numLetters; j++) {
         yield* coroutines.waitForTime(15, () => {
           this.drawPartialQuote(quote, j);
-          if (j < numLetters) {
-            sfx.play(Sound.uiChip);
-          }
         })
       }
+      this.stopCoroutine(playingSound);
       yield* coroutines.waitForAnyKey(() => {
         this.drawPartialQuote(quote, numLetters);
         this.drawPressAnyKey();
@@ -38,6 +37,15 @@ export class QuoteScene extends BaseScene {
     }
 
     this.cleanup();
+  }
+
+  *playSound() {
+    const { coroutines } = this.props;
+    const sfx = this._sfx;
+    while (true) {
+      sfx.play(Sound.uiBlip);
+      yield* coroutines.waitForTime(40);
+    }
   }
 
   keyPressed = () => { };
