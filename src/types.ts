@@ -62,8 +62,9 @@ export interface Stats {
 }
 
 export interface GameState {
-  isPaused: boolean,
   isGameStarted: boolean,
+  isGameStarting: boolean,
+  isPaused: boolean,
   isMoving: boolean,
   isLost: boolean,
   isDoorsOpen: boolean,

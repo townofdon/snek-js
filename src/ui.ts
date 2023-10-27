@@ -149,6 +149,7 @@ export class UI {
     button.mousePressed(onClick);
     button.parent("main");
     uiElements.push(button);
+    return button;
   }
 
   static drawText(textStr = '', fontSize = '12px', y = 0, uiElements: Element[]) {

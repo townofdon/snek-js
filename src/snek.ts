@@ -57,8 +57,9 @@ let difficulty: Difficulty = { ...DIFFICULTY_EASY };
 
 
 const state: GameState = {
-  isPaused: false,
   isGameStarted: false,
+  isGameStarting: false,
+  isPaused: false,
   isMoving: false,
   isLost: false,
   isDoorsOpen: false,
@@ -125,6 +126,8 @@ let screenFlashElement: Element;
 
 let quotes = allQuotes.slice();
 
+const difficultyButtons: Record<number, P5.Element> = {}
+
 export const sketch = (p5: P5) => {
 
   const coroutines = new Coroutines(p5);
@@ -159,11 +162,13 @@ export const sketch = (p5: P5) => {
     level = MAIN_TITLE_SCREEN_LEVEL;
     setLevelIndexFromCurrentLevel();
     init(false);
+    stopAllCoroutines();
     startReplay();
     winScene.reset();
 
     // init state for game
     state.isGameStarted = false;
+    state.isGameStarting = false;
     stats.numDeaths = 0;
     stats.numLevelsCleared = 0;
     stats.numPointsEverScored = 0;
@@ -179,10 +184,10 @@ export const sketch = (p5: P5) => {
     UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
     UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
     const offsetLeft = 150;
-    UI.drawButton("EASY", 0 + offsetLeft, 280, () => startGame(1), uiElements);
-    UI.drawButton("MEDIUM", 105 + offsetLeft, 280, () => startGame(2), uiElements);
-    UI.drawButton("HARD", 220 + offsetLeft, 280, () => startGame(3), uiElements);
-    UI.drawButton("ULTRA", 108 + offsetLeft, 340, () => startGame(4), uiElements);
+    difficultyButtons[1] = UI.drawButton("EASY", 0 + offsetLeft, 280, () => startGame(1), uiElements);
+    difficultyButtons[2] = UI.drawButton("MEDIUM", 105 + offsetLeft, 280, () => startGame(2), uiElements);
+    difficultyButtons[3] = UI.drawButton("HARD", 220 + offsetLeft, 280, () => startGame(3), uiElements);
+    difficultyButtons[4] = UI.drawButton("ULTRA", 108 + offsetLeft, 340, () => startGame(4), uiElements);
   }
 
   /**
@@ -210,21 +215,35 @@ export const sketch = (p5: P5) => {
   }
 
   function startGame(difficultyIndex = 2) {
-    stopAllCoroutines();
+    if (state.isGameStarting) return;
+    state.isGameStarting = true;
+    UI.disableScreenScroll();
+    playSound(Sound.uiConfirm, 1, true);
+    startCoroutine(startGameRoutine(difficultyIndex));
+  }
+
+  function* startGameRoutine(difficultyIndex = 2): IEnumerator {
+    yield* waitForTime(1000, (t) => {
+      const button = difficultyButtons[difficultyIndex];
+      if (button) {
+        const freq = .2;
+        const shouldShow = t % freq > freq * 0.5;
+        button.style('visibility', shouldShow ? 'visible' : 'hidden');
+      }
+    });
+
     stopReplay();
     level = START_LEVEL
     setLevelIndexFromCurrentLevel();
-    state.isGameStarted = true;
     init()
     difficulty = getDifficultyFromIndex(difficultyIndex);
+    state.isGameStarting = false;
     state.isGameStarted = true;
     replay.difficulty = { ...difficulty };
-    UI.disableScreenScroll();
-    playSound(Sound.uiConfirm);
   }
 
-  function playSound(sound: Sound, volume = 1) {
-    if (replay.mode === ReplayMode.Playback) return;
+  function playSound(sound: Sound, volume = 1, force = false) {
+    if (!force && replay.mode === ReplayMode.Playback) return;
     sfx.play(sound, volume);
   }
 
