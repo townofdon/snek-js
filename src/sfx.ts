@@ -34,7 +34,8 @@ export class SFX implements SFXInstance {
     uiChip: null,
     uiChipLoop: null,
     uiConfirm: null,
-    levelTitle: null,
+    xplode: null,
+    xplodeLong: null,
   }
 
   play(sound: keyof SoundVariants, volume = 1) {
@@ -76,7 +77,8 @@ export class SFX implements SFXInstance {
       this.sounds.uiChip = loadSound('ui-chip.wav');
       this.sounds.uiChipLoop = loadSound('ui-chip-loop.wav');
       this.sounds.uiConfirm = loadSound('ui-confirm.wav');
-      this.sounds.levelTitle = loadSound('level-title.wav');
+      this.sounds.xplode = loadSound('xplode.wav');
+      this.sounds.xplodeLong = loadSound('xplode-long.wav');
     } catch (err) {
       console.error(err);
     }

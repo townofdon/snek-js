@@ -32,6 +32,8 @@ import {
   HURT_GRACE_TIME,
   DIFFICULTY_EASY,
   DEBUG_EASY_LEVEL_EXIT,
+  LIVES_LEFT_BONUS,
+  PERFECT_BONUS,
 } from './constants';
 import { clamp, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, removeArrayElement, shuffleArray, vecToString } from './utils';
 import { ParticleSystem } from './particle-system';
@@ -543,13 +545,17 @@ export const sketch = (p5: P5) => {
       if (replay.mode === ReplayMode.Playback) {
         gotoNextLevel();
       } else {
+        const isPerfect = apples.length === 0 && state.lives === 3;
         winScene.triggerLevelExit({
           score: stats.score,
           levelClearBonus: getLevelClearBonus(),
           livesLeftBonus: getLivesLeftBonus(),
+          perfectBonus: getPerfectBonus(),
           livesLeft: state.lives,
-          beforeGotoNextLevel: () => {
-            addPoints(getLevelClearBonus() + getLivesLeftBonus() * state.lives);
+          isPerfect,
+          onApplyScore: () => {
+            const perfectBonus = isPerfect ? getPerfectBonus() : 0;
+            addPoints(getLevelClearBonus() + getLivesLeftBonus() * state.lives + perfectBonus);
           }
         });
       }
@@ -785,7 +791,11 @@ export const sketch = (p5: P5) => {
   }
 
   function getLivesLeftBonus() {
-    return LEVEL_BONUS * 10 * difficulty.scoreMod;
+    return LIVES_LEFT_BONUS * difficulty.scoreMod;
+  }
+
+  function getPerfectBonus() {
+    return PERFECT_BONUS * difficulty.scoreMod;
   }
 
   function incrementScore() {

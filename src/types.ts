@@ -144,7 +144,8 @@ export enum Sound {
   uiChip = 'uiChip',
   uiChipLoop = 'uiChipLoop',
   uiConfirm = 'uiConfirm',
-  levelTitle = 'levelTitle',
+  xplode = 'xplode',
+  xplodeLong = 'xplodeLong',
 }
 
 export type SoundVariants = Record<keyof typeof Sound, Howl>

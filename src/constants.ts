@@ -2,8 +2,7 @@ import { Difficulty } from "./types";
 
 export const TITLE = 'SNEK';
 
-//TODO: REMOVE
-export const DEBUG_EASY_LEVEL_EXIT = true;
+export const DEBUG_EASY_LEVEL_EXIT = false;
 export const RECORD_REPLAY_STATE = false;
 
 const windowWidth = window.innerWidth;
@@ -22,8 +21,10 @@ export const SPEED_INCREMENT = 1;
 export const NUM_APPLES_START = 3;
 
 export const SCORE_INCREMENT = 10;
-export const CLEAR_BONUS = 50;
-export const LEVEL_BONUS = 100;
+export const CLEAR_BONUS = 100;
+export const LEVEL_BONUS = 500;
+export const LIVES_LEFT_BONUS = 1000;
+export const PERFECT_BONUS = 5000;
 
 export const SPEED_MOD_EASY = .35;
 export const SPEED_MOD_MEDIUM = .75;
@@ -41,7 +42,7 @@ export const SCORE_MOD_HARD = 5;
 export const SCORE_MOD_ULTRA = 10;
 
 export const SPEED_LIMIT_EASY = 110;
-export const SPEED_LIMIT_MEDIUM = 45;
+export const SPEED_LIMIT_MEDIUM = 56;
 export const SPEED_LIMIT_HARD = 35;
 export const SPEED_LIMIT_ULTRA = 25;
 
