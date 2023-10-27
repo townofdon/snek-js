@@ -20,6 +20,7 @@ html, body {
 
 html {
   background: #030303;
+  background: #181A1B
 }
 
 body {
@@ -75,4 +76,21 @@ button:active,
 button:focus
 {
   background-color: #dbd57a;
+  color: #244719;
+}
+
+button.ultra {
+  background: #111;
+  color: #cdeaff;
+  border: solid 1px #cdeaff;
+}
+
+button.ultra:hover,
+button.ultra:active,
+button.ultra:focus {
+  /* background: #84481e;
+  background: #842f13;
+  color: #ffc100; */
+  background: #0a503e;
+  color: #00ff62;
 }

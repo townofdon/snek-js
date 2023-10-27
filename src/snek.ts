@@ -190,6 +190,7 @@ export const sketch = (p5: P5) => {
     difficultyButtons[2] = UI.drawButton("MEDIUM", 105 + offsetLeft, 280, () => startGame(2), uiElements);
     difficultyButtons[3] = UI.drawButton("HARD", 220 + offsetLeft, 280, () => startGame(3), uiElements);
     difficultyButtons[4] = UI.drawButton("ULTRA", 108 + offsetLeft, 340, () => startGame(4), uiElements);
+    difficultyButtons[4].addClass('ultra');
   }
 
   /**
