@@ -88,9 +88,6 @@ button.ultra {
 button.ultra:hover,
 button.ultra:active,
 button.ultra:focus {
-  /* background: #84481e;
-  background: #842f13;
-  color: #ffc100; */
   background: #0a503e;
   color: #00ff62;
 }
