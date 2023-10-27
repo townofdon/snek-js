@@ -1,5 +1,5 @@
 import P5 from "p5";
-import { FontsInstance, GameState, Scene, SceneCallbacks } from "../types";
+import { FontsInstance, GameState, SFXInstance, Scene, SceneCallbacks } from "../types";
 
 
 /**
@@ -14,13 +14,13 @@ import { FontsInstance, GameState, Scene, SceneCallbacks } from "../types";
  * buildSceneAction(level.storyScene)().then(buildSceneAction(level.titleScene))
  * ```
  */
-export const buildSceneActionFactory = (p5: P5, fonts: FontsInstance, state: GameState) => (onScene: (p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene) => onScene
+export const buildSceneActionFactory = (p5: P5, sfx: SFXInstance, fonts: FontsInstance, state: GameState) => (onScene: (p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene) => onScene
     ? () => new Promise<void>((resolve, reject) => {
         try {
             const onSceneEnded = () => {
                 resolve()
             }
-            onScene(p5, fonts, { onSceneEnded });
+            onScene(p5, sfx, fonts, { onSceneEnded });
         } catch (err) {
             reject(err)
         }

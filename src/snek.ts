@@ -320,7 +320,7 @@ export const sketch = (p5: P5) => {
     winScene.reset();
 
     if (shouldShowTransitions) {
-      const buildSceneAction = buildSceneActionFactory(p5, fonts, state);
+      const buildSceneAction = buildSceneActionFactory(p5, sfx, fonts, state);
       Promise.resolve()
         .then(buildSceneAction(level.titleScene))
         .then(buildSceneAction(level.creditsScene))

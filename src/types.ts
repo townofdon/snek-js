@@ -109,8 +109,8 @@ export interface Level {
   snakeStartSizeOverride?: number
   disableAppleSpawn?: boolean
   showQuoteOnLevelWin?: boolean
-  titleScene?: (p5: p5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
-  creditsScene?: (p5: p5, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
+  titleScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
+  creditsScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
 }
 
 export interface FontsInstance {
@@ -140,6 +140,7 @@ export enum Sound {
   step2 = 'step2',
   uiChip = 'uiChip',
   uiConfirm = 'uiConfirm',
+  levelTitle = 'levelTitle',
 }
 
 export type SoundVariants = Record<keyof typeof Sound, Howl>

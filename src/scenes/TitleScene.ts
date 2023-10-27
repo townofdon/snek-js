@@ -1,18 +1,21 @@
 import P5 from "p5";
-import { FontsInstance, SceneCallbacks } from "../types";
+import { FontsInstance, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 
 export class TitleScene extends BaseScene {
   private _title: string = 'UNTITLED'
+  private _sfx: SFXInstance;
 
-  constructor(title: string, p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+  constructor(title: string, p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     super(p5, fonts, callbacks)
     this._title = title;
+    this._sfx = sfx;
     this.bindActions();
   }
 
   *action() {
     const { coroutines } = this.props;
+    this._sfx.play(Sound.levelTitle);
     yield* coroutines.waitForTime(1500);
     this.cleanup();
   }

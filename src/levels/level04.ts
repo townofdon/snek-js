@@ -42,5 +42,5 @@ XXXXXXXXXXX++_---   ~~~XXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 `,
   colors: PALETTE.hospital,
-  titleScene: (p5, fonts, callbacks) => new TitleScene(name, p5, fonts, callbacks),
+  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
 };

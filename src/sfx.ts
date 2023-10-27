@@ -32,6 +32,7 @@ export class SFX implements SFXInstance {
     step2: null,
     uiChip: null,
     uiConfirm: null,
+    levelTitle: null,
   }
 
   play(sound: keyof SoundVariants, volume = 1) {
@@ -71,6 +72,7 @@ export class SFX implements SFXInstance {
       this.sounds.step2 = loadSound('step-2.wav');
       this.sounds.uiChip = loadSound('ui-chip.wav');
       this.sounds.uiConfirm = loadSound('ui-confirm.wav');
+      this.sounds.levelTitle = loadSound('level-title.wav');
     } catch (err) {
       console.error(err);
     }
