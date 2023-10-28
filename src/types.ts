@@ -184,3 +184,18 @@ export interface Replay {
   timeCaptureStarted: string,
   shouldProceedToNextClip: boolean,
 }
+
+export enum PortalExitMode {
+  InvertDirection,
+  SameDirection,
+}
+
+export interface Portal {
+  position: Vector
+  link?: Vector
+  exitMode: PortalExitMode
+  channel: number
+  group: number
+}
+
+export type PortalChannel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;

@@ -34,11 +34,12 @@ import {
   DEBUG_EASY_LEVEL_EXIT,
   LIVES_LEFT_BONUS,
   PERFECT_BONUS,
+  DEFAULT_PORTALS,
 } from './constants';
-import { clamp, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, removeArrayElement, shuffleArray, vecToString } from './utils';
+import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, removeArrayElement, shuffleArray, vecToString } from './utils';
 import { ParticleSystem } from './particle-system';
 import { UI } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -122,6 +123,9 @@ let decoratives2: Vector[] = []; // bg decorative elements
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
+
+let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS };
+let portalsMap: Record<number, Portal> = {};
 
 let uiElements: Element[] = [];
 let particleSystems: ParticleSystem[] = [];
@@ -339,6 +343,8 @@ export const sketch = (p5: P5) => {
     barriersMap = {};
     doorsMap = {};
     nospawnsMap = {};
+    portals = { ...DEFAULT_PORTALS };
+    portalsMap = {};
 
     UI.disableScreenScroll();
     UI.clearLabels();
@@ -375,6 +381,8 @@ export const sketch = (p5: P5) => {
     decoratives1 = levelData.decoratives1;
     decoratives2 = levelData.decoratives2;
     nospawnsMap = levelData.nospawnsMap;
+    portals = levelData.portals;
+    portalsMap = levelData.portalsMap;
 
     // create snake parts
     let x = player.position.x;
@@ -459,6 +467,8 @@ export const sketch = (p5: P5) => {
       increaseSpeed();
       playSound(Sound.eat);
     }
+
+    handlePortalTravel();
 
     const didHit = checkHasHit(player.position, snakePositionsMap);
     state.isLost = didHit;
@@ -671,6 +681,20 @@ export const sketch = (p5: P5) => {
     return false;
   }
 
+  function handlePortalTravel() {
+    const portal = portalsMap[getCoordIndex(player.position)];
+    if (!portal) return;
+    switch (portal.exitMode) {
+      case PortalExitMode.InvertDirection:
+        player.direction = invertDirection(player.direction);
+        break;
+      case PortalExitMode.SameDirection:
+        break;
+    }
+    player.position.set(portal.link);
+    player.position.add(dirToUnitVector(p5, player.direction));
+  }
+
   function movePlayer(snakePositionsMap: Record<number, boolean>, normalizedSpeed = 0): boolean {
     if (!state.isMoving) return false;
     if (state.isExited) return false;
@@ -679,24 +703,7 @@ export const sketch = (p5: P5) => {
     if (moves.length > 0 && !state.isExitingLevel) {
       player.direction = moves.shift()
     }
-    let currentMove;
-    switch (player.direction) {
-      case DIR.LEFT:
-        currentMove = p5.createVector(-1, 0);
-        break;
-      case DIR.RIGHT:
-        currentMove = p5.createVector(1, 0);
-        break;
-      case DIR.UP:
-        currentMove = p5.createVector(0, -1);
-        break;
-      case DIR.DOWN:
-        currentMove = p5.createVector(0, 1);
-        break;
-      default:
-        currentMove = p5.createVector(0, 0);
-    }
-
+    const currentMove = dirToUnitVector(p5, player.direction);
     const futurePosition = player.position.copy().add(currentMove);
 
     // disallow snake moving backwards into itself

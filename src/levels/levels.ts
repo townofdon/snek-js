@@ -14,6 +14,7 @@ import { LEVEL_11 } from "./level11";
 import { LEVEL_99 } from "./level99";
 import { TUTORIAL_LEVEL_10 } from "./tutorialLevel10";
 import { TUTORIAL_LEVEL_20 } from "./tutorialLevel20";
+import { TUTORIAL_LEVEL_30 } from "./tutorialLevel30";
 
 export const LEVELS: Level[] = [
     LEVEL_01,
@@ -30,8 +31,10 @@ export const LEVELS: Level[] = [
     LEVEL_10,
     LEVEL_99,
     LEVEL_11,
+    TUTORIAL_LEVEL_30,
 ];
 
 export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;
 
-export const START_LEVEL = LEVEL_01;
+// TODO: REVERT
+export const START_LEVEL = TUTORIAL_LEVEL_30;

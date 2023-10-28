@@ -1,4 +1,5 @@
-import { Difficulty } from "./types";
+import P5 from "p5";
+import { Difficulty, PortalChannel } from "./types";
 
 export const TITLE = 'SNEK';
 
@@ -52,36 +53,36 @@ export const SPEED_LIMIT_HARD = 35;
 export const SPEED_LIMIT_ULTRA = 25;
 
 export const DIFFICULTY_EASY: Difficulty = {
-    index: 1,
-    speedMod: SPEED_MOD_EASY,
-    applesMod: NUM_APPLES_MOD_EASY,
-    scoreMod: SCORE_MOD_EASY,
-    bonusMod: BONUS_MOD_EASY,
-    speedLimit: SPEED_LIMIT_EASY,
+  index: 1,
+  speedMod: SPEED_MOD_EASY,
+  applesMod: NUM_APPLES_MOD_EASY,
+  scoreMod: SCORE_MOD_EASY,
+  bonusMod: BONUS_MOD_EASY,
+  speedLimit: SPEED_LIMIT_EASY,
 }
 export const DIFFICULTY_MEDIUM: Difficulty = {
-    index: 2,
-    speedMod: SPEED_MOD_MEDIUM,
-    applesMod: NUM_APPLES_MOD_MEDIUM,
-    scoreMod: SCORE_MOD_MEDIUM,
-    bonusMod: BONUS_MOD_MEDIUM,
-    speedLimit: SPEED_LIMIT_MEDIUM,
+  index: 2,
+  speedMod: SPEED_MOD_MEDIUM,
+  applesMod: NUM_APPLES_MOD_MEDIUM,
+  scoreMod: SCORE_MOD_MEDIUM,
+  bonusMod: BONUS_MOD_MEDIUM,
+  speedLimit: SPEED_LIMIT_MEDIUM,
 }
 export const DIFFICULTY_HARD: Difficulty = {
-    index: 3,
-    speedMod: SPEED_MOD_HARD,
-    applesMod: NUM_APPLES_MOD_HARD,
-    scoreMod: SCORE_MOD_HARD,
-    bonusMod: BONUS_MOD_HARD,
-    speedLimit: SPEED_LIMIT_HARD,
+  index: 3,
+  speedMod: SPEED_MOD_HARD,
+  applesMod: NUM_APPLES_MOD_HARD,
+  scoreMod: SCORE_MOD_HARD,
+  bonusMod: BONUS_MOD_HARD,
+  speedLimit: SPEED_LIMIT_HARD,
 }
 export const DIFFICULTY_ULTRA: Difficulty = {
-    index: 4,
-    speedMod: SPEED_MOD_ULTRA,
-    applesMod: NUM_APPLES_MOD_ULTRA,
-    scoreMod: SCORE_MOD_ULTRA,
-    bonusMod: BONUS_MOD_ULTRA,
-    speedLimit: SPEED_LIMIT_ULTRA,
+  index: 4,
+  speedMod: SPEED_MOD_ULTRA,
+  applesMod: NUM_APPLES_MOD_ULTRA,
+  scoreMod: SCORE_MOD_ULTRA,
+  bonusMod: BONUS_MOD_ULTRA,
+  speedLimit: SPEED_LIMIT_ULTRA,
 }
 
 export const KEYCODE_W = 87;
@@ -107,3 +108,16 @@ export const SCREEN_SHAKE_MAGNITUDE_PX = 4;
 export const HURT_STUN_TIME = 600;
 export const HURT_FLASH_RATE = 55;
 export const HURT_GRACE_TIME = 30;
+
+export const DEFAULT_PORTALS: Record<PortalChannel, P5.Vector[]> = {
+  0: [],
+  1: [],
+  2: [],
+  3: [],
+  5: [],
+  4: [],
+  6: [],
+  7: [],
+  8: [],
+  9: [],
+}

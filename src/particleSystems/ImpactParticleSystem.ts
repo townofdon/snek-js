@@ -4,7 +4,7 @@ import { Level } from '../types';
 import { Easing } from '../easing';
 
 export class ImpactParticleSystem extends ParticleSystem {
-    /** 
+    /**
      * @param {P5} p5
      * @param {P5.Vector} origin
      */

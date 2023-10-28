@@ -1,4 +1,4 @@
-import { Vector } from "p5";
+import P5, { Vector } from "p5";
 import {
   DIFFICULTY_EASY,
   DIFFICULTY_HARD,
@@ -35,6 +35,7 @@ import {
   LEVEL_10,
   LEVEL_99,
 } from './levels';
+import { DIR } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
   const clamped = Math.max(Math.min(val, maxVal), minVal);
@@ -112,5 +113,28 @@ export function getDifficultyFromIndex(index: number) {
       return { ...DIFFICULTY_ULTRA };
     default:
       throw new Error(`Unexpected difficulty index: ${index}`)
+  }
+}
+
+export function invertDirection(dir: DIR) {
+  if (dir === DIR.UP) return DIR.DOWN;
+  if (dir === DIR.DOWN) return DIR.UP;
+  if (dir === DIR.LEFT) return DIR.RIGHT;
+  if (dir === DIR.RIGHT) return DIR.LEFT;
+  return dir;
+}
+
+export function dirToUnitVector(p5: P5, dir: DIR) {
+  switch (dir) {
+    case DIR.LEFT:
+      return p5.createVector(-1, 0);
+    case DIR.RIGHT:
+      return p5.createVector(1, 0);
+    case DIR.UP:
+      return p5.createVector(0, -1);
+    case DIR.DOWN:
+      return p5.createVector(0, 1);
+    default:
+      return p5.createVector(0, 0);
   }
 }
