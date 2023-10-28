@@ -1,3 +1,8 @@
+:root {
+  --hover-distance: 3px;
+  --hover-duration: 2.5s;
+}
+
 @font-face {
   font-family: MiniMOOD2;
   src: url(src/assets/MiniMOOD.ttf);
@@ -60,6 +65,55 @@ p {
   text-shadow: 0px 3px 3px black;
 }
 
+@keyframes anim-hover {
+  /* 0%   { transform: translate(0, var(--hover-distance)); filter: brightness(1) grayscale(0.1); }
+  50%  { transform: translate(0, calc(var(--hover-distance) * -1)); filter: brightness(.2) grayscale(0.7); }
+  100% { transform: translate(0, var(--hover-distance)); filter: brightness(1) grayscale(0.1); } */
+
+  0%   { transform: translate(0, var(--hover-distance)); }
+  50%  { transform: translate(0, calc(var(--hover-distance) * -1)); }
+  100% { transform: translate(0, var(--hover-distance)); }
+
+  /* 0%   { filter: brightness(1) grayscale(0.1); }
+  50%  { filter: brightness(.2) grayscale(0.7); }
+  100% { filter: brightness(1) grayscale(0.1); } */
+
+  /* 0%   { filter: invert(0) grayscale(0); }
+  50%  { filter: invert(.9) grayscale(0.5); }
+  100% { filter: invert(0) grayscale(0); } */
+}
+
+@keyframes anim-dim {
+  0%   { filter: var(--button-filter, brightness(1) grayscale(0.1)); }
+  50%  { filter: var(--button-filter, brightness(.2) grayscale(0.7)); }
+  100% { filter: var(--button-filter, brightness(1) grayscale(0.1)); }
+}
+
+p.main-title span {
+  display: inline-block;
+  animation-name: anim-hover;
+  animation-duration: var(--hover-duration);
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(.5,0,.5,1);
+  animation-fill-mode: backwards;
+}
+
+p.main-title span:nth-child(1) {
+  animation-delay: 0s;
+}
+
+p.main-title span:nth-child(2) {
+  animation-delay: .25s;
+}
+
+p.main-title span:nth-child(3) {
+  animation-delay: .5s;
+}
+
+p.main-title span:nth-child(4) {
+  animation-delay: .75s;
+}
+
 button {
   padding: 5px 20px;
   border-radius: 10px;
@@ -72,6 +126,21 @@ button {
   cursor: pointer;
 }
 
+button.difficulty {
+  animation-name: anim-dim;
+  animation-duration: var(--hover-duration);
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(.5,0,.5,1);
+  animation-fill-mode: backwards;
+}
+
+button.difficulty:hover,
+button.difficulty:active,
+button.difficulty:focus,
+button.difficulty.selected {
+  --button-filter: brightness(1) grayscale(0.1);
+}
+
 button:hover,
 button:active,
 button:focus
@@ -80,7 +149,20 @@ button:focus
   color: #3b4719;
 }
 
+button.easy {
+  animation-delay: calc(var(--hover-duration) * 0);
+}
+
+button.medium {
+  animation-delay: calc(var(--hover-duration) * 0.1);
+}
+
+button.hard {
+  animation-delay: calc(var(--hover-duration) * 0.2);
+}
+
 button.ultra {
+  animation-delay: calc(var(--hover-duration) * 0.3);
   background: #111;
   color: #cdeaff;
   border: solid 1px #cdeaff;
