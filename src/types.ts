@@ -194,8 +194,10 @@ export interface Portal {
   position: Vector
   link?: Vector
   exitMode: PortalExitMode
-  channel: number
+  channel: PortalChannel
   group: number
+  hash: number,
+  index: number,
 }
 
 export type PortalChannel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;

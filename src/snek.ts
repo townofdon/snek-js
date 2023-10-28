@@ -54,6 +54,7 @@ import { AppleParticleSystem } from './particleSystems/AppleParticleSystem';
 import { WinLevelScene } from './scenes/WinLevelScene';
 import { LOSE_MESSAGES } from './messages';
 import { ImpactParticleSystem } from './particleSystems/ImpactParticleSystem';
+import { Renderer } from './renderer';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
@@ -146,6 +147,7 @@ export const sketch = (p5: P5) => {
   const fonts = new Fonts(p5);
   const sfx = new SFX();
   const winScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
+  const renderer = new Renderer({ p5, fonts, replay, state, screenShake });
 
   /**
    * https://p5js.org/reference/#/p5/preload
@@ -415,6 +417,7 @@ export const sketch = (p5: P5) => {
     }
 
     drawParticles(0);
+    drawPortals();
 
     for (let i = 0; i < barriers.length; i++) {
       drawBarrier(barriers[i]);
@@ -425,7 +428,7 @@ export const sketch = (p5: P5) => {
     }
 
     if (replay.mode === ReplayMode.Capture) {
-      drawCaptureMode();
+      renderer.drawCaptureMode();
     }
 
     const applesMap: Record<string, number> = {};
@@ -436,7 +439,7 @@ export const sketch = (p5: P5) => {
       applesMap[getCoordIndex(apples[i])] = i;
     }
 
-    drawPlayerMoveArrows(player.position);
+    renderer.drawPlayerMoveArrows(player.position, moves.length > 0 ? moves[0] : player.direction);
 
     const snakePositionsMap: Record<number, boolean> = {};
     for (let i = 0; i < segments.length; i++) {
@@ -584,6 +587,7 @@ export const sketch = (p5: P5) => {
     }
 
     state.frameCount += 1;
+    renderer.tick();
   }
 
   function getTimeNeededUntilNextMove() {
@@ -891,124 +895,53 @@ export const sketch = (p5: P5) => {
   }
 
   function drawPlayerHead(vec: Vector) {
-    drawSquare(vec.x, vec.y,
+    renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead);
-  }
-
-  function drawPlayerMoveArrows(vec: Vector) {
-    if (replay.mode === ReplayMode.Playback) return;
-
-    const isWaitingToStartMoving = state.isGameStarted && !state.isMoving;
-    const isStunned = state.timeSinceHurt < HURT_STUN_TIME;
-    if (!isWaitingToStartMoving && !isStunned) return;
-
-    if (isStunned) {
-      const freq = .2;
-      const t = state.timeSinceHurt / HURT_STUN_TIME;
-      const shouldShow = t % freq > freq * 0.5;
-      if (!shouldShow) return;
-    }
-
-    const dir = moves.length > 0 ? moves[0] : player.direction;
-    type ArrowBlock = { x: number, y: number, text: string, show: boolean }
-    const arrowBlocks: ArrowBlock[] = [
-      { x: vec.x, y: vec.y - 1, text: 'P', show: !isStunned || dir === DIR.UP },
-      { x: vec.x, y: vec.y + 1, text: 'Q', show: !isStunned || dir === DIR.DOWN },
-      { x: vec.x - 1, y: vec.y, text: 'N', show: !isStunned || dir === DIR.LEFT },
-      { x: vec.x + 1, y: vec.y, text: 'O', show: !isStunned || dir === DIR.RIGHT },
-    ]
-    for (let i = 0; i < arrowBlocks.length; i++) {
-      const arrow = arrowBlocks[i];
-      if (!arrow.show) continue;
-      const position = {
-        x: arrow.x * BLOCK_SIZE.x + BLOCK_SIZE.x * 0.4 + screenShake.offset.x,
-        y: arrow.y * BLOCK_SIZE.y + BLOCK_SIZE.y * 0.35 + screenShake.offset.y,
-      }
-      p5.fill("#fff");
-      p5.stroke("#000");
-      p5.strokeWeight(4);
-      p5.textSize(12);
-      p5.textAlign(p5.CENTER, p5.CENTER);
-      p5.textFont(fonts.variants.zicons);
-      p5.text(arrow.text, position.x, position.y);
-    }
   }
 
   function drawPlayerSegment(vec: Vector) {
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
-        drawSquare(vec.x, vec.y, "#000", "#000");
+        renderer.drawSquare(vec.x, vec.y, "#000", "#000");
       } else {
-        drawSquare(vec.x, vec.y, "#fff", "#fff");
+        renderer.drawSquare(vec.x, vec.y, "#fff", "#fff");
       }
     } else {
-      drawSquare(vec.x, vec.y,
+      renderer.drawSquare(vec.x, vec.y,
         state.isShowingDeathColours ? PALETTE.deathInvert.playerTail : level.colors.playerTail,
         state.isShowingDeathColours ? PALETTE.deathInvert.playerTailStroke : level.colors.playerTailStroke);
     }
   }
 
   function drawApple(vec: Vector) {
-    drawSquare(vec.x, vec.y,
+    renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.apple : level.colors.apple,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.appleStroke : level.colors.appleStroke);
   }
 
   function drawBarrier(vec: Vector) {
-    drawSquare(vec.x, vec.y,
+    renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrier : level.colors.barrier,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
   }
 
   function drawDoor(vec: Vector) {
-    drawSquare(vec.x, vec.y,
+    renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.door : level.colors.door,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke);
   }
 
   function drawDecorative1(vec: Vector) {
-    drawSquare(vec.x, vec.y,
+    renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1 : level.colors.deco1,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1Stroke : level.colors.deco1Stroke);
   }
 
   function drawDecorative2(vec: Vector) {
-    drawSquare(vec.x, vec.y,
+    renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2 : level.colors.deco2,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke);
-  }
-
-  function drawCaptureMode() {
-    const reds: [number, number][] = [
-      [0, 0],
-      [1, 0],
-      [0, 1],
-      [0, 28],
-      [0, 29],
-      [1, 29],
-      [28, 29],
-      [29, 28],
-      [29, 29],
-      [28, 0],
-      [29, 0],
-      [29, 1],
-    ];
-    for (let i = 0; i < reds.length; i++) {
-      drawSquare(reds[i][0], reds[i][1], "#f00", "#f00");
-    }
-  }
-
-  function drawSquare(x: number, y: number, background = "pink", lineColor = "fff", strokeSize = STROKE_SIZE) {
-    p5.fill(background);
-    p5.stroke(lineColor);
-    p5.strokeWeight(strokeSize);
-    const position = {
-      x: x * BLOCK_SIZE.x + screenShake.offset.x,
-      y: y * BLOCK_SIZE.y + screenShake.offset.y,
-    }
-    const size = BLOCK_SIZE.x - strokeSize;
-    p5.square(position.x, position.y, size);
   }
 
   function drawParticles(zIndexPass = 0) {
@@ -1024,6 +957,18 @@ export const sketch = (p5: P5) => {
       }
     }
     particleSystems = tempParticleSystems;
+  }
+
+  function drawPortals() {
+    for (let i = 0; i < 9; i++) {
+      for (let j = 0; j < portals[i as PortalChannel].length; j++) {
+        const portalPosition = portals[i as PortalChannel][j];
+        if (!portalPosition) continue;
+        const portal = portalsMap[getCoordIndex(portalPosition)];
+        if (!portal) continue;
+        renderer.drawPortal(portal);
+      }
+    }
   }
 
   function showGameOver() {

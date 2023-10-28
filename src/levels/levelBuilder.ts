@@ -132,12 +132,15 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
               portalGroupIndex[channel] += 1;
             }
           }
+          const group = portalGroupIndex[channel];
           data.portals[channel].push(vec);
           data.portalsMap[getCoordIndex(vec)] = {
             position: vec,
             exitMode: PortalExitMode.InvertDirection,
-            channel: channel,
-            group: portalGroupIndex[channel],
+            channel,
+            group,
+            hash: getPortalHash(vec, channel, group),
+            index: 0,
           };
           break;
       }
@@ -161,9 +164,20 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
         const target = targetPortals[Math.min(j, targetPortals.length - 1)];
         if (!target) continue;
         source.link = target.position;
+        source.index = j;
       }
     }
   }
 
   return data;
+}
+
+function getPortalHash(vec: P5.Vector, channel: PortalChannel, group: number) {
+  // there are at most 10 channels
+  const channelComponent = channel as number;
+  // mul by 10 to avoid intersection with channel
+  const groupComponent = group * 10;
+  // mul by 1000 as impossible for there to exist more than 100 groups (100 * 10)
+  const indexComponent = getCoordIndex(vec) * 1000;
+  return channelComponent + groupComponent + indexComponent;
 }

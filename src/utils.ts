@@ -138,3 +138,7 @@ export function dirToUnitVector(p5: P5, dir: DIR) {
       return p5.createVector(0, 0);
   }
 }
+
+export function oscilateLinear(num: number) {
+  return 1 - Math.abs(num % 2 - 1);
+}
