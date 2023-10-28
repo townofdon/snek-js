@@ -52,6 +52,7 @@ import { replayClips } from './replayClips/replayClips';
 import { AppleParticleSystem } from './particleSystems/AppleParticleSystem';
 import { WinLevelScene } from './scenes/WinLevelScene';
 import { LOSE_MESSAGES } from './messages';
+import { ImpactParticleSystem } from './particleSystems/ImpactParticleSystem';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
@@ -129,7 +130,6 @@ let screenFlashElement: Element;
 let quotes = allQuotes.slice();
 
 const difficultyButtons: Record<number, P5.Element> = {}
-const mainTitleItems: Record<number, P5.Element> = {}
 
 export const sketch = (p5: P5) => {
 
@@ -184,8 +184,8 @@ export const sketch = (p5: P5) => {
     UI.enableScreenScroll();
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
-    mainTitleItems[0] = UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
-    mainTitleItems[1] = UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
+    UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
+    UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
     const offsetLeft = 150;
     difficultyButtons[1] = UI.drawButton("EASY", 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
     difficultyButtons[2] = UI.drawButton("MEDIUM", 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
@@ -395,7 +395,6 @@ export const sketch = (p5: P5) => {
 
     setTimeout(() => { tickCoroutines(); }, 0);
 
-    applyMainTitleFX();
     updateScreenShake();
     drawBackground();
 
@@ -407,7 +406,7 @@ export const sketch = (p5: P5) => {
       drawDecorative2(decoratives2[i]);
     }
 
-    drawParticles();
+    drawParticles(0);
 
     for (let i = 0; i < barriers.length; i++) {
       drawBarrier(barriers[i]);
@@ -446,6 +445,7 @@ export const sketch = (p5: P5) => {
     }
 
     drawPlayerHead(player.position);
+    drawParticles(10);
 
     if (state.isLost) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
@@ -473,6 +473,7 @@ export const sketch = (p5: P5) => {
       flashScreen();
       startScreenShake();
       renderHeartsUI();
+      spawnHurtParticles();
       hurtSnake();
       switch (state.lives) {
         case 2:
@@ -489,6 +490,7 @@ export const sketch = (p5: P5) => {
 
     // handle snake death
     if (state.isLost) {
+      spawnHurtParticles();
       renderHeartsUI();
       flashScreen();
       showGameOver();
@@ -747,6 +749,12 @@ export const sketch = (p5: P5) => {
     player.direction = getDirectionToFirstSegment();
   }
 
+  function spawnHurtParticles() {
+    const position = player.position.copy()
+    particleSystems.push(new ImpactParticleSystem(p5, level, position));
+    particleSystems.push(new ImpactParticleSystem(p5, level, position, { spawnMod: .3, speedMod: 1.5, scaleMod: .5 }));
+  }
+
   function getDirectionToFirstSegment() {
     if (segments.length <= 0) return DIR.RIGHT;
     const diff = player.position.copy().sub(segments[0]);
@@ -875,23 +883,6 @@ export const sketch = (p5: P5) => {
     p5.background(state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background);
   }
 
-  // TODO: REMOVE
-  function applyMainTitleFX() {
-    // if (!mainTitleItems[0] || !mainTitleItems[1]) return;
-    // const hoverFreq = 1;
-    // const hoverStart = 0;
-    // const hoverEnd = 0;
-    // const scaleFreq = 1.66666;
-    // const scaleStart = 1;
-    // const scaleEnd = 1.02;
-    // const t = state.timeElapsed * 0.001 * Math.PI;
-    // const hover = p5.lerp(hoverStart, hoverEnd, Math.sin(t / hoverFreq));
-    // const scale = p5.lerp(scaleStart, scaleEnd, Math.sin(t / scaleFreq));
-    // const transform = `translate(0, ${hover}px) scale(${scale})`;
-    // mainTitleItems[0].style('transform', transform);
-    // mainTitleItems[1].style('transform', transform);
-  }
-
   function drawPlayerHead(vec: Vector) {
     drawSquare(vec.x, vec.y,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
@@ -1013,10 +1004,10 @@ export const sketch = (p5: P5) => {
     p5.square(position.x, position.y, size);
   }
 
-  function drawParticles() {
+  function drawParticles(zIndexPass = 0) {
     const tempParticleSystems = [];
     for (let i = 0; i < particleSystems.length; i++) {
-      particleSystems[i].draw(p5, screenShake);
+      particleSystems[i].draw(p5, screenShake, zIndexPass);
       particleSystems[i].tick(p5);
       // cleanup inactive particle systems
       if (particleSystems[i].isActive()) {

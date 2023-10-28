@@ -74,6 +74,7 @@ interface ParticleSystemConstructorArgs {
   scaleStart: number
   scaleEnd: number
   scaleVariance: number
+  zIndex?: number
 }
 
 export class ParticleSystem {
@@ -83,6 +84,7 @@ export class ParticleSystem {
   _destroyed = false;
   _easingFnc?: (x: number) => number;
   _p5: P5;
+  _zIndex = 0;
 
   constructor({ p5,
     origin,
@@ -96,6 +98,7 @@ export class ParticleSystem {
     scaleStart = 1,
     scaleEnd = scaleStart,
     scaleVariance = 0,
+    zIndex = 0,
   }: ParticleSystemConstructorArgs) {
     if (origin == null) throw new Error("null origin passed to ParticleSystem constructor");
     this._destroyed = false;
@@ -103,9 +106,11 @@ export class ParticleSystem {
     this._timeElapsed = 0;
     this._particles = [];
     this._easingFnc = easingFnc;
+    this._zIndex = zIndex;
 
     const randomVector = (scale = 1) => {
-      return p5.createVector((p5.random(2) - 1) * scale, (p5.random(2) - 1) * scale);
+      // return p5.createVector((p5.random(2) - 1) * scale, (p5.random(2) - 1) * scale);
+      return P5.Vector.random2D().mult(scale);
     }
 
     for (let i = 0; i < numParticles; i++) {
@@ -140,10 +145,11 @@ export class ParticleSystem {
     this._timeElapsed += p5.deltaTime;
   }
 
-  draw(p5: P5, screenShake: ScreenShakeState) {
+  draw(p5: P5, screenShake: ScreenShakeState, zIndexPass = 0) {
     if (this._destroyed || !this._particles) {
       return;
     }
+    if (this._zIndex != zIndexPass) return;
     let normalizedTimeElapsed = clamp(this._timeElapsed / this._lifetime, 0, 1);
     if (this._easingFnc) {
       normalizedTimeElapsed = this._easingFnc(normalizedTimeElapsed);
