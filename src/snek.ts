@@ -129,6 +129,7 @@ let screenFlashElement: Element;
 let quotes = allQuotes.slice();
 
 const difficultyButtons: Record<number, P5.Element> = {}
+const mainTitleItems: Record<number, P5.Element> = {}
 
 export const sketch = (p5: P5) => {
 
@@ -183,14 +184,16 @@ export const sketch = (p5: P5) => {
     UI.enableScreenScroll();
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
-    UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
-    UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
+    mainTitleItems[0] = UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
+    mainTitleItems[1] = UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
     const offsetLeft = 150;
-    difficultyButtons[1] = UI.drawButton("EASY", 0 + offsetLeft, 280, () => startGame(1), uiElements);
-    difficultyButtons[2] = UI.drawButton("MEDIUM", 105 + offsetLeft, 280, () => startGame(2), uiElements);
-    difficultyButtons[3] = UI.drawButton("HARD", 220 + offsetLeft, 280, () => startGame(3), uiElements);
-    difficultyButtons[4] = UI.drawButton("ULTRA", 108 + offsetLeft, 340, () => startGame(4), uiElements);
-    difficultyButtons[4].addClass('ultra');
+    difficultyButtons[1] = UI.drawButton("EASY", 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
+    difficultyButtons[2] = UI.drawButton("MEDIUM", 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
+    difficultyButtons[3] = UI.drawButton("HARD", 220 + offsetLeft, 280, () => startGame(3), uiElements).addClass('hard');
+    difficultyButtons[4] = UI.drawButton("ULTRA", 108 + offsetLeft, 340, () => startGame(4), uiElements).addClass('ultra');
+    for (let i = 1; i <= 4; i++) {
+      difficultyButtons[i].addClass('difficulty')
+    }
   }
 
   /**
@@ -226,8 +229,9 @@ export const sketch = (p5: P5) => {
   }
 
   function* startGameRoutine(difficultyIndex = 2): IEnumerator {
+    const button = difficultyButtons[difficultyIndex];
+    if (button) button.addClass('selected');
     yield* waitForTime(1000, (t) => {
-      const button = difficultyButtons[difficultyIndex];
       if (button) {
         const freq = .2;
         const shouldShow = t % freq > freq * 0.5;
@@ -391,6 +395,7 @@ export const sketch = (p5: P5) => {
 
     setTimeout(() => { tickCoroutines(); }, 0);
 
+    applyMainTitleFX();
     updateScreenShake();
     drawBackground();
 
@@ -507,9 +512,13 @@ export const sketch = (p5: P5) => {
       } else {
         state.timeSinceLastMove += p5.deltaTime;
       }
-      state.timeElapsed += p5.deltaTime;
       stats.totalTimeElapsed += p5.deltaTime;
       state.timeSinceHurt += p5.deltaTime;
+    }
+
+    // tick time elapsed
+    if (state.isMoving || replay.mode === ReplayMode.Playback) {
+      state.timeElapsed += p5.deltaTime;
     }
 
     // handle snake movement during replay
@@ -864,6 +873,23 @@ export const sketch = (p5: P5) => {
 
   function drawBackground() {
     p5.background(state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background);
+  }
+
+  // TODO: REMOVE
+  function applyMainTitleFX() {
+    // if (!mainTitleItems[0] || !mainTitleItems[1]) return;
+    // const hoverFreq = 1;
+    // const hoverStart = 0;
+    // const hoverEnd = 0;
+    // const scaleFreq = 1.66666;
+    // const scaleStart = 1;
+    // const scaleEnd = 1.02;
+    // const t = state.timeElapsed * 0.001 * Math.PI;
+    // const hover = p5.lerp(hoverStart, hoverEnd, Math.sin(t / hoverFreq));
+    // const scale = p5.lerp(scaleStart, scaleEnd, Math.sin(t / scaleFreq));
+    // const transform = `translate(0, ${hover}px) scale(${scale})`;
+    // mainTitleItems[0].style('transform', transform);
+    // mainTitleItems[1].style('transform', transform);
   }
 
   function drawPlayerHead(vec: Vector) {

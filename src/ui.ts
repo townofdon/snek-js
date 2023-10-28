@@ -15,7 +15,11 @@ export class UI {
   }
 
   static drawTitle(title = '', textColor = '#fff', offset: number, hasShadow: boolean, uiElements: Element[]) {
-    const p = UI.p5.createP(title);
+    const p = UI.p5.createP("");
+    for (let i = 0; i < title.length; i++) {
+      const span = UI.p5.createSpan(title[i]);
+      span.parent(p);
+    }
     p.id('title');
     p.style('font-size', '6em');
     p.style('letter-spacing', '65px');
@@ -28,7 +32,9 @@ export class UI {
     }
     p.position(84 + offset, 7 + offset);
     p.parent("main");
+    p.addClass("main-title");
     uiElements.push(p);
+    return p;
   }
 
   static clearLabels() {
