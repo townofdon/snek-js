@@ -88,7 +88,9 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
 
         // manually-spawned apples
         case 'a':
+          data.nospawns.push(vec);
           data.apples.push(vec);
+          break;
       }
     }
     if (y >= GRIDCOUNT.y) { console.warn("level layout is too tall"); break; }

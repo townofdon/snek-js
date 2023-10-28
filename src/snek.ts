@@ -788,15 +788,15 @@ export const sketch = (p5: P5) => {
   }
 
   function getLevelClearBonus() {
-    return LEVEL_BONUS * difficulty.scoreMod;
+    return LEVEL_BONUS * difficulty.bonusMod;
   }
 
   function getLivesLeftBonus() {
-    return LIVES_LEFT_BONUS * difficulty.scoreMod;
+    return LIVES_LEFT_BONUS * difficulty.bonusMod;
   }
 
   function getPerfectBonus() {
-    return PERFECT_BONUS * difficulty.scoreMod;
+    return PERFECT_BONUS * difficulty.bonusMod;
   }
 
   function incrementScore() {
@@ -821,6 +821,8 @@ export const sketch = (p5: P5) => {
     if (state.isLost) return;
     if (difficulty.index === 4) {
       state.speed += 1;
+    } else if (difficulty.index === 1) {
+      state.speed += 1.2;
     } else {
       state.speed += SPEED_INCREMENT * Math.min(difficulty.speedMod, 1);
     }

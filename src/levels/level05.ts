@@ -23,7 +23,7 @@ XX~  -=-             -=-   ~XX
 XX~  -=-   ~~DDD~~   -=-   ~XX
 XX~  -=-   ~~DDD~~   -=-   ~XX
 XX~  -=-   XXX~XXX   -=-   ~XX
-XX~  -=-   XX~~~XX   -=-   ~XX
+XX~  -=-   XX~a~XX   -=-   ~XX
 XX~  -=-   XXX~XXX   -=-   ~XX
 XX~  -=-   ~~DDD~~   -=-   ~XX
 XX~  -=-   ~~DDD~~   -=-   ~XX

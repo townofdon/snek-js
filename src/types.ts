@@ -40,6 +40,7 @@ export interface Difficulty {
   speedMod: number,
   applesMod: number,
   scoreMod: number,
+  bonusMod: number,
   speedLimit: number,
 }
 

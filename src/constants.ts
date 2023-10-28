@@ -2,7 +2,8 @@ import { Difficulty } from "./types";
 
 export const TITLE = 'SNEK';
 
-export const DEBUG_EASY_LEVEL_EXIT = false;
+// TODO: REMOVE
+export const DEBUG_EASY_LEVEL_EXIT = true;
 export const RECORD_REPLAY_STATE = false;
 
 const windowWidth = window.innerWidth;
@@ -26,7 +27,17 @@ export const LEVEL_BONUS = 500;
 export const LIVES_LEFT_BONUS = 1000;
 export const PERFECT_BONUS = 5000;
 
-export const SPEED_MOD_EASY = .35;
+export const BONUS_MOD_EASY = .1;
+export const BONUS_MOD_MEDIUM = .5;
+export const BONUS_MOD_HARD = 4;
+export const BONUS_MOD_ULTRA = 12;
+
+export const SCORE_MOD_EASY = .5;
+export const SCORE_MOD_MEDIUM = 2;
+export const SCORE_MOD_HARD = 5;
+export const SCORE_MOD_ULTRA = 10;
+
+export const SPEED_MOD_EASY = .45;
 export const SPEED_MOD_MEDIUM = .75;
 export const SPEED_MOD_HARD = 1.6;
 export const SPEED_MOD_ULTRA = 1;
@@ -35,11 +46,6 @@ export const NUM_APPLES_MOD_EASY = .5;
 export const NUM_APPLES_MOD_MEDIUM = .9;
 export const NUM_APPLES_MOD_HARD = 1;
 export const NUM_APPLES_MOD_ULTRA = 1.5;
-
-export const SCORE_MOD_EASY = .5;
-export const SCORE_MOD_MEDIUM = 2;
-export const SCORE_MOD_HARD = 5;
-export const SCORE_MOD_ULTRA = 10;
 
 export const SPEED_LIMIT_EASY = 110;
 export const SPEED_LIMIT_MEDIUM = 56;
@@ -51,6 +57,7 @@ export const DIFFICULTY_EASY: Difficulty = {
     speedMod: SPEED_MOD_EASY,
     applesMod: NUM_APPLES_MOD_EASY,
     scoreMod: SCORE_MOD_EASY,
+    bonusMod: BONUS_MOD_EASY,
     speedLimit: SPEED_LIMIT_EASY,
 }
 export const DIFFICULTY_MEDIUM: Difficulty = {
@@ -58,6 +65,7 @@ export const DIFFICULTY_MEDIUM: Difficulty = {
     speedMod: SPEED_MOD_MEDIUM,
     applesMod: NUM_APPLES_MOD_MEDIUM,
     scoreMod: SCORE_MOD_MEDIUM,
+    bonusMod: BONUS_MOD_MEDIUM,
     speedLimit: SPEED_LIMIT_MEDIUM,
 }
 export const DIFFICULTY_HARD: Difficulty = {
@@ -65,6 +73,7 @@ export const DIFFICULTY_HARD: Difficulty = {
     speedMod: SPEED_MOD_HARD,
     applesMod: NUM_APPLES_MOD_HARD,
     scoreMod: SCORE_MOD_HARD,
+    bonusMod: BONUS_MOD_HARD,
     speedLimit: SPEED_LIMIT_HARD,
 }
 export const DIFFICULTY_ULTRA: Difficulty = {
@@ -72,6 +81,7 @@ export const DIFFICULTY_ULTRA: Difficulty = {
     speedMod: SPEED_MOD_ULTRA,
     applesMod: NUM_APPLES_MOD_ULTRA,
     scoreMod: SCORE_MOD_ULTRA,
+    bonusMod: BONUS_MOD_ULTRA,
     speedLimit: SPEED_LIMIT_ULTRA,
 }
 
