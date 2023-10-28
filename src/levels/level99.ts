@@ -2,7 +2,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
-const name = 'survival'
+const name = 'airfield'
 
 export const LEVEL_99: Level = {
   name,
@@ -18,8 +18,8 @@ X~    --    ~~__~~    --    ~X
 X~    --      ==      --    ~X
 X~    --      ==      --    ~X
 X~    --      --      --    ~X
-X_----==      --      ==    ~X
-X_----==      --      ==    ~X
+X_----==      --      ==----_X
+X_----==      --      ==----_X
 X~            --            ~X
 X~            --            ~X
 X~~           --            ~X

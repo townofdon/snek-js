@@ -71,7 +71,7 @@ const state: GameState = {
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
   timeSinceHurt: Infinity,
-  hurtGraceTime: HURT_GRACE_TIME,
+  hurtGraceTime: HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0),
   lives: MAX_LIVES,
   speed: 1,
   steps: 0,
@@ -314,7 +314,7 @@ export const sketch = (p5: P5) => {
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
     state.timeSinceHurt = Infinity;
-    state.hurtGraceTime = HURT_GRACE_TIME;
+    state.hurtGraceTime = HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0);
     state.lives = MAX_LIVES;
     screenShake.timeSinceStarted = Infinity;
     screenShake.timeSinceLastStep = Infinity;
@@ -704,7 +704,7 @@ export const sketch = (p5: P5) => {
     // apply movement
     moveSegments();
     player.position.add(currentMove);
-    state.hurtGraceTime = HURT_GRACE_TIME;
+    state.hurtGraceTime = HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0);
 
     // play step sfx
     const volume = p5.lerp(1, 0.5, normalizedSpeed);

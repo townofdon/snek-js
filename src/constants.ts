@@ -2,8 +2,7 @@ import { Difficulty } from "./types";
 
 export const TITLE = 'SNEK';
 
-// TODO: REMOVE
-export const DEBUG_EASY_LEVEL_EXIT = true;
+export const DEBUG_EASY_LEVEL_EXIT = false;
 export const RECORD_REPLAY_STATE = false;
 
 const windowWidth = window.innerWidth;

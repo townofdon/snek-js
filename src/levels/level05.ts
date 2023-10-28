@@ -22,9 +22,9 @@ XX~  -=-             -=-   ~XX
 XX~  -=-             -=-   ~XX
 XX~  -=-   ~~DDD~~   -=-   ~XX
 XX~  -=-   ~~DDD~~   -=-   ~XX
-XX~  -=-   XXX~XXX   -=-   ~XX
-XX~  -=-   XX~a~XX   -=-   ~XX
-XX~  -=-   XXX~XXX   -=-   ~XX
+XX~  -=-   XXX_XXX   -=-   ~XX
+XX~  -=-   XX_a_XX   -=-   ~XX
+XX~  -=-   XXX_XXX   -=-   ~XX
 XX~  -=-   ~~DDD~~   -=-   ~XX
 XX~  -=-   ~~DDD~~   -=-   ~XX
 XX~  -=-             -=-   ~XX

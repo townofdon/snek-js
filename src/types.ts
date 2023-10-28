@@ -108,6 +108,7 @@ export interface Level {
   colors: Palette,
   numApplesStart?: number,
   growthMod?: number,
+  extraHurtGraceTime?: number,
   snakeStartSizeOverride?: number
   disableAppleSpawn?: boolean
   showQuoteOnLevelWin?: boolean
