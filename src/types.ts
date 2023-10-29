@@ -117,6 +117,11 @@ export interface Level {
   creditsScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
 }
 
+export interface Quote {
+  message: string[]
+  author?: string
+}
+
 export interface FontsInstance {
   variants: FontVariants
   load: () => void
