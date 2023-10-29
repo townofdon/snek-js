@@ -147,6 +147,7 @@ export enum Sound {
   uiChip = 'uiChip',
   uiChipLoop = 'uiChipLoop',
   uiConfirm = 'uiConfirm',
+  unlock = 'unlock',
   warp = 'warp',
   xplode = 'xplode',
   xplodeLong = 'xplodeLong',

@@ -2,7 +2,6 @@ import P5 from "p5";
 import { FontsInstance, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
-import { PALETTE } from "../palettes";
 import Color from "color";
 
 interface TriggerLevelExitParams {
@@ -151,17 +150,18 @@ export class WinLevelScene extends BaseScene {
 
   draw = () => {
     const { p5, fonts } = this.props;
-
+    const title = "SNEK CLEAR!"
     this.drawBackground(p5.lerpColor(p5.color("#00000000"), p5.color("#00000066"), this.bgOpacity).toString());
     p5.textAlign(p5.CENTER, p5.CENTER);
     p5.textFont(fonts.variants.miniMood);
-    p5.noStroke();
+    p5.stroke("#000")
+    p5.strokeWeight(4);
     p5.textSize(32.5);
     p5.fill('#000');
-    p5.text('STAGE CLEAR!', ...this.getPosition(0.5, this.stageClearY + 0.01));
+    p5.text(title, ...this.getPosition(0.5, this.stageClearY + 0.01));
     p5.textSize(32);
     p5.fill('#fff');
-    p5.text('STAGE CLEAR!', ...this.getPosition(0.5, this.stageClearY + 0.0));
+    p5.text(title, ...this.getPosition(0.5, this.stageClearY + 0.0));
 
     this.tick();
   };

@@ -36,6 +36,11 @@ import {
   LEVEL_99,
 } from './levels';
 import { DIR } from "./types";
+import { LEVEL_11 } from "./levels/level11";
+import { LEVEL_12 } from "./levels/level12";
+import { TUTORIAL_LEVEL_10 } from "./levels/tutorialLevel10";
+import { TUTORIAL_LEVEL_20 } from "./levels/tutorialLevel20";
+import { TUTORIAL_LEVEL_30 } from "./levels/tutorialLevel30";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
   const clamped = Math.max(Math.min(val, maxVal), minVal);
@@ -93,8 +98,18 @@ export function getWarpLevelFromNum(levelNum: number) {
       return LEVEL_09;
     case 10:
       return LEVEL_10;
+    case 11:
+      return LEVEL_11;
+    case 12:
+      return LEVEL_12;
     case 99:
       return LEVEL_99;
+    case 110:
+      return TUTORIAL_LEVEL_10;
+    case 120:
+      return TUTORIAL_LEVEL_20;
+    case 130:
+      return TUTORIAL_LEVEL_30;
     default:
       return LEVEL_01;
   }

@@ -15,7 +15,7 @@ export class TitleScene extends BaseScene {
 
   *action() {
     const { coroutines } = this.props;
-    this._sfx.play(Sound.xplode);
+    this._sfx.play(Sound.unlock);
     yield* coroutines.waitForTime(1500);
     this.cleanup();
   }

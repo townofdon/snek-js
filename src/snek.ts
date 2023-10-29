@@ -1042,19 +1042,26 @@ export const sketch = (p5: P5) => {
     const offset = 60;
     const yRow1 = 280;
     const yRow2 = 320;
+    const yRow3 = 360;
     let x = xInitial;
-    UI.drawButton("1", x, yRow1, () => warpToLevel(1), uiElements);
-    UI.drawButton("2", x += offset, yRow1, () => warpToLevel(2), uiElements);
-    UI.drawButton("3", x += offset, yRow1, () => warpToLevel(3), uiElements);
-    UI.drawButton("4", x += offset, yRow1, () => warpToLevel(4), uiElements);
-    UI.drawButton("5", x += offset, yRow1, () => warpToLevel(5), uiElements);
-    UI.drawButton("6", x += offset, yRow1, () => warpToLevel(6), uiElements);
+    UI.drawButton("01", x, yRow1, () => warpToLevel(1), uiElements);
+    UI.drawButton("02", x += offset, yRow1, () => warpToLevel(2), uiElements);
+    UI.drawButton("03", x += offset, yRow1, () => warpToLevel(3), uiElements);
+    UI.drawButton("04", x += offset, yRow1, () => warpToLevel(4), uiElements);
+    UI.drawButton("05", x += offset, yRow1, () => warpToLevel(5), uiElements);
+    UI.drawButton("06", x += offset, yRow1, () => warpToLevel(6), uiElements);
     x = xInitial;
-    UI.drawButton("7", x, yRow2, () => warpToLevel(7), uiElements);
-    UI.drawButton("8", x += offset, yRow2, () => warpToLevel(8), uiElements);
-    UI.drawButton("9", x += offset, yRow2, () => warpToLevel(9), uiElements);
+    UI.drawButton("07", x, yRow2, () => warpToLevel(7), uiElements);
+    UI.drawButton("08", x += offset, yRow2, () => warpToLevel(8), uiElements);
+    UI.drawButton("09", x += offset, yRow2, () => warpToLevel(9), uiElements);
     UI.drawButton("10", x += offset, yRow2, () => warpToLevel(10), uiElements);
-    UI.drawButton("99", x += offset, yRow2, () => warpToLevel(99), uiElements);
+    UI.drawButton("11", x += offset, yRow2, () => warpToLevel(11), uiElements);
+    UI.drawButton("12", x += offset, yRow2, () => warpToLevel(12), uiElements);
+    x = xInitial;
+    UI.drawButton("SS", x += offset, yRow3, () => warpToLevel(99), uiElements);
+    UI.drawButton("S1", x += offset, yRow3, () => warpToLevel(110), uiElements);
+    UI.drawButton("S2", x += offset, yRow3, () => warpToLevel(120), uiElements);
+    UI.drawButton("S3", x += offset, yRow3, () => warpToLevel(130), uiElements);
   }
 
   function openDoors() {

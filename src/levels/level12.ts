@@ -9,6 +9,7 @@ export const LEVEL_12: Level = {
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 60,
   numApplesStart: 10,
+  growthMod: 0.25,
   layout: `
 XXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
@@ -20,8 +21,8 @@ XXXDDXXXXXXXXXXXXXXXXXXXXDDXXX
 XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
 XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
 X2---=-       -==-   -=1XaaXXX
-X2--==-       -==-   -=1XaaXXX
-X2--==-O      -==-   -=1XaaXXX
+X2--==-       -==-   -=1XaaDXX
+X2--==-O      -==-   -=1XaaDXX
 X2---=-       -==-   -=1XaaXXX
 XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
 XXXaaXXXXXXXXXXXXXXXXXXXXaaXXX
