@@ -11,6 +11,7 @@ import { LEVEL_08 } from "./level08";
 import { LEVEL_09 } from "./level09";
 import { LEVEL_10 } from "./level10";
 import { LEVEL_11 } from "./level11";
+import { LEVEL_12 } from "./level12";
 import { LEVEL_99 } from "./level99";
 import { TUTORIAL_LEVEL_10 } from "./tutorialLevel10";
 import { TUTORIAL_LEVEL_20 } from "./tutorialLevel20";
@@ -32,6 +33,7 @@ export const LEVELS: Level[] = [
     LEVEL_99,
     LEVEL_11,
     TUTORIAL_LEVEL_30,
+    LEVEL_12,
 ];
 
 export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;

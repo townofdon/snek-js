@@ -125,7 +125,7 @@ export const DEFAULT_PORTALS: Record<PortalChannel, P5.Vector[]> = {
 
 export const PORTAL_INDEX_DELAY = 100;
 export const PORTAL_FADE_DURATION = 500;
-export const filter = (color: string) => Color(color).desaturate(0.3).lighten(0.2).hex();
+export const filter = (color: string) => Color(color).desaturate(0.5).lighten(0.4).hex();
 export const PORTAL_CHANNEL_COLORS: Record<PortalChannel, string> = {
   1: filter("#00ffec"),
   2: filter("#ffb000"),

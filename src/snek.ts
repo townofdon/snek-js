@@ -692,7 +692,7 @@ export const sketch = (p5: P5) => {
     const portal = portalsMap[getCoordIndex(player.position)];
     if (!portal) return;
     sfx.play(Sound.warp);
-    switch (portal.exitMode) {
+    switch (level.portalExitConfig?.[portal.channel] || portal.exitMode) {
       case PortalExitMode.InvertDirection:
         player.direction = invertDirection(player.direction);
         break;

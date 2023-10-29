@@ -107,6 +107,7 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
         // manually-spawned apples
         case 'a':
           data.nospawns.push(vec);
+          data.nospawnsMap[getCoordIndex(vec)] = true;
           data.apples.push(vec);
           break;
 
@@ -121,6 +122,8 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
         case '7':
         case '8':
         case '9':
+          data.nospawns.push(vec);
+          data.nospawnsMap[getCoordIndex(vec)] = true;
           const channel = parseInt(char, 10) as PortalChannel;
           // increment portal index if prev portal cell of same PortalIndex is farther away than 1 unit
           if (data.portals[channel].length) {
@@ -135,7 +138,7 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
           const group = portalGroupIndex[channel];
           data.portals[channel].push(vec);
           data.portalsMap[getCoordIndex(vec)] = {
-            position: vec,
+            position: vec.copy(),
             exitMode: PortalExitMode.InvertDirection,
             channel,
             group,

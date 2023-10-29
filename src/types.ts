@@ -112,6 +112,7 @@ export interface Level {
   snakeStartSizeOverride?: number
   disableAppleSpawn?: boolean
   showQuoteOnLevelWin?: boolean
+  portalExitConfig?: Partial<Record<PortalChannel, PortalExitMode>>
   titleScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
   creditsScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
 }
