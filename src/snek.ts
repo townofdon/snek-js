@@ -11,8 +11,6 @@ import {
   FRAMERATE,
   DIMENSIONS,
   GRIDCOUNT,
-  BLOCK_SIZE,
-  STROKE_SIZE,
   BASE_TICK_MS,
   MAX_LIVES,
   START_SNAKE_SIZE,
@@ -35,8 +33,9 @@ import {
   LIVES_LEFT_BONUS,
   PERFECT_BONUS,
   DEFAULT_PORTALS,
+  PORTAL_CHANNEL_COLORS,
 } from './constants';
-import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, removeArrayElement, shuffleArray, vecToString } from './utils';
+import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
 import { UI } from './ui';
 import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode } from './types';
@@ -55,6 +54,7 @@ import { WinLevelScene } from './scenes/WinLevelScene';
 import { LOSE_MESSAGES } from './messages';
 import { ImpactParticleSystem } from './particleSystems/ImpactParticleSystem';
 import { Renderer } from './renderer';
+import { PortalParticleSystem, PortalVortexParticleSystem } from './particleSystems/PortalParticleSystem';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let levelIndex = 0;
@@ -127,6 +127,7 @@ let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots
 
 let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS };
 let portalsMap: Record<number, Portal> = {};
+let portalParticlesStarted: Record<number, boolean> = {}
 
 let uiElements: Element[] = [];
 let particleSystems: ParticleSystem[] = [];
@@ -347,7 +348,9 @@ export const sketch = (p5: P5) => {
     nospawnsMap = {};
     portals = { ...DEFAULT_PORTALS };
     portalsMap = {};
+    portalParticlesStarted = {};
 
+    renderer.reset();
     UI.disableScreenScroll();
     UI.clearLabels();
     clearUI();
@@ -688,6 +691,7 @@ export const sketch = (p5: P5) => {
   function handlePortalTravel() {
     const portal = portalsMap[getCoordIndex(player.position)];
     if (!portal) return;
+    sfx.play(Sound.warp);
     switch (portal.exitMode) {
       case PortalExitMode.InvertDirection:
         player.direction = invertDirection(player.direction);
@@ -947,10 +951,10 @@ export const sketch = (p5: P5) => {
   function drawParticles(zIndexPass = 0) {
     const tempParticleSystems = [];
     for (let i = 0; i < particleSystems.length; i++) {
-      particleSystems[i].draw(p5, screenShake, zIndexPass);
-      particleSystems[i].tick(p5);
-      // cleanup inactive particle systems
+      if (!particleSystems[i]) continue;
       if (particleSystems[i].isActive()) {
+        particleSystems[i].draw(p5, screenShake, zIndexPass);
+        particleSystems[i].tick(p5);
         tempParticleSystems.push(particleSystems[i]);
       } else {
         delete particleSystems[i];
@@ -967,6 +971,14 @@ export const sketch = (p5: P5) => {
         const portal = portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
         renderer.drawPortal(portal);
+        if (!portalParticlesStarted[portal.hash]) {
+          portalParticlesStarted[portal.hash] = true;
+          const accent = PORTAL_CHANNEL_COLORS[portal.channel];
+          particleSystems.push(new PortalParticleSystem(p5, portal.position, accent));
+          particleSystems.push(new PortalParticleSystem(p5, portal.position, "#fff"));
+          particleSystems.push(new PortalVortexParticleSystem(p5, portal.position, "#000"));
+          particleSystems.push(new PortalVortexParticleSystem(p5, portal.position, "#fff"));
+        }
       }
     }
   }

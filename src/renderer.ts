@@ -1,7 +1,6 @@
 import P5, { Vector } from "p5";
-import Color from 'color';
-import { DIR, FontsInstance, GameState, Portal, PortalChannel, Replay, ReplayMode, ScreenShakeState } from "./types";
-import { BLOCK_SIZE, HURT_STUN_TIME, STROKE_SIZE } from "./constants";
+import { DIR, FontsInstance, GameState, Portal, Replay, ReplayMode, ScreenShakeState } from "./types";
+import { BLOCK_SIZE, HURT_STUN_TIME, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, STROKE_SIZE } from "./constants";
 import { oscilateLinear } from "./utils";
 
 interface RendererConstructorProps {
@@ -24,6 +23,10 @@ export class Renderer {
 
   constructor(props: RendererConstructorProps) {
     this.props = props;
+  }
+
+  reset = () => {
+    this.elapsed = 0;
   }
 
   tick = () => {
@@ -128,19 +131,3 @@ export class Renderer {
     this.drawSquare(portal.position.x, portal.position.y, background, color);
   }
 }
-
-const PORTAL_INDEX_DELAY = 100;
-const PORTAL_FADE_DURATION = 500;
-const filter = (color: string) => Color(color).desaturate(0.2).lighten(0.2).hex();
-const PORTAL_CHANNEL_COLORS: Record<PortalChannel, string> = {
-  1: filter("#6dff00"),
-  2: filter("#ffb000"),
-  3: filter("#00ffec"),
-  4: filter("#ff5c00"),
-  5: filter("#8a00ff"),
-  6: filter("#efff00"),
-  7: filter("#004dff"),
-  8: filter("#ba00ff"),
-  9: filter("#aafbd6"),
-  0: filter("#fbecaa"),
-};

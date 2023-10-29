@@ -1,5 +1,6 @@
 import P5 from "p5";
 import { Difficulty, PortalChannel } from "./types";
+import Color from "color";
 
 export const TITLE = 'SNEK';
 
@@ -121,3 +122,19 @@ export const DEFAULT_PORTALS: Record<PortalChannel, P5.Vector[]> = {
   8: [],
   9: [],
 }
+
+export const PORTAL_INDEX_DELAY = 100;
+export const PORTAL_FADE_DURATION = 500;
+export const filter = (color: string) => Color(color).desaturate(0.3).lighten(0.2).hex();
+export const PORTAL_CHANNEL_COLORS: Record<PortalChannel, string> = {
+  1: filter("#00ffec"),
+  2: filter("#ffb000"),
+  3: filter("#ff5c00"),
+  4: filter("#8a00ff"),
+  5: filter("#6dff00"),
+  6: filter("#efff00"),
+  7: filter("#004dff"),
+  8: filter("#ba00ff"),
+  9: filter("#aafbd6"),
+  0: filter("#fbecaa"),
+};
