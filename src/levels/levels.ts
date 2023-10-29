@@ -36,5 +36,4 @@ export const LEVELS: Level[] = [
 
 export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;
 
-// TODO: REVERT
-export const START_LEVEL = TUTORIAL_LEVEL_30;
+export const START_LEVEL = LEVEL_01;

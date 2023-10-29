@@ -32,36 +32,6 @@ export class PortalParticleSystem extends ParticleSystem {
   }
 }
 
-// TODO: REMOVE
-// export class PortalRingParticleSystem extends ParticleSystem {
-//   /**
-//    * @param {P5} p5
-//    * @param {P5.Vector} origin
-//    */
-//   constructor(p5: P5, origin: Vector, color: string) {
-//     const lifetime = 1000;
-//     super({
-//       p5,
-//       origin,
-//       originOffset: 0.4,
-//       colorStart: p5.color(Color(color).alpha(0.5).hexa()),
-//       colorEnd: p5.color("#000"),
-//       lifetime,
-//       burst: 0,
-//       spawnOverTime: 10,
-//       orbit: 1,
-//       speed: 0,
-//       speedVariance: .01,
-//       scaleStart: .1,
-//       scaleEnd: .15,
-//       scaleVariance: .04,
-//       easingFnc: Easing.linear,
-//       zIndex: 0,
-//       loop: true,
-//     });
-//   }
-// }
-
 export class PortalVortexParticleSystem extends ParticleSystem {
   /**
    * @param {P5} p5
