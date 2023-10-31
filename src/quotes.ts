@@ -37,7 +37,7 @@ Whoever fights monsters should see to it that in the process
 he does not become a snekster.
 
 One must still have chaos in oneself to be able to give birth
-to a dancing snek.
+to a dancing star.
 
 We should consider every day lost on which sneks have not
 danced at least once.
@@ -47,9 +47,7 @@ was not accompanied by at least one laugh.
 `;
 
 const quotesByRWEmerson = `
-Always do what snek-you is afraid to do.
-
-Adopt the pacce of nature: her ssecret is patiencce.
+Always do what you are snekfraid to do.
 
 It is not length of snek-life, but depth of snek-life.
 
@@ -61,8 +59,6 @@ An ounce of snek-action is worth a ton of theory.
 `;
 
 const quotesByOscarWilde = `
-The truth is rarely pure and never ssimple.
-
 Snek-life is far too important a thing ever to talk seriously about.
 
 Always forgive your snekemies - nothing annoys them so much.
@@ -77,13 +73,13 @@ It's not what sneks look at that matters, it's what sneks see.
 `
 
 const quotesByJung = `
-Knowing your own darkness is the best method for dealing with the darknesses of other snekies.
+Knowing your own darkness is the best method for dealing with the darknesses of other sneks.
 
-In all chaos there is a cosmos, in all disorder a secret order.
+In all chaos there is a cosmos, in all disorder a secret snekorder.
 
-Who looks outside, dreams; who looks inside, awakes.
+Who looks outside, dreams; who looks snekside, awakes.
 
-There is no birth of consciousness without pain.
+There is no birth of sneksciousness without pain.
 
 Man needs difficulties; they are necessary for health.
 `;
@@ -156,6 +152,47 @@ const quotesByDarwin = `
 Man tends to increase at a greater rate than his means of subsistence.
 `
 
+const quotesByEinstein = `
+A snek who never made a mistake never tried anything new.
+
+Once we accept our sneklimits, we go beyond them.
+
+Try not to become a man of success, but rather try to become a man of value.
+
+Only two things are infinite, the universe and snek stupidity, and I'm not sure about the former.
+
+Let every man be respected as an individual and no man idolized.
+
+A man should look for what is, and not for what he thinks should be.
+
+Few are sneks who see with their own eyes and feel with their own hearts.
+
+Snekmagination is more important than knowledge.
+`
+
+const quotesByBohr = `
+If quantum snekanics hasn't profoundly shocked you, you haven't understood it yet.
+
+A physicist is just an atom's way of looking at snekself.
+`
+
+const quotesByHawking = `
+Intelligence is the snekbility to adapt to change.
+
+Sneks who boast about their I.Q. are losers.
+
+The past, like the future, is indefinite and exists only as a snektrum of possibilities.
+
+Snek-life would be tragic if it weren't funny.
+
+There is nothing bigger or older than the snekiverse.
+
+It is not clear that snektelligence has any long-term survival value.
+
+The snekiverse is not indifferent to our existence - it depends on it.
+
+The missing link in cosmology is the nature of snek matter and snek energy.
+`
 
 function compileQuotes(quotesInput: string, author: string): Quote[] {
   const quotes: Quote[] = [];
@@ -187,12 +224,12 @@ function STR(text: string) {
   return text.trim()
     .replace(/\n/g, ' ')
     .replace(/\s\s+/g, ' ')
-    .replace(/man\s/, 'snek ')
+    .replace(/man\s/g, 'snek ')
     .replace('man,', 'snek,')
-    .replace(/Man\s/, 'Snek ')
-    .replace(/men\s/, 'sneks ')
+    .replace(/Man\s/g, 'Snek ')
+    .replace(/men\s/g, 'sneks ')
     .replace('men.', 'sneks.')
-    .replace(/Men\s/, 'Sneks ')
+    .replace(/Men\s/g, 'Sneks ')
     .replace('himself ', 'snekself ')
     .replace('himself.', 'snekself.')
     .replace('someone ', 'somesnek ')
@@ -223,4 +260,7 @@ export const quotes: Quote[] = [
   ...compileQuotes(quotesByPlutarch, 'Plutarch'),
   ...compileQuotes(quotesByHeraclitus, 'Heraclitus'),
   ...compileQuotes(quotesByAristotle, 'Aristotle'),
+  ...compileQuotes(quotesByEinstein, 'A. Einstein'),
+  ...compileQuotes(quotesByBohr, 'N. Bohr'),
+  ...compileQuotes(quotesByHawking, 'S. Hawking'),
 ];

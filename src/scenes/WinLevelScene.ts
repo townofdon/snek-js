@@ -9,8 +9,10 @@ interface TriggerLevelExitParams {
   levelClearBonus: number,
   livesLeftBonus: number,
   livesLeft: number,
+  allApplesBonus: number,
   perfectBonus: number,
   isPerfect: boolean,
+  hasAllApples: boolean,
   onApplyScore: () => void,
 }
 
@@ -29,20 +31,24 @@ export class WinLevelScene extends BaseScene {
   levelClearBonus = 0;
   livesLeftBonus = 0;
   livesLeft = 0;
+  allApplesBonus = 0;
   perfectBonus = 0;
+  hasAllApples = false;
   isPerfect = false;
   beforeGotoNextLevel = () => { };
 
   isTriggered = false;
 
-  triggerLevelExit({ score, levelClearBonus, livesLeftBonus, livesLeft, perfectBonus, isPerfect, onApplyScore }: TriggerLevelExitParams) {
+  triggerLevelExit({ score, levelClearBonus, livesLeftBonus, livesLeft, allApplesBonus, perfectBonus, hasAllApples, isPerfect, onApplyScore }: TriggerLevelExitParams) {
     if (this.isTriggered) return;
     this.isTriggered = true;
     this.score = score;
     this.levelClearBonus = levelClearBonus;
     this.livesLeftBonus = livesLeftBonus;
     this.livesLeft = livesLeft;
+    this.allApplesBonus = allApplesBonus;
     this.perfectBonus = perfectBonus;
+    this.hasAllApples = hasAllApples;
     this.isPerfect = isPerfect;
     this.beforeGotoNextLevel = onApplyScore
     this.startActionsNoBind();
@@ -89,7 +95,7 @@ export class WinLevelScene extends BaseScene {
 
     // perfect bonus
     if (this.isPerfect) {
-      sfx.play(Sound.xplodeLong);
+      sfx.play(Sound.xplodeLong, 0.7);
       yield* coroutines.waitForTime(700, (t) => {
         // flash
         const freq = 0.2;
@@ -99,23 +105,40 @@ export class WinLevelScene extends BaseScene {
         this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
         this.drawScore(this.score);
       });
+    } else if (this.hasAllApples) {
+      sfx.play(Sound.xpound);
+      yield* coroutines.waitForTime(500, (t) => {
+        this.drawAllApplesBonus(this.allApplesBonus, this.hasAllApples);
+        this.drawLevelClearBonus(this.levelClearBonus);
+        this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
+        this.drawScore(this.score);
+      });
     }
 
     // pause before increment
     yield* coroutines.waitForTime(200, () => {
-      this.drawPerfectBonus(this.perfectBonus, this.isPerfect);
+      if (this.isPerfect) {
+        this.drawPerfectBonus(this.perfectBonus, this.isPerfect);
+      } else if (this.hasAllApples) {
+        this.drawAllApplesBonus(this.allApplesBonus, this.hasAllApples);
+      }
       this.drawLevelClearBonus(this.levelClearBonus);
       this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
       this.drawScore(this.score);
     });
 
     const perfectBonusCalc = this.isPerfect ? this.perfectBonus : 0;
-    const finalScore = this.score + this.levelClearBonus + this.livesLeftBonus * this.livesLeft + perfectBonusCalc;
+    const allApplesBonusCalc = !this.isPerfect && this.hasAllApples ? this.allApplesBonus : 0;
+    const finalScore = this.score + this.levelClearBonus + this.livesLeftBonus * this.livesLeft + perfectBonusCalc + allApplesBonusCalc;
 
     // increment score
     const playingChipSound = this.startCoroutine(this.playChipSound());
     yield* coroutines.waitForTime(1000, (t) => {
-      this.drawPerfectBonus(this.perfectBonus * (1 - t), this.isPerfect);
+      if (this.isPerfect) {
+        this.drawPerfectBonus(this.perfectBonus * (1 - t), this.isPerfect);
+      } else if (this.hasAllApples) {
+        this.drawAllApplesBonus(this.allApplesBonus * (1 - t), this.hasAllApples);
+      }
       this.drawLevelClearBonus(this.levelClearBonus * (1 - t));
       this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft * (1 - t));
       this.drawScore(p5.lerp(this.score, finalScore, t));
@@ -125,7 +148,11 @@ export class WinLevelScene extends BaseScene {
     sfx.play(Sound.uiChip, 0.75);
 
     yield* coroutines.waitForTime(1000, () => {
-      this.drawPerfectBonus(0, this.isPerfect);
+      if (this.isPerfect) {
+        this.drawPerfectBonus(0, this.isPerfect);
+      } else if (this.hasAllApples) {
+        this.drawAllApplesBonus(0, this.hasAllApples);
+      }
       this.drawLevelClearBonus(0);
       this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, 0);
       this.drawScore(finalScore);
@@ -184,6 +211,24 @@ export class WinLevelScene extends BaseScene {
     p5.textSize(16);
     p5.textAlign(p5.CENTER, p5.TOP);
     p5.text('PERFECT!', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
+    p5.textAlign(p5.CENTER, p5.TOP);
+    p5.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
+  }
+
+  drawAllApplesBonus = (bonus: number, hasBonus: boolean) => {
+    if (!hasBonus) return;
+    const { p5, fonts } = this.props;
+    const accentColor = "#15C2CB";
+    const accentColorBg = Color("#119DA4").darken(0.4).hex();
+    // const accentColor = this.accentColor;
+    // const accentColorBg = this.accentColorBg;
+    p5.textFont(fonts.variants.miniMood);
+    p5.fill(accentColor);
+    p5.stroke(accentColorBg)
+    p5.strokeWeight(2);
+    p5.textSize(16);
+    p5.textAlign(p5.CENTER, p5.TOP);
+    p5.text('100% Apples', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
     p5.textAlign(p5.CENTER, p5.TOP);
     p5.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
   }

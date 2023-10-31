@@ -12,6 +12,7 @@ export const TUTORIAL_LEVEL_20: Level = {
   disableAppleSpawn: true,
   snakeStartSizeOverride: 4,
   growthMod: 0,
+  extraHurtGraceTime: 30,
   layout: `
 XXXXXXXXXXXXX    XXX- ------- 
 Xaaaaaa    XXX  XXX - -=   =- 

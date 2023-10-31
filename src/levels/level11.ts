@@ -12,7 +12,7 @@ export const LEVEL_11: Level = {
   // disableAppleSpawn: true,
   snakeStartSizeOverride: 2,
   growthMod: 0.1,
-  extraHurtGraceTime: 20,
+  extraHurtGraceTime: 30,
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
@@ -48,4 +48,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   colors: PALETTE.hospital,
   // colors: PALETTE.atomic,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showQuoteOnLevelWin: true,
 };

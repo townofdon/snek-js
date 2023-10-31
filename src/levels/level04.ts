@@ -43,4 +43,8 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 `,
   colors: PALETTE.hospital,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  extraLoseMessages: [
+    ["I've heard this level makes people irrationally angry."],
+  ],
+  showQuoteOnLevelWin: true,
 };

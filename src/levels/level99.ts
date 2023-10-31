@@ -50,4 +50,8 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   // },
   colors: PALETTE.cornflower,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  extraLoseMessages: [
+    ["What? Were there not enough apples?"],
+  ],
+  showQuoteOnLevelWin: true,
 };

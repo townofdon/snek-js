@@ -54,6 +54,7 @@ export enum HitType {
 export interface Stats {
   numDeaths: number
   numLevelsCleared: number,
+  numLevelsEverCleared: number,
   numPointsEverScored: number, // total points scored, regardless of deaths (resets on new game)
   numApplesEverEaten: number, // total apples eaten, regardless of deaths (resets on new game)
   score: number,
@@ -72,6 +73,7 @@ export interface GameState {
   isExitingLevel: boolean,
   isExited: boolean,
   isShowingDeathColours: boolean,
+  levelIndex: number,
   timeElapsed: number,
   timeSinceLastMove: number,
   timeSinceHurt: number,
@@ -111,11 +113,16 @@ export interface Level {
   extraHurtGraceTime?: number,
   snakeStartSizeOverride?: number
   disableAppleSpawn?: boolean
+  disableNormalLoseMessages?: boolean
   showQuoteOnLevelWin?: boolean
+  extraLoseMessages?: LoseMessage[]
   portalExitConfig?: Partial<Record<PortalChannel, PortalExitMode>>
   titleScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
   creditsScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
 }
+
+export type LoseMessage = [string] | [string, GetShouldShowLoseMessage];
+export type GetShouldShowLoseMessage = (state: GameState, stats: Stats, difficulty: Difficulty) => boolean;
 
 export interface Quote {
   message: string[]
@@ -138,6 +145,7 @@ export interface SFXInstance {
   load: () => void
 }
 
+
 export enum Sound {
   death = 'death',
   doorOpen = 'doorOpen',
@@ -156,6 +164,7 @@ export enum Sound {
   warp = 'warp',
   xplode = 'xplode',
   xplodeLong = 'xplodeLong',
+  xpound = "xpound"
 }
 
 export type SoundVariants = Record<keyof typeof Sound, Howl>

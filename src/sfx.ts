@@ -38,6 +38,7 @@ export class SFX implements SFXInstance {
     warp: null,
     xplode: null,
     xplodeLong: null,
+    xpound: null,
   }
 
   play(sound: keyof SoundVariants, volume = 1) {
@@ -83,6 +84,7 @@ export class SFX implements SFXInstance {
       this.sounds.warp = loadSound('warp.wav');
       this.sounds.xplode = loadSound('xplode.wav');
       this.sounds.xplodeLong = loadSound('xplode-long.wav');
+      this.sounds.xpound = loadSound('xpound.wav');
     } catch (err) {
       console.error(err);
     }

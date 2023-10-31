@@ -51,4 +51,8 @@ XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
     3: PortalExitMode.SameDirection,
     4: PortalExitMode.SameDirection,
   },
+  extraLoseMessages: [
+    ["This level really messes with your head, doesn't it?"],
+    ["This one was designed by a madman."],
+  ],
 };

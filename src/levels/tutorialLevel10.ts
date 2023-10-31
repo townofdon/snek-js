@@ -46,4 +46,9 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   `,
   colors: PALETTE.hospital,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  extraLoseMessages: [
+    ["Pst... Press down-left real fast next time.", (state, stats) => stats.applesEatenThisLevel >= 5],
+    ["Need to eat more apples, dawg.", (state, stats) => stats.applesEatenThisLevel < 5],
+  ],
+  disableNormalLoseMessages: true,
 };

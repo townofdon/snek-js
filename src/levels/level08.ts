@@ -43,4 +43,5 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
   `,
   colors: PALETTE.forest,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showQuoteOnLevelWin: true,
 };

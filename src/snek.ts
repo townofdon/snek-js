@@ -34,6 +34,7 @@ import {
   PERFECT_BONUS,
   DEFAULT_PORTALS,
   PORTAL_CHANNEL_COLORS,
+  ALL_APPLES_BONUS,
 } from './constants';
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
@@ -57,9 +58,7 @@ import { Renderer } from './renderer';
 import { PortalParticleSystem, PortalVortexParticleSystem } from './particleSystems/PortalParticleSystem';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
-let levelIndex = 0;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
-
 
 const state: GameState = {
   isGameStarted: false,
@@ -71,6 +70,7 @@ const state: GameState = {
   isExitingLevel: false,
   isExited: false,
   isShowingDeathColours: false,
+  levelIndex: 0,
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
   timeSinceHurt: Infinity,
@@ -84,6 +84,7 @@ const state: GameState = {
 const stats: Stats = {
   numDeaths: 0,
   numLevelsCleared: 0,
+  numLevelsEverCleared: 0,
   numPointsEverScored: 0,
   numApplesEverEaten: 0,
   score: 0,
@@ -104,7 +105,7 @@ const screenShake: ScreenShakeState = {
 };
 const replay: Replay = {
   mode: ReplayMode.Disabled,
-  levelIndex,
+  levelIndex: state.levelIndex,
   levelName: level.name,
   difficulty: { ...difficulty },
   applesToSpawn: [],
@@ -181,6 +182,7 @@ export const sketch = (p5: P5) => {
     state.isGameStarting = false;
     stats.numDeaths = 0;
     stats.numLevelsCleared = 0;
+    stats.numLevelsEverCleared = 0;
     stats.numPointsEverScored = 0;
     stats.numApplesEverEaten = 0;
     stats.score = 0;
@@ -302,7 +304,7 @@ export const sketch = (p5: P5) => {
       stopAllCoroutines();
       replay.mode = RECORD_REPLAY_STATE ? ReplayMode.Capture : ReplayMode.Disabled;
       replay.timeCaptureStarted = (new Date()).toISOString();
-      replay.levelIndex = levelIndex;
+      replay.levelIndex = state.levelIndex;
       replay.levelName = level.name;
       replay.difficulty = { ...difficulty };
       replay.applesToSpawn = [];
@@ -574,16 +576,20 @@ export const sketch = (p5: P5) => {
         gotoNextLevel();
       } else {
         const isPerfect = apples.length === 0 && state.lives === 3;
+        const hasAllApples = apples.length === 0;
         winScene.triggerLevelExit({
           score: stats.score,
           levelClearBonus: getLevelClearBonus(),
           livesLeftBonus: getLivesLeftBonus(),
+          allApplesBonus: getAllApplesBonus(),
           perfectBonus: getPerfectBonus(),
           livesLeft: state.lives,
           isPerfect,
+          hasAllApples,
           onApplyScore: () => {
             const perfectBonus = isPerfect ? getPerfectBonus() : 0;
-            addPoints(getLevelClearBonus() + getLivesLeftBonus() * state.lives + perfectBonus);
+            const allApplesBonus = (!isPerfect && hasAllApples) ? getAllApplesBonus() : 0;
+            addPoints(getLevelClearBonus() + getLivesLeftBonus() * state.lives + perfectBonus + allApplesBonus);
           }
         });
       }
@@ -827,6 +833,10 @@ export const sketch = (p5: P5) => {
     return LIVES_LEFT_BONUS * difficulty.bonusMod;
   }
 
+  function getAllApplesBonus() {
+    return ALL_APPLES_BONUS * difficulty.bonusMod;
+  }
+
   function getPerfectBonus() {
     return PERFECT_BONUS * difficulty.bonusMod;
   }
@@ -1005,7 +1015,8 @@ export const sketch = (p5: P5) => {
       yield* waitForTime(1000);
       init(false);
     } else {
-      const relevantMessages = LOSE_MESSAGES.filter(([message, callback]) => !callback || callback(state, stats, difficulty)).map((contents) => contents[0])
+      const allMessages = (level.extraLoseMessages || []).concat(level.disableNormalLoseMessages ? [] : LOSE_MESSAGES);
+      const relevantMessages = allMessages.filter(([message, callback]) => !callback || callback(state, stats, difficulty)).map((contents) => contents[0])
       const randomMessage = relevantMessages[Math.floor(p5.random(0, relevantMessages.length))]
       UI.drawDarkOverlay(uiElements);
       UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
@@ -1024,7 +1035,7 @@ export const sketch = (p5: P5) => {
   function resetScore() {
     stats.score = 0;
     stats.applesEaten = 0;
-    stats.applesEatenThisLevel = 0;
+    stats.numLevelsCleared = 0;
   }
 
   function warpToLevel(levelNum = 1) {
@@ -1073,9 +1084,10 @@ export const sketch = (p5: P5) => {
   function gotoNextLevel() {
     const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin;
     stats.numLevelsCleared += 1;
+    stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
-    levelIndex++;
-    level = LEVELS[levelIndex % LEVELS.length];
+    state.levelIndex++;
+    level = LEVELS[state.levelIndex % LEVELS.length];
     if (level === START_LEVEL) {
       difficulty.index++;
       difficulty = getDifficultyFromIndex(difficulty.index);
@@ -1100,10 +1112,10 @@ export const sketch = (p5: P5) => {
   }
 
   function setLevelIndexFromCurrentLevel() {
-    levelIndex = 0;
+    state.levelIndex = 0;
     for (let i = 0; i < LEVELS.length; i++) {
       if (level === LEVELS[i]) {
-        levelIndex = i;
+        state.levelIndex = i;
         break;
       }
     }
@@ -1134,8 +1146,8 @@ export const sketch = (p5: P5) => {
       replay.levelIndex = clip.levelIndex;
       replay.positions = clip.positions;
 
-      levelIndex = clip.levelIndex;
-      level = LEVELS[levelIndex % LEVELS.length];
+      state.levelIndex = clip.levelIndex;
+      level = LEVELS[state.levelIndex % LEVELS.length];
       difficulty = { ...clip.difficulty };
       init(false);
       replay.shouldProceedToNextClip = false;

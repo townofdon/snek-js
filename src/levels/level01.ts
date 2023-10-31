@@ -43,4 +43,9 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX\n\
   colors: PALETTE.boxcar,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
+  extraLoseMessages: [
+    ["How did you mess this one up?", (state, stats, difficulty) => difficulty.index >= 3],
+    ["You couldn't miss the broad side of a barn.", (state, stats, difficulty) => difficulty.index >= 4],
+    ["Maybe let's dial down the difficulty?", (state, stats, difficulty) => difficulty.index >= 4],
+  ],
 };

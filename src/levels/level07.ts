@@ -43,4 +43,8 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   `,
   colors: PALETTE.violetSunset,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showQuoteOnLevelWin: true,
+  extraLoseMessages: [
+    ["Hang in there, it gets harder."],
+  ],
 };
