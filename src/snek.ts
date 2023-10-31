@@ -39,7 +39,7 @@ import {
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
 import { UI } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -113,6 +113,8 @@ const replay: Replay = {
   timeCaptureStarted: 'no-date',
   shouldProceedToNextClip: false,
 }
+
+const loseMessages: Record<number, LoseMessage[]> = {}
 
 let moves: DIR[] = []; // moves that the player has queued up
 let segments: Vector[] = []; // snake segments
@@ -203,6 +205,8 @@ export const sketch = (p5: P5) => {
     for (let i = 1; i <= 4; i++) {
       difficultyButtons[i].addClass('difficulty')
     }
+
+    hydrateLoseMessages(-1);
   }
 
   /**
@@ -1019,9 +1023,7 @@ export const sketch = (p5: P5) => {
       yield* waitForTime(1000);
       init(false);
     } else {
-      const allMessages = (level.extraLoseMessages || []).concat(level.disableNormalLoseMessages ? [] : LOSE_MESSAGES);
-      const relevantMessages = allMessages.filter(([message, callback]) => !callback || callback(state, stats, difficulty)).map((contents) => contents[0])
-      const randomMessage = relevantMessages[Math.floor(p5.random(0, relevantMessages.length))]
+      const randomMessage = getRandomMessage();
       UI.drawDarkOverlay(uiElements);
       UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
       UI.drawButton("TRY AGAIN", 475, 20, () => init(false), uiElements);
@@ -1040,6 +1042,44 @@ export const sketch = (p5: P5) => {
     stats.score = 0;
     stats.applesEaten = 0;
     stats.numLevelsCleared = 0;
+  }
+
+  // I will buy a beer for whoever can decipher my spaghetticode
+  const getRandomMessage = (numIterations = 0): string => {
+    const allMessages = (loseMessages[state.levelIndex] || []).concat(level.disableNormalLoseMessages ? [] : loseMessages[-1]);
+    const relevantMessages = allMessages.filter(([message, callback]) => !callback || callback(state, stats, difficulty)).map((contents) => contents[0]);
+    if (relevantMessages.length <= 0) {
+      if (numIterations > 0) {
+        return "Death smiles at us all. All we can do is smile back.";
+      }
+      hydrateLoseMessages(state.levelIndex);
+      return getRandomMessage(numIterations + 1);
+    }
+    const randomMessage = relevantMessages[Math.floor(p5.random(0, relevantMessages.length))];
+    // remove from existing messages
+    loseMessages[-1] = loseMessages[-1].filter(([message, callback]) => message != randomMessage);
+    if (loseMessages[state.levelIndex]) {
+      loseMessages[state.levelIndex] = loseMessages[state.levelIndex].filter(([message, callback]) => message != randomMessage);
+    }
+    return randomMessage;
+  }
+
+  const hydrateLoseMessages = (levelIndex: number) => {
+    loseMessages[-1] = [...LOSE_MESSAGES];
+    // if -1, hydrate lose messages for all levels
+    if (levelIndex < 0) {
+      for (let i = 0; i <= 99; i++) {
+        const level = LEVELS[i];
+        if (!level) continue;
+        if (!level.extraLoseMessages) continue;
+        loseMessages[i] = [...level.extraLoseMessages];
+      }
+    } else {
+      const level = LEVELS[levelIndex];
+      if (!level) return;
+      if (!level.extraLoseMessages) return;
+      loseMessages[levelIndex] = [...level.extraLoseMessages];
+    }
   }
 
   function warpToLevel(levelNum = 1) {
