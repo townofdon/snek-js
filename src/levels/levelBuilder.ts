@@ -166,13 +166,6 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
             } else {
               portalGroupIndex[channel] += 1;
               group = portalGroupIndex[channel];
-              // // we are not done - because of the way we calculate bounds via getCoordIndex(), portals on opposite sides of map could be considered next to each other.
-              // const diff = P5.Vector.sub(otherPortal.position, vec);
-              // diff.x = Math.abs(diff.x);
-              // diff.y = Math.abs(diff.y);
-              // if (diff.x > 1 || diff.y > 1 || (diff.x > 0 && diff.y > 0)) {
-              //   portalGroupIndex[channel] += 1;
-              // }
             }
           }
           data.portals[channel].push(vec);

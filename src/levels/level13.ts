@@ -2,7 +2,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, PortalExitMode } from "../types";
 
-const name = 'Grav chamber'
+const name = 'grav chamber'
 
 export const LEVEL_13: Level = {
   name,
