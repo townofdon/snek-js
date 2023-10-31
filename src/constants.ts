@@ -111,7 +111,8 @@ export const HURT_STUN_TIME = 600;
 export const HURT_FLASH_RATE = 55;
 export const HURT_GRACE_TIME = 30;
 
-export const DEFAULT_PORTALS: Record<PortalChannel, P5.Vector[]> = {
+// make func to avoid obj mutation
+export const DEFAULT_PORTALS: () => Record<PortalChannel, P5.Vector[]> = () => ({
   0: [],
   1: [],
   2: [],
@@ -122,7 +123,7 @@ export const DEFAULT_PORTALS: Record<PortalChannel, P5.Vector[]> = {
   7: [],
   8: [],
   9: [],
-}
+})
 
 export const PORTAL_INDEX_DELAY = 100;
 export const PORTAL_FADE_DURATION = 500;

@@ -115,7 +115,7 @@ What sneks achieve inwardly will change outer reality.
 `;
 
 const quotesByHeraclitus = `
-Nothing endures but change.
+Nothing endures but snek-change.
 
 A snek cannot step into the same river twice.
 `;

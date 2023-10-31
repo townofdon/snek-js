@@ -35,7 +35,7 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
     nospawns: [],
     nospawnsMap: {},
     playerSpawnPosition: p5.createVector(15, 15),
-    portals: { ...DEFAULT_PORTALS },
+    portals: { ...DEFAULT_PORTALS() },
     portalsMap: {},
   }
 
@@ -125,17 +125,56 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
           data.nospawns.push(vec);
           data.nospawnsMap[getCoordIndex(vec)] = true;
           const channel = parseInt(char, 10) as PortalChannel;
+          let group = portalGroupIndex[channel];
           // increment portal index if prev portal cell of same PortalIndex is farther away than 1 unit
           if (data.portals[channel].length) {
-            const lastPortal = data.portals[channel][data.portals[channel].length - 1];
-            const diff = P5.Vector.sub(lastPortal, vec);
-            diff.x = Math.abs(diff.x);
-            diff.y = Math.abs(diff.y);
-            if (diff.x > 1 || diff.y > 1 || (diff.x > 0 && diff.y > 0)) {
+            // because of the way we calculate bounds via getCoordIndex(), portals on opposite sides of map could be considered next to each other.
+            // an easy fix is to just perform an additional check to make sure that the diff is never more than 1.
+            const checkDiffMoreThanOne = (portal: Portal) => {
+              const diff = P5.Vector.sub(portal.position, vec);
+              diff.x = Math.abs(diff.x);
+              diff.y = Math.abs(diff.y);
+              if (diff.x > 1 || diff.y > 1 || (diff.x > 0 && diff.y > 0)) return true;
+              return false;
+            }
+            const findAdjacentPortalOfSameIndex = (): Portal | null => {
+              // up
+              if (vec.y > 0) {
+                const other = data.portalsMap[getCoordIndex(vec.copy().add(0, -1))];
+                if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
+              }
+              // down
+              if (vec.y < GRIDCOUNT.y) {
+                const other = data.portalsMap[getCoordIndex(vec.copy().add(0, 1))];
+                if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
+              }
+              // left
+              if (vec.x > 0) {
+                const other = data.portalsMap[getCoordIndex(vec.copy().add(-1, 0))];
+                if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
+              }
+              // down
+              if (vec.x < GRIDCOUNT.x) {
+                const other = data.portalsMap[getCoordIndex(vec.copy().add(1, 0))];
+                if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
+              }
+              return null;
+            }
+            const otherPortal = findAdjacentPortalOfSameIndex();
+            if (otherPortal) {
+              group = otherPortal.group;
+            } else {
               portalGroupIndex[channel] += 1;
+              group = portalGroupIndex[channel];
+              // // we are not done - because of the way we calculate bounds via getCoordIndex(), portals on opposite sides of map could be considered next to each other.
+              // const diff = P5.Vector.sub(otherPortal.position, vec);
+              // diff.x = Math.abs(diff.x);
+              // diff.y = Math.abs(diff.y);
+              // if (diff.x > 1 || diff.y > 1 || (diff.x > 0 && diff.y > 0)) {
+              //   portalGroupIndex[channel] += 1;
+              // }
             }
           }
-          const group = portalGroupIndex[channel];
           data.portals[channel].push(vec);
           data.portalsMap[getCoordIndex(vec)] = {
             position: vec.copy(),
@@ -158,15 +197,16 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
       .filter(portal => !!portal);
     const maxGroup = Math.max(...channelPortals.map(portal => portal.group));
     for (let group = 0; group <= maxGroup; group++) {
-      const sourcePortals = channelPortals.filter(portal => portal.group === group);
-      const targetPortals = channelPortals.filter(portal => portal.group !== group);
+      const sourcePortals = channelPortals.filter(portal => portal.channel === i && portal.group === group);
+      const targetPortals = channelPortals.filter(portal => portal.channel === i && portal.group !== group);
       if (targetPortals.length <= 0) continue;
 
       for (let j = 0; j < sourcePortals.length; j++) {
         const source = sourcePortals[j];
         const target = targetPortals[Math.min(j, targetPortals.length - 1)];
         if (!target) continue;
-        source.link = target.position;
+        if (target.channel !== source.channel) continue;
+        source.link = target.position.copy();
         source.index = j;
       }
     }

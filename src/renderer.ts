@@ -119,14 +119,14 @@ export class Renderer {
   /**
    * Draw portal
    */
-  drawPortal(portal: Portal) {
+  drawPortal(portal: Portal, showDeathColours: boolean) {
     if (!portal) return;
     const { p5 } = this.props;
     const delay = portal.index * PORTAL_INDEX_DELAY;
     const t1 = oscilateLinear((this.elapsed + delay) / (PORTAL_FADE_DURATION));
     const t2 = oscilateLinear((this.elapsed + delay) / (PORTAL_FADE_DURATION * 0.5));
-    const accent = PORTAL_CHANNEL_COLORS[portal.channel];
-    const background = p5.lerpColor(p5.color("#000000"), p5.color(accent), t2).toString();
+    const accent = showDeathColours ? "#ccc" : PORTAL_CHANNEL_COLORS[portal.channel];
+    const background = showDeathColours ? "#555" : p5.lerpColor(p5.color("#000000"), p5.color(accent), t2).toString();
     const color = p5.lerpColor(p5.color(accent), p5.color("#000"), t1).toString();
     this.drawSquare(portal.position.x, portal.position.y, background, color);
   }

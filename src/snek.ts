@@ -126,7 +126,7 @@ let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
 
-let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS };
+let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };
 let portalsMap: Record<number, Portal> = {};
 let portalParticlesStarted: Record<number, boolean> = {}
 
@@ -348,7 +348,7 @@ export const sketch = (p5: P5) => {
     barriersMap = {};
     doorsMap = {};
     nospawnsMap = {};
-    portals = { ...DEFAULT_PORTALS };
+    portals = { ...DEFAULT_PORTALS() };
     portalsMap = {};
     portalParticlesStarted = {};
 
@@ -697,6 +697,10 @@ export const sketch = (p5: P5) => {
   function handlePortalTravel() {
     const portal = portalsMap[getCoordIndex(player.position)];
     if (!portal) return;
+    if (!portal.link) {
+      console.warn(`portal has no link: channel=${portal.channel},(${portal.position.x},${portal.position.y})`);
+      return;
+    }
     sfx.play(Sound.warp);
     switch (level.portalExitConfig?.[portal.channel] || portal.exitMode) {
       case PortalExitMode.InvertDirection:
@@ -974,13 +978,13 @@ export const sketch = (p5: P5) => {
   }
 
   function drawPortals() {
-    for (let i = 0; i < 9; i++) {
+    for (let i = 0; i <= 9; i++) {
       for (let j = 0; j < portals[i as PortalChannel].length; j++) {
         const portalPosition = portals[i as PortalChannel][j];
         if (!portalPosition) continue;
         const portal = portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
-        renderer.drawPortal(portal);
+        renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback);
         if (!portalParticlesStarted[portal.hash]) {
           portalParticlesStarted[portal.hash] = true;
           const accent = PORTAL_CHANNEL_COLORS[portal.channel];
@@ -1069,6 +1073,7 @@ export const sketch = (p5: P5) => {
     UI.drawButton("11", x += offset, yRow2, () => warpToLevel(11), uiElements);
     UI.drawButton("12", x += offset, yRow2, () => warpToLevel(12), uiElements);
     x = xInitial;
+    UI.drawButton("13", x, yRow3, () => warpToLevel(13), uiElements);
     UI.drawButton("SS", x += offset, yRow3, () => warpToLevel(99), uiElements);
     UI.drawButton("S1", x += offset, yRow3, () => warpToLevel(110), uiElements);
     UI.drawButton("S2", x += offset, yRow3, () => warpToLevel(120), uiElements);

@@ -53,6 +53,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
   },
   extraLoseMessages: [
     ["This level really messes with your head, doesn't it?"],
-    ["This one was designed by a madman."],
   ],
 };
