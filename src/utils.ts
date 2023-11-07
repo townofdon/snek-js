@@ -21,6 +21,7 @@ import {
   LEVEL_12,
   LEVEL_13,
   LEVEL_14,
+  LEVEL_15,
   LEVEL_99,
 } from './levels';
 import { DIR } from "./types";
@@ -92,6 +93,8 @@ export function getWarpLevelFromNum(levelNum: number) {
       return LEVEL_13;
     case 14:
       return LEVEL_14;
+    case 15:
+      return LEVEL_15;
     case 99:
       return LEVEL_99;
     case 110:

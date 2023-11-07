@@ -7,46 +7,46 @@ const name = 'quantum mirror'
 
 export const LEVEL_15: Level = {
   name,
-  timeToClear: 1000 * 60 * 1.7,
+  timeToClear: 1000 * 60 * 1.3,
   applesToClear: 60,
   numApplesStart: 10,
-  growthMod: 0.25,
+  growthMod: 0.4,
   layout: `
-XXX++++++++X__XXXXXXXXXXXXXXXX
-XXX91111111X++XXXXXXXXXXXXXXXX
-XX~~------~~XX              XX
-XX~~------~~XX              XX
-+5  ======~~X2--            XX
-+5--=-==-=~~X2------=-  -=--_D
-+5--==--==~~X2--------  ----_D
-+5--==--==~~X2--------  ----_D
-+5--=-==-=~~X2------=-  -=--_D
-+5  ======~~X2--            XX
-+5  ------  X2              XX
-XX  ------  XX              XX
-XX~~------~~XX              XX
-XX~~------~~DDDDDXXXXXXXXXXX+_
-XX~~------~~DaaaDXX44444444X+_
-_+X44444444XDa~aD~~~------~~XX
-_+XXXXXXXXXXDD~DD~~~------~~XX
-XX~~~~    ~~~~~XX~~~------~~XX
-XX~           ~XX~~ ------ ~XX
-XX~            5X~~ ------ ~2+
-XX   O       --5X~~ ====== ~2+
-D_--=-  -=-----5X~~ =-==-=--2+
-D_----  -------5X~~ ==--==--2+
-D_----  -------5X~~ ==--==--2+
-D_--=-  -=-----5X~~ =-==-=--2+
-XX           --5X~~~======~~2+
-XX~           ~XX~~~------~~XX
-XX~~~       ~~~XX~~~------~~XX
-XXXXXXXXXXXXXXX++XX11111119XXX
-XXXXXXXXXXXXXXX__XX++++++++XXX
+XXXXXXXXXXXXDDDXXXXXXXXXXXXXXX
+XX1111111111DDDXXXXXXXXXXXXXXX
+XX  ------~~XXX~            XX
+XX  ------~~XXX~            XX
+XX  ======--7X7-            XX
++X--=-==-=--7X7-----=-  -=--_D
++X--==--==--7X7-------  ----_D
++X--==--==--7X7-------  ----_D
++X--=-==-=--7X7-----=-  -=--_D
+XX  ==--==--7X7-            XX
+XX  ==--==--7X7-            XX
+XX  =-==-=~~XXX~            XX
+XX~~======~~XXX~            XX
+XX~~------~~DDDDDDXXXXXXXXXX+_
+XX~~------~~DaaaaDXXXXXXXXXX+_
+_+XXXXXXXXXXDa__aD~~------~~XX
+_+XXXXXXXXXXDD++DD~~------~~XX
+XX~~~~    ~~~~~XXX~ ======~~XX
+XX~          ~~XXX~ =-==-=  XX
+XX~           -4X4- ==--==  XX
+XX   O        -4X4- ==--==  XX
+D_--=-  -=-----4X4--=-==-=--X+
+D_----  -------4X4--==--==--X+
+D_----  -------4X4--==--==--X+
+D_--=-  -=-----4X4--=-==-=--X+
+XX           --4X4- ======~ XX
+XX~          ~~XXX~~------~ XX
+XX~~~       ~~~XXX~~------~ XX
+XXXXXXXXXXXXXXXDDD1111111111XX
+XXXXXXXXXXXXXXXDDDXXXXXXXXXXXX
   `,
   colors: {
     ...PALETTE.boxcar,
-    barrier: Color(PALETTE.boxcar.barrier).desaturate(0.45).hex(),
-    barrierStroke: Color(PALETTE.boxcar.barrierStroke).darken(0.15).desaturate(0.45).hex(),
+    barrier: Color(PALETTE.boxcar.barrier).lighten(0.2).desaturate(0.35).hex(),
+    barrierStroke: Color(PALETTE.boxcar.barrierStroke).lighten(0.2).darken(0.15).desaturate(0.35).hex(),
     background: PALETTE.darkStar.background,
     deco1: PALETTE.darkStar.deco1,
     deco1Stroke: PALETTE.darkStar.deco1Stroke,
