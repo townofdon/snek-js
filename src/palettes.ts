@@ -239,9 +239,6 @@ export const PALETTE: Record<string, Palette> = {
     deco2Stroke: "#262A2B",
     barrier: "#E76D83",
     barrierStroke: "#E2506A",
-    // doorStroke: Color("#DD5E2C").lighten(0.2).desaturate(0.1).hex(),
-    // doorStroke: Color("#E17143").lighten(0.2).desaturate(0.1).hex(),
-    // door: "#6E2D4E",
     door: "#97878F",
     doorStroke: "#62565C",
     playerHead: "#FFF6F1",
@@ -251,28 +248,3 @@ export const PALETTE: Record<string, Palette> = {
     appleStroke: Color("#5DACA3").darken(0.2).hex(),
   },
 }
-
-
-// // BG
-// #393D3F
-// #303436
-// #262A2B
-// #1D2020
-// // SNEK
-// #FFF6F1
-// #E9EFFF
-// // WALLS
-// #E76D83
-// #E56179
-// #E2506A
-// // DOORS
-// #E17143
-// #E06C3E
-// #DD5E2C
-// #DF5A61
-// #D15A6B
-// // APFELS
-// #68B2A9
-// // OTHER
-// #374473
-// #668CF7
