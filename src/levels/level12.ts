@@ -1,57 +1,52 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, PortalExitMode } from "../types";
+import { Level } from "../types";
 
-const name = 'DELTALAB'
+const name = 'sneksqueeze';
 
 export const LEVEL_12: Level = {
   name,
-  timeToClear: 1000 * 60 * 1.5,
-  applesToClear: 60,
-  numApplesStart: 10,
-  growthMod: 0.25,
+  timeToClear: 1000 * 60 * 1.6,
+  applesToClear: 50,
+  numApplesStart: 20,
+  // disableAppleSpawn: true,
+  snakeStartSizeOverride: 2,
+  growthMod: 0.1,
+  extraHurtGraceTime: 30,
   layout: `
-XXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
-XXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
-XXXDDX4=-  -==-        -=---2X
-XXXDDX4=-  -==-        -==--2X
-XXXDDX4=-  -==-        -==--2X
-XXXDDX4=-  -==-        -=---2X
-XXXDDXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
-XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
-X2---=-       -==-   -=1XaaXXX
-X2--==-       -==-   -=1XaaDXX
-X2--==-O      -==-   -=1XaaDXX
-X2---=-       -==-   -=1XaaXXX
-XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
-XXXaaXXXXXXXXXXXXXXXXXXXXaaXXX
-XXXaaXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXaaX1=-  -==-        -=---3X
-XXDaaX1=-  -==-        -==--3X
-XXDaaX1=-  -==-        -==--3X
-XXXaaX1=-  -==-        -=---3X
-XXXaaXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXaaXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXDDXXXXXXXXXXXXXXXXXXXXDDXXX
-X3---=-       -==-   -=4XDDXXX
-X3--==-       -==-   -=4XDDXXX
-X3--==-       -==-   -=4XDDXXX
-X3---=-       -==-   -=4XDDXXX
-XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
+X=-------==--------==-------=X
+X=XXXXXXXXXXXXDDXXXXXXXXXXXX=X
+X=-------=+XDDXXDDX+=-------=X
+XXXXXXXXXD+XXXXXXXX+DXXXXXXXXX
+DD-------==DaaaaaaD==-------DD
+XX_DXXXXXXXXDXXXXDXXXXXXXXD_XX
+XX_------==XDDXXDDX==------_XX
+XXXXXXXXXX=XDDXXDDX=XXXXXXXXXX
+X=-------==XDDXXDDX==-------=X
+X=XXXXXXXXXXDDXXDDXXXXXXXXXX=X
+X-       =XXDDXXDDXX=       -X
+XX~~_+_~~=XXDXDDXDXX=~~_+_~~XX
+XX~~=-=  =+-=_  -=_+=  =-=~~XX
+XX~~=-=O =+_=-  _=-+=  =-=~~XX
+XX~~_+_~~+=XDXDDXDX=+~~_+_~~XX
+X-       ==XDDXXDDX==       -X
+X=XXXXXXXXXXDDXXDDXXXXXXXXXX=X
+X=-------==XDDXXDDX==-------=X
+XXXXXXXXXX=XDDXXDDX=XXXXXXXXXX
+XX_------==XDDXXDDX==------_XX
+XX_DXXXXXXXXDXXXXDXXXXXXXXD_XX
+DD-------==DaaaaaaD==-------DD
+XXXXXXXXXD+XXXXXXXX+DXXXXXXXXX
+X=-------=+XDDXXDDX+=-------=X
+X=XXXXXXXXXXXXDDXXXXXXXXXXXX=X
+X=-------==--------==-------=X
+XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
-  colors: PALETTE.scienceLab,
+  colors: PALETTE.hospital,
+  // colors: PALETTE.atomic,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
-  portalExitConfig: {
-    1: PortalExitMode.SameDirection,
-    2: PortalExitMode.SameDirection,
-    3: PortalExitMode.SameDirection,
-    4: PortalExitMode.SameDirection,
-  },
-  extraLoseMessages: [
-    ["This level really messes with your head, doesn't it?"],
-  ],
 };

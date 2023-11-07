@@ -5,22 +5,6 @@ import {
   DIFFICULTY_MEDIUM,
   DIFFICULTY_ULTRA,
   GRIDCOUNT,
-  NUM_APPLES_MOD_EASY,
-  NUM_APPLES_MOD_HARD,
-  NUM_APPLES_MOD_MEDIUM,
-  NUM_APPLES_MOD_ULTRA,
-  SCORE_MOD_EASY,
-  SCORE_MOD_HARD,
-  SCORE_MOD_MEDIUM,
-  SCORE_MOD_ULTRA,
-  SPEED_LIMIT_EASY,
-  SPEED_LIMIT_HARD,
-  SPEED_LIMIT_MEDIUM,
-  SPEED_LIMIT_ULTRA,
-  SPEED_MOD_EASY,
-  SPEED_MOD_HARD,
-  SPEED_MOD_MEDIUM,
-  SPEED_MOD_ULTRA
 } from "./constants";
 import {
   LEVEL_01,
@@ -33,15 +17,16 @@ import {
   LEVEL_08,
   LEVEL_09,
   LEVEL_10,
+  LEVEL_11,
+  LEVEL_12,
+  LEVEL_13,
+  LEVEL_14,
   LEVEL_99,
 } from './levels';
 import { DIR } from "./types";
-import { LEVEL_11 } from "./levels/level11";
-import { LEVEL_12 } from "./levels/level12";
 import { TUTORIAL_LEVEL_10 } from "./levels/tutorialLevel10";
 import { TUTORIAL_LEVEL_20 } from "./levels/tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./levels/tutorialLevel30";
-import { LEVEL_13 } from "./levels/level13";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
   const clamped = Math.max(Math.min(val, maxVal), minVal);
@@ -105,6 +90,8 @@ export function getWarpLevelFromNum(levelNum: number) {
       return LEVEL_12;
     case 13:
       return LEVEL_13;
+    case 14:
+      return LEVEL_14;
     case 99:
       return LEVEL_99;
     case 110:

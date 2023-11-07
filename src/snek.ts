@@ -1114,6 +1114,7 @@ export const sketch = (p5: P5) => {
     UI.drawButton("12", x += offset, yRow2, () => warpToLevel(12), uiElements);
     x = xInitial;
     UI.drawButton("13", x, yRow3, () => warpToLevel(13), uiElements);
+    UI.drawButton("14", x += offset, yRow3, () => warpToLevel(14), uiElements);
     UI.drawButton("SS", x += offset, yRow3, () => warpToLevel(99), uiElements);
     UI.drawButton("S1", x += offset, yRow3, () => warpToLevel(110), uiElements);
     UI.drawButton("S2", x += offset, yRow3, () => warpToLevel(120), uiElements);

@@ -2,7 +2,8 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
-const name = 'airfield'
+const name = 'airfield';
+// darkstar
 
 export const LEVEL_99: Level = {
   name,

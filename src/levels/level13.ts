@@ -2,63 +2,56 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, PortalExitMode } from "../types";
 
-const name = 'grav chamber'
+const name = 'DELTALAB'
 
 export const LEVEL_13: Level = {
   name,
-  timeToClear: 1000 * 60 * 2.25,
+  timeToClear: 1000 * 60 * 1.5,
   applesToClear: 60,
   numApplesStart: 10,
-  growthMod: 0.5,
+  growthMod: 0.25,
   layout: `
-XXXXXXXXX~~~XXXXXX~~~XXXXXXXXX
-XXXXXXXXXDDDX+__+XDDDXXXXXXXXX
-XX1  ----    7XX0    ----  6XX
-XX1          7XX0          3XX
-XX1  ----    7440    ----  3XX
-XXXXXXX9-    -=--    -7XXXXXXX
-DDDDDDX9-------=------7XDDDDDD
-XXXXXXX9------=-------7XXXXXXX
-X5   ----    --=-    ----   2X
-X2           -=--           2X
-X2          ------          2X
-X2--------------------------2X
-X2=-=-=-=-=--------=-=-=-=-=2X
-X2 - - - - -------- - - - - 2X
-X2-==--==--==-  -==--==--==-2X
-X2-==--==--==-  -==--==--==-2X
-X2 - - - - -------- - - - - 2X
-X2=-=-=-=-=--------=-=-=-=-=2X
-X2--------------------------2X
-X2          ------          2X
-X2     O     -=--           2X
-X2   ----    --=-    ----   5X
-XXXXXXX0------=-------8XXXXXXX
-DDDDDDX0-------=------8XDDDDDD
-XXXXXXX0-    -=--    -8XXXXXXX
-XX1  ----    8449    ----  3XX
-XX1          8XX9          3XX
-XX1  ----    8XX9    ----  6XX
-XXXXXXXXXDDDX+__+XDDDXXXXXXXXX
-XXXXXXXXX~~~XXXXXX~~~XXXXXXXXX
+XXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXDDX4=-  -==-        -=---2X
+XXXDDX4=-  -==-        -==--2X
+XXXDDX4=-  -==-        -==--2X
+XXXDDX4=-  -==-        -=---2X
+XXXDDXXXXXXXXXXXXXXXXXXXXDDXXX
+XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
+XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
+X2---=-       -==-   -=1XaaXXX
+X2--==-       -==-   -=1XaaDXX
+X2--==-O      -==-   -=1XaaDXX
+X2---=-       -==-   -=1XaaXXX
+XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
+XXXaaXXXXXXXXXXXXXXXXXXXXaaXXX
+XXXaaXXXXXXXXXXXXXXXXXXXXDDXXX
+XXXaaX1=-  -==-        -=---3X
+XXDaaX1=-  -==-        -==--3X
+XXDaaX1=-  -==-        -==--3X
+XXXaaX1=-  -==-        -=---3X
+XXXaaXXXXXXXXXXXXXXXXXXXXDDXXX
+XXXaaXXXXXXXXXXXXXXXXXXXXDDXXX
+XXXDDXXXXXXXXXXXXXXXXXXXXDDXXX
+X3---=-       -==-   -=4XDDXXX
+X3--==-       -==-   -=4XDDXXX
+X3--==-       -==-   -=4XDDXXX
+X3---=-       -==-   -=4XDDXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
   `,
-  colors: PALETTE.atomic,
+  colors: PALETTE.scienceLab,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   portalExitConfig: {
-    1: PortalExitMode.InvertDirection,
+    1: PortalExitMode.SameDirection,
     2: PortalExitMode.SameDirection,
-    3: PortalExitMode.InvertDirection,
+    3: PortalExitMode.SameDirection,
     4: PortalExitMode.SameDirection,
-    5: PortalExitMode.SameDirection,
-    6: PortalExitMode.InvertDirection,
-    7: PortalExitMode.InvertDirection,
-    8: PortalExitMode.InvertDirection,
-    9: PortalExitMode.InvertDirection,
-    0: PortalExitMode.InvertDirection,
   },
   extraLoseMessages: [
-    ["Sneks were not meant to meddle in the ways of science."],
-    ["This one was designed by a madman."],
+    ["This level really messes with your head, doesn't it?"],
   ],
 };
