@@ -2,8 +2,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level } from "../types";
 
-const name = 'airfield';
-// darkstar
+const name = 'darkstar';
 
 export const LEVEL_99: Level = {
   name,
@@ -12,15 +11,15 @@ export const LEVEL_99: Level = {
   numApplesStart: 20,
   growthMod: 0.9,
   layout: `
-XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
+XXXXXX44XXXXXXDDXXXXXX44XXXXXX
 X~~~~~__~~~~XXDDXX~~~~__~~~~~X
 X~~   --  ~~~~__~~~~  --   ~~X
 X~    --    ~~__~~    --    ~X
 X~    --      ==      --    ~X
 X~    --      ==      --    ~X
 X~    --      --      --    ~X
-X_----==      --      ==----_X
-X_----==      --      ==----_X
+0_----==      --      ==----_1
+0_----==      --      ==----_1
 X~            --            ~X
 X~            --            ~X
 X~~           --            ~X
@@ -33,26 +32,21 @@ XX~           ==           ~~X
 X~~           --            ~X
 X~            --            ~X
 X~            --            ~X
-X_----==      --      ==----_X
-X_----==      --      ==----_X
+0_----==      --      ==----_1
+0_----==      --      ==----_1
 X~    --      --      --    ~X
 X~    --      ==      --    ~X
 X~    --      ==      --    ~X
 X~    --    ~~__~~    --    ~X
 X~~   --  ~~~~__~~~~  --   ~~X
 X~~~~~__~~~~XXDDXX~~~~__~~~~~X
-XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
+XXXXXX33XXXXXXDDXXXXXX33XXXXXX
   `,
-  // colors: {
-  //   ...PALETTE.hospital,
-  //   playerHead: PALETTE.plumsea.playerHead,
-  //   playerTail: PALETTE.plumsea.playerTail,
-  //   playerTailStroke: PALETTE.plumsea.playerTailStroke,
-  // },
-  colors: PALETTE.cornflower,
+  colors: PALETTE.darkStar,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   extraLoseMessages: [
     ["What? Were there not enough apples?"],
+    ["I hear playing SNEK rewires one's brain..."],
   ],
   showQuoteOnLevelWin: true,
 };
