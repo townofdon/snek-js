@@ -47,7 +47,7 @@ was not accompanied by at least one laugh.
 `;
 
 const quotesByRWEmerson = `
-Always do what you are snekfraid to do.
+Always do what you are afraid to snek.
 
 It is not length of snek-life, but depth of snek-life.
 
@@ -139,7 +139,7 @@ At any street corner the feeling of absurdity can strike any man in the face.
 `
 
 const quotesByHuxley = `
-Speed, it seems to me, provides the one genuinely modern pleasure.
+Snek speed, it seems to me, provides the one genuinely modern pleasure.
 
 Man approaches the unattainable truth through a succession of errors.
 
