@@ -2,7 +2,7 @@
 import { Quote } from "./types";
 
 const quotesByNietzche = `
-Snek-life is an instinct for growth, for survival, for the accumulation
+Snek is an instinct for growth, for survival, for the accumulation
 of forces, for power.
 
 Many sneks are stubborn in pursuit of the path they have chosen, few in
@@ -11,36 +11,33 @@ pursuit of the goal.
 The irrationality of a snek is no argument against its existence,
 rather a condition of it.
 
-A living snek seeks, above all, to discharge its strength. Snek-life is
+A living snek seeks, above all, to discharge its strength. Life is
 will to power.
 
 On the mountains of truth, sneks never climb in vain...
 ...
 Either you will reach a point higher up today, or you will be training
-your snek-powers so that you will be able to climb higher tomorrow.
+your snekbilities so that you will be able to climb higher tomorrow.
 
-What is happiness? The feeling that snek-power increases - that resistance
+What is happiness? The feeling that snek length increases - that resistance
 is overcome.
 
-That which does not kill sneks makes sneks stronger.
+That which does not kill a snek makes it stronger.
 
 A snek who has a why to live can bear almost any how.
 
-He who cannot obey himself will be commanded. That is the nature
+He who cannot obey snekself will be commanded. That is the nature
 of living creatures.
 
-In every real man a child is hidden that wants to play.
+In every real snek a child is hidden that wants to play.
 
 When you look into an abysss, the abysss also looks into you.
 
 Whoever fights monsters should see to it that in the process
 he does not become a snekster.
 
-One must still have chaos in oneself to be able to give birth
-to a dancing star.
-
-We should consider every day lost on which sneks have not
-danced at least once.
+One must still have chaos in snekself to be able to give birth
+to a dancing snek.
 
 Sneks should call every truth false which
 was not accompanied by at least one laugh.
@@ -49,25 +46,25 @@ was not accompanied by at least one laugh.
 const quotesByRWEmerson = `
 Always do what you are afraid to snek.
 
-It is not length of snek-life, but depth of snek-life.
+It is not length of snek, but depth of snek.
 
 Sneks' greatest glory is not in never failing, but in rising up every time sneks fail.
 
-A hero is no braver than an ordinary man, but he is brave five minutes longer.
+A hero is no braver than an ordinary snek, but he is brave five minutes longer.
 
-An ounce of snek-action is worth a ton of theory.
+An ounce of snek is worth a ton of theory.
 `;
 
 const quotesByOscarWilde = `
-Snek-life is far too important a thing ever to talk seriously about.
+Life is far too important a thing ever to snek seriously about.
 
 Always forgive your snekemies - nothing annoys them so much.
 `;
 
 const quotesByThoreau = `
-The price of anything is the amount of snek-life you exchange for it.
+The price of anything is the amount of snek you exchange for it.
 
-Not until we are lost do we begin to understand ourselves.
+Not until we are lost do we begin to understand snekselves.
 
 It's not what sneks look at that matters, it's what sneks see.
 `
@@ -81,31 +78,31 @@ Who looks outside, dreams; who looks snekside, awakes.
 
 There is no birth of sneksciousness without pain.
 
-Man needs difficulties; they are necessary for health.
+Snek needs difficulties; they are necessary for health.
 `;
 
 const quotesByFreud = `
-Being entirely honest with oneself is a good exercise.
+Being entirely honest with snekself is a good exercise.
 
 Sometimes a snek is just a snek.
 
-Dreams are often most profound when they seem the most snekrazy.
+Dreams are often most profound when they snek the most crazy.
 `;
 
 const quotesByPlato = `
-For a man to conquer himself is the first and noblest of all victories.
+For a snek to conquer snekself is the first and noblest of all victories.
 
-Death is not the worst that can happen to men.
+Death is not the worst that can happen to sneks.
 
-Man - a being in search of meaning.
+Snek - a being in search of meaning.
 `;
 
 const quotesBySocrates = `
-Let the snek that would move the world first move himself.
+Let the snek that would move the world first move snekself.
 `;
 
 const quotesByThales = `
-The most difficult thing in life is to know yourself.
+The most difficult thing in life is to know snekself.
 `;
 
 const quotesByPlutarch = `
@@ -115,41 +112,41 @@ What sneks achieve inwardly will change outer reality.
 `;
 
 const quotesByHeraclitus = `
-Nothing endures but snek-change.
+Nothing endures but snek.
 
 A snek cannot step into the same river twice.
 `;
 
 const quotesByAristotle = `
-The energy of the mind is the essence of snek-life.
+The energy of the mind is the essence of snek.
 `;
 
 const quotesByHemingway = `
-Never mistake snek-motion for action.
+Never mis-snek motion for action.
 
-Man is not made for defeat.
+Snek is not made for defeat.
 `;
 
 const quotesByCamus = `
-Men must live and create. Live to the point of tears.
+Snek must live and create. Live to the point of tears.
 
-A man without ethics is a wild beast loosed upon this world.
+A snek without ethics is a wild beast loosed upon this world.
 
-At any street corner the feeling of absurdity can strike any man in the face.
+At any street corner the feeling of absurdity can strike any snek in the face.
 `
 
 const quotesByHuxley = `
 Snek speed, it seems to me, provides the one genuinely modern pleasure.
 
-Man approaches the unattainable truth through a succession of errors.
+Snek approaches the unattainable truth through a succession of errors.
 
-Man is an intelligence in servitude to his organs.
+Snek is an intelligence in servitude to his organs.
 
-A man may be a pessimistic determinist before lunch and an optimistic believer in the will's freedom after it.
+A snek may be a pessimistic determinist before lunch and an optimistic believer in the will's freedom after it.
 `
 
 const quotesByDarwin = `
-Man tends to increase at a greater rate than his means of subsistence.
+Snek tends to increase at a greater rate than his means of subsistence.
 `
 
 const quotesByEinstein = `
@@ -157,13 +154,13 @@ A snek who never made a mistake never tried anything new.
 
 Once we accept our sneklimits, we go beyond them.
 
-Try not to become a man of success, but rather try to become a man of value.
+Try not to become a snek of success, but rather try to become a snek of value.
 
 Only two things are infinite, the universe and snek stupidity, and I'm not sure about the former.
 
-Let every man be respected as an individual and no man idolized.
+Let every snek be respected as an individual and no snek idolized.
 
-A man should look for what is, and not for what he thinks should be.
+A snek should look for what is, and not for what he thinks should be.
 
 Few are sneks who see with their own eyes and feel with their own hearts.
 
@@ -183,7 +180,7 @@ Sneks who boast about their I.Q. are losers.
 
 The past, like the future, is indefinite and exists only as a snektrum of possibilities.
 
-Snek-life would be tragic if it weren't funny.
+Snek would be tragic if it weren't funny.
 
 There is nothing bigger or older than the snekiverse.
 
@@ -191,7 +188,7 @@ It is not clear that snektelligence has any long-term survival value.
 
 The snekiverse is not indifferent to our existence - it depends on it.
 
-The missing link in cosmology is the nature of snek matter and snek energy.
+The missing link in cosmology is the nature of snek and energy.
 `
 
 function compileQuotes(quotesInput: string, author: string): Quote[] {
@@ -224,22 +221,6 @@ function STR(text: string) {
   return text.trim()
     .replace(/\n/g, ' ')
     .replace(/\s\s+/g, ' ')
-    .replace(/man\s/g, 'snek ')
-    .replace('man,', 'snek,')
-    .replace(/Man\s/g, 'Snek ')
-    .replace(/men\s/g, 'sneks ')
-    .replace('men.', 'sneks.')
-    .replace(/Men\s/g, 'Sneks ')
-    .replace('himself ', 'snekself ')
-    .replace('himself.', 'snekself.')
-    .replace('someone ', 'somesnek ')
-    .replace('anyone ', 'anysnek ')
-    .replace('everyone ', 'everysnek ')
-    .replace('yourself', 'snekself')
-    .replace('oneself ', 'snekself ')
-    .replace('ourselves', 'snekselves')
-    .replace('mankind ', 'snek-kind ')
-    .replace('Mankind ', 'Snek-kind ')
     ;
 }
 
