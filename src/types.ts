@@ -119,6 +119,7 @@ export interface Level {
   portalExitConfig?: Partial<Record<PortalChannel, PortalExitMode>>
   titleScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
   creditsScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
+  musicTrack?: MusicTrack
 }
 
 export type LoseMessage = [string] | [string, GetShouldShowLoseMessage];
@@ -162,12 +163,24 @@ export enum Sound {
   uiConfirm = 'uiConfirm',
   unlock = 'unlock',
   warp = 'warp',
+  winLevel = "winLevel",
   xplode = 'xplode',
   xplodeLong = 'xplodeLong',
-  xpound = "xpound"
+  xpound = "xpound",
 }
 
 export type SoundVariants = Record<keyof typeof Sound, Howl>
+
+export enum MusicTrack {
+  simpleTime = '01-simpleTime.wav',
+  conquerer = '02-conquerer.wav',
+  transient = '03-transient.wav',
+  lordy = '04-lordy.wav',
+  champion = '05-champion.wav',
+  dangerZone = '06-dangerZone.wav',
+  aqueduct = '07-aqueduct.wav',
+  creeplord = '08-creeplord.wav',
+}
 
 export interface Scene {
   draw: () => void
