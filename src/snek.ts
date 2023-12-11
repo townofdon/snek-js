@@ -245,18 +245,6 @@ export const sketch = (p5: P5) => {
     resumeAudioContext();
   }
 
-  // async function handleResumeAudioContext() {
-  //   console.log('[snek] resuming audio context!');
-  //   await resumeAudioContext();
-  //   document.removeEventListener('keydown', handleResumeAudioContext);
-  //   document.removeEventListener('click', handleResumeAudioContext);
-  //   document.removeEventListener('touch', handleResumeAudioContext);
-  // }
-
-  // document.addEventListener('keydown', handleResumeAudioContext);
-  // document.addEventListener('click', handleResumeAudioContext);
-  // document.addEventListener('touch', handleResumeAudioContext);
-
   function startGame(difficultyIndex = 2) {
     if (state.isGameStarting) return;
     state.isGameStarting = true;
