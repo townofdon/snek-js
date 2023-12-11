@@ -83,7 +83,7 @@ export class SFX implements SFXInstance {
       this.sounds.uiConfirm = loadSound('ui-confirm.wav');
       this.sounds.unlock = loadSound('unlock.wav');
       this.sounds.warp = loadSound('warp.wav');
-      this.sounds.winLevel = loadSound('winLevel.wav');
+      this.sounds.winLevel = loadSound('winlevel.wav');
       this.sounds.xplode = loadSound('xplode.wav');
       this.sounds.xplodeLong = loadSound('xplode-long.wav');
       this.sounds.xpound = loadSound('xpound.wav');

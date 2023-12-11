@@ -172,12 +172,12 @@ export enum Sound {
 export type SoundVariants = Record<keyof typeof Sound, Howl>
 
 export enum MusicTrack {
-  simpleTime = '01-simpleTime.wav',
+  simpleTime = '01-simpletime.wav',
   conquerer = '02-conquerer.wav',
   transient = '03-transient.wav',
   lordy = '04-lordy.wav',
   champion = '05-champion.wav',
-  dangerZone = '06-dangerZone.wav',
+  dangerZone = '06-dangerzone.wav',
   aqueduct = '07-aqueduct.wav',
   creeplord = '08-creeplord.wav',
 }
