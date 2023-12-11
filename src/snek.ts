@@ -39,7 +39,7 @@ import {
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
 import { UI } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -56,6 +56,7 @@ import { LOSE_MESSAGES } from './messages';
 import { ImpactParticleSystem } from './particleSystems/ImpactParticleSystem';
 import { Renderer } from './renderer';
 import { PortalParticleSystem, PortalVortexParticleSystem } from './particleSystems/PortalParticleSystem';
+import { MusicPlayer } from './musicPlayer';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -150,6 +151,7 @@ export const sketch = (p5: P5) => {
 
   const fonts = new Fonts(p5);
   const sfx = new SFX();
+  const musicPlayer = new MusicPlayer();
   const winScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
   const renderer = new Renderer({ p5, fonts, replay, state, screenShake });
 
@@ -161,6 +163,7 @@ export const sketch = (p5: P5) => {
     UI.setP5Instance(p5);
     fonts.load();
     sfx.load();
+    musicPlayer.load(level.musicTrack);
   }
 
   /**
@@ -168,20 +171,22 @@ export const sketch = (p5: P5) => {
    */
   p5.setup = setup;
   function setup() {
+    state.isGameStarted = false;
+    state.isGameStarting = false;
+
     UI.setP5Instance(p5);
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
     p5.frameRate(FRAMERATE);
-
+    musicPlayer.stop(level.musicTrack);
     level = MAIN_TITLE_SCREEN_LEVEL;
+    musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
     setLevelIndexFromCurrentLevel();
     init(false);
     stopAllCoroutines();
     startReplay();
     winScene.reset();
 
-    // init state for game
-    state.isGameStarted = false;
-    state.isGameStarting = false;
+    // override state after init()
     stats.numDeaths = 0;
     stats.numLevelsCleared = 0;
     stats.numLevelsEverCleared = 0;
@@ -237,6 +242,7 @@ export const sketch = (p5: P5) => {
     if (state.isGameStarting) return;
     state.isGameStarting = true;
     UI.disableScreenScroll();
+    musicPlayer.stop(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
     playSound(Sound.uiConfirm, 1, true);
     startCoroutine(startGameRoutine(difficultyIndex));
   }
@@ -363,6 +369,7 @@ export const sketch = (p5: P5) => {
     winScene.reset();
 
     if (shouldShowTransitions) {
+      musicPlayer.load(level.musicTrack);
       const buildSceneAction = buildSceneActionFactory(p5, sfx, fonts, state);
       Promise.resolve()
         .then(buildSceneAction(level.titleScene))
@@ -374,8 +381,12 @@ export const sketch = (p5: P5) => {
           renderHeartsUI();
           renderScoreUI();
           renderLevelName();
+          musicPlayer.play(level.musicTrack);
         })
     } else {
+      if (replay.mode !== ReplayMode.Playback && state.isGameStarted) {
+        musicPlayer.play(level.musicTrack);
+      }
       renderDifficultyUI();
       renderHeartsUI();
       renderScoreUI();
@@ -568,6 +579,10 @@ export const sketch = (p5: P5) => {
     if (!state.isExitingLevel && getHasSegmentExited(player.position)) {
       state.isExitingLevel = true;
       winScene.reset();
+      musicPlayer.stop(level.musicTrack);
+      if (replay.mode !== ReplayMode.Playback) {
+        sfx.play(Sound.winLevel);
+      }
     }
 
     if (state.isExitingLevel && replay.mode !== ReplayMode.Playback) {
@@ -1002,8 +1017,11 @@ export const sketch = (p5: P5) => {
   }
 
   function showGameOver() {
-    state.lives = 0;
-    stats.numDeaths += 1;
+    if (replay.mode !== ReplayMode.Playback) {
+      musicPlayer.stop(level.musicTrack);
+      state.lives = 0;
+      stats.numDeaths += 1;
+    }
     startCoroutine(showGameOverRoutine());
     maybeSaveReplayStateToFile();
   }
@@ -1084,6 +1102,7 @@ export const sketch = (p5: P5) => {
 
   function warpToLevel(levelNum = 1) {
     resetScore();
+    musicPlayer.stop(level.musicTrack);
     level = getWarpLevelFromNum(levelNum);
     setLevelIndexFromCurrentLevel();
     init();
@@ -1133,6 +1152,9 @@ export const sketch = (p5: P5) => {
     stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
     state.levelIndex++;
+    if (replay.mode != ReplayMode.Playback) {
+      musicPlayer.stop(level.musicTrack);
+    }
     level = LEVELS[state.levelIndex % LEVELS.length];
     if (level === START_LEVEL) {
       difficulty.index++;

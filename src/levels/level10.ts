@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level } from "../types";
+import { Level, MusicTrack } from "../types";
 
 const name = 'x-factor';
 
@@ -48,4 +48,5 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   extraLoseMessages: [
     ["X marks the frustration."],
   ],
+  musicTrack: MusicTrack.dangerZone,
 };

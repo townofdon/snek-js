@@ -1,5 +1,5 @@
 import { PALETTE } from "../palettes";
-import { Level } from "../types";
+import { Level, MusicTrack } from "../types";
 
 const name = 'INIT';
 
@@ -49,4 +49,5 @@ XXXXXXXXXXaX-X--X-X XXXDDXXX X
     playerTail: PALETTE.plumsea.playerTail,
     playerTailStroke: PALETTE.plumsea.playerTailStroke,
   },
+  musicTrack: MusicTrack.conquerer,
 };

@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level } from "../types";
+import { Level, MusicTrack } from "../types";
 
 const name = 'hangar'
 
@@ -48,4 +48,5 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX\n\
     ["You couldn't miss the broad side of a barn.", (state, stats, difficulty) => difficulty.index >= 4],
     ["Maybe let's dial down the difficulty?", (state, stats, difficulty) => difficulty.index >= 4],
   ],
+  musicTrack: MusicTrack.champion,
 };

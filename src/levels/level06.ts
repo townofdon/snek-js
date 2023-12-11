@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level } from "../types";
+import { Level, MusicTrack } from "../types";
 
 const name = 'lobby';
 
@@ -44,4 +44,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   colors: PALETTE.cornflower,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
+  musicTrack: MusicTrack.lordy,
 };

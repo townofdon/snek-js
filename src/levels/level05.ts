@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level } from "../types";
+import { Level, MusicTrack } from "../types";
 
 const name = 'panopticon';
 
@@ -42,4 +42,5 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
 `,
   colors: PALETTE.panopticon,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  musicTrack: MusicTrack.transient,
 };

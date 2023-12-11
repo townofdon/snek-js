@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level } from "../types";
+import { Level, MusicTrack } from "../types";
 
 const name = 'factory floor';
 
@@ -47,4 +47,5 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   extraLoseMessages: [
     ["Hang in there, it gets harder."],
   ],
+  musicTrack: MusicTrack.lordy,
 };

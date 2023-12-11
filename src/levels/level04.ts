@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level } from "../types";
+import { Level, MusicTrack } from "../types";
 
 const name = 'the facility';
 
@@ -47,4 +47,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     ["I've heard this level makes people irrationally angry."],
   ],
   showQuoteOnLevelWin: true,
+  musicTrack: MusicTrack.conquerer,
 };
