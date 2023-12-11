@@ -57,6 +57,7 @@ import { ImpactParticleSystem } from './particleSystems/ImpactParticleSystem';
 import { Renderer } from './renderer';
 import { PortalParticleSystem, PortalVortexParticleSystem } from './particleSystems/PortalParticleSystem';
 import { MusicPlayer } from './musicPlayer';
+import { resumeAudioContext } from './audio';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -227,6 +228,7 @@ export const sketch = (p5: P5) => {
    */
   p5.keyPressed = keyPressed;
   function keyPressed() {
+    resumeAudioContext();
     handleKeyPressed(p5, state, player.direction, moves, {
       onInit: () => init(false),
       onStartGame: startGame,
@@ -237,6 +239,23 @@ export const sketch = (p5: P5) => {
       onAddMove: move => moves.push(move),
     });
   }
+
+  p5.mouseClicked = mouseClicked;
+  function mouseClicked() {
+    resumeAudioContext();
+  }
+
+  // async function handleResumeAudioContext() {
+  //   console.log('[snek] resuming audio context!');
+  //   await resumeAudioContext();
+  //   document.removeEventListener('keydown', handleResumeAudioContext);
+  //   document.removeEventListener('click', handleResumeAudioContext);
+  //   document.removeEventListener('touch', handleResumeAudioContext);
+  // }
+
+  // document.addEventListener('keydown', handleResumeAudioContext);
+  // document.addEventListener('click', handleResumeAudioContext);
+  // document.addEventListener('touch', handleResumeAudioContext);
 
   function startGame(difficultyIndex = 2) {
     if (state.isGameStarting) return;

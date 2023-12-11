@@ -22,27 +22,33 @@ musicGainNode.connect(masterGainNode);
 // defaults
 musicGainNode.gain.value = DEFAULT_VOLUME_MUSIC;
 
-export function setMasterVolume(gain: number) {
+export function resumeAudioContext(): Promise<void> {
+  if (audioContext.state === 'running') return;
+  console.log('[Audio] resuming context!');
+  return audioContext.resume();
+}
+
+export function setMasterVolume(gain: number): void {
   masterGainNode.gain.value = gain;
 }
 
-export function setMusicVolume(gain: number) {
+export function setMusicVolume(gain: number): void {
   musicGainNode.gain.value = gain;
 }
 
-export function setSfxVolume(gain: number) {
+export function setSfxVolume(gain: number): void {
   sfxGainNode.gain.value = gain;
 }
 
-export function getMasterVolume() {
+export function getMasterVolume(): number {
   return masterGainNode.gain.value;
 }
 
-export function getMusicVolume() {
+export function getMusicVolume(): number {
   return musicGainNode.gain.value;
 }
 
-export function getSfxVolume() {
+export function getSfxVolume(): number {
   return sfxGainNode.gain.value;
 }
 
@@ -72,7 +78,6 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
     console.warn(`[Audio] could not play "${path}" due to audio context being suspended`);
     return;
   }
-  await audioContext.resume();
   // create gain node
   const gainNode = audioContext.createGain();
   audioGainNodeMap[path] = gainNode;
