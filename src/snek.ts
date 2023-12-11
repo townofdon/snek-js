@@ -242,7 +242,9 @@ export const sketch = (p5: P5) => {
     if (state.isGameStarting) return;
     state.isGameStarting = true;
     UI.disableScreenScroll();
-    musicPlayer.stop(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
+    setTimeout(() => {
+      musicPlayer.stop(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
+    }, 0)
     playSound(Sound.uiConfirm, 1, true);
     startCoroutine(startGameRoutine(difficultyIndex));
   }
@@ -381,6 +383,7 @@ export const sketch = (p5: P5) => {
           renderHeartsUI();
           renderScoreUI();
           renderLevelName();
+          musicPlayer.stop(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
           musicPlayer.play(level.musicTrack);
         })
     } else {

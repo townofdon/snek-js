@@ -68,6 +68,10 @@ interface AudioSourceOptions {
 }
 
 async function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOptions) {
+  if (audioContext.state === 'suspended') {
+    console.warn(`[Audio] could not play "${path}" due to audio context being suspended`);
+    return;
+  }
   await audioContext.resume();
   // create gain node
   const gainNode = audioContext.createGain();

@@ -1,7 +1,7 @@
 import { loadAudioToBuffer, playMusic, stopAudio, unloadAudio } from "./audio";
 import { MusicTrack } from "./types";
 
-const DEBUG_MUSIC = true;
+const DEBUG_MUSIC = false;
 
 /**
  * Usage
