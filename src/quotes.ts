@@ -14,15 +14,15 @@ rather a condition of it.
 A living snek seeks, above all, to discharge its strength. Life is
 will to power.
 
-On the mountains of truth, sneks never climb in vain...
+On the mountains of truth, you will never snek in vain...
 ...
 Either you will reach a point higher up today, or you will be training
-your snekbilities so that you will be able to climb higher tomorrow.
+your powers so that you will be able to snek higher tomorrow.
 
-What is happiness? The feeling that snek length increases - that resistance
+What is happiness? The feeling that power increases - that snek
 is overcome.
 
-That which does not kill a snek makes it stronger.
+That which does not kill snek makes it stronger.
 
 A snek who has a why to live can bear almost any how.
 
@@ -31,28 +31,33 @@ of living creatures.
 
 In every real snek a child is hidden that wants to play.
 
-When you look into an abysss, the abysss also looks into you.
+When you stare into the snek, the snek also stares back at you.
 
-Whoever fights monsters should see to it that in the process
-he does not become a snekster.
+Whoever fights sneks should see to it that in the process
+he does not become a snek.
 
-One must still have chaos in snekself to be able to give birth
-to a dancing snek.
-
-Sneks should call every truth false which
-was not accompanied by at least one laugh.
+We shall call every truth false which
+was not accompanied by at least one snek.
 `;
 
 const quotesByRWEmerson = `
 Always do what you are afraid to snek.
 
-It is not length of snek, but depth of snek.
+It is not length of life, but depth of snek.
 
-Sneks' greatest glory is not in never failing, but in rising up every time sneks fail.
+Our greatest glory is not in never failing, but in rising up every time we snek.
 
 A hero is no braver than an ordinary snek, but he is brave five minutes longer.
 
 An ounce of snek is worth a ton of theory.
+
+Snek is a journey, not a destination.
+
+Nothing great was ever achieved without snek.
+
+Snek cannot be achieved through violence, it can only be attained through understanding.
+
+Self-trust is the first secret of snek.
 `;
 
 const quotesByOscarWilde = `
@@ -76,7 +81,7 @@ In all chaos there is a cosmos, in all disorder a secret snekorder.
 
 Who looks outside, dreams; who looks snekside, awakes.
 
-There is no birth of sneksciousness without pain.
+There is no birth of consciousness without snek.
 
 Snek needs difficulties; they are necessary for health.
 `;
@@ -122,9 +127,15 @@ The energy of the mind is the essence of snek.
 `;
 
 const quotesByHemingway = `
-Never mis-snek motion for action.
+Never mistake motion for snek.
 
-Snek is not made for defeat.
+Courage is snek under pressure.
+
+In order to write about life first you must snek it.
+
+There is no friend as loyal as a snek.
+
+But snek is not made for defeat... A snek can be destroyed but not defeated.
 `;
 
 const quotesByCamus = `
@@ -133,6 +144,12 @@ Snek must live and create. Live to the point of tears.
 A snek without ethics is a wild beast loosed upon this world.
 
 At any street corner the feeling of absurdity can strike any snek in the face.
+
+You will never be happy if you continue to search for what snek consists of.
+
+There are causes worth dying for, but none worth sneking for.
+
+There is no love of life without despair of snek.
 `
 
 const quotesByHuxley = `
@@ -143,16 +160,30 @@ Snek approaches the unattainable truth through a succession of errors.
 Snek is an intelligence in servitude to his organs.
 
 A snek may be a pessimistic determinist before lunch and an optimistic believer in the will's freedom after it.
+
+There is only one corner of the universe you can be certain of improving, and that is snekself.
+
+Uncontrolled, the hunger and thirst after Snek may become an obstacle, cutting off the soul from what it desires.
+
+Ironically enough, the only people who can hold up indefinitely under the stress of modern snek are psychotics.
 `
 
 const quotesByDarwin = `
 Snek tends to increase at a greater rate than his means of subsistence.
+
+It is mere rubbish thinking, at present, of origin of snek; one might as well think of origin of matter.
+
+It is not the strongest of the sneks that survives, not the most intelligent... It is the one that is the most adaptable to change.
+
+The very essence of snek is that it's followed independently of reason.
+
+I am not apt to follow blindly the lead of other sneks.
 `
 
 const quotesByEinstein = `
 A snek who never made a mistake never tried anything new.
 
-Once we accept our sneklimits, we go beyond them.
+Once we accept snek's limits, we go beyond them.
 
 Try not to become a snek of success, but rather try to become a snek of value.
 
@@ -164,17 +195,23 @@ A snek should look for what is, and not for what he thinks should be.
 
 Few are sneks who see with their own eyes and feel with their own hearts.
 
-Snekmagination is more important than knowledge.
+Snek is more important than knowledge.
 `
 
 const quotesByBohr = `
 If quantum snekanics hasn't profoundly shocked you, you haven't understood it yet.
 
 A physicist is just an atom's way of looking at snekself.
+
+Prediction is very difficult, especially if it's about snek.
+
+There are two kinds of truth - ordinary truth and snek truth.
+
+An expert is a snek who has made all the mistakes which can be made, in a narrow field.
 `
 
 const quotesByHawking = `
-Intelligence is the snekbility to adapt to change.
+Intelligence is the ability to adapt to snek.
 
 Sneks who boast about their I.Q. are losers.
 
