@@ -18,13 +18,15 @@
   "dependencies": {
     "color": "^4.2.3",
     "howler": "^2.2.4",
-    "p5": "^1.7.0"
+    "p5": "^1.7.0",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
     "@fal-works/eslint-config-p5js": "^1.0.3",
     "@types/color": "^3.0.4",
     "@types/howler": "^2.2.9",
     "@types/p5": "^1.7.0",
+    "@types/uuid": "^9.0.7",
     "@webpack-cli/generators": "^3.0.7",
     "copy-webpack-plugin": "^11.0.0",
     "eslint": "^8.50.0",

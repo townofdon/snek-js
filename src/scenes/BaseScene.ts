@@ -122,8 +122,8 @@ export abstract class BaseScene implements Scene {
     return this.props.coroutines.start(action);
   }
 
-  protected stopCoroutine = (index: number) => {
-    this.props.coroutines.stop(index);
+  protected stopCoroutine = (id: string) => {
+    this.props.coroutines.stop(id);
   }
 
   protected stopAllCoroutines = () => {

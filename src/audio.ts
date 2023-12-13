@@ -1,4 +1,4 @@
-import { DEFAULT_VOLUME_MUSIC } from "./constants";
+import { MAX_GAIN_MUSIC } from "./constants";
 
 const audioBufferMap: Record<string, AudioBuffer> = {}
 const audioSourceMap: Record<string, AudioBufferSourceNode> = {}
@@ -20,11 +20,10 @@ sfxGainNode.connect(masterGainNode);
 musicGainNode.connect(masterGainNode);
 
 // defaults
-musicGainNode.gain.value = DEFAULT_VOLUME_MUSIC;
+musicGainNode.gain.value = MAX_GAIN_MUSIC;
 
 export function resumeAudioContext(): Promise<void> {
   if (audioContext.state === 'running') return;
-  console.log('[Audio] resuming context!');
   return audioContext.resume();
 }
 
@@ -33,7 +32,7 @@ export function setMasterVolume(gain: number): void {
 }
 
 export function setMusicVolume(gain: number): void {
-  musicGainNode.gain.value = gain;
+  musicGainNode.gain.value = gain * MAX_GAIN_MUSIC;
 }
 
 export function setSfxVolume(gain: number): void {
@@ -45,7 +44,7 @@ export function getMasterVolume(): number {
 }
 
 export function getMusicVolume(): number {
-  return musicGainNode.gain.value;
+  return musicGainNode.gain.value / MAX_GAIN_MUSIC;
 }
 
 export function getSfxVolume(): number {
@@ -106,6 +105,12 @@ export async function playSfx(path: string, volume: number) {
 
 export async function playMusic(path: string, options: AudioSourceOptions) {
   playAudio(path, musicGainNode, options);
+}
+
+export async function setPlaybackRate(path: string, rate: number) {
+  const source = audioSourceMap[path];
+  if (!source) return;
+  source.playbackRate.value = rate;
 }
 
 export function stopAudio(path: string) {

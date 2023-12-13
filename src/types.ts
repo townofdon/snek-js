@@ -85,6 +85,11 @@ export interface GameState {
   lastHurtBy: HitType,
 }
 
+export interface GameSettings {
+  musicVolume: number,
+  sfxVolume: number,
+}
+
 export interface Palette {
   background: string,
   playerHead: string,

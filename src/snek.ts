@@ -35,11 +35,13 @@ import {
   DEFAULT_PORTALS,
   PORTAL_CHANNEL_COLORS,
   ALL_APPLES_BONUS,
+  HURT_MUSIC_DUCK_VOL,
+  HURT_MUSIC_DUCK_TIME_MS,
 } from './constants';
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
 import { UI } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -57,11 +59,16 @@ import { ImpactParticleSystem } from './particleSystems/ImpactParticleSystem';
 import { Renderer } from './renderer';
 import { PortalParticleSystem, PortalVortexParticleSystem } from './particleSystems/PortalParticleSystem';
 import { MusicPlayer } from './musicPlayer';
-import { resumeAudioContext } from './audio';
+import { getMusicVolume, resumeAudioContext, setMusicVolume, setSfxVolume } from './audio';
+import { Easing } from './easing';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
 
+const settings: GameSettings = {
+  musicVolume: 1,
+  sfxVolume: 1,
+}
 const state: GameState = {
   isGameStarted: false,
   isGameStarting: false,
@@ -142,13 +149,34 @@ let quotes = allQuotes.slice();
 
 const difficultyButtons: Record<number, P5.Element> = {}
 
-export const sketch = (p5: P5) => {
+enum Action {
+  FadingMusic = 'FadingMusic',
+}
+type ActionKey = keyof typeof Action
 
+export const sketch = (p5: P5) => {
   const coroutines = new Coroutines(p5);
   const startCoroutine = coroutines.start;
   const stopAllCoroutines = coroutines.stopAll;
   const tickCoroutines = coroutines.tick;
   const waitForTime = coroutines.waitForTime;
+
+  // actions are unique, singleton coroutines, meaning that only one coroutine of a type can run at a time
+  const actionIds: Record<ActionKey, string | null> = {
+    FadingMusic: null,
+  };
+  const startAction = (enumerator: IEnumerator, actionKey: Action) => {
+    if (replay.mode === ReplayMode.Playback) {
+      return;
+    }
+    coroutines.stop(actionIds[actionKey]);
+    coroutines.start(enumerator);
+    actionIds[actionKey] = coroutines.start(enumerator);
+  }
+  const stopAction = (actionKey: Action) => {
+    coroutines.stop(actionIds[actionKey]);
+    actionIds[actionKey] = null;
+  }
 
   const fonts = new Fonts(p5);
   const sfx = new SFX();
@@ -178,9 +206,10 @@ export const sketch = (p5: P5) => {
     UI.setP5Instance(p5);
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
     p5.frameRate(FRAMERATE);
-    musicPlayer.stop(level.musicTrack);
+    if (level != MAIN_TITLE_SCREEN_LEVEL) musicPlayer.stop(level.musicTrack);
     level = MAIN_TITLE_SCREEN_LEVEL;
     musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
+    setMusicVolume(settings.musicVolume);
     setLevelIndexFromCurrentLevel();
     init(false);
     stopAllCoroutines();
@@ -243,6 +272,9 @@ export const sketch = (p5: P5) => {
   p5.mouseClicked = mouseClicked;
   function mouseClicked() {
     resumeAudioContext();
+    if (!state.isGameStarted && !state.isGameStarting && !musicPlayer.isPlaying(MAIN_TITLE_SCREEN_LEVEL.musicTrack)) {
+      musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
+    }
   }
 
   function startGame(difficultyIndex = 2) {
@@ -376,6 +408,9 @@ export const sketch = (p5: P5) => {
     UI.clearLabels();
     clearUI();
     winScene.reset();
+    stopAction(Action.FadingMusic);
+    startAction(fadeMusic(1, 100), Action.FadingMusic);
+    setSfxVolume(settings.sfxVolume);
 
     if (shouldShowTransitions) {
       musicPlayer.load(level.musicTrack);
@@ -518,6 +553,7 @@ export const sketch = (p5: P5) => {
       renderHeartsUI();
       spawnHurtParticles();
       hurtSnake();
+      startAction(duckMusicOnHurt(), Action.FadingMusic);
       switch (state.lives) {
         case 2:
           playSound(Sound.hurt1);
@@ -589,9 +625,9 @@ export const sketch = (p5: P5) => {
     if (!state.isExitingLevel && getHasSegmentExited(player.position)) {
       state.isExitingLevel = true;
       winScene.reset();
-      musicPlayer.stop(level.musicTrack);
       if (replay.mode !== ReplayMode.Playback) {
-        sfx.play(Sound.winLevel);
+        musicPlayer.stop(level.musicTrack);
+        playSound(Sound.winLevel);
       }
     }
 
@@ -730,7 +766,7 @@ export const sketch = (p5: P5) => {
       console.warn(`portal has no link: channel=${portal.channel},(${portal.position.x},${portal.position.y})`);
       return;
     }
-    sfx.play(Sound.warp);
+    playSound(Sound.warp);
     switch (level.portalExitConfig?.[portal.channel] || portal.exitMode) {
       case PortalExitMode.InvertDirection:
         player.direction = invertDirection(player.direction);
@@ -801,6 +837,18 @@ export const sketch = (p5: P5) => {
     moves = [];
     // set current direction to be the direction from the first segment towards the snake head
     player.direction = getDirectionToFirstSegment();
+  }
+
+  function* duckMusicOnHurt(): IEnumerator {
+    yield null;
+    let t = 0;
+    while (t < 1) {
+      setMusicVolume(settings.musicVolume * p5.lerp(HURT_MUSIC_DUCK_VOL, 1, t));
+      t += p5.deltaTime / HURT_MUSIC_DUCK_TIME_MS;
+      yield null;
+    }
+    setMusicVolume(1);
+    stopAction(Action.FadingMusic);
   }
 
   function spawnHurtParticles() {
@@ -1028,9 +1076,12 @@ export const sketch = (p5: P5) => {
 
   function showGameOver() {
     if (replay.mode !== ReplayMode.Playback) {
-      musicPlayer.stop(level.musicTrack);
+      // musicPlayer.stop(level.musicTrack);
       state.lives = 0;
       stats.numDeaths += 1;
+      coroutines.stop(actionIds.FadingMusic);
+      setMusicVolume(0);
+      musicPlayer.halfSpeed(level.musicTrack);
     }
     startCoroutine(showGameOverRoutine());
     maybeSaveReplayStateToFile();
@@ -1051,6 +1102,7 @@ export const sketch = (p5: P5) => {
       yield* waitForTime(1000);
       init(false);
     } else {
+      startAction(fadeMusic(0.3, 1000), Action.FadingMusic);
       const randomMessage = getRandomMessage();
       UI.drawDarkOverlay(uiElements);
       UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
@@ -1064,6 +1116,19 @@ export const sketch = (p5: P5) => {
       UI.enableScreenScroll();
       renderScoreUI(score);
     }
+  }
+
+  function* fadeMusic(toVolume: number, duration: number): IEnumerator {
+    yield null;
+    const startVolume = settings.musicVolume > 0 ? getMusicVolume() / settings.musicVolume : 0;
+    let t = 0;
+    while (duration > 0 && t < 1) {
+      setMusicVolume(settings.musicVolume * p5.lerp(startVolume, toVolume, Easing.inOutCubic(clamp(t, 0, 1))));
+      t += p5.deltaTime / duration;
+      yield null;
+    }
+    setMusicVolume(toVolume);
+    stopAction(Action.FadingMusic);
   }
 
   function resetScore() {

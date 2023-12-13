@@ -7,7 +7,7 @@ export const TITLE = 'SNEK';
 export const DEBUG_EASY_LEVEL_EXIT = false;
 export const RECORD_REPLAY_STATE = false;
 
-export const DEFAULT_VOLUME_MUSIC = 0.6;
+export const MAX_GAIN_MUSIC = 0.6;
 export const DEFAULT_VOLUME_SFX = 1;
 
 const windowWidth = window.innerWidth;
@@ -113,6 +113,8 @@ export const SCREEN_SHAKE_MAGNITUDE_PX = 4;
 export const HURT_STUN_TIME = 600;
 export const HURT_FLASH_RATE = 55;
 export const HURT_GRACE_TIME = 30;
+export const HURT_MUSIC_DUCK_TIME_MS = 1000;
+export const HURT_MUSIC_DUCK_VOL = 0.1;
 
 // make func to avoid obj mutation
 export const DEFAULT_PORTALS: () => Record<PortalChannel, P5.Vector[]> = () => ({
