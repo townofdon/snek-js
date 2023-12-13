@@ -2,7 +2,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack } from "../types";
 
-const name = 'barracks'
+const name = 'plaza'
 
 export const LEVEL_02: Level = {
   name,
