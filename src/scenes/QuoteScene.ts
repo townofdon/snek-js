@@ -118,7 +118,7 @@ export class QuoteScene extends BaseScene {
     p5.textFont(font);
     p5.textSize(textSize);
 
-    paragraph = paragraph.trim().replace('\n', ' ');
+    paragraph = paragraph.trim();
     let cursorStart = 0;
     let cursorLastSpaceFound = 0;
     let cursorEnd = 1;
@@ -126,11 +126,15 @@ export class QuoteScene extends BaseScene {
 
     while (cursorEnd <= paragraph.length) {
       const currentChar = paragraph.substring(cursorEnd - 1, cursorEnd);
-      if (currentChar === ' ' || cursorEnd === paragraph.length) {
+      if (currentChar === ' ' || currentChar === '\n' || cursorEnd === paragraph.length) {
         const testString = paragraph.substring(cursorStart, cursorEnd);
         const exceedsBounds = p5.textWidth(testString) > rectWidth;
         if (exceedsBounds) {
           cursorStart = cursorLastSpaceFound + 1;
+          numLines++;
+        }
+        if (currentChar === '\n') {
+          cursorStart = cursorEnd;
           numLines++;
         }
         cursorLastSpaceFound = cursorEnd - 1;
