@@ -89,6 +89,7 @@ export abstract class BaseScene implements Scene {
    * Call as the last line of draw()
    */
   protected tick = () => {
+    if (this.state.isCleaningUp) return;
     this.tickCoroutines();
   }
 

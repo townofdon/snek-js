@@ -106,6 +106,7 @@ export const KEYCODE_7 = 55;
 export const KEYCODE_8 = 56;
 export const KEYCODE_9 = 57;
 export const KEYCODE_SPACE = 32;
+export const KEYCODE_QUOTE = 222;
 
 export const SCREEN_SHAKE_DURATION_MS = 1000;
 export const SCREEN_SHAKE_MAGNITUDE_PX = 4;
@@ -113,8 +114,8 @@ export const SCREEN_SHAKE_MAGNITUDE_PX = 4;
 export const HURT_STUN_TIME = 600;
 export const HURT_FLASH_RATE = 55;
 export const HURT_GRACE_TIME = 30;
-export const HURT_MUSIC_DUCK_TIME_MS = 1000;
-export const HURT_MUSIC_DUCK_VOL = 0.1;
+export const HURT_MUSIC_DUCK_TIME_MS = 1500;
+export const HURT_MUSIC_DUCK_VOL = -0.2;
 
 // make func to avoid obj mutation
 export const DEFAULT_PORTALS: () => Record<PortalChannel, P5.Vector[]> = () => ({

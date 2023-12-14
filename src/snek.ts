@@ -38,10 +38,10 @@ import {
   HURT_MUSIC_DUCK_VOL,
   HURT_MUSIC_DUCK_TIME_MS,
 } from './constants';
-import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, removeArrayElement, shuffleArray } from './utils';
+import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
 import { UI } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -65,11 +65,13 @@ import { Easing } from './easing';
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
 
+const queryParams = parseUrlQueryParams();
 const settings: GameSettings = {
   musicVolume: 1,
   sfxVolume: 1,
 }
 const state: GameState = {
+  appMode: AppMode.Game,
   isGameStarted: false,
   isGameStarting: false,
   isPaused: false,
@@ -151,6 +153,7 @@ const difficultyButtons: Record<number, P5.Element> = {}
 
 enum Action {
   FadingMusic = 'FadingMusic',
+  ExecuteQuotesMode = "ExecuteQuotesMode"
 }
 type ActionKey = keyof typeof Action
 
@@ -164,6 +167,7 @@ export const sketch = (p5: P5) => {
   // actions are unique, singleton coroutines, meaning that only one coroutine of a type can run at a time
   const actionIds: Record<ActionKey, string | null> = {
     FadingMusic: null,
+    ExecuteQuotesMode: null,
   };
   const startAction = (enumerator: IEnumerator, actionKey: Action) => {
     if (replay.mode === ReplayMode.Playback) {
@@ -200,14 +204,15 @@ export const sketch = (p5: P5) => {
    */
   p5.setup = setup;
   function setup() {
+    state.appMode = AppMode.Game;
     state.isGameStarted = false;
     state.isGameStarting = false;
+    level = MAIN_TITLE_SCREEN_LEVEL;
 
     UI.setP5Instance(p5);
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
     p5.frameRate(FRAMERATE);
-    if (level != MAIN_TITLE_SCREEN_LEVEL) musicPlayer.stop(level.musicTrack);
-    level = MAIN_TITLE_SCREEN_LEVEL;
+    musicPlayer.stopAllTracks();
     musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
     setMusicVolume(settings.musicVolume);
     setLevelIndexFromCurrentLevel();
@@ -259,6 +264,7 @@ export const sketch = (p5: P5) => {
   function keyPressed() {
     resumeAudioContext();
     handleKeyPressed(p5, state, player.direction, moves, {
+      onSetup: setup,
       onInit: () => init(false),
       onStartGame: startGame,
       onClearUI: clearUI,
@@ -266,15 +272,18 @@ export const sketch = (p5: P5) => {
       onWarpToLevel: warpToLevel,
       onStartMoving: startMoving,
       onAddMove: move => moves.push(move),
+      onEnterQuoteMode: enterQuoteMode,
     });
   }
 
   p5.mouseClicked = mouseClicked;
   function mouseClicked() {
     resumeAudioContext();
-    if (!state.isGameStarted && !state.isGameStarting && !musicPlayer.isPlaying(MAIN_TITLE_SCREEN_LEVEL.musicTrack)) {
-      musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
-    }
+    if (state.isGameStarted) return;
+    if (state.isGameStarting) return;
+    if (state.appMode != AppMode.Game) return;
+    if (musicPlayer.isPlaying(MAIN_TITLE_SCREEN_LEVEL.musicTrack)) return;
+    musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
   }
 
   function startGame(difficultyIndex = 2) {
@@ -282,7 +291,7 @@ export const sketch = (p5: P5) => {
     state.isGameStarting = true;
     UI.disableScreenScroll();
     setTimeout(() => {
-      musicPlayer.stop(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
+      musicPlayer.stopAllTracks();
     }, 0)
     playSound(Sound.uiConfirm, 1, true);
     startCoroutine(startGameRoutine(difficultyIndex));
@@ -314,8 +323,8 @@ export const sketch = (p5: P5) => {
     sfx.play(sound, volume);
   }
 
-  function clearUI() {
-    if (replay.mode === ReplayMode.Playback) return;
+  function clearUI(force = false) {
+    if (!force && replay.mode === ReplayMode.Playback) return;
     uiElements.forEach(element => element.remove())
     uiElements = [];
   }
@@ -425,7 +434,7 @@ export const sketch = (p5: P5) => {
           renderHeartsUI();
           renderScoreUI();
           renderLevelName();
-          musicPlayer.stop(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
+          musicPlayer.stopAllTracks();
           musicPlayer.play(level.musicTrack);
         })
     } else {
@@ -469,6 +478,11 @@ export const sketch = (p5: P5) => {
     if (state.isPaused) return;
 
     setTimeout(() => { tickCoroutines(); }, 0);
+
+    if (state.appMode === AppMode.Quote) {
+      p5.background("#000");
+      return;
+    }
 
     updateScreenShake();
     drawBackground();
@@ -626,7 +640,7 @@ export const sketch = (p5: P5) => {
       state.isExitingLevel = true;
       winScene.reset();
       if (replay.mode !== ReplayMode.Playback) {
-        musicPlayer.stop(level.musicTrack);
+        musicPlayer.stopAllTracks();
         playSound(Sound.winLevel);
       }
     }
@@ -843,7 +857,7 @@ export const sketch = (p5: P5) => {
     yield null;
     let t = 0;
     while (t < 1) {
-      setMusicVolume(settings.musicVolume * p5.lerp(HURT_MUSIC_DUCK_VOL, 1, t));
+      setMusicVolume(settings.musicVolume * clamp(p5.lerp(HURT_MUSIC_DUCK_VOL, 1, t), 0, 1));
       t += p5.deltaTime / HURT_MUSIC_DUCK_TIME_MS;
       yield null;
     }
@@ -1177,7 +1191,7 @@ export const sketch = (p5: P5) => {
 
   function warpToLevel(levelNum = 1) {
     resetScore();
-    musicPlayer.stop(level.musicTrack);
+    musicPlayer.stopAllTracks();
     level = getWarpLevelFromNum(levelNum);
     setLevelIndexFromCurrentLevel();
     init();
@@ -1228,7 +1242,7 @@ export const sketch = (p5: P5) => {
     stats.applesEatenThisLevel = 0;
     state.levelIndex++;
     if (replay.mode != ReplayMode.Playback) {
-      musicPlayer.stop(level.musicTrack);
+      musicPlayer.stopAllTracks();
     }
     level = LEVELS[state.levelIndex % LEVELS.length];
     if (level === START_LEVEL) {
@@ -1239,10 +1253,7 @@ export const sketch = (p5: P5) => {
     maybeSaveReplayStateToFile();
 
     if (showQuoteOnLevelWin && replay.mode !== ReplayMode.Playback) {
-      const quoteIndex = Math.floor(p5.random(0, quotes.length));
-      const quote = quotes[quoteIndex];
-      quotes = removeArrayElement(quotes, quoteIndex);
-      if (quotes.length <= 1) quotes = allQuotes.slice();
+      const quote = getNextQuote();
       const onSceneEnded = () => {
         init();
       }
@@ -1251,6 +1262,42 @@ export const sketch = (p5: P5) => {
       new QuoteScene(quote, p5, sfx, fonts, { onSceneEnded });
     } else {
       init();
+    }
+  }
+
+  function getNextQuote() {
+    const quoteIndex = Math.floor(p5.random(0, quotes.length));
+    const quote = quotes[quoteIndex];
+    quotes = removeArrayElement(quotes, quoteIndex);
+    if (quotes.length <= 1) quotes = allQuotes.slice();
+    return quote;
+  }
+
+  function enterQuoteMode() {
+    if (state.isGameStarted || state.isGameStarting) return;
+    state.appMode = AppMode.Quote;
+    musicPlayer.stopAllTracks({ exclude: [MusicTrack.lordy] });
+    musicPlayer.play(MusicTrack.lordy);
+    clearUI(true);
+    stopReplay();
+    stopAllCoroutines();
+    setMusicVolume(0.6);
+    startAction(executeQuotesModeRoutine(), Action.ExecuteQuotesMode);
+  }
+
+  function* executeQuotesModeRoutine(): IEnumerator {
+    const onEscapePress = () => {
+      state.appMode = AppMode.Game;
+      musicPlayer.stopAllTracks();
+      setMusicVolume(1);
+      stopAction(Action.ExecuteQuotesMode);
+      setup();
+    }
+    while (state.appMode === AppMode.Quote) {
+      yield null;
+      const quote = getNextQuote();
+      new QuoteScene(quote, p5, sfx, fonts, { onEscapePress });
+      yield null;
     }
   }
 

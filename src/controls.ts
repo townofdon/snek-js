@@ -17,12 +17,15 @@ import {
   KEYCODE_D,
   KEYCODE_S,
   HURT_STUN_TIME,
+  KEYCODE_QUOTE,
 } from './constants';
-import { DIR, GameState } from "./types";
+import { AppMode, DIR, GameState } from "./types";
 
 export interface InputCallbacks {
+  onSetup: () => void
   onInit: () => void
   onStartGame: (difficulty: number) => void
+  onEnterQuoteMode: () => void
   onClearUI: () => void
   onShowPortalUI: () => void
   onWarpToLevel: (level: number) => void
@@ -30,17 +33,29 @@ export interface InputCallbacks {
   onAddMove: (move: DIR) => void
 }
 
+
 export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
-  const { keyCode, ENTER, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
+  const { keyCode, ENTER, ESCAPE, SHIFT, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   const {
+    onSetup,
     onInit,
     onStartGame,
+    onEnterQuoteMode,
     onClearUI,
     onShowPortalUI,
     onWarpToLevel,
     onStartMoving,
     onAddMove,
   } = callbacks
+
+  if (state.isGameStarting) {
+    return;
+  }
+
+  if (state.appMode === AppMode.Quote) {
+    if (keyCode === ESCAPE) onSetup();
+    return;
+  }
 
   if (state.isLost) {
     if (keyCode === p5.ENTER) onInit();
@@ -53,6 +68,7 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     else if (keyCode === KEYCODE_3) onStartGame(3);
     else if (keyCode === KEYCODE_4) onStartGame(4);
     else if (keyCode === ENTER) onStartGame(2);
+    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_QUOTE) onEnterQuoteMode();
     return;
   }
 

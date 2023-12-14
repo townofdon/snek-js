@@ -3,6 +3,10 @@ import { MusicTrack } from "./types";
 
 const DEBUG_MUSIC = false;
 
+interface MusicPlayerState {
+  currentTrack: MusicTrack | null
+}
+
 /**
  * Usage
  * 
@@ -19,6 +23,9 @@ const DEBUG_MUSIC = false;
  * ```
  */
 export class MusicPlayer {
+  private state: MusicPlayerState = {
+    currentTrack: null,
+  }
   private tracksPlaying: Record<MusicTrack, boolean> = {
     [MusicTrack.simpleTime]: false,
     [MusicTrack.conquerer]: false,
@@ -55,13 +62,15 @@ export class MusicPlayer {
     try {
       playMusic(this.fullPath(track), { volume, loop: true });
       this.tracksPlaying[track] = true;
+      this.state.currentTrack = track;
     } catch (err) {
       console.error(err);
     }
   }
 
-  stop(track?: MusicTrack) {
+  private stop(track?: MusicTrack) {
     if (!track) {
+      this.stopCurrentTrack();
       return;
     }
     if (DEBUG_MUSIC) {
@@ -71,9 +80,38 @@ export class MusicPlayer {
       stopAudio(this.fullPath(track));
       unloadAudio(this.fullPath(track));
       this.tracksPlaying[track] = false;
+      if (track === this.state.currentTrack) {
+        this.state.currentTrack = null;
+      }
     } catch (err) {
       console.error(err);
     }
+  }
+
+  private stopCurrentTrack() {
+    if (!this.state.currentTrack) {
+      return;
+    }
+    if (DEBUG_MUSIC) {
+      console.log(`[MusicPlayer] stopping track ${this.state.currentTrack}`);
+    }
+    try {
+      stopAudio(this.fullPath(this.state.currentTrack));
+      unloadAudio(this.fullPath(this.state.currentTrack));
+      this.tracksPlaying[this.state.currentTrack] = false;
+      this.state.currentTrack = null;
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  stopAllTracks({ exclude }: { exclude?: MusicTrack[] } = {}) {
+    const tracks = Object.keys(this.tracksPlaying) as MusicTrack[];
+    tracks.forEach(track => {
+      if (this.tracksPlaying[track] && !exclude?.includes(track)) {
+        this.stop(track);
+      }
+    })
   }
 
   halfSpeed(track?: MusicTrack) {

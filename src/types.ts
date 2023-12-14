@@ -15,6 +15,16 @@ import { Howl } from 'howler';
  */
 export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, unknown>
 
+export interface QueryParams {
+  enableQuoteMode: boolean,
+}
+
+export enum AppMode {
+  Game,
+  Quote,
+  Soundtrack,
+}
+
 export enum DIR {
   UP = 'UP',
   DOWN = 'DOWN',
@@ -64,6 +74,7 @@ export interface Stats {
 }
 
 export interface GameState {
+  appMode: AppMode,
   isGameStarted: boolean,
   isGameStarting: boolean,
   isPaused: boolean,
@@ -196,6 +207,7 @@ export interface Scene {
 
 export interface SceneCallbacks {
   onSceneEnded?: () => void
+  onEscapePress?: () => void
 }
 
 export interface SceneCachedCallbacks {

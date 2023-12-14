@@ -24,7 +24,7 @@ import {
   LEVEL_15,
   LEVEL_99,
 } from './levels';
-import { DIR } from "./types";
+import { AppMode, DIR, QueryParams } from "./types";
 import { TUTORIAL_LEVEL_10 } from "./levels/tutorialLevel10";
 import { TUTORIAL_LEVEL_20 } from "./levels/tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./levels/tutorialLevel30";
@@ -149,4 +149,12 @@ export function dirToUnitVector(p5: P5, dir: DIR) {
 
 export function oscilateLinear(num: number) {
   return 1 - Math.abs(num % 2 - 1);
+}
+
+export function parseUrlQueryParams(): QueryParams {
+  const query = new URLSearchParams(window.location.search);
+  const params: QueryParams = {
+    enableQuoteMode: query.get("enableQuoteMode")?.toLowerCase() === 'true'
+  }
+  return params;
 }

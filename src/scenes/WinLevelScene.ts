@@ -106,7 +106,7 @@ export class WinLevelScene extends BaseScene {
         this.drawScore(this.score);
       });
     } else if (this.hasAllApples) {
-      sfx.play(Sound.xpound);
+      sfx.play(Sound.xpound, 0.6);
       yield* coroutines.waitForTime(500, (t) => {
         this.drawAllApplesBonus(this.allApplesBonus, this.hasAllApples);
         this.drawLevelClearBonus(this.levelClearBonus);

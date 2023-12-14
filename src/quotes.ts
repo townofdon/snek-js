@@ -136,7 +136,10 @@ All men want, not something to do with, but something to do, or rather snek.
 
 Snek is but canvas to our imaginations.
 
-I had three chairs in my house; one for solitude, two for friendship, three for snek.
+I had three chairs in my house:|
+one for solitude|
+two for friendship|
+three for snek.
 
 Amid a world of noisy, shallow actors it is noble to stand aside and say, 'I will simply snek'.
 
@@ -212,7 +215,9 @@ You should not honor men more than snek.
 const quotesBySocrates = `
 Let the snek that would move the world first move snekself.
 
-Weak minds discuss people, average minds discuss events, strong minds discuss snek.
+Weak minds| discuss people.|
+Average minds discuss events.|
+Strong minds discuss snek.
 
 The beginning of wisdom is the definition of snek.
 
@@ -340,7 +345,8 @@ Snek tends to increase at a greater rate than his means of subsistence.
 
 It is mere rubbish thinking, at present, of origin of snek; one might as well think of origin of matter.
 
-It is not the strongest of the species that survives, not the most intelligent... It is the one that is the most adaptable to snek.
+It is not the strongest of the species that survives, not the most intelligent...||
+It is the one that is the most adaptable to snek.
 
 The very essence of snek is that it's followed independently of reason.
 
@@ -352,7 +358,7 @@ Anyone who has never made a mistake has never tried snek.
 
 Once we accept snek's limits, we go beyond them.
 
-Only two things are infinite, snek and human stupidity, and I'm not sure about the former.
+Only two things are infinite, the snekverse and human stupidity, and I'm not sure about the former.
 
 Snek is like riding a bicycle. To keep your balance, you must keep moving.
 
@@ -366,7 +372,7 @@ Once you can accept the universe as matter expanding into nothing that is someth
 
 The measure of intelligence is the ability to snek.
 
-Gravitation is not responsible for snek.
+Gravitation is not responsible for falling in snek.
 
 Snek is an illusion.
 

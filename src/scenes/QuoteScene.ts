@@ -56,7 +56,17 @@ export class QuoteScene extends BaseScene {
     }
   }
 
-  keyPressed = () => { };
+  keyPressed = () => {
+    const { keyCode, ESCAPE } = this.props.p5;
+    const { onEscapePress } = this.props.callbacks;
+    if (keyCode === ESCAPE) {
+      if (onEscapePress) {
+        this.stopAllCoroutines();
+        onEscapePress();
+        this.cleanup();
+      }
+    }
+  };
 
   drawPartialQuote = (quote: string, numLetters = 1000) => {
     const { p5, fonts } = this.props;
