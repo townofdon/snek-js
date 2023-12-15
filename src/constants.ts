@@ -23,6 +23,8 @@ export const MAX_MOVES = 4;
 export const MAX_LIVES = 3;
 export const START_SNAKE_SIZE = 3;
 export const SPEED_INCREMENT = 1;
+export const SPEED_INCREMENT_SPEED_MS = 1000;
+export const SPRINT_INCREMENT_SPEED_MS = 350;
 export const NUM_APPLES_START = 3;
 
 export const SCORE_INCREMENT = 10;
@@ -56,6 +58,7 @@ export const SPEED_LIMIT_EASY = 110;
 export const SPEED_LIMIT_MEDIUM = 56;
 export const SPEED_LIMIT_HARD = 35;
 export const SPEED_LIMIT_ULTRA = 25;
+export const SPEED_LIMIT_ULTRA_SPRINT = 15;
 
 export const DIFFICULTY_EASY: Difficulty = {
   index: 1,
@@ -64,6 +67,7 @@ export const DIFFICULTY_EASY: Difficulty = {
   scoreMod: SCORE_MOD_EASY,
   bonusMod: BONUS_MOD_EASY,
   speedLimit: SPEED_LIMIT_EASY,
+  sprintLimit: SPEED_LIMIT_MEDIUM,
 }
 export const DIFFICULTY_MEDIUM: Difficulty = {
   index: 2,
@@ -72,6 +76,7 @@ export const DIFFICULTY_MEDIUM: Difficulty = {
   scoreMod: SCORE_MOD_MEDIUM,
   bonusMod: BONUS_MOD_MEDIUM,
   speedLimit: SPEED_LIMIT_MEDIUM,
+  sprintLimit: SPEED_LIMIT_HARD,
 }
 export const DIFFICULTY_HARD: Difficulty = {
   index: 3,
@@ -80,6 +85,7 @@ export const DIFFICULTY_HARD: Difficulty = {
   scoreMod: SCORE_MOD_HARD,
   bonusMod: BONUS_MOD_HARD,
   speedLimit: SPEED_LIMIT_HARD,
+  sprintLimit: SPEED_LIMIT_ULTRA,
 }
 export const DIFFICULTY_ULTRA: Difficulty = {
   index: 4,
@@ -88,6 +94,7 @@ export const DIFFICULTY_ULTRA: Difficulty = {
   scoreMod: SCORE_MOD_ULTRA,
   bonusMod: BONUS_MOD_ULTRA,
   speedLimit: SPEED_LIMIT_ULTRA,
+  sprintLimit: SPEED_LIMIT_ULTRA_SPRINT,
 }
 
 export const KEYCODE_W = 87;

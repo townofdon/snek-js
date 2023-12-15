@@ -7,7 +7,8 @@ const name = 'plaza'
 export const LEVEL_02: Level = {
   name,
   timeToClear: 1000 * 60 * 1.2,
-  applesToClear: 20,
+  applesToClear: 40,
+  growthMod: 0.75,
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXX~~   ~   -_-    ~   ~~XXXX

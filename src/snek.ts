@@ -37,6 +37,8 @@ import {
   ALL_APPLES_BONUS,
   HURT_MUSIC_DUCK_VOL,
   HURT_MUSIC_DUCK_TIME_MS,
+  SPEED_INCREMENT_SPEED_MS,
+  SPRINT_INCREMENT_SPEED_MS,
 } from './constants';
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
@@ -76,6 +78,7 @@ const state: GameState = {
   isGameStarting: false,
   isPaused: false,
   isMoving: false,
+  isSprinting: false,
   isLost: false,
   isDoorsOpen: false,
   isExitingLevel: false,
@@ -87,7 +90,8 @@ const state: GameState = {
   timeSinceHurt: Infinity,
   hurtGraceTime: HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0),
   lives: MAX_LIVES,
-  speed: 1,
+  targetSpeed: 1,
+  currentSpeed: 1,
   steps: 0,
   frameCount: 0,
   lastHurtBy: HitType.Unknown,
@@ -379,6 +383,7 @@ export const sketch = (p5: P5) => {
     player.direction = DIR.RIGHT;
     state.isPaused = false;
     state.isMoving = false;
+    state.isSprinting = false;
     state.isLost = false;
     state.isDoorsOpen = false;
     state.isExitingLevel = false;
@@ -393,7 +398,8 @@ export const sketch = (p5: P5) => {
     screenShake.timeSinceLastStep = Infinity;
     screenShake.magnitude = 1;
     screenShake.timeScale = 1;
-    state.speed = 1;
+    state.targetSpeed = 1;
+    state.currentSpeed = 1;
     state.steps = 0;
     state.frameCount = 0;
     state.lastHurtBy = HitType.Unknown;
@@ -484,6 +490,12 @@ export const sketch = (p5: P5) => {
       return;
     }
 
+    if (p5.keyIsDown(p5.SHIFT) && state.isMoving) {
+      state.isSprinting = true;
+    } else {
+      state.isSprinting = false;
+    }
+
     updateScreenShake();
     drawBackground();
 
@@ -562,6 +574,11 @@ export const sketch = (p5: P5) => {
       state.isLost = false;
       state.lives -= 1;
       state.timeSinceHurt = 0;
+      if (difficulty.index === 4) {
+        state.currentSpeed = 1;
+      } else {
+        state.currentSpeed = 2;
+      }
       flashScreen();
       startScreenShake();
       renderHeartsUI();
@@ -607,6 +624,7 @@ export const sketch = (p5: P5) => {
       } else {
         state.timeSinceLastMove += p5.deltaTime;
       }
+      updateCurrentMoveSpeed();
       stats.totalTimeElapsed += p5.deltaTime;
       state.timeSinceHurt += p5.deltaTime;
     }
@@ -686,15 +704,46 @@ export const sketch = (p5: P5) => {
       return Infinity;
     }
     if (difficulty.index === 4) {
-      if (state.speed <= 1) return SPEED_LIMIT_EASY;
-      if (state.speed <= 2) return SPEED_LIMIT_MEDIUM;
-      if (state.speed <= 3) return SPEED_LIMIT_HARD;
+      if (state.isSprinting) return difficulty.sprintLimit;
+      if (state.currentSpeed <= 1) return SPEED_LIMIT_EASY;
+      if (state.currentSpeed <= 2) return p5.lerp(SPEED_LIMIT_EASY, SPEED_LIMIT_MEDIUM, state.currentSpeed - 1);
+      if (state.currentSpeed <= 3) return p5.lerp(SPEED_LIMIT_MEDIUM, SPEED_LIMIT_HARD, state.currentSpeed - 2);
+      if (state.currentSpeed <= 4) return p5.lerp(SPEED_LIMIT_HARD, SPEED_LIMIT_ULTRA, state.currentSpeed - 3);
       return SPEED_LIMIT_ULTRA;
     }
     return Math.max(
-      BASE_TICK_MS / Math.max(state.speed * difficulty.speedMod, 1),
-      difficulty.speedLimit
+      BASE_TICK_MS / Math.max(state.currentSpeed * difficulty.speedMod, 1),
+      state.isSprinting ? difficulty.sprintLimit : difficulty.speedLimit
     );
+  }
+
+  // A NOTE ON THE SPEED SYSTEM
+  // Yes, I know it's hacky and relies on magic numbers.
+  // A better solution would be to assign a quadratic curve to each difficulty.
+  // I may do think in a future iteration if I feel up to it. Right now, the game is good enough.
+  function updateCurrentMoveSpeed() {
+    if (state.isSprinting) {
+      const deltaSpeed = 10 * (p5.deltaTime / SPRINT_INCREMENT_SPEED_MS);
+      state.currentSpeed += deltaSpeed;
+      if (state.currentSpeed > 10) {
+        state.currentSpeed = 10;
+      }
+      return;
+    }
+    if (state.currentSpeed === state.targetSpeed) {
+      return;
+    }
+    if (state.currentSpeed < state.targetSpeed) {
+      const t = Easing.inOutCubic(clamp((state.timeSinceHurt - HURT_STUN_TIME) * 0.5, 0, 1));
+      const diff = Math.abs(state.targetSpeed - state.currentSpeed);
+      const deltaSpeed = clamp(diff, 1, SPEED_INCREMENT) * (p5.deltaTime / SPEED_INCREMENT_SPEED_MS) * p5.lerp(0, 1, t);
+      state.currentSpeed += deltaSpeed;
+      if (state.currentSpeed > state.targetSpeed) state.currentSpeed = state.targetSpeed;
+    } else if (state.currentSpeed > state.targetSpeed) {
+      const deltaSpeed = 10 * (p5.deltaTime / SPRINT_INCREMENT_SPEED_MS);
+      state.currentSpeed -= deltaSpeed;
+      if (state.currentSpeed < state.targetSpeed) state.currentSpeed = state.targetSpeed;
+    }
   }
 
   function spawnAppleParticles(position: Vector) {
@@ -788,6 +837,7 @@ export const sketch = (p5: P5) => {
       case PortalExitMode.SameDirection:
         break;
     }
+    state.timeSinceLastMove = 0;
     player.position.set(portal.link);
     player.position.add(dirToUnitVector(p5, player.direction));
   }
@@ -957,11 +1007,11 @@ export const sketch = (p5: P5) => {
   function increaseSpeed() {
     if (state.isLost) return;
     if (difficulty.index === 4) {
-      state.speed += 1;
+      state.targetSpeed += 1;
     } else if (difficulty.index === 1) {
-      state.speed += 1.2;
+      state.targetSpeed += 1.2;
     } else {
-      state.speed += SPEED_INCREMENT * Math.min(difficulty.speedMod, 1);
+      state.targetSpeed += SPEED_INCREMENT * Math.min(difficulty.speedMod, 1);
     }
   }
 

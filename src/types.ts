@@ -52,6 +52,7 @@ export interface Difficulty {
   scoreMod: number,
   bonusMod: number,
   speedLimit: number,
+  sprintLimit: number,
 }
 
 export enum HitType {
@@ -79,6 +80,7 @@ export interface GameState {
   isGameStarting: boolean,
   isPaused: boolean,
   isMoving: boolean,
+  isSprinting: boolean, // is user holding down shift key?
   isLost: boolean,
   isDoorsOpen: boolean,
   isExitingLevel: boolean,
@@ -90,7 +92,8 @@ export interface GameState {
   timeSinceHurt: number,
   hurtGraceTime: number,
   lives: number,
-  speed: number,
+  targetSpeed: number,
+  currentSpeed: number,
   steps: number,
   frameCount: number,
   lastHurtBy: HitType,

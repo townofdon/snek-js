@@ -7,8 +7,9 @@ const name = 'the facility';
 export const LEVEL_04: Level = {
   name,
   timeToClear: 1000 * 60 * 1.5,
-  applesToClear: 40,
+  applesToClear: 60,
   numApplesStart: 5,
+  growthMod: 0.6,
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 X++++==----=====---++++XXXXXXX

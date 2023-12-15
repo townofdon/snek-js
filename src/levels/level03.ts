@@ -7,7 +7,8 @@ const name = 'metro'
 export const LEVEL_03: Level = {
   name,
   timeToClear: 1000 * 60 * 1.3,
-  applesToClear: 30,
+  applesToClear: 50,
+  growthMod: 0.75,
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXX~~=-=     =-=     =-= ~~XXX

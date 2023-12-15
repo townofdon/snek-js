@@ -7,7 +7,7 @@ const name = 'snekadia'
 export const LEVEL_01: Level = {
   name,
   timeToClear: 1000 * 60 * 1,
-  applesToClear: 15,
+  applesToClear: 30,
   layout: "\
 XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX\n\
 X~~ ~ _-~ ~ ~=+=~ ~ ~-_ ~ ~~~X\n\

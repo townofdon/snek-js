@@ -9,6 +9,7 @@ export const LEVEL_06: Level = {
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 40,
   numApplesStart: 5,
+  growthMod: 0.9,
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXX~~~ ~  ~ ~  ~  ~  ~ ~~XXXX
