@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack } from "../types";
+import { Level, MusicTrack, TitleVariant } from "../types";
 
 const name = 'snekadia'
 
@@ -49,4 +49,5 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX\n\
     ["Maybe let's dial down the difficulty?", (state, stats, difficulty) => difficulty.index >= 4],
   ],
   musicTrack: MusicTrack.champion,
+  titleVariant: TitleVariant.Yellow,
 };

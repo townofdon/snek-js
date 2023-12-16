@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack } from "../types";
+import { Level, MusicTrack, TitleVariant } from "../types";
 
 const name = 'the facility';
 
@@ -49,4 +49,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   ],
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.conquerer,
+  titleVariant: TitleVariant.Yellow,
 };

@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack } from "../types";
+import { Level, MusicTrack, TitleVariant } from "../types";
 
 const name = 'plaza'
 
@@ -44,4 +44,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   colors: PALETTE.plumsea,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.simpleTime,
+  titleVariant: TitleVariant.Green,
 };

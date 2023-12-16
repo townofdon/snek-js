@@ -42,8 +42,8 @@ import {
 } from './constants';
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
-import { UI } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode } from './types';
+import { MainTitleFader, UI } from './ui';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -156,8 +156,9 @@ let quotes = allQuotes.slice();
 const difficultyButtons: Record<number, P5.Element> = {}
 
 enum Action {
-  FadingMusic = 'FadingMusic',
-  ExecuteQuotesMode = "ExecuteQuotesMode"
+  FadeMusic = 'FadeMusic',
+  ExecuteQuotesMode = 'ExecuteQuotesMode',
+  SetTitleVariant = 'SetTitleVariant',
 }
 type ActionKey = keyof typeof Action
 
@@ -170,11 +171,12 @@ export const sketch = (p5: P5) => {
 
   // actions are unique, singleton coroutines, meaning that only one coroutine of a type can run at a time
   const actionIds: Record<ActionKey, string | null> = {
-    FadingMusic: null,
+    FadeMusic: null,
     ExecuteQuotesMode: null,
+    SetTitleVariant: null,
   };
-  const startAction = (enumerator: IEnumerator, actionKey: Action) => {
-    if (replay.mode === ReplayMode.Playback) {
+  const startAction = (enumerator: IEnumerator, actionKey: Action, force = false) => {
+    if (!force && replay.mode === ReplayMode.Playback) {
       return;
     }
     coroutines.stop(actionIds[actionKey]);
@@ -185,10 +187,14 @@ export const sketch = (p5: P5) => {
     coroutines.stop(actionIds[actionKey]);
     actionIds[actionKey] = null;
   }
+  const clearAction = (actionKey: Action) => {
+    actionIds[actionKey] = null;
+  }
 
   const fonts = new Fonts(p5);
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer();
+  const mainTitleFader = new MainTitleFader(p5);
   const winScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
   const renderer = new Renderer({ p5, fonts, replay, state, screenShake });
 
@@ -239,8 +245,7 @@ export const sketch = (p5: P5) => {
     UI.enableScreenScroll();
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
-    UI.drawTitle(TITLE, "#ffc000", 5, true, uiElements);
-    UI.drawTitle(TITLE, "#cdeaff", 0, false, uiElements);
+    UI.showTitle();
     const offsetLeft = 150;
     difficultyButtons[1] = UI.drawButton("EASY", 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
     difficultyButtons[2] = UI.drawButton("MEDIUM", 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
@@ -331,6 +336,7 @@ export const sketch = (p5: P5) => {
     if (!force && replay.mode === ReplayMode.Playback) return;
     uiElements.forEach(element => element.remove())
     uiElements = [];
+    UI.hideTitle();
   }
 
   function renderDifficultyUI() {
@@ -363,7 +369,6 @@ export const sketch = (p5: P5) => {
   function init(shouldShowTransitions = true) {
     if (replay.mode === ReplayMode.Playback) {
       shouldShowTransitions = false;
-      replay.shouldProceedToNextClip = true;
     } else {
       stopAllCoroutines();
       replay.mode = RECORD_REPLAY_STATE ? ReplayMode.Capture : ReplayMode.Disabled;
@@ -423,8 +428,8 @@ export const sketch = (p5: P5) => {
     UI.clearLabels();
     clearUI();
     winScene.reset();
-    stopAction(Action.FadingMusic);
-    startAction(fadeMusic(1, 100), Action.FadingMusic);
+    stopAction(Action.FadeMusic);
+    startAction(fadeMusic(1, 100), Action.FadeMusic);
     setSfxVolume(settings.sfxVolume);
 
     if (shouldShowTransitions) {
@@ -451,6 +456,10 @@ export const sketch = (p5: P5) => {
       renderHeartsUI();
       renderScoreUI();
       renderLevelName();
+    }
+
+    if (!state.isGameStarted && replay.mode === ReplayMode.Playback) {
+      startAction(mainTitleFader.setTitleVariant(level.titleVariant ?? TitleVariant.GrayBlue), Action.SetTitleVariant, true);
     }
 
     const levelData = buildLevel({ p5, level });
@@ -584,7 +593,7 @@ export const sketch = (p5: P5) => {
       renderHeartsUI();
       spawnHurtParticles();
       hurtSnake();
-      startAction(duckMusicOnHurt(), Action.FadingMusic);
+      startAction(duckMusicOnHurt(), Action.FadeMusic);
       switch (state.lives) {
         case 2:
           playSound(Sound.hurt1);
@@ -670,7 +679,7 @@ export const sketch = (p5: P5) => {
     if (!state.isExited && segments.every(segment => getHasSegmentExited(segment))) {
       state.isExited = true;
       if (replay.mode === ReplayMode.Playback) {
-        gotoNextLevel();
+        proceedToNextReplayClip();
       } else {
         const isPerfect = apples.length === 0 && state.lives === 3;
         const hasAllApples = apples.length === 0;
@@ -912,7 +921,7 @@ export const sketch = (p5: P5) => {
       yield null;
     }
     setMusicVolume(1);
-    stopAction(Action.FadingMusic);
+    clearAction(Action.FadeMusic);
   }
 
   function spawnHurtParticles() {
@@ -1143,7 +1152,7 @@ export const sketch = (p5: P5) => {
       // musicPlayer.stop(level.musicTrack);
       state.lives = 0;
       stats.numDeaths += 1;
-      coroutines.stop(actionIds.FadingMusic);
+      coroutines.stop(actionIds.FadeMusic);
       setMusicVolume(0);
       musicPlayer.halfSpeed(level.musicTrack);
     }
@@ -1164,9 +1173,9 @@ export const sketch = (p5: P5) => {
     startScreenShake();
     if (replay.mode === ReplayMode.Playback) {
       yield* waitForTime(1000);
-      init(false);
+      proceedToNextReplayClip();
     } else {
-      startAction(fadeMusic(0.3, 1000), Action.FadingMusic);
+      startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
       const randomMessage = getRandomMessage();
       UI.drawDarkOverlay(uiElements);
       UI.drawButton("MAIN MENU", 20, 20, setup, uiElements);
@@ -1192,7 +1201,7 @@ export const sketch = (p5: P5) => {
       yield null;
     }
     setMusicVolume(toVolume);
-    stopAction(Action.FadingMusic);
+    clearAction(Action.FadeMusic);
   }
 
   function resetScore() {
@@ -1286,14 +1295,14 @@ export const sketch = (p5: P5) => {
   }
 
   function gotoNextLevel() {
+    if (replay.mode === ReplayMode.Playback) return;
+
     const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin;
     stats.numLevelsCleared += 1;
     stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
     state.levelIndex++;
-    if (replay.mode != ReplayMode.Playback) {
-      musicPlayer.stopAllTracks();
-    }
+    musicPlayer.stopAllTracks();
     level = LEVELS[state.levelIndex % LEVELS.length];
     if (level === START_LEVEL) {
       difficulty.index++;
@@ -1302,7 +1311,7 @@ export const sketch = (p5: P5) => {
 
     maybeSaveReplayStateToFile();
 
-    if (showQuoteOnLevelWin && replay.mode !== ReplayMode.Playback) {
+    if (showQuoteOnLevelWin) {
       const quote = getNextQuote();
       const onSceneEnded = () => {
         init();
@@ -1370,6 +1379,10 @@ export const sketch = (p5: P5) => {
     replay.mode = ReplayMode.Disabled;
   }
 
+  function proceedToNextReplayClip() {
+    replay.shouldProceedToNextClip = true;
+  }
+
   function* replayRoutine(): IEnumerator {
     const clips = shuffleArray(replayClips)
     let clipIndex = 0;
@@ -1381,6 +1394,7 @@ export const sketch = (p5: P5) => {
         break;
       }
 
+      replay.shouldProceedToNextClip = false;
       replay.applesToSpawn = clip.applesToSpawn.slice();
       replay.difficulty = { ...clip.difficulty };
       replay.levelIndex = clip.levelIndex;
@@ -1390,7 +1404,6 @@ export const sketch = (p5: P5) => {
       level = LEVELS[state.levelIndex % LEVELS.length];
       difficulty = { ...clip.difficulty };
       init(false);
-      replay.shouldProceedToNextClip = false;
       clipIndex++;
       yield null;
 

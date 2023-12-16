@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level } from "../types";
+import { Level, TitleVariant } from "../types";
 
 const name = 'darkstar';
 
@@ -49,4 +49,5 @@ XXXXXX33XXXXXXDDXXXXXX33XXXXXX
     ["I hear playing SNEK rewires one's brain..."],
   ],
   showQuoteOnLevelWin: true,
+  titleVariant: TitleVariant.Red,
 };

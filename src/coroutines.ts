@@ -15,9 +15,8 @@ export class Coroutines {
   }
 
   start = (enumerator: IEnumerator): UUID => {
+    if (!enumerator) return;
     const id = uuid();
-    // @ts-ignore
-    enumerator.id = id;
     this._coroutines.push(enumerator);
     this._coroutinesMap[id] = enumerator;
     return id;
@@ -28,13 +27,14 @@ export class Coroutines {
     if (!this._coroutinesMap[id]) return;
     for (let i = 0; i < this._coroutines.length; i++) {
       if (this._coroutines[i] === this._coroutinesMap[id]) {
-        delete this._coroutines[i];
-        delete this._coroutinesMap[id];
+        try { this._coroutines[i].return(); } catch { /* fail silently */ }
+        this._coroutines[i] = null;
+        this._coroutinesMap[id] = null;
         this._coroutines = this._coroutines.slice(0, i).concat(this._coroutines.slice(i + 1))
         return;
       }
     }
-    delete this._coroutinesMap[id];
+    this._coroutinesMap[id] = null;
   }
 
   stopAll = () => {
@@ -48,7 +48,7 @@ export class Coroutines {
       const value = this._coroutines[i].next();
       if (value.done) {
         this.cleanupMappedEnumerator(this._coroutines[i]);
-        delete this._coroutines[i];
+        this._coroutines[i] = null;
       }
     }
     this._coroutines = this._coroutines.filter(c => !!c);
@@ -63,7 +63,7 @@ export class Coroutines {
   }
 
   // make private so that we can expose `waitForTime` as an arrow function, retaining `this` scope
-  private *_waitForTime(durationMs: number, callback?: (t: number) => void): IEnumerator {
+  private * _waitForTime(durationMs: number, callback?: (t: number) => void): IEnumerator {
     let timeRemaining = durationMs;
     while (timeRemaining > 0) {
       timeRemaining -= this._p5.deltaTime;
@@ -73,7 +73,7 @@ export class Coroutines {
     }
   }
 
-  private *_waitForAnyKey(callback?: () => void): IEnumerator {
+  private * _waitForAnyKey(callback?: () => void): IEnumerator {
     this._p5.keyIsPressed = false;
     while (!this._p5.keyIsPressed) {
       if (callback) callback();
@@ -85,7 +85,7 @@ export class Coroutines {
     const keys = Object.keys(this._coroutinesMap);
     for (let i = 0; i < keys.length; i++) {
       if (enumerator === this._coroutinesMap[keys[i]]) {
-        delete this._coroutinesMap[keys[i]];
+        this._coroutinesMap[keys[i]] = null;
         break;
       }
     }

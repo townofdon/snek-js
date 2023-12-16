@@ -121,6 +121,15 @@ export interface Palette {
   deco2Stroke: string,
 }
 
+export enum TitleVariant {
+  GrayBlue,
+  Gray,
+  Green,
+  Red,
+  Sand,
+  Yellow,
+}
+
 export interface Level {
   name: string,
   timeToClear: number,
@@ -139,6 +148,7 @@ export interface Level {
   titleScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
   creditsScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
   musicTrack?: MusicTrack
+  titleVariant?: TitleVariant
 }
 
 export type LoseMessage = [string] | [string, GetShouldShowLoseMessage];

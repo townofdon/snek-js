@@ -56,7 +56,7 @@ export const NUM_APPLES_MOD_ULTRA = 1.5;
 
 export const SPEED_LIMIT_EASY = 110;
 export const SPEED_LIMIT_MEDIUM = 56;
-export const SPEED_LIMIT_HARD = 35;
+export const SPEED_LIMIT_HARD = 38;
 export const SPEED_LIMIT_ULTRA = 25;
 export const SPEED_LIMIT_ULTRA_SPRINT = 15;
 
@@ -112,6 +112,18 @@ export const KEYCODE_6 = 54;
 export const KEYCODE_7 = 55;
 export const KEYCODE_8 = 56;
 export const KEYCODE_9 = 57;
+
+export const KEYCODE_NUMPAD_0 = 96;
+export const KEYCODE_NUMPAD_1 = 97;
+export const KEYCODE_NUMPAD_2 = 98;
+export const KEYCODE_NUMPAD_3 = 99;
+export const KEYCODE_NUMPAD_4 = 100;
+export const KEYCODE_NUMPAD_5 = 101;
+export const KEYCODE_NUMPAD_6 = 102;
+export const KEYCODE_NUMPAD_7 = 103;
+export const KEYCODE_NUMPAD_8 = 104;
+export const KEYCODE_NUMPAD_9 = 105;
+
 export const KEYCODE_SPACE = 32;
 export const KEYCODE_QUOTE = 222;
 

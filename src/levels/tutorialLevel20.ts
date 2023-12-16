@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack } from "../types";
+import { Level, MusicTrack, TitleVariant } from "../types";
 
 const name = 'turnonadime';
 
@@ -53,4 +53,5 @@ XXXXXXXXXXaX-X--X-X XXXDDXXX X
   },
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.aqueduct,
+  titleVariant: TitleVariant.GrayBlue,
 };

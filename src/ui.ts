@@ -1,4 +1,5 @@
-import P5, { Element, Vector } from 'p5';
+import P5, { Element } from 'p5';
+import { IEnumerator, TitleVariant } from './types';
 
 const UI_LABEL_OFFSET = '18px';
 
@@ -7,11 +8,26 @@ const LABEL_COLOR_INVERTED = '#000';
 const LABEL_BG_COLOR = 'rgba(0,0,0, 0.5)';
 const LABEL_BG_COLOR_INVERTED = 'rgba(255,255,255, 0.5)';
 
+const TITLE_VARIANT_TRANSITION_TIME_MS = 2000;
+
 export class UI {
-  static p5: P5;
+
+  private static p5: P5;
 
   static setP5Instance(p5: P5) {
     UI.p5 = p5;
+  }
+
+  static showTitle() {
+    const title = document.getElementById('main-title');
+    if (!title) return;
+    title.style.display = 'block';
+  }
+
+  static hideTitle() {
+    const title = document.getElementById('main-title');
+    if (!title) return;
+    title.style.display = 'none';
   }
 
   static drawTitle(title = '', textColor = '#fff', offset: number, hasShadow: boolean, uiElements: Element[]) {
@@ -211,3 +227,52 @@ export class UI {
   }
 }
 
+export class MainTitleFader {
+  private prevTitleVariant: TitleVariant = TitleVariant.GrayBlue;
+  private p5: P5;
+
+  constructor(p5: P5) {
+    this.p5 = p5;
+  }
+
+  setTitleVariant(variant: TitleVariant): IEnumerator {
+    const prevVariant = this.prevTitleVariant;
+    if (variant === prevVariant) return;
+
+    this.prevTitleVariant = variant;
+    return MainTitleFader.fadeTitleVariant(variant, prevVariant, this.p5);
+  }
+
+  private static fadeTitleVariant = function* (variant: TitleVariant, prevVariant: TitleVariant, p5: P5): IEnumerator {
+    if (variant === prevVariant) return;
+
+    const incoming = document.getElementById(MainTitleFader.getIdByTitleVariant(variant));
+    const outgoing = document.getElementById(MainTitleFader.getIdByTitleVariant(prevVariant));
+    if (!incoming) throw new Error(`Could not find elem for variant=${incoming},id=${MainTitleFader.getIdByTitleVariant(variant)}`)
+    if (!outgoing) throw new Error(`Could not find elem for variant=${outgoing},id=${MainTitleFader.getIdByTitleVariant(prevVariant)}`)
+    let t = 0;
+    while (t < 1) {
+      yield null;
+      incoming.style.opacity = String(p5.lerp(0, 1, t));
+      outgoing.style.opacity = String(p5.lerp(1, 0, t));
+      t += p5.deltaTime / TITLE_VARIANT_TRANSITION_TIME_MS;
+    }
+  }
+
+  private static getIdByTitleVariant(variant: TitleVariant) {
+    switch (variant) {
+      case TitleVariant.GrayBlue:
+        return 'main-title-variant-grayblue';
+      case TitleVariant.Gray:
+        return 'main-title-variant-gray';
+      case TitleVariant.Green:
+        return 'main-title-variant-green';
+      case TitleVariant.Red:
+        return 'main-title-variant-red'
+      case TitleVariant.Sand:
+        return 'main-title-variant-sand'
+      case TitleVariant.Yellow:
+        return 'main-title-variant-yellow'
+    }
+  }
+}

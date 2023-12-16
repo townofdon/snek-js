@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack } from "../types";
+import { Level, MusicTrack, TitleVariant } from "../types";
 
 const name = 'turnaround';
 
@@ -52,4 +52,5 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   ],
   disableNormalLoseMessages: true,
   musicTrack: MusicTrack.aqueduct,
+  titleVariant: TitleVariant.Gray,
 };
