@@ -126,6 +126,7 @@ export const KEYCODE_NUMPAD_9 = 105;
 
 export const KEYCODE_SPACE = 32;
 export const KEYCODE_QUOTE = 222;
+export const KEYCODE_ALPHA_M = 77;
 
 export const SCREEN_SHAKE_DURATION_MS = 1000;
 export const SCREEN_SHAKE_MAGNITUDE_PX = 4;

@@ -22,7 +22,7 @@ export interface QueryParams {
 export enum AppMode {
   Game,
   Quote,
-  Soundtrack,
+  OST,
 }
 
 export enum DIR {

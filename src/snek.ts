@@ -63,6 +63,7 @@ import { PortalParticleSystem, PortalVortexParticleSystem } from './particleSyst
 import { MusicPlayer } from './musicPlayer';
 import { getMusicVolume, resumeAudioContext, setMusicVolume, setSfxVolume } from './audio';
 import { Easing } from './easing';
+import { OSTScene } from './scenes/OSTScene';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -282,6 +283,7 @@ export const sketch = (p5: P5) => {
       onStartMoving: startMoving,
       onAddMove: move => moves.push(move),
       onEnterQuoteMode: enterQuoteMode,
+      onEnterOstMode: enterOstMode,
     });
   }
 
@@ -1358,6 +1360,21 @@ export const sketch = (p5: P5) => {
       new QuoteScene(quote, p5, sfx, fonts, { onEscapePress });
       yield null;
     }
+  }
+
+  function enterOstMode() {
+    state.appMode = AppMode.OST;
+    clearUI(true);
+    stopReplay();
+    stopAllCoroutines();
+    const onEscapePress = () => {
+      state.appMode = AppMode.Game;
+      musicPlayer.stopAllTracks();
+      setMusicVolume(1);
+      setup();
+    }
+    setMusicVolume(1.2);
+    new OSTScene(p5, sfx, musicPlayer, fonts, { onEscapePress })
   }
 
   function setLevelIndexFromCurrentLevel() {

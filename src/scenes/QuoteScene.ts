@@ -68,7 +68,7 @@ export class QuoteScene extends BaseScene {
     }
   };
 
-  drawPartialQuote = (quote: string, numLetters = 1000) => {
+  private drawPartialQuote = (quote: string, numLetters = 1000) => {
     const { p5, fonts } = this.props;
     p5.fill('#fff');
     p5.noStroke();
@@ -78,7 +78,7 @@ export class QuoteScene extends BaseScene {
     p5.text(quote.substring(0, numLetters), ...this._getQuoteRect());
   }
 
-  drawAuthor = (paragraphHeight: number) => {
+  private drawAuthor = (paragraphHeight: number) => {
     const { p5, fonts } = this.props;
     const [x, y, width, height] = this._getQuoteRect();
     p5.fill('#fff');
@@ -89,7 +89,7 @@ export class QuoteScene extends BaseScene {
     p5.text('- ' + this._author, x, y + paragraphHeight + AUTHOR_PADDING, width, height);
   }
 
-  drawPressAnyKey = () => {
+  private drawPressAnyKey = () => {
     const { p5, fonts } = this.props;
     p5.fill('#fff');
     p5.noStroke();
@@ -103,6 +103,10 @@ export class QuoteScene extends BaseScene {
   draw = () => {
     this.drawBackground();
     this.tick();
+    if (this.props.callbacks.onEscapePress) {
+      this.drawSceneTitle();
+      this.drawExit();
+    }
   };
 
   private _getQuoteRect = () => {
@@ -121,6 +125,26 @@ export class QuoteScene extends BaseScene {
       x + width, y + height,
       x, y + height
     );
+  }
+
+  private drawSceneTitle = () => {
+    const { p5, fonts } = this.props;
+    p5.fill('#777');
+    p5.noStroke();
+    p5.textFont(fonts.variants.miniMood);
+    p5.textSize(12);
+    p5.textAlign(p5.RIGHT, p5.TOP);
+    p5.text('[QUOTE MODE]', ...this.getPosition(0.98, 0.02));
+  }
+
+  private drawExit = () => {
+    const { p5, fonts } = this.props;
+    p5.fill('#fff');
+    p5.noStroke();
+    p5.textFont(fonts.variants.miniMood);
+    p5.textSize(12);
+    p5.textAlign(p5.LEFT, p5.TOP);
+    p5.text('[ESC] EXIT', ...this.getPosition(0.02, 0.02));
   }
 
   private _estimateNumLines = (paragraph: string, rectWidth: number, font: P5.Font, textSize: number) => {

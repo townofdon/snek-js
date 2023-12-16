@@ -18,6 +18,7 @@ import {
   KEYCODE_S,
   HURT_STUN_TIME,
   KEYCODE_QUOTE,
+  KEYCODE_ALPHA_M,
 } from './constants';
 import { AppMode, DIR, GameState } from "./types";
 
@@ -26,6 +27,7 @@ export interface InputCallbacks {
   onInit: () => void
   onStartGame: (difficulty: number) => void
   onEnterQuoteMode: () => void
+  onEnterOstMode: () => void
   onClearUI: () => void
   onShowPortalUI: () => void
   onWarpToLevel: (level: number) => void
@@ -41,6 +43,7 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     onInit,
     onStartGame,
     onEnterQuoteMode,
+    onEnterOstMode,
     onClearUI,
     onShowPortalUI,
     onWarpToLevel,
@@ -69,6 +72,7 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     else if (keyCode === KEYCODE_4) onStartGame(4);
     else if (keyCode === ENTER) onStartGame(2);
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_QUOTE) onEnterQuoteMode();
+    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_M) onEnterOstMode();
     return;
   }
 

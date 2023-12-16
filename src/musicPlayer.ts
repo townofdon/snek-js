@@ -68,7 +68,7 @@ export class MusicPlayer {
     }
   }
 
-  private stop(track?: MusicTrack) {
+  private stop(track?: MusicTrack, unload = true) {
     if (!track) {
       this.stopCurrentTrack();
       return;
@@ -78,7 +78,9 @@ export class MusicPlayer {
     }
     try {
       stopAudio(this.fullPath(track));
-      unloadAudio(this.fullPath(track));
+      if (unload) {
+        unloadAudio(this.fullPath(track));
+      }
       this.tracksPlaying[track] = false;
       if (track === this.state.currentTrack) {
         this.state.currentTrack = null;
@@ -88,7 +90,7 @@ export class MusicPlayer {
     }
   }
 
-  private stopCurrentTrack() {
+  private stopCurrentTrack(unload = true) {
     if (!this.state.currentTrack) {
       return;
     }
@@ -97,7 +99,9 @@ export class MusicPlayer {
     }
     try {
       stopAudio(this.fullPath(this.state.currentTrack));
-      unloadAudio(this.fullPath(this.state.currentTrack));
+      if (unload) {
+        unloadAudio(this.fullPath(this.state.currentTrack));
+      }
       this.tracksPlaying[this.state.currentTrack] = false;
       this.state.currentTrack = null;
     } catch (err) {
@@ -105,11 +109,11 @@ export class MusicPlayer {
     }
   }
 
-  stopAllTracks({ exclude }: { exclude?: MusicTrack[] } = {}) {
+  stopAllTracks({ exclude, unload = true }: { exclude?: MusicTrack[], unload?: boolean } = {}) {
     const tracks = Object.keys(this.tracksPlaying) as MusicTrack[];
     tracks.forEach(track => {
       if (this.tracksPlaying[track] && !exclude?.includes(track)) {
-        this.stop(track);
+        this.stop(track, unload);
       }
     })
   }

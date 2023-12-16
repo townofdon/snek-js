@@ -31,7 +31,7 @@ export class TitleScene extends BaseScene {
     p5.textFont(fonts.variants.miniMood);
     p5.textSize(14);
     p5.textAlign(p5.CENTER, p5.TOP);
-    // p5.text(lorem, ...this.getRect(0.5, 0.5, 250, 250));
+
     p5.text('now entering', ...this.getPosition(0.5, 0.4));
     p5.textSize(32);
     p5.fill('#fff');

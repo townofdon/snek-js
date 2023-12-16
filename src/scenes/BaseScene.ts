@@ -27,7 +27,7 @@ export abstract class BaseScene implements Scene {
     fonts: null,
   };
 
-  private state = {
+  private _internalState = {
     isCleaningUp: false,
   }
 
@@ -70,15 +70,15 @@ export abstract class BaseScene implements Scene {
   abstract action(): Generator<IEnumerator, void, unknown>;
 
   cleanup = () => {
-    if (this.state.isCleaningUp) return;
-    this.state.isCleaningUp = true;
+    if (this._internalState.isCleaningUp) return;
+    this._internalState.isCleaningUp = true;
     const { p5, cachedCallbacks, callbacks } = this.props;
     const { draw, keyPressed } = cachedCallbacks;
     if (draw) p5.draw = draw;
     if (keyPressed) p5.keyPressed = keyPressed;
     this.stopAllCoroutines();
     if (callbacks.onSceneEnded) callbacks.onSceneEnded();
-    this.state.isCleaningUp = false;
+    this._internalState.isCleaningUp = false;
   }
 
   abstract keyPressed: () => void
@@ -89,7 +89,7 @@ export abstract class BaseScene implements Scene {
    * Call as the last line of draw()
    */
   protected tick = () => {
-    if (this.state.isCleaningUp) return;
+    if (this._internalState.isCleaningUp) return;
     this.tickCoroutines();
   }
 
