@@ -1,6 +1,16 @@
 :root {
-  --hover-distance: 3px;
-  --hover-duration: 2.5s;
+  --hover-distance: 10px;
+  --hover-duration: 3s;
+
+  --title-sprite-img-grayblue: url('assets/graphics/snek-title-grayblue.png');
+  --title-sprite-img-gray: url('assets/graphics/snek-title-gray.png');
+  --title-sprite-img-green: url('assets/graphics/snek-title-green.png');
+  --title-sprite-img-red: url('assets/graphics/snek-title-red.png');
+  --title-sprite-img-sand: url('assets/graphics/snek-title-sand.png');
+  --title-sprite-img-yellow: url('assets/graphics/snek-title-yellow.png');
+  --title-sprite-background-size: 640px 640px;
+  --title-sprite-width: 100px;
+  --title-sprite-height: 100px;
 }
 
 @font-face {
@@ -89,7 +99,7 @@ p {
   100% { filter: var(--button-filter, brightness(1) grayscale(0.1)); }
 }
 
-p.main-title span {
+.main-title > .variant > span {
   display: inline-block;
   animation-name: anim-hover;
   animation-duration: var(--hover-duration);
@@ -98,20 +108,20 @@ p.main-title span {
   animation-fill-mode: backwards;
 }
 
-p.main-title span:nth-child(1) {
+.main-title > .variant > span:nth-child(1) {
   animation-delay: 0s;
 }
 
-p.main-title span:nth-child(2) {
-  animation-delay: .25s;
+.main-title > .variant > span:nth-child(2) {
+  animation-delay: .4s;
 }
 
-p.main-title span:nth-child(3) {
-  animation-delay: .5s;
+.main-title > .variant > span:nth-child(3) {
+  animation-delay: .8s;
 }
 
-p.main-title span:nth-child(4) {
-  animation-delay: .75s;
+.main-title > .variant > span:nth-child(4) {
+  animation-delay: 1.2s;
 }
 
 button {
@@ -174,3 +184,56 @@ button.ultra:focus {
   background: #0a503e;
   color: #00ff62;
 }
+
+.title-sprite-container {
+  z-index: 10;
+  position: absolute;
+  top: 90px;
+  width: 100%;
+  display: block;
+}
+
+.title-sprite-container .variant {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.title-sprite {
+  user-select: none;
+  display: inline-block;
+  padding: 10px;
+}
+
+.title-sprite-img {
+  user-select: none;
+  display:inline-block;
+  background-image: var(--title-sprite-img-grayblue);
+  background-size: var(--title-sprite-background-size);
+  width: var(--title-sprite-width);
+  height: var(--title-sprite-height);
+}
+
+.title-sprite-container .variant.default { opacity: 1; }
+.title-sprite-container .variant.gray { opacity: 0; }
+.title-sprite-container .variant.green { opacity: 0 }
+.title-sprite-container .variant.red { opacity: 0 }
+.title-sprite-container .variant.sand { opacity: 0 }
+.title-sprite-container .variant.yellow { opacity: 0 }
+
+.title-sprite-container .variant.default .title-sprite-img { background-image: var(--title-sprite-img-grayblue); }
+.title-sprite-container .variant.gray .title-sprite-img { background-image: var(--title-sprite-img-gray); }
+.title-sprite-container .variant.green .title-sprite-img { background-image: var(--title-sprite-img-green); }
+.title-sprite-container .variant.red .title-sprite-img { background-image: var(--title-sprite-img-red); }
+.title-sprite-container .variant.sand .title-sprite-img { background-image: var(--title-sprite-img-sand); }
+.title-sprite-container .variant.yellow .title-sprite-img { background-image: var(--title-sprite-img-yellow); }
+
+/* positioning: 1) open file in aseprite, 2) downsize by half, 3) get top-left corner of each letter */
+.sprite-snek-letter-s { background-position: -100px -260px; }
+.sprite-snek-letter-n { background-position: -220px -260px; }
+.sprite-snek-letter-e { background-position: -330px -260px; }
+.sprite-snek-letter-k { background-position: -440px -260px; }
