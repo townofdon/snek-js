@@ -76,21 +76,9 @@ p {
 }
 
 @keyframes anim-hover {
-  /* 0%   { transform: translate(0, var(--hover-distance)); filter: brightness(1) grayscale(0.1); }
-  50%  { transform: translate(0, calc(var(--hover-distance) * -1)); filter: brightness(.2) grayscale(0.7); }
-  100% { transform: translate(0, var(--hover-distance)); filter: brightness(1) grayscale(0.1); } */
-
   0%   { transform: translate(0, var(--hover-distance)); }
   50%  { transform: translate(0, calc(var(--hover-distance) * -1)); }
   100% { transform: translate(0, var(--hover-distance)); }
-
-  /* 0%   { filter: brightness(1) grayscale(0.1); }
-  50%  { filter: brightness(.2) grayscale(0.7); }
-  100% { filter: brightness(1) grayscale(0.1); } */
-
-  /* 0%   { filter: invert(0) grayscale(0); }
-  50%  { filter: invert(.9) grayscale(0.5); }
-  100% { filter: invert(0) grayscale(0); } */
 }
 
 @keyframes anim-dim {
