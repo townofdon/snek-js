@@ -43,7 +43,7 @@ import {
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UI } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -64,6 +64,7 @@ import { MusicPlayer } from './musicPlayer';
 import { getMusicVolume, resumeAudioContext, setMusicVolume, setSfxVolume } from './audio';
 import { Easing } from './easing';
 import { OSTScene } from './scenes/OSTScene';
+import { SpriteRenderer } from './spriteRenderer';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -198,6 +199,7 @@ export const sketch = (p5: P5) => {
   const mainTitleFader = new MainTitleFader(p5);
   const winScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
   const renderer = new Renderer({ p5, fonts, replay, state, screenShake });
+  const spriteRenderer = new SpriteRenderer({ p5, replay, gameState: state, screenShake });
 
   /**
    * https://p5js.org/reference/#/p5/preload
@@ -208,6 +210,7 @@ export const sketch = (p5: P5) => {
     fonts.load();
     sfx.load();
     musicPlayer.load(level.musicTrack);
+    spriteRenderer.loadImages();
   }
 
   /**
@@ -651,6 +654,7 @@ export const sketch = (p5: P5) => {
       if (position != undefined) {
         moveSegments();
         player.position.set(position[0], position[1])
+        player.direction = getDirectionToFirstSegment();
       }
       state.timeSinceHurt += p5.deltaTime;
     }
@@ -933,8 +937,12 @@ export const sketch = (p5: P5) => {
   }
 
   function getDirectionToFirstSegment() {
-    if (segments.length <= 0) return DIR.RIGHT;
-    const diff = player.position.copy().sub(segments[0]);
+    return getDirectionBetween(player.position, segments[0]);
+  }
+
+  function getDirectionBetween(from: Vector, to: Vector) {
+    if (!from || !to) return DIR.RIGHT;
+    const diff = from.copy().sub(to);
     if (diff.x === -1) return DIR.LEFT;
     if (diff.x === 1) return DIR.RIGHT;
     if (diff.y === -1) return DIR.UP;
@@ -1068,6 +1076,21 @@ export const sketch = (p5: P5) => {
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead);
+    const direction = moves.length > 0 ? moves[0] : player.direction;
+    spriteRenderer.drawImage(Image.SnekHead, vec.x, vec.y, getRotationFromDirection(direction));
+  }
+
+  function getRotationFromDirection(direction: DIR) {
+    switch (direction) {
+      case DIR.UP:
+        return Math.PI * 1.5;
+      case DIR.DOWN:
+        return Math.PI * .5;
+      case DIR.LEFT:
+        return Math.PI * 1;
+      case DIR.RIGHT:
+        return 0;
+    }
   }
 
   function drawPlayerSegment(vec: Vector) {

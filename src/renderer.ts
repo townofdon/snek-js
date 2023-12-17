@@ -93,11 +93,12 @@ export class Renderer {
 
     const dir = currentMove;
     type ArrowBlock = { x: number, y: number, text: string, show: boolean }
+    const dist = 1.25;
     const arrowBlocks: ArrowBlock[] = [
-      { x: vec.x, y: vec.y - 1, text: 'P', show: !isStunned || dir === DIR.UP },
-      { x: vec.x, y: vec.y + 1, text: 'Q', show: !isStunned || dir === DIR.DOWN },
-      { x: vec.x - 1, y: vec.y, text: 'N', show: !isStunned || dir === DIR.LEFT },
-      { x: vec.x + 1, y: vec.y, text: 'O', show: !isStunned || dir === DIR.RIGHT },
+      { x: vec.x, y: vec.y - dist, text: 'P', show: !isStunned || dir === DIR.UP },
+      { x: vec.x, y: vec.y + dist, text: 'Q', show: !isStunned || dir === DIR.DOWN },
+      { x: vec.x - dist, y: vec.y, text: 'N', show: !isStunned || dir === DIR.LEFT },
+      { x: vec.x + dist, y: vec.y, text: 'O', show: !isStunned || dir === DIR.RIGHT },
     ]
     for (let i = 0; i < arrowBlocks.length; i++) {
       const arrow = arrowBlocks[i];

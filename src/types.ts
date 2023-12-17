@@ -211,6 +211,11 @@ export enum MusicTrack {
   creeplord = '08-creeplord.wav',
 }
 
+export enum Image {
+  SnekHead = 'snek-head.png',
+  SnekButt = 'snek-butt.png',
+}
+
 export interface Scene {
   draw: () => void
   keyPressed: (event?: object) => void

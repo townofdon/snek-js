@@ -41,7 +41,7 @@ export class OSTScene extends BaseScene {
     trackIndex: 0,
     timeStarted: 0,
     timeModeLastChanged: 0,
-    visualizerMode: VisualizerMode.OsciliscopeLine,
+    visualizerMode: VisualizerMode.OsciliscopeRing,
   }
 
   private frequencySweep = {
@@ -71,7 +71,7 @@ export class OSTScene extends BaseScene {
       trackIndex: 0,
       timeStarted: Date.now(),
       timeModeLastChanged: Date.now(),
-      visualizerMode: VisualizerMode.OsciliscopeLine,
+      visualizerMode: VisualizerMode.OsciliscopeRing,
     }
   }
 
@@ -103,8 +103,8 @@ export class OSTScene extends BaseScene {
     const buttonPadding = 8;
     const x = (DIMENSIONS.x - VISUALIZER.width) * 0.5 - buttonSize - buttonPadding;
     const y = VISUALIZER.y;
-    this.buttons[VisualizerMode.OsciliscopeLine] = addButton(VisualizerMode.OsciliscopeLine, x, y + (buttonSize + buttonPadding) * 0).id('oscilliscope-line').addClass('oscilliscope-line').addClass('active');
-    this.buttons[VisualizerMode.OsciliscopeRing] = addButton(VisualizerMode.OsciliscopeRing, x, y + (buttonSize + buttonPadding) * 1).id('oscilliscope-ring').addClass('oscilliscope-ring');
+    this.buttons[VisualizerMode.OsciliscopeLine] = addButton(VisualizerMode.OsciliscopeLine, x, y + (buttonSize + buttonPadding) * 0).id('oscilliscope-line').addClass('oscilliscope-line');
+    this.buttons[VisualizerMode.OsciliscopeRing] = addButton(VisualizerMode.OsciliscopeRing, x, y + (buttonSize + buttonPadding) * 1).id('oscilliscope-ring').addClass('oscilliscope-ring').addClass('active');
     this.buttons[VisualizerMode.FrequencyBarGraph] = addButton(VisualizerMode.FrequencyBarGraph, x, y + (buttonSize + buttonPadding) * 2).id('frequency-bar-graph').addClass('frequency-bar-graph');
     this.buttons[VisualizerMode.FrequencySpectrum] = addButton(VisualizerMode.FrequencySpectrum, x, y + (buttonSize + buttonPadding) * 3).id('frequency-spectrum').addClass('frequency-spectrum');
   }
