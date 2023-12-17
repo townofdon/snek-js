@@ -3,6 +3,7 @@ import { MAX_GAIN_MUSIC } from "./constants";
 const audioBufferMap: Record<string, AudioBuffer> = {}
 const audioSourceMap: Record<string, AudioBufferSourceNode> = {}
 const audioGainNodeMap: Record<string, GainNode> = {}
+const audioAnalyserMap: Record<string, AnalyserNode> = {}
 
 // for legacy browsers
 // @ts-ignore
@@ -51,6 +52,12 @@ export function getSfxVolume(): number {
   return sfxGainNode.gain.value;
 }
 
+export function getAnalyser(path: string): AnalyserNode | null {
+  const analyser = audioAnalyserMap[path];
+  if (!analyser) return null;
+  return analyser;
+}
+
 export async function loadAudioToBuffer(path: string): Promise<AudioBuffer | null> {
   try {
     if (audioBufferMap[path]) {
@@ -70,6 +77,7 @@ interface AudioSourceOptions {
   volume: number
   loop?: boolean,
   loopStart?: number,
+  createAnalyser?: boolean,
 }
 
 async function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOptions) {
@@ -92,7 +100,16 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
   source.buffer = buffer;
   source.loop = options?.loop || false;
   source.loopStart = options?.loopStart || 0
-  source.connect(gainNode);
+  // create analyzer
+  if (options?.createAnalyser) {
+    const analyser = audioContext.createAnalyser();
+    audioAnalyserMap[path] = analyser;
+    source.connect(analyser);
+    analyser.connect(gainNode);
+  } else {
+    source.connect(gainNode);
+  }
+  // start audio
   source.start();
   source.onended = () => {
     stopAudio(path);

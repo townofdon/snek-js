@@ -1373,7 +1373,7 @@ export const sketch = (p5: P5) => {
       setMusicVolume(1);
       setup();
     }
-    setMusicVolume(1.2);
+    setMusicVolume(1.3);
     new OSTScene(p5, sfx, musicPlayer, fonts, { onEscapePress })
   }
 

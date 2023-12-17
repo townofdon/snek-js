@@ -1,4 +1,4 @@
-import { loadAudioToBuffer, playMusic, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
+import { getAnalyser, loadAudioToBuffer, playMusic, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
 import { MusicTrack } from "./types";
 
 const DEBUG_MUSIC = false;
@@ -47,7 +47,12 @@ export class MusicPlayer {
     return this.tracksPlaying[track];
   }
 
-  play(track?: MusicTrack, volume = 1) {
+  getAnalyser(track?: MusicTrack) {
+    if (!track) return null;
+    return getAnalyser(this.fullPath(track));
+  }
+
+  play(track?: MusicTrack, volume = 1, createAnalyser = false) {
     if (!track) {
       console.warn("[MusicPlayer][play] Track was undefined");
       return;
@@ -60,7 +65,7 @@ export class MusicPlayer {
       console.log(`[MusicPlayer] playing track=${track},volume=${volume}`);
     }
     try {
-      playMusic(this.fullPath(track), { volume, loop: true });
+      playMusic(this.fullPath(track), { volume, loop: true, createAnalyser });
       this.tracksPlaying[track] = true;
       this.state.currentTrack = track;
     } catch (err) {

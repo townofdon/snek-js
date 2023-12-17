@@ -11,6 +11,11 @@
   --title-sprite-background-size: 640px 640px;
   --title-sprite-width: 100px;
   --title-sprite-height: 100px;
+
+  --viz-sprite-img: url('assets/graphics/snek-audio-viz-icons.png');
+  --viz-sprite-background-size: 128px 32px;
+  --viz-sprite-width: 32px;
+  --viz-sprite-height: 32px;
 }
 
 @font-face {
@@ -225,3 +230,29 @@ button.ultra:focus {
 .sprite-snek-letter-n { background-position: -214px -260px; }
 .sprite-snek-letter-e { background-position: -326px -260px; }
 .sprite-snek-letter-k { background-position: -440px -260px; }
+
+button.snek-audio-viz-button {
+  display: inline-block;
+  background-color: inherit;
+  background-image: var(--viz-sprite-img);
+  background-size: var(--viz-sprite-background-size);
+  width: var(--viz-sprite-width);
+  height: var(--viz-sprite-height);
+  padding: 0;
+  border-radius: 4px;
+}
+
+button.snek-audio-viz-button.oscilliscope-line { background-position: 0px 0px; }
+button.snek-audio-viz-button.oscilliscope-ring { background-position: -32px 0px; }
+button.snek-audio-viz-button.frequency-bar-graph { background-position: -64px 0px; }
+button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px; }
+
+button.snek-audio-viz-button.active,
+button.snek-audio-viz-button:hover,
+button.snek-audio-viz-button:active,
+button.snek-audio-viz-button:focus
+{
+  background-color: inherit;
+  filter: invert(1);
+  box-shadow: none;
+}
