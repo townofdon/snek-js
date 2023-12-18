@@ -1,7 +1,9 @@
 import P5, { Element } from 'p5';
-import { IEnumerator, TitleVariant } from './types';
+import { IEnumerator, SFXInstance, Sound, TitleVariant } from './types';
+import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
 
 const UI_LABEL_OFFSET = '18px';
+const UI_PARENT_ID = 'game';
 
 const LABEL_COLOR = '#fff';
 const LABEL_COLOR_INVERTED = '#000';
@@ -30,6 +32,20 @@ export class UI {
     title.style.display = 'none';
   }
 
+  static showSettingsMenu() {
+    const game = document.getElementById('game');
+    const settingsMenu = document.getElementById('settings-menu');
+    settingsMenu.style.display = 'block';
+    settingsMenu.classList.remove('hidden');
+    game.classList.add('blur');
+  }
+
+  static hideSettingsMenu() {
+    const game = document.getElementById('game');
+    document.getElementById('settings-menu').style.display = 'none';
+    game.classList.remove('blur');
+  }
+
   static drawTitle(title = '', textColor = '#fff', offset: number, hasShadow: boolean, uiElements: Element[]) {
     const p = UI.p5.createP("");
     for (let i = 0; i < title.length; i++) {
@@ -47,7 +63,7 @@ export class UI {
       p.style('text-shadow', '6px 6px 3px black');
     }
     p.position(84 + offset, 7 + offset);
-    p.parent("main");
+    p.parent(UI_PARENT_ID);
     p.addClass("main-title");
     uiElements.push(p);
     return p;
@@ -78,7 +94,7 @@ export class UI {
     p.style('margin', '0');
     p.style('padding', '1px 8px');
     p.style('text-align', 'right');
-    p.parent("main");
+    p.parent(UI_PARENT_ID);
   }
 
   static renderHearts(numLives = 3, isShowingDeathColours: boolean) {
@@ -117,7 +133,7 @@ export class UI {
     div.style('background-color', labelBackgroundColor);
     div.class(className);
     div.id(containerId);
-    div.parent("main");
+    div.parent(UI_PARENT_ID);
   }
 
   static renderScore(score = 0, isShowingDeathColours: boolean) {
@@ -137,7 +153,7 @@ export class UI {
     p.style('margin', '0');
     p.style('padding', '1px 8px');
     p.style('text-align', 'left');
-    p.parent("main");
+    p.parent(UI_PARENT_ID);
   }
 
   static renderDifficulty(difficultyIndex = 0, isShowingDeathColours: boolean) {
@@ -162,14 +178,31 @@ export class UI {
     p.style('margin', '0');
     p.style('padding', '1px 8px');
     p.style('text-align', 'left');
-    p.parent("main");
+    p.parent(UI_PARENT_ID);
   }
 
-  static drawButton(textStr = '', x = 0, y = 0, onClick: () => void, uiElements: Element[]) {
+  static addTooltip(textStr = '', parent: P5.Element, align: 'left' | 'right' = 'left') {
+    const element = UI.p5.createSpan(textStr).addClass("tooltip").addClass(`align-${align}`);
+    element.parent(parent);
+  }
+
+  static drawButton(textStr = '', x = 0, y = 0, onClick: () => void, uiElements: Element[], {
+    parentId = "game",
+    altText = "",
+  }: {
+    parentId?: string | P5.Element,
+    altText?: string,
+  } = {}) {
     const button = UI.p5.createButton(textStr);
-    button.position(x, y);
+    if (x >= 0 && y >= 0) {
+      button.position(x, y);
+    }
     button.mousePressed(onClick);
-    button.parent("main");
+    button.parent(parentId);
+    button.attribute("tabindex", "0");
+    if (altText || textStr) {
+      button.attribute("alt", altText || textStr);
+    }
     uiElements.push(button);
     return button;
   }
@@ -184,7 +217,7 @@ export class UI {
     element.style('width', 'calc(100% - 80px)');
     element.style('text-align', 'center');
     element.position(0, y);
-    element.parent("main");
+    element.parent(UI_PARENT_ID);
     uiElements.push(element);
   }
 
@@ -196,9 +229,9 @@ export class UI {
     div.style('bottom', '0');
     div.style('left', '0');
     div.style('right', '0');
-    div.style('background-color', 'rgb(7 11 15 / 72%)');
+    div.style('background-color', 'rgb(7 11 15 / 75%)');
     // div.style('mix-blend-mode', 'color-burn');
-    div.parent("main");
+    div.parent(UI_PARENT_ID);
     uiElements.push(div);
   }
 
@@ -214,7 +247,7 @@ export class UI {
     div.style('z-index', '10');
     div.style('background-color', '#ff550099');
     div.style('mix-blend-mode', 'hard-light');
-    div.parent("main");
+    div.parent(UI_PARENT_ID);
     return div;
   }
 
@@ -275,4 +308,72 @@ export class MainTitleFader {
         return 'main-title-variant-yellow'
     }
   }
+}
+
+interface SliderBindingsCallbacks {
+  onSetMusicVolume: (volume: number) => void;
+  onSetSfxVolume: (volume: number) => void;
+}
+
+export class UIBindings {
+  private sfx: SFXInstance;
+  private callbacks: SliderBindingsCallbacks = {
+    onSetMusicVolume: (volume: number) => { },
+    onSetSfxVolume: (volume: number) => { },
+  };
+
+  private sliderMusic: HTMLInputElement;
+  private sliderSfx: HTMLInputElement;
+  private buttonCloseSettingsMenu: HTMLButtonElement;
+
+  constructor(sfx: SFXInstance, callbacks: SliderBindingsCallbacks) {
+    this.sfx = sfx;
+    this.callbacks = callbacks;
+    this.bindButtons();
+    this.bindSliders();
+  }
+
+  refreshSliderValues() {
+    const musicVolume = getMusicVolume();
+    const sfxVolume = getSfxVolume();
+    this.sliderMusic.value = String(musicVolume);
+    this.sliderSfx.value = String(sfxVolume);
+  }
+
+  private bindButtons = () => {
+    this.buttonCloseSettingsMenu = requireElementById<HTMLButtonElement>('settings-menu-close-button');
+    this.buttonCloseSettingsMenu.addEventListener('click', () => { UI.hideSettingsMenu(); });
+  }
+
+  private bindSliders = () => {
+    this.sliderMusic = requireElementById<HTMLInputElement>("slider-volume-music");
+    this.sliderSfx = requireElementById<HTMLInputElement>("slider-volume-sfx");
+    this.sliderMusic.addEventListener('input', this.onMusicSliderInput);
+    this.sliderSfx.addEventListener('input', this.onSfxSliderInput);
+    // this.sliderSfx.addEventListener('change', this.onSfxSliderChange);
+  }
+
+  private onMusicSliderInput = (ev: InputEvent) => {
+    const volume = parseFloat((ev.target as HTMLInputElement).value);
+    setMusicVolume(volume);
+    this.callbacks.onSetMusicVolume(volume);
+  }
+
+  private onSfxSliderInput = (ev: InputEvent) => {
+    const volume = parseFloat((ev.target as HTMLInputElement).value);
+    this.sfx.setGlobalVolume(volume);
+    setSfxVolume(volume);
+    this.callbacks.onSetSfxVolume(volume);
+    this.sfx.play(Sound.eat);
+  }
+
+  // private onSfxSliderChange = () => {
+  //   this.sfx.play(Sound.eat);
+  // }
+}
+
+function requireElementById<T>(id: string) {
+  const element = document.getElementById(id) as T;
+  if (!element) throw new Error(`Unable to find element with id "${id}"`);
+  return element;
 }

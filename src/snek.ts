@@ -42,7 +42,7 @@ import {
 } from './constants';
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
-import { MainTitleFader, UI } from './ui';
+import { MainTitleFader, UIBindings, UI } from './ui';
 import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
@@ -197,6 +197,10 @@ export const sketch = (p5: P5) => {
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer();
   const mainTitleFader = new MainTitleFader(p5);
+  const sliderBindings = new UIBindings(sfx, {
+    onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
+    onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
+  });
   const winScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
   const renderer = new Renderer({ p5, fonts, replay, state, screenShake });
   const spriteRenderer = new SpriteRenderer({ p5, replay, gameState: state, screenShake });
@@ -224,7 +228,8 @@ export const sketch = (p5: P5) => {
     level = MAIN_TITLE_SCREEN_LEVEL;
 
     UI.setP5Instance(p5);
-    p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y);
+    const canvas = document.getElementById("game-canvas");
+    p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
     p5.frameRate(FRAMERATE);
     musicPlayer.stopAllTracks();
     musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
@@ -251,13 +256,22 @@ export const sketch = (p5: P5) => {
     UI.drawDarkOverlay(uiElements);
     UI.showTitle();
     const offsetLeft = 150;
-    difficultyButtons[1] = UI.drawButton("EASY", 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
-    difficultyButtons[2] = UI.drawButton("MEDIUM", 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
-    difficultyButtons[3] = UI.drawButton("HARD", 220 + offsetLeft, 280, () => startGame(3), uiElements).addClass('hard');
-    difficultyButtons[4] = UI.drawButton("ULTRA", 108 + offsetLeft, 340, () => startGame(4), uiElements).addClass('ultra');
+    difficultyButtons[1] = UI.drawButton('EASY', 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
+    difficultyButtons[2] = UI.drawButton('MEDIUM', 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
+    difficultyButtons[3] = UI.drawButton('HARD', 220 + offsetLeft, 280, () => startGame(3), uiElements).addClass('hard');
+    difficultyButtons[4] = UI.drawButton('ULTRA', 108 + offsetLeft, 340, () => startGame(4), uiElements).addClass('ultra');
     for (let i = 1; i <= 4; i++) {
       difficultyButtons[i].addClass('difficulty')
     }
+    const uiButtonOptions = (altText: string) => ({ parentId: 'main-ui-buttons', altText });
+    const buttonOstMode = UI.drawButton('', -1, -1, () => enterOstMode(), uiElements, uiButtonOptions('Enter OST Mode')).id('ui-button-ost-mode').addClass('ui-sprite').addClass('headphones');
+    const buttonQuoteMode = UI.drawButton('', -1, -1, () => enterQuoteMode(), uiElements, uiButtonOptions('Enter Quote Mode')).id('ui-button-quote-mode').addClass('ui-sprite').addClass('quote');
+    const buttonSettings = UI.drawButton('', -1, -1, () => UI.showSettingsMenu(), uiElements, uiButtonOptions('Open Settings')).id('ui-button-settings').addClass('ui-sprite').addClass('gear');
+    UI.addTooltip("OST Mode", buttonOstMode);
+    UI.addTooltip("Quote Mode", buttonQuoteMode);
+    UI.addTooltip("Settings", buttonSettings, 'right');
+    UI.hideSettingsMenu();
+    sliderBindings.refreshSliderValues();
 
     hydrateLoseMessages(-1);
   }

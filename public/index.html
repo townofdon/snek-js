@@ -26,43 +26,85 @@
   <body>
     <div class="center stretch">
       <main id="main">
-        <div id="main-title" class="main-title title-sprite-container">
-          <span id="main-title-variant-grayblue" class="variant default">
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
-          </span>
-          <span id="main-title-variant-gray" class="variant gray">
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
-          </span>
-          <span id="main-title-variant-green" class="variant green">
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
-          </span>
-          <span id="main-title-variant-red" class="variant red">
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
-          </span>
-          <span id="main-title-variant-sand" class="variant sand">
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
-          </span>
-          <span id="main-title-variant-yellow" class="variant yellow">
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
-            <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
-          </span>
+        <div id="game" class="game">
+          <canvas id="game-canvas" class="p5Canvas" style="width: 600px; height: 600px;" width="1200" height="1200"></canvas>
+          <div id="main-title" class="main-title title-sprite-container">
+            <span id="main-title-variant-grayblue" class="variant default">
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
+            </span>
+            <span id="main-title-variant-gray" class="variant gray">
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
+            </span>
+            <span id="main-title-variant-green" class="variant green">
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
+            </span>
+            <span id="main-title-variant-red" class="variant red">
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
+            </span>
+            <span id="main-title-variant-sand" class="variant sand">
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
+            </span>
+            <span id="main-title-variant-yellow" class="variant yellow">
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-s"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-n"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-e"></span></span>
+              <span class="title-sprite"><span class="title-sprite-img sprite-snek-letter-k"></span></span>
+            </span>
+          </div>
+          <div id="main-ui-buttons" class="main-ui-buttons"></div>
+        </div>
+        <div id="settings-menu" class="settings-menu hidden">
+          <div class="background"></div>
+          <div class="content">
+            <h2>Settings</h2>
+            <section>
+              <h4>Gameplay</h4>
+              <div class="field">
+                <div>
+                  <label class="checkbox-label" tabindex="0">
+                    <input type="checkbox" id="checkbox-casual-mode" name="casual-mode" />
+                    <span class="checkmark"></span>
+                    Enable casual mode
+                  </label>
+                </div>
+                <span class="caption">Adds invincibility and move rewinding, but disables scoring</span>
+              </div>
+            </section>
+
+            <section>
+              <h4>Audio</h4>
+              <div class="field">
+                <div>
+                  <input type="range" id="slider-volume-music" name="volume-music" min="0" max="1" step="0.1" value="1" />
+                  <label for="slider-volume-music">Music</label>
+                </div>
+              </div>
+              <div class="field">
+                <div>
+                  <input type="range" id="slider-volume-sfx" name="volume-sfx" min="0" max="1" step="0.1" value="1" />
+                  <label for="slider-volume-sfx">SFX</label>
+                </div>
+              </div>
+            </section>
+
+            <br/>
+            <button id="settings-menu-close-button">CLOSE</button>
+          </div>
         </div>
       </main>
     </div>

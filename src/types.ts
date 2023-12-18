@@ -170,6 +170,7 @@ export interface FontVariants {
 }
 
 export interface SFXInstance {
+  setGlobalVolume: (volume: number) => void
   play: (sound: keyof SoundVariants, volume?: number) => void
   stop: (sound: keyof SoundVariants) => void
   load: () => void

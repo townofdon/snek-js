@@ -20,6 +20,8 @@ import { SFXInstance, SoundVariants } from "./types";
  */
 export class SFX implements SFXInstance {
 
+  private globalVolume = 1;
+
   private sounds: SoundVariants = {
     death: null,
     doorOpen: null,
@@ -42,13 +44,17 @@ export class SFX implements SFXInstance {
     xpound: null,
   }
 
+  setGlobalVolume(volume: number) {
+    this.globalVolume = volume;
+  }
+
   play(sound: keyof SoundVariants, volume = 1) {
     try {
       if (!this.sounds[sound]) {
         console.warn(`Sound not loaded: ${sound}`);
         return;
       }
-      this.sounds[sound].volume(volume);
+      this.sounds[sound].volume(volume * this.globalVolume);
       this.sounds[sound].stop();
       this.sounds[sound].play();
     } catch (err) {
