@@ -1,5 +1,5 @@
 import P5 from "p5";
-import { FontsInstance, SFXInstance, SceneCallbacks, Sound } from "../types";
+import { FontsInstance, GameState, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import Color from "color";
@@ -13,11 +13,12 @@ interface TriggerLevelExitParams {
   perfectBonus: number,
   isPerfect: boolean,
   hasAllApples: boolean,
+  isCasualModeEnabled: boolean,
   onApplyScore: () => void,
 }
 
 export class WinLevelScene extends BaseScene {
-  _sfx: SFXInstance;
+  private _sfx: SFXInstance;
 
   constructor(p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     super(p5, fonts, callbacks)
@@ -39,7 +40,7 @@ export class WinLevelScene extends BaseScene {
 
   isTriggered = false;
 
-  triggerLevelExit({ score, levelClearBonus, livesLeftBonus, livesLeft, allApplesBonus, perfectBonus, hasAllApples, isPerfect, onApplyScore }: TriggerLevelExitParams) {
+  triggerLevelExit({ score, levelClearBonus, livesLeftBonus, livesLeft, allApplesBonus, perfectBonus, hasAllApples, isPerfect, isCasualModeEnabled, onApplyScore }: TriggerLevelExitParams) {
     if (this.isTriggered) return;
     this.isTriggered = true;
     this.score = score;
@@ -50,8 +51,14 @@ export class WinLevelScene extends BaseScene {
     this.perfectBonus = perfectBonus;
     this.hasAllApples = hasAllApples;
     this.isPerfect = isPerfect;
-    this.beforeGotoNextLevel = onApplyScore
-    this.startActionsNoBind();
+    if (isCasualModeEnabled) {
+      onApplyScore();
+      this.cleanup();
+      this.isTriggered = false;
+    } else {
+      this.beforeGotoNextLevel = onApplyScore
+      this.startActionsNoBind();
+    }
   }
 
   reset = () => {

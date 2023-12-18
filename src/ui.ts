@@ -1,5 +1,5 @@
 import P5, { Element } from 'p5';
-import { IEnumerator, SFXInstance, Sound, TitleVariant } from './types';
+import { GameState, IEnumerator, SFXInstance, Sound, TitleVariant } from './types';
 import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
 
 const UI_LABEL_OFFSET = '18px';
@@ -317,6 +317,7 @@ interface SliderBindingsCallbacks {
 
 export class UIBindings {
   private sfx: SFXInstance;
+  private gameState: GameState;
   private callbacks: SliderBindingsCallbacks = {
     onSetMusicVolume: (volume: number) => { },
     onSetSfxVolume: (volume: number) => { },
@@ -325,12 +326,13 @@ export class UIBindings {
   private sliderMusic: HTMLInputElement;
   private sliderSfx: HTMLInputElement;
   private buttonCloseSettingsMenu: HTMLButtonElement;
+  private checkboxCasualMode: HTMLInputElement;
 
-  constructor(sfx: SFXInstance, callbacks: SliderBindingsCallbacks) {
+  constructor(sfx: SFXInstance, gameState: GameState, callbacks: SliderBindingsCallbacks) {
     this.sfx = sfx;
+    this.gameState = gameState;
     this.callbacks = callbacks;
-    this.bindButtons();
-    this.bindSliders();
+    this.bindElements();
   }
 
   refreshSliderValues() {
@@ -340,17 +342,26 @@ export class UIBindings {
     this.sliderSfx.value = String(sfxVolume);
   }
 
-  private bindButtons = () => {
+  private bindElements = () => {
     this.buttonCloseSettingsMenu = requireElementById<HTMLButtonElement>('settings-menu-close-button');
-    this.buttonCloseSettingsMenu.addEventListener('click', () => { UI.hideSettingsMenu(); });
-  }
-
-  private bindSliders = () => {
+    this.buttonCloseSettingsMenu.addEventListener('click', this.onHideSettingsMenuClick);
+    this.checkboxCasualMode = requireElementById<HTMLInputElement>('checkbox-casual-mode');
+    this.checkboxCasualMode.addEventListener('change', this.onCheckboxCasualModeChange);
     this.sliderMusic = requireElementById<HTMLInputElement>("slider-volume-music");
     this.sliderSfx = requireElementById<HTMLInputElement>("slider-volume-sfx");
     this.sliderMusic.addEventListener('input', this.onMusicSliderInput);
     this.sliderSfx.addEventListener('input', this.onSfxSliderInput);
-    // this.sliderSfx.addEventListener('change', this.onSfxSliderChange);
+  }
+
+  private onHideSettingsMenuClick = () => {
+    UI.hideSettingsMenu();
+    this.sfx.play(Sound.doorOpen);
+  }
+
+  private onCheckboxCasualModeChange = (ev: InputEvent) => {
+    this.sfx.play(Sound.uiBlip);
+    const isCasualModeEnabled = (ev.target as HTMLInputElement).checked;
+    this.gameState.isCasualModeEnabled = isCasualModeEnabled;
   }
 
   private onMusicSliderInput = (ev: InputEvent) => {
@@ -366,10 +377,6 @@ export class UIBindings {
     this.callbacks.onSetSfxVolume(volume);
     this.sfx.play(Sound.eat);
   }
-
-  // private onSfxSliderChange = () => {
-  //   this.sfx.play(Sound.eat);
-  // }
 }
 
 function requireElementById<T>(id: string) {

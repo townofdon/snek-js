@@ -166,7 +166,7 @@ export class OSTScene extends BaseScene {
 
   private playTrack() {
     const sfx = this.sfx;
-    sfx.play(Sound.doorOpen, 0.8);
+    sfx.play(Sound.unlock, 0.8);
     const track = tracks[this.state.trackIndex];
     this.musicPlayer.play(track, 1, true);
   }

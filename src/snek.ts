@@ -6,7 +6,6 @@ import {
   LEVELS,
 } from './levels';
 import {
-  TITLE,
   RECORD_REPLAY_STATE,
   FRAMERATE,
   DIMENSIONS,
@@ -76,6 +75,7 @@ const settings: GameSettings = {
 }
 const state: GameState = {
   appMode: AppMode.Game,
+  isCasualModeEnabled: false,
   isGameStarted: false,
   isGameStarting: false,
   isPaused: false,
@@ -197,7 +197,7 @@ export const sketch = (p5: P5) => {
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer();
   const mainTitleFader = new MainTitleFader(p5);
-  const sliderBindings = new UIBindings(sfx, {
+  const sliderBindings = new UIBindings(sfx, state, {
     onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
     onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
   });
@@ -266,7 +266,7 @@ export const sketch = (p5: P5) => {
     const uiButtonOptions = (altText: string) => ({ parentId: 'main-ui-buttons', altText });
     const buttonOstMode = UI.drawButton('', -1, -1, () => enterOstMode(), uiElements, uiButtonOptions('Enter OST Mode')).id('ui-button-ost-mode').addClass('ui-sprite').addClass('headphones');
     const buttonQuoteMode = UI.drawButton('', -1, -1, () => enterQuoteMode(), uiElements, uiButtonOptions('Enter Quote Mode')).id('ui-button-quote-mode').addClass('ui-sprite').addClass('quote');
-    const buttonSettings = UI.drawButton('', -1, -1, () => UI.showSettingsMenu(), uiElements, uiButtonOptions('Open Settings')).id('ui-button-settings').addClass('ui-sprite').addClass('gear');
+    const buttonSettings = UI.drawButton('', -1, -1, () => showSettingsMenu(), uiElements, uiButtonOptions('Open Settings')).id('ui-button-settings').addClass('ui-sprite').addClass('gear');
     UI.addTooltip("OST Mode", buttonOstMode);
     UI.addTooltip("Quote Mode", buttonQuoteMode);
     UI.addTooltip("Settings", buttonSettings, 'right');
@@ -358,6 +358,11 @@ export const sketch = (p5: P5) => {
     UI.hideTitle();
   }
 
+  function showSettingsMenu() {
+    UI.showSettingsMenu()
+    sfx.play(Sound.unlock);
+  }
+
   function renderDifficultyUI() {
     if (replay.mode === ReplayMode.Playback) return;
     UI.renderDifficulty(difficulty.index, state.isShowingDeathColours);
@@ -365,11 +370,13 @@ export const sketch = (p5: P5) => {
 
   function renderHeartsUI() {
     if (replay.mode === ReplayMode.Playback) return;
+    if (state.isCasualModeEnabled) return;
     UI.renderHearts(state.lives, state.isShowingDeathColours);
   }
 
   function renderScoreUI(score = stats.score) {
     if (replay.mode === ReplayMode.Playback) return;
+    if (state.isCasualModeEnabled) return;
     UI.renderScore(score, state.isShowingDeathColours);
   }
 
@@ -600,7 +607,9 @@ export const sketch = (p5: P5) => {
     // handle snake hurt
     if (state.isLost && state.lives > 0) {
       state.isLost = false;
-      state.lives -= 1;
+      if (!state.isCasualModeEnabled || replay.mode === ReplayMode.Playback) {
+        state.lives -= 1;
+      }
       state.timeSinceHurt = 0;
       if (difficulty.index === 4) {
         state.currentSpeed = 1;
@@ -712,6 +721,7 @@ export const sketch = (p5: P5) => {
           livesLeft: state.lives,
           isPerfect,
           hasAllApples,
+          isCasualModeEnabled: state.isCasualModeEnabled,
           onApplyScore: () => {
             const perfectBonus = isPerfect ? getPerfectBonus() : 0;
             const allApplesBonus = (!isPerfect && hasAllApples) ? getAllApplesBonus() : 0;
@@ -999,6 +1009,7 @@ export const sketch = (p5: P5) => {
   }
 
   function addPoints(points: number) {
+    if (state.isCasualModeEnabled) return;
     stats.score += points;
     stats.numPointsEverScored += points;
   }
@@ -1376,6 +1387,7 @@ export const sketch = (p5: P5) => {
     state.appMode = AppMode.Quote;
     musicPlayer.stopAllTracks({ exclude: [MusicTrack.lordy] });
     musicPlayer.play(MusicTrack.lordy);
+    sfx.play(Sound.doorOpen);
     clearUI(true);
     stopReplay();
     stopAllCoroutines();
