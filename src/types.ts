@@ -13,13 +13,15 @@ import { Howl } from 'howler';
  * }
  * ```
  */
-export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, unknown>
+export type IEnumerator = AsyncGenerator<IEnumerator | null, IEnumerator | void, unknown> | Generator<IEnumerator | null, IEnumerator | void, unknown>
 
 export interface QueryParams {
+  enableWarp: boolean,
   enableQuoteMode: boolean,
 }
 
 export enum AppMode {
+  StartScreen,
   Game,
   Quote,
   OST,
@@ -213,8 +215,10 @@ export enum MusicTrack {
   creeplord = '08-creeplord.wav',
 }
 
+
 export enum Image {
   SnekHead = 'snek-head.png',
+  SnekHeadDead = 'snek-head-dead.png',
   SnekButt = 'snek-butt.png',
 }
 

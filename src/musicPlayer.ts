@@ -1,30 +1,32 @@
-import { getAnalyser, loadAudioToBuffer, playMusic, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
-import { MusicTrack } from "./types";
+import { getAnalyser, getMusicVolume, loadAudioToBuffer, playMusic, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
+import { GameSettings, MusicTrack } from "./types";
 
 const DEBUG_MUSIC = false;
 
 interface MusicPlayerState {
   currentTrack: MusicTrack | null
+  playbackRate: number
 }
 
 /**
  * Usage
  * 
  * ```
- * const music = new Music();
+ * const musicPlayer = new MusicPlayer();
  * 
  * function preLoad() {
- *   music.load("goin-buggy.mp3");
+ *   musicPlayer.load("goin-buggy.mp3");
  * }
  * 
  * function onLevelStart() {
- *   music.play("goin-buggy.mp3");
+ *   musicPlayer.play("goin-buggy.mp3");
  * }
  * ```
  */
 export class MusicPlayer {
   private state: MusicPlayerState = {
     currentTrack: null,
+    playbackRate: 1,
   }
   private tracksPlaying: Record<MusicTrack, boolean> = {
     [MusicTrack.simpleTime]: false,
@@ -36,10 +38,23 @@ export class MusicPlayer {
     [MusicTrack.aqueduct]: false,
     [MusicTrack.creeplord]: false
   };
+  private settings: GameSettings;
 
   private fullPath(track: MusicTrack): string {
     const relativeDir = process.env.NODE_ENV === 'production' ? '' : window.location.pathname;
     return `${relativeDir}assets/music/${track}`;
+  }
+
+  constructor(settings: GameSettings) {
+    this.settings = settings;
+  }
+
+  setVolume = (volume: number) => {
+    setMusicVolume(this.settings.musicVolume * volume);
+  }
+
+  getVolume = () => {
+    return this.settings.musicVolume > 0 ? (getMusicVolume() / this.settings.musicVolume) : 0
   }
 
   isPlaying(track?: MusicTrack) {
@@ -53,6 +68,9 @@ export class MusicPlayer {
   }
 
   play(track?: MusicTrack, volume = 1, createAnalyser = false) {
+    if (!navigator.userActivation.hasBeenActive) {
+      return;
+    }
     if (!track) {
       console.warn("[MusicPlayer][play] Track was undefined");
       return;
@@ -124,17 +142,26 @@ export class MusicPlayer {
   }
 
   halfSpeed(track?: MusicTrack) {
-    if (!track) {
-      return;
-    }
-    setPlaybackRate(this.fullPath(track), 0.5);
+    this.setPlaybackRate(track, 0.5);
   }
 
   normalSpeed(track?: MusicTrack) {
+    this.setPlaybackRate(track, 1);
+  }
+
+  setPlaybackRate = (track: MusicTrack | undefined, rate: number) => {
     if (!track) {
       return;
     }
-    setPlaybackRate(this.fullPath(track), 1);
+    setPlaybackRate(this.fullPath(track), rate);
+    this.state.playbackRate = rate;
+  }
+
+  getPlaybackRate = (track: MusicTrack | undefined) => {
+    if (!track) {
+      return 0;
+    }
+    return this.state.playbackRate;
   }
 
   load(track: MusicTrack) {

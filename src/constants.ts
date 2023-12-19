@@ -12,6 +12,8 @@ export const DEFAULT_VOLUME_SFX = 1;
 
 const windowWidth = window.innerWidth;
 
+export const ACCENT_COLOR = "#FFB41F";
+
 export const FRAMERATE = 90;
 export const DIMENSIONS = { x: Math.min(windowWidth, 600), y: Math.min(windowWidth, 600) };
 export const GRIDCOUNT = { x: 30, y: 30 };

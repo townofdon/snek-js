@@ -1,6 +1,7 @@
 import { Howl } from 'howler';
 
 import { SFXInstance, SoundVariants } from "./types";
+import { setSfxVolume } from './audio';
 
 
 /**
@@ -46,6 +47,7 @@ export class SFX implements SFXInstance {
 
   setGlobalVolume(volume: number) {
     this.globalVolume = volume;
+    setSfxVolume(volume);
   }
 
   play(sound: keyof SoundVariants, volume = 1) {

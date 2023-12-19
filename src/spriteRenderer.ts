@@ -21,6 +21,7 @@ export class SpriteRenderer {
 
   private images: Record<Image, P5.Image | null> = {
     [Image.SnekHead]: null,
+    [Image.SnekHeadDead]: null,
     [Image.SnekButt]: null,
   }
 
@@ -45,6 +46,7 @@ export class SpriteRenderer {
 
   loadImages() {
     this.loadImage(Image.SnekHead);
+    this.loadImage(Image.SnekHeadDead);
     this.loadImage(Image.SnekButt);
   }
 

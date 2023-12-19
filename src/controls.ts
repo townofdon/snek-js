@@ -19,17 +19,22 @@ import {
   HURT_STUN_TIME,
   KEYCODE_QUOTE,
   KEYCODE_ALPHA_M,
+  KEYCODE_NUMPAD_1,
+  KEYCODE_NUMPAD_2,
+  KEYCODE_NUMPAD_3,
+  KEYCODE_NUMPAD_4,
 } from './constants';
 import { AppMode, DIR, GameState } from "./types";
 
 export interface InputCallbacks {
+  onHideStartScreen: () => void
   onSetup: () => void
   onInit: () => void
   onStartGame: (difficulty: number) => void
   onEnterQuoteMode: () => void
   onEnterOstMode: () => void
-  onClearUI: () => void
-  onShowPortalUI: () => void
+  onPause: () => void
+  onUnpause: () => void
   onWarpToLevel: (level: number) => void
   onStartMoving: () => void
   onAddMove: (move: DIR) => void
@@ -39,13 +44,14 @@ export interface InputCallbacks {
 export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
   const { keyCode, ENTER, ESCAPE, SHIFT, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   const {
+    onHideStartScreen,
     onSetup,
     onInit,
     onStartGame,
     onEnterQuoteMode,
     onEnterOstMode,
-    onClearUI,
-    onShowPortalUI,
+    onPause,
+    onUnpause,
     onWarpToLevel,
     onStartMoving,
     onAddMove,
@@ -55,34 +61,48 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     return;
   }
 
+  if (state.appMode === AppMode.StartScreen) {
+    if (keyCode === ENTER) onHideStartScreen();
+    return;
+  }
+
   if (state.appMode === AppMode.Quote) {
     if (keyCode === ESCAPE) onSetup();
     return;
   }
 
   if (state.isLost) {
-    if (keyCode === p5.ENTER) onInit();
+    if (keyCode === ENTER) onInit();
+    if (keyCode === KEYCODE_ALPHA_M) onSetup();
     return;
   }
 
-  if (!state.isGameStarted) {
-    if (keyCode === KEYCODE_1) onStartGame(1);
-    else if (keyCode === KEYCODE_2) onStartGame(2);
-    else if (keyCode === KEYCODE_3) onStartGame(3);
-    else if (keyCode === KEYCODE_4) onStartGame(4);
-    else if (keyCode === ENTER) onStartGame(2);
+  if (!state.isGameStarted && state.appMode === AppMode.Game) {
+    if (false) { }
+    else if (keyCode === KEYCODE_1 || keyCode === KEYCODE_NUMPAD_1) onStartGame(1);
+    else if (keyCode === KEYCODE_2 || keyCode === KEYCODE_NUMPAD_2) onStartGame(2);
+    else if (keyCode === KEYCODE_3 || keyCode === KEYCODE_NUMPAD_3) onStartGame(3);
+    else if (keyCode === KEYCODE_4 || keyCode === KEYCODE_NUMPAD_4) onStartGame(4);
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_QUOTE) onEnterQuoteMode();
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_M) onEnterOstMode();
     return;
   }
 
-  if (keyCode === KEYCODE_J) {
+  if (!state.isGameStarted) {
+    return;
+  }
+
+  if (state.isExitingLevel || state.isExited) {
+    return;
+  }
+
+  if (keyCode === ESCAPE) {
     if (state.isPaused) {
       state.isPaused = false;
-      onClearUI();
+      onUnpause();
     } else {
       state.isPaused = true;
-      onShowPortalUI();
+      onPause();
     }
   }
 

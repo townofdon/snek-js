@@ -20,6 +20,10 @@ export class UI {
     UI.p5 = p5;
   }
 
+  static hideStartScreen() {
+    document.getElementById('start-screen').remove();
+  }
+
   static showTitle() {
     const title = document.getElementById('main-title');
     if (!title) return;
@@ -32,12 +36,18 @@ export class UI {
     title.style.display = 'none';
   }
 
-  static showSettingsMenu() {
+  static showSettingsMenu(isInGameMenu = false) {
     const game = document.getElementById('game');
     const settingsMenu = document.getElementById('settings-menu');
     settingsMenu.style.display = 'block';
     settingsMenu.classList.remove('hidden');
     game.classList.add('blur');
+    const gameplaySettingsSection = document.getElementById('settings-section-gameplay');
+    if (isInGameMenu) {
+      gameplaySettingsSection.style.display = 'none';
+    } else {
+      gameplaySettingsSection.style.display = 'block';
+    }
   }
 
   static hideSettingsMenu() {
@@ -156,7 +166,7 @@ export class UI {
     p.parent(UI_PARENT_ID);
   }
 
-  static renderDifficulty(difficultyIndex = 0, isShowingDeathColours: boolean) {
+  static renderDifficulty(difficultyIndex = 0, isShowingDeathColours: boolean, isCasualModeEnabled = false) {
     const id = 'difficulty-field';
     const difficultyText = (() => {
       if (difficultyIndex >= 4) return 'ULTRA';
@@ -164,7 +174,7 @@ export class UI {
       if (difficultyIndex >= 2) return 'MEDIUM';
       if (difficultyIndex >= 1) return 'EASY';
       return 'UNKNOWN'
-    })()
+    })() + (isCasualModeEnabled ? ' CASUAL' : '');
     document.getElementById(id)?.remove();
     const p = UI.p5.createP(difficultyText);
     p.position(0, 0);
@@ -188,10 +198,8 @@ export class UI {
 
   static drawButton(textStr = '', x = 0, y = 0, onClick: () => void, uiElements: Element[], {
     parentId = "game",
-    altText = "",
   }: {
     parentId?: string | P5.Element,
-    altText?: string,
   } = {}) {
     const button = UI.p5.createButton(textStr);
     if (x >= 0 && y >= 0) {
@@ -200,23 +208,20 @@ export class UI {
     button.mousePressed(onClick);
     button.parent(parentId);
     button.attribute("tabindex", "0");
-    if (altText || textStr) {
-      button.attribute("alt", altText || textStr);
-    }
     uiElements.push(button);
     return button;
   }
 
-  static drawText(textStr = '', fontSize = '12px', y = 0, uiElements: Element[]) {
+  static drawText(textStr = '', fontSize = '12px', y = 0, uiElements: Element[], { color = '#fff', marginLeft = 0 } = {}) {
     const element = UI.p5.createP(textStr);
     element.addClass('minimood');
     element.style('font-size', fontSize);
-    element.style('color', '#fff');
+    element.style('color', color);
     element.style('text-shadow', '0px 3px 3px black');
     element.style('padding', '0 20px');
     element.style('width', 'calc(100% - 80px)');
     element.style('text-align', 'center');
-    element.position(0, y);
+    element.position(20 + marginLeft, y);
     element.parent(UI_PARENT_ID);
     uiElements.push(element);
   }
@@ -310,7 +315,8 @@ export class MainTitleFader {
   }
 }
 
-interface SliderBindingsCallbacks {
+interface UIBindingsCallbacks {
+  onShowMainMenu: () => void;
   onSetMusicVolume: (volume: number) => void;
   onSetSfxVolume: (volume: number) => void;
 }
@@ -318,7 +324,8 @@ interface SliderBindingsCallbacks {
 export class UIBindings {
   private sfx: SFXInstance;
   private gameState: GameState;
-  private callbacks: SliderBindingsCallbacks = {
+  private callbacks: UIBindingsCallbacks = {
+    onShowMainMenu: () => { },
     onSetMusicVolume: (volume: number) => { },
     onSetSfxVolume: (volume: number) => { },
   };
@@ -326,9 +333,10 @@ export class UIBindings {
   private sliderMusic: HTMLInputElement;
   private sliderSfx: HTMLInputElement;
   private buttonCloseSettingsMenu: HTMLButtonElement;
+  private buttonStartGame: HTMLButtonElement;
   private checkboxCasualMode: HTMLInputElement;
 
-  constructor(sfx: SFXInstance, gameState: GameState, callbacks: SliderBindingsCallbacks) {
+  constructor(sfx: SFXInstance, gameState: GameState, callbacks: UIBindingsCallbacks) {
     this.sfx = sfx;
     this.gameState = gameState;
     this.callbacks = callbacks;
@@ -343,6 +351,8 @@ export class UIBindings {
   }
 
   private bindElements = () => {
+    this.buttonStartGame = requireElementById<HTMLButtonElement>('start-screen-start-button');
+    this.buttonStartGame.addEventListener('click', this.onButtonStartGameClick);
     this.buttonCloseSettingsMenu = requireElementById<HTMLButtonElement>('settings-menu-close-button');
     this.buttonCloseSettingsMenu.addEventListener('click', this.onHideSettingsMenuClick);
     this.checkboxCasualMode = requireElementById<HTMLInputElement>('checkbox-casual-mode');
@@ -351,6 +361,13 @@ export class UIBindings {
     this.sliderSfx = requireElementById<HTMLInputElement>("slider-volume-sfx");
     this.sliderMusic.addEventListener('input', this.onMusicSliderInput);
     this.sliderSfx.addEventListener('input', this.onSfxSliderInput);
+  }
+
+  public onButtonStartGameClick = () => {
+    this.buttonStartGame.removeEventListener('click', this.onButtonStartGameClick);
+    this.callbacks.onShowMainMenu();
+    UI.hideStartScreen();
+    this.sfx.play(Sound.doorOpen);
   }
 
   private onHideSettingsMenuClick = () => {

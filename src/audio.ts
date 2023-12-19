@@ -24,6 +24,7 @@ musicGainNode.connect(masterGainNode);
 musicGainNode.gain.value = MAX_GAIN_MUSIC;
 
 export function resumeAudioContext(): Promise<void> {
+  if (!navigator.userActivation.hasBeenActive) return;
   if (audioContext.state === 'running') return;
   return audioContext.resume();
 }
@@ -128,6 +129,12 @@ export async function setPlaybackRate(path: string, rate: number) {
   const source = audioSourceMap[path];
   if (!source) return;
   source.playbackRate.value = rate;
+}
+
+export async function getPlaybackRate(path: string): Promise<number> {
+  const source = audioSourceMap[path];
+  if (!source) return 0;
+  return source.playbackRate.value;
 }
 
 export function stopAudio(path: string) {

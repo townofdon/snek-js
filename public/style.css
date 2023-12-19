@@ -26,6 +26,8 @@
 
   --slider-track-color: #2196F3;
   --slider-thumb-color: #808080;
+
+  --start-screen-background-color: #3d3957;
 }
 
 @font-face {
@@ -54,6 +56,22 @@ html {
 
 body {
   background: transparent;
+}
+
+.start-screen {
+  z-index: 100;
+  position: absolute;
+  top: 0;
+  background: var(--start-screen-background-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.start-screen button.start {
+  margin-top: 40px;
+  margin-bottom: 40px;
 }
 
 canvas {
@@ -141,14 +159,22 @@ p {
 
 button {
   padding: 5px 20px;
+  padding-bottom: 4px;
   border-radius: 10px;
   background: #cdeaff;
   color: #111;
-  border: none;
+  border: solid 2px transparent;
   box-shadow: 0px 3px 2px 2px black;
   font-family: 'VT323', monospace;
+  font-family: BIOSfontII, monospace;
   font-size: 1.2em;
+  font-size: 1em;
   cursor: pointer;
+}
+button.minimood {
+  padding-bottom: 0;
+  padding-top: 6px;
+  font-size: 12px;
 }
 
 button.difficulty {
@@ -171,7 +197,13 @@ button:active,
 button:focus
 {
   background-color: #dbcf7a;
+  background-color: #ffffff;
+  background-color: #181A1A;
+  background-color: #423c38;
   color: #3b4719;
+  color: #111;
+  color: #DDDAD6;
+  border-color: #DDDAD6;
 }
 
 button.easy {
@@ -190,7 +222,7 @@ button.ultra {
   animation-delay: calc(var(--hover-duration) * 0.3);
   background: #111;
   color: #cdeaff;
-  border: solid 1px #cdeaff;
+  border: solid 2px #cdeaff;
 }
 
 button.ultra:hover,
@@ -271,6 +303,7 @@ button.snek-audio-viz-button {
   height: var(--viz-sprite-height);
   padding: 0;
   border-radius: 4px;
+  border: none;
 }
 button.snek-audio-viz-button.active,
 button.snek-audio-viz-button:hover,
@@ -305,6 +338,7 @@ button.ui-sprite {
   display: inline-block;
   background-color: inherit;
   background-size: var(--ui-sprite-background-size);
+  background-position: center center;
   width: var(--ui-sprite-width);
   height: var(--ui-sprite-height);
   padding: 0;

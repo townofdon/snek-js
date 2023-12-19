@@ -154,7 +154,8 @@ export function oscilateLinear(num: number) {
 export function parseUrlQueryParams(): QueryParams {
   const query = new URLSearchParams(window.location.search);
   const params: QueryParams = {
-    enableQuoteMode: query.get("enableQuoteMode")?.toLowerCase() === 'true'
+    enableQuoteMode: query.get("enableQuoteMode")?.toLowerCase() === 'true',
+    enableWarp: query.get("enableWarp")?.toLowerCase() === 'true',
   }
   return params;
 }
