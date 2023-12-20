@@ -84,6 +84,7 @@ export class UI {
     document.getElementById('hearts-container')?.remove();
     document.getElementById('score-field')?.remove();
     document.getElementById('difficulty-field')?.remove();
+    document.getElementById('casual-rewind-tip-field')?.remove();
   }
 
   static renderLevelName(levelName = '', isShowingDeathColours: boolean) {
@@ -188,6 +189,25 @@ export class UI {
     p.style('margin', '0');
     p.style('padding', '1px 8px');
     p.style('text-align', 'left');
+    p.parent(UI_PARENT_ID);
+  }
+
+  static renderCasualRewindTip() {
+    const id = 'casual-rewind-tip-field';
+    document.getElementById(id)?.remove();
+    const p = UI.p5.createP('[DEL] rewind moves');
+    p.position(0, 0);
+    p.id(id);
+    p.style('font-size', '1em');
+    p.style('color', LABEL_COLOR);
+    p.style('background-color', LABEL_BG_COLOR);
+    p.style('line-height', '1em');
+    p.style('white-space', 'nowrap');
+    p.style('left', 'inherit');
+    p.style('right', UI_LABEL_OFFSET);
+    p.style('margin', '0');
+    p.style('padding', '1px 8px');
+    p.style('text-align', 'right');
     p.parent(UI_PARENT_ID);
   }
 

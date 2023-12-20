@@ -103,6 +103,11 @@ export interface GameState {
   lastHurtBy: HitType,
 }
 
+export interface Tutorial {
+  needsMoveControls: boolean,
+  needsRewindControls: boolean,
+}
+
 export interface GameSettings {
   musicVolume: number,
   sfxVolume: number,
@@ -222,6 +227,9 @@ export enum Image {
   SnekHead = 'snek-head.png',
   SnekHeadDead = 'snek-head-dead.png',
   SnekButt = 'snek-butt.png',
+  ControlsKeyboardMove = 'controls-keyboard-move.png',
+  ControlsKeyboardDelete = 'controls-keyboard-delete.png',
+  ControlsMouseLeft = 'controls-mouse-left.png',
 }
 
 export interface Scene {

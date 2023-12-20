@@ -20,6 +20,9 @@ export class SpriteRenderer {
   }
 
   private images: Record<Image, P5.Image | null> = {
+    [Image.ControlsKeyboardDelete]: null,
+    [Image.ControlsKeyboardMove]: null,
+    [Image.ControlsMouseLeft]: null,
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
     [Image.SnekButt]: null,
@@ -45,12 +48,15 @@ export class SpriteRenderer {
   }
 
   loadImages() {
+    this.loadImage(Image.ControlsKeyboardDelete);
+    this.loadImage(Image.ControlsKeyboardMove);
+    this.loadImage(Image.ControlsMouseLeft);
     this.loadImage(Image.SnekHead);
     this.loadImage(Image.SnekHeadDead);
     this.loadImage(Image.SnekButt);
   }
 
-  drawImage(image: Image, x: number, y: number, rotation: number = 0) {
+  drawImage3x3(image: Image, x: number, y: number, rotation: number = 0) {
     const { p5, screenShake } = this.props;
     const loaded = this.images[image];
     if (!loaded) return;
@@ -91,5 +97,25 @@ export class SpriteRenderer {
       p5.TOP
     );
     p5.pop();
+  }
+
+  drawImage(image: Image, x: number, y: number) {
+    const { p5 } = this.props;
+    const loaded = this.images[image];
+    if (!loaded) return;
+    p5.image(
+      loaded,
+      x,
+      y,
+      loaded.width,
+      loaded.height,
+      0,
+      0,
+      loaded.width,
+      loaded.height,
+      p5.COVER,
+      p5.LEFT,
+      p5.TOP
+    );
   }
 }

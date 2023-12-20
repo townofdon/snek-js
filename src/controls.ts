@@ -42,7 +42,7 @@ export interface InputCallbacks {
 }
 
 export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
-  const { keyCode, ENTER, ESCAPE, SHIFT, BACKSPACE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
+  const { keyCode, ENTER, ESCAPE, SHIFT, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   const {
     onHideStartScreen,
     onSetup,
@@ -121,7 +121,7 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     return;
   }
 
-  if (!state.isMoving && keyCode === BACKSPACE) {
+  if (keyCode === BACKSPACE || keyCode === DELETE) {
     onStartRewinding();
     return;
   }

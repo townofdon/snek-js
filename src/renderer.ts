@@ -1,14 +1,17 @@
 import P5, { Vector } from "p5";
-import { DIR, FontsInstance, GameState, Portal, Replay, ReplayMode, ScreenShakeState } from "./types";
-import { BLOCK_SIZE, HURT_STUN_TIME, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, STROKE_SIZE } from "./constants";
-import { oscilateLinear } from "./utils";
+import { DIR, FontsInstance, GameState, HitType, Image, Portal, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
+import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, STROKE_SIZE } from "./constants";
+import { clamp, oscilateLinear } from "./utils";
+import { SpriteRenderer } from "./spriteRenderer";
 
 interface RendererConstructorProps {
   p5: P5
   fonts: FontsInstance
   replay: Replay
-  state: GameState
+  gameState: GameState
   screenShake: ScreenShakeState
+  spriteRenderer: SpriteRenderer
+  tutorial: Tutorial
 }
 
 export class Renderer {
@@ -16,8 +19,10 @@ export class Renderer {
     p5: null,
     fonts: null,
     replay: null,
-    state: null,
+    gameState: null,
     screenShake: null,
+    spriteRenderer: null,
+    tutorial: null,
   }
   elapsed = 0
 
@@ -76,17 +81,17 @@ export class Renderer {
    * Draw move arrows when player is not moving, or when player is hurt
    */
   drawPlayerMoveArrows = (vec: Vector, currentMove: DIR) => {
-    const { p5, fonts, replay, state, screenShake } = this.props;
+    const { p5, fonts, replay, gameState, screenShake } = this.props;
 
     if (replay.mode === ReplayMode.Playback) return;
 
-    const isWaitingToStartMoving = state.isGameStarted && !state.isMoving;
-    const isStunned = state.timeSinceHurt < HURT_STUN_TIME;
+    const isWaitingToStartMoving = gameState.isGameStarted && !gameState.isMoving;
+    const isStunned = gameState.timeSinceHurt < HURT_STUN_TIME;
     if (!isWaitingToStartMoving && !isStunned) return;
 
     if (isStunned) {
       const freq = .2;
-      const t = state.timeSinceHurt / HURT_STUN_TIME;
+      const t = gameState.timeSinceHurt / HURT_STUN_TIME;
       const shouldShow = t % freq > freq * 0.5;
       if (!shouldShow) return;
     }
@@ -115,6 +120,105 @@ export class Renderer {
       p5.textFont(fonts.variants.zicons);
       p5.text(arrow.text, position.x, position.y);
     }
+  }
+
+  drawTutorialMoveControls = () => {
+    const { p5, fonts, replay, gameState, tutorial, spriteRenderer } = this.props;
+
+    if (!tutorial.needsMoveControls) return;
+    if (replay.mode === ReplayMode.Playback) return;
+
+    const isWaitingToStartMoving = gameState.isGameStarted && !gameState.isMoving;
+    const isStunned = gameState.timeSinceHurt < HURT_STUN_TIME;
+    if (!isWaitingToStartMoving && !isStunned) return;
+
+    // banner background
+    const bannerHeight = 4;
+    const bannerCenter = {
+      x: GRIDCOUNT.x * .5,
+      y: GRIDCOUNT.y * .5,
+    };
+    const x0 = BLOCK_SIZE.x * (bannerCenter.x - 5);
+    const x1 = BLOCK_SIZE.x * (bannerCenter.x + 4);
+    const y0 = BLOCK_SIZE.y * (bannerCenter.y - bannerHeight * 0.5);
+    const y1 = BLOCK_SIZE.y * (bannerCenter.y + bannerHeight * 0.5);
+    p5.fill('#000000aa');
+    p5.stroke("#000");
+    p5.strokeWeight(STROKE_SIZE);
+    p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    // text
+    const textX = BLOCK_SIZE.x * (bannerCenter.x + 0.8);
+    const textY = BLOCK_SIZE.y * (bannerCenter.y + bannerHeight * 0.5 - 1.35);
+    p5.fill(ACCENT_COLOR);
+    p5.stroke("#111");
+    p5.strokeWeight(4);
+    p5.textSize(12);
+    p5.textAlign(p5.LEFT, p5.CENTER);
+    p5.textFont(fonts.variants.miniMood);
+    p5.text("MOVE", textX, textY);
+    // image
+    const imgX = BLOCK_SIZE.x * (bannerCenter.x - 4.5);
+    const imgY = BLOCK_SIZE.y * (bannerCenter.y - bannerHeight * 0.5 + 0.4);
+    spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY);
+  }
+
+  drawTutorialRewindControls = (playerPosition: Vector, canRewind: () => boolean) => {
+    const { p5, fonts, replay, gameState, tutorial, spriteRenderer } = this.props;
+
+    const hasNeverBeenHurt = gameState.lastHurtBy === HitType.Unknown;
+    if (hasNeverBeenHurt) return;
+    if (tutorial.needsMoveControls) return;
+    if (!tutorial.needsRewindControls) return;
+    if (gameState.isRewinding) return;
+    if (replay.mode === ReplayMode.Playback) return;
+
+    const isWaitingToStartMoving = gameState.isGameStarted && !gameState.isMoving;
+    const isStunned = gameState.timeSinceHurt < HURT_STUN_TIME;
+    if (!isWaitingToStartMoving && !isStunned) return;
+
+    if (!canRewind()) return;
+
+    // banner background
+    const bannerWidth = 7;
+    const bannerHeight = 3;
+    const bannerPosition = {
+      x: playerPosition.x,
+      y: playerPosition.y - 1 - bannerHeight,
+    };
+    const bounds = {
+      min: {
+        x: 1,
+        y: 4,
+      },
+      max: {
+        x: GRIDCOUNT.x - bannerWidth - 1,
+        y: GRIDCOUNT.y - bannerHeight - 1,
+      },
+    }
+    bannerPosition.x = clamp(bannerPosition.x, bounds.min.x, bounds.max.x);
+    bannerPosition.y = clamp(bannerPosition.y, bounds.min.y, bounds.max.y);
+    const x0 = BLOCK_SIZE.x * (bannerPosition.x);
+    const x1 = BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
+    const y0 = BLOCK_SIZE.y * (bannerPosition.y);
+    const y1 = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
+    p5.fill('#000000aa');
+    p5.stroke("#000");
+    p5.strokeWeight(STROKE_SIZE);
+    p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    // text
+    const textX = BLOCK_SIZE.x * (bannerPosition.x + 3);
+    const textY = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
+    p5.fill("#fff");
+    p5.stroke("#111");
+    p5.strokeWeight(4);
+    p5.textSize(12);
+    p5.textAlign(p5.LEFT, p5.CENTER);
+    p5.textFont(fonts.variants.miniMood);
+    p5.text("REWIND", textX, textY);
+    // image
+    const imgX = BLOCK_SIZE.x * (bannerPosition.x + 0.6);
+    const imgY = BLOCK_SIZE.y * (bannerPosition.y + 0.6);
+    spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY);
   }
 
   /**

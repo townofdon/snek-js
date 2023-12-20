@@ -43,7 +43,7 @@ import {
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -61,7 +61,7 @@ import { ImpactParticleSystem } from './particleSystems/ImpactParticleSystem';
 import { Renderer } from './renderer';
 import { PortalParticleSystem, PortalVortexParticleSystem } from './particleSystems/PortalParticleSystem';
 import { MusicPlayer } from './musicPlayer';
-import { getMusicVolume, resumeAudioContext } from './audio';
+import { resumeAudioContext } from './audio';
 import { Easing } from './easing';
 import { OSTScene } from './scenes/OSTScene';
 import { SpriteRenderer } from './spriteRenderer';
@@ -132,6 +132,10 @@ const replay: Replay = {
   timeCaptureStarted: 'no-date',
   shouldProceedToNextClip: false,
 }
+const tutorial: Tutorial = {
+  needsMoveControls: true,
+  needsRewindControls: true,
+};
 
 const loseMessages: Record<number, LoseMessage[]> = {}
 
@@ -210,8 +214,8 @@ export const sketch = (p5: P5) => {
     onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
   });
   const winScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
-  const renderer = new Renderer({ p5, fonts, replay, state, screenShake });
   const spriteRenderer = new SpriteRenderer({ p5, replay, gameState: state, screenShake });
+  const renderer = new Renderer({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
 
   /**
    * https://p5js.org/reference/#/p5/preload
@@ -393,8 +397,11 @@ export const sketch = (p5: P5) => {
 
   function renderHeartsUI() {
     if (replay.mode === ReplayMode.Playback) return;
-    if (state.isCasualModeEnabled) return;
-    UI.renderHearts(state.lives, state.isShowingDeathColours);
+    if (state.isCasualModeEnabled) {
+      UI.renderCasualRewindTip();
+    } else {
+      UI.renderHearts(state.lives, state.isShowingDeathColours);
+    }
   }
 
   function renderScoreUI(score = stats.score) {
@@ -412,6 +419,7 @@ export const sketch = (p5: P5) => {
     if (state.isMoving) return;
     state.isMoving = true;
     state.currentSpeed = 1;
+    tutorial.needsMoveControls = false;
     stopRewinding();
     if (state.timeSinceHurt >= HURT_STUN_TIME) {
       playSound(Sound.moveStart);
@@ -423,6 +431,7 @@ export const sketch = (p5: P5) => {
     if (!canRewind()) return;
     state.isRewinding = true;
     state.isMoving = false;
+    tutorial.needsRewindControls = false;
     state.currentSpeed = 1;
     sfx.playLoop(Sound.rewindLoop);
   }
@@ -435,7 +444,6 @@ export const sketch = (p5: P5) => {
   function canRewind(): boolean {
     if (!state.isCasualModeEnabled) return false;
     if (state.isLost) return false;
-    if (state.isMoving) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (calculateSnakeSize() <= (level.snakeStartSizeOverride || START_SNAKE_SIZE) + 1) return false;
@@ -632,6 +640,7 @@ export const sketch = (p5: P5) => {
     }
 
     renderer.drawPlayerMoveArrows(player.position, moves.length > 0 ? moves[0] : player.direction);
+    renderer.drawTutorialMoveControls();
 
     const snakePositionsMap: Record<number, boolean> = {};
     for (let i = 0; i < segments.length; i++) {
@@ -649,6 +658,8 @@ export const sketch = (p5: P5) => {
 
     drawPlayerHead(player.position);
     drawParticles(10);
+
+    renderer.drawTutorialRewindControls(player.position, canRewind);
 
     if (state.isLost) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
@@ -1193,9 +1204,9 @@ export const sketch = (p5: P5) => {
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead);
     const direction = moves.length > 0 ? moves[0] : player.direction;
     if (state.isLost) {
-      spriteRenderer.drawImage(Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction));
+      spriteRenderer.drawImage3x3(Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction));
     } else {
-      spriteRenderer.drawImage(Image.SnekHead, vec.x, vec.y, getRotationFromDirection(direction));
+      spriteRenderer.drawImage3x3(Image.SnekHead, vec.x, vec.y, getRotationFromDirection(direction));
     }
   }
 
@@ -1476,6 +1487,7 @@ export const sketch = (p5: P5) => {
     stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
     state.levelIndex++;
+    tutorial.needsRewindControls = false;
     musicPlayer.stopAllTracks();
     level = LEVELS[state.levelIndex % LEVELS.length];
     if (level === START_LEVEL) {
