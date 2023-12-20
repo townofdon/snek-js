@@ -37,12 +37,12 @@ export interface InputCallbacks {
   onUnpause: () => void
   onWarpToLevel: (level: number) => void
   onStartMoving: () => void
+  onStartRewinding: () => void
   onAddMove: (move: DIR) => void
 }
 
-
 export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
-  const { keyCode, ENTER, ESCAPE, SHIFT, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
+  const { keyCode, ENTER, ESCAPE, SHIFT, BACKSPACE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   const {
     onHideStartScreen,
     onSetup,
@@ -54,6 +54,7 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     onUnpause,
     onWarpToLevel,
     onStartMoving,
+    onStartRewinding,
     onAddMove,
   } = callbacks
 
@@ -120,6 +121,11 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     return;
   }
 
+  if (!state.isMoving && keyCode === BACKSPACE) {
+    onStartRewinding();
+    return;
+  }
+
   let currentMove: DIR | null = null;
 
   if (keyCode === LEFT_ARROW || keyCode === KEYCODE_A) {
@@ -132,16 +138,16 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
     currentMove = DIR.DOWN;
   }
 
-  if (currentMove) {
-    onStartMoving();
-  }
-
   const prevMove = moves.length > 0
     ? moves[moves.length - 1]
     : playerDirection;
 
   // disallow same moves unless snake is currently stunned after hitting something
-  const disallowEqual = state.timeSinceHurt >= HURT_STUN_TIME;
+  const disallowEqual = state.isMoving && state.timeSinceHurt >= HURT_STUN_TIME;
+
+  if (currentMove) {
+    onStartMoving();
+  }
 
   // validate current move
   if (moves.length >= MAX_MOVES) return;

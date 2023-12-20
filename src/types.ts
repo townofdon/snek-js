@@ -84,6 +84,7 @@ export interface GameState {
   isPaused: boolean,
   isMoving: boolean,
   isSprinting: boolean, // is user holding down shift key?
+  isRewinding: boolean,
   isLost: boolean,
   isDoorsOpen: boolean,
   isExitingLevel: boolean,
@@ -188,6 +189,7 @@ export enum Sound {
   hurt2 = 'hurt2',
   hurt3 = 'hurt3',
   moveStart = 'moveStart',
+  rewindLoop = 'rewindLoop',
   step1 = 'step1',
   step2 = 'step2',
   uiBlip = 'uiBlip',
@@ -196,10 +198,10 @@ export enum Sound {
   uiConfirm = 'uiConfirm',
   unlock = 'unlock',
   warp = 'warp',
-  winLevel = "winLevel",
+  winLevel = 'winLevel',
   xplode = 'xplode',
   xplodeLong = 'xplodeLong',
-  xpound = "xpound",
+  xpound = 'xpound',
 }
 
 export type SoundVariants = Record<keyof typeof Sound, Howl>

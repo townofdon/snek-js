@@ -343,11 +343,12 @@ export class UIBindings {
     this.bindElements();
   }
 
-  refreshSliderValues() {
+  refreshFieldValues() {
     const musicVolume = getMusicVolume();
     const sfxVolume = getSfxVolume();
     this.sliderMusic.value = String(musicVolume);
     this.sliderSfx.value = String(sfxVolume);
+    this.checkboxCasualMode.checked = this.gameState.isCasualModeEnabled;
   }
 
   private bindElements = () => {

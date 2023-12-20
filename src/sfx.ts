@@ -31,6 +31,7 @@ export class SFX implements SFXInstance {
     hurt2: null,
     hurt3: null,
     moveStart: null,
+    rewindLoop: null,
     step1: null,
     step2: null,
     uiBlip: null,
@@ -64,6 +65,19 @@ export class SFX implements SFXInstance {
     }
   }
 
+  playLoop(sound: keyof SoundVariants, volume = 1) {
+    try {
+      if (!this.sounds[sound]) {
+        console.warn(`Sound not loaded: ${sound}`);
+        return;
+      }
+      this.play(sound, volume);
+      this.sounds[sound].loop(true);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   stop(sound: keyof SoundVariants) {
     if (!this.sounds[sound]) {
       console.warn(`Sound not loaded: ${sound}`);
@@ -83,6 +97,7 @@ export class SFX implements SFXInstance {
       this.sounds.hurt2 = loadSound('hurt-2.wav');
       this.sounds.hurt3 = loadSound('hurt-3.wav');
       this.sounds.moveStart = loadSound('move-start.wav');
+      this.sounds.rewindLoop = loadSound('rewind-loop.wav');
       this.sounds.step1 = loadSound('step-1.wav');
       this.sounds.step2 = loadSound('step-2.wav');
       this.sounds.uiBlip = loadSound('ui-blip.wav');

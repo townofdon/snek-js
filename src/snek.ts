@@ -82,6 +82,7 @@ const state: GameState = {
   isPaused: false,
   isMoving: false,
   isSprinting: false,
+  isRewinding: false,
   isLost: false,
   isDoorsOpen: false,
   isExitingLevel: false,
@@ -203,7 +204,7 @@ export const sketch = (p5: P5) => {
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer(settings);
   const mainTitleFader = new MainTitleFader(p5);
-  const sliderBindings = new UIBindings(sfx, state, {
+  const uiBindings = new UIBindings(sfx, state, {
     onShowMainMenu: showMainMenu,
     onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
     onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
@@ -237,7 +238,7 @@ export const sketch = (p5: P5) => {
     const canvas = document.getElementById("game-canvas");
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
     p5.frameRate(FRAMERATE);
-    init(false);
+    initLevel(false);
   }
 
   function showMainMenu() {
@@ -254,7 +255,7 @@ export const sketch = (p5: P5) => {
     musicPlayer.stopAllTracks();
     musicPlayer.setVolume(1);
     setLevelIndexFromCurrentLevel();
-    init(false);
+    initLevel(false);
     stopAllCoroutines();
     actions.stopAll();
     startReplay();
@@ -292,7 +293,7 @@ export const sketch = (p5: P5) => {
     UI.addTooltip("Quote Mode", buttonQuoteMode);
     UI.addTooltip("Settings", buttonSettings, 'right');
     UI.hideSettingsMenu();
-    sliderBindings.refreshSliderValues();
+    uiBindings.refreshFieldValues();
 
     hydrateLoseMessages(-1);
   }
@@ -312,15 +313,16 @@ export const sketch = (p5: P5) => {
   function keyPressed() {
     resumeAudioContext();
     handleKeyPressed(p5, state, player.direction, moves, {
-      onHideStartScreen: () => { sliderBindings.onButtonStartGameClick(); },
+      onHideStartScreen: () => { uiBindings.onButtonStartGameClick(); },
       onSetup: showMainMenu,
-      onInit: () => init(false),
+      onInit: () => initLevel(false),
       onStartGame: startGame,
       onPause: pause,
       onUnpause: unpause,
       onWarpToLevel: warpToLevel,
       onStartMoving: startMoving,
-      onAddMove: move => moves.push(move),
+      onStartRewinding: startRewinding,
+      onAddMove: move => { moves.push(move); },
       onEnterQuoteMode: enterQuoteMode,
       onEnterOstMode: enterOstMode,
     });
@@ -360,7 +362,7 @@ export const sketch = (p5: P5) => {
     stopReplay();
     level = START_LEVEL
     setLevelIndexFromCurrentLevel();
-    init()
+    initLevel()
     difficulty = getDifficultyFromIndex(difficultyIndex);
     state.isGameStarting = false;
     state.isGameStarted = true;
@@ -407,13 +409,51 @@ export const sketch = (p5: P5) => {
   }
 
   function startMoving() {
-    if (!state.isMoving) {
+    if (state.isMoving) return;
+    state.isMoving = true;
+    state.currentSpeed = 1;
+    stopRewinding();
+    if (state.timeSinceHurt >= HURT_STUN_TIME) {
       playSound(Sound.moveStart);
     }
-    state.isMoving = true;
   }
 
-  function init(shouldShowTransitions = true) {
+  function startRewinding() {
+    if (state.isRewinding) return;
+    if (!canRewind()) return;
+    state.isRewinding = true;
+    state.isMoving = false;
+    state.currentSpeed = 1;
+    sfx.playLoop(Sound.rewindLoop);
+  }
+
+  function stopRewinding() {
+    state.isRewinding = false;
+    sfx.stop(Sound.rewindLoop);
+  }
+
+  function canRewind(): boolean {
+    if (!state.isCasualModeEnabled) return false;
+    if (state.isLost) return false;
+    if (state.isMoving) return false;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+    if (replay.mode === ReplayMode.Playback) return false;
+    if (calculateSnakeSize() <= (level.snakeStartSizeOverride || START_SNAKE_SIZE) + 1) return false;
+    return true;
+  }
+
+  function calculateSnakeSize(): number {
+    let size = 0;
+    const uniquePositions: Record<number, boolean> = {};
+    for (let i = 0; i < segments.length; i++) {
+      if (!segments[i]) continue;
+      if (!uniquePositions[getCoordIndex(segments[i])]) { size++; }
+      uniquePositions[getCoordIndex(segments[i])] = true;
+    }
+    return size + 1;
+  }
+
+  function initLevel(shouldShowTransitions = true) {
     if (replay.mode === ReplayMode.Playback) {
       shouldShowTransitions = false;
     } else {
@@ -435,6 +475,7 @@ export const sketch = (p5: P5) => {
     player.direction = DIR.RIGHT;
     state.isPaused = false;
     state.isMoving = false;
+    state.isRewinding = false;
     state.isSprinting = false;
     state.isLost = false;
     state.isDoorsOpen = false;
@@ -550,7 +591,7 @@ export const sketch = (p5: P5) => {
       return;
     }
 
-    if (p5.keyIsDown(p5.SHIFT) && state.isMoving) {
+    if (p5.keyIsDown(p5.SHIFT) && (state.isMoving || state.isRewinding)) {
       state.isSprinting = true;
     } else {
       state.isSprinting = false;
@@ -632,7 +673,9 @@ export const sketch = (p5: P5) => {
     // handle snake hurt
     if (state.isLost && state.lives > 0) {
       state.isLost = false;
-      if (!state.isCasualModeEnabled || replay.mode === ReplayMode.Playback) {
+      if (state.isCasualModeEnabled && replay.mode !== ReplayMode.Playback) {
+        state.isMoving = false;
+      } else {
         state.lives -= 1;
       }
       state.timeSinceHurt = 0;
@@ -688,7 +731,17 @@ export const sketch = (p5: P5) => {
       }
       updateCurrentMoveSpeed();
       stats.totalTimeElapsed += p5.deltaTime;
-      state.timeSinceHurt += p5.deltaTime;
+    }
+
+    // handle snake rewind
+    if (state.isRewinding && replay.mode === ReplayMode.Disabled) {
+      const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
+      if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
+        rewindPlayer();
+      } else {
+        state.timeSinceLastMove += p5.deltaTime;
+      }
+      updateCurrentMoveSpeed();
     }
 
     // tick time elapsed
@@ -704,7 +757,6 @@ export const sketch = (p5: P5) => {
         player.position.set(position[0], position[1])
         player.direction = getDirectionToFirstSegment();
       }
-      state.timeSinceHurt += p5.deltaTime;
     }
 
     // capture snake movement after hit and rebound
@@ -756,6 +808,7 @@ export const sketch = (p5: P5) => {
       }
     }
 
+    state.timeSinceHurt += p5.deltaTime;
     state.frameCount += 1;
     renderer.tick();
   }
@@ -954,6 +1007,18 @@ export const sketch = (p5: P5) => {
         segments[i].set(segments[i - 1]);
       }
     }
+  }
+
+  function rewindPlayer() {
+    if (!state.isRewinding) return;
+    if (state.isExited) return;
+    if (!canRewind()) {
+      stopRewinding();
+      return;
+    }
+    state.timeSinceLastMove = 0;
+    reboundSnake(1);
+    player.direction = getDirectionToFirstSegment();
   }
 
   /**
@@ -1257,7 +1322,7 @@ export const sketch = (p5: P5) => {
       const randomMessage = getRandomMessage();
       UI.drawDarkOverlay(uiElements);
       UI.drawButton("MAIN MENU", 20, 20, showMainMenu, uiElements);
-      UI.drawButton("TRY AGAIN", 475, 20, () => init(false), uiElements);
+      UI.drawButton("TRY AGAIN", 475, 20, () => initLevel(false), uiElements);
       const offset = -50
       UI.drawText('YOU DIED!', '28px', 250 + offset, uiElements, { color: ACCENT_COLOR });
       UI.drawText(randomMessage, '12px', 340 + offset, uiElements);
@@ -1340,7 +1405,7 @@ export const sketch = (p5: P5) => {
     musicPlayer.stopAllTracks();
     level = getWarpLevelFromNum(levelNum);
     setLevelIndexFromCurrentLevel();
-    init();
+    initLevel();
   }
 
   function pause() {
@@ -1423,14 +1488,14 @@ export const sketch = (p5: P5) => {
     if (showQuoteOnLevelWin) {
       const quote = getNextQuote();
       const onSceneEnded = () => {
-        init();
+        initLevel();
       }
       UI.clearLabels();
       stopAllCoroutines();
       actions.stopAll();
       new QuoteScene(quote, p5, sfx, fonts, { onSceneEnded });
     } else {
-      init();
+      initLevel();
     }
   }
 
@@ -1534,7 +1599,7 @@ export const sketch = (p5: P5) => {
       state.levelIndex = clip.levelIndex;
       level = LEVELS[state.levelIndex % LEVELS.length];
       difficulty = { ...clip.difficulty };
-      init(false);
+      initLevel(false);
       clipIndex++;
       yield null;
 
