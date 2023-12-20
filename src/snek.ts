@@ -164,7 +164,6 @@ let quotes = allQuotes.slice();
 const difficultyButtons: Record<number, P5.Element> = {}
 
 enum Action {
-  PlayTitleScreenMusic = 'PlayTitleScreenMusic',
   FadeMusic = 'FadeMusic',
   ExecuteQuotesMode = 'ExecuteQuotesMode',
   SetTitleVariant = 'SetTitleVariant',
@@ -182,7 +181,6 @@ export const sketch = (p5: P5) => {
   // actions are unique, singleton coroutines, meaning that only one coroutine of a type can run at a time
   const actions = new Coroutines(p5);
   const actionIds: Record<ActionKey, string | null> = {
-    [Action.PlayTitleScreenMusic]: null,
     [Action.FadeMusic]: null,
     [Action.ExecuteQuotesMode]: null,
     [Action.SetTitleVariant]: null,
@@ -251,11 +249,6 @@ export const sketch = (p5: P5) => {
     state.isGameStarting = false;
     level = MAIN_TITLE_SCREEN_LEVEL;
 
-    // UI.setP5Instance(p5);
-    // const canvas = document.getElementById("game-canvas");
-    // p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
-    // p5.frameRate(FRAMERATE);
-
     musicPlayer.stopAllTracks();
     musicPlayer.setVolume(1);
     setLevelIndexFromCurrentLevel();
@@ -264,7 +257,9 @@ export const sketch = (p5: P5) => {
     actions.stopAll();
     startReplay();
     winScene.reset();
-    startAction(playMainMenuMusic(), Action.PlayTitleScreenMusic, true);
+    resumeAudioContext().then(() => {
+      musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
+    });
 
     // override state after init()
     stats.numDeaths = 0;
@@ -330,15 +325,6 @@ export const sketch = (p5: P5) => {
       onEnterQuoteMode: enterQuoteMode,
       onEnterOstMode: enterOstMode,
     });
-  }
-
-  async function* playMainMenuMusic(): IEnumerator {
-    while (!musicPlayer.isPlaying(MAIN_TITLE_SCREEN_LEVEL.musicTrack)) {
-      await resumeAudioContext();
-      musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
-      yield null;
-    }
-    clearAction(Action.PlayTitleScreenMusic);
   }
 
   function startGame(difficultyIndex = 2) {
@@ -1316,7 +1302,6 @@ export const sketch = (p5: P5) => {
   }
 
   function* showGameOverRoutine(): IEnumerator {
-    stats.numLevelsCleared = 0;
     stats.score = parseInt(String(stats.score * 0.5), 10);
     startScreenShake();
     yield* waitForTime(200);
@@ -1331,6 +1316,7 @@ export const sketch = (p5: P5) => {
     } else {
       startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
       const randomMessage = getRandomMessage();
+      stats.numLevelsCleared = 0;
       UI.drawDarkOverlay(uiElements);
       UI.drawButton("MAIN MENU", 20, 20, showMainMenu, uiElements);
       UI.drawButton("TRY AGAIN", 475, 20, () => initLevel(false), uiElements);
@@ -1487,12 +1473,14 @@ export const sketch = (p5: P5) => {
     stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
     state.levelIndex++;
-    tutorial.needsRewindControls = false;
     musicPlayer.stopAllTracks();
     level = LEVELS[state.levelIndex % LEVELS.length];
     if (level === START_LEVEL) {
       difficulty.index++;
       difficulty = getDifficultyFromIndex(difficulty.index);
+    }
+    if (state.isCasualModeEnabled) {
+      tutorial.needsRewindControls = false;
     }
 
     maybeSaveReplayStateToFile();

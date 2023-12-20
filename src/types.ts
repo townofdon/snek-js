@@ -13,7 +13,7 @@ import { Howl } from 'howler';
  * }
  * ```
  */
-export type IEnumerator = AsyncGenerator<IEnumerator | null, IEnumerator | void, unknown> | Generator<IEnumerator | null, IEnumerator | void, unknown>
+export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, null | undefined>
 
 export interface QueryParams {
   enableWarp: boolean,

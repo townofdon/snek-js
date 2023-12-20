@@ -23,7 +23,7 @@ musicGainNode.connect(masterGainNode);
 // defaults
 musicGainNode.gain.value = MAX_GAIN_MUSIC;
 
-export function resumeAudioContext(): Promise<void> {
+export async function resumeAudioContext(): Promise<void> {
   if (!navigator.userActivation.hasBeenActive) return;
   if (audioContext.state === 'running') return;
   return audioContext.resume();
