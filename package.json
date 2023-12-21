@@ -1,6 +1,6 @@
 {
   "name": "snekjs",
-  "version": "1.11.1",
+  "version": "1.11.2",
   "description": "snake game made with p5.js",
   "private": true,
   "scripts": {
