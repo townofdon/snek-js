@@ -74,6 +74,10 @@ body {
   margin-bottom: 40px;
 }
 
+.start-screen img {
+  user-select: none;
+}
+
 canvas {
   display: block;
   cursor: crosshair;
