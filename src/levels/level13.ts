@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, PortalExitMode } from "../types";
+import { Level, MusicTrack, PortalExitMode } from "../types";
 
 const name = 'DELTALAB'
 
@@ -54,4 +54,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
   extraLoseMessages: [
     ["This level really messes with your head, doesn't it?"],
   ],
+  musicTrack: MusicTrack.simpleTime,
 };

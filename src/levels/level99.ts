@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, TitleVariant } from "../types";
+import { Level, MusicTrack, TitleVariant } from "../types";
 
 const name = 'darkstar';
 
@@ -50,4 +50,5 @@ XXXXXX33XXXXXXDDXXXXXX33XXXXXX
   ],
   showQuoteOnLevelWin: true,
   titleVariant: TitleVariant.Red,
+  musicTrack: MusicTrack.dangerZone,
 };

@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, PortalExitMode } from "../types";
+import { Level, MusicTrack, PortalExitMode } from "../types";
 
 const name = 'grav chamber'
 
@@ -61,4 +61,5 @@ XXXXXXXXX~~~XXXXXX~~~XXXXXXXXX
     ["Sneks were not meant to meddle in the ways of science."],
     ["This one was designed by a madman."],
   ],
+  musicTrack: MusicTrack.transient,
 };

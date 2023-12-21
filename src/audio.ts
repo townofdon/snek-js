@@ -1,5 +1,7 @@
 import { MAX_GAIN_MUSIC } from "./constants";
 
+const DEBUG_AUDIO = false;
+
 const audioBufferMap: Record<string, AudioBuffer> = {}
 const audioSourceMap: Record<string, AudioBufferSourceNode> = {}
 const audioGainNodeMap: Record<string, GainNode> = {}
@@ -62,11 +64,13 @@ export function getAnalyser(path: string): AnalyserNode | null {
 export async function loadAudioToBuffer(path: string): Promise<AudioBuffer | null> {
   try {
     if (audioBufferMap[path]) {
+      if (DEBUG_AUDIO) console.log(`[Audio] got buffer from map for file=${path}`);
       return audioBufferMap[path];
     }
     const response = await fetch(path);
     const buffer = await audioContext.decodeAudioData(await response.arrayBuffer());
     audioBufferMap[path] = buffer;
+    if (DEBUG_AUDIO) console.log(`[Audio] loaded new buffer for file=${path}`);
     return buffer;
   } catch (err) {
     console.error(`Unable to load audio file. Error: ${err.message}`);
@@ -115,14 +119,15 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
   source.onended = () => {
     stopAudio(path);
   }
+  if (DEBUG_AUDIO) console.log(`[Audio] playing audio file=${path},gainNode=${gainNode},buffer=${buffer},source=${source}`)
 }
 
 export async function playSfx(path: string, volume: number) {
-  playAudio(path, sfxGainNode, { volume });
+  return playAudio(path, sfxGainNode, { volume });
 }
 
 export async function playMusic(path: string, options: AudioSourceOptions) {
-  playAudio(path, musicGainNode, options);
+  return playAudio(path, musicGainNode, options);
 }
 
 export async function setPlaybackRate(path: string, rate: number) {
@@ -138,14 +143,17 @@ export async function getPlaybackRate(path: string): Promise<number> {
 }
 
 export function stopAudio(path: string) {
-  audioSourceMap[path]?.stop();
-  audioSourceMap[path]?.disconnect();
+  if (audioSourceMap[path]) {
+    audioSourceMap[path].onended = undefined;
+    audioSourceMap[path].stop();
+    audioSourceMap[path].disconnect();
+  }
   audioGainNodeMap[path]?.disconnect();
-  delete audioSourceMap[path];
-  delete audioGainNodeMap[path];
+  audioSourceMap[path] = null;
+  audioGainNodeMap[path] = null;
 }
 
 export function unloadAudio(path: string) {
   stopAudio(path);
-  delete audioBufferMap[path];
+  audioBufferMap[path] = null;
 }

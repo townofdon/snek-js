@@ -67,7 +67,7 @@ export class MusicPlayer {
     return getAnalyser(this.fullPath(track));
   }
 
-  play(track?: MusicTrack, volume = 1, createAnalyser = false) {
+  async play(track?: MusicTrack, volume = 1, createAnalyser = false) {
     if (!navigator.userActivation.hasBeenActive) {
       return;
     }
@@ -83,7 +83,7 @@ export class MusicPlayer {
       console.log(`[MusicPlayer] playing track=${track},volume=${volume}`);
     }
     try {
-      playMusic(this.fullPath(track), { volume, loop: true, createAnalyser });
+      await playMusic(this.fullPath(track), { volume, loop: true, createAnalyser });
       this.tracksPlaying[track] = true;
       this.state.currentTrack = track;
     } catch (err) {
