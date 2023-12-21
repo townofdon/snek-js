@@ -39,16 +39,17 @@ import {
   SPEED_INCREMENT_SPEED_MS,
   SPRINT_INCREMENT_SPEED_MS,
   ACCENT_COLOR,
+  BLOCK_SIZE,
 } from './constants';
-import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray } from './utils';
+import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
 import { quotes as allQuotes } from './quotes';
-import { handleKeyPressed } from './controls';
+import { handleKeyPressed, validateMove } from './controls';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
 import { QuoteScene } from './scenes/QuoteScene';
@@ -69,6 +70,7 @@ import { SpriteRenderer } from './spriteRenderer';
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
 
+const canvas = document.getElementById('game-canvas');
 const queryParams = parseUrlQueryParams();
 const settings: GameSettings = {
   musicVolume: 1,
@@ -136,6 +138,12 @@ const tutorial: Tutorial = {
   needsMoveControls: true,
   needsRewindControls: true,
 };
+const clickState: ClickState = {
+  x: 0,
+  y: 0,
+  didReceiveInput: false,
+  directionToPoint: DIR.RIGHT,
+}
 
 const loseMessages: Record<number, LoseMessage[]> = {}
 
@@ -311,7 +319,7 @@ export const sketch = (p5: P5) => {
   p5.keyPressed = keyPressed;
   function keyPressed() {
     resumeAudioContext();
-    handleKeyPressed(p5, state, player.direction, moves, {
+    handleKeyPressed(p5, state, clickState, player.direction, moves, {
       onHideStartScreen: () => { uiBindings.onButtonStartGameClick(); },
       onSetup: showMainMenu,
       onInit: () => initLevel(false),
@@ -325,6 +333,40 @@ export const sketch = (p5: P5) => {
       onEnterQuoteMode: enterQuoteMode,
       onEnterOstMode: enterOstMode,
     });
+  }
+
+  /**
+   * https://p5js.org/reference/#/p5/mouseClicked
+   */
+  p5.mouseClicked = mouseClicked;
+  function mouseClicked(event?: MouseEvent): void {
+    const canvasPosition = getElementPosition(canvas);
+    // set the point clicked on the grid inside the canvas
+    clickState.x = Math.floor((event.clientX - canvasPosition.x) / BLOCK_SIZE.x);
+    clickState.y = Math.floor((event.clientY - canvasPosition.y) / BLOCK_SIZE.y);
+    // get direction from player to point clicked
+    const posX = clickState.x - player.position.x;
+    const posY = clickState.y - player.position.y;
+    if (!state.isMoving) {
+      const dir = vectorToDir(posX, posY);
+      clickState.directionToPoint = dir;
+      clickState.didReceiveInput = true;
+      keyPressed();
+    } else {
+      const dirX = vectorToDir(posX, 0);
+      const dirY = vectorToDir(0, posY);
+      if (dirX && validateMove(player.direction, dirX)) {
+        clickState.directionToPoint = dirX;
+        clickState.didReceiveInput = true;
+        keyPressed();
+      } else if (dirY && validateMove(player.direction, dirY)) {
+        clickState.directionToPoint = dirY;
+        clickState.didReceiveInput = true;
+        keyPressed();
+      } else {
+        clickState.didReceiveInput = false;
+      }
+    }
   }
 
   function startGame(difficultyIndex = 2) {

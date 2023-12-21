@@ -39,6 +39,13 @@ export interface PlayerState {
   direction: DIR,
 }
 
+export interface ClickState {
+  x: number,
+  y: number,
+  didReceiveInput: boolean,
+  directionToPoint: DIR,
+}
+
 export interface ScreenShakeState {
   offset: Vector,
   timeSinceStarted: number,

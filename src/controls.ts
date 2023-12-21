@@ -24,7 +24,7 @@ import {
   KEYCODE_NUMPAD_3,
   KEYCODE_NUMPAD_4,
 } from './constants';
-import { AppMode, DIR, GameState } from "./types";
+import { AppMode, ClickState, DIR, GameState } from "./types";
 
 export interface InputCallbacks {
   onHideStartScreen: () => void
@@ -41,7 +41,7 @@ export interface InputCallbacks {
   onAddMove: (move: DIR) => void
 }
 
-export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
+export function handleKeyPressed(p5: P5, state: GameState, clickState: ClickState, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
   const { keyCode, ENTER, ESCAPE, SHIFT, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   const {
     onHideStartScreen,
@@ -128,6 +128,11 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
 
   let currentMove: DIR | null = null;
 
+  if (clickState.didReceiveInput) {
+    currentMove = clickState.directionToPoint;
+    clickState.didReceiveInput = false;
+  }
+
   if (keyCode === LEFT_ARROW || keyCode === KEYCODE_A) {
     currentMove = DIR.LEFT;
   } else if (keyCode === RIGHT_ARROW || keyCode === KEYCODE_D) {
@@ -156,7 +161,7 @@ export function handleKeyPressed(p5: P5, state: GameState, playerDirection: DIR,
   onAddMove(currentMove);
 }
 
-function validateMove(prev: DIR, current: DIR, disallowEqual = true) {
+export function validateMove(prev: DIR, current: DIR, disallowEqual = true) {
   if (!current) return false;
   if (disallowEqual && prev === current) return false;
   if (prev === DIR.UP && current === DIR.DOWN) return false;

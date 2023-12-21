@@ -24,7 +24,7 @@ import {
   LEVEL_15,
   LEVEL_99,
 } from './levels';
-import { AppMode, DIR, MusicTrack, QueryParams } from "./types";
+import { DIR, MusicTrack, QueryParams } from "./types";
 import { TUTORIAL_LEVEL_10 } from "./levels/tutorialLevel10";
 import { TUTORIAL_LEVEL_20 } from "./levels/tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./levels/tutorialLevel30";
@@ -132,7 +132,7 @@ export function invertDirection(dir: DIR) {
   return dir;
 }
 
-export function dirToUnitVector(p5: P5, dir: DIR) {
+export function dirToUnitVector(p5: P5, dir: DIR): Vector {
   switch (dir) {
     case DIR.LEFT:
       return p5.createVector(-1, 0);
@@ -147,6 +147,27 @@ export function dirToUnitVector(p5: P5, dir: DIR) {
   }
 }
 
+/**
+ * Get the closest direction that fits a vector
+ */
+export function vectorToDir(x: number, y: number): DIR {
+  if (x == 0 && y == 0) return null;
+  if (Math.abs(x) >= Math.abs(y)) {
+    if (x >= 0) {
+      return DIR.RIGHT;
+    } else {
+      return DIR.LEFT;
+    }
+  } else {
+    if (y >= 0) {
+      return DIR.DOWN;
+    } else {
+      return DIR.UP;
+    }
+  }
+}
+
+// triangle wave algorithm
 export function oscilateLinear(num: number) {
   return 1 - Math.abs(num % 2 - 1);
 }
@@ -182,4 +203,27 @@ export function getTrackName(track?: MusicTrack) {
     default:
       return "Unknown";
   }
+}
+
+export function getElementPosition(el: HTMLElement) {
+  var xPosition = 0;
+  var yPosition = 0;
+  while (el) {
+    if (el.tagName === "BODY") {
+      // deal with browser quirks with body/window/document and page scroll
+      var xScrollPos = el.scrollLeft || document.documentElement.scrollLeft;
+      var yScrollPos = el.scrollTop || document.documentElement.scrollTop;
+
+      xPosition += (el.offsetLeft - xScrollPos + el.clientLeft);
+      yPosition += (el.offsetTop - yScrollPos + el.clientTop);
+    } else {
+      xPosition += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+      yPosition += (el.offsetTop - el.scrollTop + el.clientTop);
+    }
+    el = el.offsetParent as HTMLElement;
+  }
+  return {
+    x: xPosition,
+    y: yPosition
+  };
 }
