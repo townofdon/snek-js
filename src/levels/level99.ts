@@ -48,7 +48,7 @@ XXXXXX33XXXXXXDDXXXXXX33XXXXXX
     ["What? Were there not enough apples?"],
     ["I hear playing SNEK rewires one's brain..."],
   ],
-  showQuoteOnLevelWin: true,
+  showQuoteOnLevelWin: false,
   titleVariant: TitleVariant.Red,
   musicTrack: MusicTrack.dangerZone,
 };

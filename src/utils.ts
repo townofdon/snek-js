@@ -167,6 +167,13 @@ export function vectorToDir(x: number, y: number): DIR {
   }
 }
 
+export function indexToDir(index: number): DIR {
+  if (index <= 1) return DIR.RIGHT;
+  if (index <= 2) return DIR.UP;
+  if (index <= 3) return DIR.LEFT;
+  return DIR.DOWN;
+}
+
 // triangle wave algorithm
 export function oscilateLinear(num: number) {
   return 1 - Math.abs(num % 2 - 1);

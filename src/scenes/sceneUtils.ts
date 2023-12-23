@@ -1,7 +1,6 @@
 import P5 from "p5";
 import { FontsInstance, GameState, SFXInstance, Scene, SceneCallbacks } from "../types";
 
-
 /**
  * USAGE
  * 

@@ -40,6 +40,8 @@ import {
   SPRINT_INCREMENT_SPEED_MS,
   ACCENT_COLOR,
   BLOCK_SIZE,
+  SPEED_LIMIT_ULTRA_SPRINT,
+  MAX_SNAKE_SIZE,
 } from './constants';
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
@@ -66,6 +68,7 @@ import { resumeAudioContext } from './audio';
 import { Easing } from './easing';
 import { OSTScene } from './scenes/OSTScene';
 import { SpriteRenderer } from './spriteRenderer';
+import { WinGameScene } from './scenes/WinGameScene';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -86,6 +89,7 @@ const state: GameState = {
   isSprinting: false,
   isRewinding: false,
   isLost: false,
+  isGameWon: false,
   isDoorsOpen: false,
   isExitingLevel: false,
   isExited: false,
@@ -94,6 +98,7 @@ const state: GameState = {
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
   timeSinceHurt: Infinity,
+  timeSinceLastInput: Infinity,
   hurtGraceTime: HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0),
   lives: MAX_LIVES,
   targetSpeed: 1,
@@ -219,7 +224,13 @@ export const sketch = (p5: P5) => {
     onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
     onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
   });
-  const winScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
+  const winLevelScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
+  const onChangePlayerDirection: (direction: DIR) => void = (dir) => {
+    if (validateMove(player.direction, dir)) {
+      player.direction = dir
+    }
+  };
+  const winGameScene = new WinGameScene({ p5, gameState: state, stats, sfx, fonts, onChangePlayerDirection, callbacks: { onSceneEnded: gotoNextLevel } })
   const spriteRenderer = new SpriteRenderer({ p5, replay, gameState: state, screenShake });
   const renderer = new Renderer({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
 
@@ -264,7 +275,8 @@ export const sketch = (p5: P5) => {
     stopAllCoroutines();
     actions.stopAll();
     startReplay();
-    winScene.reset();
+    winLevelScene.reset();
+    winGameScene.reset();
     resumeAudioContext().then(() => {
       musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
     });
@@ -318,6 +330,7 @@ export const sketch = (p5: P5) => {
    */
   p5.keyPressed = keyPressed;
   function keyPressed() {
+    state.timeSinceLastInput = 0;
     resumeAudioContext();
     handleKeyPressed(p5, state, clickState, player.direction, moves, {
       onHideStartScreen: () => { uiBindings.onButtonStartGameClick(); },
@@ -340,6 +353,7 @@ export const sketch = (p5: P5) => {
    */
   p5.mouseClicked = mouseClicked;
   function mouseClicked(event?: MouseEvent): void {
+    state.timeSinceLastInput = 0;
     const canvasPosition = getElementPosition(canvas);
     // set the point clicked on the grid inside the canvas
     clickState.x = Math.floor((event.clientX - canvasPosition.x) / BLOCK_SIZE.x);
@@ -472,6 +486,7 @@ export const sketch = (p5: P5) => {
   function canRewind(): boolean {
     if (!state.isCasualModeEnabled) return false;
     if (state.isLost) return false;
+    if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (calculateSnakeSize() <= (level.snakeStartSizeOverride || START_SNAKE_SIZE) + 1) return false;
@@ -514,6 +529,7 @@ export const sketch = (p5: P5) => {
     state.isRewinding = false;
     state.isSprinting = false;
     state.isLost = false;
+    state.isGameWon = false;
     state.isDoorsOpen = false;
     state.isExitingLevel = false;
     state.isExited = false;
@@ -551,7 +567,8 @@ export const sketch = (p5: P5) => {
     UI.disableScreenScroll();
     UI.clearLabels();
     clearUI();
-    winScene.reset();
+    winLevelScene.reset();
+    winGameScene.reset();
     stopAction(Action.FadeMusic);
     startAction(fadeMusic(1, 100), Action.FadeMusic);
     sfx.setGlobalVolume(settings.sfxVolume);
@@ -563,10 +580,14 @@ export const sketch = (p5: P5) => {
       const buildSceneAction = buildSceneActionFactory(p5, sfx, fonts, state);
       Promise.resolve()
         .then(buildSceneAction(level.titleScene))
-        .then(buildSceneAction(level.creditsScene))
         .catch(err => {
           console.error(err);
         }).finally(() => {
+          if (level.isWinGame) {
+            winGameScene.trigger();
+            state.isGameWon = true;
+            state.isMoving = true;
+          }
           renderDifficultyUI();
           renderHeartsUI();
           renderScoreUI();
@@ -808,9 +829,10 @@ export const sketch = (p5: P5) => {
       playSound(Sound.doorOpen);
     }
 
-    if (!state.isExitingLevel && getHasSegmentExited(player.position)) {
+    // handle snake exit start
+    if (!state.isExitingLevel && !state.isGameWon && getHasSegmentExited(player.position)) {
       state.isExitingLevel = true;
-      winScene.reset();
+      winLevelScene.reset();
       if (replay.mode !== ReplayMode.Playback) {
         musicPlayer.stopAllTracks();
         playSound(Sound.winLevel);
@@ -818,17 +840,18 @@ export const sketch = (p5: P5) => {
     }
 
     if (state.isExitingLevel && replay.mode !== ReplayMode.Playback) {
-      winScene.draw();
+      winLevelScene.draw();
     }
 
-    if (!state.isExited && segments.every(segment => getHasSegmentExited(segment))) {
+    // handle snake exit finish
+    if (!state.isExited && !state.isGameWon && segments.every(segment => getHasSegmentExited(segment))) {
       state.isExited = true;
       if (replay.mode === ReplayMode.Playback) {
         proceedToNextReplayClip();
       } else {
         const isPerfect = apples.length === 0 && state.lives === 3;
         const hasAllApples = apples.length === 0;
-        winScene.triggerLevelExit({
+        winLevelScene.triggerLevelExit({
           score: stats.score,
           levelClearBonus: getLevelClearBonus(),
           livesLeftBonus: getLivesLeftBonus(),
@@ -847,7 +870,34 @@ export const sketch = (p5: P5) => {
       }
     }
 
+    // handle snake teleport on game win
+    if (state.isGameWon) {
+      const WIN_SCREEN_TELEPORT_PADDING = 2;
+      const WIN_SCREEN_TELEPORT_BOUNDS = {
+        min: {
+          x: 0 - WIN_SCREEN_TELEPORT_PADDING,
+          y: 0 - WIN_SCREEN_TELEPORT_PADDING,
+        },
+        max: {
+          x: GRIDCOUNT.x + WIN_SCREEN_TELEPORT_PADDING,
+          y: GRIDCOUNT.y + WIN_SCREEN_TELEPORT_PADDING,
+        },
+      }
+      const bounds = WIN_SCREEN_TELEPORT_BOUNDS;
+      if (player.position.x < bounds.min.x) {
+        player.position.x = bounds.max.x;
+      } else if (player.position.x > bounds.max.x) {
+        player.position.x = bounds.min.x;
+      } else if (player.position.y < bounds.min.y) {
+        player.position.y = bounds.max.y;
+      } else if (player.position.y > bounds.max.y) {
+        player.position.y = bounds.min.y;
+      }
+      winGameScene.draw();
+    }
+
     state.timeSinceHurt += p5.deltaTime;
+    state.timeSinceLastInput += p5.deltaTime;
     state.frameCount += 1;
     renderer.tick();
   }
@@ -855,6 +905,9 @@ export const sketch = (p5: P5) => {
   function getTimeNeededUntilNextMove() {
     if (state.isExitingLevel) {
       return 0;
+    }
+    if (state.isGameWon) {
+      return SPEED_LIMIT_ULTRA_SPRINT;
     }
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       return Infinity;
@@ -941,6 +994,7 @@ export const sketch = (p5: P5) => {
   }
 
   function getHasClearedLevel() {
+    if (state.isGameWon) return false;
     if (DEBUG_EASY_LEVEL_EXIT && stats.applesEatenThisLevel > 0) return true;
     if (stats.applesEatenThisLevel >= level.applesToClear * difficulty.applesMod) return true;
     if (state.timeElapsed >= level.timeToClear && stats.applesEatenThisLevel >= level.applesToClear * difficulty.applesMod * 0.5) return true;
@@ -957,20 +1011,20 @@ export const sketch = (p5: P5) => {
   }
 
   function checkHasHit(vec: Vector, snakePositionsMap: Record<number, boolean> = null) {
-    // check to see if snake ran into itself
-    if (!state.isExitingLevel && snakePositionsMap && snakePositionsMap[getCoordIndex(vec)]) {
+    if (state.isExitingLevel) return false;
+    if (state.isGameWon) return false;
+
+    if (snakePositionsMap && snakePositionsMap[getCoordIndex(vec)]) {
       state.lastHurtBy = HitType.HitSelf;
       return true;
     }
 
-    // check if player has hit a door
-    if (!state.isExitingLevel && doorsMap[getCoordIndex(vec)]) {
+    if (doorsMap[getCoordIndex(vec)]) {
       state.lastHurtBy = HitType.HitDoor;
       return true;
     }
 
-    // check if player has hit a barrier
-    if (!state.isExitingLevel && barriersMap[getCoordIndex(vec)]) {
+    if (barriersMap[getCoordIndex(vec)]) {
       state.lastHurtBy = HitType.HitBarrier;
       return true;
     }
@@ -1129,8 +1183,10 @@ export const sketch = (p5: P5) => {
       (difficulty.index - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
       1
     );
-    for (let i = 0; i < numSegmentsToAdd; i++) {
-      addSnakeSegment();
+    if (segments.length < MAX_SNAKE_SIZE) {
+      for (let i = 0; i < numSegmentsToAdd; i++) {
+        addSnakeSegment();
+      }
     }
     if (!state.isDoorsOpen) {
       addApple();
@@ -1138,6 +1194,7 @@ export const sketch = (p5: P5) => {
   }
 
   function addPoints(points: number) {
+    if (state.isGameWon) return;
     if (state.isCasualModeEnabled) return;
     stats.score += points;
     stats.numPointsEverScored += points;
@@ -1160,6 +1217,7 @@ export const sketch = (p5: P5) => {
   }
 
   function incrementScore() {
+    if (state.isGameWon) return;
     let bonus = 0;
     if (state.isDoorsOpen) {
       bonus = CLEAR_BONUS * difficulty.scoreMod;
@@ -1173,6 +1231,7 @@ export const sketch = (p5: P5) => {
   }
 
   function incrementScoreWhileExitingLevel() {
+    if (state.isGameWon) return;
     const points = SCORE_INCREMENT;
     addPoints(points);
   }

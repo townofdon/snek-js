@@ -93,6 +93,7 @@ export interface GameState {
   isSprinting: boolean, // is user holding down shift key?
   isRewinding: boolean,
   isLost: boolean,
+  isGameWon: boolean,
   isDoorsOpen: boolean,
   isExitingLevel: boolean,
   isExited: boolean,
@@ -101,6 +102,7 @@ export interface GameState {
   timeElapsed: number,
   timeSinceLastMove: number,
   timeSinceHurt: number,
+  timeSinceLastInput: number,
   hurtGraceTime: number,
   lives: number,
   targetSpeed: number,
@@ -159,10 +161,10 @@ export interface Level {
   disableAppleSpawn?: boolean
   disableNormalLoseMessages?: boolean
   showQuoteOnLevelWin?: boolean
+  isWinGame?: boolean
   extraLoseMessages?: LoseMessage[]
   portalExitConfig?: Partial<Record<PortalChannel, PortalExitMode>>
   titleScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
-  creditsScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
   musicTrack?: MusicTrack
   titleVariant?: TitleVariant
 }
