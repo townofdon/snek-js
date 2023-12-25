@@ -231,7 +231,7 @@ export class WinLevelScene extends BaseScene {
     // const accentColorBg = this.accentColorBg;
     p5.textFont(fonts.variants.miniMood);
     p5.fill(accentColor);
-    p5.stroke(accentColorBg)
+    p5.stroke(accentColorBg);
     p5.strokeWeight(2);
     p5.textSize(16);
     p5.textAlign(p5.CENTER, p5.TOP);

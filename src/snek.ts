@@ -292,6 +292,9 @@ export const sketch = (p5: P5) => {
     stats.applesEatenThisLevel = 0;
     stats.totalTimeElapsed = 0;
 
+    tutorial.needsMoveControls = true;
+    tutorial.needsRewindControls = true;
+
     UI.enableScreenScroll();
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
@@ -689,7 +692,6 @@ export const sketch = (p5: P5) => {
     }
 
     renderer.drawPlayerMoveArrows(player.position, moves.length > 0 ? moves[0] : player.direction);
-    renderer.drawTutorialMoveControls();
 
     const snakePositionsMap: Record<number, boolean> = {};
     for (let i = 0; i < segments.length; i++) {
@@ -708,6 +710,7 @@ export const sketch = (p5: P5) => {
     drawPlayerHead(player.position);
     drawParticles(10);
 
+    renderer.drawTutorialMoveControls();
     renderer.drawTutorialRewindControls(player.position, canRewind);
 
     if (state.isLost) return;
@@ -1579,9 +1582,6 @@ export const sketch = (p5: P5) => {
     if (level === START_LEVEL) {
       difficulty.index++;
       difficulty = getDifficultyFromIndex(difficulty.index);
-    }
-    if (state.isCasualModeEnabled) {
-      tutorial.needsRewindControls = false;
     }
 
     maybeSaveReplayStateToFile();

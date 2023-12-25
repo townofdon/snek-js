@@ -1,22 +1,43 @@
 import P5 from "p5";
+import Color from "color";
 import { DIR, FontsInstance, GameState, IEnumerator, SFXInstance, SceneCallbacks, Sound, Stats } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { ACCENT_COLOR } from "../constants";
 import { indexToDir } from "../utils";
+import { HighScoreEntry, getLeaderboard, getToken } from "../api/leaderboard";
 
 const STATE_CLEAR_Y_START = -1; // normalized position
+
+const SECONDARY_ACCENT_COLOR = "#15C2CB";
+const SECONDARY_ACCENT_COLOR_BG = Color("#119DA4").darken(0.4).hex();
+const HIGHSCORE_LABEL_COLORS = [
+  "#833ab4",
+  "#fd1d1d",
+  "#fcb045",
+  // "#c83e16",
+  // "#094a79",
+  // "#00d4ff",
+  // "#73d68c",
+  // "#e4d144",
+]
+const HIGHSCORE_GRADIENT_CYCLE_TIME_MS = 3000;
 
 enum FIELD {
   TITLE = 0,
   POINTS = 10,
-  _IS_HIGHSCORE = 11,
+  HAS_HIGHSCORE = 11,
   APPLES = 20,
   DEATHS = 30,
   TIME = 40,
+  HIGHSCORE_ENTRY = 50,
+  LEADERBOARD = 60,
+  LEADERBOARD_NEW_RESULT = 61,
 }
 
 interface WinGameState {
+  leaderboardResults: HighScoreEntry[];
+  leaderboardToken: string;
   bgOpacity: number,
   stageClearY: number,
 }
@@ -38,6 +59,8 @@ export class WinGameScene extends BaseScene {
   private state: WinGameState = {
     bgOpacity: 0,
     stageClearY: STATE_CLEAR_Y_START,
+    leaderboardToken: '',
+    leaderboardResults: [],
   }
 
   private onChangePlayerDirection: (direction: DIR) => void = () => { };
@@ -63,10 +86,36 @@ export class WinGameScene extends BaseScene {
   }
 
   private fetchHighScores = () => {
+    const tokenF = getToken();
+    const resultsF = getLeaderboard();
+    Promise.all([
+      tokenF.then(token => {
+        this.state.leaderboardToken = token;
+      }).catch(err => {
+        console.error(err);
+      }),
+      resultsF.then(results => {
+        this.state.leaderboardResults = results;
+      }).catch(err => {
+        console.error(err);
+      })
+    ])
+  }
+
+  getHasHighscore = () => {
+    const { leaderboardResults } = this.state;
     const { isCasualModeEnabled } = this.gameState;
-    // set loading
-    // fetch leaderboard
-    // set leaderboard result
+    const { score } = this.stats;
+    if (isCasualModeEnabled) {
+      return false;
+    }
+    if (!leaderboardResults || !leaderboardResults.length) {
+      return false;
+    }
+    for (let i = 0; i < leaderboardResults.length; i++) {
+      if (score > leaderboardResults[i].score) return true;
+    }
+    return false;
   }
 
   beforeGotoNextLevel = () => { };
@@ -89,9 +138,8 @@ export class WinGameScene extends BaseScene {
     const { isCasualModeEnabled } = this.gameState;
     const { score, numApplesEverEaten, numDeaths, totalTimeElapsed } = this.stats;
 
-    // show YOU WIN!
-    this.state.stageClearY = STATE_CLEAR_Y_START;
     this.fieldVisible[FIELD.TITLE] = true;
+    this.state.stageClearY = STATE_CLEAR_Y_START;
     yield* coroutines.waitForTime(600, (t) => {
       this.state.bgOpacity = t;
       this.state.stageClearY = p5.lerp(STATE_CLEAR_Y_START, 0, Easing.inOutCubic(t));
@@ -99,41 +147,58 @@ export class WinGameScene extends BaseScene {
 
     yield* coroutines.waitForTime(500);
 
-    // show points
-    // - show NEW HIGHSCORE if new highscore
     let playingChipSound = ""
 
     if (!isCasualModeEnabled) {
       this.fieldVisible[FIELD.POINTS] = true;
       sfx.play(Sound.xplode);
       yield* coroutines.waitForTime(200);
-      playingChipSound = this.startCoroutine(this.playChipSound());
-      yield* coroutines.waitForTime(700, (t) => {
-        this.fieldValue[FIELD.POINTS] = p5.lerp(0, score, t);
-      });
-      this.stopCoroutine(playingChipSound);
-      yield* coroutines.waitForTime(500);
+      if (score > 0) {
+        playingChipSound = this.startCoroutine(this.playChipSound());
+        yield* coroutines.waitForTime(700, (t) => {
+          this.fieldValue[FIELD.POINTS] = p5.lerp(0, score, t);
+        });
+        this.stopCoroutine(playingChipSound);
+      }
+
+      if (this.getHasHighscore()) {
+        this.fieldVisible[FIELD.HAS_HIGHSCORE] = true;
+        sfx.play(Sound.xplodeLong, 0.7);
+        yield* coroutines.waitForTime(700, (t) => {
+          // flash
+          const freq = 0.2;
+          const shouldShow = t % freq < freq * 0.5;
+          this.fieldVisible[FIELD.HAS_HIGHSCORE] = shouldShow;
+        });
+        this.fieldVisible[FIELD.HAS_HIGHSCORE] = true;
+      } else {
+        yield* coroutines.waitForTime(500);
+      }
     }
 
     this.fieldVisible[FIELD.APPLES] = true;
     sfx.play(Sound.xplode);
     yield* coroutines.waitForTime(200);
-    playingChipSound = this.startCoroutine(this.playChipSound());
-    yield* coroutines.waitForTime(700, (t) => {
-      this.fieldValue[FIELD.APPLES] = p5.lerp(0, numApplesEverEaten, t);
-    });
-    this.stopCoroutine(playingChipSound);
+    if (numApplesEverEaten > 0) {
+      playingChipSound = this.startCoroutine(this.playChipSound());
+      yield* coroutines.waitForTime(700, (t) => {
+        this.fieldValue[FIELD.APPLES] = p5.lerp(0, numApplesEverEaten, t);
+      });
+      this.stopCoroutine(playingChipSound);
+    }
     yield* coroutines.waitForTime(500);
 
     if (!isCasualModeEnabled) {
       this.fieldVisible[FIELD.DEATHS] = true;
       sfx.play(Sound.xplode);
       yield* coroutines.waitForTime(200);
-      playingChipSound = this.startCoroutine(this.playChipSound());
-      yield* coroutines.waitForTime(700, (t) => {
-        this.fieldValue[FIELD.DEATHS] = p5.lerp(0, numDeaths, t);
-      });
-      this.stopCoroutine(playingChipSound);
+      if (numDeaths > 0) {
+        playingChipSound = this.startCoroutine(this.playChipSound());
+        yield* coroutines.waitForTime(700, (t) => {
+          this.fieldValue[FIELD.DEATHS] = p5.lerp(0, numDeaths, t);
+        });
+        this.stopCoroutine(playingChipSound);
+      }
       yield* coroutines.waitForTime(500);
     }
 
@@ -147,11 +212,24 @@ export class WinGameScene extends BaseScene {
     this.stopCoroutine(playingChipSound);
     yield* coroutines.waitForTime(500);
 
-    yield* coroutines.waitForTime(1000);
+    yield* coroutines.waitForEnterKey(() => {
+      this.drawPressEnter();
+    });
+
+    // show leaderboard
+    this.fieldVisible[FIELD.LEADERBOARD] = true;
+    this.fieldVisible[FIELD.TITLE] = false;
+    this.fieldVisible[FIELD.POINTS] = false;
+    this.fieldVisible[FIELD.HAS_HIGHSCORE] = false;
+    this.fieldVisible[FIELD.APPLES] = false;
+    this.fieldVisible[FIELD.DEATHS] = false;
+    this.fieldVisible[FIELD.TIME] = false;
+
+    yield* coroutines.waitForTime(500);
 
     yield* coroutines.waitForEnterKey(() => {
       this.drawPressEnter();
-    })
+    });
 
     this.cleanup();
   }
@@ -196,6 +274,10 @@ export class WinGameScene extends BaseScene {
       y += fieldPadding;
     }
 
+    if (this.fieldVisible[FIELD.HAS_HIGHSCORE]) {
+      this.drawHasHighscore(y - fieldPadding);
+    }
+
     if (this.fieldVisible[FIELD.APPLES]) {
       this.drawField("APPLES", this.fieldValue[FIELD.APPLES], y);
       y += fieldPadding;
@@ -211,42 +293,111 @@ export class WinGameScene extends BaseScene {
       y += fieldPadding;
     }
 
+    if (this.fieldVisible[FIELD.LEADERBOARD]) {
+      this.drawLeaderboard();
+    }
+
     this.tick();
   };
 
-  private drawTitle = () => {
+  private drawTitle = (title = "YOU WIN!", type: 'primary' | 'secondary' = 'primary') => {
+    const color = type === "primary" ? ACCENT_COLOR : SECONDARY_ACCENT_COLOR;
+    const bgColor = type === "primary" ? "#000" : SECONDARY_ACCENT_COLOR_BG;
     const { p5, fonts } = this.props;
-    const title = "YOU WIN!"
     p5.textAlign(p5.CENTER, p5.CENTER);
     p5.textFont(fonts.variants.miniMood);
-    p5.stroke("#000")
+    p5.stroke(bgColor)
     p5.strokeWeight(4);
     p5.textSize(32.5);
-    p5.fill('#000');
+    p5.fill(bgColor);
     p5.text(title, ...this.getPosition(0.5, 0.21 + this.state.stageClearY));
     p5.textSize(32);
-    p5.fill(ACCENT_COLOR);
+    p5.fill(color);
     p5.text(title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
   }
 
-  private drawField = (label: string, value: number, yPos: number, formatValue?: (value: number) => string) => {
+  private drawField = (label: string, value: number, yPos: number, formatValue?: (value: number) => string, type: 'primary' | 'secondary' = 'primary') => {
     const { p5, fonts } = this.props;
     const valueDisplay = formatValue ? formatValue(value) : value.toFixed(0);
 
     p5.textFont(fonts.variants.miniMood);
-    p5.fill(ACCENT_COLOR);
-    p5.stroke("#000")
+    if (type === 'primary') {
+      p5.fill(ACCENT_COLOR);
+      p5.stroke("#000");
+    } else {
+      p5.fill(SECONDARY_ACCENT_COLOR);
+      p5.stroke(SECONDARY_ACCENT_COLOR_BG);
+    }
     p5.strokeWeight(2);
     p5.textSize(14);
     p5.textAlign(p5.RIGHT, p5.TOP);
     p5.text(label, ...this.getPosition(0.45, yPos + this.state.stageClearY));
 
-    p5.fill('#fff');
-    p5.stroke("#000")
+    if (type === "primary") {
+      p5.fill('#fff');
+      p5.stroke("#000")
+    } else {
+      p5.fill(SECONDARY_ACCENT_COLOR);
+      p5.stroke(SECONDARY_ACCENT_COLOR_BG);
+    }
     p5.strokeWeight(2);
     p5.textSize(14);
     p5.textAlign(p5.LEFT, p5.TOP);
     p5.text(valueDisplay, ...this.getPosition(0.55, yPos + this.state.stageClearY));
+  }
+
+  private drawHasHighscore = (yPos: number) => {
+    const { p5, fonts } = this.props;
+    const { timeElapsed } = this.gameState;
+    // const color
+    // given [color0, color1, color2]:
+    // color0 - 0.0000-0.3333
+    // color1 - 0.3333-0.6666
+    // color2 - 0.6666-1.0000
+    // const color = this.getColor((timeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1);
+    p5.fill(SECONDARY_ACCENT_COLOR);
+    p5.stroke(SECONDARY_ACCENT_COLOR_BG);
+    p5.strokeWeight(2);
+    p5.textFont(fonts.variants.miniMood);
+    p5.textSize(14);
+    p5.textAlign(p5.LEFT, p5.TOP);
+    p5.text("NEW HIGHSCORE", ...this.getPosition(0.55, yPos + this.state.stageClearY - 0.05));
+  }
+
+  private getColor = (t: number) => {
+    const { p5 } = this.props;
+    // TODO: get gradient working
+    return p5.color(ACCENT_COLOR);
+    const c0 = Math.floor(Math.floor(t / HIGHSCORE_LABEL_COLORS.length) % HIGHSCORE_LABEL_COLORS.length);
+    const c1 = Math.floor((t / HIGHSCORE_LABEL_COLORS.length) % HIGHSCORE_LABEL_COLORS.length);
+    const t1 = c1 - c0;
+    return p5.lerpColor(p5.color(HIGHSCORE_LABEL_COLORS[c0]), p5.color(HIGHSCORE_LABEL_COLORS[c1]), t1);
+  }
+
+  private drawLeaderboard = () => {
+    const { isCasualModeEnabled } = this.gameState;
+    const { score } = this.stats;
+    const newResult: HighScoreEntry = {
+      id: "123",
+      name: "new dude",
+      score: isCasualModeEnabled ? 0 : score,
+    }
+    const newResults = isCasualModeEnabled
+      ? this.state.leaderboardResults
+      : this.state.leaderboardResults.concat(newResult).sort((a, b) => a.score - b.score).reverse();
+    const fieldPadding = 0.05;
+    let y = 0.275;
+    this.drawTitle("LEADERBOARD", "secondary");
+
+    for (let i = 0; i < newResults.length && i < 10; i++) {
+      const result = newResults[i];
+      if (newResult.id === result.id) {
+        this.drawField(newResult.name, newResult.score, y, val => String(val), "secondary");
+      } else {
+        this.drawField(result.name, result.score, y);
+      }
+      y += fieldPadding;
+    }
   }
 
   private drawPressEnter = () => {

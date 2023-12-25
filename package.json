@@ -13,6 +13,9 @@
     "deploy-gh-pages": "git subtree push --prefix dist origin gh-pages",
     "watch": "webpack --watch --node-env=development"
   },
+  "browser": {
+    "crypto": false
+  },
   "author": "townofdon",
   "license": "MIT",
   "dependencies": {
