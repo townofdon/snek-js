@@ -1553,6 +1553,7 @@ export const sketch = (p5: P5) => {
     const yRow1 = 440;
     const yRow2 = 480;
     const yRow3 = 520;
+    const yRow4 = 560;
     let x = xInitial;
     UI.drawButton("01", x, yRow1, () => warpToLevel(1), uiElements);
     UI.drawButton("02", x += offset, yRow1, () => warpToLevel(2), uiElements);
@@ -1570,10 +1571,12 @@ export const sketch = (p5: P5) => {
     x = xInitial;
     UI.drawButton("13", x, yRow3, () => warpToLevel(13), uiElements);
     UI.drawButton("14", x += offset, yRow3, () => warpToLevel(14), uiElements);
-    UI.drawButton("SS", x += offset, yRow3, () => warpToLevel(99), uiElements);
+    UI.drawButton("15", x += offset, yRow3, () => warpToLevel(15), uiElements);
     UI.drawButton("S1", x += offset, yRow3, () => warpToLevel(110), uiElements);
     UI.drawButton("S2", x += offset, yRow3, () => warpToLevel(120), uiElements);
     UI.drawButton("S3", x += offset, yRow3, () => warpToLevel(130), uiElements);
+    x = xInitial;
+    UI.drawButton("LL", x, yRow4, () => warpToLevel(99), uiElements);
   }
 
   function openDoors() {

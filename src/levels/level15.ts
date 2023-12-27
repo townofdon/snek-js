@@ -14,32 +14,32 @@ export const LEVEL_15: Level = {
   layout: `
 XXXXXXXXXXXXDDDXXXXXXXXXXXXXXX
 XX1111111111DDDXXXXXXXXXXXXXXX
-XX  ------~~XXX~            XX
-XX  ------~~XXX~            XX
+XX  ------~~XXXX~~        ~~XX
+XX  ------~~XXXX~          ~XX
 XX  ======--7X7-            XX
-+X--=-==-=--7X7-----=-  -=--_D
++X--=-==-=--7X7-----=-  -=-__D
 +X--==--==--7X7-------  ----_D
 +X--==--==--7X7-------  ----_D
-+X--=-==-=--7X7-----=-  -=--_D
++X--=-==-=--7X7-----=-  -=-__D
 XX  ==--==--7X7-            XX
 XX  ==--==--7X7-            XX
-XX  =-==-=~~XXX~            XX
-XX~~======~~XXX~            XX
+XX  =-==-=~~XXXX            XX
+XX~~======~~XXXX~          ~XX
 XX~~------~~DDDDDDXXXXXXXXXX+_
 XX~~------~~DaaaaDXXXXXXXXXX+_
 _+XXXXXXXXXXDa__aD~~------~~XX
 _+XXXXXXXXXXDD++DD~~------~~XX
-XX~~~~    ~~~~~XXX~ ======~~XX
-XX~          ~~XXX~ =-==-=  XX
+XX~~~~    ~~~~XXXX~ ======~~XX
+XX~          ~XXXX~ =-==-=  XX
 XX~           -4X4- ==--==  XX
 XX   O        -4X4- ==--==  XX
-D_--=-  -=-----4X4--=-==-=--X+
+D__-=-  -=-----4X4--=-==-=--X+
 D_----  -------4X4--==--==--X+
 D_----  -------4X4--==--==--X+
-D_--=-  -=-----4X4--=-==-=--X+
+D__-=-  -=-----4X4--=-==-=--X+
 XX           --4X4- ======~ XX
-XX~          ~~XXX~~------~ XX
-XX~~~       ~~~XXX~~------~ XX
+XX~          ~XXXX~~------~ XX
+XX~~~       ~~XXXX~~------~ XX
 XXXXXXXXXXXXXXXDDD1111111111XX
 XXXXXXXXXXXXXXXDDDXXXXXXXXXXXX
   `,

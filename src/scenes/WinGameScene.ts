@@ -278,7 +278,6 @@ export class WinGameScene extends BaseScene {
           this.state.highscoreEntryName = name;
           modalConfirm.hide();
           this.postLeaderboardResult(name);
-          sfx.play(Sound.doorOpen);
         }
         const handleNoClick = () => {
           modalHighScoreEntry.show(onSubmitHighscoreName, name);
@@ -297,6 +296,7 @@ export class WinGameScene extends BaseScene {
     }
 
     // show leaderboard
+    sfx.play(Sound.doorOpen);
     this.hideAllFields();
     while (this.state.leaderboardLoading) {
       this.fieldVisible[FIELD.LEADERBOARD_LOADING] = true;
