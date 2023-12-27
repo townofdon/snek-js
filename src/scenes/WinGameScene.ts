@@ -5,7 +5,9 @@ import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { ACCENT_COLOR } from "../constants";
 import { indexToDir } from "../utils";
-import { HighScoreEntry, getLeaderboard, getToken } from "../api/leaderboard";
+import { HighScoreEntry, postLeaderboardResult, getLeaderboard, getToken } from "../api/leaderboard";
+import { HighscoreEntryModal, Modal } from "../ui";
+import { ApiOptions } from "../api/utils/apiUtils";
 
 const STATE_CLEAR_Y_START = -1; // normalized position
 
@@ -33,11 +35,16 @@ enum FIELD {
   HIGHSCORE_ENTRY = 50,
   LEADERBOARD = 60,
   LEADERBOARD_NEW_RESULT = 61,
+  LEADERBOARD_LOADING = 62,
+  LEADERBOARD_ERROR = 63,
 }
 
 interface WinGameState {
-  leaderboardResults: HighScoreEntry[];
-  leaderboardToken: string;
+  leaderboardResults: HighScoreEntry[],
+  leaderboardToken: string,
+  leaderboardLoading: boolean,
+  leaderboardError: string,
+  highscoreEntryName: string,
   bgOpacity: number,
   stageClearY: number,
 }
@@ -57,10 +64,13 @@ export class WinGameScene extends BaseScene {
   private gameState: GameState;
   private stats: Stats;
   private state: WinGameState = {
+    leaderboardResults: [],
+    leaderboardToken: '',
+    leaderboardLoading: false,
+    leaderboardError: '',
+    highscoreEntryName: '',
     bgOpacity: 0,
     stageClearY: STATE_CLEAR_Y_START,
-    leaderboardToken: '',
-    leaderboardResults: [],
   }
 
   private onChangePlayerDirection: (direction: DIR) => void = () => { };
@@ -85,21 +95,35 @@ export class WinGameScene extends BaseScene {
     this.state.stageClearY = STATE_CLEAR_Y_START;
   }
 
+  private hideAllFields = () => {
+    const fields: FIELD[] = Object.values(FIELD) as FIELD[];
+    fields.forEach(field => {
+      this.fieldVisible[field] = false;
+    });
+  }
+
   private fetchHighScores = () => {
+    const logAndThrow = (err: Error) => {
+      console.error(err);
+      throw err;
+    }
+    this.state.leaderboardLoading = true;
     const tokenF = getToken();
     const resultsF = getLeaderboard();
     Promise.all([
       tokenF.then(token => {
         this.state.leaderboardToken = token;
-      }).catch(err => {
-        console.error(err);
-      }),
+      }).catch(logAndThrow),
       resultsF.then(results => {
         this.state.leaderboardResults = results;
-      }).catch(err => {
-        console.error(err);
-      })
+      }).catch(logAndThrow),
     ])
+      .catch((_) => {
+        this.state.leaderboardError = 'Could not fetch leaderboard results.';
+      })
+      .finally(() => {
+        this.state.leaderboardLoading = false;
+      })
   }
 
   getHasHighscore = () => {
@@ -216,14 +240,44 @@ export class WinGameScene extends BaseScene {
       this.drawPressEnter();
     });
 
+    // show highscore entry
+    if (!isCasualModeEnabled && this.getHasHighscore()) {
+      this.hideAllFields();
+      this.fieldVisible[FIELD.HIGHSCORE_ENTRY] = true;
+      const modalHighScoreEntry = new HighscoreEntryModal(p5);
+      const modalConfirm = new Modal(p5);
+      const onSubmitHighscoreName = (name: string) => {
+        const handleYesClick = () => {
+          this.state.highscoreEntryName = name;
+          modalConfirm.hide();
+          const apiOptions: ApiOptions = { xsrfToken: this.state.leaderboardToken };
+          postLeaderboardResult(name, score, apiOptions);
+        }
+        const handleNoClick = () => {
+          modalHighScoreEntry.show(onSubmitHighscoreName, name);
+          modalConfirm.hide();
+        }
+        modalConfirm.show('Confirm', `Use name "${name}"?`, handleYesClick, handleNoClick);
+        modalHighScoreEntry.hide();
+      };
+      modalHighScoreEntry.show(onSubmitHighscoreName);
+      while (modalHighScoreEntry.getIsShowing() || modalConfirm.getIsShowing()) {
+        yield null;
+      }
+    }
+
     // show leaderboard
-    this.fieldVisible[FIELD.LEADERBOARD] = true;
-    this.fieldVisible[FIELD.TITLE] = false;
-    this.fieldVisible[FIELD.POINTS] = false;
-    this.fieldVisible[FIELD.HAS_HIGHSCORE] = false;
-    this.fieldVisible[FIELD.APPLES] = false;
-    this.fieldVisible[FIELD.DEATHS] = false;
-    this.fieldVisible[FIELD.TIME] = false;
+    this.hideAllFields();
+    while (this.state.leaderboardLoading) {
+      this.fieldVisible[FIELD.LEADERBOARD_LOADING] = true;
+      yield null;
+    }
+    this.fieldVisible[FIELD.LEADERBOARD_LOADING] = false;
+    if (this.state.leaderboardError) {
+      this.fieldVisible[FIELD.LEADERBOARD_ERROR] = true;
+    } else {
+      this.fieldVisible[FIELD.LEADERBOARD] = true;
+    }
 
     yield* coroutines.waitForTime(500);
 
@@ -293,7 +347,13 @@ export class WinGameScene extends BaseScene {
       y += fieldPadding;
     }
 
-    if (this.fieldVisible[FIELD.LEADERBOARD]) {
+    if (this.fieldVisible[FIELD.LEADERBOARD_LOADING]) {
+      this.drawTitle("LEADERBOARD", "secondary");
+      this.drawParagraph("Loading...", 0.3);
+    } else if (this.fieldVisible[FIELD.LEADERBOARD_ERROR]) {
+      this.drawTitle("LEADERBOARD", "secondary");
+      this.drawParagraph("Unable to fetch leaderboard results.", 0.35, "#e54");
+    } else if (this.fieldVisible[FIELD.LEADERBOARD]) {
       this.drawLeaderboard();
     }
 
@@ -316,30 +376,31 @@ export class WinGameScene extends BaseScene {
     p5.text(title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
   }
 
-  private drawField = (label: string, value: number, yPos: number, formatValue?: (value: number) => string, type: 'primary' | 'secondary' = 'primary') => {
+  private drawParagraph = (message: string, yPos: number, color: string = "#fff") => {
+    const { p5, fonts } = this.props;
+    p5.textFont(fonts.variants.miniMood);
+    p5.fill(color);
+    p5.stroke("#000");
+    p5.strokeWeight(2);
+    p5.textSize(14);
+    p5.textAlign(p5.CENTER, p5.TOP);
+    p5.text(message, ...this.getPosition(0.5, yPos + this.state.stageClearY));
+  }
+
+  private drawField = (label: string, value: number, yPos: number, formatValue?: (value: number) => string, { color0 = ACCENT_COLOR, bgColor0 = "#000", color1 = "#fff", bgColor1 = "#000" }: { color0?: string, bgColor0?: string, color1?: string, bgColor1?: string } = {}) => {
     const { p5, fonts } = this.props;
     const valueDisplay = formatValue ? formatValue(value) : value.toFixed(0);
 
     p5.textFont(fonts.variants.miniMood);
-    if (type === 'primary') {
-      p5.fill(ACCENT_COLOR);
-      p5.stroke("#000");
-    } else {
-      p5.fill(SECONDARY_ACCENT_COLOR);
-      p5.stroke(SECONDARY_ACCENT_COLOR_BG);
-    }
+    p5.fill(color0);
+    p5.stroke(bgColor0);
     p5.strokeWeight(2);
     p5.textSize(14);
     p5.textAlign(p5.RIGHT, p5.TOP);
     p5.text(label, ...this.getPosition(0.45, yPos + this.state.stageClearY));
 
-    if (type === "primary") {
-      p5.fill('#fff');
-      p5.stroke("#000")
-    } else {
-      p5.fill(SECONDARY_ACCENT_COLOR);
-      p5.stroke(SECONDARY_ACCENT_COLOR_BG);
-    }
+    p5.fill(color1);
+    p5.stroke(bgColor1);
     p5.strokeWeight(2);
     p5.textSize(14);
     p5.textAlign(p5.LEFT, p5.TOP);
@@ -379,7 +440,7 @@ export class WinGameScene extends BaseScene {
     const { score } = this.stats;
     const newResult: HighScoreEntry = {
       id: "123",
-      name: "new dude",
+      name: this.state.highscoreEntryName,
       score: isCasualModeEnabled ? 0 : score,
     }
     const newResults = isCasualModeEnabled
@@ -392,9 +453,15 @@ export class WinGameScene extends BaseScene {
     for (let i = 0; i < newResults.length && i < 10; i++) {
       const result = newResults[i];
       if (newResult.id === result.id) {
-        this.drawField(newResult.name, newResult.score, y, val => String(val), "secondary");
+        this.drawField(newResult.name, newResult.score, y, val => String(val), {
+          color0: ACCENT_COLOR,
+          color1: ACCENT_COLOR,
+        });
       } else {
-        this.drawField(result.name, result.score, y);
+        this.drawField(result.name, result.score, y, val => String(val), {
+          color0: SECONDARY_ACCENT_COLOR,
+          bgColor0: SECONDARY_ACCENT_COLOR_BG,
+        });
       }
       y += fieldPadding;
     }

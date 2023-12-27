@@ -28,6 +28,9 @@
   --slider-thumb-color: #808080;
 
   --start-screen-background-color: #3d3957;
+
+  --loader-color: #fff;
+  --loader-color-bg: #000;
 }
 
 @font-face {
@@ -470,6 +473,72 @@ button.ui-sprite:focus .tooltip
 
 
 
+.modal {
+  z-index: 50;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-family: MiniMOOD, 'VT323', monospace;
+}
+.modal .buttons > button {
+  margin: 5px;
+}
+.modal input[type="text"] {
+  text-align: center;
+  padding: 10px;
+  padding-bottom: 5px;
+  font-family: MiniMOOD, 'VT323', monospace;
+  font-size: 12px;
+  border: 2px solid #fff;
+  text-transform: uppercase;
+  background-color: #181a1b94;
+  background-color: #000;
+  color: #fff;
+}
+.modal input[type="text"]::selection {
+  background: #000;
+  color: #fff;
+}
+.modal input[type="text"]:hover {
+  background-color: #444;
+}
+.modal input[type="text"]:focus,
+.modal input[type="text"]:active,
+.modal input[type="text"].active {
+  outline: none;
+  background-color: #fff;
+  color: #000;
+}
+.modal button {
+  font-family: MiniMOOD, 'VT323', monospace;
+  background: #000;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 2px;
+  padding: 15px 30px;
+  padding-bottom: 5px;
+}
+.modal button:hover {
+  background-color: #444;
+}
+.modal button:focus,
+.modal button:active,
+.modal button.active {
+  outline: none;
+  background-color: #fff;
+  color: #000;
+}
+
+
+
 
 
 /* CHECKBOX */
@@ -766,4 +835,33 @@ input[type="range"]:active::-moz-range-progress {
 
 input[type="range"]:disabled::-moz-range-thumb {
 	cursor: not-allowed;
+}
+
+.loader-container {
+  position: absolute;
+  left: 300px;
+  top: 260px;
+}
+.loader{
+  display: block;
+  position: relative;
+  height: 20px;
+  width: 140px;
+  margin-left: -60px;
+  background-image: 
+  linear-gradient(var(--loader-color-bg) 20px, transparent 0), 
+  linear-gradient(var(--loader-color-bg) 20px, transparent 0), 
+  linear-gradient(var(--loader-color-bg) 20px, transparent 0), 
+  linear-gradient(var(--loader-color-bg) 20px, transparent 0);
+  background-repeat: no-repeat;
+  background-size: 20px auto;
+  background-position: 0 0, 40px 0, 80px 0, 120px 0;
+  animation: pgfill 1s linear infinite;
+}
+@keyframes pgfill {
+  0% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0); }
+  25% {   background-image: linear-gradient(var(--loader-color) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0); }
+  50% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0); }
+  75% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0); }
+  100% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color) 20px, transparent 0); }
 }

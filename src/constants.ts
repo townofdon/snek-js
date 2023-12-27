@@ -8,6 +8,7 @@ export const DEBUG_EASY_LEVEL_EXIT = false;
 export const RECORD_REPLAY_STATE = false;
 
 export const LEADERBOARD_HOST = 'https://dontownsendcreative.com/snek-leaderboard';
+// export const LEADERBOARD_HOST = 'http://localhost:8000';
 
 export const MAX_GAIN_MUSIC = 0.6;
 export const DEFAULT_VOLUME_SFX = 1;

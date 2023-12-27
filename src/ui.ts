@@ -1,4 +1,6 @@
 import P5, { Element } from 'p5';
+import { faker } from '@faker-js/faker';
+
 import { GameState, IEnumerator, SFXInstance, Sound, TitleVariant } from './types';
 import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
 
@@ -20,6 +22,16 @@ export class UI {
     UI.p5 = p5;
   }
 
+  static enableGameBlur() {
+    const game = document.getElementById('game');
+    game.classList.add('blur');
+  }
+
+  static disableGameBlur() {
+    const game = document.getElementById('game');
+    game.classList.remove('blur');
+  }
+
   static hideStartScreen() {
     document.getElementById('start-screen').remove();
   }
@@ -37,11 +49,10 @@ export class UI {
   }
 
   static showSettingsMenu(isInGameMenu = false) {
-    const game = document.getElementById('game');
+    UI.enableGameBlur();
     const settingsMenu = document.getElementById('settings-menu');
     settingsMenu.style.display = 'block';
     settingsMenu.classList.remove('hidden');
-    game.classList.add('blur');
     const gameplaySettingsSection = document.getElementById('settings-section-gameplay');
     if (isInGameMenu) {
       gameplaySettingsSection.style.display = 'none';
@@ -51,9 +62,19 @@ export class UI {
   }
 
   static hideSettingsMenu() {
-    const game = document.getElementById('game');
+    UI.disableGameBlur();
     document.getElementById('settings-menu').style.display = 'none';
-    game.classList.remove('blur');
+  }
+
+  static showLoader(yPos: number) {
+    const loader = document.getElementById('loader');
+    loader.classList.remove('hidden');
+    loader.style.top = String(yPos);
+  }
+
+  static hideLoader() {
+    const loader = document.getElementById('loader');
+    loader.classList.add('hidden');
   }
 
   static drawTitle(title = '', textColor = '#fff', offset: number, hasShadow: boolean, uiElements: Element[]) {
@@ -414,6 +435,212 @@ export class UIBindings {
     setSfxVolume(volume);
     this.callbacks.onSetSfxVolume(volume);
     this.sfx.play(Sound.eat);
+  }
+}
+
+export class Modal {
+  private p5: P5;
+  private modal: HTMLElement;
+  private title: HTMLElement;
+  private message: HTMLElement;
+  private buttonNo: HTMLElement;
+  private buttonYes: HTMLElement;
+  private handleNoClick: () => void = () => { };
+  private handleYesClick: () => void = () => { };
+  private isShowing: boolean = false;
+
+  constructor(p5: P5) {
+    this.p5 = p5;
+    this.modal = requireElementById<HTMLElement>('modal');
+    this.title = requireElementById<HTMLElement>('modal-title');
+    this.message = requireElementById<HTMLElement>('modal-message');
+    this.buttonNo = requireElementById<HTMLElement>("modal-button-no");
+    this.buttonYes = requireElementById<HTMLElement>("modal-button-yes");
+  }
+
+  cleanup = () => {
+    this.hide();
+  }
+
+  getIsShowing = (): boolean => {
+    return this.isShowing;
+  }
+
+  show = (title: string, message: string, handleYesClick: () => void, handleNoClick: () => void) => {
+    if (this.isShowing) return;
+    this.isShowing = true;
+    UI.enableGameBlur();
+    this.handleNoClick = handleNoClick;
+    this.handleYesClick = handleYesClick;
+    this.title.innerText = title;
+    this.message.innerText = message;
+    this.modal.classList.remove("hidden");
+    this.buttonNo.focus();
+    this.addBindings();
+  }
+
+  hide = () => {
+    UI.disableGameBlur();
+    this.modal.classList.add("hidden");
+    this.removeBindings();
+    this.isShowing = false;
+  }
+
+  private onNoClick = () => {
+    this.handleNoClick();
+  }
+
+  private onYesClick = () => {
+    this.handleYesClick();
+  }
+
+  private onSubmit = () => {
+    if (!this.isShowing) return;
+    if (document.activeElement === this.buttonNo) {
+      this.onNoClick();
+    } else {
+      this.onYesClick();
+    }
+  }
+
+  private gotoNextOption = () => {
+    if (!this.isShowing) return;
+    if (document.activeElement === this.buttonNo) {
+      this.buttonYes.focus();
+    } else {
+      this.buttonNo.focus();
+    }
+  }
+
+  private addBindings = () => {
+    document.body.addEventListener("keydown", this.handleKeydown);
+    this.buttonNo.addEventListener("click", this.onNoClick);
+    this.buttonYes.addEventListener("click", this.onYesClick);
+  }
+
+  private removeBindings = () => {
+    document.body.removeEventListener("keydown", this.handleKeydown);
+    this.buttonNo.removeEventListener("click", this.onNoClick);
+    this.buttonYes.removeEventListener("click", this.onYesClick);
+  }
+
+  private handleKeydown = (event: KeyboardEvent) => {
+    if (!this.isShowing) return;
+    const p5 = this.p5;
+    if (event.code) {
+      switch (event.code) {
+        case "KeyA":
+        case "ArrowLeft":
+          this.gotoNextOption();
+          break;
+        case "KeyD":
+        case "ArrowRight":
+          this.gotoNextOption();
+          break;
+        case "Enter":
+          event.preventDefault();
+          event.stopPropagation();
+          this.onSubmit();
+          break;
+      }
+    } else if (event.keyCode) {
+      switch (event.keyCode) {
+        case p5.LEFT_ARROW:
+          this.gotoNextOption();
+          break;
+        case p5.RIGHT_ARROW:
+          this.gotoNextOption();
+          break;
+        case p5.ENTER:
+          this.onSubmit();
+          break;
+      }
+    }
+  }
+}
+
+export class HighscoreEntryModal {
+  private p5: P5;
+  private modal: HTMLElement;
+  private form: HTMLFormElement;
+  private inputName: HTMLInputElement;
+  private onSubmitName: (name: string) => void = () => { }
+  private isShowing: boolean = false;
+  private isSubmitting: boolean = false;
+
+  constructor(p5: P5) {
+    this.p5 = p5;
+    this.modal = requireElementById<HTMLElement>('modal-highscore-entry');
+    this.form = requireElementById<HTMLFormElement>('form-highscore-entry');
+    this.inputName = requireElementById<HTMLInputElement>('input-highscore-name');
+  }
+
+  getIsShowing = (): boolean => {
+    return this.isShowing;
+  }
+
+  show = (onSubmitName: (name: string) => void, initialName?: string) => {
+    if (this.isShowing) return;
+    this.isShowing = true;
+    UI.enableGameBlur();
+    this.onSubmitName = onSubmitName;
+    this.modal.classList.remove("hidden");
+    this.inputName.value = initialName ? initialName : "Snek" + faker.person.firstName();
+    this.inputName.focus();
+    this.inputName.select();
+    this.addBindings();
+  }
+
+  hide = () => {
+    UI.disableGameBlur();
+    this.removeBindings();
+    this.modal.classList.add("hidden");
+    this.isShowing = false;
+  }
+
+  private addBindings = () => {
+    this.form.addEventListener('submit', this.onSubmit);
+    this.inputName.addEventListener('keydown', this.onKeydown);
+  }
+
+  private removeBindings = () => {
+    this.form.removeEventListener('submit', this.onSubmit);
+    this.inputName.removeEventListener('keydown', this.onKeydown);
+  }
+
+  private onSubmit = (event: SubmitEvent) => {
+    if (!this.isShowing) return;
+    if (this.isSubmitting) return;
+    try {
+      this.isSubmitting = true;
+      const formData = new FormData(this.form);
+      this.onSubmitName(formData.get('input-highscore-name') as string)
+    } catch (err) {
+      console.log(err);
+    } finally {
+      this.isSubmitting = false;
+    }
+  }
+
+  private onKeydown = (event: KeyboardEvent) => {
+    const p5 = this.p5;
+    if (event.code) {
+      switch (event.code) {
+        case "Enter":
+          event.preventDefault();
+          event.stopPropagation();
+          this.form.requestSubmit()
+          break;
+      }
+    } else if (event.keyCode) {
+      switch (event.keyCode) {
+        case p5.ENTER:
+          event.preventDefault();
+          event.stopPropagation();
+          this.form.requestSubmit()
+          break;
+      }
+    }
   }
 }
 
