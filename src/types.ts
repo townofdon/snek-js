@@ -71,6 +71,9 @@ export enum HitType {
   HitSelf,
 }
 
+export type RecentMoves = [DIR, DIR, DIR, DIR];
+export type RecentMoveTimings = [number, number, number, number];
+
 export interface Stats {
   numDeaths: number
   numLevelsCleared: number,

@@ -46,7 +46,7 @@ import {
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -154,8 +154,9 @@ const clickState: ClickState = {
 const loseMessages: Record<number, LoseMessage[]> = {}
 
 let moves: DIR[] = []; // moves that the player has queued up
-let recentMoves: DIR[] = [null, null, null, null]; // most recent moves that the snake has performed
-let recentMoveTimes: number[] = [0, 0, 0, 0]; // timing of the most recent moves that the snake has performed
+let recentMoves: RecentMoves = [null, null, null, null]; // most recent moves that the snake has performed
+let recentInputs: RecentMoves = [null, null, null, null]; // most recent inputs that the player has performed
+let recentInputTimes: RecentMoveTimings = [Infinity, Infinity, Infinity, Infinity]; // timing of the most recent inputs that the player has performed
 let segments: Vector[] = []; // snake segments
 let apples: Vector[] = []; // food that the snake can eat to grow and score points
 let barriers: Vector[] = []; // permanent structures that damage the snake
@@ -165,6 +166,7 @@ let decoratives2: Vector[] = []; // bg decorative elements
 
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
+let segmentsMap: Record<number, boolean> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
 
 let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };
@@ -281,20 +283,43 @@ export const sketch = (p5: P5) => {
   function keyPressed() {
     state.timeSinceLastInput = 0;
     resumeAudioContext();
-    handleKeyPressed(p5, state, clickState, player.direction, moves, {
-      onHideStartScreen: () => { uiBindings.onButtonStartGameClick(); },
-      onSetup: showMainMenu,
-      onInit: () => initLevel(false),
-      onStartGame: startGame,
-      onPause: pause,
-      onUnpause: unpause,
-      onWarpToLevel: warpToLevel,
-      onStartMoving: startMoving,
-      onStartRewinding: startRewinding,
-      onAddMove: move => { moves.push(move); },
-      onEnterQuoteMode: enterQuoteMode,
-      onEnterOstMode: enterOstMode,
+    handleKeyPressed({
+      p5,
+      state,
+      clickState,
+      playerDirection: player.direction,
+      moves,
+      recentMoves,
+      recentInputs,
+      recentInputTimes,
+      checkWillHit: checkPlayerWillHit,
+      callbacks: {
+        onHideStartScreen: () => { uiBindings.onButtonStartGameClick(); },
+        onSetup: showMainMenu,
+        onInit: () => initLevel(false),
+        onStartGame: startGame,
+        onPause: pause,
+        onUnpause: unpause,
+        onWarpToLevel: warpToLevel,
+        onStartMoving: startMoving,
+        onStartRewinding: startRewinding,
+        onAddMove: onAddMove,
+        onEnterQuoteMode: enterQuoteMode,
+        onEnterOstMode: enterOstMode,
+      }
     });
+  }
+
+  function onAddMove(currentMove: DIR) {
+    if (!currentMove) return;
+    moves.push(currentMove);
+    for (let i = recentMoves.length - 1; i >= 0; i--) {
+      if (i > 0) {
+        recentMoves[i] = recentMoves[i - 1];
+      } else {
+        recentMoves[i] = currentMove;
+      }
+    }
   }
 
   /**
@@ -566,6 +591,9 @@ export const sketch = (p5: P5) => {
     state.frameCount = 0;
     state.lastHurtBy = HitType.Unknown;
     moves = [];
+    recentMoves = [null, null, null, null];
+    recentInputs = [null, null, null, null];
+    recentInputTimes = [Infinity, Infinity, Infinity, Infinity];
     barriers = [];
     doors = [];
     apples = [];
@@ -574,6 +602,7 @@ export const sketch = (p5: P5) => {
     decoratives2 = [];
     particleSystems = [];
     barriersMap = {};
+    segmentsMap = {};
     doorsMap = {};
     nospawnsMap = {};
     portals = { ...DEFAULT_PORTALS() };
@@ -643,7 +672,9 @@ export const sketch = (p5: P5) => {
     let x = player.position.x;
     for (let i = 0; i < (level.snakeStartSizeOverride || START_SNAKE_SIZE); i++) {
       if (i < 3) x--;
-      segments.push(p5.createVector(x, player.position.y));
+      const segment = p5.createVector(x, player.position.y);
+      segments.push(segment);
+      segmentsMap[getCoordIndex(segment)] = true;
     }
 
     // add initial apples
@@ -707,11 +738,13 @@ export const sketch = (p5: P5) => {
 
     renderer.drawPlayerMoveArrows(player.position, moves.length > 0 ? moves[0] : player.direction);
 
-    const snakePositionsMap: Record<number, boolean> = {};
+    for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
+      segmentsMap[i] = false;
+    }
     for (let i = 0; i < segments.length; i++) {
       drawPlayerSegment(segments[i]);
       if (state.isLost || state.isExitingLevel) continue;
-      snakePositionsMap[getCoordIndex(segments[i])] = true;
+      segmentsMap[getCoordIndex(segments[i])] = true;
       const appleFound = applesMap[getCoordIndex(segments[i])];
       if (appleFound != undefined && appleFound >= 0) {
         applesMap[getCoordIndex(segments[i])] = -1;
@@ -742,7 +775,7 @@ export const sketch = (p5: P5) => {
 
     handlePortalTravel();
 
-    const didHit = checkHasHit(player.position, snakePositionsMap);
+    const didHit = checkHasHit(player.position);
     state.isLost = didHit;
 
     apples = apples.filter(apple => !!apple);
@@ -795,7 +828,7 @@ export const sketch = (p5: P5) => {
       const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
       if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
         const normalizedSpeed = clamp(difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
-        const didMove = movePlayer(snakePositionsMap, normalizedSpeed);
+        const didMove = movePlayer(normalizedSpeed);
         if (didMove && replay.mode === ReplayMode.Capture) {
           replay.positions[state.frameCount] = [player.position.x, player.position.y];
         }
@@ -916,6 +949,9 @@ export const sketch = (p5: P5) => {
     state.timeSinceHurt += p5.deltaTime;
     state.timeSinceLastInput += p5.deltaTime;
     state.frameCount += 1;
+    for (let i = recentInputTimes.length - 1; i >= 0; i--) {
+      recentInputTimes[i] += p5.deltaTime;
+    }
     renderer.tick();
   }
 
@@ -1027,11 +1063,12 @@ export const sketch = (p5: P5) => {
     );
   }
 
-  function checkHasHit(vec: Vector, snakePositionsMap: Record<number, boolean> = null) {
+  function checkHasHit(vec: Vector) {
     if (state.isExitingLevel) return false;
+    if (state.isExited) return false;
     if (state.isGameWon) return false;
 
-    if (snakePositionsMap && snakePositionsMap[getCoordIndex(vec)]) {
+    if (segmentsMap[getCoordIndex(vec)]) {
       state.lastHurtBy = HitType.HitSelf;
       return true;
     }
@@ -1046,6 +1083,17 @@ export const sketch = (p5: P5) => {
       return true;
     }
 
+    return false;
+  }
+
+  function checkPlayerWillHit(dir: DIR, numMoves = 1): boolean {
+    const position = player.position.copy();
+    for (let i = 0; i < numMoves; i++) {
+      const currentMove = dirToUnitVector(p5, dir);
+      const futurePosition = position.add(currentMove);
+      const willHit = checkHasHit(futurePosition);
+      if (willHit) true;
+    }
     return false;
   }
 
@@ -1069,7 +1117,7 @@ export const sketch = (p5: P5) => {
     player.position.add(dirToUnitVector(p5, player.direction));
   }
 
-  function movePlayer(snakePositionsMap: Record<number, boolean>, normalizedSpeed = 0): boolean {
+  function movePlayer(normalizedSpeed = 0): boolean {
     if (!state.isMoving) return false;
     if (state.isExited) return false;
     state.timeSinceLastMove = 0;
@@ -1087,7 +1135,7 @@ export const sketch = (p5: P5) => {
     }
 
     // determine if next move will be into something, allow for grace period before injuring snakey
-    const willHitSomething = checkHasHit(futurePosition, snakePositionsMap);
+    const willHitSomething = checkHasHit(futurePosition);
     if (willHitSomething && state.hurtGraceTime > 0) {
       state.hurtGraceTime -= p5.deltaTime;
       return false;

@@ -24,7 +24,8 @@ import {
   KEYCODE_NUMPAD_3,
   KEYCODE_NUMPAD_4,
 } from './constants';
-import { AppMode, ClickState, DIR, GameState } from "./types";
+import { AppMode, ClickState, DIR, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves } from "./types";
+import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "./utils";
 
 export interface InputCallbacks {
   onHideStartScreen: () => void
@@ -41,7 +42,31 @@ export interface InputCallbacks {
   onAddMove: (move: DIR) => void
 }
 
-export function handleKeyPressed(p5: P5, state: GameState, clickState: ClickState, playerDirection: DIR, moves: DIR[], callbacks: InputCallbacks) {
+interface HandleKeyPressedParams {
+  p5: P5,
+  state: GameState,
+  clickState: ClickState,
+  playerDirection: DIR,
+  moves: DIR[],
+  recentMoves: RecentMoves,
+  recentInputs: RecentMoves,
+  recentInputTimes: RecentMoveTimes,
+  checkWillHit: (dir: DIR, numMoves?: number) => boolean,
+  callbacks: InputCallbacks,
+}
+
+export function handleKeyPressed({
+  p5,
+  state,
+  clickState,
+  playerDirection,
+  moves,
+  recentMoves,
+  recentInputs,
+  recentInputTimes,
+  checkWillHit,
+  callbacks,
+}: HandleKeyPressedParams) {
   const { keyCode, ENTER, ESCAPE, SHIFT, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   const {
     onHideStartScreen,
@@ -155,10 +180,114 @@ export function handleKeyPressed(p5: P5, state: GameState, clickState: ClickStat
   }
 
   // validate current move
-  if (moves.length >= MAX_MOVES) return;
-  if (!validateMove(prevMove, currentMove, disallowEqual)) return;
+  if (moves.length >= MAX_MOVES) {
+    return;
+  }
+
+  // handle special moves
+  if (state.isMoving && state.timeSinceHurt >= HURT_STUN_TIME) {
+    updateRecentInputs(recentInputs, recentInputTimes, currentMove, p5.deltaTime);
+    const specialMoves = getSpecialMove(playerDirection, recentMoves, recentInputs, recentInputTimes, checkWillHit);
+    if (specialMoves?.length) {
+      for (let i = 0; i < specialMoves.length; i++) {
+        const prevMove = moves.length > 0
+          ? moves[moves.length - 1]
+          : playerDirection;
+        if (validateMove(prevMove, specialMoves[i], disallowEqual)) {
+          onAddMove(specialMoves[i]);
+        }
+      }
+      return;
+    }
+  }
+
+  if (!validateMove(prevMove, currentMove, disallowEqual)) {
+    return;
+  }
 
   onAddMove(currentMove);
+}
+
+function updateRecentInputs(recentInputs: RecentMoves, recentInputTimes: RecentMoveTimes, currentMove: DIR, deltaTime: number) {
+  if (!currentMove) {
+    return;
+  }
+  for (let i = recentInputs.length - 1; i >= 0; i--) {
+    if (i > 0) {
+      recentInputs[i] = recentInputs[i - 1];
+      recentInputTimes[i] = recentInputTimes[i - 1];
+    } else {
+      recentInputs[i] = currentMove;
+      recentInputTimes[i] = 0;
+    }
+  }
+}
+
+const SPECIAL_MOVE_REPEAT_TIME = 120;
+function getSpecialMove(currentDirection: DIR, recentMoves: RecentMoves, recentInputs: RecentMoves, recentInputTimes: RecentMoveTimes, checkWillHit: (dir: DIR, numMoves?: number) => boolean): (DIR[] | null) {
+  if (!currentDirection) {
+    return null;
+  }
+  const isTryingToReverseDirection = recentInputs[0] && recentInputs[0] === invertDirection(currentDirection);
+  if (isTryingToReverseDirection) {
+    const specialMoves = [rotateDirection(currentDirection), invertDirection(currentDirection)];
+    // did turn one corner, e.g. was going RIGHT, now going DOWN
+    const didTurnOneCorner = isSameDirection(recentMoves[0], currentDirection) && isOrthogonalDirection(recentMoves[1], currentDirection);
+    // is the current configuration a result of a previous special move?
+    const didPrevSpecialMove = didTurnOneCorner
+      && isSameDirection(recentMoves[0], currentDirection)
+      && isOrthogonalDirection(recentMoves[1], currentDirection)
+      && isOppositeDirection(recentMoves[2], currentDirection)
+      && isOrthogonalDirection(recentMoves[3], currentDirection)
+      && isSameDirection(recentInputs[1], currentDirection)
+      && isOppositeDirection(recentInputs[2], currentDirection);
+    // did the player intentionally zig-zag? e.g. was going RIGHT then turned UP and LEFT
+    const didZigZagIntentionally = didTurnOneCorner
+      && isSameDirection(recentMoves[0], currentDirection)
+      && isOrthogonalDirection(recentMoves[1], currentDirection)
+      && isOppositeDirection(recentMoves[2], currentDirection)
+      && isSameDirection(recentInputs[1], currentDirection)
+      && isOrthogonalDirection(recentInputs[2], currentDirection)
+      && isOppositeDirection(recentInputs[3], currentDirection)
+      && (Math.abs(recentInputTimes[2] - recentInputTimes[1]) < SPECIAL_MOVE_REPEAT_TIME);
+    // // did make same turn twice, e.g. RIGHT, then DOWN, then LEFT
+    // const didPerformTwoSameTurns = didTurnOneCorner && recentMoves[2] === invertDirection(currentDirection);
+    // // make sure that the turns are a result of player input, and not special moves
+    // const didPerformTwoSameTurnsIntentionally = didPerformTwoSameTurns
+    //   && recentInputs[1] === invertDirection(recentInputs[3])
+    //   && (
+    //     recentInputs[1] === rotateDirection(recentInputs[2])
+    //     || recentInputs[1] === invertDirection(rotateDirection(recentInputs[2]))
+    //   );
+    // // did zig-zag, e.g. LEFT then DOWN then RIGHT then DOWN
+    // const didZigZag = didTurnOneCorner && recentMoves[2] === currentDirection && recentMoves[1] === invertDirection(recentMoves[3]);
+    // if (didPerformTwoSameTurnsIntentionally || didZigZag) {
+    //   // assume player wants to continue turning in on snekself
+    //   specialMoves[0] = invertDirection(recentMoves[1]);
+    // } else if (didTurnOneCorner) {
+    //   specialMoves[0] = recentMoves[1];
+    // }
+    if (didPrevSpecialMove || didZigZagIntentionally) {
+      specialMoves[0] = recentMoves[1];
+    } else if (didTurnOneCorner) {
+      specialMoves[0] = invertDirection(recentMoves[1]);
+    }
+    // find the best move
+    const moveA = specialMoves[0];
+    const moveB = invertDirection(specialMoves[0]);
+    const willHitA = checkWillHit(moveA);
+    if (willHitA && checkWillHit(moveB)) {
+      return null;
+    }
+    if (willHitA) {
+      specialMoves[0] = moveB;
+    } else if (!checkWillHit(moveB, 2) && checkWillHit(moveA, 2)) {
+      specialMoves[0] = moveB;
+    }
+    return specialMoves;
+  }
+
+  return null;
 }
 
 export function validateMove(prev: DIR, current: DIR, disallowEqual = true) {

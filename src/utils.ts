@@ -132,6 +132,14 @@ export function invertDirection(dir: DIR) {
   return dir;
 }
 
+export function rotateDirection(dir: DIR) {
+  if (dir === DIR.UP) return DIR.LEFT;
+  if (dir === DIR.LEFT) return DIR.DOWN;
+  if (dir === DIR.DOWN) return DIR.RIGHT;
+  if (dir === DIR.RIGHT) return DIR.UP;
+  return dir;
+}
+
 export function dirToUnitVector(p5: P5, dir: DIR): Vector {
   switch (dir) {
     case DIR.LEFT:
@@ -145,6 +153,18 @@ export function dirToUnitVector(p5: P5, dir: DIR): Vector {
     default:
       return p5.createVector(0, 0);
   }
+}
+
+export function isSameDirection(a: DIR, b: DIR): boolean {
+  return a && b && a === b;
+}
+
+export function isOppositeDirection(a: DIR, b: DIR): boolean {
+  return a && b && a === invertDirection(b);
+}
+
+export function isOrthogonalDirection(a: DIR, b: DIR): boolean {
+  return a && b && a === rotateDirection(b) || a === invertDirection(rotateDirection(b));
 }
 
 /**
