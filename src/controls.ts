@@ -30,7 +30,8 @@ import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDire
 
 export interface InputCallbacks {
   onHideStartScreen: () => void
-  onSetup: () => void
+  onShowMainMenu: () => void
+  onConfirmShowMainMenu: () => void
   onInit: () => void
   onStartGame: (difficulty: number) => void
   onToggleCasualMode: () => void
@@ -72,7 +73,8 @@ export function handleKeyPressed({
   const { keyCode, ENTER, ESCAPE, SHIFT, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   const {
     onHideStartScreen,
-    onSetup,
+    onShowMainMenu,
+    onConfirmShowMainMenu,
     onInit,
     onStartGame,
     onToggleCasualMode,
@@ -96,13 +98,13 @@ export function handleKeyPressed({
   }
 
   if (state.appMode === AppMode.Quote) {
-    if (keyCode === ESCAPE) onSetup();
+    if (keyCode === ESCAPE) onShowMainMenu();
     return;
   }
 
   if (state.isLost) {
     if (keyCode === ENTER) onInit();
-    if (keyCode === KEYCODE_ALPHA_M) onSetup();
+    if (keyCode === KEYCODE_ALPHA_M) onShowMainMenu();
     return;
   }
 
@@ -147,6 +149,7 @@ export function handleKeyPressed({
     else if (keyCode === KEYCODE_7) onWarpToLevel(7);
     else if (keyCode === KEYCODE_8) onWarpToLevel(8);
     else if (keyCode === KEYCODE_9) onWarpToLevel(9);
+    else if (keyCode === KEYCODE_ALPHA_M) onConfirmShowMainMenu();
     return;
   }
 

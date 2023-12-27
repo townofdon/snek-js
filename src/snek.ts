@@ -45,7 +45,7 @@ import {
 } from './constants';
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
-import { MainTitleFader, UIBindings, UI } from './ui';
+import { MainTitleFader, UIBindings, UI, Modal } from './ui';
 import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
@@ -240,6 +240,7 @@ export const sketch = (p5: P5) => {
   const winGameScene = new WinGameScene({ p5, gameState: state, stats, sfx, fonts, onChangePlayerDirection, callbacks: { onSceneEnded: gotoNextLevel } })
   const spriteRenderer = new SpriteRenderer({ p5, replay, gameState: state, screenShake });
   const renderer = new Renderer({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
+  const modal = new Modal(p5, sfx);
 
   /**
    * https://p5js.org/reference/#/p5/preload
@@ -297,7 +298,8 @@ export const sketch = (p5: P5) => {
       checkWillHit: checkPlayerWillHit,
       callbacks: {
         onHideStartScreen: () => { uiBindings.onButtonStartGameClick(); },
-        onSetup: showMainMenu,
+        onShowMainMenu: showMainMenu,
+        onConfirmShowMainMenu: confirmShowMainMenu,
         onInit: () => initLevel(false),
         onStartGame: startGame,
         onToggleCasualMode: toggleCasualMode,
@@ -434,6 +436,7 @@ export const sketch = (p5: P5) => {
     UI.addTooltip("Settings", buttonSettings, 'right');
     UI.hideSettingsMenu();
     uiBindings.refreshFieldValues();
+    modal.hide();
 
     hydrateLoseMessages(-1);
   }
@@ -636,6 +639,7 @@ export const sketch = (p5: P5) => {
     UI.disableScreenScroll();
     UI.clearLabels();
     clearUI();
+    modal.hide();
     winLevelScene.reset();
     winGameScene.reset();
     stopAction(Action.FadeMusic);
@@ -1610,14 +1614,34 @@ export const sketch = (p5: P5) => {
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicSpeed(1, 1500), Action.ChangeMusicSpeed, true);
     startAction(fadeMusic(1, 1000), Action.FadeMusic, true);
+    modal.hide();
+  }
+
+  function confirmShowMainMenu() {
+    const handleYes = () => {
+      modal.hide();
+      showMainMenu();
+      sfx.play(Sound.doorOpen);
+    }
+    const handleNo = () => {
+      modal.hide();
+      sfx.play(Sound.uiBlip);
+    }
+    modal.show('Goto Main Menu?', 'All progress will be lost.', handleYes, handleNo);
+    sfx.play(Sound.unlock);
+  }
+
+  function showInGameSettingsMenu() {
+    sfx.play(Sound.unlock);
+    UI.showSettingsMenu(true);
   }
 
   function showPauseUI() {
     UI.drawDarkOverlay(uiElements);
     UI.drawText('PAUSED', '30px', 235, uiElements, { color: ACCENT_COLOR });
     UI.drawText('[ESC] To Unpause', '14px', 285, uiElements);
-    UI.drawButton("MAIN MENU", 20, 20, showMainMenu, uiElements).addClass('minimood');
-    UI.drawButton("SETTINGS", 445, 20, () => { UI.showSettingsMenu(true) }, uiElements).addClass('minimood');
+    UI.drawButton("MAIN MENU", 20, 20, confirmShowMainMenu, uiElements).addClass('minimood');
+    UI.drawButton("SETTINGS", 445, 20, showInGameSettingsMenu, uiElements).addClass('minimood');
 
     if (!queryParams.enableWarp && !state.isCasualModeEnabled) {
       return;

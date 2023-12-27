@@ -271,7 +271,7 @@ export class WinGameScene extends BaseScene {
       this.hideAllFields();
       this.fieldVisible[FIELD.HIGHSCORE_ENTRY] = true;
       const modalHighScoreEntry = new HighscoreEntryModal(p5);
-      const modalConfirm = new Modal(p5);
+      const modalConfirm = new Modal(p5, sfx);
       const onSubmitHighscoreName = (name: string) => {
         const handleYesClick = () => {
           this.state.highscoreEntryName = name;

@@ -473,6 +473,7 @@ export class UIBindings {
 
 export class Modal {
   private p5: P5;
+  private sfx: SFXInstance;
   private modal: HTMLElement;
   private title: HTMLElement;
   private message: HTMLElement;
@@ -482,8 +483,9 @@ export class Modal {
   private handleYesClick: () => void = () => { };
   private isShowing: boolean = false;
 
-  constructor(p5: P5) {
+  constructor(p5: P5, sfx: SFXInstance) {
     this.p5 = p5;
+    this.sfx = sfx;
     this.modal = requireElementById<HTMLElement>('modal');
     this.title = requireElementById<HTMLElement>('modal-title');
     this.message = requireElementById<HTMLElement>('modal-message');
@@ -508,8 +510,10 @@ export class Modal {
     this.title.innerText = title;
     this.message.innerText = message;
     this.modal.classList.remove("hidden");
-    this.buttonNo.focus();
     this.addBindings();
+    setTimeout(() => {
+      this.buttonNo.focus();
+    }, 0)
   }
 
   hide = () => {
@@ -538,6 +542,7 @@ export class Modal {
 
   private gotoNextOption = () => {
     if (!this.isShowing) return;
+    this.sfx.play(Sound.uiBlip);
     if (document.activeElement === this.buttonNo) {
       this.buttonYes.focus();
     } else {
