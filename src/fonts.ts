@@ -22,6 +22,7 @@ export class Fonts implements FontsInstance {
   variants: FontVariants = {
     miniMood: null,
     zicons: null,
+    casual: null,
   }
 
   constructor(p5: P5) {
@@ -35,6 +36,12 @@ export class Fonts implements FontsInstance {
       const loadFont = (fontFile: string) => p5.loadFont(`${relativeDir}assets/fonts/${fontFile}`);
       this.variants.miniMood = loadFont('MiniMOOD.ttf');
       this.variants.zicons = loadFont('Zicons.ttf')
+
+      // TODO: CHOOSE WISELY
+      // this.variants.casual = loadFont('casual/AtariGames.ttf');
+      // this.variants.casual = loadFont('casual/Awexbmp.ttf');
+      // this.variants.casual = loadFont('casual/Bitfantasy.ttf');
+      this.variants.casual = loadFont('casual/LowIndustrial.ttf');
     } catch (err) {
       console.error(err);
     }

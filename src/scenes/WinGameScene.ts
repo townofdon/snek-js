@@ -5,7 +5,7 @@ import formatNumberFn from 'format-number'
 import { DIR, FontsInstance, GameState, IEnumerator, SFXInstance, SceneCallbacks, Sound, Stats } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
-import { ACCENT_COLOR, DIMENSIONS } from "../constants";
+import { ACCENT_COLOR, DIMENSIONS, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "../constants";
 import { indexToDir } from "../utils";
 import { HighScoreEntry, postLeaderboardResult, getLeaderboard, getToken } from "../api/leaderboard";
 import { HighscoreEntryModal, Modal } from "../ui";
@@ -24,8 +24,7 @@ const HIGHSCORE_GRADIENT_CYCLE_TIME_MS = 500;
 const COL_LEFT = 0.48;
 const COL_RIGHT = 0.52;
 
-const SECONDARY_ACCENT_COLOR = "#15C2CB";
-const SECONDARY_ACCENT_COLOR_BG = Color("#119DA4").darken(0.4).hex();
+
 const NEW_HIGHSCORE_COLORS = [
   "#833AB4",
   "#FD1D1D",

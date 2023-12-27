@@ -18,29 +18,40 @@ interface TriggerLevelExitParams {
 }
 
 export class WinLevelScene extends BaseScene {
-  private _sfx: SFXInstance;
+  private sfx: SFXInstance;
 
   constructor(p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     super(p5, fonts, callbacks)
-    this._sfx = sfx;
+    this.sfx = sfx;
   }
 
-  stageClearY = 0.5;
-  bgOpacity = 0;
+  private stageClearY = 0.5;
+  private bgOpacity = 0;
 
-  score = 0;
-  levelClearBonus = 0;
-  livesLeftBonus = 0;
-  livesLeft = 0;
-  allApplesBonus = 0;
-  perfectBonus = 0;
-  hasAllApples = false;
-  isPerfect = false;
-  beforeGotoNextLevel = () => { };
+  private score = 0;
+  private levelClearBonus = 0;
+  private livesLeftBonus = 0;
+  private livesLeft = 0;
+  private allApplesBonus = 0;
+  private perfectBonus = 0;
+  private hasAllApples = false;
+  private isPerfect = false;
+  private onApplyScore = () => { };
 
-  isTriggered = false;
+  private isTriggered = false;
 
-  triggerLevelExit({ score, levelClearBonus, livesLeftBonus, livesLeft, allApplesBonus, perfectBonus, hasAllApples, isPerfect, isCasualModeEnabled, onApplyScore }: TriggerLevelExitParams) {
+  triggerLevelExit({
+    score,
+    levelClearBonus,
+    livesLeftBonus,
+    livesLeft,
+    allApplesBonus,
+    perfectBonus,
+    hasAllApples,
+    isPerfect,
+    isCasualModeEnabled,
+    onApplyScore,
+  }: TriggerLevelExitParams) {
     if (this.isTriggered) return;
     this.isTriggered = true;
     this.score = score;
@@ -56,7 +67,7 @@ export class WinLevelScene extends BaseScene {
       this.cleanup();
       this.isTriggered = false;
     } else {
-      this.beforeGotoNextLevel = onApplyScore
+      this.onApplyScore = onApplyScore;
       this.startActionsNoBind();
     }
   }
@@ -70,7 +81,7 @@ export class WinLevelScene extends BaseScene {
 
   *action() {
     const { p5, coroutines } = this.props;
-    const sfx = this._sfx;
+    const sfx = this.sfx;
 
     yield* coroutines.waitForTime(600, (t) => {
       this.bgOpacity = t;
@@ -154,6 +165,8 @@ export class WinLevelScene extends BaseScene {
     sfx.stop(Sound.uiChipLoop);
     sfx.play(Sound.uiChip, 0.75);
 
+    this.onApplyScore();
+
     yield* coroutines.waitForTime(1000, () => {
       if (this.isPerfect) {
         this.drawPerfectBonus(0, this.isPerfect);
@@ -165,14 +178,13 @@ export class WinLevelScene extends BaseScene {
       this.drawScore(finalScore);
     });
 
-    this.beforeGotoNextLevel();
     this.cleanup();
     this.isTriggered = false;
   }
 
   *playChipSound() {
     const { coroutines } = this.props;
-    const sfx = this._sfx;
+    const sfx = this.sfx;
     while (true) {
       sfx.play(Sound.uiChipLoop, 0.75);
       yield* coroutines.waitForTime(8);

@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
-import { DIR, FontsInstance, GameState, HitType, Image, Portal, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
-import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, STROKE_SIZE } from "./constants";
+import { AppMode, DIR, FontsInstance, GameState, HitType, Image, Portal, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
+import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, STROKE_SIZE } from "./constants";
 import { clamp, oscilateLinear } from "./utils";
 import { SpriteRenderer } from "./spriteRenderer";
 
@@ -224,7 +224,7 @@ export class Renderer {
   /**
    * Draw portal
    */
-  drawPortal(portal: Portal, showDeathColours: boolean) {
+  drawPortal = (portal: Portal, showDeathColours: boolean) => {
     if (!portal) return;
     const { p5 } = this.props;
     const delay = portal.index * PORTAL_INDEX_DELAY;

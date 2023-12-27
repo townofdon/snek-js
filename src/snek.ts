@@ -98,6 +98,7 @@ const state: GameState = {
   levelIndex: 0,
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
+  timeSinceLastTeleport: Infinity,
   timeSinceHurt: Infinity,
   timeSinceLastInput: Infinity,
   hurtGraceTime: HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0),
@@ -224,10 +225,11 @@ export const sketch = (p5: P5) => {
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer(settings);
   const mainTitleFader = new MainTitleFader(p5);
-  const uiBindings = new UIBindings(sfx, state, {
+  const uiBindings = new UIBindings(p5, sfx, state, {
     onShowMainMenu: showMainMenu,
     onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
     onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
+    onToggleCasualMode: toggleCasualMode,
   });
   const winLevelScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
   const onChangePlayerDirection: (direction: DIR) => void = (dir) => {
@@ -298,6 +300,7 @@ export const sketch = (p5: P5) => {
         onSetup: showMainMenu,
         onInit: () => initLevel(false),
         onStartGame: startGame,
+        onToggleCasualMode: toggleCasualMode,
         onPause: pause,
         onUnpause: unpause,
         onWarpToLevel: warpToLevel,
@@ -308,6 +311,17 @@ export const sketch = (p5: P5) => {
         onEnterOstMode: enterOstMode,
       }
     });
+  }
+
+  function toggleCasualMode(value?: boolean) {
+    sfx.play(Sound.uiBlip);
+    state.isCasualModeEnabled = value ?? !state.isCasualModeEnabled;
+    if (state.isCasualModeEnabled) {
+      UI.showMainCasualModeLabel();
+    } else {
+      UI.hideMainCasualModeLabel();
+    }
+    uiBindings.refreshFieldValues();
   }
 
   function onAddMove(currentMove: DIR) {
@@ -327,6 +341,9 @@ export const sketch = (p5: P5) => {
    */
   p5.mouseClicked = mouseClicked;
   function mouseClicked(event?: MouseEvent): void {
+    if (state.appMode !== AppMode.Game) return;
+    if (!state.isGameStarted) return;
+    if (state.isPaused) return;
     state.timeSinceLastInput = 0;
     const canvasPosition = getElementPosition(canvas);
     // set the point clicked on the grid inside the canvas
@@ -397,6 +414,9 @@ export const sketch = (p5: P5) => {
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
     UI.showTitle();
+    if (state.isCasualModeEnabled) {
+      UI.showMainCasualModeLabel();
+    }
     const offsetLeft = 150;
     difficultyButtons[1] = UI.drawButton('easy', 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
     difficultyButtons[2] = UI.drawButton('medium', 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
@@ -463,10 +483,12 @@ export const sketch = (p5: P5) => {
     uiElements.forEach(element => element.remove())
     uiElements = [];
     UI.hideTitle();
+    UI.hideMainCasualModeLabel();
   }
 
   function showSettingsMenu() {
-    UI.showSettingsMenu()
+    UI.showSettingsMenu();
+    uiBindings.refreshFieldValues();
     sfx.play(Sound.unlock);
   }
 
@@ -531,7 +553,7 @@ export const sketch = (p5: P5) => {
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     if (replay.mode === ReplayMode.Playback) return false;
-    if (calculateSnakeSize() <= (level.snakeStartSizeOverride || START_SNAKE_SIZE) + 1) return false;
+    if (calculateSnakeSize() <= START_SNAKE_SIZE + 1) return false;
     return true;
   }
 
@@ -578,6 +600,7 @@ export const sketch = (p5: P5) => {
     state.isShowingDeathColours = false;
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
+    state.timeSinceLastTeleport = Infinity;
     state.timeSinceHurt = Infinity;
     state.hurtGraceTime = HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0);
     state.lives = MAX_LIVES;
@@ -915,7 +938,8 @@ export const sketch = (p5: P5) => {
             const perfectBonus = isPerfect ? getPerfectBonus() : 0;
             const allApplesBonus = (!isPerfect && hasAllApples) ? getAllApplesBonus() : 0;
             addPoints(getLevelClearBonus() + getLivesLeftBonus() * state.lives + perfectBonus + allApplesBonus);
-          }
+            renderScoreUI();
+          },
         });
       }
     }
@@ -948,6 +972,7 @@ export const sketch = (p5: P5) => {
 
     state.timeSinceHurt += p5.deltaTime;
     state.timeSinceLastInput += p5.deltaTime;
+    state.timeSinceLastTeleport += p5.deltaTime;
     state.frameCount += 1;
     for (let i = recentInputTimes.length - 1; i >= 0; i--) {
       recentInputTimes[i] += p5.deltaTime;
@@ -1113,6 +1138,7 @@ export const sketch = (p5: P5) => {
         break;
     }
     state.timeSinceLastMove = 0;
+    state.timeSinceLastTeleport = 0;
     player.position.set(portal.link);
     player.position.add(dirToUnitVector(p5, player.direction));
   }

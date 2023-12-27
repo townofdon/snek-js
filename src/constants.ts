@@ -16,6 +16,8 @@ export const DEFAULT_VOLUME_SFX = 1;
 const windowWidth = window.innerWidth;
 
 export const ACCENT_COLOR = "#FFB41F";
+export const SECONDARY_ACCENT_COLOR = "#15C2CB";
+export const SECONDARY_ACCENT_COLOR_BG = Color("#119DA4").darken(0.4).hex();
 
 export const FRAMERATE = 90;
 export const DIMENSIONS = { x: Math.min(windowWidth, 600), y: Math.min(windowWidth, 600) };
@@ -132,6 +134,7 @@ export const KEYCODE_NUMPAD_9 = 105;
 
 export const KEYCODE_SPACE = 32;
 export const KEYCODE_QUOTE = 222;
+export const KEYCODE_ALPHA_C = 67;
 export const KEYCODE_ALPHA_M = 77;
 
 export const SCREEN_SHAKE_DURATION_MS = 1000;

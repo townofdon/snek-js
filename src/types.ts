@@ -105,6 +105,7 @@ export interface GameState {
   levelIndex: number,
   timeElapsed: number,
   timeSinceLastMove: number,
+  timeSinceLastTeleport: number,
   timeSinceHurt: number,
   timeSinceLastInput: number,
   hurtGraceTime: number,
@@ -189,6 +190,7 @@ export interface FontsInstance {
 export interface FontVariants {
   miniMood: p5.Font
   zicons: p5.Font
+  casual: p5.Font
 }
 
 export interface SFXInstance {

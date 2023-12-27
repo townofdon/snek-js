@@ -23,6 +23,7 @@ import {
   KEYCODE_NUMPAD_2,
   KEYCODE_NUMPAD_3,
   KEYCODE_NUMPAD_4,
+  KEYCODE_ALPHA_C,
 } from './constants';
 import { AppMode, ClickState, DIR, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves } from "./types";
 import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "./utils";
@@ -32,6 +33,7 @@ export interface InputCallbacks {
   onSetup: () => void
   onInit: () => void
   onStartGame: (difficulty: number) => void
+  onToggleCasualMode: () => void
   onEnterQuoteMode: () => void
   onEnterOstMode: () => void
   onPause: () => void
@@ -73,6 +75,7 @@ export function handleKeyPressed({
     onSetup,
     onInit,
     onStartGame,
+    onToggleCasualMode,
     onEnterQuoteMode,
     onEnterOstMode,
     onPause,
@@ -111,6 +114,7 @@ export function handleKeyPressed({
     else if (keyCode === KEYCODE_4 || keyCode === KEYCODE_NUMPAD_4) onStartGame(4);
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_QUOTE) onEnterQuoteMode();
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_M) onEnterOstMode();
+    else if (keyCode === KEYCODE_ALPHA_C) onToggleCasualMode();
     return;
   }
 
@@ -233,7 +237,7 @@ function getSpecialMove(currentDirection: DIR, recentMoves: RecentMoves, recentI
   if (!currentDirection) {
     return null;
   }
-  const isTryingToReverseDirection = recentInputs[0] && recentInputs[0] === invertDirection(currentDirection);
+  const isTryingToReverseDirection = recentInputs[0] && recentInputs[0] === invertDirection(currentDirection) && recentInputTimes[0] === 0;
   if (isTryingToReverseDirection) {
     const specialMoves = [rotateDirection(currentDirection), invertDirection(currentDirection)];
     // did turn one corner, e.g. was going RIGHT, now going DOWN

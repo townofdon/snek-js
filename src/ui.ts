@@ -66,6 +66,16 @@ export class UI {
     document.getElementById('settings-menu').style.display = 'none';
   }
 
+  static showMainCasualModeLabel() {
+    const label = document.getElementById('main-menu-label-casual-mode');
+    label.classList.remove('hidden');
+  }
+
+  static hideMainCasualModeLabel() {
+    const label = document.getElementById('main-menu-label-casual-mode');
+    label.classList.add('hidden');
+  }
+
   static showLoader(yPos: number) {
     const loader = document.getElementById('loader');
     loader.classList.remove('hidden');
@@ -357,18 +367,21 @@ export class MainTitleFader {
 }
 
 interface UIBindingsCallbacks {
-  onShowMainMenu: () => void;
-  onSetMusicVolume: (volume: number) => void;
-  onSetSfxVolume: (volume: number) => void;
+  onShowMainMenu: () => void,
+  onSetMusicVolume: (volume: number) => void,
+  onSetSfxVolume: (volume: number) => void,
+  onToggleCasualMode: (value?: boolean) => void,
 }
 
 export class UIBindings {
+  private p5: P5;
   private sfx: SFXInstance;
   private gameState: GameState;
   private callbacks: UIBindingsCallbacks = {
     onShowMainMenu: () => { },
     onSetMusicVolume: (volume: number) => { },
     onSetSfxVolume: (volume: number) => { },
+    onToggleCasualMode: (value?: boolean) => { },
   };
 
   private sliderMusic: HTMLInputElement;
@@ -377,7 +390,8 @@ export class UIBindings {
   private buttonStartGame: HTMLButtonElement;
   private checkboxCasualMode: HTMLInputElement;
 
-  constructor(sfx: SFXInstance, gameState: GameState, callbacks: UIBindingsCallbacks) {
+  constructor(p5: P5, sfx: SFXInstance, gameState: GameState, callbacks: UIBindingsCallbacks) {
+    this.p5 = p5;
     this.sfx = sfx;
     this.gameState = gameState;
     this.callbacks = callbacks;
@@ -403,6 +417,25 @@ export class UIBindings {
     this.sliderSfx = requireElementById<HTMLInputElement>("slider-volume-sfx");
     this.sliderMusic.addEventListener('input', this.onMusicSliderInput);
     this.sliderSfx.addEventListener('input', this.onSfxSliderInput);
+    document.body.addEventListener('keydown', this.overrideEscapeKeydown);
+  }
+
+  public cleanup = () => {
+    this.buttonStartGame.removeEventListener('click', this.onButtonStartGameClick);
+    this.buttonCloseSettingsMenu.removeEventListener('click', this.onHideSettingsMenuClick);
+    this.checkboxCasualMode.removeEventListener('change', this.onCheckboxCasualModeChange);
+    this.sliderMusic.removeEventListener('input', this.onMusicSliderInput);
+    this.sliderSfx.removeEventListener('input', this.onSfxSliderInput);
+    document.body.removeEventListener('keydown', this.overrideEscapeKeydown);
+  }
+
+  private overrideEscapeKeydown = (event: KeyboardEvent) => {
+    if (!this.gameState.isGameStarted) return;
+    if (this.gameState.isGameWon) return;
+    const p5 = this.p5;
+    if (event.keyCode === p5.ESCAPE || event.code === 'Escape') {
+      event.preventDefault();
+    }
   }
 
   public onButtonStartGameClick = () => {
@@ -419,9 +452,8 @@ export class UIBindings {
   }
 
   private onCheckboxCasualModeChange = (ev: InputEvent) => {
-    this.sfx.play(Sound.uiBlip);
     const isCasualModeEnabled = (ev.target as HTMLInputElement).checked;
-    this.gameState.isCasualModeEnabled = isCasualModeEnabled;
+    this.callbacks.onToggleCasualMode(isCasualModeEnabled);
   }
 
   private onMusicSliderInput = (ev: InputEvent) => {
