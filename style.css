@@ -43,6 +43,11 @@
   src: url(assets/fonts/BIOSfontII.ttf);
 }
 
+@font-face {
+  font-family: Casual;
+  src: url(assets/fonts/casual/LowIndustrial.ttf);
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -336,6 +341,33 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+
+
+
+.main-menu-label-casual-mode {
+  z-index: 20;
+  position: absolute;
+  left: 300px;
+  top: 400px;
+  display: flex;
+  justify-content: center;
+}
+.main-menu-label-casual-mode > span {
+  /* --casual-mode-color: #15C2CB; */
+  --casual-mode-color: #1cb198;
+  --casual-mode-bg: #19627f;
+  display: block;
+  position: absolute;
+  font-family: Casual, monospace;
+  font-size: 40px;
+  white-space: nowrap;
+  color: var(--casual-mode-color);
+  -webkit-text-fill-color: var(--casual-mode-color);
+  -webkit-text-stroke-width: 1.5px;
+  -webkit-text-stroke-color: var(--casual-mode-bg);
+  text-shadow: 1px 4px 2px var(--casual-mode-bg);
 }
 
 
