@@ -81,6 +81,7 @@ const settings: GameSettings = {
 }
 const state: GameState = {
   appMode: AppMode.StartScreen,
+  isPreloaded: false,
   isCasualModeEnabled: false,
   isGameStarted: false,
   isGameStarting: false,
@@ -260,9 +261,11 @@ export const sketch = (p5: P5) => {
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
     p5.frameRate(FRAMERATE);
     initLevel(false);
+    state.isPreloaded = true;
   }
 
   function showMainMenu() {
+    if (!state.isPreloaded) return;
     state.appMode = AppMode.Game;
     state.isGameStarted = false;
     state.isGameStarting = false;
@@ -281,16 +284,7 @@ export const sketch = (p5: P5) => {
       musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
     });
 
-    // override state after init()
-    stats.numDeaths = 0;
-    stats.numLevelsCleared = 0;
-    stats.numLevelsEverCleared = 0;
-    stats.numPointsEverScored = 0;
-    stats.numApplesEverEaten = 0;
-    stats.score = 0;
-    stats.applesEaten = 0;
-    stats.applesEatenThisLevel = 0;
-    stats.totalTimeElapsed = 0;
+    resetStats();
 
     tutorial.needsMoveControls = true;
     tutorial.needsRewindControls = true;
@@ -386,9 +380,23 @@ export const sketch = (p5: P5) => {
     }
   }
 
+  function resetStats() {
+    stats.numDeaths = 0;
+    stats.numLevelsCleared = 0;
+    stats.numLevelsEverCleared = 0;
+    stats.numPointsEverScored = 0;
+    stats.numApplesEverEaten = 0;
+    stats.score = 0;
+    stats.applesEaten = 0;
+    stats.applesEatenThisLevel = 0;
+    stats.totalTimeElapsed = 0;
+  }
+
   function startGame(difficultyIndex = 2) {
+    if (!state.isPreloaded) return;
     if (state.isGameStarting) return;
     state.isGameStarting = true;
+    resetStats();
     UI.disableScreenScroll();
     setTimeout(() => {
       musicPlayer.stopAllTracks();
@@ -419,6 +427,7 @@ export const sketch = (p5: P5) => {
   }
 
   function playSound(sound: Sound, volume = 1, force = false) {
+    if (state.isGameWon) return;
     if (!force && replay.mode === ReplayMode.Playback) return;
     sfx.play(sound, volume);
   }
@@ -436,11 +445,13 @@ export const sketch = (p5: P5) => {
   }
 
   function renderDifficultyUI() {
+    if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     UI.renderDifficulty(difficulty.index, state.isShowingDeathColours, state.isCasualModeEnabled);
   }
 
   function renderHeartsUI() {
+    if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.isCasualModeEnabled) {
       UI.renderCasualRewindTip();
@@ -450,12 +461,14 @@ export const sketch = (p5: P5) => {
   }
 
   function renderScoreUI(score = stats.score) {
+    if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.isCasualModeEnabled) return;
     UI.renderScore(score, state.isShowingDeathColours);
   }
 
   function renderLevelName() {
+    if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     UI.renderLevelName(level.name, state.isShowingDeathColours);
   }
@@ -1582,6 +1595,7 @@ export const sketch = (p5: P5) => {
     if (level === START_LEVEL) {
       difficulty.index++;
       difficulty = getDifficultyFromIndex(difficulty.index);
+      resetStats();
     }
 
     maybeSaveReplayStateToFile();

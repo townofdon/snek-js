@@ -97,7 +97,7 @@ export function handleKeyPressed(p5: P5, state: GameState, clickState: ClickStat
     return;
   }
 
-  if (keyCode === ESCAPE) {
+  if (keyCode === ESCAPE && !state.isGameWon) {
     if (state.isPaused) {
       state.isPaused = false;
       onUnpause();

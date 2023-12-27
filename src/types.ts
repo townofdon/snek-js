@@ -85,6 +85,7 @@ export interface Stats {
 
 export interface GameState {
   appMode: AppMode,
+  isPreloaded: boolean,
   isCasualModeEnabled: boolean,
   isGameStarted: boolean,
   isGameStarting: boolean,

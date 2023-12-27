@@ -406,6 +406,7 @@ export class UIBindings {
   }
 
   public onButtonStartGameClick = () => {
+    if (!this.gameState.isPreloaded) return;
     this.buttonStartGame.removeEventListener('click', this.onButtonStartGameClick);
     this.callbacks.onShowMainMenu();
     UI.hideStartScreen();

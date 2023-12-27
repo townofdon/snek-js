@@ -21,6 +21,7 @@
   "dependencies": {
     "@faker-js/faker": "^8.3.1",
     "color": "^4.2.3",
+    "format-number": "^3.0.0",
     "howler": "^2.2.4",
     "p5": "^1.7.0",
     "uuid": "^9.0.1"
