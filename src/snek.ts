@@ -1087,12 +1087,12 @@ export const sketch = (p5: P5) => {
   }
 
   function checkPlayerWillHit(dir: DIR, numMoves = 1): boolean {
-    const position = player.position.copy();
+    const pos = player.position.copy();
+    const currentMove = dirToUnitVector(p5, dir);
     for (let i = 0; i < numMoves; i++) {
-      const currentMove = dirToUnitVector(p5, dir);
-      const futurePosition = position.add(currentMove);
+      const futurePosition = pos.add(currentMove);
       const willHit = checkHasHit(futurePosition);
-      if (willHit) true;
+      if (willHit) return true;
     }
     return false;
   }

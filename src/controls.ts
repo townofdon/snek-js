@@ -212,6 +212,11 @@ function updateRecentInputs(recentInputs: RecentMoves, recentInputTimes: RecentM
   if (!currentMove) {
     return;
   }
+  // prevent duplicate inputs
+  // note - if a special move needs repeated keys, this needs to be refactored.
+  if (currentMove === recentInputs[0]) {
+    return;
+  }
   for (let i = recentInputs.length - 1; i >= 0; i--) {
     if (i > 0) {
       recentInputs[i] = recentInputs[i - 1];
@@ -256,17 +261,11 @@ function getSpecialMove(currentDirection: DIR, recentMoves: RecentMoves, recentI
     } else if (didTurnOneCorner) {
       specialMoves[0] = invertDirection(recentMoves[1]);
     }
-    // find the best move
-    const moveA = specialMoves[0];
-    const moveB = invertDirection(specialMoves[0]);
-    const willHitA = checkWillHit(moveA);
-    if (willHitA && checkWillHit(moveB)) {
-      return null;
+    if (checkWillHit(specialMoves[0])) {
+      specialMoves[0] = invertDirection(specialMoves[0]);
     }
-    if (willHitA) {
-      specialMoves[0] = moveB;
-    } else if (!checkWillHit(moveB, 2) && checkWillHit(moveA, 2)) {
-      specialMoves[0] = moveB;
+    if (checkWillHit(specialMoves[0])) {
+      return null;
     }
     return specialMoves;
   }
