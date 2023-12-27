@@ -154,6 +154,8 @@ const clickState: ClickState = {
 const loseMessages: Record<number, LoseMessage[]> = {}
 
 let moves: DIR[] = []; // moves that the player has queued up
+let recentMoves: DIR[] = [null, null, null, null]; // most recent moves that the snake has performed
+let recentMoveTimes: number[] = [0, 0, 0, 0]; // timing of the most recent moves that the snake has performed
 let segments: Vector[] = []; // snake segments
 let apples: Vector[] = []; // food that the snake can eat to grow and score points
 let barriers: Vector[] = []; // permanent structures that damage the snake
@@ -264,56 +266,6 @@ export const sketch = (p5: P5) => {
     state.isPreloaded = true;
   }
 
-  function showMainMenu() {
-    if (!state.isPreloaded) return;
-    state.appMode = AppMode.Game;
-    state.isGameStarted = false;
-    state.isGameStarting = false;
-    level = MAIN_TITLE_SCREEN_LEVEL;
-
-    musicPlayer.stopAllTracks();
-    musicPlayer.setVolume(1);
-    setLevelIndexFromCurrentLevel();
-    initLevel(false);
-    stopAllCoroutines();
-    actions.stopAll();
-    startReplay();
-    winLevelScene.reset();
-    winGameScene.reset();
-    resumeAudioContext().then(() => {
-      musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
-    });
-
-    resetStats();
-
-    tutorial.needsMoveControls = true;
-    tutorial.needsRewindControls = true;
-
-    UI.enableScreenScroll();
-    UI.clearLabels();
-    UI.drawDarkOverlay(uiElements);
-    UI.showTitle();
-    const offsetLeft = 150;
-    difficultyButtons[1] = UI.drawButton('easy', 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
-    difficultyButtons[2] = UI.drawButton('medium', 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
-    difficultyButtons[3] = UI.drawButton('hard', 220 + offsetLeft, 280, () => startGame(3), uiElements).addClass('hard');
-    difficultyButtons[4] = UI.drawButton('ULTRA', 108 + offsetLeft, 340, () => startGame(4), uiElements).addClass('ultra');
-    for (let i = 1; i <= 4; i++) {
-      difficultyButtons[i].addClass('difficulty')
-    }
-    const uiButtonOptions = (altText: string) => ({ parentId: 'main-ui-buttons', altText });
-    const buttonOstMode = UI.drawButton('', -1, -1, () => enterOstMode(), uiElements, uiButtonOptions('Enter OST Mode')).id('ui-button-ost-mode').addClass('ui-sprite').addClass('headphones');
-    const buttonQuoteMode = UI.drawButton('', -1, -1, () => enterQuoteMode(), uiElements, uiButtonOptions('Enter Quote Mode')).id('ui-button-quote-mode').addClass('ui-sprite').addClass('quote');
-    const buttonSettings = UI.drawButton('', -1, -1, () => showSettingsMenu(), uiElements, uiButtonOptions('Open Settings')).id('ui-button-settings').addClass('ui-sprite').addClass('gear');
-    UI.addTooltip("OST Mode", buttonOstMode);
-    UI.addTooltip("Quote Mode", buttonQuoteMode);
-    UI.addTooltip("Settings", buttonSettings, 'right');
-    UI.hideSettingsMenu();
-    uiBindings.refreshFieldValues();
-
-    hydrateLoseMessages(-1);
-  }
-
   /**
    * https://p5js.org/reference/#/p5/draw
    */
@@ -390,6 +342,55 @@ export const sketch = (p5: P5) => {
     stats.applesEaten = 0;
     stats.applesEatenThisLevel = 0;
     stats.totalTimeElapsed = 0;
+  }
+
+  function showMainMenu() {
+    if (!state.isPreloaded) return;
+    state.appMode = AppMode.Game;
+    state.isGameStarted = false;
+    state.isGameStarting = false;
+    level = MAIN_TITLE_SCREEN_LEVEL;
+
+    musicPlayer.stopAllTracks();
+    musicPlayer.setVolume(1);
+    setLevelIndexFromCurrentLevel();
+    initLevel(false);
+    stopAllCoroutines();
+    actions.stopAll();
+    startReplay();
+    winLevelScene.reset();
+    winGameScene.reset();
+    resumeAudioContext().then(() => {
+      musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
+    });
+
+    resetStats();
+    tutorial.needsMoveControls = true;
+    tutorial.needsRewindControls = true;
+
+    UI.enableScreenScroll();
+    UI.clearLabels();
+    UI.drawDarkOverlay(uiElements);
+    UI.showTitle();
+    const offsetLeft = 150;
+    difficultyButtons[1] = UI.drawButton('easy', 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
+    difficultyButtons[2] = UI.drawButton('medium', 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
+    difficultyButtons[3] = UI.drawButton('hard', 220 + offsetLeft, 280, () => startGame(3), uiElements).addClass('hard');
+    difficultyButtons[4] = UI.drawButton('ULTRA', 108 + offsetLeft, 340, () => startGame(4), uiElements).addClass('ultra');
+    for (let i = 1; i <= 4; i++) {
+      difficultyButtons[i].addClass('difficulty')
+    }
+    const uiButtonOptions = (altText: string) => ({ parentId: 'main-ui-buttons', altText });
+    const buttonOstMode = UI.drawButton('', -1, -1, () => enterOstMode(), uiElements, uiButtonOptions('Enter OST Mode')).id('ui-button-ost-mode').addClass('ui-sprite').addClass('headphones');
+    const buttonQuoteMode = UI.drawButton('', -1, -1, () => enterQuoteMode(), uiElements, uiButtonOptions('Enter Quote Mode')).id('ui-button-quote-mode').addClass('ui-sprite').addClass('quote');
+    const buttonSettings = UI.drawButton('', -1, -1, () => showSettingsMenu(), uiElements, uiButtonOptions('Open Settings')).id('ui-button-settings').addClass('ui-sprite').addClass('gear');
+    UI.addTooltip("OST Mode", buttonOstMode);
+    UI.addTooltip("Quote Mode", buttonQuoteMode);
+    UI.addTooltip("Settings", buttonSettings, 'right');
+    UI.hideSettingsMenu();
+    uiBindings.refreshFieldValues();
+
+    hydrateLoseMessages(-1);
   }
 
   function startGame(difficultyIndex = 2) {
