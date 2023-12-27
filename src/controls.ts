@@ -250,24 +250,8 @@ function getSpecialMove(currentDirection: DIR, recentMoves: RecentMoves, recentI
       && isOrthogonalDirection(recentInputs[2], currentDirection)
       && isOppositeDirection(recentInputs[3], currentDirection)
       && (Math.abs(recentInputTimes[2] - recentInputTimes[1]) < SPECIAL_MOVE_REPEAT_TIME);
-    // // did make same turn twice, e.g. RIGHT, then DOWN, then LEFT
-    // const didPerformTwoSameTurns = didTurnOneCorner && recentMoves[2] === invertDirection(currentDirection);
-    // // make sure that the turns are a result of player input, and not special moves
-    // const didPerformTwoSameTurnsIntentionally = didPerformTwoSameTurns
-    //   && recentInputs[1] === invertDirection(recentInputs[3])
-    //   && (
-    //     recentInputs[1] === rotateDirection(recentInputs[2])
-    //     || recentInputs[1] === invertDirection(rotateDirection(recentInputs[2]))
-    //   );
-    // // did zig-zag, e.g. LEFT then DOWN then RIGHT then DOWN
-    // const didZigZag = didTurnOneCorner && recentMoves[2] === currentDirection && recentMoves[1] === invertDirection(recentMoves[3]);
-    // if (didPerformTwoSameTurnsIntentionally || didZigZag) {
-    //   // assume player wants to continue turning in on snekself
-    //   specialMoves[0] = invertDirection(recentMoves[1]);
-    // } else if (didTurnOneCorner) {
-    //   specialMoves[0] = recentMoves[1];
-    // }
     if (didPrevSpecialMove || didZigZagIntentionally) {
+      // assume player wants to continue turning in on snekself
       specialMoves[0] = recentMoves[1];
     } else if (didTurnOneCorner) {
       specialMoves[0] = invertDirection(recentMoves[1]);
