@@ -20,6 +20,7 @@
   --ui-sprite-img-quote: url('assets/graphics/ui-quote.png');
   --ui-sprite-img-headphones: url('assets/graphics/ui-headphones.png');
   --ui-sprite-img-gear: url('assets/graphics/ui-gear3d.png');
+  --ui-sprite-img-trophy: url('assets/graphics/ui-trophy.png');
   --ui-sprite-background-size: 32px 32px;
   --ui-sprite-width: 32px;
   --ui-sprite-height: 32px;
@@ -393,10 +394,19 @@ button.ui-sprite:focus
 button.ui-sprite.gear { background-image: var(--ui-sprite-img-gear); }
 button.ui-sprite.headphones { background-image: var(--ui-sprite-img-headphones); }
 button.ui-sprite.quote { background-image: var(--ui-sprite-img-quote); }
+button.ui-sprite.trophy { background-image: var(--ui-sprite-img-trophy); }
 button.ui-sprite.gear {
   position: absolute;
   bottom: 0;
   right: 0;
+}
+button.ui-sprite.trophy {
+  position: absolute;
+  bottom: 0;
+  right: 42px;
+  background-size: 24px 24px; /* export trophy at 300% */
+  background-repeat: no-repeat;
+  background-color: #242b4a;
 }
 button.ui-sprite.headphones {
   position: absolute;

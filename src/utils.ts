@@ -254,3 +254,16 @@ export function getElementPosition(el: HTMLElement) {
     y: yPosition
   };
 }
+
+export function lerp(a: number, b: number, t: number) {
+  return (1.0 - clamp(t, 0, 1)) * a + b * clamp(t, 0, 1);
+}
+
+export function inverseLerp(a: number, b: number, v: number, shouldClamp = true) {
+  const val = (v - a) / (b - a);
+  return shouldClamp ? clamp(val, 0, 1) : val;
+}
+
+export function remap(iMin: number, iMax: number, oMin: number, oMax: number, v: number) {
+  return lerp(oMin, oMax, inverseLerp(iMin, iMax, v));
+}

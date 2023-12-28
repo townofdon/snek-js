@@ -24,6 +24,7 @@ import {
   KEYCODE_NUMPAD_3,
   KEYCODE_NUMPAD_4,
   KEYCODE_ALPHA_C,
+  KEYCODE_ALPHA_L,
 } from './constants';
 import { AppMode, ClickState, DIR, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves } from "./types";
 import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "./utils";
@@ -35,6 +36,7 @@ export interface InputCallbacks {
   onInit: () => void
   onStartGame: (difficulty: number) => void
   onToggleCasualMode: () => void
+  onShowLeaderboard: () => void
   onEnterQuoteMode: () => void
   onEnterOstMode: () => void
   onPause: () => void
@@ -78,6 +80,7 @@ export function handleKeyPressed({
     onInit,
     onStartGame,
     onToggleCasualMode,
+    onShowLeaderboard,
     onEnterQuoteMode,
     onEnterOstMode,
     onPause,
@@ -89,6 +92,10 @@ export function handleKeyPressed({
   } = callbacks
 
   if (state.isGameStarting) {
+    return;
+  }
+
+  if (state.appMode === AppMode.Leaderboard) {
     return;
   }
 
@@ -116,6 +123,7 @@ export function handleKeyPressed({
     else if (keyCode === KEYCODE_4 || keyCode === KEYCODE_NUMPAD_4) onStartGame(4);
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_QUOTE) onEnterQuoteMode();
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_M) onEnterOstMode();
+    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_L) onShowLeaderboard();
     else if (keyCode === KEYCODE_ALPHA_C) onToggleCasualMode();
     return;
   }

@@ -69,6 +69,7 @@ import { Easing } from './easing';
 import { OSTScene } from './scenes/OSTScene';
 import { SpriteRenderer } from './spriteRenderer';
 import { WinGameScene } from './scenes/WinGameScene';
+import { LeaderboardScene } from './scenes/LeaderboardScene';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -238,6 +239,7 @@ export const sketch = (p5: P5) => {
     }
   };
   const winGameScene = new WinGameScene({ p5, gameState: state, stats, sfx, fonts, onChangePlayerDirection, callbacks: { onSceneEnded: gotoNextLevel } })
+  const leaderboardScene = new LeaderboardScene({ p5, sfx, fonts, callbacks: { onSceneEnded: hideLeaderboard } });
   const spriteRenderer = new SpriteRenderer({ p5, replay, gameState: state, screenShake });
   const renderer = new Renderer({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
   const modal = new Modal(p5, sfx);
@@ -311,6 +313,7 @@ export const sketch = (p5: P5) => {
         onAddMove: onAddMove,
         onEnterQuoteMode: enterQuoteMode,
         onEnterOstMode: enterOstMode,
+        onShowLeaderboard: showLeaderboard,
       }
     });
   }
@@ -413,6 +416,11 @@ export const sketch = (p5: P5) => {
     tutorial.needsRewindControls = true;
 
     UI.enableScreenScroll();
+    showMainMenuUI();
+    hydrateLoseMessages(-1);
+  }
+
+  function showMainMenuUI() {
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
     UI.showTitle();
@@ -430,15 +438,32 @@ export const sketch = (p5: P5) => {
     const uiButtonOptions = (altText: string) => ({ parentId: 'main-ui-buttons', altText });
     const buttonOstMode = UI.drawButton('', -1, -1, () => enterOstMode(), uiElements, uiButtonOptions('Enter OST Mode')).id('ui-button-ost-mode').addClass('ui-sprite').addClass('headphones');
     const buttonQuoteMode = UI.drawButton('', -1, -1, () => enterQuoteMode(), uiElements, uiButtonOptions('Enter Quote Mode')).id('ui-button-quote-mode').addClass('ui-sprite').addClass('quote');
+    const buttonLeaderboard = UI.drawButton('', -1, -1, () => showLeaderboard(), uiElements, uiButtonOptions('Show Leaderboard')).id('ui-button-leaderboard').addClass('ui-sprite').addClass('trophy');
     const buttonSettings = UI.drawButton('', -1, -1, () => showSettingsMenu(), uiElements, uiButtonOptions('Open Settings')).id('ui-button-settings').addClass('ui-sprite').addClass('gear');
     UI.addTooltip("OST Mode", buttonOstMode);
     UI.addTooltip("Quote Mode", buttonQuoteMode);
+    UI.addTooltip("Leaderboard", buttonLeaderboard, 'right');
     UI.addTooltip("Settings", buttonSettings, 'right');
     UI.hideSettingsMenu();
     uiBindings.refreshFieldValues();
     modal.hide();
+  }
 
-    hydrateLoseMessages(-1);
+  function showLeaderboard() {
+    UI.clearLabels();
+    clearUI(true);
+    modal.hide();
+    state.appMode = AppMode.Leaderboard;
+    leaderboardScene.trigger();
+    setTimeout(() => {
+      startScreenShake({ magnitude: 3, normalizedTime: 0.5, force: true })
+    }, 600)
+  }
+
+  function hideLeaderboard() {
+    state.appMode = AppMode.Game;
+    playSound(Sound.unlock, 1, true);
+    showMainMenuUI();
   }
 
   function startGame(difficultyIndex = 2) {
@@ -492,7 +517,7 @@ export const sketch = (p5: P5) => {
   function showSettingsMenu() {
     UI.showSettingsMenu();
     uiBindings.refreshFieldValues();
-    sfx.play(Sound.unlock);
+    playSound(Sound.unlock, 1, true);
   }
 
   function renderDifficultyUI() {
@@ -786,6 +811,7 @@ export const sketch = (p5: P5) => {
 
     renderer.drawTutorialMoveControls();
     renderer.drawTutorialRewindControls(player.position, canRewind);
+    if (!state.isGameStarted) leaderboardScene.draw();
 
     if (state.isLost) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
@@ -1050,8 +1076,8 @@ export const sketch = (p5: P5) => {
     }, FRAMERATE * 2)
   }
 
-  function startScreenShake({ magnitude = 1, normalizedTime = 0, timeScale = 1 } = {}) {
-    if (replay.mode === ReplayMode.Playback) return;
+  function startScreenShake({ magnitude = 1, normalizedTime = 0, timeScale = 1, force = false } = {}) {
+    if (!force && replay.mode === ReplayMode.Playback) return;
     screenShake.timeSinceStarted = normalizedTime * SCREEN_SHAKE_DURATION_MS;
     screenShake.magnitude = magnitude;
     screenShake.timeScale = timeScale;

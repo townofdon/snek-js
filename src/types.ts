@@ -25,6 +25,7 @@ export enum AppMode {
   Game,
   Quote,
   OST,
+  Leaderboard,
 }
 
 export enum DIR {
