@@ -1,3 +1,4 @@
+import { LEADERBOARD_HOST } from "../../constants";
 
 const API_TIMEOUT_DURATION_MS = 5000;
 
@@ -71,7 +72,8 @@ export class Api {
       headers['x-csrf-token'] = xsrfToken;
     }
     const requestBody = body ? JSON.stringify(body) : undefined;
-    const res = await fetch(url, { method, body: requestBody, headers, cache: 'no-cache', signal });
+    const credentials: RequestCredentials = url.includes(LEADERBOARD_HOST) ? 'include' : 'omit';
+    const res = await fetch(url, { method, body: requestBody, headers, cache: 'no-cache', signal, credentials });
     if (!res.ok || res.status >= 400) {
       throw new ApiError(`[ERROR] ${res.status} response`, res.status);
     }

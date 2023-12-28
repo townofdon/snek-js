@@ -17,8 +17,6 @@ const formatNumber = formatNumberFn({
   integerSeparator: ' ',
 });
 
-const DISABLE_HIGHSCORE_POST = window.location.href.includes('localhost');
-
 const STATE_CLEAR_Y_START = -1; // normalized position
 const HIGHSCORE_GRADIENT_CYCLE_TIME_MS = 500;
 const COL_LEFT = 0.48;
@@ -141,9 +139,6 @@ export class WinGameScene extends BaseScene {
   }
 
   private postLeaderboardResult = (name: string) => {
-    if (DISABLE_HIGHSCORE_POST) {
-      return;
-    }
     const { score } = this.stats;
     const apiOptions: ApiOptions = { xsrfToken: this.state.leaderboardToken };
     postLeaderboardResult(name, score, apiOptions);
