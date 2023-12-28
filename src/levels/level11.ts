@@ -36,7 +36,7 @@ D======-----_++++_-----======D
 X          ~XXXXXX~          X
 X          ~DaaaaD~          X
 X~         ~XXXXXX~         ~X
-XXXXXX       ----       XXXXXX
+XXXXXX~      ----      ~XXXXXX
 XXXXXXX~     ----     ~XXXXXXX
 XXXXXXX~~    ----    ~~XXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
