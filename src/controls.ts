@@ -111,7 +111,7 @@ export function handleKeyPressed({
 
   if (state.isLost) {
     if (keyCode === ENTER) onInit();
-    if (keyCode === KEYCODE_ALPHA_M) onShowMainMenu();
+    if (keyCode === KEYCODE_ALPHA_M) onConfirmShowMainMenu();
     return;
   }
 
