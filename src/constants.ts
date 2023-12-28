@@ -24,6 +24,9 @@ export const DIMENSIONS = { x: Math.min(windowWidth, 600), y: Math.min(windowWid
 export const GRIDCOUNT = { x: 30, y: 30 };
 export const STROKE_SIZE = 4;
 export const STRANGELY_NEEDED_OFFSET = { x: STROKE_SIZE / GRIDCOUNT.x, y: STROKE_SIZE / GRIDCOUNT.y };
+/**
+ * Typically { x: 20, y: 20 }
+ */
 export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x + STRANGELY_NEEDED_OFFSET.x, y: DIMENSIONS.y / GRIDCOUNT.y + STRANGELY_NEEDED_OFFSET.y };
 export const BASE_TICK_MS = 300;
 export const MAX_MOVES = 4;

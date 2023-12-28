@@ -1407,9 +1407,11 @@ export const sketch = (p5: P5) => {
   }
 
   function drawPlayerHead(vec: Vector) {
+    const options = { is3d: true };
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
-      state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead);
+      state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
+      options);
     const direction = moves.length > 0 ? moves[0] : player.direction;
     if (state.isLost) {
       spriteRenderer.drawImage3x3(Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction));
@@ -1432,35 +1434,41 @@ export const sketch = (p5: P5) => {
   }
 
   function drawPlayerSegment(vec: Vector) {
+    const options = { is3d: true };
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
-        renderer.drawSquare(vec.x, vec.y, "#000", "#000");
+        renderer.drawSquare(vec.x, vec.y, "#000", "#000", options);
       } else {
-        renderer.drawSquare(vec.x, vec.y, "#fff", "#fff");
+        renderer.drawSquare(vec.x, vec.y, "#fff", "#fff", options);
       }
     } else {
       renderer.drawSquare(vec.x, vec.y,
         state.isShowingDeathColours ? PALETTE.deathInvert.playerTail : level.colors.playerTail,
-        state.isShowingDeathColours ? PALETTE.deathInvert.playerTailStroke : level.colors.playerTailStroke);
+        state.isShowingDeathColours ? PALETTE.deathInvert.playerTailStroke : level.colors.playerTailStroke,
+        options);
     }
   }
 
   function drawApple(vec: Vector) {
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.apple : level.colors.apple,
-      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.appleStroke : level.colors.appleStroke);
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.appleStroke : level.colors.appleStroke,
+      { size: 0.8, is3d: true });
   }
 
   function drawBarrier(vec: Vector) {
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrier : level.colors.barrier,
-      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke,
+      { is3d: true });
+    renderer.drawX(vec.x, vec.y, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
   }
 
   function drawDoor(vec: Vector) {
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.door : level.colors.door,
-      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke);
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke,
+      { is3d: true });
   }
 
   function drawDecorative1(vec: Vector) {

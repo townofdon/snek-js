@@ -1,8 +1,9 @@
 import P5, { Vector } from "p5";
 import { AppMode, DIR, FontsInstance, GameState, HitType, Image, Portal, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
-import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, STROKE_SIZE } from "./constants";
+import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
 import { clamp, oscilateLinear } from "./utils";
 import { SpriteRenderer } from "./spriteRenderer";
+import Color from "color";
 
 interface RendererConstructorProps {
   p5: P5
@@ -41,17 +42,68 @@ export class Renderer {
   /**
    * Draw a square to the canvas
    */
-  drawSquare = (x: number, y: number, background = "pink", lineColor = "fff", strokeSize = STROKE_SIZE) => {
+  drawSquare = (x: number, y: number, background = "pink", lineColor = "fff", { is3d = false, size = 1, strokeSize = STROKE_SIZE } = {}) => {
     const { p5, screenShake } = this.props;
     p5.fill(background);
     p5.stroke(lineColor);
     p5.strokeWeight(strokeSize);
+    const strokeOffset = STROKE_SIZE - strokeSize;
+    const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
+    const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
     const position = {
-      x: x * BLOCK_SIZE.x + screenShake.offset.x,
-      y: y * BLOCK_SIZE.y + screenShake.offset.y,
+      x: (x * BLOCK_SIZE.x + screenShake.offset.x + strokeOffset) + sizeOffsetX,
+      y: (y * BLOCK_SIZE.y + screenShake.offset.y + strokeOffset) + sizeOffsetY,
     }
-    const size = BLOCK_SIZE.x - strokeSize;
-    p5.square(position.x, position.y, size);
+    const squareSize = (BLOCK_SIZE.x - strokeSize - strokeOffset * 2) * size;
+    p5.square(position.x, position.y, squareSize);
+    if (is3d) {
+      const borderSize = STROKE_SIZE * 0.5;
+      const lighter = Color(lineColor).lighten(0.2).desaturate(0.1).hex();
+      const darker = Color(lineColor).darken(0.2).saturate(0.1).hex();
+      const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + screenShake.offset.x + strokeOffset + sizeOffsetX;
+      const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + screenShake.offset.y + strokeOffset + sizeOffsetY;
+      const x1 = x0 + (BLOCK_SIZE.x * size) - strokeOffset;
+      const y1 = y0 + (BLOCK_SIZE.y * size) - strokeOffset;
+      const x0i = x0 + borderSize;
+      const y0i = y0 + borderSize;
+      const x1i = x1 - borderSize;
+      const y1i = y1 - borderSize;
+      p5.noStroke();
+      p5.fill(lighter);
+      // TOP
+      p5.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
+      // RIGHT
+      p5.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
+      p5.fill(darker);
+      // BOTTOM
+      p5.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
+      // LEFT
+      p5.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
+    }
+  }
+
+  drawX = (x: number, y: number, color = "#fff", blockDivisions = 5) => {
+    const { p5, screenShake } = this.props;
+    const size = {
+      x: (BLOCK_SIZE.x - STROKE_SIZE) / blockDivisions,
+      y: (BLOCK_SIZE.y - STROKE_SIZE) / blockDivisions,
+    }
+    p5.fill(color);
+    // p5.randomSeed(x + y * 500000);
+    // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
+    p5.noStroke();
+    for (let i = 0; i < blockDivisions; i++) {
+      const position0 = {
+        x: x * BLOCK_SIZE.x + screenShake.offset.x + i * size.x,
+        y: y * BLOCK_SIZE.y + screenShake.offset.y + i * size.y,
+      }
+      const position1 = {
+        x: x * BLOCK_SIZE.x + screenShake.offset.x + i * size.x,
+        y: y * BLOCK_SIZE.y + screenShake.offset.y + (blockDivisions - 1 - i) * size.y,
+      }
+      p5.square(position0.x, position0.y, Math.max(size.x, size.y));
+      p5.square(position1.x, position1.y, Math.max(size.x, size.y));
+    }
   }
 
   /**
