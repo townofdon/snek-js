@@ -274,3 +274,7 @@ export function inverseLerp(a: number, b: number, v: number, shouldClamp = true)
 export function remap(iMin: number, iMax: number, oMin: number, oMax: number, v: number) {
   return lerp(oMin, oMax, inverseLerp(iMin, iMax, v));
 }
+
+export function round(num: number, precision = 2) {
+  return Math.round((num + Number.EPSILON) * (10 ^ precision)) / (10 ^ precision);
+}

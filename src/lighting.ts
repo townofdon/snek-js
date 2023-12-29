@@ -14,6 +14,9 @@ const NUM_ANGLE_STEPS = 64;
 const LIGHT_RADIUS_STEP = 0.5;
 const LIGHT_ANGLE_STEP = TAU / NUM_ANGLE_STEPS;
 
+const numUniqLightColors = 1000;
+const lightColorLookup: string[] = initLightColorLookup(numUniqLightColors);
+
 export function createLightmap(): number[] {
   return new Array<number>(
     GRIDCOUNT.x * Math.floor(LIGHTMAP_RESOLUTION) *
@@ -44,9 +47,8 @@ export function drawLighting(lightMap: number[], renderer: Renderer) {
     const x = i % (GRIDCOUNT.x * LIGHTMAP_RESOLUTION);
     const y = Math.floor(i / (GRIDCOUNT.x * LIGHTMAP_RESOLUTION));
     const a = 1 - clamp(lightMap[i], 0, 1);
-    const color = Color("#013").alpha(a).hexa();
+    const color = lightColorLookup[Math.floor(a * numUniqLightColors + Number.EPSILON)];
     const coefficient = 1 / LIGHTMAP_RESOLUTION;
-    // renderer.drawSquare(x, y, color, color, { size: 1.0 / LIGHTMAP_RESOLUTION });
     renderer.drawBasicSquare(x * coefficient, y * coefficient, color, coefficient);
   }
 }
@@ -131,4 +133,13 @@ function toQuantizedIndex(x: number, y: number): number {
     clamp(Math.round(x), 0, GRIDCOUNT.x * LIGHTMAP_RESOLUTION - 1) +
     clamp(Math.round(y), 0, GRIDCOUNT.y * LIGHTMAP_RESOLUTION - 1) * GRIDCOUNT.x * LIGHTMAP_RESOLUTION
   );
+}
+
+function initLightColorLookup(size: number) {
+  const lookup: string[] = []
+  for (let i = 0; i < size; i++) {
+    const a = i / (size - 1);
+    lookup.push(Color("#013").alpha(a).hexa());
+  }
+  return lookup;
 }

@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
 import { AppMode, DIR, FontsInstance, GameState, HitType, Image, Portal, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
-import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
+import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, IS_DEV, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
 import { clamp, oscilateLinear } from "./utils";
 import { SpriteRenderer } from "./spriteRenderer";
 import Color from "color";
@@ -26,6 +26,8 @@ export class Renderer {
     tutorial: null,
   }
   elapsed = 0
+  lightColorMap: Record<string, string> = {}
+  darkColorMap: Record<string, string> = {}
 
   constructor(props: RendererConstructorProps) {
     this.props = props;
@@ -58,8 +60,6 @@ export class Renderer {
     p5.square(position.x, position.y, squareSize);
     if (is3d) {
       const borderSize = STROKE_SIZE * 0.5;
-      const lighter = Color(lineColor).lighten(0.2).desaturate(0.1).hex();
-      const darker = Color(lineColor).darken(0.2).saturate(0.1).hex();
       const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + screenShake.offset.x + strokeOffset + sizeOffsetX;
       const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + screenShake.offset.y + strokeOffset + sizeOffsetY;
       const x1 = x0 + (BLOCK_SIZE.x * size) - strokeOffset;
@@ -69,12 +69,12 @@ export class Renderer {
       const x1i = x1 - borderSize;
       const y1i = y1 - borderSize;
       p5.noStroke();
-      p5.fill(lighter);
+      p5.fill(this.getBorderColor(lineColor, 'light'));
       // TOP
       p5.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
       // RIGHT
       p5.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
-      p5.fill(darker);
+      p5.fill(this.getBorderColor(lineColor, 'dark'));
       // BOTTOM
       p5.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
       // LEFT
@@ -302,5 +302,51 @@ export class Renderer {
     const background = showDeathColours ? "#555" : p5.lerpColor(p5.color("#000000"), p5.color(accent), t2).toString();
     const color = p5.lerpColor(p5.color(accent), p5.color("#000"), t1).toString();
     this.drawSquare(portal.position.x, portal.position.y, background, color);
+  }
+
+  private fpsFrames: number[] = [];
+  drawFps = () => {
+    if (!IS_DEV) return;
+    const { p5, fonts } = this.props;
+    const textX = BLOCK_SIZE.x * (25);
+    const textY = BLOCK_SIZE.y * (1);
+    p5.fill("#fff");
+    p5.stroke("#111");
+    p5.strokeWeight(2);
+    p5.textSize(10);
+    p5.textAlign(p5.LEFT, p5.TOP);
+    p5.textFont(fonts.variants.miniMood);
+    if (!this.fpsFrames?.length) {
+      this.fpsFrames = new Array<number>(20).map(() => p5.frameRate());
+    } else {
+      this.fpsFrames[0] = p5.frameRate();
+      for (let i = this.fpsFrames.length - 1; i > 0; i--) {
+        this.fpsFrames[i] = this.fpsFrames[i - 1];
+      }
+    }
+    const avg = this.fpsFrames.reduce((acc, cur) => acc + cur, 0) / this.fpsFrames.length;
+    const min = Math.min(...this.fpsFrames);
+    const max = Math.max(...this.fpsFrames);
+    const padding = 16;
+    let y = 0;
+    p5.text("FPS", textX, textY);
+    p5.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
+    p5.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
+    p5.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
+  }
+
+  private getBorderColor = (color: string, variant: 'light' | 'dark'): string => {
+    if (variant === 'light') {
+      if (!this.lightColorMap[color]) {
+        this.lightColorMap[color] = Color(color).lighten(0.2).desaturate(0.1).hex()
+      }
+      return this.lightColorMap[color];
+    } else if (variant === 'dark') {
+      if (!this.darkColorMap[color]) {
+        this.darkColorMap[color] = Color(color).darken(0.2).saturate(0.1).hex();
+      }
+      return this.darkColorMap[color];
+    }
+    return color;
   }
 }

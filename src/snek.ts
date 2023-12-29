@@ -359,6 +359,8 @@ export const sketch = (p5: P5) => {
     // set the point clicked on the grid inside the canvas
     clickState.x = Math.floor((event.clientX - canvasPosition.x) / BLOCK_SIZE.x);
     clickState.y = Math.floor((event.clientY - canvasPosition.y) / BLOCK_SIZE.y);
+    if (clickState.x < 0 || clickState.x >= GRIDCOUNT.x) return;
+    if (clickState.y < 0 || clickState.y >= GRIDCOUNT.y) return;
     // get direction from player to point clicked
     const posX = clickState.x - player.position.x;
     const posY = clickState.y - player.position.y;
@@ -487,14 +489,15 @@ export const sketch = (p5: P5) => {
   function* startGameRoutine(difficultyIndex = 2): IEnumerator {
     const button = difficultyButtons[difficultyIndex];
     if (button) button.addClass('selected');
-    yield* waitForTime(1000, (t) => {
-      if (button) {
-        const freq = .2;
-        const shouldShow = t % freq > freq * 0.5;
-        button.style('visibility', shouldShow ? 'visible' : 'hidden');
-      }
-    });
-
+    if (!DEBUG_EASY_LEVEL_EXIT) {
+      yield* waitForTime(1000, (t) => {
+        if (button) {
+          const freq = .2;
+          const shouldShow = t % freq > freq * 0.5;
+          button.style('visibility', shouldShow ? 'visible' : 'hidden');
+        }
+      });
+    }
     stopReplay();
     level = START_LEVEL
     setLevelIndexFromCurrentLevel();
@@ -602,7 +605,7 @@ export const sketch = (p5: P5) => {
   }
 
   function initLevel(shouldShowTransitions = true) {
-    if (replay.mode === ReplayMode.Playback) {
+    if (replay.mode === ReplayMode.Playback || DEBUG_EASY_LEVEL_EXIT) {
       shouldShowTransitions = false;
     } else {
       stopAllCoroutines();
@@ -823,6 +826,7 @@ export const sketch = (p5: P5) => {
 
     renderer.drawTutorialMoveControls();
     renderer.drawTutorialRewindControls(player.position, canRewind);
+    renderer.drawFps();
     if (!state.isGameStarted) leaderboardScene.draw();
 
     if (state.isLost) return;
@@ -1743,7 +1747,7 @@ export const sketch = (p5: P5) => {
   function gotoNextLevel() {
     if (replay.mode === ReplayMode.Playback) return;
 
-    const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin;
+    const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !DEBUG_EASY_LEVEL_EXIT;
     stats.numLevelsCleared += 1;
     stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
