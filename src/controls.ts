@@ -248,7 +248,10 @@ function getSpecialMove(currentDirection: DIR, recentMoves: RecentMoves, recentI
   if (!currentDirection) {
     return null;
   }
-  const isTryingToReverseDirection = recentInputs[0] && recentInputs[0] === invertDirection(currentDirection) && recentInputTimes[0] === 0;
+  const isTryingToReverseDirection = recentInputs[0]
+    && recentInputs[0] === invertDirection(currentDirection)
+    && recentInputTimes[0] === 0
+    && recentInputTimes[1] > SPECIAL_MOVE_REPEAT_TIME;
   if (isTryingToReverseDirection) {
     const specialMoves = [rotateDirection(currentDirection), invertDirection(currentDirection)];
     // did turn one corner, e.g. was going RIGHT, now going DOWN
