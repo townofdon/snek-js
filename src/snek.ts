@@ -967,6 +967,8 @@ export const sketch = (p5: P5) => {
       state.isExited = true;
       if (replay.mode === ReplayMode.Playback) {
         proceedToNextReplayClip();
+      } else if (DEBUG_EASY_LEVEL_EXIT) {
+        gotoNextLevel();
       } else {
         const isPerfect = apples.length === 0 && state.lives === 3;
         const hasAllApples = apples.length === 0;

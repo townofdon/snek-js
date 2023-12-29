@@ -219,8 +219,6 @@ export class WinLevelScene extends BaseScene {
   drawPerfectBonus = (bonus: number, hasBonus: boolean) => {
     if (!hasBonus) return;
     const { p5, fonts } = this.props;
-    // const accentColor = "#15C2CB";
-    // const accentColorBg = Color("#119DA4").darken(0.4).hex();
     const accentColor = this.accentColor;
     const accentColorBg = this.accentColorBg;
     p5.textFont(fonts.variants.miniMood);
@@ -239,8 +237,6 @@ export class WinLevelScene extends BaseScene {
     const { p5, fonts } = this.props;
     const accentColor = "#15C2CB";
     const accentColorBg = Color("#119DA4").darken(0.4).hex();
-    // const accentColor = this.accentColor;
-    // const accentColorBg = this.accentColorBg;
     p5.textFont(fonts.variants.miniMood);
     p5.fill(accentColor);
     p5.stroke(accentColorBg);
