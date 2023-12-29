@@ -9,36 +9,36 @@ export const LEVEL_01: Level = {
   timeToClear: 1000 * 60 * 1,
   applesToClear: 30,
   layout: "\
-XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX\n\
-X~~ ~ _-~ ~ ~=+=~ ~ ~-_ ~ ~~~X\n\
+XXXXXXXXXXXXXdddXXXXXXXXXXXXXX\n\
+X~~~~~__~~~XXdddXX~~~-_~~~~~~X\n\
 X~    --     ===     --     ~X\n\
-X     --     ===     --      X\n\
 X~    --     ===     --     ~X\n\
-X     --     ===     --      X\n\
 X~    --     ===     --     ~X\n\
-X     --     ===     --      X\n\
 X~    --     ===     --     ~X\n\
-X     --     ===     --      X\n\
 X~    --     ===     --     ~X\n\
-X     --     ===     --      X\n\
 X~    --     ===     --     ~X\n\
-D============================D\n\
-D============================D\n\
-D============================D\n\
-X     --     ===     --      X\n\
 X~    --     ===     --     ~X\n\
-X     --     ===     --      X\n\
 X~    --     ===     --     ~X\n\
-X     --     ===     --      X\n\
+X~    --     ===     --     ~X\n\
+XX    --     ===     --     XX\n\
+XX    --     ===     --     XX\n\
+dd==========================dd\n\
+dd==========================dd\n\
+dd==========================dd\n\
+XX    --     ===     --     XX\n\
+XX    --     ===     --     XX\n\
+X~    --     ===     --     ~X\n\
+X~    --     ===     --     ~X\n\
+X~    --     ===     --     ~X\n\
 X~    -- O   ===     --     ~X\n\
-X     --     ===     --      X\n\
 X~    --     ===     --     ~X\n\
-X     --     ===     --      X\n\
 X~    --     ===     --     ~X\n\
-X     --     ===     --      X\n\
 X~    --     ===     --     ~X\n\
-X~~ ~ _-~ ~ ~=+=~ ~ ~-_ ~  ~~X\n\
-XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX\n\
+X~    --     ===     --     ~X\n\
+X~    --     ===     --     ~X\n\
+X~    --     ===     --     ~X\n\
+X~~~~~__~~~XXdddXX~~~__~~~~~~X\n\
+XXXXXXXXXXXXXdddXXXXXXXXXXXXXX\n\
   ",
   colors: PALETTE.boxcar,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),

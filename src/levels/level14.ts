@@ -11,11 +11,11 @@ export const LEVEL_14: Level = {
   numApplesStart: 10,
   growthMod: 0.5,
   layout: `
-XXXXXXXXX~~~XXXXXX~~~XXXXXXXXX
-XXXXXXXXXDDDX+__+XDDDXXXXXXXXX
+XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
+XXXXXXXXXDDDX4444XDDDXXXXXXXXX
 XX1  ----    7XX0    ----  6XX
 XX1          7XX0          3XX
-XX1  ----    7440    ----  3XX
+XX1  ----    7XX0    ----  3XX
 XXXXXXX9-    -=--    -7XXXXXXX
 DDDDDDX9-------=------7XDDDDDD
 XXXXXXX9------=-------7XXXXXXX
@@ -36,11 +36,11 @@ X2   ----    --=-    ----   5X
 XXXXXXX0------=-------8XXXXXXX
 DDDDDDX0-------=------8XDDDDDD
 XXXXXXX0-    -=--    -8XXXXXXX
-XX1  ----    8449    ----  3XX
+XX1  ----    8XX9    ----  3XX
 XX1          8XX9          3XX
 XX1  ----    8XX9    ----  6XX
-XXXXXXXXXDDDX+__+XDDDXXXXXXXXX
-XXXXXXXXX~~~XXXXXX~~~XXXXXXXXX
+XXXXXXXXXDDDX4444XDDDXXXXXXXXX
+XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
   `,
   colors: PALETTE.atomic,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),

@@ -11,8 +11,8 @@ export const LEVEL_99: Level = {
   numApplesStart: 20,
   growthMod: 0.9,
   layout: `
-XXXXXX44XXXXXXDDXXXXXX44XXXXXX
-X~~~~~__~~~~XXDDXX~~~~__~~~~~X
+XXXXXX44XXXXXXddXXXXXX44XXXXXX
+X~~~~~__~~~~XXddXX~~~~__~~~~~X
 X~~   --  ~~~~__~~~~  --   ~~X
 X~    --    ~~__~~    --    ~X
 X~    --      ==      --    ~X
@@ -25,8 +25,8 @@ X~            --            ~X
 X~~           --            ~X
 XX~           ==           ~~X
 XX~~        --==--        ~~XX
-DD__==------==  ==------==__DD
-DD__==------==  ==------==__DD
+dd__==------==  ==------==__dd
+dd__==------==  ==------==__dd
 XX~~        --==--        ~~XX
 XX~           ==           ~~X
 X~~           --            ~X
@@ -39,8 +39,8 @@ X~    --      ==      --    ~X
 X~    --      ==      --    ~X
 X~    --    ~~__~~    --    ~X
 X~~   --  ~~~~__~~~~  --   ~~X
-X~~~~~__~~~~XXDDXX~~~~__~~~~~X
-XXXXXX33XXXXXXDDXXXXXX33XXXXXX
+X~~~~~__~~~~XXddXX~~~~__~~~~~X
+XXXXXX33XXXXXXddXXXXXX33XXXXXX
   `,
   colors: PALETTE.darkStar,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),

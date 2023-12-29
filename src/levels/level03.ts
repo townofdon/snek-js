@@ -23,9 +23,9 @@ XXXX =-=   XXXXXXX   =-=  XXXX
 XXXX =-=   XXXXXXX   =-=  XXXX
 XX+_ =-=   ~~XXX~~   =-=  _+XX
 XX+_ =-=     =-=     =-=  _+XX
-DD+_ =-=     =-=     =-=  _+DD
-DD+_ =-=     =-=     =-=  _+DD
-DD+_ =-=     =-=     =-=  _+DD
+Dd+_ =-=     =-=     =-=  _+dD
+Dd+_ =-=     =-=     =-=  _+dD
+Dd+_ =-=     =-=     =-=  _+dD
 XX+_ =-=     =-=     =-=  _+XX
 XX+_ =-=   ~~XXX~~   =-=  _+XX
 XXXX =-=   XXXXXXX   =-=  XXXX

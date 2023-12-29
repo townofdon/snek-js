@@ -1158,10 +1158,20 @@ export const sketch = (p5: P5) => {
     const currentMove = dirToUnitVector(p5, dir);
     for (let i = 0; i < numMoves; i++) {
       const futurePosition = pos.add(currentMove);
-      const willHit = checkHasHit(futurePosition);
+      const willHit = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, dir);
       if (willHit) return true;
     }
     return false;
+  }
+
+  function checkPortalTeleportWillHit(position: Vector, dir: DIR): boolean {
+    const portal = portalsMap[getCoordIndex(position)];
+    if (!portal) return false;
+    if (!portal.link) return false;
+    const newDir = (level.portalExitConfig?.[portal.channel] || portal.exitMode) === PortalExitMode.InvertDirection
+      ? invertDirection(dir)
+      : dir;
+    return checkHasHit(portal.link.copy().add(dirToUnitVector(p5, newDir)));
   }
 
   function handlePortalTravel() {
@@ -1203,7 +1213,7 @@ export const sketch = (p5: P5) => {
     }
 
     // determine if next move will be into something, allow for grace period before injuring snakey
-    const willHitSomething = checkHasHit(futurePosition);
+    const willHitSomething = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
     if (willHitSomething && state.hurtGraceTime > 0) {
       state.hurtGraceTime -= p5.deltaTime;
       return false;

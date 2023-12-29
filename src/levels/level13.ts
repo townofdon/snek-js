@@ -2,7 +2,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode } from "../types";
 
-const name = 'DELTALAB'
+const name = 'SCI-LAB'
 
 export const LEVEL_13: Level = {
   name,
@@ -11,36 +11,36 @@ export const LEVEL_13: Level = {
   numApplesStart: 10,
   growthMod: 0.25,
   layout: `
-XXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
-XXXDDXXXXXXXXXXXXXXXXXXXXXXXXX
-XXXDDX4=-  -==-        -=---2X
-XXXDDX4=-  -==-        -==--2X
-XXXDDX4=-  -==-        -==--2X
-XXXDDX4=-  -==-        -=---2X
-XXXDDXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
-XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
+XXXddXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXddXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXddX4=-  -==-        -=---2X
+XXXddX4=-  -==-        -==--2X
+XXXddX4=-  -==-        -==--2X
+XXXddX4=-  -==-        -=---2X
+XXXddXXXXXXXXXXXXXXXXXXXXddXXX
+XXXddXXXXXXXXXXXXXXXXXXXXaaXXX
+XXXddXXXXXXXXXXXXXXXXXXXXaaXXX
 X2---=-       -==-   -=1XaaXXX
-X2--==-       -==-   -=1XaaDXX
-X2--==-O      -==-   -=1XaaDXX
+X2--==-       -==-   -=1XaadXX
+X2--==-O      -==-   -=1XaadXX
 X2---=-       -==-   -=1XaaXXX
-XXXDDXXXXXXXXXXXXXXXXXXXXaaXXX
+XXXddXXXXXXXXXXXXXXXXXXXXaaXXX
 XXXaaXXXXXXXXXXXXXXXXXXXXaaXXX
-XXXaaXXXXXXXXXXXXXXXXXXXXDDXXX
+XXXaaXXXXXXXXXXXXXXXXXXXXddXXX
 XXXaaX1=-  -==-        -=---3X
-XXDaaX1=-  -==-        -==--3X
-XXDaaX1=-  -==-        -==--3X
+XXdaaX1=-  -==-        -==--3X
+XXdaaX1=-  -==-        -==--3X
 XXXaaX1=-  -==-        -=---3X
-XXXaaXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXaaXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXDDXXXXXXXXXXXXXXXXXXXXDDXXX
-X3---=-       -==-   -=4XDDXXX
-X3--==-       -==-   -=4XDDXXX
-X3--==-       -==-   -=4XDDXXX
-X3---=-       -==-   -=4XDDXXX
-XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
-XXXXXXXXXXXXXXXXXXXXXXXXXDDXXX
+XXXaaXXXXXXXXXXXXXXXXXXXXddXXX
+XXXaaXXXXXXXXXXXXXXXXXXXXddXXX
+XXXddXXXXXXXXXXXXXXXXXXXXddXXX
+X3---=-       -==-   -=4XddXXX
+X3--==-       -==-   -=4XddXXX
+X3--==-       -==-   -=4XddXXX
+X3---=-       -==-   -=4XddXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
   `,
   colors: PALETTE.scienceLab,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),

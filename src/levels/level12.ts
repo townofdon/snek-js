@@ -27,10 +27,10 @@ XXXXXXXXXX=XDDXXDDX=XXXXXXXXXX
 X=-------==XDDXXDDX==-------=X
 X=XXXXXXXXXXDDXXDDXXXXXXXXXX=X
 X-       =XXDDXXDDXX=       -X
-XX~~_+_~~=XXDXDDXDXX=~~_+_~~XX
+XX~~_+_~~=XXdXddXdXX=~~_+_~~XX
 XX~~=-=  =+-=_  -=_+=  =-=~~XX
 XX~~=-=O =+_=-  _=-+=  =-=~~XX
-XX~~_+_~~+=XDXDDXDX=+~~_+_~~XX
+XX~~_+_~~+=XdXddXdX=+~~_+_~~XX
 X-       ==XDDXXDDX==       -X
 X=XXXXXXXXXXDDXXDDXXXXXXXXXX=X
 X=-------==XDDXXDDX==-------=X
@@ -50,5 +50,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.creeplord,
-  globalLight: 0.2,
+  globalLight: 0.4,
 };

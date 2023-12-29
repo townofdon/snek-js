@@ -23,14 +23,14 @@ X-   XX~~      -+XXDDD_      X
 X    ~~X~~      -_____       X
 X~    ~~XX                   X
 X~     ~XX     --      ~~~- -X
-X~      DD    -==-     DD+=-=X
-X~      DD   -=XX=-    DD+=-=X
+X~      dd    -==-     DD+=-=X
+X~      dd   -=XX=-    DD+=-=X
 XX           -=XX=-    ~XX=-=X
 DD            -==-     ~XX=-=X
 DD             ==      ~XX=-=X
 DD             ==      ~XX=-=X
-XX   ======DD====     ~~XX=-=X
-X~   ======DD====     ~~XX=-=X
+XX   ======dd====     ~~XX=-=X
+X~   ======dd====     ~~XX=-=X
 X~   ++               ~~XX=-=X
 X~   xx~              XX++=-=X
 X~   xx~              XX++=-+X

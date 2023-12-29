@@ -10,8 +10,8 @@ import { PortalChannel } from "./types";
 const lightBuffer = createLightmap();
 
 const TAU = Math.PI * 2;
-const NUM_ANGLE_STEPS = 64; // 32
-const LIGHT_RADIUS_STEP = 0.5; // 0.5
+const NUM_ANGLE_STEPS = 64;
+const LIGHT_RADIUS_STEP = 0.5;
 const LIGHT_ANGLE_STEP = TAU / NUM_ANGLE_STEPS;
 
 export function createLightmap(): number[] {
@@ -72,14 +72,32 @@ function addSpotlight(lightMap: number[], x: number, y: number, {
       const ly = y * LIGHTMAP_RESOLUTION + Math.round(Math.sin(angle) * r * LIGHTMAP_RESOLUTION);
       const i = toQuantizedIndex(lx, ly);
       // don't draw here if buffer already has a value
-      if (lightBuffer[i] === 0) {
+      if (inBounds(lx, ly) && lightBuffer[i] === 0) {
         lightBuffer[i] = getSpotlightValue(r, radius, falloff) * strength;
       }
-      angle += LIGHT_ANGLE_STEP;
+      if (r < 2) {
+        angle += LIGHT_ANGLE_STEP * 16;
+      } else if (r < 4) {
+        angle += LIGHT_ANGLE_STEP * 4;
+      } else if (r < 5) {
+        angle += LIGHT_ANGLE_STEP * 2;
+      } else {
+        angle += LIGHT_ANGLE_STEP;
+      }
     }
-    r += LIGHT_RADIUS_STEP;
+    if (r <= 5) {
+      r += 1;
+    } else {
+      r += LIGHT_RADIUS_STEP;
+    }
   }
   commitStagedLight(lightBuffer, lightMap);
+}
+
+function inBounds(lx: number, ly: number): boolean {
+  return true
+    && lx >= 0 && lx < GRIDCOUNT.x * LIGHTMAP_RESOLUTION
+    && ly >= 0 && ly < GRIDCOUNT.y * LIGHTMAP_RESOLUTION;
 }
 
 interface AddBlocklightOptions {

@@ -33,10 +33,10 @@ Xaaa       aaaaaaa           X
 XXXXXXXXXX XXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXaXXXXXXXX aaaaaaaa X
 XXXXXXXXXXaXXX--XXX XXXXXXXX X
-XXXXXXXXXXaX-X--X-X XXXDDXXX X
- X X XXXXXaX-X--X-X XDDDDDDX X
-----XXXXXXaX-X--X-X XXXDDXXXaX
-===- XXXXXaX-XXXX-X XXXDDXXXaX
+XXXXXXXXXXaX-X--X-X XXXddXXX X
+ X X XXXXXaX-X--X-X XddddddX X
+----XXXXXXaX-X--X-X XXXddXXXaX
+===- XXXXXaX-XXXX-X XXXddXXXaX
 ===-XXXXXXaX-X--X-X XXX--XXXaX
 ---- XXXXXaX-X--X-X X-X--X-XDX
    -XXXXXX X-X--X-XaX-X--X-XDX
@@ -54,5 +54,5 @@ XXXXXXXXXXaX-X--X-X XXXDDXXX X
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.aqueduct,
   titleVariant: TitleVariant.GrayBlue,
-  globalLight: 0.5,
+  globalLight: 0.7,
 };

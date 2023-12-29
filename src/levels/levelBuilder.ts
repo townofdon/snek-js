@@ -2,6 +2,7 @@ import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
 import { Level, Portal, PortalChannel, PortalExitMode } from "../types";
 import { getCoordIndex } from "../utils";
+import { LEVEL_01 } from ".";
 
 interface BuildLevelParams {
   p5: P5
@@ -67,15 +68,26 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
 
       const vec = p5.createVector(x, y);
 
-      switch (char.toLowerCase()) {
+      switch (char) {
+        case 'X':
         case 'x':
           data.barriers.push(vec);
           data.barriersMap[getCoordIndex(vec)] = true;
           break;
+        case 'D':
         case 'd':
           data.doors.push(vec);
           data.doorsMap[getCoordIndex(vec)] = true;
+          // extra decoration for doors, if lowercase
+          if (char === 'd') {
+            if (level === LEVEL_01) {
+              data.decoratives2.push(vec);
+            } else {
+              data.decoratives1.push(vec);
+            }
+          }
           break;
+        case 'O':
         case 'o':
           data.playerSpawnPosition = vec;
           break;
@@ -105,6 +117,7 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
           break;
 
         // manually-spawned apples
+        case 'A':
         case 'a':
           data.nospawns.push(vec);
           data.nospawnsMap[getCoordIndex(vec)] = true;

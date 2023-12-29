@@ -20,13 +20,13 @@ XX~~   -=-          -=-   ~~XX
 XX~   -=-            -=-   ~XX
 XX~  -=-             -=-   ~XX
 XX~  -=-             -=-   ~XX
-XX~  -=-   ~~DDD~~   -=-   ~XX
-XX~  -=-   ~~DDD~~   -=-   ~XX
+XX~  -=-   ~~ddd~~   -=-   ~XX
+XX~  -=-   ~~ddd~~   -=-   ~XX
 XX~  -=-   XXX_XXX   -=-   ~XX
 XX~  -=-   XX_a_XX   -=-   ~XX
 XX~  -=-   XXX_XXX   -=-   ~XX
-XX~  -=-   ~~DDD~~   -=-   ~XX
-XX~  -=-   ~~DDD~~   -=-   ~XX
+XX~  -=-   ~~ddd~~   -=-   ~XX
+XX~  -=-   ~~ddd~~   -=-   ~XX
 XX~  -=-             -=-   ~XX
 XX~  -=-             -=-   ~XX
 XX~  -=-             -=-   ~XX
