@@ -46,4 +46,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.lordy,
+  globalLight: 0.85,
 };

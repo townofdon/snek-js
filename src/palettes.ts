@@ -56,7 +56,6 @@ export const PALETTE: Record<string, Palette> = {
     deco2Stroke: Color("#BCBCBC").negate().hex(),
   },
   boxcar: {
-    background: "#505050",
     playerHead: "#F4A261",
     playerTail: "#E9C46A",
     playerTailStroke: "#E9D3A7",
@@ -66,10 +65,11 @@ export const PALETTE: Record<string, Palette> = {
     appleStroke: "#E24D28",
     door: "#2A9D8F",
     doorStroke: "#2FB1A2",
-    deco1: "#535353",
-    deco1Stroke: "#515151",
-    deco2: "#595959",
-    deco2Stroke: "#555555",
+    background: Color("#505050").mix(Color("#2F4858"), 0.2).darken(0.1).hex(),
+    deco1: Color("#535353").mix(Color("#2F4858"), 0.2).darken(0.1).hex(),
+    deco1Stroke: Color("#515151").mix(Color("#2F4858"), 0.2).darken(0.1).hex(),
+    deco2: Color("#595959").mix(Color("#2F4858"), 0.2).darken(0.1).hex(),
+    deco2Stroke: Color("#555555").mix(Color("#2F4858"), 0.2).darken(0.1).hex(),
   },
   hospital: {
     background: "#0D0D1C",

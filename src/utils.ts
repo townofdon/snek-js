@@ -38,6 +38,13 @@ export function getCoordIndex(vec: Vector): number {
   return clamp(vec.x, 0, GRIDCOUNT.x - 1) + clamp(vec.y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
 }
 
+export function coordToVec(p5: P5, index: number): Vector {
+  index = Math.floor(index);
+  const x = Math.floor(index % GRIDCOUNT.x);
+  const y = Math.floor(index / GRIDCOUNT.x) * GRIDCOUNT.y;
+  return p5.createVector(x, y);
+}
+
 export function vecToString(vec: Vector) {
   return vec ? `(${vec.x}, ${vec.y})` : 'Nil';
 }

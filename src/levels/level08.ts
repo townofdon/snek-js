@@ -46,4 +46,5 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.champion,
   titleVariant: TitleVariant.Green,
+  globalLight: 0.9,
 };

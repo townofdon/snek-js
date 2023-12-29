@@ -173,6 +173,7 @@ export interface Level {
   titleScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
   musicTrack?: MusicTrack
   titleVariant?: TitleVariant
+  globalLight?: number,
 }
 
 export type LoseMessage = [string] | [string, GetShouldShowLoseMessage];

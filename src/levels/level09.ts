@@ -46,4 +46,5 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.creeplord,
   titleVariant: TitleVariant.Gray,
+  globalLight: 0.6,
 };

@@ -106,6 +106,22 @@ export class Renderer {
     }
   }
 
+  drawBasicSquare(x: number, y: number, color = "#fff", size = 1) {
+    const { p5, screenShake } = this.props;
+    const borderSize = STROKE_SIZE * 0.5;
+    const width = BLOCK_SIZE.x;
+    const height = BLOCK_SIZE.y;
+    const x0 = x * BLOCK_SIZE.x + screenShake.offset.x + (1 - size) * width - borderSize;
+    const y0 = y * BLOCK_SIZE.y + screenShake.offset.x + (1 - size) * height - borderSize;
+    const x1 = x0 + width * size;
+    const y1 = y0 + height * size;
+    p5.fill(color);
+    // p5.randomSeed(x + y * 500000);
+    // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
+    p5.noStroke();
+    p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+  }
+
   /**
    * Draw red squares on level to indicate that we are in Record mode
    */

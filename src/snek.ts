@@ -1,4 +1,5 @@
 import P5, { Element, Vector } from 'p5';
+import Color from 'color';
 
 import {
   MAIN_TITLE_SCREEN_LEVEL,
@@ -42,6 +43,7 @@ import {
   BLOCK_SIZE,
   SPEED_LIMIT_ULTRA_SPRINT,
   MAX_SNAKE_SIZE,
+  GLOBAL_LIGHT_DEFAULT,
 } from './constants';
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
@@ -70,6 +72,7 @@ import { OSTScene } from './scenes/OSTScene';
 import { SpriteRenderer } from './spriteRenderer';
 import { WinGameScene } from './scenes/WinGameScene';
 import { LeaderboardScene } from './scenes/LeaderboardScene';
+import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -170,6 +173,8 @@ let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
 let segmentsMap: Record<number, boolean> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
+
+const lightMap = createLightmap();
 
 let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };
 let portalsMap: Record<number, Portal> = {};
@@ -734,6 +739,7 @@ export const sketch = (p5: P5) => {
     for (let i = 0; i < numApplesStart; i++) {
       addApple();
     }
+    resetLightmap(lightMap, level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
   }
 
   function handleDraw() {
@@ -804,6 +810,12 @@ export const sketch = (p5: P5) => {
         growSnake(appleFound);
         incrementScore();
       }
+    }
+
+    const globalLight = level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
+    if (state.isGameStarted && replay.mode !== ReplayMode.Playback && globalLight < 1) {
+      updateLighting(lightMap, globalLight, player.position, portals);
+      drawLighting(lightMap, renderer);
     }
 
     drawPlayerHead(player.position);

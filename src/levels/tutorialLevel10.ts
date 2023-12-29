@@ -53,4 +53,5 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   disableNormalLoseMessages: true,
   musicTrack: MusicTrack.aqueduct,
   titleVariant: TitleVariant.Gray,
+  globalLight: 0.5,
 };

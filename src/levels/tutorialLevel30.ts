@@ -47,4 +47,5 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   colors: PALETTE.mintJulip,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.aqueduct,
+  globalLight: 0.6,
 };

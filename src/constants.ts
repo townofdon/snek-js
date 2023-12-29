@@ -18,6 +18,8 @@ const windowWidth = window.innerWidth;
 export const ACCENT_COLOR = "#FFB41F";
 export const SECONDARY_ACCENT_COLOR = "#15C2CB";
 export const SECONDARY_ACCENT_COLOR_BG = Color("#119DA4").darken(0.4).hex();
+export const GLOBAL_LIGHT_DEFAULT = 1;
+export const LIGHTMAP_RESOLUTION = 1;
 
 export const FRAMERATE = 90;
 export const DIMENSIONS = { x: Math.min(windowWidth, 600), y: Math.min(windowWidth, 600) };

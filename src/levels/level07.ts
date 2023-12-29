@@ -48,4 +48,5 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
     ["Hang in there, it gets harder."],
   ],
   musicTrack: MusicTrack.lordy,
+  globalLight: 0.75,
 };

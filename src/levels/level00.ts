@@ -50,4 +50,5 @@ XXXXXXXXXXaX-X--X-X XXXDDXXX X
     playerTailStroke: PALETTE.plumsea.playerTailStroke,
   },
   musicTrack: MusicTrack.conquerer,
+  globalLight: 0.4,
 };
