@@ -26,6 +26,7 @@ export class SpriteRenderer {
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
     [Image.SnekButt]: null,
+    [Image.Key]: null,
   }
 
   constructor({ p5, replay, gameState, screenShake }: RendererConstructorProps) {
@@ -54,6 +55,7 @@ export class SpriteRenderer {
     this.loadImage(Image.SnekHead);
     this.loadImage(Image.SnekHeadDead);
     this.loadImage(Image.SnekButt);
+    this.loadImage(Image.Key);
   }
 
   drawImage3x3(image: Image, x: number, y: number, rotation: number = 0) {

@@ -176,6 +176,19 @@ export interface Level {
   globalLight?: number,
 }
 
+export enum KeyChannel {
+  Yellow,
+  Red,
+  Blue,
+}
+
+export interface Key {
+  channel: KeyChannel,
+  position: Vector,
+}
+
+export interface Lock extends Key { }
+
 export interface LevelData {
   barriers: Vector[],
   barriersMap: Record<number, boolean>,
@@ -191,6 +204,10 @@ export interface LevelData {
   playerSpawnPosition: Vector,
   portalsMap: Record<number, Portal>,
   portals: Record<PortalChannel, Vector[]>,
+  keys: Key[],
+  keysMap: Record<number, Key>,
+  locks: Lock[],
+  locksMap: Record<number, Lock>,
 }
 
 export interface DynamicLevelData {
@@ -269,6 +286,7 @@ export enum Image {
   ControlsKeyboardMove = 'controls-keyboard-move.png',
   ControlsKeyboardDelete = 'controls-keyboard-delete.png',
   ControlsMouseLeft = 'controls-mouse-left.png',
+  Key = 'snek-key.png',
 }
 
 export interface Scene {

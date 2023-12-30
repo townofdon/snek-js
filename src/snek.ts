@@ -48,7 +48,7 @@ import {
 import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -168,10 +168,12 @@ let barriers: Vector[] = []; // permanent structures that damage the snake
 let doors: Vector[] = []; // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
 let decoratives1: Vector[] = []; // bg decorative elements
 let decoratives2: Vector[] = []; // bg decorative elements
+let keys: Key[] = []; // keys
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
 let segmentsMap: Record<number, boolean> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
+let keysMap: Record<number, Key> = {};
 
 const lightMap = createLightmap();
 
@@ -660,6 +662,7 @@ export const sketch = (p5: P5) => {
     decoratives1 = [];
     decoratives2 = [];
     particleSystems = [];
+    keys = [];
     barriersMap = {};
     segmentsMap = {};
     doorsMap = {};
@@ -667,6 +670,7 @@ export const sketch = (p5: P5) => {
     portals = { ...DEFAULT_PORTALS() };
     portalsMap = {};
     portalParticlesStarted = {};
+    keysMap = {};
 
     renderer.reset();
     UI.disableScreenScroll();
@@ -727,6 +731,8 @@ export const sketch = (p5: P5) => {
     nospawnsMap = levelData.nospawnsMap;
     portals = levelData.portals;
     portalsMap = levelData.portalsMap;
+    keys = levelData.keys;
+    keysMap = levelData.keysMap;
 
     // create snake parts
     let x = player.position.x;

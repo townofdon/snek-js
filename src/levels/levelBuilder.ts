@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
-import { Level, LevelData, Portal, PortalChannel, PortalExitMode } from "../types";
+import { KeyChannel, Level, LevelData, Portal, PortalChannel, PortalExitMode } from "../types";
 import { getCoordIndex } from "../utils";
 import { LEVEL_01 } from ".";
 
@@ -8,8 +8,6 @@ interface BuildLevelParams {
   p5: P5
   level: Level
 }
-
-
 
 export function buildLevel({ p5, level }: BuildLevelParams) {
   const data: LevelData = {
@@ -27,6 +25,10 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
     playerSpawnPosition: p5.createVector(15, 15),
     portals: { ...DEFAULT_PORTALS() },
     portalsMap: {},
+    keys: [],
+    keysMap: {},
+    locks: [],
+    locksMap: {},
   }
 
   // keep track of which group a portal cell belongs to
@@ -107,6 +109,26 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
           data.apples.push(vec);
           break;
 
+        // keys / locks
+        case 'j':
+          data.keys.push({ position: vec, channel: KeyChannel.Yellow });
+          break;
+        case 'k':
+          data.keys.push({ position: vec, channel: KeyChannel.Red });
+          break;
+        case 'l':
+          data.keys.push({ position: vec, channel: KeyChannel.Blue });
+          break;
+        case 'J':
+          data.locks.push({ position: vec, channel: KeyChannel.Yellow });
+          break;
+        case 'K':
+          data.locks.push({ position: vec, channel: KeyChannel.Red });
+          break;
+        case 'L':
+          data.locks.push({ position: vec, channel: KeyChannel.Blue });
+          break;
+
         // portals
         case '0':
         case '1':
@@ -184,6 +206,8 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
   data.decoratives1.forEach(vec => { data.decoratives1Map[getCoordIndex(vec)] = true });
   data.decoratives2.forEach(vec => { data.decoratives2Map[getCoordIndex(vec)] = true });
   data.nospawns.forEach(vec => { data.nospawnsMap[getCoordIndex(vec)] = true });
+  data.keys.forEach(key => { data.keysMap[getCoordIndex(key.position)] = key });
+  data.locks.forEach(lock => { data.locksMap[getCoordIndex(lock.position)] = lock });
 
   // link portals
   for (let i = 0; i <= 9; i++) {
