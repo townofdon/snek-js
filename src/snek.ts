@@ -1434,8 +1434,7 @@ export const sketch = (p5: P5) => {
     if (appleToSpawn) {
       const apple = p5.createVector(appleToSpawn[0], appleToSpawn[1]);
       apples.push(apple);
-    }
-    if (!appleToSpawn || replay.applesToSpawn.length === 0) {
+    } else {
       // likely ran out of apples to spawn due to changes to level settings since time of clip recording, e.g. applesToClear; just open the doors as a quickfix
       openDoors();
     }
