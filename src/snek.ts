@@ -45,7 +45,7 @@ import {
   MAX_SNAKE_SIZE,
   GLOBAL_LIGHT_DEFAULT,
 } from './constants';
-import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
+import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
 import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings } from './types';
@@ -168,7 +168,6 @@ let barriers: Vector[] = []; // permanent structures that damage the snake
 let doors: Vector[] = []; // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
 let decoratives1: Vector[] = []; // bg decorative elements
 let decoratives2: Vector[] = []; // bg decorative elements
-
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
 let segmentsMap: Record<number, boolean> = {};
@@ -1448,19 +1447,6 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  function getRotationFromDirection(direction: DIR) {
-    switch (direction) {
-      case DIR.UP:
-        return Math.PI * 1.5;
-      case DIR.DOWN:
-        return Math.PI * .5;
-      case DIR.LEFT:
-        return Math.PI * 1;
-      case DIR.RIGHT:
-        return 0;
-    }
-  }
-
   function drawPlayerSegment(vec: Vector) {
     const options = { is3d: true };
     if (state.timeSinceHurt < HURT_STUN_TIME) {
@@ -1500,12 +1486,18 @@ export const sketch = (p5: P5) => {
   }
 
   function drawDecorative1(vec: Vector) {
+    if (vec.equals(player.position)) return;
+    if (doorsMap[getCoordIndex(vec)]) return;
+    if (segmentsMap[getCoordIndex(vec)]) return;
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1 : level.colors.deco1,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1Stroke : level.colors.deco1Stroke);
   }
 
   function drawDecorative2(vec: Vector) {
+    if (vec.equals(player.position)) return;
+    if (doorsMap[getCoordIndex(vec)]) return;
+    if (segmentsMap[getCoordIndex(vec)]) return;
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2 : level.colors.deco2,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke);

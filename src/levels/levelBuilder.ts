@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
-import { Level, Portal, PortalChannel, PortalExitMode } from "../types";
+import { Level, LevelData, Portal, PortalChannel, PortalExitMode } from "../types";
 import { getCoordIndex } from "../utils";
 import { LEVEL_01 } from ".";
 
@@ -9,20 +9,7 @@ interface BuildLevelParams {
   level: Level
 }
 
-interface LevelData {
-  barriers: Vector[]
-  barriersMap: Record<number, boolean>
-  doors: Vector[]
-  doorsMap: Record<number, boolean>
-  apples: Vector[]
-  decoratives1: Vector[]
-  decoratives2: Vector[]
-  nospawns: Vector[]
-  nospawnsMap: Record<number, boolean>
-  playerSpawnPosition: Vector
-  portalsMap: Record<number, Portal>
-  portals: Record<PortalChannel, Vector[]>
-}
+
 
 export function buildLevel({ p5, level }: BuildLevelParams) {
   const data: LevelData = {
@@ -32,7 +19,9 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
     doorsMap: {},
     apples: [],
     decoratives1: [],
+    decoratives1Map: {},
     decoratives2: [],
+    decoratives2Map: {},
     nospawns: [],
     nospawnsMap: {},
     playerSpawnPosition: p5.createVector(15, 15),
@@ -72,12 +61,10 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
         case 'X':
         case 'x':
           data.barriers.push(vec);
-          data.barriersMap[getCoordIndex(vec)] = true;
           break;
         case 'D':
         case 'd':
           data.doors.push(vec);
-          data.doorsMap[getCoordIndex(vec)] = true;
           // extra decoration for doors, if lowercase
           if (char === 'd') {
             if (level === LEVEL_01) {
@@ -95,17 +82,14 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
         // no-spawns
         case '~':
           data.nospawns.push(vec);
-          data.nospawnsMap[getCoordIndex(vec)] = true;
           break;
         case '_':
           data.decoratives1.push(vec);
           data.nospawns.push(vec);
-          data.nospawnsMap[getCoordIndex(vec)] = true;
           break;
         case '+':
           data.decoratives2.push(vec);
           data.nospawns.push(vec);
-          data.nospawnsMap[getCoordIndex(vec)] = true;
           break;
 
         // decorative
@@ -120,7 +104,6 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
         case 'A':
         case 'a':
           data.nospawns.push(vec);
-          data.nospawnsMap[getCoordIndex(vec)] = true;
           data.apples.push(vec);
           break;
 
@@ -136,7 +119,6 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
         case '8':
         case '9':
           data.nospawns.push(vec);
-          data.nospawnsMap[getCoordIndex(vec)] = true;
           const channel = parseInt(char, 10) as PortalChannel;
           let group = portalGroupIndex[channel];
           // increment portal index if prev portal cell of same PortalIndex is farther away than 1 unit
@@ -195,6 +177,13 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
     }
     if (y >= GRIDCOUNT.y) { console.warn("level layout is too tall"); break; }
   }
+
+  data.nospawns.forEach(vec => { data.nospawnsMap[getCoordIndex(vec)] = true; });
+  data.barriers.forEach(vec => { data.barriersMap[getCoordIndex(vec)] = true });
+  data.doors.forEach(vec => { data.doorsMap[getCoordIndex(vec)] = true });
+  data.decoratives1.forEach(vec => { data.decoratives1Map[getCoordIndex(vec)] = true });
+  data.decoratives2.forEach(vec => { data.decoratives2Map[getCoordIndex(vec)] = true });
+  data.nospawns.forEach(vec => { data.nospawnsMap[getCoordIndex(vec)] = true });
 
   // link portals
   for (let i = 0; i <= 9; i++) {

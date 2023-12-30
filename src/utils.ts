@@ -147,6 +147,19 @@ export function rotateDirection(dir: DIR) {
   return dir;
 }
 
+export function getRotationFromDirection(direction: DIR) {
+  switch (direction) {
+    case DIR.UP:
+      return Math.PI * 1.5;
+    case DIR.DOWN:
+      return Math.PI * .5;
+    case DIR.LEFT:
+      return Math.PI * 1;
+    case DIR.RIGHT:
+      return 0;
+  }
+}
+
 export function dirToUnitVector(p5: P5, dir: DIR): Vector {
   switch (dir) {
     case DIR.LEFT:

@@ -163,17 +163,39 @@ export interface Level {
   numApplesStart?: number,
   growthMod?: number,
   extraHurtGraceTime?: number,
-  snakeStartSizeOverride?: number
-  disableAppleSpawn?: boolean
-  disableNormalLoseMessages?: boolean
-  showQuoteOnLevelWin?: boolean
-  isWinGame?: boolean
-  extraLoseMessages?: LoseMessage[]
-  portalExitConfig?: Partial<Record<PortalChannel, PortalExitMode>>
-  titleScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene
-  musicTrack?: MusicTrack
-  titleVariant?: TitleVariant
+  snakeStartSizeOverride?: number,
+  disableAppleSpawn?: boolean,
+  disableNormalLoseMessages?: boolean,
+  showQuoteOnLevelWin?: boolean,
+  isWinGame?: boolean,
+  extraLoseMessages?: LoseMessage[],
+  portalExitConfig?: Partial<Record<PortalChannel, PortalExitMode>>,
+  titleScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene,
+  musicTrack?: MusicTrack,
+  titleVariant?: TitleVariant,
   globalLight?: number,
+}
+
+export interface LevelData {
+  barriers: Vector[],
+  barriersMap: Record<number, boolean>,
+  doors: Vector[],
+  doorsMap: Record<number, boolean>,
+  apples: Vector[],
+  decoratives1: Vector[],
+  decoratives1Map: Record<number, boolean>,
+  decoratives2: Vector[],
+  decoratives2Map: Record<number, boolean>,
+  nospawns: Vector[],
+  nospawnsMap: Record<number, boolean>,
+  playerSpawnPosition: Vector,
+  portalsMap: Record<number, Portal>,
+  portals: Record<PortalChannel, Vector[]>,
+}
+
+export interface DynamicLevelData {
+  segmentsMap: Record<number, boolean>,
+  applesMap: Record<string, number>,
 }
 
 export type LoseMessage = [string] | [string, GetShouldShowLoseMessage];
