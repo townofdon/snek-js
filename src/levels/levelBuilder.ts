@@ -121,12 +121,15 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
           break;
         case 'J':
           data.locks.push({ position: vec, channel: KeyChannel.Yellow });
+          data.decoratives2.push(vec);
           break;
         case 'K':
           data.locks.push({ position: vec, channel: KeyChannel.Red });
+          data.decoratives2.push(vec);
           break;
         case 'L':
           data.locks.push({ position: vec, channel: KeyChannel.Blue });
+          data.decoratives2.push(vec);
           break;
 
         // portals

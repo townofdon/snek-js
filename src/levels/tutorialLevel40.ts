@@ -1,0 +1,52 @@
+import { PALETTE } from "../palettes";
+import { TitleScene } from "../scenes/TitleScene";
+import { Level, MusicTrack } from "../types";
+
+const name = 'gatekeeper';
+
+export const TUTORIAL_LEVEL_40: Level = {
+  name,
+  timeToClear: 1000 * 60 * 5,
+  applesToClear: 52,
+  numApplesStart: -1,
+  disableAppleSpawn: true,
+  snakeStartSizeOverride: 20,
+  extraHurtGraceTime: 30,
+  growthMod: 0,
+  layout: `
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXdXXXXXXXDDXXDDXXXXXXXdXXXX
+XXXaaaXXXDDXDDXXDDXDDXXX k XXX
+XXXadaXXXDDXDDXXDDXDDXXXadaXXX
+XXXaXaXXXDDXDDXXDDXDDXXXaXaXXX
+XXXaXaXXXDDXDDXXDDXDDXXXaXaXXX
+XXXaXaXXXDDXDDXXDDXDDXXXaXaXXX
+XXXaXaXXXXXXDDXXDDXXXXXXaXaXXX
+XXXaXaXXXDDXDDXXDDXDDXXXaXaXXX
+XaaaXaXXXXXXXXXXXXXXXXXXaXaaaX
+XaLLL==  KK aa     KK  ==LLLaX
+XaLLL == KK     aa KK == LLLaX
+XaXXXXXXXXXXXXXXXXXXXXXXXXXXaX
+XaXXXXXXXXXXXXXXXXXXXXXXXXXXaX
+XaXX   O ==        JJ  ===  aX
+XaXX   a a=a j     JJ a-a-a aX
+XaXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XaXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+Xa  ===  LL     aa LL aaa aadd
+Xa == == LL aa     LL ==a a=dd
+XaaaXaXXXXXXXXXXXXXXXXXXaXaXXX
+XXXaXaXXXDDXDDXXDDXDDXXXaXaXXX
+XXXaXaXXXXXXDDXXDDXXXXXXaXaXXX
+XXXaXaXXXDDXDDXXDDXDDXXXaXaXXX
+XXXaXaXXXDDXDDXXDDXDDXXXaXaXXX
+XXXaXaXXXDDXDDXXDDXDDXXXaXaXXX
+XXXadaXXXDDXDDXXDDXDDXXXadaXXX
+XXX=l=XXXDDXDDXXDDXDDXXXaaaXXX
+XXXXdXXXXXXXDDXXDDXXXXXXXdXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+  `,
+  colors: PALETTE.mintJulip,
+  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  musicTrack: MusicTrack.aqueduct,
+  globalLight: 0.6,
+};

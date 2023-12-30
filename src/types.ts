@@ -65,11 +65,13 @@ export interface Difficulty {
   sprintLimit: number,
 }
 
+
 export enum HitType {
   Unknown,
   HitBarrier,
   HitDoor,
   HitSelf,
+  HitLock,
 }
 
 export type RecentMoves = [DIR, DIR, DIR, DIR];
@@ -103,6 +105,9 @@ export interface GameState {
   isExitingLevel: boolean,
   isExited: boolean,
   isShowingDeathColours: boolean,
+  hasKeyYellow: boolean,
+  hasKeyRed: boolean,
+  hasKeyBlue: boolean,
   levelIndex: number,
   timeElapsed: number,
   timeSinceLastMove: number,
@@ -245,11 +250,13 @@ export interface SFXInstance {
 export enum Sound {
   death = 'death',
   doorOpen = 'doorOpen',
+  doorOpenHuge = 'doorOpenHuge',
   eat = 'eat',
   hurt1 = 'hurt1',
   hurt2 = 'hurt2',
   hurt3 = 'hurt3',
   moveStart = 'moveStart',
+  pickup = 'pickup',
   rewindLoop = 'rewindLoop',
   step1 = 'step1',
   step2 = 'step2',
@@ -287,6 +294,12 @@ export enum Image {
   ControlsKeyboardDelete = 'controls-keyboard-delete.png',
   ControlsMouseLeft = 'controls-mouse-left.png',
   Key = 'snek-key.png',
+  KeyYellow = 'snek-key2-yellow.png',
+  KeyRed = 'snek-key2-red.png',
+  KeyBlue = 'snek-key2-blue.png',
+  LockYellow = 'snek-lock-yellow.png',
+  LockRed = 'snek-lock-red.png',
+  LockBlue = 'snek-lock-blue.png',
 }
 
 export interface Scene {

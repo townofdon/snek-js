@@ -45,10 +45,10 @@ import {
   MAX_SNAKE_SIZE,
   GLOBAL_LIGHT_DEFAULT,
 } from './constants';
-import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
+import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, isWithinBlockDistance, parseUrlQueryParams, removeArrayElement, rotateDirection, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key, Lock, KeyChannel } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -112,6 +112,9 @@ const state: GameState = {
   steps: 0,
   frameCount: 0,
   lastHurtBy: HitType.Unknown,
+  hasKeyYellow: false,
+  hasKeyRed: false,
+  hasKeyBlue: false,
 };
 const stats: Stats = {
   numDeaths: 0,
@@ -169,11 +172,13 @@ let doors: Vector[] = []; // like barriers, except that they disappear once the 
 let decoratives1: Vector[] = []; // bg decorative elements
 let decoratives2: Vector[] = []; // bg decorative elements
 let keys: Key[] = []; // keys
+let locks: Lock[] = []; // locks
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
 let segmentsMap: Record<number, boolean> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
 let keysMap: Record<number, Key> = {};
+let locksMap: Record<number, Lock> = {};
 
 const lightMap = createLightmap();
 
@@ -651,6 +656,9 @@ export const sketch = (p5: P5) => {
     state.steps = 0;
     state.frameCount = 0;
     state.lastHurtBy = HitType.Unknown;
+    state.hasKeyYellow = false;
+    state.hasKeyRed = false;
+    state.hasKeyBlue = false;
     moves = [];
     recentMoves = [null, null, null, null];
     recentInputs = [null, null, null, null];
@@ -733,6 +741,8 @@ export const sketch = (p5: P5) => {
     portalsMap = levelData.portalsMap;
     keys = levelData.keys;
     keysMap = levelData.keysMap;
+    locks = levelData.locks;
+    locksMap = levelData.locksMap;
 
     // create snake parts
     let x = player.position.x;
@@ -789,6 +799,14 @@ export const sketch = (p5: P5) => {
 
     for (let i = 0; i < doors.length; i++) {
       drawDoor(doors[i]);
+    }
+
+    for (let i = 0; i < keys.length; i++) {
+      drawKey(keys[i])
+    }
+
+    for (let i = 0; i < locks.length; i++) {
+      drawLock(locks[i])
     }
 
     if (replay.mode === ReplayMode.Capture) {
@@ -849,6 +867,8 @@ export const sketch = (p5: P5) => {
     }
 
     handlePortalTravel();
+    handleKeyPickup();
+    handleUnlock();
 
     const didHit = checkHasHit(player.position);
     state.isLost = didHit;
@@ -1162,6 +1182,11 @@ export const sketch = (p5: P5) => {
       return true;
     }
 
+    if (locksMap[getCoordIndex(vec)]) {
+      state.lastHurtBy = HitType.HitLock;
+      return true;
+    }
+
     return false;
   }
 
@@ -1205,6 +1230,56 @@ export const sketch = (p5: P5) => {
     state.timeSinceLastTeleport = 0;
     player.position.set(portal.link);
     player.position.add(dirToUnitVector(p5, player.direction));
+  }
+
+  function handleKeyPickup() {
+    // if player is on top of a key, pick it up!
+    const index = getCoordIndex(player.position);
+    const key = keysMap[index];
+    if (!key) return;
+    if (key.channel === KeyChannel.Yellow) {
+      state.hasKeyYellow = true;
+      keys = keys.filter(key => key.channel !== KeyChannel.Yellow);
+    } else if (key.channel === KeyChannel.Red) {
+      state.hasKeyRed = true;
+      keys = keys.filter(key => key.channel !== KeyChannel.Red);
+    } else if (key.channel === KeyChannel.Blue) {
+      state.hasKeyBlue = true;
+      keys = keys.filter(key => key.channel !== KeyChannel.Blue);
+    }
+    keysMap[index] = null;
+    playSound(Sound.pickup);
+  }
+
+  function handleUnlock() {
+    if (!state.hasKeyYellow && !state.hasKeyRed && !state.hasKeyBlue) {
+      return;
+    }
+    for (let i = 0; i < locks.length; i++) {
+      if (state.hasKeyYellow && locks[i].channel === KeyChannel.Yellow && isWithinBlockDistance(locks[i].position, player.position, 1)) {
+        unlockGate(KeyChannel.Yellow);
+        return;
+      }
+      if (state.hasKeyRed && locks[i].channel === KeyChannel.Red && isWithinBlockDistance(locks[i].position, player.position, 1)) {
+        unlockGate(KeyChannel.Red);
+        return;
+      }
+      if (state.hasKeyBlue && locks[i].channel === KeyChannel.Blue && isWithinBlockDistance(locks[i].position, player.position, 1)) {
+        unlockGate(KeyChannel.Blue);
+        return;
+      }
+    }
+  }
+
+  function unlockGate(channel: KeyChannel) {
+    playSound(Sound.doorOpenHuge);
+    locks = locks.filter((lock) => {
+      if (lock.channel === channel) {
+        locksMap[getCoordIndex(lock.position)] = null;
+      }
+      return lock.channel !== channel;
+    });
+    // TODO: ADD PARTICLE FX OR SOMETHING
   }
 
   function movePlayer(normalizedSpeed = 0): boolean {
@@ -1498,6 +1573,26 @@ export const sketch = (p5: P5) => {
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.door : level.colors.door,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke,
       { is3d: true });
+  }
+
+  function drawKey(key: Key) {
+    if (key.channel === KeyChannel.Yellow) {
+      spriteRenderer.drawImage3x3(Image.KeyYellow, key.position.x, key.position.y);
+    } else if (key.channel === KeyChannel.Red) {
+      spriteRenderer.drawImage3x3(Image.KeyRed, key.position.x, key.position.y);
+    } else if (key.channel === KeyChannel.Blue) {
+      spriteRenderer.drawImage3x3(Image.KeyBlue, key.position.x, key.position.y);
+    }
+  }
+
+  function drawLock(lock: Lock) {
+    if (lock.channel === KeyChannel.Yellow) {
+      spriteRenderer.drawImage3x3(Image.LockYellow, lock.position.x, lock.position.y);
+    } else if (lock.channel === KeyChannel.Red) {
+      spriteRenderer.drawImage3x3(Image.LockRed, lock.position.x, lock.position.y);
+    } else if (lock.channel === KeyChannel.Blue) {
+      spriteRenderer.drawImage3x3(Image.LockBlue, lock.position.x, lock.position.y);
+    }
   }
 
   function drawDecorative1(vec: Vector) {

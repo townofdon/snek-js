@@ -26,11 +26,13 @@ export class SFX implements SFXInstance {
   private sounds: SoundVariants = {
     death: null,
     doorOpen: null,
+    doorOpenHuge: null,
     eat: null,
     hurt1: null,
     hurt2: null,
     hurt3: null,
     moveStart: null,
+    pickup: null,
     rewindLoop: null,
     step1: null,
     step2: null,
@@ -92,11 +94,13 @@ export class SFX implements SFXInstance {
       const loadSound = (soundFile: string) => new Howl({ src: [`${relativeDir}assets/sounds/${soundFile}`] });
       this.sounds.death = loadSound('death.wav');
       this.sounds.doorOpen = loadSound('door-open.wav');
+      this.sounds.doorOpenHuge = loadSound('door-open-huge.wav');
       this.sounds.eat = loadSound('eat.wav');
       this.sounds.hurt1 = loadSound('hurt-1.wav');
       this.sounds.hurt2 = loadSound('hurt-2.wav');
       this.sounds.hurt3 = loadSound('hurt-3.wav');
       this.sounds.moveStart = loadSound('move-start.wav');
+      this.sounds.pickup = loadSound('pickup.wav');
       this.sounds.rewindLoop = loadSound('rewind-loop.wav');
       this.sounds.step1 = loadSound('step-1.wav');
       this.sounds.step2 = loadSound('step-2.wav');

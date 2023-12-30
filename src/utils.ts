@@ -291,3 +291,7 @@ export function remap(iMin: number, iMax: number, oMin: number, oMax: number, v:
 export function round(num: number, precision = 2) {
   return Math.round((num + Number.EPSILON) * (10 ^ precision)) / (10 ^ precision);
 }
+
+export function isWithinBlockDistance(a: Vector, b: Vector, distance: number = 1) {
+  return Math.abs(a.x - b.x) <= distance && Math.abs(a.y - b.y) <= distance;
+}

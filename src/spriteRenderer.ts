@@ -27,6 +27,12 @@ export class SpriteRenderer {
     [Image.SnekHeadDead]: null,
     [Image.SnekButt]: null,
     [Image.Key]: null,
+    [Image.KeyYellow]: null,
+    [Image.KeyRed]: null,
+    [Image.KeyBlue]: null,
+    [Image.LockYellow]: null,
+    [Image.LockRed]: null,
+    [Image.LockBlue]: null,
   }
 
   constructor({ p5, replay, gameState, screenShake }: RendererConstructorProps) {
@@ -56,6 +62,12 @@ export class SpriteRenderer {
     this.loadImage(Image.SnekHeadDead);
     this.loadImage(Image.SnekButt);
     this.loadImage(Image.Key);
+    this.loadImage(Image.KeyYellow);
+    this.loadImage(Image.KeyRed);
+    this.loadImage(Image.KeyBlue);
+    this.loadImage(Image.LockYellow);
+    this.loadImage(Image.LockRed);
+    this.loadImage(Image.LockBlue);
   }
 
   drawImage3x3(image: Image, x: number, y: number, rotation: number = 0) {
