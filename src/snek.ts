@@ -1248,7 +1248,7 @@ export const sketch = (p5: P5) => {
       keys = keys.filter(key => key.channel !== KeyChannel.Blue);
     }
     keysMap[index] = null;
-    playSound(Sound.pickup);
+    playSound(Sound.pickup, 0.55);
   }
 
   function handleUnlock() {
@@ -1839,7 +1839,8 @@ export const sketch = (p5: P5) => {
     UI.drawButton("S2", x += offset, yRow3, () => warpToLevel(120), uiElements);
     UI.drawButton("S3", x += offset, yRow3, () => warpToLevel(130), uiElements);
     x = xInitial;
-    UI.drawButton("LL", x, yRow4, () => warpToLevel(99), uiElements);
+    UI.drawButton("S4", x, yRow4, () => warpToLevel(140), uiElements);
+    UI.drawButton("LL", x += offset, yRow4, () => warpToLevel(99), uiElements);
   }
 
   function openDoors() {

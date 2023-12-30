@@ -7,7 +7,7 @@ const name = 'gatekeeper';
 export const TUTORIAL_LEVEL_40: Level = {
   name,
   timeToClear: 1000 * 60 * 5,
-  applesToClear: 52,
+  applesToClear: 50,
   numApplesStart: -1,
   disableAppleSpawn: true,
   snakeStartSizeOverride: 20,
@@ -29,7 +29,7 @@ XaLLL == KK     aa KK == LLLaX
 XaXXXXXXXXXXXXXXXXXXXXXXXXXXaX
 XaXXXXXXXXXXXXXXXXXXXXXXXXXXaX
 XaXX   O ==        JJ  ===  aX
-XaXX   a a=a j     JJ a-a-a aX
+XaXX     ==  j     JJ == == aX
 XaXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XaXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 Xa  ===  LL     aa LL aaa aadd
@@ -45,7 +45,8 @@ XXX=l=XXXDDXDDXXDDXDDXXXaaaXXX
 XXXXdXXXXXXXDDXXDDXXXXXXXdXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   `,
-  colors: PALETTE.mintJulip,
+  // colors: PALETTE.mintJulip,
+  colors: PALETTE.cornflower,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.aqueduct,
   globalLight: 0.6,

@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
 import { AppMode, DIR, FontsInstance, GameState, HitType, Image, Portal, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
-import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, IS_DEV, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
+import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, IS_DEV, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, SHOW_FPS, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
 import { clamp, oscilateLinear } from "./utils";
 import { SpriteRenderer } from "./spriteRenderer";
 import Color from "color";
@@ -307,6 +307,7 @@ export class Renderer {
   private fpsFrames: number[] = [];
   drawFps = () => {
     if (!IS_DEV) return;
+    if (!SHOW_FPS) return;
     const { p5, fonts } = this.props;
     const textX = BLOCK_SIZE.x * (25);
     const textY = BLOCK_SIZE.y * (1);

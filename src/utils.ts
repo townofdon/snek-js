@@ -28,6 +28,7 @@ import { DIR, MusicTrack, QueryParams } from "./types";
 import { TUTORIAL_LEVEL_10 } from "./levels/tutorialLevel10";
 import { TUTORIAL_LEVEL_20 } from "./levels/tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./levels/tutorialLevel30";
+import { TUTORIAL_LEVEL_40 } from "./levels/tutorialLevel40";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
   const clamped = Math.max(Math.min(val, maxVal), minVal);
@@ -110,6 +111,8 @@ export function getWarpLevelFromNum(levelNum: number) {
       return TUTORIAL_LEVEL_20;
     case 130:
       return TUTORIAL_LEVEL_30;
+    case 140:
+      return TUTORIAL_LEVEL_40;
     default:
       return LEVEL_01;
   }
