@@ -1403,10 +1403,7 @@ export const sketch = (p5: P5) => {
   function addApple(numTries = 0) {
     if (level.disableAppleSpawn) return;
     if (replay.mode === ReplayMode.Playback) {
-      const appleToSpawn = replay.applesToSpawn.shift();
-      if (!appleToSpawn) { console.warn('ran out of apples to spawn during replay mode'); return; }
-      const apple = p5.createVector(appleToSpawn[0], appleToSpawn[1]);
-      apples.push(apple);
+      addAppleReplayMode();
       return;
     }
     const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
@@ -1422,6 +1419,18 @@ export const sketch = (p5: P5) => {
       if (replay.mode === ReplayMode.Capture) {
         replay.applesToSpawn.push([apple.x, apple.y]);
       }
+    }
+  }
+
+  function addAppleReplayMode() {
+    const appleToSpawn = replay.applesToSpawn.shift();
+    if (appleToSpawn) {
+      const apple = p5.createVector(appleToSpawn[0], appleToSpawn[1]);
+      apples.push(apple);
+    }
+    if (!appleToSpawn || replay.applesToSpawn.length === 0) {
+      // likely ran out of apples to spawn due to changes to level settings since time of clip recording, e.g. applesToClear; just open the doors as a quickfix
+      openDoors();
     }
   }
 
