@@ -141,6 +141,7 @@ export const KEYCODE_QUOTE = 222;
 export const KEYCODE_ALPHA_C = 67;
 export const KEYCODE_ALPHA_L = 76;
 export const KEYCODE_ALPHA_M = 77;
+export const KEYCODE_ALPHA_R = 82;
 
 export const SCREEN_SHAKE_DURATION_MS = 1000;
 export const SCREEN_SHAKE_MAGNITUDE_PX = 4;

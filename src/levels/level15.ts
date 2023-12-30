@@ -1,7 +1,7 @@
 import Color from "color";
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, PortalExitMode } from "../types";
+import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
 const name = 'quantum mirror'
 
@@ -66,5 +66,6 @@ XXXXXXXXXXXXXXXDDDXXXXXXXXXXXX
     0: PortalExitMode.SameDirection,
   },
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  titleVariant: TitleVariant.GrayBlue,
   musicTrack: MusicTrack.conquerer,
 };

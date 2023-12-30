@@ -318,6 +318,7 @@ export const sketch = (p5: P5) => {
         onEnterQuoteMode: enterQuoteMode,
         onEnterOstMode: enterOstMode,
         onShowLeaderboard: showLeaderboard,
+        onProceedToNextReplayClip: proceedToNextReplayClip,
       }
     });
   }

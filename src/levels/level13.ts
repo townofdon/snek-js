@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, PortalExitMode } from "../types";
+import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
 const name = 'SCI-LAB'
 
@@ -55,4 +55,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
     ["This level really messes with your head, doesn't it?"],
   ],
   musicTrack: MusicTrack.simpleTime,
+  titleVariant: TitleVariant.GrayBlue,
 };

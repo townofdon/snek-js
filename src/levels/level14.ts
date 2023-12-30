@@ -1,6 +1,6 @@
 import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, PortalExitMode } from "../types";
+import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
 const name = 'grav chamber'
 
@@ -62,4 +62,5 @@ XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
     ["This one was designed by a madman."],
   ],
   musicTrack: MusicTrack.transient,
+  titleVariant: TitleVariant.Yellow,
 };

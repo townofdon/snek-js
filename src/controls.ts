@@ -25,26 +25,28 @@ import {
   KEYCODE_NUMPAD_4,
   KEYCODE_ALPHA_C,
   KEYCODE_ALPHA_L,
+  KEYCODE_ALPHA_R,
 } from './constants';
 import { AppMode, ClickState, DIR, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves } from "./types";
 import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "./utils";
 
 export interface InputCallbacks {
-  onHideStartScreen: () => void
-  onShowMainMenu: () => void
-  onConfirmShowMainMenu: () => void
-  onInit: () => void
-  onStartGame: (difficulty: number) => void
-  onToggleCasualMode: () => void
-  onShowLeaderboard: () => void
-  onEnterQuoteMode: () => void
-  onEnterOstMode: () => void
-  onPause: () => void
-  onUnpause: () => void
-  onWarpToLevel: (level: number) => void
-  onStartMoving: () => void
-  onStartRewinding: () => void
-  onAddMove: (move: DIR) => void
+  onHideStartScreen: () => void,
+  onShowMainMenu: () => void,
+  onConfirmShowMainMenu: () => void,
+  onInit: () => void,
+  onStartGame: (difficulty: number) => void,
+  onToggleCasualMode: () => void,
+  onShowLeaderboard: () => void,
+  onEnterQuoteMode: () => void,
+  onEnterOstMode: () => void,
+  onProceedToNextReplayClip: () => void,
+  onPause: () => void,
+  onUnpause: () => void,
+  onWarpToLevel: (level: number) => void,
+  onStartMoving: () => void,
+  onStartRewinding: () => void,
+  onAddMove: (move: DIR) => void,
 }
 
 interface HandleKeyPressedParams {
@@ -83,6 +85,7 @@ export function handleKeyPressed({
     onShowLeaderboard,
     onEnterQuoteMode,
     onEnterOstMode,
+    onProceedToNextReplayClip,
     onPause,
     onUnpause,
     onWarpToLevel,
@@ -124,6 +127,7 @@ export function handleKeyPressed({
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_QUOTE) onEnterQuoteMode();
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_M) onEnterOstMode();
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_L) onShowLeaderboard();
+    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_R) onProceedToNextReplayClip();
     else if (keyCode === KEYCODE_ALPHA_C) onToggleCasualMode();
     return;
   }
