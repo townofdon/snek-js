@@ -83,9 +83,9 @@ export class MusicPlayer {
       console.log(`[MusicPlayer] playing track=${track},volume=${volume}`);
     }
     try {
-      await playMusic(this.fullPath(track), { volume, loop: true, createAnalyser });
       this.tracksPlaying[track] = true;
       this.state.currentTrack = track;
+      await playMusic(this.fullPath(track), { volume, loop: true, createAnalyser });
     } catch (err) {
       console.error(err);
     }
