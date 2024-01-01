@@ -1576,7 +1576,9 @@ export const sketch = (p5: P5) => {
   }
 
   function drawKey(key: Key) {
-    if (key.channel === KeyChannel.Yellow) {
+    if (state.isShowingDeathColours) {
+      spriteRenderer.drawImage3x3(Image.KeyGrey, key.position.x, key.position.y);
+    } else if (key.channel === KeyChannel.Yellow) {
       spriteRenderer.drawImage3x3(Image.KeyYellow, key.position.x, key.position.y);
     } else if (key.channel === KeyChannel.Red) {
       spriteRenderer.drawImage3x3(Image.KeyRed, key.position.x, key.position.y);
@@ -1586,7 +1588,9 @@ export const sketch = (p5: P5) => {
   }
 
   function drawLock(lock: Lock) {
-    if (lock.channel === KeyChannel.Yellow) {
+    if (state.isShowingDeathColours) {
+      spriteRenderer.drawImage3x3(Image.LockGrey, lock.position.x, lock.position.y);
+    } else if (lock.channel === KeyChannel.Yellow) {
       spriteRenderer.drawImage3x3(Image.LockYellow, lock.position.x, lock.position.y);
     } else if (lock.channel === KeyChannel.Red) {
       spriteRenderer.drawImage3x3(Image.LockRed, lock.position.x, lock.position.y);

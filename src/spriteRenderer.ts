@@ -26,10 +26,11 @@ export class SpriteRenderer {
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
     [Image.SnekButt]: null,
-    [Image.Key]: null,
+    [Image.KeyGrey]: null,
     [Image.KeyYellow]: null,
     [Image.KeyRed]: null,
     [Image.KeyBlue]: null,
+    [Image.LockGrey]: null,
     [Image.LockYellow]: null,
     [Image.LockRed]: null,
     [Image.LockBlue]: null,
@@ -55,19 +56,24 @@ export class SpriteRenderer {
   }
 
   loadImages() {
-    this.loadImage(Image.ControlsKeyboardDelete);
-    this.loadImage(Image.ControlsKeyboardMove);
-    this.loadImage(Image.ControlsMouseLeft);
-    this.loadImage(Image.SnekHead);
-    this.loadImage(Image.SnekHeadDead);
-    this.loadImage(Image.SnekButt);
-    this.loadImage(Image.Key);
-    this.loadImage(Image.KeyYellow);
-    this.loadImage(Image.KeyRed);
-    this.loadImage(Image.KeyBlue);
-    this.loadImage(Image.LockYellow);
-    this.loadImage(Image.LockRed);
-    this.loadImage(Image.LockBlue);
+    try {
+      this.loadImage(Image.ControlsKeyboardDelete);
+      this.loadImage(Image.ControlsKeyboardMove);
+      this.loadImage(Image.ControlsMouseLeft);
+      this.loadImage(Image.SnekHead);
+      this.loadImage(Image.SnekHeadDead);
+      this.loadImage(Image.SnekButt);
+      this.loadImage(Image.KeyGrey);
+      this.loadImage(Image.KeyYellow);
+      this.loadImage(Image.KeyRed);
+      this.loadImage(Image.KeyBlue);
+      this.loadImage(Image.LockGrey);
+      this.loadImage(Image.LockYellow);
+      this.loadImage(Image.LockRed);
+      this.loadImage(Image.LockBlue);
+    } catch (err) {
+      console.error(err)
+    }
   }
 
   drawImage3x3(image: Image, x: number, y: number, rotation: number = 0) {
