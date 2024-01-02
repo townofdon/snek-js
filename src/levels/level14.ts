@@ -58,9 +58,11 @@ XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
     0: PortalExitMode.InvertDirection,
   },
   extraLoseMessages: [
-    ["Sneks were not meant to meddle in the ways of science."],
+    ["Snek was not meant to meddle in the ways of science."],
     ["This one was designed by a madman."],
+    ["Be careful, this level may tear a hole in the fabric of snektime."],
   ],
   musicTrack: MusicTrack.transient,
   titleVariant: TitleVariant.Yellow,
+  globalLight: 0.35,
 };

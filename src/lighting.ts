@@ -37,7 +37,8 @@ export function updateLighting(lightMap: number[], globalLight: number, playerPo
     for (let j = 0; j < portals[i as PortalChannel].length; j++) {
       const portalPosition = portals[i as PortalChannel][j];
       if (!portalPosition) continue;
-      addBlocklight(lightMap, portalPosition.x, portalPosition.y, { strength: 1 });
+      // addBlocklight(lightMap, portalPosition.x, portalPosition.y, { strength: 1 });
+      addSpotlight(lightMap, portalPosition.x, portalPosition.y, { strength: 0.5, radius: 0, falloff: 4 });
     }
   }
 }

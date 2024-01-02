@@ -30,6 +30,7 @@ import {
   HURT_GRACE_TIME,
   DIFFICULTY_EASY,
   DEBUG_EASY_LEVEL_EXIT,
+  DISABLE_TRANSITIONS,
   LIVES_LEFT_BONUS,
   PERFECT_BONUS,
   DEFAULT_PORTALS,
@@ -496,7 +497,7 @@ export const sketch = (p5: P5) => {
   function* startGameRoutine(difficultyIndex = 2): IEnumerator {
     const button = difficultyButtons[difficultyIndex];
     if (button) button.addClass('selected');
-    if (!DEBUG_EASY_LEVEL_EXIT) {
+    if (!DISABLE_TRANSITIONS) {
       yield* waitForTime(1000, (t) => {
         if (button) {
           const freq = .2;
@@ -612,7 +613,7 @@ export const sketch = (p5: P5) => {
   }
 
   function initLevel(shouldShowTransitions = true) {
-    if (DEBUG_EASY_LEVEL_EXIT) {
+    if (DISABLE_TRANSITIONS) {
       shouldShowTransitions = false;
     }
     if (replay.mode === ReplayMode.Playback) {
@@ -996,7 +997,7 @@ export const sketch = (p5: P5) => {
       state.isExited = true;
       if (replay.mode === ReplayMode.Playback) {
         proceedToNextReplayClip();
-      } else if (DEBUG_EASY_LEVEL_EXIT) {
+      } else if (DISABLE_TRANSITIONS) {
         gotoNextLevel();
       } else {
         const isPerfect = apples.length === 0 && state.lives === 3;
@@ -1878,7 +1879,7 @@ export const sketch = (p5: P5) => {
   function gotoNextLevel() {
     if (replay.mode === ReplayMode.Playback) return;
 
-    const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !DEBUG_EASY_LEVEL_EXIT;
+    const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !DISABLE_TRANSITIONS;
     stats.numLevelsCleared += 1;
     stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
