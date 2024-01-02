@@ -198,7 +198,7 @@ enum Action {
   FadeMusic = 'FadeMusic',
   ExecuteQuotesMode = 'ExecuteQuotesMode',
   SetTitleVariant = 'SetTitleVariant',
-  ChangeMusicSpeed = 'ChangeMusicSpeed'
+  ChangeMusicLowpass = 'ChangeMusicLowpass',
 }
 type ActionKey = keyof typeof Action
 
@@ -215,7 +215,7 @@ export const sketch = (p5: P5) => {
     [Action.FadeMusic]: null,
     [Action.ExecuteQuotesMode]: null,
     [Action.SetTitleVariant]: null,
-    [Action.ChangeMusicSpeed]: null,
+    [Action.ChangeMusicLowpass]: null,
   };
   const startAction = (enumerator: IEnumerator, actionKey: Action, force = false) => {
     if (!force && replay.mode === ReplayMode.Playback) {
@@ -1731,17 +1731,17 @@ export const sketch = (p5: P5) => {
     clearAction(Action.FadeMusic);
   }
 
-  function* changeMusicSpeed(toSpeed: number, duration: number): IEnumerator {
+  function* changeMusicLowpass(toFreq: number, duration: number, start?: number): IEnumerator {
     yield null;
-    const startSpeed = musicPlayer.getPlaybackRate(level.musicTrack);
+    const startFreq = start ?? musicPlayer.getLowpassFrequency();
     let t = 0;
     while (duration > 0 && t < 1) {
-      musicPlayer.setPlaybackRate(level.musicTrack, p5.lerp(startSpeed, toSpeed, Easing.inCubic(clamp(t, 0, 1))));
+      musicPlayer.setLowpassFrequency(p5.lerp(startFreq, toFreq, Easing.inCubic(clamp(t, 0, 1))));
       t += p5.deltaTime / duration;
       yield null;
     }
-    musicPlayer.setPlaybackRate(level.musicTrack, toSpeed);
-    clearAction(Action.ChangeMusicSpeed);
+    musicPlayer.setLowpassFrequency(toFreq);
+    clearAction(Action.ChangeMusicLowpass);
   }
 
   // I will buy a beer for whoever can decipher my spaghetticode
@@ -1794,7 +1794,7 @@ export const sketch = (p5: P5) => {
   function pause() {
     showPauseUI();
     sfx.play(Sound.unlock, 0.8);
-    startAction(changeMusicSpeed(0, 3000), Action.ChangeMusicSpeed, true);
+    startAction(changeMusicLowpass(0.05, 1500, 0.2), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(0.6, 2000), Action.FadeMusic, true);
   }
 
@@ -1802,7 +1802,7 @@ export const sketch = (p5: P5) => {
     clearUI();
     UI.hideSettingsMenu();
     sfx.play(Sound.unlock, 0.8);
-    startAction(changeMusicSpeed(1, 1500), Action.ChangeMusicSpeed, true);
+    startAction(changeMusicLowpass(1, 1500), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(1, 1000), Action.FadeMusic, true);
     modal.hide();
   }

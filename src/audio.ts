@@ -1,4 +1,5 @@
 import { MAX_GAIN_MUSIC } from "./constants";
+import { inverseLerp, lerp } from "./utils";
 
 const DEBUG_AUDIO = false;
 
@@ -16,14 +17,18 @@ export let audioContext: AudioContext = new AudioContext();
 const masterGainNode = audioContext.createGain();
 const sfxGainNode = audioContext.createGain();
 const musicGainNode = audioContext.createGain();
+const musicFilter = audioContext.createBiquadFilter();
 
 // wiring
 masterGainNode.connect(audioContext.destination);
 sfxGainNode.connect(masterGainNode);
-musicGainNode.connect(masterGainNode);
+musicGainNode.connect(musicFilter);
+musicFilter.connect(masterGainNode);
 
 // defaults
 musicGainNode.gain.value = MAX_GAIN_MUSIC;
+musicFilter.type = 'lowpass';
+musicFilter.frequency.value = audioContext.sampleRate * 0.5; // see: https://developer.mozilla.org/en-US/docs/Web/API/BiquadFilterNode/frequency
 
 export async function resumeAudioContext(): Promise<void> {
   if (!navigator.userActivation.hasBeenActive) return;
@@ -43,6 +48,10 @@ export function setSfxVolume(gain: number): void {
   sfxGainNode.gain.value = gain;
 }
 
+export function setMusicLowpassFrequency(normalizedFreq: number) {
+  musicFilter.frequency.value = lerp(musicFilter.frequency.minValue, musicFilter.frequency.maxValue, normalizedFreq);
+}
+
 export function getMasterVolume(): number {
   return masterGainNode.gain.value;
 }
@@ -53,6 +62,10 @@ export function getMusicVolume(): number {
 
 export function getSfxVolume(): number {
   return sfxGainNode.gain.value;
+}
+
+export function getMusicLowpassFrequency(): number {
+  return inverseLerp(musicFilter.frequency.minValue, musicFilter.frequency.maxValue, musicFilter.frequency.value);
 }
 
 export function getAnalyser(path: string): AnalyserNode | null {

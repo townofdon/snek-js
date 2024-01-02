@@ -1,7 +1,7 @@
-import { getAnalyser, getMusicVolume, loadAudioToBuffer, playMusic, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
+import { getAnalyser, getMusicLowpassFrequency, getMusicVolume, loadAudioToBuffer, playMusic, setMusicLowpassFrequency, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
 import { GameSettings, MusicTrack } from "./types";
 
-const DEBUG_MUSIC = true;
+const DEBUG_MUSIC = false;
 
 interface MusicPlayerState {
   currentTrack: MusicTrack | null
@@ -77,6 +77,7 @@ export class MusicPlayer {
       return;
     }
     this.normalSpeed(track);
+    this.setLowpassFrequency(1);
     if (this.tracksPlaying[track] && track === this.state.currentTrack) {
       if (DEBUG_MUSIC) console.warn(`[MusicPlayer][play] already playing track=${track}`);
       return;
@@ -162,6 +163,14 @@ export class MusicPlayer {
       return 0;
     }
     return this.state.playbackRate;
+  }
+
+  setLowpassFrequency = (normalizedFreq: number) => {
+    setMusicLowpassFrequency(normalizedFreq);
+  }
+
+  getLowpassFrequency = () => {
+    return getMusicLowpassFrequency();
   }
 
   load(track: MusicTrack) {
