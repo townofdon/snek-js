@@ -58,6 +58,7 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
       }
 
       const vec = p5.createVector(x, y);
+      const coord = getCoordIndex(vec);
 
       switch (char) {
         case 'X':
@@ -120,15 +121,15 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
           data.keys.push({ position: vec, channel: KeyChannel.Blue });
           break;
         case 'J':
-          data.locks.push({ position: vec, channel: KeyChannel.Yellow });
+          data.locks.push({ position: vec, channel: KeyChannel.Yellow, coord });
           data.decoratives2.push(vec);
           break;
         case 'K':
-          data.locks.push({ position: vec, channel: KeyChannel.Red });
+          data.locks.push({ position: vec, channel: KeyChannel.Red, coord });
           data.decoratives2.push(vec);
           break;
         case 'L':
-          data.locks.push({ position: vec, channel: KeyChannel.Blue });
+          data.locks.push({ position: vec, channel: KeyChannel.Blue, coord });
           data.decoratives2.push(vec);
           break;
 

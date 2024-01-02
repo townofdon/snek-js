@@ -192,7 +192,9 @@ export interface Key {
   position: Vector,
 }
 
-export interface Lock extends Key { }
+export interface Lock extends Key {
+  coord: number,
+}
 
 export interface LevelData {
   barriers: Vector[],

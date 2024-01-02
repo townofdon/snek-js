@@ -1,7 +1,7 @@
 import { getAnalyser, getMusicVolume, loadAudioToBuffer, playMusic, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
 import { GameSettings, MusicTrack } from "./types";
 
-const DEBUG_MUSIC = false;
+const DEBUG_MUSIC = true;
 
 interface MusicPlayerState {
   currentTrack: MusicTrack | null
@@ -69,6 +69,7 @@ export class MusicPlayer {
 
   async play(track?: MusicTrack, volume = 1, createAnalyser = false) {
     if (!navigator.userActivation.hasBeenActive) {
+      if (DEBUG_MUSIC) console.warn(`[MusicPlayer][play] user not yet active when trying to play track=${track}`);
       return;
     }
     if (!track) {
@@ -76,12 +77,11 @@ export class MusicPlayer {
       return;
     }
     this.normalSpeed(track);
-    if (this.tracksPlaying[track]) {
+    if (this.tracksPlaying[track] && track === this.state.currentTrack) {
+      if (DEBUG_MUSIC) console.warn(`[MusicPlayer][play] already playing track=${track}`);
       return;
     }
-    if (DEBUG_MUSIC) {
-      console.log(`[MusicPlayer] playing track=${track},volume=${volume}`);
-    }
+    if (DEBUG_MUSIC) console.log(`[MusicPlayer] playing track=${track},volume=${volume}`);
     try {
       this.tracksPlaying[track] = true;
       this.state.currentTrack = track;

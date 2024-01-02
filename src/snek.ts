@@ -612,7 +612,10 @@ export const sketch = (p5: P5) => {
   }
 
   function initLevel(shouldShowTransitions = true) {
-    if (replay.mode === ReplayMode.Playback || DEBUG_EASY_LEVEL_EXIT) {
+    if (DEBUG_EASY_LEVEL_EXIT) {
+      shouldShowTransitions = false;
+    }
+    if (replay.mode === ReplayMode.Playback) {
       shouldShowTransitions = false;
     } else {
       stopAllCoroutines();
@@ -1257,27 +1260,46 @@ export const sketch = (p5: P5) => {
     }
     for (let i = 0; i < locks.length; i++) {
       if (state.hasKeyYellow && locks[i].channel === KeyChannel.Yellow && isWithinBlockDistance(locks[i].position, player.position, 1)) {
-        unlockGate(KeyChannel.Yellow);
+        unlockGate(locks[i]);
         return;
       }
       if (state.hasKeyRed && locks[i].channel === KeyChannel.Red && isWithinBlockDistance(locks[i].position, player.position, 1)) {
-        unlockGate(KeyChannel.Red);
+        unlockGate(locks[i]);
         return;
       }
       if (state.hasKeyBlue && locks[i].channel === KeyChannel.Blue && isWithinBlockDistance(locks[i].position, player.position, 1)) {
-        unlockGate(KeyChannel.Blue);
+        unlockGate(locks[i]);
         return;
       }
     }
   }
 
-  function unlockGate(channel: KeyChannel) {
+  function unlockGate(lockTriggered: Lock) {
     playSound(Sound.doorOpenHuge);
-    locks = locks.filter((lock) => {
-      if (lock.channel === channel) {
-        locksMap[getCoordIndex(lock.position)] = null;
+    const group: Record<number, boolean> = {}
+    const directionsToCheck: Vector[] = [
+      dirToUnitVector(p5, DIR.LEFT),
+      dirToUnitVector(p5, DIR.RIGHT),
+      dirToUnitVector(p5, DIR.UP),
+      dirToUnitVector(p5, DIR.DOWN),
+    ]
+    const addTouchingLocksToGroup = (lock: Lock) => {
+      group[lock.coord] = true;
+      for (let i = 0; i < directionsToCheck.length; i++) {
+        const index = getCoordIndex(lock.position.copy().add(directionsToCheck[i]));
+        if (!group[index] && locksMap[index] && locksMap[index].channel === lockTriggered.channel) {
+          addTouchingLocksToGroup(locksMap[index]);
+        }
       }
-      return lock.channel !== channel;
+    }
+    addTouchingLocksToGroup(lockTriggered);
+    const coords = Object.keys(group).map(coordKey => parseInt(coordKey, 10));
+    locks = locks.filter((lock) => {
+      if (coords.includes(lock.coord)) {
+        locksMap[lock.coord] = null;
+        return false;
+      }
+      return true;
     });
     // TODO: ADD PARTICLE FX OR SOMETHING
   }
