@@ -22,6 +22,7 @@ const tracks: MusicTrack[] = [
   MusicTrack.lordy,
   MusicTrack.creeplord,
   MusicTrack.dangerZone,
+  MusicTrack.moneymaker,
 ];
 
 enum VisualizerMode {

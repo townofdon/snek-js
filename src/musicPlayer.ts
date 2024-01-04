@@ -36,7 +36,8 @@ export class MusicPlayer {
     [MusicTrack.champion]: false,
     [MusicTrack.dangerZone]: false,
     [MusicTrack.aqueduct]: false,
-    [MusicTrack.creeplord]: false
+    [MusicTrack.creeplord]: false,
+    [MusicTrack.moneymaker]: false,
   };
   private settings: GameSettings;
 

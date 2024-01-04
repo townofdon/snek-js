@@ -250,6 +250,18 @@ export function getTrackName(track?: MusicTrack) {
       return "Aqueduct";
     case MusicTrack.creeplord:
       return "Creeplord";
+    case MusicTrack.moneymaker:
+      // mothballs
+      // megamoth
+      // megamillions
+      // megagrav
+      // megamax
+      // antigrav
+      // gravysuit
+      // supersneker
+      // mechanik
+      // gravtech
+      return "Hightech";
     default:
       return "Unknown";
   }

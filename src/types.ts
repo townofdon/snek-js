@@ -285,6 +285,7 @@ export enum MusicTrack {
   dangerZone = '06-dangerzone.wav',
   aqueduct = '07-aqueduct.wav',
   creeplord = '08-creeplord.wav',
+  moneymaker = '09-snekmoney2.wav',
 }
 
 
