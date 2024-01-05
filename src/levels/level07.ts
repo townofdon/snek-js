@@ -47,6 +47,6 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   extraLoseMessages: [
     ["Hang in there, it gets harder."],
   ],
-  musicTrack: MusicTrack.lordy,
+  musicTrack: MusicTrack.factorio,
   globalLight: 0.75,
 };

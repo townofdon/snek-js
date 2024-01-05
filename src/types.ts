@@ -285,9 +285,9 @@ export enum MusicTrack {
   dangerZone = '06-dangerzone.wav',
   aqueduct = '07-aqueduct.wav',
   creeplord = '08-creeplord.wav',
-  moneymaker = '09-snekmoney2.wav',
+  moneymaker = '09-snekmoney3.wav',
+  factorio = '10-factorio.wav',
 }
-
 
 export enum Image {
   SnekHead = 'snek-head.png',

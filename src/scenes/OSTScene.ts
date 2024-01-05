@@ -20,6 +20,7 @@ const tracks: MusicTrack[] = [
   MusicTrack.aqueduct,
   MusicTrack.conquerer,
   MusicTrack.lordy,
+  MusicTrack.factorio,
   MusicTrack.creeplord,
   MusicTrack.dangerZone,
   MusicTrack.moneymaker,

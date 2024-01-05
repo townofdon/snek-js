@@ -38,6 +38,7 @@ export class MusicPlayer {
     [MusicTrack.aqueduct]: false,
     [MusicTrack.creeplord]: false,
     [MusicTrack.moneymaker]: false,
+    [MusicTrack.factorio]: false,
   };
   private settings: GameSettings;
 

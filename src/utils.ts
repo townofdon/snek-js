@@ -261,7 +261,10 @@ export function getTrackName(track?: MusicTrack) {
       // supersneker
       // mechanik
       // gravtech
-      return "Hightech";
+      // return "Badasp";
+      return "Supersnek";
+    case MusicTrack.factorio:
+      return "Manufactory";
     default:
       return "Unknown";
   }
