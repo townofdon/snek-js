@@ -113,23 +113,29 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
         // keys / locks
         case 'j':
           data.keys.push({ position: vec, channel: KeyChannel.Yellow });
+          data.nospawns.push(vec);
           break;
         case 'k':
           data.keys.push({ position: vec, channel: KeyChannel.Red });
+          data.nospawns.push(vec);
           break;
         case 'l':
           data.keys.push({ position: vec, channel: KeyChannel.Blue });
+          data.nospawns.push(vec);
           break;
         case 'J':
           data.locks.push({ position: vec, channel: KeyChannel.Yellow, coord });
+          data.nospawns.push(vec);
           data.decoratives2.push(vec);
           break;
         case 'K':
           data.locks.push({ position: vec, channel: KeyChannel.Red, coord });
+          data.nospawns.push(vec);
           data.decoratives2.push(vec);
           break;
         case 'L':
           data.locks.push({ position: vec, channel: KeyChannel.Blue, coord });
+          data.nospawns.push(vec);
           data.decoratives2.push(vec);
           break;
 

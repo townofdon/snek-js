@@ -505,6 +505,8 @@ export const sketch = (p5: P5) => {
           button.style('visibility', shouldShow ? 'visible' : 'hidden');
         }
       });
+    } else {
+      yield null;
     }
     stopReplay();
     level = START_LEVEL
@@ -718,7 +720,8 @@ export const sketch = (p5: P5) => {
           musicPlayer.play(level.musicTrack);
         })
     } else {
-      if (replay.mode !== ReplayMode.Playback && state.isGameStarted) {
+      if (replay.mode !== ReplayMode.Playback && (state.isGameStarted || state.isGameStarting)) {
+        musicPlayer.stopAllTracks();
         musicPlayer.play(level.musicTrack);
       }
       renderDifficultyUI();
