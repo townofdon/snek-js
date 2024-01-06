@@ -4,7 +4,7 @@ import Color from "color";
 
 export const TITLE = 'SNEK';
 
-export const SHOW_FPS = false;
+export const SHOW_FPS = true;
 export const DEBUG_EASY_LEVEL_EXIT = false;
 export const DISABLE_TRANSITIONS = true;
 export const RECORD_REPLAY_STATE = false;

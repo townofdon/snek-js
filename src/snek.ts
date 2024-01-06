@@ -511,8 +511,8 @@ export const sketch = (p5: P5) => {
     stopReplay();
     level = START_LEVEL
     setLevelIndexFromCurrentLevel();
-    initLevel()
     difficulty = getDifficultyFromIndex(difficultyIndex);
+    initLevel()
     state.isGameStarting = false;
     state.isGameStarted = true;
     replay.difficulty = { ...difficulty };

@@ -3,25 +3,26 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
-const name = 'gill bates'
+const name = 'SNEKBAIT'
 
 export const LEVEL_16: Level = {
   name,
-  timeToClear: 1000 * 60 * 1.3,
+  timeToClear: 1000 * 60 * 3.0,
   applesToClear: 60,
   numApplesStart: 10,
   growthMod: 0.2,
+  extraHurtGraceTime: 20,
   layout: `
 XXXXXXXXXXXX++KK++XXXXXXXXXXXX
-X~aaaa~dd~1X++KK++X3~dd~aaaa~X
-X~XXXXXXXXXXXXJJXXXXXXXXXXXX~X
-X~XX+X+__+X+XXJJXX+X+__+X+XX~X
-X~XX+X+__+X+XX__XX+X+__+X+XX~X
+X~aaaa~~~~1X++KK++X3~~~~aaaa~X
+X~XXXXXXXXXXXX__XXXXXXXXXXXX~X
+X~XX+X+__+X+XXLLXX+X+__+X+XX~X
+X~XX+X+__+X+XXLLXX+X+__+X+XX~X
 X~XXXXXXXXXXXX__XXXXXXXXXXXX~X
 X~X           --           X~X
 X~X XXXXXXXX==--==XXXXXXXX X~X
-X~X XXX~d~XX  --  XX~d~XXX X~X
-X~X X3+_j___-=--=-___k_+1X X~X
+X~X XXX~d~3X  --  X1~d~XXX X~X
+X~X KK+_l___-=--=-___k_+LL X~X
 X~X XXX~d~XX  --  XX~d~XXX X~X
 X~X XXXXXXXX==--==XXXXXXXX X~X
 X~X           --           X~X
@@ -54,8 +55,8 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     deco2Stroke: PALETTE.darkStar.deco2Stroke,
   },
   portalExitConfig: {
-    1: PortalExitMode.InvertDirection,
-    2: PortalExitMode.InvertDirection,
+    1: PortalExitMode.SameDirection,
+    2: PortalExitMode.SameDirection,
     3: PortalExitMode.SameDirection,
     4: PortalExitMode.SameDirection,
     5: PortalExitMode.SameDirection,
