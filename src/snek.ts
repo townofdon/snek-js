@@ -721,7 +721,7 @@ export const sketch = (p5: P5) => {
         })
     } else {
       if (replay.mode !== ReplayMode.Playback && (state.isGameStarted || state.isGameStarting)) {
-        musicPlayer.stopAllTracks();
+        if (DISABLE_TRANSITIONS) musicPlayer.stopAllTracks();
         musicPlayer.play(level.musicTrack);
       }
       renderDifficultyUI();
@@ -761,7 +761,7 @@ export const sketch = (p5: P5) => {
     }
 
     // add initial apples
-    const numApplesStart = level.numApplesStart || NUM_APPLES_START;
+    const numApplesStart = level.numApplesStart ?? NUM_APPLES_START;
     for (let i = 0; i < numApplesStart; i++) {
       addApple();
     }
@@ -1751,7 +1751,10 @@ export const sketch = (p5: P5) => {
   // I will buy a beer for whoever can decipher my spaghetticode
   const getRandomMessage = (numIterations = 0): string => {
     const allMessages = (loseMessages[state.levelIndex] || []).concat(level.disableNormalLoseMessages ? [] : loseMessages[-1]);
-    const relevantMessages = allMessages.filter(([message, callback]) => !callback || callback(state, stats, difficulty)).map((contents) => contents[0]);
+    const relevantMessages = allMessages.filter(([message, callback]) => {
+      if (callback) return callback(state, stats, difficulty);
+      return state.lastHurtBy !== HitType.HitLock && stats.numLevelsCleared <= 2;
+    }).map((contents) => contents[0]);
     if (relevantMessages.length <= 0) {
       if (numIterations > 0) {
         return "Death smiles at us all. All we can do is smile back.";
@@ -1798,7 +1801,7 @@ export const sketch = (p5: P5) => {
   function pause() {
     showPauseUI();
     sfx.play(Sound.unlock, 0.8);
-    startAction(changeMusicLowpass(0.05, 1500, 0.2), Action.ChangeMusicLowpass, true);
+    startAction(changeMusicLowpass(0.07, 1500, 0.2), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(0.6, 2000), Action.FadeMusic, true);
   }
 
@@ -1865,11 +1868,12 @@ export const sketch = (p5: P5) => {
     UI.drawButton("13", x, yRow3, () => warpToLevel(13), uiElements);
     UI.drawButton("14", x += offset, yRow3, () => warpToLevel(14), uiElements);
     UI.drawButton("15", x += offset, yRow3, () => warpToLevel(15), uiElements);
-    UI.drawButton("S1", x += offset, yRow3, () => warpToLevel(110), uiElements);
-    UI.drawButton("S2", x += offset, yRow3, () => warpToLevel(120), uiElements);
-    UI.drawButton("S3", x += offset, yRow3, () => warpToLevel(130), uiElements);
+    UI.drawButton("16", x += offset, yRow3, () => warpToLevel(16), uiElements);
     x = xInitial;
-    UI.drawButton("S4", x, yRow4, () => warpToLevel(140), uiElements);
+    UI.drawButton("S1", x, yRow4, () => warpToLevel(110), uiElements);
+    UI.drawButton("S2", x += offset, yRow4, () => warpToLevel(120), uiElements);
+    UI.drawButton("S3", x += offset, yRow4, () => warpToLevel(130), uiElements);
+    UI.drawButton("S4", x += offset, yRow4, () => warpToLevel(140), uiElements);
     UI.drawButton("LL", x += offset, yRow4, () => warpToLevel(99), uiElements);
   }
 

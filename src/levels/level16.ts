@@ -9,34 +9,35 @@ export const LEVEL_16: Level = {
   name,
   timeToClear: 1000 * 60 * 3.0,
   applesToClear: 60,
-  numApplesStart: 10,
+  numApplesStart: 0,
   growthMod: 0.2,
   extraHurtGraceTime: 20,
+  snakeStartSizeOverride: 5,
   layout: `
-XXXXXXXXXXXX++KK++XXXXXXXXXXXX
-X~aaaa~~~~1X++KK++X3~~~~aaaa~X
+XXXXXXXXXXXX+_KK_+XXXXXXXXXXXX
+X~aaaa~~~~1X+_KK_+X3~~~~aaaa~X
 X~XXXXXXXXXXXX__XXXXXXXXXXXX~X
 X~XX+X+__+X+XXLLXX+X+__+X+XX~X
 X~XX+X+__+X+XXLLXX+X+__+X+XX~X
 X~XXXXXXXXXXXX__XXXXXXXXXXXX~X
-X~X           --           X~X
+X~X    j      --           X~X
 X~X XXXXXXXX==--==XXXXXXXX X~X
-X~X XXX~d~3X  --  X1~d~XXX X~X
-X~X KK+_l___-=--=-___k_+LL X~X
-X~X XXX~d~XX  --  XX~d~XXX X~X
+X~X-X_~d~~3X  --  X1~~d~_X-X~X
+XJX=K+_l____-=--=-____k_+L=XJX
+X~X-XXXdXXXX  --  XXXXdXXX-X~X
 X~X XXXXXXXX==--==XXXXXXXX X~X
 X~X           --           X~X
 X~X           --           X~X
 XaX=-X~       --       ~X-=XaX
-XaX=-XX-=     --     =-XX-=XaX
+XaX=-XX-=--=O --  =--=-XX-=XaX
 XaX=-X~ -     --     - ~X-=XaX
 X~X  -  -     --     -  -  X~X
 X~X  =  - ~X  --  X~ -  =  X~X
-X~X     =-XX-=--=-XX-=     X~X
+X~X  -  =-XX-=--=-XX-=  -  X~X
 X~X  =  - ~X  --  X~ -  =  X~X
 X~X  -  -     --     -  -  X~X
 XaX=-X~ -     --     - ~X-=XaX
-XaX=-XX-=     --     =-XX-=XaX
+XaX=-XX-=--=  --  =--=-XX-=XaX
 XaX=-X~       --       ~X-=XaX
 X~X           --           X~X
 X~X           --           X~X

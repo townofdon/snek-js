@@ -50,4 +50,4 @@ export const LEVELS: Level[] = [
 
 export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;
 
-export const START_LEVEL = LEVEL_16;
+export const START_LEVEL = LEVEL_01;
