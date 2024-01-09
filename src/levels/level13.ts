@@ -54,6 +54,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
   extraLoseMessages: [
     ["This level really messes with your head, doesn't it?"],
   ],
-  musicTrack: MusicTrack.simpleTime,
+  musicTrack: MusicTrack.observer,
   titleVariant: TitleVariant.GrayBlue,
 };

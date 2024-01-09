@@ -43,5 +43,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: PALETTE.plumsea,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
-  musicTrack: MusicTrack.lordy,
+  musicTrack: MusicTrack.shopkeeper,
 };

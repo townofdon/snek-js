@@ -287,6 +287,10 @@ export enum MusicTrack {
   creeplord = '08-creeplord.wav',
   moneymaker = '09-snekmoney3.wav',
   factorio = '10-factorio.wav',
+  observer = '11-observer.wav',
+  skycastle = '12-skycastle.wav',
+  shopkeeper = '13-shopkeeper-storyteller.wav',
+  stonemaze = '14-stoneways-clausterphobia.wav',
 }
 
 export enum Image {

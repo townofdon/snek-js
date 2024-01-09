@@ -19,10 +19,14 @@ const tracks: MusicTrack[] = [
   MusicTrack.transient,
   MusicTrack.aqueduct,
   MusicTrack.conquerer,
+  MusicTrack.observer,
   MusicTrack.lordy,
   MusicTrack.factorio,
+  MusicTrack.skycastle,
   MusicTrack.creeplord,
   MusicTrack.dangerZone,
+  MusicTrack.stonemaze,
+  MusicTrack.shopkeeper,
   MusicTrack.moneymaker,
 ];
 

@@ -44,7 +44,7 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
   colors: PALETTE.forest,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
-  musicTrack: MusicTrack.champion,
+  musicTrack: MusicTrack.skycastle,
   titleVariant: TitleVariant.Green,
   globalLight: 0.9,
 };

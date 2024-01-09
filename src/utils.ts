@@ -268,6 +268,14 @@ export function getTrackName(track?: MusicTrack) {
       return "Supersnek";
     case MusicTrack.factorio:
       return "Manufactory";
+    case MusicTrack.observer:
+      return "Observer";
+    case MusicTrack.skycastle:
+      return "Skycastle";
+    case MusicTrack.shopkeeper:
+      return "Shopkeeper";
+    case MusicTrack.stonemaze:
+      return "Stones n Bones";
     default:
       return "Unknown";
   }

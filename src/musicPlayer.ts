@@ -39,6 +39,10 @@ export class MusicPlayer {
     [MusicTrack.creeplord]: false,
     [MusicTrack.moneymaker]: false,
     [MusicTrack.factorio]: false,
+    [MusicTrack.observer]: false,
+    [MusicTrack.skycastle]: false,
+    [MusicTrack.shopkeeper]: false,
+    [MusicTrack.stonemaze]: false,
   };
   private settings: GameSettings;
 

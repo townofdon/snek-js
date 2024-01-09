@@ -42,6 +42,6 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
 `,
   colors: PALETTE.panopticon,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
-  musicTrack: MusicTrack.transient,
+  musicTrack: MusicTrack.observer,
   titleVariant: TitleVariant.GrayBlue,
 };
