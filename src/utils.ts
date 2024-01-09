@@ -275,7 +275,7 @@ export function getTrackName(track?: MusicTrack) {
     case MusicTrack.shopkeeper:
       return "Shopkeeper";
     case MusicTrack.stonemaze:
-      return "Stones n Bones";
+      return "Darkstone";
     default:
       return "Unknown";
   }
