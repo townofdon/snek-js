@@ -277,6 +277,7 @@ export enum Sound {
 export type SoundVariants = Record<keyof typeof Sound, Howl>
 
 export enum MusicTrack {
+  None = '__NO_TRACK__',
   simpleTime = '01-simpletime.wav',
   conquerer = '02-conquerer.wav',
   transient = '03-transient.wav',

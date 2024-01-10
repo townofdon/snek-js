@@ -29,6 +29,7 @@ export class MusicPlayer {
     playbackRate: 1,
   }
   private tracksPlaying: Record<MusicTrack, boolean> = {
+    [MusicTrack.None]: false,
     [MusicTrack.simpleTime]: false,
     [MusicTrack.conquerer]: false,
     [MusicTrack.transient]: false,
@@ -86,6 +87,9 @@ export class MusicPlayer {
     this.setLowpassFrequency(1);
     if (this.tracksPlaying[track] && track === this.state.currentTrack) {
       if (DEBUG_MUSIC) console.warn(`[MusicPlayer][play] already playing track=${track}`);
+      return;
+    }
+    if (track === MusicTrack.None) {
       return;
     }
     if (DEBUG_MUSIC) console.log(`[MusicPlayer] playing track=${track},volume=${volume}`);

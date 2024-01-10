@@ -248,23 +248,12 @@ export function getTrackName(track?: MusicTrack) {
     case MusicTrack.champion:
       return "Snekmaster";
     case MusicTrack.dangerZone:
-      return "Dangerzone";
+      return "Sidewinder";
     case MusicTrack.aqueduct:
       return "Aqueduct";
     case MusicTrack.creeplord:
       return "Creeplord";
     case MusicTrack.moneymaker:
-      // mothballs
-      // megamoth
-      // megamillions
-      // megagrav
-      // megamax
-      // antigrav
-      // gravysuit
-      // supersneker
-      // mechanik
-      // gravtech
-      // return "Badasp";
       return "Supersnek";
     case MusicTrack.factorio:
       return "Manufactory";
