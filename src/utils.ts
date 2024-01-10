@@ -230,6 +230,7 @@ export function parseUrlQueryParams(): QueryParams {
   const params: QueryParams = {
     enableQuoteMode: query.get("enableQuoteMode")?.toLowerCase() === 'true',
     enableWarp: query.get("enableWarp")?.toLowerCase() === 'true',
+    showFps: query.get("showFps")?.toLowerCase() === 'true',
   }
   return params;
 }

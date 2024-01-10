@@ -18,6 +18,7 @@ export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, null
 export interface QueryParams {
   enableWarp: boolean,
   enableQuoteMode: boolean,
+  showFps: boolean,
 }
 
 export enum AppMode {

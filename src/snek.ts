@@ -857,7 +857,7 @@ export const sketch = (p5: P5) => {
 
     renderer.drawTutorialMoveControls();
     renderer.drawTutorialRewindControls(player.position, canRewind);
-    renderer.drawFps();
+    renderer.drawFps(queryParams.showFps);
     if (!state.isGameStarted) leaderboardScene.draw();
 
     if (state.isLost) return;

@@ -183,3 +183,4 @@ export const PORTAL_CHANNEL_COLORS: Record<PortalChannel, string> = {
   9: filter("#aafbd6"),
   0: filter("#fbecaa"),
 };
+export const NUM_PORTAL_GRADIENT_COLORS = 4;

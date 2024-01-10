@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
-import { AppMode, DIR, FontsInstance, GameState, HitType, Image, Portal, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
-import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, IS_DEV, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, SHOW_FPS, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
+import { DIR, FontsInstance, GameState, HitType, Image, Portal, PortalChannel, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
+import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, NUM_PORTAL_GRADIENT_COLORS, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, SHOW_FPS, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
 import { clamp, oscilateLinear } from "./utils";
 import { SpriteRenderer } from "./spriteRenderer";
 import Color from "color";
@@ -28,6 +28,9 @@ export class Renderer {
   elapsed = 0
   lightColorMap: Record<string, string> = {}
   darkColorMap: Record<string, string> = {}
+
+  portalCachedColorsFG: string[][] = []
+  portalCachedColorsBG: string[][] = []
 
   constructor(props: RendererConstructorProps) {
     this.props = props;
@@ -298,16 +301,19 @@ export class Renderer {
     const delay = portal.index * PORTAL_INDEX_DELAY;
     const t1 = oscilateLinear((this.elapsed + delay) / (PORTAL_FADE_DURATION));
     const t2 = oscilateLinear((this.elapsed + delay) / (PORTAL_FADE_DURATION * 0.5));
-    const accent = showDeathColours ? "#ccc" : PORTAL_CHANNEL_COLORS[portal.channel];
-    const background = showDeathColours ? "#555" : p5.lerpColor(p5.color("#000000"), p5.color(accent), t2).toString();
-    const color = p5.lerpColor(p5.color(accent), p5.color("#000"), t1).toString();
+    const [color, background] = showDeathColours
+      ? [p5.lerpColor(p5.color("#ccc"), p5.color("#000"), t1).toString(), "#555"]
+      : this.lookupPortalColors(portal.channel, t1, t2);
     this.drawSquare(portal.position.x, portal.position.y, background, color);
+    // const accent = showDeathColours ? "#ccc" : PORTAL_CHANNEL_COLORS[portal.channel];
+    // const background = showDeathColours ? "#555" : p5.lerpColor(p5.color("#000000"), p5.color(accent), t2).toString();
+    // const color = p5.lerpColor(p5.color(accent), p5.color("#000"), t1).toString();
+    // this.drawSquare(portal.position.x, portal.position.y, background, color);
   }
 
   private fpsFrames: number[] = [];
-  drawFps = () => {
-    if (!IS_DEV) return;
-    if (!SHOW_FPS) return;
+  drawFps = (showFpsFromQueryParams: boolean) => {
+    if (!SHOW_FPS && !showFpsFromQueryParams) return;
     const { p5, fonts } = this.props;
     const textX = BLOCK_SIZE.x * (25);
     const textY = BLOCK_SIZE.y * (1);
@@ -349,5 +355,31 @@ export class Renderer {
       return this.darkColorMap[color];
     }
     return color;
+  }
+
+  private lookupPortalColors = (channel: PortalChannel, t1: number, t2: number): [string, string] => {
+    if (!this.portalCachedColorsBG?.length || !this.portalCachedColorsFG?.length) {
+      this.hydratePortalCachedColors();
+    }
+    return [
+      this.portalCachedColorsFG[channel][Math.min(Math.floor(t1 * NUM_PORTAL_GRADIENT_COLORS), NUM_PORTAL_GRADIENT_COLORS - 1)] || "#FFC0CB",
+      this.portalCachedColorsBG[channel][Math.min(Math.floor(t2 * NUM_PORTAL_GRADIENT_COLORS), NUM_PORTAL_GRADIENT_COLORS - 1)] || "#FFC0CB",
+    ];
+  }
+
+  private hydratePortalCachedColors = () => {
+    const { p5 } = this.props;
+    for (let i: PortalChannel = 0; i <= 9; i++) {
+      this.portalCachedColorsFG[i] = [];
+      this.portalCachedColorsBG[i] = [];
+      for (let j = 0; j < NUM_PORTAL_GRADIENT_COLORS; j++) {
+        const t = j / (NUM_PORTAL_GRADIENT_COLORS - 1);
+        const accent = PORTAL_CHANNEL_COLORS[i as PortalChannel];
+        const color = p5.lerpColor(p5.color(accent), p5.color("#000"), t).toString();
+        const background = p5.lerpColor(p5.color("#000000"), p5.color(accent), t).toString();
+        this.portalCachedColorsFG[i][j] = color;
+        this.portalCachedColorsBG[i][j] = background;
+      }
+    }
   }
 }

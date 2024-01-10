@@ -64,5 +64,5 @@ XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
   ],
   musicTrack: MusicTrack.moneymaker,
   titleVariant: TitleVariant.Yellow,
-  globalLight: 0.35,
+  // globalLight: 0.35,
 };
