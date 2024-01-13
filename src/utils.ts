@@ -266,6 +266,8 @@ export function getTrackName(track?: MusicTrack) {
       return "Shopkeeper";
     case MusicTrack.stonemaze:
       return "Darkstone";
+    case MusicTrack.woorb:
+      return "Hightech";
     default:
       return "Unknown";
   }

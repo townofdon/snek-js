@@ -62,7 +62,7 @@ XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
     ["This one was designed by a madman."],
     ["Be careful, this level may tear a hole in the fabric of snektime."],
   ],
-  musicTrack: MusicTrack.moneymaker,
+  musicTrack: MusicTrack.observer,
   titleVariant: TitleVariant.Yellow,
   // globalLight: 0.35,
 };

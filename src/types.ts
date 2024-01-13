@@ -293,6 +293,7 @@ export enum MusicTrack {
   skycastle = '12-skycastle.wav',
   shopkeeper = '13-shopkeeper-storyteller.wav',
   stonemaze = '14-stoneways-clausterphobia.wav',
+  woorb = '15-woorb.wav',
 }
 
 export enum Image {
