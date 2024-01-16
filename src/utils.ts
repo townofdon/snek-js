@@ -253,7 +253,7 @@ export function getTrackName(track?: MusicTrack) {
     case MusicTrack.aqueduct:
       return "Aqueduct";
     case MusicTrack.creeplord:
-      return "Creeplord";
+      return "Underlair";
     case MusicTrack.moneymaker:
       return "Supersnek";
     case MusicTrack.factorio:
@@ -268,6 +268,8 @@ export function getTrackName(track?: MusicTrack) {
       return "Darkstone";
     case MusicTrack.woorb:
       return "Hightech";
+    case MusicTrack.gravy:
+      return "Snekraid";
     default:
       return "Unknown";
   }

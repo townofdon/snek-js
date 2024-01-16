@@ -277,6 +277,7 @@ export enum Sound {
 
 export type SoundVariants = Record<keyof typeof Sound, Howl>
 
+
 export enum MusicTrack {
   None = '__NO_TRACK__',
   simpleTime = '01-simpletime.wav',
@@ -294,6 +295,7 @@ export enum MusicTrack {
   shopkeeper = '13-shopkeeper-storyteller.wav',
   stonemaze = '14-stoneways-clausterphobia.wav',
   woorb = '15-woorb.wav',
+  gravy = "16-gravy.wav"
 }
 
 export enum Image {

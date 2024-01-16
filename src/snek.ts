@@ -986,7 +986,7 @@ export const sketch = (p5: P5) => {
       state.isExitingLevel = true;
       winLevelScene.reset();
       if (replay.mode !== ReplayMode.Playback) {
-        musicPlayer.stopAllTracks();
+        startAction(fadeMusic(0, 1000), Action.FadeMusic);
         playSound(Sound.winLevel);
       }
     }
@@ -1016,6 +1016,7 @@ export const sketch = (p5: P5) => {
           hasAllApples,
           isCasualModeEnabled: state.isCasualModeEnabled,
           onApplyScore: () => {
+            musicPlayer.stopAllTracks();
             const perfectBonus = isPerfect ? getPerfectBonus() : 0;
             const allApplesBonus = (!isPerfect && hasAllApples) ? getAllApplesBonus() : 0;
             addPoints(getLevelClearBonus() + getLivesLeftBonus() * state.lives + perfectBonus + allApplesBonus);
@@ -1255,7 +1256,7 @@ export const sketch = (p5: P5) => {
       keys = keys.filter(key => key.channel !== KeyChannel.Blue);
     }
     keysMap[index] = null;
-    playSound(Sound.pickup, 0.55);
+    playSound(Sound.pickup, 0.35);
   }
 
   function handleUnlock() {
@@ -1722,13 +1723,13 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  function* fadeMusic(toVolume: number, duration: number): IEnumerator {
+  function* fadeMusic(toVolume: number, durationMs: number): IEnumerator {
     yield null;
     const startVolume = musicPlayer.getVolume();
     let t = 0;
-    while (duration > 0 && t < 1) {
+    while (durationMs > 0 && t < 1) {
       musicPlayer.setVolume(p5.lerp(startVolume, toVolume, Easing.inOutCubic(clamp(t, 0, 1))));
-      t += p5.deltaTime / duration;
+      t += p5.deltaTime / durationMs;
       yield null;
     }
     musicPlayer.setVolume(toVolume);

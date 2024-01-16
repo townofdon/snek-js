@@ -28,6 +28,7 @@ const tracks: MusicTrack[] = [
   MusicTrack.stonemaze,
   MusicTrack.shopkeeper,
   MusicTrack.woorb,
+  MusicTrack.gravy,
   MusicTrack.moneymaker,
 ];
 
