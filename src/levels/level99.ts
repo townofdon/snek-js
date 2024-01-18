@@ -2,7 +2,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 
-const name = 'darkstar';
+const name = 'survive!';
 
 export const LEVEL_99: Level = {
   name,

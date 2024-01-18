@@ -255,7 +255,7 @@ export function getTrackName(track?: MusicTrack) {
     case MusicTrack.creeplord:
       return "Underlair";
     case MusicTrack.moneymaker:
-      return "Supersnek";
+      return "Outlast";
     case MusicTrack.factorio:
       return "Manufactory";
     case MusicTrack.observer:
@@ -263,7 +263,7 @@ export function getTrackName(track?: MusicTrack) {
     case MusicTrack.skycastle:
       return "Skycastle";
     case MusicTrack.shopkeeper:
-      return "Shopkeeper";
+      return "Loomspin";
     case MusicTrack.stonemaze:
       return "Darkstone";
     case MusicTrack.woorb:
