@@ -50,5 +50,5 @@ XXXXXX33XXXXXXLLXXXXXX33XXXXXX
   ],
   showQuoteOnLevelWin: false,
   titleVariant: TitleVariant.Red,
-  musicTrack: MusicTrack.dangerZone,
+  musicTrack: MusicTrack.moneymaker,
 };
