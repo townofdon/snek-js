@@ -18,8 +18,8 @@ X            ----===0X8----9XX
 X            --XXXXXXX8====9XX
 X            --X7===8XXXXXXXXX
 X-=  =-      --X7---8XX~_l_~XX
-X-    -XXXXXXXLX7===8XX_K_K_XX
-X_    _X6===7XLXXXXXXXXK_K_KXX
+X-    -XXXXXXXLX7===8XXJKKKJXX
+X_    _X6===7XLXXXXXXXXJJKJJXX
 X__--__X6---7X---      -=-=-XX
 XXXXXXXX6===7X---       -=- XX
 X5====6XXXXXXX---           XX

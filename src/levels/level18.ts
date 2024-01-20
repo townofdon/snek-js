@@ -3,7 +3,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
-const name = 'COMPUTER ROOM'
+const name = 'computer room'
 
 export const LEVEL_18: Level = {
   name,

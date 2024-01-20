@@ -855,6 +855,7 @@ export const sketch = (p5: P5) => {
     drawPlayerHead(player.position);
     drawParticles(10);
 
+    renderer.drawUIKeys();
     renderer.drawTutorialMoveControls();
     renderer.drawTutorialRewindControls(player.position, canRewind);
     renderer.drawFps(queryParams.showFps);

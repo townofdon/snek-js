@@ -313,6 +313,10 @@ export enum Image {
   LockYellow = 'snek-lock-yellow.png',
   LockRed = 'snek-lock-red.png',
   LockBlue = 'snek-lock-blue.png',
+  UIKeyGrey = 'snek-smkey2-grey.png',
+  UIKeyYellow = 'snek-smkey2-yellow.png',
+  UIKeyRed = 'snek-smkey2-red.png',
+  UIKeyBlue = 'snek-smkey2-blue.png',
 }
 
 export interface Scene {

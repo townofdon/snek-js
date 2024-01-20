@@ -292,6 +292,38 @@ export class Renderer {
     spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY);
   }
 
+  drawUIKeys = () => {
+    const { p5, gameState, spriteRenderer, replay } = this.props;
+
+    if (replay.mode === ReplayMode.Playback) return;
+    if (gameState.isGameWon) return;
+    if (!gameState.isGameStarted) return;
+    if (!gameState.hasKeyYellow && !gameState.hasKeyRed && !gameState.hasKeyBlue) return;
+
+    const x0 = BLOCK_SIZE.x * 29 - STROKE_SIZE * 0.5;
+    const y0 = BLOCK_SIZE.y * 1 - STROKE_SIZE * 0.5;
+    const x1 = x0 + BLOCK_SIZE.x * 1 + STROKE_SIZE * 0.5;
+    const y1 = y0 + BLOCK_SIZE.y * 3 + STROKE_SIZE * 0.5;
+    p5.fill("#00000099");
+    p5.noStroke();
+    p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+
+    const imgX = BLOCK_SIZE.x * 29 + 1;
+    const imgY = BLOCK_SIZE.y * 1 + 1;
+
+    if (gameState.hasKeyYellow) {
+      spriteRenderer.drawImage(Image.UIKeyYellow, imgX, imgY);
+    }
+
+    if (gameState.hasKeyRed) {
+      spriteRenderer.drawImage(Image.UIKeyRed, imgX, imgY + BLOCK_SIZE.y);
+    }
+
+    if (gameState.hasKeyBlue) {
+      spriteRenderer.drawImage(Image.UIKeyBlue, imgX, imgY + BLOCK_SIZE.y * 2);
+    }
+  }
+
   /**
    * Draw portal
    */
