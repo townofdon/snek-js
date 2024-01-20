@@ -60,6 +60,7 @@ interface HandleKeyPressedParams {
   recentInputTimes: RecentMoveTimes,
   checkWillHit: (dir: DIR, numMoves?: number) => boolean,
   callbacks: InputCallbacks,
+  ev?: KeyboardEvent,
 }
 
 export function handleKeyPressed({
@@ -73,6 +74,7 @@ export function handleKeyPressed({
   recentInputTimes,
   checkWillHit,
   callbacks,
+  ev,
 }: HandleKeyPressedParams) {
   const { keyCode, ENTER, ESCAPE, SHIFT, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   const {

@@ -128,6 +128,9 @@ const stats: Stats = {
   applesEatenThisLevel: 0,
   totalTimeElapsed: 0,
 }
+const metrics = {
+  gameLoopProcessingTime: 0,
+}
 const player: PlayerState = {
   position: null,
   direction: DIR.RIGHT,
@@ -290,14 +293,14 @@ export const sketch = (p5: P5) => {
    */
   p5.draw = draw;
   function draw() {
-    handleDraw();
+    gameLoop();
   }
 
   /**
    * https://p5js.org/reference/#/p5/keyPressed
    */
   p5.keyPressed = keyPressed;
-  function keyPressed() {
+  function keyPressed(ev?: KeyboardEvent) {
     state.timeSinceLastInput = 0;
     resumeAudioContext();
     handleKeyPressed({
@@ -327,7 +330,8 @@ export const sketch = (p5: P5) => {
         onEnterOstMode: enterOstMode,
         onShowLeaderboard: showLeaderboard,
         onProceedToNextReplayClip: proceedToNextReplayClip,
-      }
+      },
+      ev,
     });
   }
 
@@ -768,7 +772,9 @@ export const sketch = (p5: P5) => {
     resetLightmap(lightMap, level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
   }
 
-  function handleDraw() {
+  function gameLoop() {
+    const timeFrameStart = performance.now();
+
     actions.tick();
 
     if (state.isPaused) return;
@@ -816,9 +822,7 @@ export const sketch = (p5: P5) => {
       drawLock(locks[i])
     }
 
-    if (replay.mode === ReplayMode.Capture) {
-      renderer.drawCaptureMode();
-    }
+    renderer.drawCaptureMode();
 
     const applesMap: Record<string, number> = {};
     for (let i = 0; i < apples.length; i++) {
@@ -858,7 +862,7 @@ export const sketch = (p5: P5) => {
     renderer.drawUIKeys();
     renderer.drawTutorialMoveControls();
     renderer.drawTutorialRewindControls(player.position, canRewind);
-    renderer.drawFps(queryParams.showFps);
+    renderer.drawFps(queryParams.showFps, metrics.gameLoopProcessingTime);
     if (!state.isGameStarted) leaderboardScene.draw();
 
     if (state.isLost) return;
@@ -873,6 +877,7 @@ export const sketch = (p5: P5) => {
       increaseSpeed();
       playSound(Sound.eat);
     }
+    apples = apples.filter(apple => !!apple);
 
     handlePortalTravel();
     handleKeyPickup();
@@ -880,41 +885,7 @@ export const sketch = (p5: P5) => {
 
     const didHit = checkHasHit(player.position);
     state.isLost = didHit;
-
-    apples = apples.filter(apple => !!apple);
-
-    // handle snake hurt
-    if (state.isLost && state.lives > 0) {
-      state.isLost = false;
-      if (state.isCasualModeEnabled && replay.mode !== ReplayMode.Playback) {
-        state.isMoving = false;
-      } else {
-        state.lives -= 1;
-      }
-      state.timeSinceHurt = 0;
-      if (difficulty.index === 4) {
-        state.currentSpeed = 1;
-      } else {
-        state.currentSpeed = 2;
-      }
-      flashScreen();
-      startScreenShake();
-      renderHeartsUI();
-      spawnHurtParticles();
-      hurtSnake();
-      startAction(duckMusicOnHurt(), Action.FadeMusic);
-      switch (state.lives) {
-        case 2:
-          playSound(Sound.hurt1);
-          break;
-        case 1:
-          playSound(Sound.hurt2);
-          break;
-        case 0:
-          playSound(Sound.hurt3);
-          break;
-      }
-    }
+    handleSnakeDamage(state.isLost && state.lives > 0);
 
     // handle snake death
     if (state.isLost) {
@@ -926,132 +897,28 @@ export const sketch = (p5: P5) => {
       return;
     }
 
-    // handle snake movement
-    if (state.isMoving && replay.mode !== ReplayMode.Playback) {
-      const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
-      if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
-        const normalizedSpeed = clamp(difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
-        const didMove = movePlayer(normalizedSpeed);
-        if (didMove && replay.mode === ReplayMode.Capture) {
-          replay.positions[state.frameCount] = [player.position.x, player.position.y];
-        }
-        if (state.isExitingLevel) {
-          if (!state.isExited) incrementScoreWhileExitingLevel();
-          renderScoreUI();
-        }
-      } else {
-        state.timeSinceLastMove += p5.deltaTime;
-      }
-      updateCurrentMoveSpeed();
-      stats.totalTimeElapsed += p5.deltaTime;
-    }
+    const didMove = handleSnakeMovement();
 
-    // handle snake rewind
-    if (state.isRewinding && replay.mode === ReplayMode.Disabled) {
-      const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
-      if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
-        rewindPlayer();
-      } else {
-        state.timeSinceLastMove += p5.deltaTime;
-      }
-      updateCurrentMoveSpeed();
-    }
+    handleSnakeRewind();
 
     // tick time elapsed
     if (state.isMoving || replay.mode === ReplayMode.Playback) {
       state.timeElapsed += p5.deltaTime;
     }
 
-    // handle snake movement during replay
-    if (replay.mode === ReplayMode.Playback && !didHit) {
-      const position: [number, number] | undefined = replay.positions[state.frameCount];
-      if (position != undefined) {
-        moveSegments();
-        player.position.set(position[0], position[1])
-        player.direction = getDirectionToFirstSegment();
-      }
-    }
-
-    // capture snake movement after hit and rebound
-    if (replay.mode === ReplayMode.Capture && didHit) {
-      replay.positions[state.frameCount] = [player.position.x, player.position.y];
-    }
+    handleSnakeMovementDuringReplay(didHit);
+    handleCaptureReplayInfo(didMove, didHit);
 
     if (getHasClearedLevel() && !state.isDoorsOpen) {
       openDoors();
       playSound(Sound.doorOpen);
     }
 
-    // handle snake exit start
-    if (!state.isExitingLevel && !state.isGameWon && getHasSegmentExited(player.position)) {
-      state.isExitingLevel = true;
-      winLevelScene.reset();
-      if (replay.mode !== ReplayMode.Playback) {
-        startAction(fadeMusic(0, 1000), Action.FadeMusic);
-        playSound(Sound.winLevel);
-      }
-    }
-
-    if (state.isExitingLevel && replay.mode !== ReplayMode.Playback) {
-      winLevelScene.draw();
-    }
-
-    // handle snake exit finish
-    if (!state.isExited && !state.isGameWon && segments.every(segment => getHasSegmentExited(segment))) {
-      state.isExited = true;
-      if (replay.mode === ReplayMode.Playback) {
-        proceedToNextReplayClip();
-      } else if (DISABLE_TRANSITIONS) {
-        gotoNextLevel();
-      } else {
-        const isPerfect = apples.length === 0 && state.lives === 3;
-        const hasAllApples = apples.length === 0;
-        winLevelScene.triggerLevelExit({
-          score: stats.score,
-          levelClearBonus: getLevelClearBonus(),
-          livesLeftBonus: getLivesLeftBonus(),
-          allApplesBonus: getAllApplesBonus(),
-          perfectBonus: getPerfectBonus(),
-          livesLeft: state.lives,
-          isPerfect,
-          hasAllApples,
-          isCasualModeEnabled: state.isCasualModeEnabled,
-          onApplyScore: () => {
-            musicPlayer.stopAllTracks();
-            const perfectBonus = isPerfect ? getPerfectBonus() : 0;
-            const allApplesBonus = (!isPerfect && hasAllApples) ? getAllApplesBonus() : 0;
-            addPoints(getLevelClearBonus() + getLivesLeftBonus() * state.lives + perfectBonus + allApplesBonus);
-            renderScoreUI();
-          },
-        });
-      }
-    }
-
-    // handle snake teleport on game win
-    if (state.isGameWon) {
-      const WIN_SCREEN_TELEPORT_PADDING = 2;
-      const WIN_SCREEN_TELEPORT_BOUNDS = {
-        min: {
-          x: 0 - WIN_SCREEN_TELEPORT_PADDING,
-          y: 0 - WIN_SCREEN_TELEPORT_PADDING,
-        },
-        max: {
-          x: GRIDCOUNT.x + WIN_SCREEN_TELEPORT_PADDING,
-          y: GRIDCOUNT.y + WIN_SCREEN_TELEPORT_PADDING,
-        },
-      }
-      const bounds = WIN_SCREEN_TELEPORT_BOUNDS;
-      if (player.position.x < bounds.min.x) {
-        player.position.x = bounds.max.x;
-      } else if (player.position.x > bounds.max.x) {
-        player.position.x = bounds.min.x;
-      } else if (player.position.y < bounds.min.y) {
-        player.position.y = bounds.max.y;
-      } else if (player.position.y > bounds.max.y) {
-        player.position.y = bounds.min.y;
-      }
-      winGameScene.draw();
-    }
+    handleSnakeExitLevelStart();
+    handleSnakeExitLevelMoveTick(didMove);
+    handleSnakeExitLevelUI();
+    handleSnakeExitLevelFinish();
+    handleTeleportOnGameWin();
 
     state.timeSinceHurt += p5.deltaTime;
     state.timeSinceLastInput += p5.deltaTime;
@@ -1061,6 +928,8 @@ export const sketch = (p5: P5) => {
       recentInputTimes[i] += p5.deltaTime;
     }
     renderer.tick();
+
+    metrics.gameLoopProcessingTime = performance.now() - timeFrameStart;
   }
 
   function getTimeNeededUntilNextMove() {
@@ -1310,6 +1179,23 @@ export const sketch = (p5: P5) => {
     // TODO: ADD PARTICLE FX OR SOMETHING
   }
 
+  function handleSnakeMovement() {
+    if (!state.isMoving) return;
+    if (replay.mode === ReplayMode.Playback) return;
+
+    let didMove = false;
+    const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
+    if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
+      const normalizedSpeed = clamp(difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
+      didMove = movePlayer(normalizedSpeed);
+    } else {
+      state.timeSinceLastMove += p5.deltaTime;
+    }
+    updateCurrentMoveSpeed();
+    stats.totalTimeElapsed += p5.deltaTime;
+    return didMove;
+  }
+
   function movePlayer(normalizedSpeed = 0): boolean {
     if (!state.isMoving) return false;
     if (state.isExited) return false;
@@ -1360,6 +1246,19 @@ export const sketch = (p5: P5) => {
     }
   }
 
+  function handleSnakeRewind() {
+    if (!state.isRewinding) return;
+    if (replay.mode !== ReplayMode.Disabled) return;
+
+    const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
+    if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
+      rewindPlayer();
+    } else {
+      state.timeSinceLastMove += p5.deltaTime;
+    }
+    updateCurrentMoveSpeed();
+  }
+
   function rewindPlayer() {
     if (!state.isRewinding) return;
     if (state.isExited) return;
@@ -1372,15 +1271,156 @@ export const sketch = (p5: P5) => {
     player.direction = getDirectionToFirstSegment();
   }
 
-  /**
-   * actions to apply when snake has taken damage
-   */
-  function hurtSnake() {
+  function handleSnakeMovementDuringReplay(didHit: boolean) {
+    if (didHit) return;
+    if (replay.mode !== ReplayMode.Playback) return;
+    const position: [number, number] | undefined = replay.positions[state.frameCount];
+    if (position != undefined) {
+      moveSegments();
+      player.position.set(position[0], position[1])
+      player.direction = getDirectionToFirstSegment();
+    }
+  }
+
+  function handleCaptureReplayInfo(didMove: boolean, didHit: boolean) {
+    if (state.isCasualModeEnabled) return;
+    if (!state.isMoving) return;
+    if (replay.mode !== ReplayMode.Capture) return;
+    if (didMove) {
+      replay.positions[state.frameCount] = [player.position.x, player.position.y];
+    }
+    // capture snake movement after hit and rebound
+    if (didHit) {
+      replay.positions[state.frameCount] = [player.position.x, player.position.y];
+    }
+  }
+
+  function handleSnakeExitLevelStart() {
+    if (state.isGameWon) return;
+    if (state.isExitingLevel) return;
+    if (!getHasSegmentExited(player.position)) return;
+
+    state.isExitingLevel = true;
+    winLevelScene.reset();
+    if (replay.mode !== ReplayMode.Playback) {
+      startAction(fadeMusic(0, 1000), Action.FadeMusic);
+      playSound(Sound.winLevel);
+    }
+  }
+
+  function handleSnakeExitLevelMoveTick(didMove: boolean) {
+    if (!didMove) return;
+    if (!state.isExitingLevel) return;
+    if (state.isExited) return;
+
+    incrementScoreWhileExitingLevel();
+    renderScoreUI();
+  }
+
+  function handleSnakeExitLevelUI() {
+    if (state.isExitingLevel && replay.mode !== ReplayMode.Playback) {
+      winLevelScene.draw();
+    }
+  }
+
+  function handleSnakeExitLevelFinish() {
+    if (!state.isExitingLevel) return;
+    if (state.isExited) return;
+    if (state.isGameWon) return;
+    if (!segments.every(segment => getHasSegmentExited(segment))) return;
+
+    state.isExited = true;
+    if (replay.mode === ReplayMode.Playback) {
+      proceedToNextReplayClip();
+    } else if (DISABLE_TRANSITIONS) {
+      gotoNextLevel();
+    } else {
+      const isPerfect = apples.length === 0 && state.lives === 3;
+      const hasAllApples = apples.length === 0;
+      winLevelScene.triggerLevelExit({
+        score: stats.score,
+        levelClearBonus: getLevelClearBonus(),
+        livesLeftBonus: getLivesLeftBonus(),
+        allApplesBonus: getAllApplesBonus(),
+        perfectBonus: getPerfectBonus(),
+        livesLeft: state.lives,
+        isPerfect,
+        hasAllApples,
+        isCasualModeEnabled: state.isCasualModeEnabled,
+        onApplyScore: () => {
+          musicPlayer.stopAllTracks();
+          const perfectBonus = isPerfect ? getPerfectBonus() : 0;
+          const allApplesBonus = (!isPerfect && hasAllApples) ? getAllApplesBonus() : 0;
+          addPoints(getLevelClearBonus() + getLivesLeftBonus() * state.lives + perfectBonus + allApplesBonus);
+          renderScoreUI();
+        },
+      });
+    }
+  }
+
+  function handleTeleportOnGameWin() {
+    if (!state.isGameWon) return;
+    const WIN_SCREEN_TELEPORT_PADDING = 2;
+    const WIN_SCREEN_TELEPORT_BOUNDS = {
+      min: {
+        x: 0 - WIN_SCREEN_TELEPORT_PADDING,
+        y: 0 - WIN_SCREEN_TELEPORT_PADDING,
+      },
+      max: {
+        x: GRIDCOUNT.x + WIN_SCREEN_TELEPORT_PADDING,
+        y: GRIDCOUNT.y + WIN_SCREEN_TELEPORT_PADDING,
+      },
+    }
+    const bounds = WIN_SCREEN_TELEPORT_BOUNDS;
+    if (player.position.x < bounds.min.x) {
+      player.position.x = bounds.max.x;
+    } else if (player.position.x > bounds.max.x) {
+      player.position.x = bounds.min.x;
+    } else if (player.position.y < bounds.min.y) {
+      player.position.y = bounds.max.y;
+    } else if (player.position.y > bounds.max.y) {
+      player.position.y = bounds.min.y;
+    }
+    winGameScene.draw();
+  }
+
+  function handleSnakeDamage(didReceiveDamage: boolean) {
+    // const didReceiveDamage = state.isLost && state.lives > 0;
+    if (!didReceiveDamage) return;
+
+    state.isLost = false;
+    if (state.isCasualModeEnabled && replay.mode !== ReplayMode.Playback) {
+      state.isMoving = false;
+    } else {
+      state.lives -= 1;
+    }
+    state.timeSinceHurt = 0;
+    if (difficulty.index === 4) {
+      state.currentSpeed = 1;
+    } else {
+      state.currentSpeed = 2;
+    }
+    flashScreen();
+    startScreenShake();
+    renderHeartsUI();
+    spawnHurtParticles();
     reboundSnake(segments.length > 3 ? 2 : 1);
     // reset any queued up moves so that next action player takes feels more intentional
     moves = [];
     // set current direction to be the direction from the first segment towards the snake head
     player.direction = getDirectionToFirstSegment();
+    startAction(duckMusicOnHurt(), Action.FadeMusic);
+    switch (state.lives) {
+      case 2:
+        playSound(Sound.hurt1);
+        break;
+      case 1:
+        playSound(Sound.hurt2);
+        break;
+      case 0:
+        playSound(Sound.hurt3);
+        break;
+    }
   }
 
   function* duckMusicOnHurt(): IEnumerator {

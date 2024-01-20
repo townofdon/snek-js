@@ -129,6 +129,10 @@ export class Renderer {
    * Draw red squares on level to indicate that we are in Record mode
    */
   drawCaptureMode = () => {
+    const { replay, gameState } = this.props;
+    if (replay.mode !== ReplayMode.Capture) return;
+    if (gameState.isCasualModeEnabled) return;
+
     const reds: [number, number][] = [
       [0, 0],
       [1, 0],
@@ -344,8 +348,10 @@ export class Renderer {
   }
 
   private fpsFrames: number[] = [];
-  drawFps = (showFpsFromQueryParams: boolean) => {
+  drawFps = (showFpsFromQueryParams: boolean, gameLoopProcessingTime: number) => {
     if (!SHOW_FPS && !showFpsFromQueryParams) return;
+
+    this.drawPerf(gameLoopProcessingTime);
     const { p5, fonts } = this.props;
     const textX = BLOCK_SIZE.x * (25);
     const textY = BLOCK_SIZE.y * (1);
@@ -369,6 +375,36 @@ export class Renderer {
     const padding = 16;
     let y = 0;
     p5.text("FPS", textX, textY);
+    p5.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
+    p5.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
+    p5.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
+  }
+
+  private perfFrames: number[] = [];
+  private drawPerf = (gameLoopProcessingTime: number) => {
+    const { p5, fonts } = this.props;
+    const textX = BLOCK_SIZE.x * (21);
+    const textY = BLOCK_SIZE.y * (1);
+    p5.fill("#fff");
+    p5.stroke("#111");
+    p5.strokeWeight(2);
+    p5.textSize(10);
+    p5.textAlign(p5.LEFT, p5.TOP);
+    p5.textFont(fonts.variants.miniMood);
+    if (!this.perfFrames?.length) {
+      this.perfFrames = new Array<number>(20).map(() => gameLoopProcessingTime);
+    } else {
+      this.perfFrames[0] = gameLoopProcessingTime;
+      for (let i = this.perfFrames.length - 1; i > 0; i--) {
+        this.perfFrames[i] = this.perfFrames[i - 1];
+      }
+    }
+    const avg = this.perfFrames.reduce((acc, cur) => acc + cur, 0) / this.perfFrames.length;
+    const min = Math.min(...this.perfFrames);
+    const max = Math.max(...this.perfFrames);
+    const padding = 16;
+    let y = 0;
+    p5.text("MS", textX, textY);
     p5.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
     p5.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
     p5.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
