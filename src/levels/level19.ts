@@ -2,7 +2,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode } from "../types";
 
-const name = 'thoroughfare';
+const name = 'escada';
 
 export const LEVEL_19: Level = {
   name,
@@ -59,8 +59,8 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     0: PortalExitMode.SameDirection,
   },
   extraLoseMessages: [
-    ["I've hyperjumped so much I think my brain is scrambled."],
+    ["I've teleported so much I think my brain is scrambled."],
+    ["I hear playing SNEK rewires your brain..."],
   ],
   musicTrack: MusicTrack.observer,
-  // globalLight: 0.75,
 };

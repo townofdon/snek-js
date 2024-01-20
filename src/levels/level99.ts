@@ -45,8 +45,8 @@ XXXXXX33XXXXXXLLXXXXXX33XXXXXX
   colors: PALETTE.darkStar,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   extraLoseMessages: [
-    ["What? Were there not enough apples?"],
-    ["I hear playing SNEK rewires one's brain..."],
+    ["What? Not enough apples for ya?"],
+    ["Don't quit now, this is the final level!"],
   ],
   showQuoteOnLevelWin: false,
   titleVariant: TitleVariant.Red,

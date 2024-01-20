@@ -3,7 +3,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
-const name = 'TOURIST'
+const name = 'COMPUTER ROOM'
 
 export const LEVEL_18: Level = {
   name,
@@ -51,19 +51,8 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     appleStroke: PALETTE.violetSunset.appleStroke,
     barrier: PALETTE.scienceLab.barrier,
     barrierStroke: PALETTE.scienceLab.barrierStroke,
-    // door: PALETTE.panopticon.barrier,
-    // doorStroke: PALETTE.panopticon.barrierStroke,
-    // door: Color(PALETTE.scienceLab.doorStroke).darken(0.0).saturate(0.6).hex(),
-    // doorStroke: Color(PALETTE.scienceLab.doorStroke).darken(0.0).saturate(0.6).hex(),
     door: PALETTE.boxcar.door,
     doorStroke: PALETTE.boxcar.doorStroke,
-    // barrier: Color(PALETTE.boxcar.barrier).lighten(0.2).desaturate(0.35).hex(),
-    // barrierStroke: Color(PALETTE.boxcar.barrierStroke).lighten(0.2).darken(0.15).desaturate(0.35).hex(),
-    // background: PALETTE.darkStar.background,
-    // deco1: PALETTE.darkStar.deco1,
-    // deco1Stroke: PALETTE.darkStar.deco1Stroke,
-    // deco2: PALETTE.darkStar.deco2,
-    // deco2Stroke: PALETTE.darkStar.deco2Stroke,
   },
   portalExitConfig: {
     1: PortalExitMode.InvertDirection,
