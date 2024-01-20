@@ -2,53 +2,46 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack } from "../types";
 
-const name = 'sneksqueeze';
+const name = 'boxed'
 
 export const LEVEL_12: Level = {
   name,
-  timeToClear: 1000 * 60 * 1.6,
-  applesToClear: 50,
-  numApplesStart: 20,
-  // disableAppleSpawn: true,
-  snakeStartSizeOverride: 2,
-  growthMod: 0.1,
-  extraHurtGraceTime: 30,
+  timeToClear: 1000 * 60 * 1.7,
+  applesToClear: 60,
+  growthMod: 0.75,
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
-X=-------==--------==-------=X
-X=XXXXXXXXXXXXDDXXXXXXXXXXXX=X
-X=-------=+XDDXXDDX+=-------=X
-XXXXXXXXXD+XXXXXXXX+DXXXXXXXXX
-DD-------==DaaaaaaD==-------DD
-XX_DXXXXXXXXDXXXXDXXXXXXXXD_XX
-XX_------==XDDXXDDX==------_XX
-XXXXXXXXXX=XDDXXDDX=XXXXXXXXXX
-X=-------==XDDXXDDX==-------=X
-X=XXXXXXXXXXDDXXDDXXXXXXXXXX=X
-X-       =XXDDXXDDXX=       -X
-XX~~_+_~~=XXdXddXdXX=~~_+_~~XX
-XX~~=-=  =+-=_  -=_+=  =-=~~XX
-XX~~=-=O =+_=-  _=-+=  =-=~~XX
-XX~~_+_~~+=XdXddXdX=+~~_+_~~XX
-X-       ==XDDXXDDX==       -X
-X=XXXXXXXXXXDDXXDDXXXXXXXXXX=X
-X=-------==XDDXXDDX==-------=X
-XXXXXXXXXX=XDDXXDDX=XXXXXXXXXX
-XX_------==XDDXXDDX==------_XX
-XX_DXXXXXXXXDXXXXDXXXXXXXXD_XX
-DD-------==DaaaaaaD==-------DD
-XXXXXXXXXD+XXXXXXXX+DXXXXXXXXX
-X=-------=+XDDXXDDX+=-------=X
-X=XXXXXXXXXXXXDDXXXXXXXXXXXX=X
-X=-------==--------==-------=X
-XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
+XXXXXXX~~    ----    ~~XXXXXXX
+XXXXXXX~     ----     ~XXXXXXX
+XXXXXX~      ----      ~XXXXXX
+X~         ~XXXXXX~         ~X
+X          ~DaaaaD~          X
+X          ~XXXXXX~          X
+d-=====-----_++++_-----=====-d
+d-=====------====------=====-d
+d-=====------====------=====-d
+X                            X
+X                            X
+X      XXXXDX    XDXXXX      X
+X-=    XXXXDX----XDXXXX    =-X
+X-=    X__XaX----XaX__X    =-X
+X-=    X__XaX----XaX__X    =-X
+X-=    XXXXDX----XDXXXX    =-X
+X      XXXXDX    XDXXXX      X
+X                            X
+X          O                 X
+d-=====------====------=====-d
+d-=====------====------=====-d
+d-=====-----_++++_-----=====-d
+X          ~XXXXXX~          X
+X          ~DaaaaD~          X
+X~         ~XXXXXX~         ~X
+XXXXXX~      ----      ~XXXXXX
+XXXXXXX~     ----     ~XXXXXXX
+XXXXXXX~~    ----    ~~XXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
-  colors: PALETTE.hospital,
-  // colors: PALETTE.atomic,
+  colors: PALETTE.plumsea,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
-  showQuoteOnLevelWin: true,
-  musicTrack: MusicTrack.stonemaze,
-  globalLight: 0.4,
+  musicTrack: MusicTrack.shopkeeper,
 };

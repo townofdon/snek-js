@@ -10,8 +10,8 @@ import { LEVEL_07 } from "./level07";
 import { LEVEL_08 } from "./level08";
 import { LEVEL_09 } from "./level09";
 import { LEVEL_10 } from "./level10";
-import { LEVEL_11 } from "./level11";
 import { LEVEL_12 } from "./level12";
+import { LEVEL_11 } from "./level11";
 import { LEVEL_13 } from "./level13";
 import { LEVEL_14 } from "./level14";
 import { LEVEL_15 } from "./level15";
@@ -36,8 +36,8 @@ export const LEVELS: Level[] = [
     LEVEL_07,
     LEVEL_08,
     LEVEL_09,
-    TUTORIAL_LEVEL_20,
     LEVEL_10,
+    TUTORIAL_LEVEL_20,
     LEVEL_11,
     LEVEL_12,
     TUTORIAL_LEVEL_30,

@@ -54,5 +54,5 @@ XXXXXXXXXXaX-X--X-X XXXddXXX X
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.aqueduct,
   titleVariant: TitleVariant.GrayBlue,
-  globalLight: 0.7,
+  globalLight: 0.85,
 };
