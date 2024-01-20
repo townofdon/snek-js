@@ -3,81 +3,71 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
-const name = 'TOURIST'
+const name = 'SNEKBAIT'
 
 export const LEVEL_17: Level = {
   name,
   timeToClear: 1000 * 60 * 3.0,
   applesToClear: 60,
-  numApplesStart: 10,
-  growthMod: 0.15,
-  extraHurtGraceTime: 25,
+  numApplesStart: 0,
+  growthMod: 0.2,
+  extraHurtGraceTime: 20,
   snakeStartSizeOverride: 5,
   layout: `
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-XXX        X5X__k_X6X        X
-XXX        X_X_XX_X_X        X
-XXX       =X_X_XX_X_X=       X
-XXX   === =X_X_XX_X_X= ===   X
-XXX   dd=-=X_X_XX_X_X=-=dd   X
-X8X   dd=-=ddX1XX3Xdd=-=dd   X
-X_X   === =ddXXXXXXdd= ===   X
-X_X       ===  --  ===       X
-X_X            --            X
-X_X            --            X
-X_X=       ~~X~__~X~~       =X
-X_X==      ~XXLLLLXX~      ==X
-X_XXXX     XXXLLLLXXX     XXLX
-XdJKLd-----_LLaaaaLL_-----dKlX
-XdJKLd-----_LLaaaaLL_-----dK_X
-XXXXXX     XXXLLLLXXX     XXLX
-X8X==      ~XXLLLLXX~      ==X
-X_X=       ~~X~__~X~~       =X
-X_X            --            X
-X_X    O       --            X
-X_X       ===  --  ===       X
-X_X   === =JJXXXXXXJJ= ===   X
-d_X   dd=-=JJX5XX6XJJ=-=dd   X
-d_X   dd=-=X_X_XX_X_X=-=dd   X
-XXX   === =X_X_XX_X_X= ===   X
-XXX       =X_X_XX_X_X=       X
-XXX        X_X_XX_X_X        X
-XXX        X1X_j__X3X        X
+XXXXXXXXXXXX+_KK_+XXXXXXXXXXXX
+X~aaaa~~~~1X+_KK_+X3~~~~aaaa~X
+X~XXXXXXXXXXXX__XXXXXXXXXXXX~X
+X~XX+X+__+X+XXLLXX+X+__+X+XX~X
+X~XX+X+__+X+XXLLXX+X+__+X+XX~X
+X~XXXXXXXXXXXX__XXXXXXXXXXXX~X
+X~X    j      --           X~X
+X~X XXXXXXXX==--==XXXXXXXX X~X
+X~X-X_~d~~3X  --  X1~~d~_X-X~X
+XJX=K+_l____-=--=-____k_+L=XJX
+X~X-XXXdXXXX  --  XXXXdXXX-X~X
+X~X XXXXXXXX==--==XXXXXXXX X~X
+X~X           --           X~X
+X~X           --           X~X
+XaX=-X~       --       ~X-=XaX
+XaX=-XX-=--=O --  =--=-XX-=XaX
+XaX=-X~ -     --     - ~X-=XaX
+X~X  -  -     --     -  -  X~X
+X~X  =  - ~X  --  X~ -  =  X~X
+X~X  -  =-XX-=--=-XX-=  -  X~X
+X~X  =  - ~X  --  X~ -  =  X~X
+X~X  -  -     --     -  -  X~X
+XaX=-X~ -     --     - ~X-=XaX
+XaX=-XX-=--=  --  =--=-XX-=XaX
+XaX=-X~       --       ~X-=XaX
+X~X           --           X~X
+X~X           --           X~X
+X~XXXXXXXXXdd+__+ddXXXXXXXXX~X
+X~~~~~~~~~~~~~~~~~~~~~~~~~~~~X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: {
-    ...PALETTE.panopticon,
-    apple: PALETTE.violetSunset.apple,
-    appleStroke: PALETTE.violetSunset.appleStroke,
-    barrier: PALETTE.scienceLab.barrier,
-    barrierStroke: PALETTE.scienceLab.barrierStroke,
-    // door: PALETTE.panopticon.barrier,
-    // doorStroke: PALETTE.panopticon.barrierStroke,
-    // door: Color(PALETTE.scienceLab.doorStroke).darken(0.0).saturate(0.6).hex(),
-    // doorStroke: Color(PALETTE.scienceLab.doorStroke).darken(0.0).saturate(0.6).hex(),
-    door: PALETTE.boxcar.door,
-    doorStroke: PALETTE.boxcar.doorStroke,
-    // barrier: Color(PALETTE.boxcar.barrier).lighten(0.2).desaturate(0.35).hex(),
-    // barrierStroke: Color(PALETTE.boxcar.barrierStroke).lighten(0.2).darken(0.15).desaturate(0.35).hex(),
-    // background: PALETTE.darkStar.background,
-    // deco1: PALETTE.darkStar.deco1,
-    // deco1Stroke: PALETTE.darkStar.deco1Stroke,
-    // deco2: PALETTE.darkStar.deco2,
-    // deco2Stroke: PALETTE.darkStar.deco2Stroke,
+    ...PALETTE.boxcar,
+    barrier: Color(PALETTE.boxcar.barrier).lighten(0.2).desaturate(0.35).hex(),
+    barrierStroke: Color(PALETTE.boxcar.barrierStroke).lighten(0.2).darken(0.15).desaturate(0.35).hex(),
+    background: PALETTE.darkStar.background,
+    deco1: PALETTE.darkStar.deco1,
+    deco1Stroke: PALETTE.darkStar.deco1Stroke,
+    deco2: PALETTE.darkStar.deco2,
+    deco2Stroke: PALETTE.darkStar.deco2Stroke,
   },
   portalExitConfig: {
-    1: PortalExitMode.InvertDirection,
-    2: PortalExitMode.InvertDirection,
-    3: PortalExitMode.InvertDirection,
-    4: PortalExitMode.InvertDirection,
-    5: PortalExitMode.InvertDirection,
-    6: PortalExitMode.InvertDirection,
-    7: PortalExitMode.InvertDirection,
-    8: PortalExitMode.InvertDirection,
-    9: PortalExitMode.InvertDirection,
-    0: PortalExitMode.InvertDirection,
+    1: PortalExitMode.SameDirection,
+    2: PortalExitMode.SameDirection,
+    3: PortalExitMode.SameDirection,
+    4: PortalExitMode.SameDirection,
+    5: PortalExitMode.SameDirection,
+    6: PortalExitMode.SameDirection,
+    7: PortalExitMode.SameDirection,
+    8: PortalExitMode.SameDirection,
+    9: PortalExitMode.SameDirection,
+    0: PortalExitMode.SameDirection,
   },
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   titleVariant: TitleVariant.GrayBlue,
-  musicTrack: MusicTrack.woorb,
+  musicTrack: MusicTrack.moneymaker,
 };
