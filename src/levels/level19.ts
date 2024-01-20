@@ -13,34 +13,34 @@ export const LEVEL_19: Level = {
   extraHurtGraceTime: 15,
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-X            ----   0X8    9XX
-X          -------- 0X8    9XX
-X            --XXXXXXX8    9XX
-X            --X7 a 8XXXXXXXXX
-X            --X7   8XX~~l~~XX
-X      XXXXXXXLX7 a 8XX~K~K~XX
-X      X6   7XLXXXXXXXXK~K~KXX
-X      X6   7X---           XX
-XXXXXXXX6   7X---           XX
-X5    6XXXXXXX-----         XX
-X5    6X     ----           XX
-X5 k  6X     ----           XX
-XXXXXXXX   o ----           1X
-X9----------=----=----------1X
-X9----------=----=----------1X
-X9           ----     XXXXXXXX
-XX           ----     X4    5X
-XX           ----     X4 j  5X
-XX         -----XXXXXXX4    5X
-XX           ---X3   4XXXXXXXX
-XX           ---X3   4X      X
-XXL_L_L_XXXXXXXLX3   4X      X
-DD_L_L_LX2   3XLXXXXXXX      X
-DDL_L_L_X2   3X-_            X
-XXXXXXXXX2   3X--            X
-XX1    2XXXXXXX--            X
-XX1    2X0 --------          X
-XX1    2X0   ----            X
+X            ----===0X8====9XX
+X            ----===0X8----9XX
+X            --XXXXXXX8====9XX
+X            --X7===8XXXXXXXXX
+X-=  =-      --X7---8XX~_l_~XX
+X-    -XXXXXXXLX7===8XX_K_K_XX
+X_    _X6===7XLXXXXXXXXK_K_KXX
+X__--__X6---7X---      -=-=-XX
+XXXXXXXX6===7X---       -=- XX
+X5====6XXXXXXX---           XX
+X5----6X     ----           XX
+X5=k==6X     ----           XX
+XXXXXXXX   o=----=---------=1X
+X9=---------=-  -=---------=1X
+X9=---------=-  -=---------=1X
+X9=---------=----=    XXXXXXXX
+XX           ----     X4====5X
+XX           ----     X4-j--5X
+XX           ---XXXXXXX4====5X
+XX           ---X3===4XXXXXXXX
+XX           ---X3---4X__--__X
+XXL_L_L_XXXXXXXLX3===4X_    _X
+DD_L_L_LX2===3XLXXXXXXX-    -X
+DDL_L_L_X2---3X-_      -=  =-X
+XXXXXXXXX2===3X--            X
+XX1====2XXXXXXX--            X
+XX1----2X0===----            X
+XX1====2X0===----            X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: PALETTE.violetSunset,
