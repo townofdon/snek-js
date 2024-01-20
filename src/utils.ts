@@ -24,6 +24,7 @@ import {
   LEVEL_15,
   LEVEL_17,
   LEVEL_18,
+  LEVEL_19,
   LEVEL_99,
 } from './levels';
 import { DIR, MusicTrack, QueryParams } from "./types";
@@ -105,10 +106,12 @@ export function getWarpLevelFromNum(levelNum: number) {
       return LEVEL_14;
     case 15:
       return LEVEL_15;
-    case 16:
-      return LEVEL_17;
     case 17:
+      return LEVEL_17;
+    case 18:
       return LEVEL_18;
+    case 19:
+      return LEVEL_19;
     case 99:
       return LEVEL_99;
     case 110:

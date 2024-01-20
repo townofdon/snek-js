@@ -17,6 +17,7 @@ import { LEVEL_14 } from "./level14";
 import { LEVEL_15 } from "./level15";
 import { LEVEL_17 } from "./level17";
 import { LEVEL_18 } from "./level18";
+import { LEVEL_19 } from "./level19";
 import { LEVEL_99 } from "./level99";
 import { TUTORIAL_LEVEL_10 } from "./tutorialLevel10";
 import { TUTORIAL_LEVEL_20 } from "./tutorialLevel20";
@@ -46,6 +47,7 @@ export const LEVELS: Level[] = [
     TUTORIAL_LEVEL_40,
     LEVEL_17,
     LEVEL_18,
+    LEVEL_19,
     LEVEL_99,
     LEVEL_WIN_GAME,
 ];
