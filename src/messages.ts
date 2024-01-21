@@ -43,7 +43,7 @@ export const LOSE_MESSAGES: LoseMessage[] = [
     ["YOU... SHALL NOT PASS!", (state, stats) => state.lastHurtBy === HitType.HitLock],
     ["Need to call a locksmith?", (state, stats) => state.lastHurtBy === HitType.HitLock],
     ["Locked door?<br />Try knocking next time.", (state, stats) => state.lastHurtBy === HitType.HitLock],
-    ["The way is shut.<br/>It was made by those who are dead, and the dead keep it.<br/>The way is shut.", (state, stats) => state.lastHurtBy === HitType.HitLock],
+    ["The way is shut.<br/>It was made by those who are dead,<br />and the dead keep it.<br/>The way is shut.", (state, stats) => state.lastHurtBy === HitType.HitLock],
     ["Left home without the keys again, huh?", (state, stats) => state.lastHurtBy === HitType.HitLock],
     ["Can you garter up the courage to try again?", (state, stats) => stats.numDeaths >= 2],
     ["You're a viper and a fighter, baby", (state, stats) => stats.numDeaths >= 3],

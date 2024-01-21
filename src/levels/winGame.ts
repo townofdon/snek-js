@@ -48,4 +48,5 @@ export const LEVEL_WIN_GAME: Level = {
   showQuoteOnLevelWin: false,
   musicTrack: MusicTrack.champion,
   disableAppleSpawn: false,
+  globalLight: 0.1,
 };

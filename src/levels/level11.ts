@@ -45,8 +45,9 @@ X=-------==--------==-------=X
 XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
-  colors: PALETTE.hospital,
+  // colors: PALETTE.hospital,
   // colors: PALETTE.atomic,
+  colors: PALETTE.stonelair,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.stonemaze,

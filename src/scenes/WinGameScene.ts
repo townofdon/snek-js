@@ -21,7 +21,7 @@ const STATE_CLEAR_Y_START = -1; // normalized position
 const HIGHSCORE_GRADIENT_CYCLE_TIME_MS = 500;
 const COL_LEFT = 0.48;
 const COL_RIGHT = 0.52;
-
+const NUM_DEATHS_TO_LOOP_SOUND = 15;
 
 const NEW_HIGHSCORE_COLORS = [
   "#833AB4",
@@ -47,15 +47,18 @@ enum FIELD {
   LEADERBOARD = 60,
   LEADERBOARD_NEW_RESULT = 61,
   LEADERBOARD_LOADING = 62,
-  LEADERBOARD_ERROR = 63,
+  LEADERBOARD_FETCH_ERROR = 63,
   LEADERBOARD_HECK_YEAH = 64,
+  LEADERBOARD_NON_QUALIFYING_SCORE = 65,
+  LEADERBOARD_POST_ERROR = 66,
 }
 
 interface WinGameState {
   leaderboardResults: HighScoreEntry[],
   leaderboardToken: string,
   leaderboardLoading: boolean,
-  leaderboardError: string,
+  leaderboardFetchError: string,
+  leaderboardPostError: string,
   highscoreEntryName: string,
   bgOpacity: number,
   stageClearY: number,
@@ -79,7 +82,8 @@ export class WinGameScene extends BaseScene {
     leaderboardResults: [],
     leaderboardToken: '',
     leaderboardLoading: false,
-    leaderboardError: '',
+    leaderboardFetchError: '',
+    leaderboardPostError: '',
     highscoreEntryName: '',
     bgOpacity: 0,
     stageClearY: STATE_CLEAR_Y_START,
@@ -114,34 +118,50 @@ export class WinGameScene extends BaseScene {
     });
   }
 
+  private logError = (err: Error) => {
+    console.error(err);
+  }
+
   private fetchHighScores = () => {
-    const logAndThrow = (err: Error) => {
-      console.error(err);
-      throw err;
-    }
+    this.state.leaderboardResults = [];
+    this.state.leaderboardToken = '';
     this.state.leaderboardLoading = true;
-    const tokenF = getToken();
-    const resultsF = getLeaderboard();
-    Promise.all([
-      tokenF.then(token => {
-        this.state.leaderboardToken = token;
-      }).catch(logAndThrow),
-      resultsF.then(results => {
+    getLeaderboard()
+      .then(results => {
         this.state.leaderboardResults = results;
-      }).catch(logAndThrow),
-    ])
-      .catch((_) => {
-        this.state.leaderboardError = 'Could not fetch leaderboard results.';
+      })
+      .catch((err: Error) => {
+        this.logError(err);
+        this.state.leaderboardFetchError = 'Could not fetch leaderboard results.';
       })
       .finally(() => {
         this.state.leaderboardLoading = false;
+      });
+
+    getToken()
+      .then(token => {
+        this.state.leaderboardToken = token;
       })
+      .catch(this.logError);
   }
 
   private postLeaderboardResult = (name: string) => {
     const { score } = this.stats;
+    if (!this.state.leaderboardToken) {
+      this.state.leaderboardPostError = 'Token not provided to postLeaderboardResult.';
+      return;
+    }
     const apiOptions: ApiOptions = { xsrfToken: this.state.leaderboardToken };
-    postLeaderboardResult(name, score, apiOptions);
+    this.state.leaderboardPostError = ''
+    this.state.leaderboardLoading = true;
+    postLeaderboardResult(name, score, apiOptions)
+      .catch(err => {
+        this.logError(err);
+        this.state.leaderboardPostError = 'Could not save new leaderboard entry.';
+      })
+      .finally(() => {
+        this.state.leaderboardLoading = false;
+      });
   }
 
   private getHasHighscore = () => {
@@ -237,9 +257,18 @@ export class WinGameScene extends BaseScene {
       sfx.play(Sound.xplode);
       yield* coroutines.waitForTime(200);
       if (numDeaths > 0) {
-        playingChipSound = this.startCoroutine(this.playChipSound());
+        if (numDeaths >= NUM_DEATHS_TO_LOOP_SOUND) {
+          playingChipSound = this.startCoroutine(this.playChipSound());
+        }
+        let prevVal = 0;
         yield* coroutines.waitForTime(700, (t) => {
-          this.fieldValue[FIELD.DEATHS] = p5.lerp(0, numDeaths, t);
+          const val = Math.floor(p5.lerp(0, numDeaths, t));
+          this.fieldValue[FIELD.DEATHS] = val;
+          const didChange = val != prevVal;
+          if (didChange && numDeaths < NUM_DEATHS_TO_LOOP_SOUND) {
+            sfx.play(Sound.uiChip, 0.75);
+          }
+          prevVal = val;
         });
         this.stopCoroutine(playingChipSound);
       }
@@ -270,8 +299,8 @@ export class WinGameScene extends BaseScene {
       const onSubmitHighscoreName = (name: string) => {
         const handleYesClick = () => {
           this.state.highscoreEntryName = name;
-          modalConfirm.hide();
           this.postLeaderboardResult(name);
+          modalConfirm.hide();
         }
         const handleNoClick = () => {
           modalHighScoreEntry.show(onSubmitHighscoreName, name);
@@ -297,19 +326,29 @@ export class WinGameScene extends BaseScene {
       yield null;
     }
     this.fieldVisible[FIELD.LEADERBOARD_LOADING] = false;
-    if (this.state.leaderboardError) {
-      this.fieldVisible[FIELD.LEADERBOARD_ERROR] = true;
+
+    if (this.state.leaderboardFetchError) {
+      this.fieldVisible[FIELD.LEADERBOARD_FETCH_ERROR] = true;
     } else {
       this.fieldVisible[FIELD.LEADERBOARD] = true;
+      if (this.state.leaderboardPostError) {
+        this.fieldVisible[FIELD.LEADERBOARD_POST_ERROR] = true;
+      }
       if (this.getHasHighscore()) {
         this.fieldVisible[FIELD.LEADERBOARD_HECK_YEAH] = true;
+      } else if (!isCasualModeEnabled) {
+        this.fieldVisible[FIELD.LEADERBOARD_NON_QUALIFYING_SCORE] = true;
       }
     }
 
     yield* coroutines.waitForTime(500);
 
     yield* coroutines.waitForEnterKey(() => {
-      this.drawPressEnter(0.1);
+      if (this.getHasHighscore() || isCasualModeEnabled) {
+        this.drawPressEnter(0.1);
+      } else {
+        this.drawPressEnter(0.125);
+      }
     });
 
     this.cleanup();
@@ -379,13 +418,19 @@ export class WinGameScene extends BaseScene {
     if (this.fieldVisible[FIELD.LEADERBOARD_LOADING]) {
       this.drawTitle("LEADERBOARD", "secondary");
       this.drawParagraph("Loading...", 0.3);
-    } else if (this.fieldVisible[FIELD.LEADERBOARD_ERROR]) {
+    } else if (this.fieldVisible[FIELD.LEADERBOARD_FETCH_ERROR]) {
       this.drawTitle("LEADERBOARD", "secondary");
       this.drawParagraph("Unable to fetch leaderboard results.", 0.35, "#e54");
     } else if (this.fieldVisible[FIELD.LEADERBOARD]) {
       this.drawLeaderboard();
       if (this.fieldVisible[FIELD.LEADERBOARD_HECK_YEAH]) {
         this.drawHeckYeah();
+      }
+      if (this.fieldVisible[FIELD.LEADERBOARD_NON_QUALIFYING_SCORE]) {
+        this.drawNonQualifyingScore();
+      }
+      if (this.fieldVisible[FIELD.LEADERBOARD_POST_ERROR]) {
+        this.drawParagraph("Unable to save leaderboard entry.\nSend screenshot to townofdon@gmail.com\nto be added manually :)", 0.05, "#e54");
       }
     }
 
@@ -417,6 +462,7 @@ export class WinGameScene extends BaseScene {
     p5.textSize(14);
     p5.textAlign(p5.CENTER, p5.TOP);
     p5.text(message, ...this.getPosition(0.5, yPos + this.state.stageClearY));
+    // p5.text(message, ...this.getRect(0.5, yPos + this.state.stageClearY, DIMENSIONS.x - 50, 250));
   }
 
   private drawField = (label: string, value: number, yPos: number, {
@@ -530,7 +576,11 @@ export class WinGameScene extends BaseScene {
     }
     const newResults = isCasualModeEnabled
       ? this.state.leaderboardResults
-      : this.state.leaderboardResults.concat(newResult).sort((a, b) => a.score - b.score).reverse();
+      : this.state.leaderboardResults.concat(newResult).sort((a, b) => {
+        const diff = a.score - b.score;
+        if (diff === 0) return -1;
+        return diff;
+      }).reverse();
 
     const tDeco = (Math.cos(timeElapsed / (HIGHSCORE_GRADIENT_CYCLE_TIME_MS * 2) * Math.PI) + 1) * 0.5;
     const decoOffset = 0.02 * tDeco;
@@ -575,6 +625,47 @@ export class WinGameScene extends BaseScene {
       }
       y += fieldPadding;
     }
+  }
+
+  private drawNonQualifyingScore = () => {
+    const { p5 } = this.props;
+    const { score } = this.stats;
+    const { timeElapsed } = this.gameState;
+    const name = "YOUR SCORE"
+    const yPos = 0.85;
+    const fieldOptions = {
+      strokeSize: 5,
+      bgStrokeSize: 10,
+      colLeft: 0.54,
+      colRight: 0.58,
+    }
+    const t = (timeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
+    const color0 = this.getColor(t, NEW_HIGHSCORE_COLORS);
+    this.drawField(name, score, yPos, {
+      color0: color0,
+      color1: 'black',
+      bgColor0: 'black',
+      bgColor1: color0,
+      bgStrokeColor: color0,
+      bgStrokeSize: 15,
+      ...fieldOptions,
+    });
+    const drawLine = (yPos: number, color: string, strokeWeight = 2) => {
+      const [x0, y0, x1, y1] = this.getRect(0.5, yPos, 300, 0);
+      p5.stroke(color);
+      p5.strokeWeight(strokeWeight);
+      p5.line(x0, y0, x1, y1);
+    }
+    drawLine(0.8265, "black", 4);
+    drawLine(0.8235, "#ffffffee");
+  }
+
+  protected override getRect = (x: number, y: number, width: number, height: number): [number, number, number, number] => {
+    const x1 = DIMENSIONS.x * x - width / 2;
+    const y1 = DIMENSIONS.y * y - height / 2;
+    const x2 = x1 + width;
+    const y2 = y1 + height;
+    return [x1, y1, x2, y2];
   }
 
   private drawHeckYeah = () => {

@@ -42,7 +42,7 @@ XX1  ----    8XX9    ----  6XX
 XXXXXXXXXDDDX4444XDDDXXXXXXXXX
 XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
   `,
-  colors: PALETTE.atomic,
+  colors: PALETTE.gravChamber,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   portalExitConfig: {

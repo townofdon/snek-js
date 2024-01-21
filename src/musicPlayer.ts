@@ -190,6 +190,9 @@ export class MusicPlayer {
       console.warn("[MusicPlayer][load] Track was undefined");
       return;
     }
+    if (track === MusicTrack.None) {
+      return;
+    }
     if (DEBUG_MUSIC) {
       console.log(`[MusicPlayer] loading track ${track}`);
     }
