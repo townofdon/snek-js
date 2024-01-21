@@ -1583,7 +1583,7 @@ export const sketch = (p5: P5) => {
   }
 
   function drawBackground() {
-    p5.background(state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background);
+    renderer.drawBackground(state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background);
   }
 
   function drawPlayerHead(vec: Vector) {

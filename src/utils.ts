@@ -39,7 +39,11 @@ export function clamp(val: number, minVal: number, maxVal: number) {
 }
 
 export function getCoordIndex(vec: Vector): number {
-  return clamp(vec.x, 0, GRIDCOUNT.x - 1) + clamp(vec.y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
+  return getCoordIndex2(vec.x, vec.y);
+}
+
+export function getCoordIndex2(x: number, y: number): number {
+  return clamp(x, 0, GRIDCOUNT.x - 1) + clamp(y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
 }
 
 export function coordToVec(p5: P5, index: number): Vector {

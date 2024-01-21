@@ -31,6 +31,7 @@ export class Renderer {
 
   portalCachedColorsFG: string[][] = []
   portalCachedColorsBG: string[][] = []
+  cachedP5Colors: Record<string, P5.Color> = {}
 
   constructor(props: RendererConstructorProps) {
     this.props = props;
@@ -44,34 +45,9 @@ export class Renderer {
     this.elapsed += this.props.p5.deltaTime;
   }
 
-  cachedP5Colors: Record<string, P5.Color> = {}
-
-  private lookupP5CachedColor = (colorLookup: string) => {
+  drawBackground = (color: string) => {
     const { p5 } = this.props;
-    let color = this.cachedP5Colors[colorLookup];
-    if (!color) {
-      color = p5.color(colorLookup);
-      this.cachedP5Colors[colorLookup] = color;
-    }
-    return color;
-  }
-
-  private p5CachedFill = (background: string, optimize = true) => {
-    const { p5 } = this.props;
-    if (optimize) {
-      p5.fill(this.lookupP5CachedColor(background));
-    } else {
-      p5.fill(background);
-    }
-  }
-
-  private p5CachedStroke = (lineColor: string, optimize = true) => {
-    const { p5 } = this.props;
-    if (optimize) {
-      p5.stroke(this.lookupP5CachedColor(lineColor));
-    } else {
-      p5.stroke(lineColor);
-    }
+    p5.background(color);
   }
 
   /**
@@ -508,6 +484,34 @@ export class Renderer {
         this.portalCachedColorsFG[i][j] = color;
         this.portalCachedColorsBG[i][j] = background;
       }
+    }
+  }
+
+  private lookupP5CachedColor = (colorLookup: string) => {
+    const { p5 } = this.props;
+    let color = this.cachedP5Colors[colorLookup];
+    if (!color) {
+      color = p5.color(colorLookup);
+      this.cachedP5Colors[colorLookup] = color;
+    }
+    return color;
+  }
+
+  private p5CachedFill = (background: string, optimize = true) => {
+    const { p5 } = this.props;
+    if (optimize) {
+      p5.fill(this.lookupP5CachedColor(background));
+    } else {
+      p5.fill(background);
+    }
+  }
+
+  private p5CachedStroke = (lineColor: string, optimize = true) => {
+    const { p5 } = this.props;
+    if (optimize) {
+      p5.stroke(this.lookupP5CachedColor(lineColor));
+    } else {
+      p5.stroke(lineColor);
     }
   }
 }
