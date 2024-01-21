@@ -880,6 +880,7 @@ export const sketch = (p5: P5) => {
 
     const didHit = checkHasHit(player.position);
     state.isLost = didHit;
+    tryRescueHit(didHit);
     handleSnakeDamage(state.isLost && state.lives > 0);
 
     // handle snake death
@@ -954,7 +955,7 @@ export const sketch = (p5: P5) => {
   // A NOTE ON THE SPEED SYSTEM
   // Yes, I know it's hacky and relies on magic numbers.
   // A better solution would be to assign a quadratic curve to each difficulty.
-  // I may do think in a future iteration if I feel up to it. Right now, the game is good enough.
+  // I may do this in a future iteration if I feel up to it. Right now, the game is good enough.
   function updateCurrentMoveSpeed() {
     if (state.isSprinting) {
       const deltaSpeed = 10 * (p5.deltaTime / SPRINT_INCREMENT_SPEED_MS);
@@ -1379,6 +1380,35 @@ export const sketch = (p5: P5) => {
     winGameScene.draw();
   }
 
+  /**
+   * Check if the player has just applied input in the same frame that the snake will
+   * receive damage. If the current move is a safe one and will result in no damage,
+   * rewind and apply that movement.
+   */
+  function tryRescueHit(didHit: boolean) {
+    if (state.isGameWon) return;
+    if (!didHit) return;
+    if (!state.isGameStarted) return;
+    if (replay.mode === ReplayMode.Playback) return;
+    if (moves.length <= 0) return;
+    if (segments.length <= 0) return;
+
+    const move = moves.shift();
+    const currentMove = dirToUnitVector(p5, move);
+    const futurePosition = player.position.copy().set(segments[0]).add(currentMove);
+    const willHitSomething = checkHasHit(futurePosition);
+    if (willHitSomething) return;
+
+    player.direction = move;
+    reboundSnake(1);
+    moveSegments();
+    player.position.add(currentMove);
+    state.isLost = false;
+
+    // TODO: REMOVE
+    console.log('JUST SAVED YO ASS!');
+  }
+
   function handleSnakeDamage(didReceiveDamage: boolean) {
     // const didReceiveDamage = state.isLost && state.lives > 0;
     if (!didReceiveDamage) return;
@@ -1644,13 +1674,6 @@ export const sketch = (p5: P5) => {
   }
 
   function drawDoors() {
-    // for (let i = 0; i < doors.length; i++) {
-    //   renderer.drawSquare(doors[i].x, doors[i].y,
-    //     state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.door : level.colors.door,
-    //     state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke,
-    //     { optimize: true, is3d: true });
-    // }
-
     for (let i = 0; i < doors.length; i++) {
       renderer.drawSquare(doors[i].x, doors[i].y,
         state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.door : level.colors.door,
