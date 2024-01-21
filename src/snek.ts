@@ -569,7 +569,8 @@ export const sketch = (p5: P5) => {
   function renderLevelName() {
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    UI.renderLevelName(level.name, state.isShowingDeathColours);
+    const progress = clamp(stats.applesEatenThisLevel / (level.applesToClear * difficulty.applesMod), 0, 1);
+    UI.renderLevelName(level.name, state.isShowingDeathColours, progress);
   }
 
   function startMoving() {
@@ -698,6 +699,7 @@ export const sketch = (p5: P5) => {
     modal.hide();
     winLevelScene.reset();
     winGameScene.reset();
+    stopAction(Action.ChangeMusicLowpass);
     stopAction(Action.FadeMusic);
     startAction(fadeMusic(1, 100), Action.FadeMusic);
     sfx.setGlobalVolume(settings.sfxVolume);
@@ -871,6 +873,7 @@ export const sketch = (p5: P5) => {
       incrementScore();
       increaseSpeed();
       playSound(Sound.eat);
+      if (!state.isDoorsOpen) renderLevelName();
     }
     apples = apples.filter(apple => !!apple);
 

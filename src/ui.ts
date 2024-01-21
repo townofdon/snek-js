@@ -111,32 +111,61 @@ export class UI {
   }
 
   static clearLabels() {
-    document.getElementById('level-name-field')?.remove();
+    document.getElementById('level-name-field-1')?.remove();
+    document.getElementById('level-name-field-2')?.remove();
     document.getElementById('hearts-container')?.remove();
     document.getElementById('score-field')?.remove();
     document.getElementById('difficulty-field')?.remove();
     document.getElementById('casual-rewind-tip-field')?.remove();
   }
 
-  static renderLevelName(levelName = '', isShowingDeathColours: boolean) {
-    const id = 'level-name-field'
-    document.getElementById(id)?.remove();
-    const p = UI.p5.createP(levelName);
-    p.position(0, 0);
-    p.id(id);
-    p.style('font-size', '1em');
-    p.style('color', isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
-    p.style('background-color', isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
-    p.style('line-height', '1em');
-    p.style('white-space', 'nowrap');
-    p.style('top', 'inherit');
-    p.style('left', 'inherit');
-    p.style('bottom', '0');
-    p.style('right', UI_LABEL_OFFSET);
-    p.style('margin', '0');
-    p.style('padding', '1px 8px');
-    p.style('text-align', 'right');
-    p.parent(UI_PARENT_ID);
+  static renderLevelName(levelName = '', isShowingDeathColours: boolean, progress = 0) {
+    const id1 = 'level-name-field-1'
+    const id2 = 'level-name-field-2'
+    document.getElementById(id1)?.remove();
+    document.getElementById(id2)?.remove();
+    const p1 = UI.p5.createP(levelName).id(id1);
+    const p2 = progress > Number.EPSILON ? UI.p5.createP(levelName).id(id2) : null;
+    const applyStyles = (p: P5.Element | null, backgroundColor: string, color: string) => {
+      if (!p) return;
+      p.position(0, 0);
+      p.style('font-size', '1em');
+      p.style('background-color', backgroundColor);
+      p.style('color', color);
+      p.style('line-height', '1em');
+      p.style('white-space', 'nowrap');
+      p.style('top', 'inherit');
+      p.style('left', 'inherit');
+      p.style('bottom', '0');
+      p.style('right', UI_LABEL_OFFSET);
+      p.style('margin', '0');
+      p.style('padding', '1px 8px');
+      p.style('text-align', 'right');
+      p.parent(UI_PARENT_ID);
+    }
+    applyStyles(p1, isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR, isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
+    // applyStyles(p2, isShowingDeathColours ? LABEL_COLOR_INVERTED : "#14a3b4", isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : "black");
+    applyStyles(p2, isShowingDeathColours ? LABEL_COLOR_INVERTED : "#ffffffdd", isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : "black");
+    if (progress > Number.EPSILON) {
+      UI.applyLevelProgressInverted(p1, progress);
+      UI.applyLevelProgress(p2, progress);
+    }
+  }
+
+  private static applyLevelProgress(elem: P5.Element, progress: number) {
+    if (!elem) return;
+    const percentage = progress * 100;
+    const polygon = `polygon(0% 10%, ${percentage}% 10%, ${percentage}% 90%, 0 90%)`;
+    elem.style('clip-path', polygon);
+    elem.style('-webkit-clip-path', polygon);
+  }
+
+  private static applyLevelProgressInverted(elem: P5.Element, progress: number) {
+    if (!elem) return;
+    const percentage = progress * 100;
+    const polygon = `polygon(${percentage}% 0%, 100% 0%, 100% 100%, ${percentage}% 100%)`;
+    elem.style('clip-path', polygon);
+    elem.style('-webkit-clip-path', polygon);
   }
 
   static renderHearts(numLives = 3, isShowingDeathColours: boolean) {
