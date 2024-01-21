@@ -73,7 +73,7 @@ import { OSTScene } from './scenes/OSTScene';
 import { SpriteRenderer } from './spriteRenderer';
 import { WinGameScene } from './scenes/WinGameScene';
 import { LeaderboardScene } from './scenes/LeaderboardScene';
-import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
+import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './lighting';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -269,6 +269,7 @@ export const sketch = (p5: P5) => {
     sfx.load();
     musicPlayer.load(level.musicTrack);
     spriteRenderer.loadImages();
+    initLighting(p5);
   }
 
   /**
@@ -805,14 +806,8 @@ export const sketch = (p5: P5) => {
 
     drawParticles(0);
     drawPortals();
-
-    for (let i = 0; i < barriers.length; i++) {
-      drawBarrier(barriers[i]);
-    }
-
-    for (let i = 0; i < doors.length; i++) {
-      drawDoor(doors[i]);
-    }
+    drawBarriers();
+    drawDoors();
 
     for (let i = 0; i < keys.length; i++) {
       drawKey(keys[i])
@@ -1592,7 +1587,7 @@ export const sketch = (p5: P5) => {
   }
 
   function drawPlayerHead(vec: Vector) {
-    const options = { is3d: true };
+    const options = { is3d: true, optimize: true };
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
@@ -1606,7 +1601,7 @@ export const sketch = (p5: P5) => {
   }
 
   function drawPlayerSegment(vec: Vector) {
-    const options = { is3d: true };
+    const options = { is3d: true, optimize: true };
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
         renderer.drawSquare(vec.x, vec.y, "#000", "#000", options);
@@ -1625,22 +1620,51 @@ export const sketch = (p5: P5) => {
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.apple : level.colors.apple,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.appleStroke : level.colors.appleStroke,
-      { size: 0.8, is3d: true });
+      { size: 0.8, is3d: true, optimize: true });
   }
 
-  function drawBarrier(vec: Vector) {
-    renderer.drawSquare(vec.x, vec.y,
-      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrier : level.colors.barrier,
-      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke,
-      { is3d: true });
-    renderer.drawX(vec.x, vec.y, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
+  function drawBarriers() {
+    for (let i = 0; i < barriers.length; i++) {
+      renderer.drawSquare(barriers[i].x, barriers[i].y,
+        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrier : level.colors.barrier,
+        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke,
+        { optimize: true });
+    }
+    for (let i = 0; i < barriers.length; i++) {
+      renderer.drawSquareBorder(barriers[i].x, barriers[i].y, 'light',
+        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
+    }
+    for (let i = 0; i < barriers.length; i++) {
+      renderer.drawSquareBorder(barriers[i].x, barriers[i].y, 'dark',
+        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
+    }
+    for (let i = 0; i < barriers.length; i++) {
+      renderer.drawX(barriers[i].x, barriers[i].y, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
+    }
   }
 
-  function drawDoor(vec: Vector) {
-    renderer.drawSquare(vec.x, vec.y,
-      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.door : level.colors.door,
-      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke,
-      { is3d: true });
+  function drawDoors() {
+    // for (let i = 0; i < doors.length; i++) {
+    //   renderer.drawSquare(doors[i].x, doors[i].y,
+    //     state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.door : level.colors.door,
+    //     state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke,
+    //     { optimize: true, is3d: true });
+    // }
+
+    for (let i = 0; i < doors.length; i++) {
+      renderer.drawSquare(doors[i].x, doors[i].y,
+        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.door : level.colors.door,
+        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke,
+        { optimize: true });
+    }
+    for (let i = 0; i < doors.length; i++) {
+      renderer.drawSquareBorder(doors[i].x, doors[i].y, 'light',
+        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke);
+    }
+    for (let i = 0; i < doors.length; i++) {
+      renderer.drawSquareBorder(doors[i].x, doors[i].y, 'dark',
+        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke);
+    }
   }
 
   function drawKey(key: Key) {
@@ -1673,7 +1697,8 @@ export const sketch = (p5: P5) => {
     if (segmentsMap[getCoordIndex(vec)]) return;
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1 : level.colors.deco1,
-      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1Stroke : level.colors.deco1Stroke);
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1Stroke : level.colors.deco1Stroke,
+      { optimize: true });
   }
 
   function drawDecorative2(vec: Vector) {
@@ -1682,7 +1707,8 @@ export const sketch = (p5: P5) => {
     if (segmentsMap[getCoordIndex(vec)]) return;
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2 : level.colors.deco2,
-      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke);
+      state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke,
+      { optimize: true });
   }
 
   function drawParticles(zIndexPass = 0) {

@@ -44,13 +44,43 @@ export class Renderer {
     this.elapsed += this.props.p5.deltaTime;
   }
 
+  cachedP5Colors: Record<string, P5.Color> = {}
+
+  private lookupP5CachedColor = (colorLookup: string) => {
+    const { p5 } = this.props;
+    let color = this.cachedP5Colors[colorLookup];
+    if (!color) {
+      color = p5.color(colorLookup);
+      this.cachedP5Colors[colorLookup] = color;
+    }
+    return color;
+  }
+
+  private p5CachedFill = (background: string, optimize = true) => {
+    const { p5 } = this.props;
+    if (optimize) {
+      p5.fill(this.lookupP5CachedColor(background));
+    } else {
+      p5.fill(background);
+    }
+  }
+
+  private p5CachedStroke = (lineColor: string, optimize = true) => {
+    const { p5 } = this.props;
+    if (optimize) {
+      p5.stroke(this.lookupP5CachedColor(lineColor));
+    } else {
+      p5.stroke(lineColor);
+    }
+  }
+
   /**
    * Draw a square to the canvas
    */
-  drawSquare = (x: number, y: number, background = "pink", lineColor = "fff", { is3d = false, size = 1, strokeSize = STROKE_SIZE } = {}) => {
+  drawSquare = (x: number, y: number, background = "pink", lineColor = "fff", { is3d = false, size = 1, strokeSize = STROKE_SIZE, optimize = false } = {}) => {
     const { p5, screenShake } = this.props;
-    p5.fill(background);
-    p5.stroke(lineColor);
+    this.p5CachedFill(background, optimize);
+    this.p5CachedStroke(lineColor, optimize);
     p5.strokeWeight(strokeSize);
     const strokeOffset = STROKE_SIZE - strokeSize;
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
@@ -72,12 +102,42 @@ export class Renderer {
       const x1i = x1 - borderSize;
       const y1i = y1 - borderSize;
       p5.noStroke();
-      p5.fill(this.getBorderColor(lineColor, 'light'));
+      this.p5CachedFill(this.getBorderColor(lineColor, 'light'), optimize);
       // TOP
       p5.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
       // RIGHT
       p5.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
-      p5.fill(this.getBorderColor(lineColor, 'dark'));
+      this.p5CachedFill(this.getBorderColor(lineColor, 'dark'), optimize);
+      // BOTTOM
+      p5.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
+      // LEFT
+      p5.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
+    }
+  }
+
+  drawSquareBorder = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, { size = 1, strokeSize = STROKE_SIZE } = {}) => {
+    const { p5, screenShake } = this.props;
+    const borderSize = STROKE_SIZE * 0.5;
+    const strokeOffset = STROKE_SIZE - strokeSize;
+    const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
+    const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
+    const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + screenShake.offset.x + strokeOffset + sizeOffsetX;
+    const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + screenShake.offset.y + strokeOffset + sizeOffsetY;
+    const x1 = x0 + (BLOCK_SIZE.x * size) - strokeOffset;
+    const y1 = y0 + (BLOCK_SIZE.y * size) - strokeOffset;
+    const x0i = x0 + borderSize;
+    const y0i = y0 + borderSize;
+    const x1i = x1 - borderSize;
+    const y1i = y1 - borderSize;
+    p5.noStroke();
+    if (mode === 'light') {
+      this.p5CachedFill(this.getBorderColor(strokeColor, 'light'));
+      // TOP
+      p5.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
+      // RIGHT
+      p5.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
+    } else if (mode === 'dark') {
+      this.p5CachedFill(this.getBorderColor(strokeColor, 'dark'));
       // BOTTOM
       p5.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
       // LEFT
@@ -91,7 +151,7 @@ export class Renderer {
       x: (BLOCK_SIZE.x - STROKE_SIZE) / blockDivisions,
       y: (BLOCK_SIZE.y - STROKE_SIZE) / blockDivisions,
     }
-    p5.fill(color);
+    this.p5CachedFill(color);
     // p5.randomSeed(x + y * 500000);
     // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
     p5.noStroke();
@@ -109,7 +169,7 @@ export class Renderer {
     }
   }
 
-  drawBasicSquare(x: number, y: number, color = "#fff", size = 1) {
+  drawBasicSquare(x: number, y: number, color: P5.Color, size = 1) {
     const { p5, screenShake } = this.props;
     const borderSize = STROKE_SIZE * 0.5;
     const width = BLOCK_SIZE.x;

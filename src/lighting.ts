@@ -1,4 +1,4 @@
-import { Vector } from "p5";
+import P5, { Vector } from "p5";
 import Color from "color";
 
 import { GRIDCOUNT, LIGHTMAP_RESOLUTION } from "./constants";
@@ -15,7 +15,11 @@ const LIGHT_RADIUS_STEP = 0.5;
 const LIGHT_ANGLE_STEP = TAU / NUM_ANGLE_STEPS;
 
 const numUniqLightColors = 1000;
-const lightColorLookup: string[] = initLightColorLookup(numUniqLightColors);
+let lightColorLookup: P5.Color[] = [];
+
+export function initLighting(p5: P5) {
+  lightColorLookup = initLightColorLookup(p5, numUniqLightColors);
+}
 
 export function createLightmap(): number[] {
   return new Array<number>(
@@ -49,6 +53,7 @@ export function drawLighting(lightMap: number[], renderer: Renderer) {
     const y = Math.floor(i / (GRIDCOUNT.x * LIGHTMAP_RESOLUTION));
     const a = 1 - clamp(lightMap[i], 0, 1);
     const color = lightColorLookup[Math.floor(a * numUniqLightColors + Number.EPSILON)];
+    if (!color) continue;
     const coefficient = 1 / LIGHTMAP_RESOLUTION;
     renderer.drawBasicSquare(x * coefficient, y * coefficient, color, coefficient);
   }
@@ -136,11 +141,12 @@ function toQuantizedIndex(x: number, y: number): number {
   );
 }
 
-function initLightColorLookup(size: number) {
-  const lookup: string[] = []
+function initLightColorLookup(p5: P5, size: number) {
+  const lookup: P5.Color[] = []
   for (let i = 0; i < size; i++) {
     const a = i / (size - 1);
-    lookup.push(Color("#013").alpha(a).hexa());
+    const color = Color("#013").alpha(a);
+    lookup.push(p5.color(color.hexa()));
   }
   return lookup;
 }
