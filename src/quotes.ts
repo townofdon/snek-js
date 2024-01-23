@@ -413,6 +413,22 @@ We are just an advanced breed of monkeys on a minor planet of a very average sta
 But we can understand the snekverse. That makes us something very special.
 `
 
+const quotesByShakespeare = `
+To snek,|
+or not to snek.|
+That is the question
+
+Doubt thou the stars are fire,|
+Doubt that the sun doth move,|
+Doubt truth to be a liar,|
+But never doubt I snek.
+
+The fault, dear Brutus, is not in our stars, but in snek.
+
+To snek, perchance to dream;|
+Aye, there's the rub.
+`;
+
 function compileQuotes(quotesInput: string, author: string): Quote[] {
   const quotes: Quote[] = [];
   const lines = quotesInput.split('\n');
@@ -467,4 +483,5 @@ export const quotes: Quote[] = [
   ...compileQuotes(quotesByEinstein, 'A. Einstein'),
   ...compileQuotes(quotesByBohr, 'N. Bohr'),
   ...compileQuotes(quotesByHawking, 'S. Hawking'),
+  ...compileQuotes(quotesByShakespeare, 'W. Shakespeare'),
 ];

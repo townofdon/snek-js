@@ -162,7 +162,7 @@ export class QuoteScene extends BaseScene {
       const currentChar = paragraph.substring(cursorEnd - 1, cursorEnd);
       if (currentChar === ' ' || currentChar === '\n' || cursorEnd === paragraph.length) {
         const testString = paragraph.substring(cursorStart, cursorEnd);
-        const exceedsBounds = p5.textWidth(testString) > rectWidth;
+        const exceedsBounds = p5.textWidth(testString) + 5 >= rectWidth;
         if (exceedsBounds) {
           cursorStart = cursorLastSpaceFound + 1;
           numLines++;
