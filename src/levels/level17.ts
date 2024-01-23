@@ -3,7 +3,7 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
-const name = 'SNEKBAIT'
+const name = 'bait&switch'
 
 export const LEVEL_17: Level = {
   name,

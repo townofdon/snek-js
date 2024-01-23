@@ -153,8 +153,8 @@ const replay: Replay = {
   shouldProceedToNextClip: false,
 }
 const tutorial: Tutorial = {
-  needsMoveControls: true,
-  needsRewindControls: true,
+  needsMoveControls: false,
+  needsRewindControls: false,
 };
 const clickState: ClickState = {
   x: 0,
@@ -1963,16 +1963,16 @@ export const sketch = (p5: P5) => {
     UI.drawButton("13", x, yRow3, () => warpToLevel(13), uiElements);
     UI.drawButton("14", x += offset, yRow3, () => warpToLevel(14), uiElements);
     UI.drawButton("15", x += offset, yRow3, () => warpToLevel(15), uiElements);
-    UI.drawButton("__", x += offset, yRow3, () => warpToLevel(16), uiElements);
+    UI.drawButton("16", x += offset, yRow3, () => warpToLevel(16), uiElements);
     UI.drawButton("17", x += offset, yRow3, () => warpToLevel(17), uiElements);
     UI.drawButton("18", x += offset, yRow3, () => warpToLevel(18), uiElements);
     x = xInitial;
-    UI.drawButton("S1", x, yRow4, () => warpToLevel(110), uiElements);
+    UI.drawButton("19", x, yRow4, () => warpToLevel(19), uiElements);
+    UI.drawButton("20", x += offset, yRow4, () => warpToLevel(99), uiElements);
+    UI.drawButton("S1", x += offset, yRow4, () => warpToLevel(110), uiElements);
     UI.drawButton("S2", x += offset, yRow4, () => warpToLevel(120), uiElements);
     UI.drawButton("S3", x += offset, yRow4, () => warpToLevel(130), uiElements);
     UI.drawButton("S4", x += offset, yRow4, () => warpToLevel(140), uiElements);
-    UI.drawButton("19", x += offset, yRow4, () => warpToLevel(19), uiElements);
-    UI.drawButton("20", x += offset, yRow4, () => warpToLevel(99), uiElements);
   }
 
   function openDoors() {

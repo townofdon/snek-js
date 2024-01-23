@@ -1,12 +1,33 @@
 import { Palette } from "./types";
 import Color from 'color';
 
+enum PaletteName {
+  default = 'default',
+  deathInvert = 'deathInvert',
+  blackWhite = 'blackWhite',
+  boxcar = 'boxcar',
+  hospital = 'hospital',
+  forest = 'forest',
+  mintJulip = 'mintJulip',
+  burningCity = 'burningCity',
+  violetSunset = 'violetSunset',
+  atomic = 'atomic',
+  cornflower = 'cornflower',
+  plumsea = 'plumsea',
+  panopticon = 'panopticon',
+  scienceLab = 'scienceLab',
+  darkStar = 'darkStar',
+  crimson = 'crimson',
+  gravChamber = 'gravChamber',
+  stonelair = 'stonelair',
+}
+
 // online palette tools
 // - https://coolors.co/493b2a-593f62-7b6d8d-8499b1-a5c4d4
 // - https://mycolor.space/?hex=%23CB1587&sub=1
 // - https://www.color-hex.com/color-palettes/
 
-export const PALETTE: Record<string, Palette> = {
+export const PALETTE: Record<PaletteName, Palette> = {
   default: {
     background: "#505050",
     playerHead: "#fa0",

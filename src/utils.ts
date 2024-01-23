@@ -22,6 +22,7 @@ import {
   LEVEL_13,
   LEVEL_14,
   LEVEL_15,
+  LEVEL_16,
   LEVEL_17,
   LEVEL_18,
   LEVEL_19,
@@ -110,6 +111,8 @@ export function getWarpLevelFromNum(levelNum: number) {
       return LEVEL_14;
     case 15:
       return LEVEL_15;
+    case 16:
+      return LEVEL_16;
     case 17:
       return LEVEL_17;
     case 18:
