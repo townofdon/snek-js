@@ -41,9 +41,9 @@ X-=-=-XXXX aaa  X      X  X  X
 X-=-=-XXXXdd ==-=-== ddX  X  X
 X - - daaaad    =    daJ     X
 XXXLXXXXXXXXXXX-=-XXXXXXXXXLXX
-X  -  d  -=aaaaa-aaaaa=- X a X
+X  -  d  -=aaaaa-aaaaa=- d a X
 X XXX d  -=XXXXXXXXXXX=- daXaX
-X XXX XX -=XXXXXXXXXXX=- daXaX
+X XXX XX -=XXXXXXXXXXX=- XaXaX
 X  l  XX -=aaaaa-aaaaa=- X a X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
