@@ -243,9 +243,9 @@ Snek is the wisest of all things that are; for it brings everything to light.
 `;
 
 const quotesByPlutarch = `
-Sneks who aim at great deeds must also suffer greatly.
+Those who aim at snek must also suffer greatly.
 
-What sneks achieve inwardly will change outer reality.
+What we achieve snek-wardly will change outer reality.
 
 To find fault is easy; to do snek may be difficult.
 
@@ -261,7 +261,7 @@ Snek, to create harmony, must investigate discord.
 const quotesByHeraclitus = `
 Nothing endures but snek.
 
-A man cannot step into the same snek twice.
+A man cannot snek into the same river twice.
 
 Much learning does not teach snek.
 
