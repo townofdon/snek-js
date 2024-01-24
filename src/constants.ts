@@ -6,7 +6,7 @@ export const TITLE = 'SNEK';
 
 export const SHOW_FPS = false;
 export const DEBUG_EASY_LEVEL_EXIT = false;
-export const DISABLE_TRANSITIONS = false;
+export const DISABLE_TRANSITIONS = true;
 export const RECORD_REPLAY_STATE = false;
 export const IS_DEV = window.location.href.includes('localhost');
 
