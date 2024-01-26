@@ -39,7 +39,6 @@ enum VisualizerMode {
   FrequencySpectrum,
 }
 
-// TODO: add volume control
 export class OSTScene extends BaseScene {
   private sfx: SFXInstance;
   private musicPlayer: MusicPlayer;

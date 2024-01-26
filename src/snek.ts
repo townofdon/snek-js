@@ -1432,9 +1432,6 @@ export const sketch = (p5: P5) => {
     moveSegments();
     player.position.add(currentMove);
     state.isLost = false;
-
-    // TODO: REMOVE
-    console.log('JUST SAVED YO ASS!');
   }
 
   function handleSnakeDamage(didReceiveDamage: boolean) {
