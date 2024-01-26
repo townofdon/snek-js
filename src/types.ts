@@ -160,7 +160,13 @@ export enum TitleVariant {
   Yellow,
 }
 
+export enum LevelType {
+  Level = 0,
+  Maze,
+}
+
 export interface Level {
+  type?: LevelType,
   name: string,
   timeToClear: number,
   applesToClear: number,
@@ -216,6 +222,7 @@ export interface LevelData {
   keysMap: Record<number, Key>,
   locks: Lock[],
   locksMap: Record<number, Lock>,
+  diffSelectMap: Record<number, number>,
 }
 
 export interface DynamicLevelData {

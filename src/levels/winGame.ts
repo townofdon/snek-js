@@ -1,5 +1,4 @@
 import { PALETTE } from "../palettes";
-import { WinGameScene } from "../scenes/WinGameScene";
 import { Level, MusicTrack } from "../types";
 
 const name = 'wingame';

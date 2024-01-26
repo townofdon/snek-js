@@ -1,10 +1,10 @@
 import P5, { Element, Vector } from 'p5';
-import Color from 'color';
 
 import {
   MAIN_TITLE_SCREEN_LEVEL,
   START_LEVEL,
   LEVELS,
+  LEVEL_AFTER_WIN,
 } from './levels';
 import {
   RECORD_REPLAY_STATE,
@@ -46,7 +46,7 @@ import {
   MAX_SNAKE_SIZE,
   GLOBAL_LIGHT_DEFAULT,
 } from './constants';
-import { clamp, dirToUnitVector, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, isWithinBlockDistance, parseUrlQueryParams, removeArrayElement, rotateDirection, shuffleArray, vectorToDir } from './utils';
+import { clamp, dirToUnitVector, findLevelWarpIndex, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, isWithinBlockDistance, parseUrlQueryParams, removeArrayElement, rotateDirection, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
 import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key, Lock, KeyChannel } from './types';
@@ -183,6 +183,7 @@ let segmentsMap: Record<number, boolean> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
 let keysMap: Record<number, Key> = {};
 let locksMap: Record<number, Lock> = {};
+let diffSelectMap: Record<number, number> = {};
 
 const lightMap = createLightmap();
 
@@ -519,6 +520,7 @@ export const sketch = (p5: P5) => {
     setLevelIndexFromCurrentLevel();
     difficulty = getDifficultyFromIndex(difficultyIndex);
     initLevel()
+    playSound(Sound.unlock);
     state.isGameStarting = false;
     state.isGameStarted = true;
     replay.difficulty = { ...difficulty };
@@ -545,12 +547,14 @@ export const sketch = (p5: P5) => {
   }
 
   function renderDifficultyUI() {
+    if (level === START_LEVEL) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     UI.renderDifficulty(difficulty.index, state.isShowingDeathColours, state.isCasualModeEnabled);
   }
 
   function renderHeartsUI() {
+    if (level === START_LEVEL) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.isCasualModeEnabled) {
@@ -561,6 +565,7 @@ export const sketch = (p5: P5) => {
   }
 
   function renderScoreUI(score = stats.score) {
+    if (level === START_LEVEL) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.isCasualModeEnabled) return;
@@ -568,6 +573,7 @@ export const sketch = (p5: P5) => {
   }
 
   function renderLevelName() {
+    if (level === START_LEVEL) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     const progress = clamp(stats.applesEatenThisLevel / (level.applesToClear * difficulty.applesMod), 0, 1);
@@ -758,6 +764,7 @@ export const sketch = (p5: P5) => {
     keysMap = levelData.keysMap;
     locks = levelData.locks;
     locksMap = levelData.locksMap;
+    diffSelectMap = levelData.diffSelectMap;
 
     // create snake parts
     let x = player.position.x;
@@ -849,7 +856,7 @@ export const sketch = (p5: P5) => {
     }
 
     const globalLight = level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
-    if (state.isGameStarted && replay.mode !== ReplayMode.Playback && globalLight < 1) {
+    if (state.isGameStarted && replay.mode !== ReplayMode.Playback && globalLight < 1 && !state.isShowingDeathColours) {
       updateLighting(lightMap, globalLight, player.position, portals);
       drawLighting(lightMap, renderer);
     }
@@ -881,6 +888,7 @@ export const sketch = (p5: P5) => {
     handlePortalTravel();
     handleKeyPickup();
     handleUnlock();
+    handleDifficultySelect();
 
     const didHit = checkHasHit(player.position);
     state.isLost = didHit;
@@ -1179,6 +1187,15 @@ export const sketch = (p5: P5) => {
     // TODO: ADD PARTICLE FX OR SOMETHING
   }
 
+  function handleDifficultySelect() {
+    if (level !== START_LEVEL) return;
+
+    const index = getCoordIndex(player.position);
+    const difficultyIndex = diffSelectMap[index];
+    if (difficultyIndex === undefined) return;
+    difficulty = getDifficultyFromIndex(difficultyIndex);
+  }
+
   function handleSnakeMovement() {
     if (!state.isMoving) return;
     if (replay.mode === ReplayMode.Playback) return;
@@ -1301,10 +1318,14 @@ export const sketch = (p5: P5) => {
     if (!getHasSegmentExited(player.position)) return;
 
     state.isExitingLevel = true;
-    winLevelScene.reset();
+    winLevelScene.reset(level === START_LEVEL ? 'GET PSYCHED!' : 'SNEK CLEAR!');
     if (replay.mode !== ReplayMode.Playback) {
       startAction(fadeMusic(0, 1000), Action.FadeMusic);
-      playSound(Sound.winLevel);
+      if (level === START_LEVEL) {
+        playSound(Sound.doorOpenHuge);
+      } else {
+        playSound(Sound.winLevel);
+      }
     }
   }
 
@@ -1312,6 +1333,7 @@ export const sketch = (p5: P5) => {
     if (!didMove) return;
     if (!state.isExitingLevel) return;
     if (state.isExited) return;
+    if (level === START_LEVEL) return;
 
     incrementScoreWhileExitingLevel();
     renderScoreUI();
@@ -1333,6 +1355,8 @@ export const sketch = (p5: P5) => {
     if (replay.mode === ReplayMode.Playback) {
       proceedToNextReplayClip();
     } else if (DISABLE_TRANSITIONS) {
+      gotoNextLevel();
+    } else if (level === START_LEVEL) {
       gotoNextLevel();
     } else {
       const isPerfect = apples.length === 0 && state.lives === 3;
@@ -1523,6 +1547,7 @@ export const sketch = (p5: P5) => {
   function addPoints(points: number) {
     if (state.isGameWon) return;
     if (state.isCasualModeEnabled) return;
+    if (level === START_LEVEL) return;
     stats.score += points;
     stats.numPointsEverScored += points;
   }
@@ -1984,18 +2009,23 @@ export const sketch = (p5: P5) => {
   function gotoNextLevel() {
     if (replay.mode === ReplayMode.Playback) return;
 
+    musicPlayer.stopAllTracks();
+
+    if (state.isGameWon) {
+      difficulty.index++;
+      difficulty = getDifficultyFromIndex(difficulty.index);
+      resetStats();
+      level = LEVEL_AFTER_WIN;
+      initLevel();
+      return;
+    }
+
     const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !DISABLE_TRANSITIONS;
     stats.numLevelsCleared += 1;
     stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
     state.levelIndex++;
-    musicPlayer.stopAllTracks();
     level = LEVELS[state.levelIndex % LEVELS.length];
-    if (level === START_LEVEL) {
-      difficulty.index++;
-      difficulty = getDifficultyFromIndex(difficulty.index);
-      resetStats();
-    }
 
     maybeSaveReplayStateToFile();
 
@@ -2110,8 +2140,8 @@ export const sketch = (p5: P5) => {
       replay.levelIndex = clip.levelIndex;
       replay.positions = clip.positions;
 
-      state.levelIndex = clip.levelIndex;
-      level = LEVELS[state.levelIndex % LEVELS.length];
+      level = getWarpLevelFromNum(clip.levelIndex);
+      setLevelIndexFromCurrentLevel();
       difficulty = { ...clip.difficulty };
       initLevel(false);
       clipIndex++;
@@ -2133,7 +2163,9 @@ export const sketch = (p5: P5) => {
         a.download = fileName;
         a.click();
       }
-      const fileName = `snek-data-${replay.levelIndex}-${replay.levelName}-${replay.timeCaptureStarted}.json`;
+      const trueIndex = findLevelWarpIndex(LEVELS[state.levelIndex % LEVELS.length]);
+      if (trueIndex < 0) throw new Error('replay capture failed: findLevelWarpIndex returned -1');
+      const fileName = `snek-data-${trueIndex}-${replay.levelName}-${replay.timeCaptureStarted}.json`;
       download(JSON.stringify(replay), fileName, 'application/json');
       console.log(`saved file "${fileName}"`);
     } catch (err) {

@@ -244,22 +244,23 @@ export class Renderer {
     if (!isWaitingToStartMoving && !isStunned) return;
 
     // banner background
-    const bannerHeight = 4;
-    const bannerCenter = {
-      x: GRIDCOUNT.x * .5,
-      y: GRIDCOUNT.y * .5,
+    const bannerWidth = 6;
+    const bannerHeight = 4.4;
+    const bannerPosition = {
+      x: 10,
+      y: 12.3,
     };
-    const x0 = BLOCK_SIZE.x * (bannerCenter.x - 5);
-    const x1 = BLOCK_SIZE.x * (bannerCenter.x + 4);
-    const y0 = BLOCK_SIZE.y * (bannerCenter.y - bannerHeight * 0.5);
-    const y1 = BLOCK_SIZE.y * (bannerCenter.y + bannerHeight * 0.5);
+    const x0 = BLOCK_SIZE.x * (bannerPosition.x - 5);
+    const x1 = x0 + bannerWidth * BLOCK_SIZE.x - STROKE_SIZE;
+    const y0 = BLOCK_SIZE.y * (bannerPosition.y);
+    const y1 = y0 + bannerHeight * BLOCK_SIZE.y - STROKE_SIZE;
     p5.fill('#000000aa');
     p5.stroke("#000");
     p5.strokeWeight(STROKE_SIZE);
     p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
-    // text
-    const textX = BLOCK_SIZE.x * (bannerCenter.x + 0.8);
-    const textY = BLOCK_SIZE.y * (bannerCenter.y + bannerHeight * 0.5 - 1.35);
+    // // text
+    const textX = x0 + BLOCK_SIZE.x * 1.7;
+    const textY = y0 + BLOCK_SIZE.y * 3.7;
     p5.fill(ACCENT_COLOR);
     p5.stroke("#111");
     p5.strokeWeight(4);
@@ -268,8 +269,8 @@ export class Renderer {
     p5.textFont(fonts.variants.miniMood);
     p5.text("MOVE", textX, textY);
     // image
-    const imgX = BLOCK_SIZE.x * (bannerCenter.x - 4.5);
-    const imgY = BLOCK_SIZE.y * (bannerCenter.y - bannerHeight * 0.5 + 0.4);
+    const imgX = x0 + BLOCK_SIZE.x * 0.5;
+    const imgY = y0 + BLOCK_SIZE.y * 0.1;
     spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY);
   }
 

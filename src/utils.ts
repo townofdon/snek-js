@@ -5,6 +5,7 @@ import {
   DIFFICULTY_MEDIUM,
   DIFFICULTY_ULTRA,
   GRIDCOUNT,
+  IS_DEV,
 } from "./constants";
 import {
   LEVEL_01,
@@ -28,7 +29,7 @@ import {
   LEVEL_19,
   LEVEL_99,
 } from './levels';
-import { DIR, MusicTrack, QueryParams } from "./types";
+import { DIR, Level, MusicTrack, QueryParams } from "./types";
 import { TUTORIAL_LEVEL_10 } from "./levels/tutorialLevel10";
 import { TUTORIAL_LEVEL_20 } from "./levels/tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./levels/tutorialLevel30";
@@ -79,7 +80,7 @@ export function shuffleArray<T>(array: T[]) {
   return copy;
 }
 
-export function getWarpLevelFromNum(levelNum: number) {
+export function getWarpLevelFromNum(levelNum: number): Level {
   switch (levelNum) {
     case 1:
       return LEVEL_01;
@@ -130,8 +131,18 @@ export function getWarpLevelFromNum(levelNum: number) {
     case 140:
       return TUTORIAL_LEVEL_40;
     default:
+      if (IS_DEV) {
+        throw new Error(`Could not find warp level for num: ${levelNum}`)
+      }
       return LEVEL_01;
   }
+}
+
+export function findLevelWarpIndex(level: Level): number {
+  for (let i = 1; i < 200; i++) {
+    if (getWarpLevelFromNum(i) === level) return i;
+  }
+  return -1;
 }
 
 export function getDifficultyFromIndex(index: number) {

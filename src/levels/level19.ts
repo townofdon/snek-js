@@ -43,7 +43,7 @@ XX1----2X0===----            X
 XX1====2X0===----            X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
-  colors: PALETTE.violetSunset,
+  colors: PALETTE.gravChamber,
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   portalExitConfig: {

@@ -19,6 +19,7 @@ interface TriggerLevelExitParams {
 
 export class WinLevelScene extends BaseScene {
   private sfx: SFXInstance;
+  private titleText: string = 'SNEK CLEAR!';
 
   constructor(p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     super(p5, fonts, callbacks)
@@ -72,11 +73,12 @@ export class WinLevelScene extends BaseScene {
     }
   }
 
-  reset = () => {
+  reset = (titleText: string = 'SNEK CLEAR!') => {
     this.stopAllCoroutines();
     this.isTriggered = false;
     this.stageClearY = 0.5;
     this.bgOpacity = 0;
+    this.titleText = titleText;
   }
 
   *action() {
@@ -196,7 +198,7 @@ export class WinLevelScene extends BaseScene {
 
   draw = () => {
     const { p5, fonts } = this.props;
-    const title = "SNEK CLEAR!"
+    const title = this.titleText;
     this.drawBackground(p5.lerpColor(p5.color("#00000000"), p5.color("#00000066"), this.bgOpacity).toString());
     p5.textAlign(p5.CENTER, p5.CENTER);
     p5.textFont(fonts.variants.miniMood);

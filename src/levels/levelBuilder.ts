@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
-import { KeyChannel, Level, LevelData, Portal, PortalChannel, PortalExitMode } from "../types";
+import { KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { getCoordIndex } from "../utils";
 import { LEVEL_01 } from ".";
 
@@ -29,6 +29,7 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
     keysMap: {},
     locks: [],
     locksMap: {},
+    diffSelectMap: {},
   }
 
   // keep track of which group a portal cell belongs to
@@ -150,60 +151,13 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
         case '7':
         case '8':
         case '9':
-          data.nospawns.push(vec);
-          const channel = parseInt(char, 10) as PortalChannel;
-          let group = portalGroupIndex[channel];
-          // increment portal index if prev portal cell of same PortalIndex is farther away than 1 unit
-          if (data.portals[channel].length) {
-            // because of the way we calculate bounds via getCoordIndex(), portals on opposite sides of map could be considered next to each other.
-            // an easy fix is to just perform an additional check to make sure that the diff is never more than 1.
-            const checkDiffMoreThanOne = (portal: Portal) => {
-              const diff = P5.Vector.sub(portal.position, vec);
-              diff.x = Math.abs(diff.x);
-              diff.y = Math.abs(diff.y);
-              if (diff.x > 1 || diff.y > 1 || (diff.x > 0 && diff.y > 0)) return true;
-              return false;
-            }
-            const findAdjacentPortalOfSameIndex = (): Portal | null => {
-              // up
-              if (vec.y > 0) {
-                const other = data.portalsMap[getCoordIndex(vec.copy().add(0, -1))];
-                if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
-              }
-              // down
-              if (vec.y < GRIDCOUNT.y) {
-                const other = data.portalsMap[getCoordIndex(vec.copy().add(0, 1))];
-                if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
-              }
-              // left
-              if (vec.x > 0) {
-                const other = data.portalsMap[getCoordIndex(vec.copy().add(-1, 0))];
-                if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
-              }
-              // down
-              if (vec.x < GRIDCOUNT.x) {
-                const other = data.portalsMap[getCoordIndex(vec.copy().add(1, 0))];
-                if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
-              }
-              return null;
-            }
-            const otherPortal = findAdjacentPortalOfSameIndex();
-            if (otherPortal) {
-              group = otherPortal.group;
-            } else {
-              portalGroupIndex[channel] += 1;
-              group = portalGroupIndex[channel];
-            }
+          if (level.type === LevelType.Maze) {
+            const difficultyIndex = parseInt(char, 0);
+            if (difficultyIndex < 1 || difficultyIndex > 4) continue;
+            data.diffSelectMap[getCoordIndex(vec)] = difficultyIndex;
+          } else {
+            addPortal(data, vec, char, portalGroupIndex);
           }
-          data.portals[channel].push(vec);
-          data.portalsMap[getCoordIndex(vec)] = {
-            position: vec.copy(),
-            exitMode: PortalExitMode.InvertDirection,
-            channel,
-            group,
-            hash: getPortalHash(vec, channel, group),
-            index: 0,
-          };
           break;
       }
     }
@@ -219,7 +173,79 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
   data.keys.forEach(key => { data.keysMap[getCoordIndex(key.position)] = key });
   data.locks.forEach(lock => { data.locksMap[getCoordIndex(lock.position)] = lock });
 
-  // link portals
+  linkPortals(data);
+
+  return data;
+}
+
+function getPortalHash(vec: P5.Vector, channel: PortalChannel, group: number) {
+  // there are at most 10 channels
+  const channelComponent = channel as number;
+  // mul by 10 to avoid intersection with channel
+  const groupComponent = group * 10;
+  // mul by 1000 as impossible for there to exist more than 100 groups (100 * 10)
+  const indexComponent = getCoordIndex(vec) * 1000;
+  return channelComponent + groupComponent + indexComponent;
+}
+
+function addPortal(data: LevelData, vec: Vector, char: string, portalGroupIndex: Record<PortalChannel, number>) {
+  data.nospawns.push(vec);
+  const channel = parseInt(char, 10) as PortalChannel;
+  let group = portalGroupIndex[channel];
+  // increment portal index if prev portal cell of same PortalIndex is farther away than 1 unit
+  if (data.portals[channel].length) {
+    // because of the way we calculate bounds via getCoordIndex(), portals on opposite sides of map could be considered next to each other.
+    // an easy fix is to just perform an additional check to make sure that the diff is never more than 1.
+    const checkDiffMoreThanOne = (portal: Portal) => {
+      const diff = P5.Vector.sub(portal.position, vec);
+      diff.x = Math.abs(diff.x);
+      diff.y = Math.abs(diff.y);
+      if (diff.x > 1 || diff.y > 1 || (diff.x > 0 && diff.y > 0)) return true;
+      return false;
+    }
+    const findAdjacentPortalOfSameIndex = (): Portal | null => {
+      // up
+      if (vec.y > 0) {
+        const other = data.portalsMap[getCoordIndex(vec.copy().add(0, -1))];
+        if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
+      }
+      // down
+      if (vec.y < GRIDCOUNT.y) {
+        const other = data.portalsMap[getCoordIndex(vec.copy().add(0, 1))];
+        if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
+      }
+      // left
+      if (vec.x > 0) {
+        const other = data.portalsMap[getCoordIndex(vec.copy().add(-1, 0))];
+        if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
+      }
+      // down
+      if (vec.x < GRIDCOUNT.x) {
+        const other = data.portalsMap[getCoordIndex(vec.copy().add(1, 0))];
+        if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
+      }
+      return null;
+    }
+    const otherPortal = findAdjacentPortalOfSameIndex();
+    if (otherPortal) {
+      group = otherPortal.group;
+    } else {
+      portalGroupIndex[channel] += 1;
+      group = portalGroupIndex[channel];
+    }
+  }
+  data.portals[channel].push(vec);
+  data.portalsMap[getCoordIndex(vec)] = {
+    position: vec.copy(),
+    exitMode: PortalExitMode.InvertDirection,
+    channel,
+    group,
+    hash: getPortalHash(vec, channel, group),
+    index: 0,
+  };
+}
+
+function linkPortals(data: LevelData) {
   for (let i = 0; i <= 9; i++) {
     const channelPortals = data.portals[i as PortalChannel]
       .map(vec => data.portalsMap[getCoordIndex(vec)])
@@ -240,16 +266,4 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
       }
     }
   }
-
-  return data;
-}
-
-function getPortalHash(vec: P5.Vector, channel: PortalChannel, group: number) {
-  // there are at most 10 channels
-  const channelComponent = channel as number;
-  // mul by 10 to avoid intersection with channel
-  const groupComponent = group * 10;
-  // mul by 1000 as impossible for there to exist more than 100 groups (100 * 10)
-  const indexComponent = getCoordIndex(vec) * 1000;
-  return channelComponent + groupComponent + indexComponent;
 }

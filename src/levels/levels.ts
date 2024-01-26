@@ -25,8 +25,10 @@ import { TUTORIAL_LEVEL_20 } from "./tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "./tutorialLevel40";
 import { LEVEL_WIN_GAME } from "./winGame";
+import { MAZE_01 } from "./mazes/maze01";
 
 export const LEVELS: Level[] = [
+    MAZE_01,
     LEVEL_01,
     LEVEL_02,
     LEVEL_03,
@@ -56,4 +58,5 @@ export const LEVELS: Level[] = [
 
 export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;
 
-export const START_LEVEL = LEVEL_01;
+export const START_LEVEL = MAZE_01;
+export const LEVEL_AFTER_WIN = LEVEL_01;
