@@ -11,11 +11,11 @@ export const LEVEL_02: Level = {
   growthMod: 0.75,
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-XXXX++=--_   -_-    _--=++XXXX
-XXX++=---    -=-     ---=++XXX
-XX++=---     -=-      ---=++XX
-X_+=---      -=-       ---=+_X
-X~----       -=-        ---- X
+XXXX++       -_-        ++XXXX
+XXX++-       -=-        -++XXX
+XX++-        -=-         -++XX
+X++-         -=-          -++X
+X~           -=-             X
 X            ---            ~X
 d------------+X+-------------d
 d-===-----==-XXX-==------===-d
@@ -34,11 +34,11 @@ d-===-----==-XXX-==------===-d
 d------------+X+-------------d
 X            ---             X
 X~           -=-             X
-X ----       -=-        ----~X
-X_+=---      -=-       ---=+_X
-XX++=---     -=-      ---=++XX
-XXX++=---    -=-     ---=++XXX
-XXXX++=--_   -_-   ~---=++XXXX
+X            -=-            ~X
+X++-         -=-          -++X
+XX++-        -=-         -++XX
+XXX++-       -=-        -++XXX
+XXXX++   ~   -_-   ~    ++XXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: PALETTE.plumsea,
