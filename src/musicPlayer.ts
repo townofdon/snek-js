@@ -46,6 +46,7 @@ export class MusicPlayer {
     [MusicTrack.stonemaze]: false,
     [MusicTrack.woorb]: false,
     [MusicTrack.gravy]: false,
+    [MusicTrack.lostcolony]: false,
   };
   private settings: GameSettings;
 

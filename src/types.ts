@@ -287,22 +287,23 @@ export type SoundVariants = Record<keyof typeof Sound, Howl>
 
 export enum MusicTrack {
   None = '__NO_TRACK__',
-  simpleTime = '01-simpletime.wav',
+  simpleTime = '01-simpletime3.wav',
   conquerer = '02-conquerer.wav',
-  transient = '03-transient.wav',
+  transient = '03-transient-2.wav',
   lordy = '04-lordy.wav',
-  champion = '05-champion.wav',
+  champion = '05-champion-2.wav',
   dangerZone = '06-dangerzone.wav',
   aqueduct = '07-aqueduct.wav',
   creeplord = '08-creeplord.wav',
-  moneymaker = '09-snekmoney3.wav',
+  moneymaker = '09-snekmoney4.wav',
   factorio = '10-factorio.wav',
   observer = '11-observer.wav',
   skycastle = '12-skycastle.wav',
   shopkeeper = '13-shopkeeper-storyteller.wav',
-  stonemaze = '14-stoneways-clausterphobia.wav',
+  stonemaze = '14-stoneways-clausterphobia-2.wav',
   woorb = '15-woorb.wav',
-  gravy = "16-gravy.wav"
+  gravy = '16-gravy.wav',
+  lostcolony = '17-lost-colony.wav',
 }
 
 export enum Image {

@@ -294,6 +294,8 @@ export function getTrackName(track?: MusicTrack) {
       return "Hightech";
     case MusicTrack.gravy:
       return "Snekraid";
+    case MusicTrack.lostcolony:
+      return "Warpcore"
     default:
       return "Unknown";
   }
