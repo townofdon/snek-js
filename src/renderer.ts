@@ -333,6 +333,48 @@ export class Renderer {
     spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY);
   }
 
+  drawDifficultySelect = (backgroundColor: string) => {
+    const colorEas = '#43C59E';
+    const colorMed = '#fa0'
+    const colorHar = '#E76F51'
+    const colorUlt = '#F21F5E'
+    // const colorUlt = '#8F3985'
+
+    this.drawDifficultySelectBanner(3, 0, 5, 1.1, 'choose', { backgroundColor, textXOffset: .1 });
+    this.drawDifficultySelectBanner(3, 1, 6, 1, 'difficulty', { backgroundColor, textXOffset: .1 });
+    this.drawDifficultySelectBanner(12.9, 0, 3.1, 1, 'easy', { backgroundColor, textColor: colorEas });
+    this.drawDifficultySelectBanner(26, 14, 4, 1, 'medium', { backgroundColor, textColor: colorMed });
+    this.drawDifficultySelectBanner(12.9, 29, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
+    this.drawDifficultySelectBanner(24, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
+  }
+
+  private drawDifficultySelectBanner = (x: number, y: number, bannerWidth: number, bannerHeight: number, text: string, {
+    textXOffset = 0,
+    textColor = "#fff",
+    backgroundColor = "#000000aa",
+  } = {}) => {
+    const { p5, fonts } = this.props;
+    const x0 = BLOCK_SIZE.x * x;
+    const x1 = BLOCK_SIZE.x * (x + bannerWidth) - STROKE_SIZE * 0.5;
+    const y0 = BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
+    const y1 = BLOCK_SIZE.y * (y + bannerHeight) - STROKE_SIZE;
+    p5.fill(backgroundColor);
+    p5.noStroke();
+    // p5.stroke("#000");
+    p5.strokeWeight(STROKE_SIZE);
+    p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    // text
+    const textX = BLOCK_SIZE.x * x + 5 + BLOCK_SIZE.x * textXOffset;
+    const textY = BLOCK_SIZE.y * y + 7;
+    p5.fill(textColor);
+    // p5.stroke("#111");
+    p5.strokeWeight(4);
+    p5.textSize(12);
+    p5.textAlign(p5.LEFT, p5.CENTER);
+    p5.textFont(fonts.variants.miniMood);
+    p5.text(text, textX, textY);
+  }
+
   drawUIKeys = () => {
     const { p5, gameState, spriteRenderer, replay } = this.props;
 

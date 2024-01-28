@@ -864,6 +864,7 @@ export const sketch = (p5: P5) => {
     drawPlayerHead(player.position);
     drawParticles(10);
 
+    if (level === START_LEVEL) renderer.drawDifficultySelect(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background);
     renderer.drawUIKeys();
     renderer.drawTutorialMoveControls();
     renderer.drawTutorialRewindControls(player.position, canRewind);
