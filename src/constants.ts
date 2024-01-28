@@ -23,6 +23,7 @@ export const GLOBAL_LIGHT_DEFAULT = 1;
 export const LIGHTMAP_RESOLUTION = 1;
 
 export const FRAMERATE = 90;
+export const FRAME_DUR_MS = (1 / FRAMERATE) * 1000;
 export const DIMENSIONS = { x: Math.min(window.innerWidth, 600), y: Math.min(window.innerWidth, 600) };
 export const GRIDCOUNT = { x: 30, y: 30 };
 export const STROKE_SIZE = 4;

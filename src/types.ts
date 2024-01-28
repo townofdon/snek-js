@@ -124,6 +124,13 @@ export interface GameState {
   lastHurtBy: HitType,
 }
 
+export interface LoopState {
+  interval: NodeJS.Timeout,
+  timePrevMs: number,
+  timeAccumulatedMs: number,
+  deltaTime: number,
+}
+
 export interface Tutorial {
   needsMoveControls: boolean,
   needsRewindControls: boolean,

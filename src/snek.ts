@@ -9,6 +9,7 @@ import {
 import {
   RECORD_REPLAY_STATE,
   FRAMERATE,
+  FRAME_DUR_MS,
   DIMENSIONS,
   GRIDCOUNT,
   BASE_TICK_MS,
@@ -49,7 +50,7 @@ import {
 import { clamp, dirToUnitVector, findLevelWarpIndex, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, isWithinBlockDistance, parseUrlQueryParams, removeArrayElement, rotateDirection, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key, Lock, KeyChannel } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key, Lock, KeyChannel, LoopState } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -83,6 +84,12 @@ const queryParams = parseUrlQueryParams();
 const settings: GameSettings = {
   musicVolume: 1,
   sfxVolume: 1,
+}
+const loopState: LoopState = {
+  interval: null,
+  timePrevMs: 0,
+  timeAccumulatedMs: 0,
+  deltaTime: 0,
 }
 const state: GameState = {
   appMode: AppMode.StartScreen,
@@ -179,6 +186,7 @@ let keys: Key[] = []; // keys
 let locks: Lock[] = []; // locks
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
+let applesMap: Record<string, number> = {};
 let segmentsMap: Record<number, boolean> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
 let keysMap: Record<number, Key> = {};
@@ -292,10 +300,11 @@ export const sketch = (p5: P5) => {
 
   /**
    * https://p5js.org/reference/#/p5/draw
+   * called by window.requestAnimationFrame
    */
   p5.draw = draw;
   function draw() {
-    gameLoop();
+    renderLoop();
   }
 
   /**
@@ -427,6 +436,7 @@ export const sketch = (p5: P5) => {
     stopAllCoroutines();
     actions.stopAll();
     startReplay();
+    startLogicLoop();
     winLevelScene.reset();
     winGameScene.reset();
     resumeAudioContext().then(() => {
@@ -712,6 +722,7 @@ export const sketch = (p5: P5) => {
     sfx.setGlobalVolume(settings.sfxVolume);
 
     if (shouldShowTransitions) {
+      stopLogicLoop();
       actions.stopAll();
       musicPlayer.load(level.musicTrack);
       musicPlayer.setVolume(1);
@@ -732,11 +743,13 @@ export const sketch = (p5: P5) => {
           renderLevelName();
           musicPlayer.stopAllTracks();
           musicPlayer.play(level.musicTrack);
+          startLogicLoop();
         })
     } else {
       if (replay.mode !== ReplayMode.Playback && (state.isGameStarted || state.isGameStarting)) {
         if (DISABLE_TRANSITIONS) musicPlayer.stopAllTracks();
         musicPlayer.play(level.musicTrack);
+        startLogicLoop();
       }
       renderDifficultyUI();
       renderHeartsUI();
@@ -783,18 +796,32 @@ export const sketch = (p5: P5) => {
     resetLightmap(lightMap, level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
   }
 
-  function gameLoop() {
-    const timeFrameStart = performance.now();
+  function startLogicLoop() {
+    if (loopState.interval) clearInterval(loopState.interval);
+    loopState.interval = setInterval(logicLoop, 1);
+  }
 
-    actions.tick();
+  function stopLogicLoop() {
+    if (loopState.interval) clearInterval(loopState.interval);
+    loopState.interval = null;
+    loopState.deltaTime = 0;
+    loopState.timeAccumulatedMs = 0;
+    loopState.timePrevMs = 0;
+  }
 
-    if (state.isPaused) return;
-
-    setTimeout(() => { tickCoroutines(); }, 0);
-
-    if (state.appMode === AppMode.Quote) {
-      p5.background("#000");
+  function logicLoop() {
+    // ensure logic loop fires at approximately <FRAMERATE> fps
+    const currentTime = window.performance.now();
+    const diff = loopState.timePrevMs === 0
+      ? FRAME_DUR_MS
+      : clamp(currentTime - loopState.timePrevMs, 0, FRAME_DUR_MS * 3);
+    loopState.timePrevMs = currentTime;
+    loopState.timeAccumulatedMs += diff;
+    if (loopState.timeAccumulatedMs < FRAME_DUR_MS) {
       return;
+    } else {
+      loopState.deltaTime = loopState.timeAccumulatedMs;
+      loopState.timeAccumulatedMs = loopState.timeAccumulatedMs - FRAME_DUR_MS;
     }
 
     if (p5.keyIsDown(p5.SHIFT) && (state.isMoving || state.isRewinding)) {
@@ -803,47 +830,21 @@ export const sketch = (p5: P5) => {
       state.isSprinting = false;
     }
 
-    updateScreenShake();
-    drawBackground();
+    if (state.isLost) return;
+    if (state.isPaused) return;
+    if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
 
-    for (let i = 0; i < decoratives1.length; i++) {
-      drawDecorative1(decoratives1[i]);
-    }
-
-    for (let i = 0; i < decoratives2.length; i++) {
-      drawDecorative2(decoratives2[i]);
-    }
-
-    drawParticles(0);
-    drawPortals();
-    drawBarriers();
-    drawDoors();
-
-    for (let i = 0; i < keys.length; i++) {
-      drawKey(keys[i])
-    }
-
-    for (let i = 0; i < locks.length; i++) {
-      drawLock(locks[i])
-    }
-
-    renderer.drawCaptureMode();
-
-    const applesMap: Record<string, number> = {};
+    applesMap = {};
     for (let i = 0; i < apples.length; i++) {
       if (!apples[i]) continue;
-      drawApple(apples[i]);
       if (state.isLost || state.isExitingLevel) continue;
       applesMap[getCoordIndex(apples[i])] = i;
     }
-
-    renderer.drawPlayerMoveArrows(player.position, moves.length > 0 ? moves[0] : player.direction);
 
     for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
       segmentsMap[i] = false;
     }
     for (let i = 0; i < segments.length; i++) {
-      drawPlayerSegment(segments[i]);
       if (state.isLost || state.isExitingLevel) continue;
       segmentsMap[getCoordIndex(segments[i])] = true;
       const appleFound = applesMap[getCoordIndex(segments[i])];
@@ -854,25 +855,6 @@ export const sketch = (p5: P5) => {
         incrementScore();
       }
     }
-
-    const globalLight = level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
-    if (state.isGameStarted && replay.mode !== ReplayMode.Playback && globalLight < 1 && !state.isShowingDeathColours) {
-      updateLighting(lightMap, globalLight, player.position, portals);
-      drawLighting(lightMap, renderer);
-    }
-
-    drawPlayerHead(player.position);
-    drawParticles(10);
-
-    if (level === START_LEVEL) renderer.drawDifficultySelect(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background);
-    renderer.drawUIKeys();
-    renderer.drawTutorialMoveControls();
-    renderer.drawTutorialRewindControls(player.position, canRewind);
-    renderer.drawFps(queryParams.showFps, metrics.gameLoopProcessingTime);
-    if (!state.isGameStarted) leaderboardScene.draw();
-
-    if (state.isLost) return;
-    if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
 
     // check if head has reached an apple
     const appleFound = applesMap[getCoordIndex(player.position)];
@@ -910,11 +892,6 @@ export const sketch = (p5: P5) => {
 
     handleSnakeRewind();
 
-    // tick time elapsed
-    if (state.isMoving || replay.mode === ReplayMode.Playback) {
-      state.timeElapsed += p5.deltaTime;
-    }
-
     handleSnakeMovementDuringReplay(didHit);
     handleCaptureReplayInfo(didMove, didHit);
 
@@ -925,19 +902,97 @@ export const sketch = (p5: P5) => {
 
     handleSnakeExitLevelStart();
     handleSnakeExitLevelMoveTick(didMove);
-    handleSnakeExitLevelUI();
     handleSnakeExitLevelFinish();
     handleTeleportOnGameWin();
 
-    state.timeSinceHurt += p5.deltaTime;
-    state.timeSinceLastInput += p5.deltaTime;
-    state.timeSinceLastTeleport += p5.deltaTime;
+    state.timeSinceHurt += loopState.deltaTime;
+    state.timeSinceLastInput += loopState.deltaTime;
+    state.timeSinceLastTeleport += loopState.deltaTime;
     state.frameCount += 1;
     for (let i = recentInputTimes.length - 1; i >= 0; i--) {
-      recentInputTimes[i] += p5.deltaTime;
+      recentInputTimes[i] += loopState.deltaTime;
     }
-    renderer.tick();
+  }
 
+  function renderLoop() {
+    const timeFrameStart = performance.now();
+
+    actions.tick();
+
+    if (state.isPaused) return;
+
+    setTimeout(() => { tickCoroutines(); }, 0);
+
+    if (state.appMode === AppMode.Quote) {
+      p5.background("#000");
+      return;
+    }
+
+    updateScreenShake();
+    drawBackground();
+
+    for (let i = 0; i < decoratives1.length; i++) {
+      drawDecorative1(decoratives1[i]);
+    }
+
+    for (let i = 0; i < decoratives2.length; i++) {
+      drawDecorative2(decoratives2[i]);
+    }
+
+    drawParticles(0);
+    drawPortals();
+    drawBarriers();
+    drawDoors();
+
+    for (let i = 0; i < keys.length; i++) {
+      drawKey(keys[i])
+    }
+
+    for (let i = 0; i < locks.length; i++) {
+      drawLock(locks[i])
+    }
+
+    renderer.drawCaptureMode();
+
+    for (let i = 0; i < apples.length; i++) {
+      if (!apples[i]) continue;
+      drawApple(apples[i]);
+    }
+
+    renderer.drawPlayerMoveArrows(player.position, moves.length > 0 ? moves[0] : player.direction);
+
+    for (let i = 0; i < segments.length; i++) {
+      drawPlayerSegment(segments[i]);
+    }
+
+    const globalLight = level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
+    if (state.isGameStarted && replay.mode !== ReplayMode.Playback && globalLight < 1 && !state.isShowingDeathColours) {
+      updateLighting(lightMap, globalLight, player.position, portals);
+      drawLighting(lightMap, renderer);
+    }
+
+    drawPlayerHead(player.position);
+    drawParticles(10);
+
+    if (level === START_LEVEL) renderer.drawDifficultySelect(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background);
+    renderer.drawUIKeys();
+    renderer.drawTutorialMoveControls();
+    renderer.drawTutorialRewindControls(player.position, canRewind);
+    renderer.drawFps(queryParams.showFps, metrics.gameLoopProcessingTime);
+    if (!state.isGameStarted) leaderboardScene.draw();
+
+    if (state.isLost) return;
+    if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
+
+    // tick time elapsed
+    if (state.isMoving || replay.mode === ReplayMode.Playback) {
+      state.timeElapsed += p5.deltaTime;
+    }
+
+    handleSnakeExitLevelUI();
+    handleRenderWinGameScene();
+
+    renderer.tick();
     metrics.gameLoopProcessingTime = performance.now() - timeFrameStart;
   }
 
@@ -971,7 +1026,7 @@ export const sketch = (p5: P5) => {
   // I may do this in a future iteration if I feel up to it. Right now, the game is good enough.
   function updateCurrentMoveSpeed() {
     if (state.isSprinting) {
-      const deltaSpeed = 10 * (p5.deltaTime / SPRINT_INCREMENT_SPEED_MS);
+      const deltaSpeed = 10 * (loopState.deltaTime / SPRINT_INCREMENT_SPEED_MS);
       state.currentSpeed += deltaSpeed;
       if (state.currentSpeed > 10) {
         state.currentSpeed = 10;
@@ -984,11 +1039,11 @@ export const sketch = (p5: P5) => {
     if (state.currentSpeed < state.targetSpeed) {
       const t = Easing.inOutCubic(clamp((state.timeSinceHurt - HURT_STUN_TIME) * 0.5, 0, 1));
       const diff = Math.abs(state.targetSpeed - state.currentSpeed);
-      const deltaSpeed = clamp(diff, 1, SPEED_INCREMENT) * (p5.deltaTime / SPEED_INCREMENT_SPEED_MS) * p5.lerp(0, 1, t);
+      const deltaSpeed = clamp(diff, 1, SPEED_INCREMENT) * (loopState.deltaTime / SPEED_INCREMENT_SPEED_MS) * p5.lerp(0, 1, t);
       state.currentSpeed += deltaSpeed;
       if (state.currentSpeed > state.targetSpeed) state.currentSpeed = state.targetSpeed;
     } else if (state.currentSpeed > state.targetSpeed) {
-      const deltaSpeed = 10 * (p5.deltaTime / SPRINT_INCREMENT_SPEED_MS);
+      const deltaSpeed = 10 * (loopState.deltaTime / SPRINT_INCREMENT_SPEED_MS);
       state.currentSpeed -= deltaSpeed;
       if (state.currentSpeed < state.targetSpeed) state.currentSpeed = state.targetSpeed;
     }
@@ -1207,10 +1262,10 @@ export const sketch = (p5: P5) => {
       const normalizedSpeed = clamp(difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
       didMove = movePlayer(normalizedSpeed);
     } else {
-      state.timeSinceLastMove += p5.deltaTime;
+      state.timeSinceLastMove += loopState.deltaTime;
     }
     updateCurrentMoveSpeed();
-    stats.totalTimeElapsed += p5.deltaTime;
+    stats.totalTimeElapsed += loopState.deltaTime;
     return didMove;
   }
 
@@ -1234,7 +1289,7 @@ export const sketch = (p5: P5) => {
     // determine if next move will be into something, allow for grace period before injuring snakey
     const willHitSomething = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
     if (willHitSomething && state.hurtGraceTime > 0) {
-      state.hurtGraceTime -= p5.deltaTime;
+      state.hurtGraceTime -= loopState.deltaTime;
       return false;
     }
 
@@ -1272,7 +1327,7 @@ export const sketch = (p5: P5) => {
     if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
       rewindPlayer();
     } else {
-      state.timeSinceLastMove += p5.deltaTime;
+      state.timeSinceLastMove += loopState.deltaTime;
     }
     updateCurrentMoveSpeed();
   }
@@ -1406,6 +1461,10 @@ export const sketch = (p5: P5) => {
     } else if (player.position.y > bounds.max.y) {
       player.position.y = bounds.min.y;
     }
+  }
+
+  function handleRenderWinGameScene() {
+    if (!state.isGameWon) return;
     winGameScene.draw();
   }
 
@@ -2014,6 +2073,7 @@ export const sketch = (p5: P5) => {
       difficulty = getDifficultyFromIndex(difficulty.index);
       resetStats();
       level = LEVEL_AFTER_WIN;
+      setLevelIndexFromCurrentLevel();
       initLevel();
       return;
     }
@@ -2028,6 +2088,7 @@ export const sketch = (p5: P5) => {
     maybeSaveReplayStateToFile();
 
     if (showQuoteOnLevelWin) {
+      stopLogicLoop();
       const quote = getNextQuote();
       const onSceneEnded = () => {
         initLevel();
