@@ -1971,6 +1971,7 @@ export const sketch = (p5: P5) => {
     stats.numLevelsCleared = 0;
     musicPlayer.stopAllTracks();
     level = getWarpLevelFromNum(levelNum);
+    resetStats();
     setLevelIndexFromCurrentLevel();
     initLevel();
   }

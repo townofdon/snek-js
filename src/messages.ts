@@ -93,6 +93,7 @@ export const LOSE_MESSAGES: LoseMessage[] = [
     ["Holy snek, you're still playing this game?!", (state, stats) => stats.totalTimeElapsed >= 1000 * 60 * 30],
     ["I can tell you're going places.", (state, stats) => stats.totalTimeElapsed >= 1000 * 60 * 20],
     // ["Don't ever let them say you can't succeed.", (state, stats) => stats.totalTimeElapsed > 1000 * 60 * 10],
+    ["Vengeance has been visited upon you.", (state, stats, difficulty) => difficulty.index >= 3],
     ["Phew... that was intense...", (state, stats, difficulty) => difficulty.index >= 4],
     ["I believe in you...<br/><br/>continuing to die a lot.", (state, stats, difficulty) => difficulty.index >= 4],
     ["I hear slow reaction time is the result of clogged neurons.", (state, stats, difficulty) => difficulty.index >= 4],
