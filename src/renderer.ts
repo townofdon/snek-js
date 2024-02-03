@@ -1,12 +1,13 @@
 import P5, { Vector } from "p5";
 import { DIR, FontsInstance, GameState, HitType, Image, Portal, PortalChannel, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
-import { ACCENT_COLOR, BLOCK_SIZE, GRIDCOUNT, HURT_STUN_TIME, NUM_PORTAL_GRADIENT_COLORS, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, SHOW_FPS, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
+import { ACCENT_COLOR, BLOCK_SIZE, DIMENSIONS, GRIDCOUNT, HURT_STUN_TIME, NUM_PORTAL_GRADIENT_COLORS, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, SHOW_FPS, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
 import { clamp, oscilateLinear } from "./utils";
 import { SpriteRenderer } from "./spriteRenderer";
 import Color from "color";
 
 interface RendererConstructorProps {
   p5: P5
+  staticGraphics: P5.Graphics
   fonts: FontsInstance
   replay: Replay
   gameState: GameState
@@ -16,22 +17,25 @@ interface RendererConstructorProps {
 }
 
 export class Renderer {
-  props: RendererConstructorProps = {
+  private props: RendererConstructorProps = {
     p5: null,
+    staticGraphics: null,
     fonts: null,
     replay: null,
     gameState: null,
     screenShake: null,
     spriteRenderer: null,
     tutorial: null,
-  }
-  elapsed = 0
-  lightColorMap: Record<string, string> = {}
-  darkColorMap: Record<string, string> = {}
+  };
+  private elapsed = 0;
+  private lightColorMap: Record<string, string> = {};
+  private darkColorMap: Record<string, string> = {};
 
-  portalCachedColorsFG: string[][] = []
-  portalCachedColorsBG: string[][] = []
-  cachedP5Colors: Record<string, P5.Color> = {}
+  private portalCachedColorsFG: string[][] = [];
+  private portalCachedColorsBG: string[][] = [];
+  private cachedP5Colors: Record<string, P5.Color> = {};
+
+  private isStaticCached = false;
 
   constructor(props: RendererConstructorProps) {
     this.props = props;
@@ -39,25 +43,55 @@ export class Renderer {
 
   reset = () => {
     this.elapsed = 0;
+    this.isStaticCached = false;
   }
 
   tick = () => {
     this.elapsed += this.props.p5.deltaTime;
   }
 
+  // Static graphics (e.g. barriers) are cached in an OffscreenCanvas and re-drawn if things change (e.g. due to screen shake)
+  // See: P5.createGraphics - see: https://p5js.org/reference/#/p5/createGraphics
+  drawStaticGraphics = () => {
+    const { p5, staticGraphics: graphics } = this.props;
+    p5.image(graphics, 0, 0, DIMENSIONS.x, DIMENSIONS.y);
+    this.isStaticCached = true;
+  }
+
+  invalidateStaticCache = () => {
+    this.isStaticCached = false;
+  }
+
   drawBackground = (color: string) => {
     const { p5 } = this.props;
     p5.background(color);
+    if (!this.isStaticCached) {
+      this.props.staticGraphics.clear(0, 0, 0, 0);
+    }
   }
 
   /**
    * Draw a square to the canvas
    */
   drawSquare = (x: number, y: number, background = "pink", lineColor = "fff", { is3d = false, size = 1, strokeSize = STROKE_SIZE, optimize = false } = {}) => {
-    const { p5, screenShake } = this.props;
-    this.p5CachedFill(background, optimize);
-    this.p5CachedStroke(lineColor, optimize);
-    p5.strokeWeight(strokeSize);
+    this.drawSquareImpl(this.props.p5, x, y, background, lineColor, { is3d, size, strokeSize, optimize });
+  }
+
+  drawSquareStatic = (x: number, y: number, background = "pink", lineColor = "fff", { is3d = false, size = 1, strokeSize = STROKE_SIZE, optimize = false } = {}) => {
+    if (this.isStaticCached) return;
+    this.drawSquareImpl(this.props.staticGraphics, x, y, background, lineColor, { is3d, size, strokeSize, optimize });
+  }
+
+  private drawSquareImpl = (graphics: P5 | P5.Graphics, x: number, y: number, background = "pink", lineColor = "fff", {
+    is3d = false,
+    size = 1,
+    strokeSize = STROKE_SIZE,
+    optimize = false,
+  } = {}) => {
+    const { screenShake } = this.props;
+    this.p5CachedFill(graphics, background, optimize);
+    this.p5CachedStroke(graphics, lineColor, optimize);
+    graphics.strokeWeight(strokeSize);
     const strokeOffset = STROKE_SIZE - strokeSize;
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
     const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
@@ -66,7 +100,7 @@ export class Renderer {
       y: (y * BLOCK_SIZE.y + screenShake.offset.y + strokeOffset) + sizeOffsetY,
     }
     const squareSize = (BLOCK_SIZE.x - strokeSize - strokeOffset * 2) * size;
-    p5.square(position.x, position.y, squareSize);
+    graphics.square(position.x, position.y, squareSize);
     if (is3d) {
       const borderSize = STROKE_SIZE * 0.5;
       const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + screenShake.offset.x + strokeOffset + sizeOffsetX;
@@ -77,22 +111,31 @@ export class Renderer {
       const y0i = y0 + borderSize;
       const x1i = x1 - borderSize;
       const y1i = y1 - borderSize;
-      p5.noStroke();
-      this.p5CachedFill(this.getBorderColor(lineColor, 'light'), optimize);
+      graphics.noStroke();
+      this.p5CachedFill(graphics, this.getBorderColor(lineColor, 'light'), optimize);
       // TOP
-      p5.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
+      graphics.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
       // RIGHT
-      p5.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
-      this.p5CachedFill(this.getBorderColor(lineColor, 'dark'), optimize);
+      graphics.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
+      this.p5CachedFill(graphics, this.getBorderColor(lineColor, 'dark'), optimize);
       // BOTTOM
-      p5.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
+      graphics.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
       // LEFT
-      p5.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
+      graphics.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
     }
   }
 
   drawSquareBorder = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, { size = 1, strokeSize = STROKE_SIZE } = {}) => {
-    const { p5, screenShake } = this.props;
+    this.drawSquareBorderImpl(this.props.p5, x, y, mode, strokeColor, { size, strokeSize });
+  }
+
+  drawSquareBorderStatic = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, { size = 1, strokeSize = STROKE_SIZE } = {}) => {
+    if (this.isStaticCached) return;
+    this.drawSquareBorderImpl(this.props.staticGraphics, x, y, mode, strokeColor, { size, strokeSize });
+  }
+
+  private drawSquareBorderImpl = (graphics: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, { size = 1, strokeSize = STROKE_SIZE } = {}) => {
+    const { screenShake } = this.props;
     const borderSize = STROKE_SIZE * 0.5;
     const strokeOffset = STROKE_SIZE - strokeSize;
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
@@ -105,32 +148,41 @@ export class Renderer {
     const y0i = y0 + borderSize;
     const x1i = x1 - borderSize;
     const y1i = y1 - borderSize;
-    p5.noStroke();
+    graphics.noStroke();
     if (mode === 'light') {
-      this.p5CachedFill(this.getBorderColor(strokeColor, 'light'));
+      this.p5CachedFill(graphics, this.getBorderColor(strokeColor, 'light'));
       // TOP
-      p5.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
+      graphics.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
       // RIGHT
-      p5.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
+      graphics.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
     } else if (mode === 'dark') {
-      this.p5CachedFill(this.getBorderColor(strokeColor, 'dark'));
+      this.p5CachedFill(graphics, this.getBorderColor(strokeColor, 'dark'));
       // BOTTOM
-      p5.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
+      graphics.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
       // LEFT
-      p5.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
+      graphics.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
     }
   }
 
   drawX = (x: number, y: number, color = "#fff", blockDivisions = 5) => {
-    const { p5, screenShake } = this.props;
+    this.drawXImpl(this.props.p5, x, y, color, blockDivisions);
+  }
+
+  drawXStatic = (x: number, y: number, color = "#fff", blockDivisions = 5) => {
+    if (this.isStaticCached) return;
+    this.drawXImpl(this.props.staticGraphics, x, y, color, blockDivisions);
+  }
+
+  private drawXImpl = (graphics: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5) => {
+    const { screenShake } = this.props;
     const size = {
       x: (BLOCK_SIZE.x - STROKE_SIZE) / blockDivisions,
       y: (BLOCK_SIZE.y - STROKE_SIZE) / blockDivisions,
     }
-    this.p5CachedFill(color);
+    this.p5CachedFill(graphics, color);
     // p5.randomSeed(x + y * 500000);
     // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
-    p5.noStroke();
+    graphics.noStroke();
     for (let i = 0; i < blockDivisions; i++) {
       const position0 = {
         x: x * BLOCK_SIZE.x + screenShake.offset.x + i * size.x,
@@ -140,8 +192,8 @@ export class Renderer {
         x: x * BLOCK_SIZE.x + screenShake.offset.x + i * size.x,
         y: y * BLOCK_SIZE.y + screenShake.offset.y + (blockDivisions - 1 - i) * size.y,
       }
-      p5.square(position0.x, position0.y, Math.max(size.x, size.y));
-      p5.square(position1.x, position1.y, Math.max(size.x, size.y));
+      graphics.square(position0.x, position0.y, Math.max(size.x, size.y));
+      graphics.square(position1.x, position1.y, Math.max(size.x, size.y));
     }
   }
 
@@ -540,21 +592,19 @@ export class Renderer {
     return color;
   }
 
-  private p5CachedFill = (background: string, optimize = true) => {
-    const { p5 } = this.props;
+  private p5CachedFill = (graphics: P5 | P5.Graphics, background: string, optimize = true) => {
     if (optimize) {
-      p5.fill(this.lookupP5CachedColor(background));
+      graphics.fill(this.lookupP5CachedColor(background));
     } else {
-      p5.fill(background);
+      graphics.fill(background);
     }
   }
 
-  private p5CachedStroke = (lineColor: string, optimize = true) => {
-    const { p5 } = this.props;
+  private p5CachedStroke = (graphics: P5 | P5.Graphics, lineColor: string, optimize = true) => {
     if (optimize) {
-      p5.stroke(this.lookupP5CachedColor(lineColor));
+      graphics.stroke(this.lookupP5CachedColor(lineColor));
     } else {
-      p5.stroke(lineColor);
+      graphics.stroke(lineColor);
     }
   }
 }

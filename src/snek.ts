@@ -246,6 +246,9 @@ export const sketch = (p5: P5) => {
     actionIds[actionKey] = null;
   }
 
+  // offscreen canvas for caching static game elements - see: https://p5js.org/reference/#/p5/createGraphics
+  const graphics: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);;
+
   const fonts = new Fonts(p5);
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer(settings);
@@ -265,7 +268,7 @@ export const sketch = (p5: P5) => {
   const winGameScene = new WinGameScene({ p5, gameState: state, stats, sfx, fonts, onChangePlayerDirection, callbacks: { onSceneEnded: gotoNextLevel } })
   const leaderboardScene = new LeaderboardScene({ p5, sfx, fonts, callbacks: { onSceneEnded: hideLeaderboard } });
   const spriteRenderer = new SpriteRenderer({ p5, replay, gameState: state, screenShake });
-  const renderer = new Renderer({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
+  const renderer = new Renderer({ p5, staticGraphics: graphics, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
   const modal = new Modal(p5, sfx);
 
   /**
@@ -940,9 +943,10 @@ export const sketch = (p5: P5) => {
     }
 
     drawParticles(0);
-    drawPortals();
     drawBarriers();
+    renderer.drawStaticGraphics();
     drawDoors();
+    drawPortals();
 
     for (let i = 0; i < keys.length; i++) {
       drawKey(keys[i])
@@ -1078,8 +1082,12 @@ export const sketch = (p5: P5) => {
         screenShake.offset.x = (p5.random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
         screenShake.offset.y = (p5.random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
         screenShake.timeSinceLastStep = 0;
+        renderer.invalidateStaticCache();
       }
     } else {
+      if (screenShake.offset.x !== 0 || screenShake.offset.y !== 0) {
+        renderer.invalidateStaticCache();
+      }
       screenShake.offset.x = 0;
       screenShake.offset.y = 0;
       screenShake.magnitude = 1;
@@ -1741,21 +1749,21 @@ export const sketch = (p5: P5) => {
 
   function drawBarriers() {
     for (let i = 0; i < barriers.length; i++) {
-      renderer.drawSquare(barriers[i].x, barriers[i].y,
+      renderer.drawSquareStatic(barriers[i].x, barriers[i].y,
         state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrier : level.colors.barrier,
         state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke,
         { optimize: true });
     }
     for (let i = 0; i < barriers.length; i++) {
-      renderer.drawSquareBorder(barriers[i].x, barriers[i].y, 'light',
+      renderer.drawSquareBorderStatic(barriers[i].x, barriers[i].y, 'light',
         state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
     }
     for (let i = 0; i < barriers.length; i++) {
-      renderer.drawSquareBorder(barriers[i].x, barriers[i].y, 'dark',
+      renderer.drawSquareBorderStatic(barriers[i].x, barriers[i].y, 'dark',
         state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
     }
     for (let i = 0; i < barriers.length; i++) {
-      renderer.drawX(barriers[i].x, barriers[i].y, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
+      renderer.drawXStatic(barriers[i].x, barriers[i].y, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
     }
   }
 
@@ -1874,8 +1882,10 @@ export const sketch = (p5: P5) => {
     yield* waitForTime(200);
     startScreenShake({ magnitude: 3, normalizedTime: -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, timeScale: 0.1 });
     state.isShowingDeathColours = true;
+    renderer.invalidateStaticCache();
     yield* waitForTime(HURT_STUN_TIME * 2.5);
     state.isShowingDeathColours = false;
+    renderer.invalidateStaticCache();
     startScreenShake();
     if (replay.mode === ReplayMode.Playback) {
       yield* waitForTime(1000);
