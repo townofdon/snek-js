@@ -46,7 +46,7 @@ export const SCORE_INCREMENT = 10;
 export const CLEAR_BONUS = 100;
 export const LEVEL_BONUS = 500;
 export const LIVES_LEFT_BONUS = 1000;
-export const ALL_APPLES_BONUS = 1500;
+export const ALL_APPLES_BONUS = 2500;
 export const PERFECT_BONUS = 5000;
 
 export const BONUS_MOD_EASY = .1;

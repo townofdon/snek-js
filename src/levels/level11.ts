@@ -7,7 +7,7 @@ const name = 'sneksqueeze';
 export const LEVEL_11: Level = {
   name,
   timeToClear: 1000 * 60 * 1.6,
-  applesToClear: 50,
+  applesToClear: 60,
   numApplesStart: 20,
   // disableAppleSpawn: true,
   snakeStartSizeOverride: 2,

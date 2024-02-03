@@ -402,7 +402,7 @@ Snek would be tragic if it weren't funny.
 
 There is nothing bigger or older than the snekverse.
 
-It is not clear that intelligence has any long-term snek value.
+It is not clear that snek has any long-term survival value.
 
 The snekverse is not indifferent to our existence - it depends on it.
 
