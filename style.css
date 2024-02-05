@@ -56,6 +56,11 @@
   src: url(assets/fonts/casual/LowIndustrial.ttf);
 }
 
+@font-face {
+  font-family: Zicons;
+  src: url(assets/fonts/casual/Zicons.ttf);
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -204,7 +209,7 @@ button.minimood {
   font-size: 12px;
 }
 
-button.difficulty {
+/* button.difficulty {
   animation-name: anim-dim;
   animation-duration: var(--hover-duration);
   animation-iteration-count: infinite;
@@ -252,12 +257,7 @@ button.ultra:active,
 button.ultra:focus {
   background: #0a503e;
   color: #00ff62;
-}
-
-
-
-
-
+} */
 
 .title-sprite-container {
   z-index: 10;
@@ -353,8 +353,66 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px
   justify-content: center;
 }
 
+.main-ui-buttons .button-start-game {
+  position: relative;
+  transform: translateY(-276px);
+}
+.main-ui-buttons .button-start-game:focus,
+.main-ui-buttons .button-start-game:active,
+.main-ui-buttons .button-start-game.active {
+  outline: none;
+  background-color: #c4d5d5;
+  color: #242C4A;
+  border-color: #DFEDED;
+  /* --button-filter: brightness(1) grayscale(0); */
+}
 
+.main-ui-buttons button {
+  animation-name: anim-dim;
+  animation-duration: var(--hover-duration);
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(.5,0,.5,1);
+  animation-fill-mode: backwards;
+}
 
+.main-ui-buttons button:nth-child(1) {
+  animation-delay: calc(var(--hover-duration) * 0);
+}
+
+.main-ui-buttons button:nth-child(2) {
+  animation-delay: calc(var(--hover-duration) * 0.1);
+}
+
+.main-ui-buttons button:nth-child(3) {
+  animation-delay: calc(var(--hover-duration) * 0.2);
+}
+
+.main-ui-buttons button:nth-child(4) {
+  animation-delay: calc(var(--hover-duration) * 0.3);
+}
+
+.main-ui-buttons button:nth-child(5) {
+  animation-delay: calc(var(--hover-duration) * 0.4);
+}
+
+/* .main-ui-buttons .button-start-game:focus:before {
+  content: "▸";
+  display: block;
+  position: absolute;
+  top: 7px;
+  right: 100%;
+  margin-right: 20px;
+  color: #fff;
+}
+.main-ui-buttons .button-start-game:focus:after {
+  content: "<";
+  display: block;
+  position: absolute;
+  top: 7px;
+  left: 100%;
+  margin-left: 20px;
+  color: #fff;
+} */
 
 .main-menu-label-casual-mode {
   z-index: 20;
@@ -382,6 +440,12 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px
 
 
 
+button.ui-sprite:hover,
+button.ui-sprite:active,
+button.ui-sprite:focus,
+button.ui-sprite.selected {
+  --button-filter: brightness(1) grayscale(0) invert(1);
+}
 
 button.ui-sprite {
   display: inline-block;
@@ -398,6 +462,7 @@ button.ui-sprite:hover,
 button.ui-sprite:active,
 button.ui-sprite:focus
 {
+  outline: none;
   background-color: inherit;
   filter: invert(1);
   box-shadow: none;
