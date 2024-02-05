@@ -217,7 +217,7 @@ export class Renderer {
    * Draw red squares on level to indicate that we are in Record mode
    */
   drawCaptureMode = () => {
-    const { replay, gameState } = this.props;
+    const { p5, replay, gameState } = this.props;
     if (replay.mode !== ReplayMode.Capture) return;
     if (gameState.isCasualModeEnabled) return;
 
@@ -236,7 +236,7 @@ export class Renderer {
       [29, 1],
     ];
     for (let i = 0; i < reds.length; i++) {
-      this.drawSquare(reds[i][0], reds[i][1], "#f00", "#f00");
+      this.drawBasicSquare(reds[i][0], reds[i][1], p5.color("#f00"));
     }
   }
 

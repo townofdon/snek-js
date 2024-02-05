@@ -78,6 +78,9 @@ export class MusicPlayer {
   }
 
   async play(track?: MusicTrack, volume = 1, createAnalyser = false) {
+    // TODO: REVERT
+    return;
+
     if (!navigator.userActivation.hasBeenActive) {
       if (DEBUG_MUSIC) console.warn(`[MusicPlayer][play] user not yet active when trying to play track=${track}`);
       return;

@@ -34,8 +34,8 @@ export interface InputCallbacks {
   onHideStartScreen: () => void,
   onShowMainMenu: () => void,
   onConfirmShowMainMenu: () => void,
-  onInit: () => void,
-  onStartGame: (difficulty: number) => void,
+  onRetryLevel: () => void,
+  onStartGame: () => void,
   onToggleCasualMode: () => void,
   onShowLeaderboard: () => void,
   onEnterQuoteMode: () => void,
@@ -52,7 +52,7 @@ export interface InputCallbacks {
   onUICancel: UICancelHandler,
 }
 
-interface HandleKeyPressedParams {
+export function handleKeyPressed(
   p5: P5,
   state: GameState,
   clickState: ClickState,
@@ -64,49 +64,14 @@ interface HandleKeyPressedParams {
   checkWillHit: (dir: DIR, numMoves?: number) => boolean,
   callbacks: InputCallbacks,
   ev?: KeyboardEvent,
-}
-
-export function handleKeyPressed({
-  p5,
-  state,
-  clickState,
-  playerDirection,
-  moves,
-  recentMoves,
-  recentInputs,
-  recentInputTimes,
-  checkWillHit,
-  callbacks,
-  ev,
-}: HandleKeyPressedParams) {
+) {
   const { keyCode, TAB, ENTER, ESCAPE, SHIFT, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
-  const {
-    onHideStartScreen,
-    onShowMainMenu,
-    onConfirmShowMainMenu,
-    onInit,
-    onStartGame,
-    onToggleCasualMode,
-    onShowLeaderboard,
-    onEnterQuoteMode,
-    onEnterOstMode,
-    onProceedToNextReplayClip,
-    onPause,
-    onUnpause,
-    onWarpToLevel,
-    onStartMoving,
-    onStartRewinding,
-    onAddMove,
-    onUINavigate,
-    onUIInteract,
-    onUICancel,
-  } = callbacks
 
   if (state.isGameStarting) {
     return;
   }
 
-  if (keyCode === TAB) {
+  if (keyCode === TAB || keyCode === ENTER) {
     ev.preventDefault();
   }
 
@@ -115,33 +80,29 @@ export function handleKeyPressed({
   }
 
   if (state.appMode === AppMode.StartScreen) {
-    if (keyCode === ENTER) onHideStartScreen();
+    if (keyCode === ENTER) callbacks.onHideStartScreen();
     return;
   }
 
   if (state.appMode === AppMode.Quote) {
-    if (keyCode === ESCAPE) onShowMainMenu();
+    if (keyCode === ESCAPE) callbacks.onShowMainMenu();
     return;
   }
 
   if (state.isLost) {
-    if (keyCode === ENTER) onInit();
-    if (keyCode === KEYCODE_ALPHA_M) onConfirmShowMainMenu();
+    if (keyCode === ENTER) callbacks.onRetryLevel();
+    if (keyCode === KEYCODE_ALPHA_M) callbacks.onConfirmShowMainMenu();
     return;
   }
 
   if (!state.isGameStarted && state.appMode === AppMode.Game) {
     if (false) { }
-    else if (keyCode === KEYCODE_ALPHA_1 || keyCode === KEYCODE_NUMPAD_1) onStartGame(1);
-    else if (keyCode === KEYCODE_ALPHA_2 || keyCode === KEYCODE_NUMPAD_2) onStartGame(2);
-    else if (keyCode === KEYCODE_ALPHA_3 || keyCode === KEYCODE_NUMPAD_3) onStartGame(3);
-    else if (keyCode === KEYCODE_ALPHA_4 || keyCode === KEYCODE_NUMPAD_4) onStartGame(4);
-    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_QUOTE) onEnterQuoteMode();
-    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_M) onEnterOstMode();
-    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_L) onShowLeaderboard();
-    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_R) onProceedToNextReplayClip();
-    else if (keyCode === KEYCODE_ALPHA_C) onToggleCasualMode();
-    handleUIEvents(p5, onUINavigate, onUIInteract, onUICancel);
+    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_QUOTE) callbacks.onEnterQuoteMode();
+    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_M) callbacks.onEnterOstMode();
+    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_L) callbacks.onShowLeaderboard();
+    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_R) callbacks.onProceedToNextReplayClip();
+    else if (keyCode === KEYCODE_ALPHA_C) callbacks.onToggleCasualMode();
+    handleUIEvents(p5, callbacks.onUINavigate, callbacks.onUIInteract, callbacks.onUICancel);
   }
 
   if (!state.isGameStarted) {
@@ -155,31 +116,31 @@ export function handleKeyPressed({
   if (keyCode === ESCAPE && !state.isGameWon) {
     if (state.isPaused) {
       state.isPaused = false;
-      onUnpause();
+      callbacks.onUnpause();
     } else {
       state.isPaused = true;
-      onPause();
+      callbacks.onPause();
     }
   }
 
   if (state.isPaused) {
-    handleUIEvents(p5, onUINavigate, onUIInteract, onUICancel);
-    if (keyCode === KEYCODE_ALPHA_0) onWarpToLevel(10);
-    else if (keyCode === KEYCODE_ALPHA_1) onWarpToLevel(1);
-    else if (keyCode === KEYCODE_ALPHA_2) onWarpToLevel(2);
-    else if (keyCode === KEYCODE_ALPHA_3) onWarpToLevel(3);
-    else if (keyCode === KEYCODE_ALPHA_4) onWarpToLevel(4);
-    else if (keyCode === KEYCODE_ALPHA_5) onWarpToLevel(5);
-    else if (keyCode === KEYCODE_ALPHA_6) onWarpToLevel(6);
-    else if (keyCode === KEYCODE_ALPHA_7) onWarpToLevel(7);
-    else if (keyCode === KEYCODE_ALPHA_8) onWarpToLevel(8);
-    else if (keyCode === KEYCODE_ALPHA_9) onWarpToLevel(9);
-    else if (keyCode === KEYCODE_ALPHA_M) onConfirmShowMainMenu();
+    handleUIEvents(p5, callbacks.onUINavigate, callbacks.onUIInteract, callbacks.onUICancel);
+    if (keyCode === KEYCODE_ALPHA_0) callbacks.onWarpToLevel(10);
+    else if (keyCode === KEYCODE_ALPHA_1) callbacks.onWarpToLevel(1);
+    else if (keyCode === KEYCODE_ALPHA_2) callbacks.onWarpToLevel(2);
+    else if (keyCode === KEYCODE_ALPHA_3) callbacks.onWarpToLevel(3);
+    else if (keyCode === KEYCODE_ALPHA_4) callbacks.onWarpToLevel(4);
+    else if (keyCode === KEYCODE_ALPHA_5) callbacks.onWarpToLevel(5);
+    else if (keyCode === KEYCODE_ALPHA_6) callbacks.onWarpToLevel(6);
+    else if (keyCode === KEYCODE_ALPHA_7) callbacks.onWarpToLevel(7);
+    else if (keyCode === KEYCODE_ALPHA_8) callbacks.onWarpToLevel(8);
+    else if (keyCode === KEYCODE_ALPHA_9) callbacks.onWarpToLevel(9);
+    else if (keyCode === KEYCODE_ALPHA_M) callbacks.onConfirmShowMainMenu();
     return;
   }
 
   if (keyCode === BACKSPACE || keyCode === DELETE) {
-    onStartRewinding();
+    callbacks.onStartRewinding();
     return;
   }
 
@@ -208,7 +169,7 @@ export function handleKeyPressed({
   const disallowEqual = state.isMoving && state.timeSinceHurt >= HURT_STUN_TIME;
 
   if (currentMove) {
-    onStartMoving();
+    callbacks.onStartMoving();
   }
 
   // validate current move
@@ -226,7 +187,7 @@ export function handleKeyPressed({
           ? moves[moves.length - 1]
           : playerDirection;
         if (validateMove(prevMove, specialMoves[i], disallowEqual)) {
-          onAddMove(specialMoves[i]);
+          callbacks.onAddMove(specialMoves[i]);
         }
       }
       return;
@@ -237,18 +198,18 @@ export function handleKeyPressed({
     return;
   }
 
-  onAddMove(currentMove);
+  callbacks.onAddMove(currentMove);
 }
 
-function handleUIEvents(p5: P5, onUINavigate: UINavEventHandler, onUIInteract: UIInteractHandler, onUICancel: UICancelHandler) {
+export function handleUIEvents(p5: P5, onUINavigate: UINavEventHandler, onUIInteract: UIInteractHandler, onUICancel: UICancelHandler) {
   const { keyCode, ENTER, ESCAPE, SHIFT, TAB, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   if (false) { }
-  else if (keyCode === LEFT_ARROW || keyCode === KEYCODE_ALPHA_A) onUINavigate({ navDir: UINavDir.Left })
-  else if (keyCode === RIGHT_ARROW || keyCode === KEYCODE_ALPHA_D) onUINavigate({ navDir: UINavDir.Right })
-  else if (keyCode === UP_ARROW || keyCode === KEYCODE_ALPHA_W) onUINavigate({ navDir: UINavDir.Up })
-  else if (keyCode === DOWN_ARROW || keyCode === KEYCODE_ALPHA_S) onUINavigate({ navDir: UINavDir.Down })
-  else if (keyCode === TAB && !p5.keyIsDown(SHIFT)) onUINavigate({ navDir: UINavDir.Prev })
-  else if (keyCode === TAB && p5.keyIsDown(SHIFT)) onUINavigate({ navDir: UINavDir.Next })
+  else if (keyCode === LEFT_ARROW || keyCode === KEYCODE_ALPHA_A) onUINavigate(UINavDir.Left)
+  else if (keyCode === RIGHT_ARROW || keyCode === KEYCODE_ALPHA_D) onUINavigate(UINavDir.Right)
+  else if (keyCode === UP_ARROW || keyCode === KEYCODE_ALPHA_W) onUINavigate(UINavDir.Up)
+  else if (keyCode === DOWN_ARROW || keyCode === KEYCODE_ALPHA_S) onUINavigate(UINavDir.Down)
+  else if (keyCode === TAB && p5.keyIsDown(SHIFT)) onUINavigate(UINavDir.Prev)
+  else if (keyCode === TAB && !p5.keyIsDown(SHIFT)) onUINavigate(UINavDir.Next)
   else if (keyCode === ENTER) onUIInteract();
   else if (keyCode === ESCAPE || keyCode === BACKSPACE || keyCode === DELETE) onUICancel();
 }

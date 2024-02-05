@@ -1,8 +1,9 @@
 import P5, { Element } from 'p5';
 import { faker } from '@faker-js/faker';
 
-import { GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavEventHandler, UISection } from './types';
+import { GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavDir, UINavEventHandler, UISection } from './types';
 import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
+import { DOM, MainMenuButton, UINavMapMainMenu } from './uiNavMap';
 
 const UI_LABEL_OFFSET = '18px';
 const UI_PARENT_ID = 'game';
@@ -18,15 +19,12 @@ export class UI {
 
   private static p5: P5;
 
-  private static lastUISectionFocused: UISection;
+  private static isSettingsMenuShowing = false;
+  private static isMainMenuShowing = false;
 
-  static setLastUISectionFocused = (section: UISection) => {
-    this.lastUISectionFocused = section;
-  }
 
-  static getLastUISectionFocused = () => {
-    return this.lastUISectionFocused;
-  }
+  static getIsSettingsMenuShowing = () => UI.isSettingsMenuShowing;
+  static getIsMainMenuShowing = () => UI.isMainMenuShowing;
 
   static setP5Instance(p5: P5) {
     UI.p5 = p5;
@@ -58,6 +56,17 @@ export class UI {
     title.style.display = 'none';
   }
 
+  static showMainMenu() {
+    document.getElementById('main-ui-buttons').classList.remove('hidden');
+    DOM.select(document.getElementById('ui-button-start'));
+    UI.isMainMenuShowing = true;
+  }
+
+  static hideMainMenu() {
+    document.getElementById('main-ui-buttons').classList.add('hidden');
+    UI.isMainMenuShowing = false;
+  }
+
   static showSettingsMenu(isInGameMenu = false) {
     UI.enableGameBlur();
     const settingsMenu = document.getElementById('settings-menu');
@@ -67,17 +76,13 @@ export class UI {
     gameplaySettingsSection.style.display = isInGameMenu
       ? 'none'
       : 'block';
-    // this.setLastUISectionFocused(isInGameMenu
-    //   ? UISection.SettingsInGame
-    //   : UISection.Settings);
+    UI.isSettingsMenuShowing = true;
   }
 
   static hideSettingsMenu() {
     UI.disableGameBlur();
     document.getElementById('settings-menu').style.display = 'none';
-    // this.setLastUISectionFocused(isInGameMenu
-    //   ? UISection.Pause
-    //   : UISection.MainMenu);
+    UI.isSettingsMenuShowing = false;
   }
 
   static showMainCasualModeLabel() {
@@ -410,10 +415,14 @@ export class MainTitleFader {
 }
 
 interface UIBindingsCallbacks {
-  onShowMainMenu: () => void,
   onSetMusicVolume: (volume: number) => void,
   onSetSfxVolume: (volume: number) => void,
   onToggleCasualMode: (value?: boolean) => void,
+  onStartGame: () => void,
+  onEnterOstMode: () => void,
+  onEnterQuoteMode: () => void,
+  onShowLeaderboard: () => void,
+  onShowSettingsMenu: () => void,
 }
 
 export class UIBindings implements UIHandler {
@@ -421,17 +430,29 @@ export class UIBindings implements UIHandler {
   private sfx: SFXInstance;
   private gameState: GameState;
   private callbacks: UIBindingsCallbacks = {
-    onShowMainMenu: () => { },
     onSetMusicVolume: (volume: number) => { },
     onSetSfxVolume: (volume: number) => { },
     onToggleCasualMode: (value?: boolean) => { },
+    onStartGame: () => { },
+    onEnterOstMode: () => { },
+    onEnterQuoteMode: () => { },
+    onShowLeaderboard: () => { },
+    onShowSettingsMenu: () => { },
   };
 
   private sliderMusic: HTMLInputElement;
   private sliderSfx: HTMLInputElement;
   private buttonCloseSettingsMenu: HTMLButtonElement;
-  private buttonStartGame: HTMLButtonElement;
   private checkboxCasualMode: HTMLInputElement;
+
+  mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
+    [MainMenuButton.StartGame]: null,
+    [MainMenuButton.OSTMode]: null,
+    [MainMenuButton.QuoteMode]: null,
+    [MainMenuButton.Leaderboard]: null,
+    [MainMenuButton.Settings]: null,
+  }
+  mainMenuNavMap: UINavMapMainMenu = null;
 
   constructor(p5: P5, sfx: SFXInstance, gameState: GameState, callbacks: UIBindingsCallbacks) {
     this.p5 = p5;
@@ -439,13 +460,48 @@ export class UIBindings implements UIHandler {
     this.gameState = gameState;
     this.callbacks = callbacks;
     this.bindElements();
+    this.mainMenuNavMap = new UINavMapMainMenu({
+      mainMenuButtons: this.mainMenuButtons,
+      elements: [
+        { button: MainMenuButton.StartGame, callback: this.callbacks.onStartGame },
+        { button: MainMenuButton.OSTMode, callback: this.callbacks.onEnterOstMode },
+        { button: MainMenuButton.QuoteMode, callback: this.callbacks.onEnterQuoteMode },
+        { button: MainMenuButton.Leaderboard, callback: this.callbacks.onShowLeaderboard },
+        { button: MainMenuButton.Settings, callback: this.callbacks.onShowSettingsMenu },
+      ]
+    })
   }
 
-  handleUINavigation: UINavEventHandler = (context) => {
+  handleUINavigation: UINavEventHandler = (navDir) => {
+    if (UI.getIsSettingsMenuShowing()) {
+      return false;
+    }
+    if (UI.getIsMainMenuShowing()) {
+      switch (navDir) {
+        case UINavDir.Prev:
+        case UINavDir.Up:
+        case UINavDir.Left:
+          this.mainMenuNavMap.gotoPrev();
+          break;
+        case UINavDir.Next:
+        case UINavDir.Down:
+        case UINavDir.Right:
+          this.mainMenuNavMap.gotoNext();
+          break;
+      }
+      return true;
+    }
     return false;
   }
 
   handleUIInteract: UIInteractHandler = () => {
+    if (UI.getIsSettingsMenuShowing()) {
+      return false;
+    }
+    if (UI.getIsMainMenuShowing()) {
+      this.mainMenuNavMap.callSelected();
+      return true;
+    }
     return false;
   }
 
@@ -462,8 +518,18 @@ export class UIBindings implements UIHandler {
   }
 
   private bindElements = () => {
-    this.buttonStartGame = requireElementById<HTMLButtonElement>('start-screen-start-button');
-    this.buttonStartGame.addEventListener('click', this.onButtonStartGameClick);
+    this.mainMenuButtons[MainMenuButton.StartGame] = requireElementById<HTMLButtonElement>('ui-button-start');
+    this.mainMenuButtons[MainMenuButton.OSTMode] = requireElementById<HTMLButtonElement>('ui-button-ost-mode');
+    this.mainMenuButtons[MainMenuButton.QuoteMode] = requireElementById<HTMLButtonElement>('ui-button-quote-mode');
+    this.mainMenuButtons[MainMenuButton.Leaderboard] = requireElementById<HTMLButtonElement>('ui-button-leaderboard');
+    this.mainMenuButtons[MainMenuButton.Settings] = requireElementById<HTMLButtonElement>('ui-button-settings');
+
+    this.mainMenuButtons[MainMenuButton.StartGame].addEventListener('click', this.callbacks.onStartGame);
+    this.mainMenuButtons[MainMenuButton.OSTMode].addEventListener('click', this.callbacks.onEnterOstMode);
+    this.mainMenuButtons[MainMenuButton.QuoteMode].addEventListener('click', this.callbacks.onEnterQuoteMode);
+    this.mainMenuButtons[MainMenuButton.Leaderboard].addEventListener('click', this.callbacks.onShowLeaderboard);
+    this.mainMenuButtons[MainMenuButton.Settings].addEventListener('click', this.callbacks.onShowSettingsMenu);
+
     this.buttonCloseSettingsMenu = requireElementById<HTMLButtonElement>('settings-menu-close-button');
     this.buttonCloseSettingsMenu.addEventListener('click', this.onHideSettingsMenuClick);
     this.checkboxCasualMode = requireElementById<HTMLInputElement>('checkbox-casual-mode');
@@ -472,16 +538,20 @@ export class UIBindings implements UIHandler {
     this.sliderSfx = requireElementById<HTMLInputElement>("slider-volume-sfx");
     this.sliderMusic.addEventListener('input', this.onMusicSliderInput);
     this.sliderSfx.addEventListener('input', this.onSfxSliderInput);
-    document.body.addEventListener('keydown', this.overrideEscapeKeydown);
+    document.addEventListener('keydown', this.overrideEscapeKeydown);
   }
 
   public cleanup = () => {
-    this.buttonStartGame.removeEventListener('click', this.onButtonStartGameClick);
     this.buttonCloseSettingsMenu.removeEventListener('click', this.onHideSettingsMenuClick);
     this.checkboxCasualMode.removeEventListener('change', this.onCheckboxCasualModeChange);
     this.sliderMusic.removeEventListener('input', this.onMusicSliderInput);
     this.sliderSfx.removeEventListener('input', this.onSfxSliderInput);
-    document.body.removeEventListener('keydown', this.overrideEscapeKeydown);
+    document.removeEventListener('keydown', this.overrideEscapeKeydown);
+  }
+
+  public setStartButtonVisibility = (visible: boolean) => {
+    this.mainMenuButtons[MainMenuButton.StartGame].style.visibility = visible ? 'visible' : 'hidden';
+    this.mainMenuButtons[MainMenuButton.StartGame].classList.add('active');
   }
 
   private overrideEscapeKeydown = (event: KeyboardEvent) => {
@@ -493,21 +563,8 @@ export class UIBindings implements UIHandler {
     }
   }
 
-  public onButtonStartGameClick = () => {
-    if (!this.gameState.isPreloaded) return;
-    this.buttonStartGame.removeEventListener('click', this.onButtonStartGameClick);
-    this.callbacks.onShowMainMenu();
-    UI.hideStartScreen();
-    this.sfx.play(Sound.doorOpen);
-  }
-
   private onHideSettingsMenuClick = () => {
     UI.hideSettingsMenu();
-    if (UI.getLastUISectionFocused() === UISection.Settings) {
-      UI.setLastUISectionFocused(UISection.MainMenu);
-    } else if (UI.getLastUISectionFocused() === UISection.SettingsInGame) {
-      UI.setLastUISectionFocused(UISection.PauseMenu);
-    }
     this.sfx.play(Sound.doorOpen);
   }
 
@@ -634,8 +691,7 @@ export class Modal implements UIHandler {
   }
 }
 
-export class HighscoreEntryModal {
-  private p5: P5;
+export class HighscoreEntryModal implements UIHandler {
   private modal: HTMLElement;
   private form: HTMLFormElement;
   private inputName: HTMLInputElement;
@@ -643,12 +699,22 @@ export class HighscoreEntryModal {
   private isShowing: boolean = false;
   private isSubmitting: boolean = false;
 
-  constructor(p5: P5) {
-    this.p5 = p5;
+  constructor() {
     this.modal = requireElementById<HTMLElement>('modal-highscore-entry');
     this.form = requireElementById<HTMLFormElement>('form-highscore-entry');
     this.inputName = requireElementById<HTMLInputElement>('input-highscore-name');
   }
+  handleUINavigation: UINavEventHandler = () => {
+    return false;
+  };
+  handleUIInteract: UIInteractHandler = () => {
+    if (!this.isShowing) return false;
+    this.onSubmit();
+    return true;
+  };
+  handleUICancel: UICancelHandler = () => {
+    return false;
+  };
 
   getIsShowing = (): boolean => {
     return this.isShowing;
@@ -675,15 +741,13 @@ export class HighscoreEntryModal {
 
   private addBindings = () => {
     this.form.addEventListener('submit', this.onSubmit);
-    this.inputName.addEventListener('keydown', this.onKeydown);
   }
 
   private removeBindings = () => {
     this.form.removeEventListener('submit', this.onSubmit);
-    this.inputName.removeEventListener('keydown', this.onKeydown);
   }
 
-  private onSubmit = (event: SubmitEvent) => {
+  private onSubmit = () => {
     if (!this.isShowing) return;
     if (this.isSubmitting) return;
     try {
@@ -694,27 +758,6 @@ export class HighscoreEntryModal {
       console.log(err);
     } finally {
       this.isSubmitting = false;
-    }
-  }
-
-  private onKeydown = (event: KeyboardEvent) => {
-    const p5 = this.p5;
-    if (event.code) {
-      switch (event.code) {
-        case "Enter":
-          event.preventDefault();
-          event.stopPropagation();
-          this.form.requestSubmit()
-          break;
-      }
-    } else if (event.keyCode) {
-      switch (event.keyCode) {
-        case p5.ENTER:
-          event.preventDefault();
-          event.stopPropagation();
-          this.form.requestSubmit()
-          break;
-      }
     }
   }
 }

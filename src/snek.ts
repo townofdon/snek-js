@@ -47,15 +47,15 @@ import {
   MAX_SNAKE_SIZE,
   GLOBAL_LIGHT_DEFAULT,
 } from './constants';
-import { clamp, dirToUnitVector, findLevelWarpIndex, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, isWithinBlockDistance, parseUrlQueryParams, removeArrayElement, rotateDirection, shuffleArray, vectorToDir } from './utils';
+import { clamp, dirToUnitVector, findLevelWarpIndex, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, isWithinBlockDistance, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key, Lock, KeyChannel, LoopState, UINavContext, UISection } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key, Lock, KeyChannel, LoopState, UINavDir } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
 import { quotes as allQuotes } from './quotes';
-import { handleKeyPressed, validateMove } from './controls';
+import { InputCallbacks, handleKeyPressed, validateMove } from './controls';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
 import { QuoteScene } from './scenes/QuoteScene';
@@ -75,6 +75,7 @@ import { SpriteRenderer } from './spriteRenderer';
 import { WinGameScene } from './scenes/WinGameScene';
 import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './lighting';
+import { MainMenuButton } from './uiNavMap';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -205,7 +206,15 @@ let screenFlashElement: Element;
 
 let quotes = allQuotes.slice();
 
-const difficultyButtons: Record<number, P5.Element> = {}
+// TODO: REMOVE
+// const difficultyButtons: Record<number, P5.Element> = {}
+// const mainMenuButtons: Record<MainMenuButton, P5.Element> = {
+//   [MainMenuButton.StartGame]: null,
+//   [MainMenuButton.Settings]: null,
+//   [MainMenuButton.Leaderboard]: null,
+//   [MainMenuButton.QuoteMode]: null,
+//   [MainMenuButton.OSTMode]: null,
+// }
 
 enum Action {
   FadeMusic = 'FadeMusic',
@@ -253,12 +262,6 @@ export const sketch = (p5: P5) => {
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer(settings);
   const mainTitleFader = new MainTitleFader(p5);
-  const uiBindings = new UIBindings(p5, sfx, state, {
-    onShowMainMenu: showMainMenu,
-    onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
-    onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
-    onToggleCasualMode: toggleCasualMode,
-  });
   const winLevelScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
   const onChangePlayerDirection: (direction: DIR) => void = (dir) => {
     if (validateMove(player.direction, dir)) {
@@ -270,6 +273,38 @@ export const sketch = (p5: P5) => {
   const spriteRenderer = new SpriteRenderer({ p5, replay, gameState: state, screenShake });
   const renderer = new Renderer({ p5, staticGraphics: graphics, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
   const modal = new Modal();
+
+  const uiBindings = new UIBindings(p5, sfx, state, {
+    onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
+    onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
+    onToggleCasualMode: toggleCasualMode,
+    onStartGame: startGame,
+    onEnterOstMode: enterOstMode,
+    onEnterQuoteMode: enterQuoteMode,
+    onShowLeaderboard: showLeaderboard,
+    onShowSettingsMenu: showSettingsMenu,
+  });
+  const inputCallbacks: InputCallbacks = {
+    onHideStartScreen: onHideStartScreen,
+    onShowMainMenu: showMainMenu,
+    onConfirmShowMainMenu: confirmShowMainMenu,
+    onRetryLevel: retryLevel,
+    onStartGame: startGame,
+    onToggleCasualMode: toggleCasualMode,
+    onPause: pause,
+    onUnpause: unpause,
+    onWarpToLevel: warpToLevel,
+    onStartMoving: startMoving,
+    onStartRewinding: startRewinding,
+    onAddMove: onAddMove,
+    onEnterQuoteMode: enterQuoteMode,
+    onEnterOstMode: enterOstMode,
+    onShowLeaderboard: showLeaderboard,
+    onProceedToNextReplayClip: proceedToNextReplayClip,
+    onUINavigate: onUINavigate,
+    onUIInteract: onUIInteract,
+    onUICancel: onUICancel,
+  }
 
   /**
    * https://p5js.org/reference/#/p5/preload
@@ -317,45 +352,25 @@ export const sketch = (p5: P5) => {
   function keyPressed(ev?: KeyboardEvent) {
     state.timeSinceLastInput = 0;
     resumeAudioContext();
-    handleKeyPressed({
+    handleKeyPressed(
       p5,
       state,
       clickState,
-      playerDirection: player.direction,
+      player.direction,
       moves,
       recentMoves,
       recentInputs,
       recentInputTimes,
-      checkWillHit: checkPlayerWillHit,
-      callbacks: {
-        onHideStartScreen: () => { uiBindings.onButtonStartGameClick(); },
-        onShowMainMenu: showMainMenu,
-        onConfirmShowMainMenu: confirmShowMainMenu,
-        onInit: () => initLevel(false),
-        onStartGame: startGame,
-        onToggleCasualMode: toggleCasualMode,
-        onPause: pause,
-        onUnpause: unpause,
-        onWarpToLevel: warpToLevel,
-        onStartMoving: startMoving,
-        onStartRewinding: startRewinding,
-        onAddMove: onAddMove,
-        onEnterQuoteMode: enterQuoteMode,
-        onEnterOstMode: enterOstMode,
-        onShowLeaderboard: showLeaderboard,
-        onProceedToNextReplayClip: proceedToNextReplayClip,
-        onUINavigate: onUINavigate,
-        onUIInteract: onUIInteract,
-        onUICancel: onUICancel,
-      },
+      checkPlayerWillHit,
+      inputCallbacks,
       ev,
-    });
+    );
   }
 
-  function onUINavigate(context: UINavContext) {
+  function onUINavigate(navDir: UINavDir) {
     let handled = false;
-    if (!handled) handled = modal.handleUINavigation(context);
-    if (!handled) handled = uiBindings.handleUINavigation(context);
+    if (!handled) handled = modal.handleUINavigation(navDir);
+    if (!handled) handled = uiBindings.handleUINavigation(navDir);
     if (handled) {
       sfx.play(Sound.uiBlip, 0.5);
     } else {
@@ -453,6 +468,13 @@ export const sketch = (p5: P5) => {
     stats.totalTimeElapsed = 0;
   }
 
+  function onHideStartScreen() {
+    if (!state.isPreloaded) return;
+    showMainMenu();
+    UI.hideStartScreen();
+    sfx.play(Sound.doorOpen);
+  }
+
   function showMainMenu() {
     if (!state.isPreloaded) return;
 
@@ -491,25 +513,29 @@ export const sketch = (p5: P5) => {
     if (state.isCasualModeEnabled) {
       UI.showMainCasualModeLabel();
     }
-    const offsetLeft = 150;
-    difficultyButtons[1] = UI.drawButton('easy', 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
-    difficultyButtons[2] = UI.drawButton('medium', 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
-    difficultyButtons[3] = UI.drawButton('hard', 220 + offsetLeft, 280, () => startGame(3), uiElements).addClass('hard');
-    difficultyButtons[4] = UI.drawButton('ULTRA', 108 + offsetLeft, 340, () => startGame(4), uiElements).addClass('ultra');
-    for (let i = 1; i <= 4; i++) {
-      difficultyButtons[i].addClass('difficulty')
-    }
-    const uiButtonOptions = (altText: string) => ({ parentId: 'main-ui-buttons', altText });
-    const buttonOstMode = UI.drawButton('', -1, -1, () => enterOstMode(), uiElements, uiButtonOptions('Enter OST Mode')).id('ui-button-ost-mode').addClass('ui-sprite').addClass('headphones');
-    const buttonQuoteMode = UI.drawButton('', -1, -1, () => enterQuoteMode(), uiElements, uiButtonOptions('Enter Quote Mode')).id('ui-button-quote-mode').addClass('ui-sprite').addClass('quote');
-    const buttonLeaderboard = UI.drawButton('', -1, -1, () => showLeaderboard(), uiElements, uiButtonOptions('Show Leaderboard')).id('ui-button-leaderboard').addClass('ui-sprite').addClass('trophy');
-    const buttonSettings = UI.drawButton('', -1, -1, () => showSettingsMenu(), uiElements, uiButtonOptions('Open Settings')).id('ui-button-settings').addClass('ui-sprite').addClass('gear');
-    UI.addTooltip("OST Mode", buttonOstMode);
-    UI.addTooltip("Quote Mode", buttonQuoteMode);
-    UI.addTooltip("Leaderboard", buttonLeaderboard, 'right');
-    UI.addTooltip("Settings", buttonSettings, 'right');
+    UI.showMainMenu();
+    // TODO: REMOVE
+    // const offsetLeft = 150;
+    // difficultyButtons[1] = UI.drawButton('easy', 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
+    // difficultyButtons[2] = UI.drawButton('medium', 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
+    // difficultyButtons[3] = UI.drawButton('hard', 220 + offsetLeft, 280, () => startGame(3), uiElements).addClass('hard');
+    // difficultyButtons[4] = UI.drawButton('ULTRA', 108 + offsetLeft, 340, () => startGame(4), uiElements).addClass('ultra');
+    // for (let i = 1; i <= 4; i++) {
+    //   difficultyButtons[i].addClass('difficulty')
+    // }
+
+    // const uiButtonOptions = (altText: string) => ({ parentId: 'main-ui-buttons', altText });
+    // mainMenuButtons[MainMenuButton.StartGame] = UI.drawButton('> start game', -1, -1, () => startGame(), uiElements, uiButtonOptions('Start game')).id('ui-button-start').addClass('button-start-game');
+    // mainMenuButtons[MainMenuButton.OSTMode] = UI.drawButton('', -1, -1, () => enterOstMode(), uiElements, uiButtonOptions('Enter OST Mode')).id('ui-button-ost-mode').addClass('ui-sprite').addClass('headphones');
+    // mainMenuButtons[MainMenuButton.QuoteMode] = UI.drawButton('', -1, -1, () => enterQuoteMode(), uiElements, uiButtonOptions('Enter Quote Mode')).id('ui-button-quote-mode').addClass('ui-sprite').addClass('quote');
+    // mainMenuButtons[MainMenuButton.Leaderboard] = UI.drawButton('', -1, -1, () => showLeaderboard(), uiElements, uiButtonOptions('Show Leaderboard')).id('ui-button-leaderboard').addClass('ui-sprite').addClass('trophy');
+    // mainMenuButtons[MainMenuButton.Settings] = UI.drawButton('', -1, -1, () => showSettingsMenu(), uiElements, uiButtonOptions('Open Settings')).id('ui-button-settings').addClass('ui-sprite').addClass('gear');
+    // UI.addTooltip("OST Mode", mainMenuButtons[MainMenuButton.OSTMode]);
+    // UI.addTooltip("Quote Mode", mainMenuButtons[MainMenuButton.QuoteMode]);
+    // UI.addTooltip("Leaderboard", mainMenuButtons[MainMenuButton.Leaderboard], 'right');
+    // UI.addTooltip("Settings", mainMenuButtons[MainMenuButton.Settings], 'right');
+
     UI.hideSettingsMenu();
-    UI.setLastUISectionFocused(UISection.MainMenu);
     uiBindings.refreshFieldValues();
     modal.hide();
   }
@@ -531,7 +557,7 @@ export const sketch = (p5: P5) => {
     showMainMenuUI();
   }
 
-  function startGame(difficultyIndex = 2) {
+  function startGame() {
     if (!state.isPreloaded) return;
     if (state.isGameStarting) return;
     state.isGameStarting = true;
@@ -541,19 +567,15 @@ export const sketch = (p5: P5) => {
       musicPlayer.stopAllTracks();
     }, 0)
     playSound(Sound.uiConfirm, 1, true);
-    startCoroutine(startGameRoutine(difficultyIndex));
+    startCoroutine(startGameRoutine());
   }
 
-  function* startGameRoutine(difficultyIndex = 2): IEnumerator {
-    const button = difficultyButtons[difficultyIndex];
-    if (button) button.addClass('selected');
+  function* startGameRoutine(): IEnumerator {
     if (!DISABLE_TRANSITIONS) {
       yield* waitForTime(1000, (t) => {
-        if (button) {
-          const freq = .2;
-          const shouldShow = t % freq > freq * 0.5;
-          button.style('visibility', shouldShow ? 'visible' : 'hidden');
-        }
+        const freq = .2;
+        const shouldShow = t % freq > freq * 0.5;
+        uiBindings.setStartButtonVisibility(shouldShow);
       });
     } else {
       yield null;
@@ -561,7 +583,6 @@ export const sketch = (p5: P5) => {
     stopReplay();
     level = START_LEVEL
     setLevelIndexFromCurrentLevel();
-    difficulty = getDifficultyFromIndex(difficultyIndex);
     initLevel()
     playSound(Sound.unlock);
     state.isGameStarting = false;
@@ -581,11 +602,11 @@ export const sketch = (p5: P5) => {
     uiElements = [];
     UI.hideTitle();
     UI.hideMainCasualModeLabel();
+    UI.hideMainMenu();
   }
 
   function showSettingsMenu() {
     UI.showSettingsMenu();
-    UI.setLastUISectionFocused(UISection.Settings);
     uiBindings.refreshFieldValues();
     playSound(Sound.unlock, 1, true);
   }
@@ -669,6 +690,10 @@ export const sketch = (p5: P5) => {
       uniquePositions[getCoordIndex(segments[i])] = true;
     }
     return size + 1;
+  }
+
+  function retryLevel() {
+    initLevel(false);
   }
 
   function initLevel(shouldShowTransitions = true) {
@@ -848,13 +873,14 @@ export const sketch = (p5: P5) => {
     const currentTime = window.performance.now();
     const diff = loopState.timePrevMs === 0
       ? FRAME_DUR_MS
-      : clamp(currentTime - loopState.timePrevMs, 0, FRAME_DUR_MS * 3);
+      : Math.max(currentTime - loopState.timePrevMs, 0);
     loopState.timePrevMs = currentTime;
     loopState.timeAccumulatedMs += diff;
     if (loopState.timeAccumulatedMs < FRAME_DUR_MS) {
       return;
     } else {
       loopState.deltaTime = loopState.timeAccumulatedMs;
+      loopState.timeAccumulatedMs = Math.min(loopState.timeAccumulatedMs, FRAME_DUR_MS * 1.5);
       loopState.timeAccumulatedMs = loopState.timeAccumulatedMs - FRAME_DUR_MS;
     }
 
@@ -2027,7 +2053,6 @@ export const sketch = (p5: P5) => {
   function unpause() {
     clearUI();
     UI.hideSettingsMenu();
-    UI.setLastUISectionFocused(UISection.PauseMenu);
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(1, 1500), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(1, 1000), Action.FadeMusic, true);
@@ -2051,7 +2076,6 @@ export const sketch = (p5: P5) => {
   function showInGameSettingsMenu() {
     sfx.play(Sound.unlock);
     UI.showSettingsMenu(true);
-    UI.setLastUISectionFocused(UISection.SettingsInGame);
   }
 
   function showPauseUI() {

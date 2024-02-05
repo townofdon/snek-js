@@ -1,12 +1,8 @@
 
-export interface NavMapElement {
-  target: HTMLElement,
-  callback?: () => void,
-}
 
 export interface NavMap {
-  selected: NavMapElement | null,
   callSelected: () => void,
+  gotoFirst: () => void,
   gotoPrev: () => void,
   gotoNext: () => void,
   gotoUp: () => void,
@@ -16,61 +12,110 @@ export interface NavMap {
 }
 
 export enum MainMenuButton {
-  Start = 0,
+  StartGame = 0,
   Settings = 1,
   Leaderboard = 2,
   QuoteMode = 3,
   OSTMode = 4,
 }
-export interface NavMapElementMainMenu extends NavMapElement {
+
+/**
+ * Define the nav order for main menu buttons
+ */
+export const MAIN_MENU_BUTTONS: MainMenuButton[] = [
+  MainMenuButton.StartGame,
+  MainMenuButton.OSTMode,
+  MainMenuButton.QuoteMode,
+  MainMenuButton.Leaderboard,
+  MainMenuButton.Settings,
+]
+
+export interface MainMenuNavElement {
   button: MainMenuButton,
+  callback: () => void,
 }
 export interface UINavMapMainMenuConstructorArgs {
-  elements: NavMapElementMainMenu[]
+  mainMenuButtons: Record<MainMenuButton, HTMLButtonElement>,
+  elements: MainMenuNavElement[],
 }
 export class UINavMapMainMenu implements NavMap {
-  private elements: NavMapElementMainMenu[] = []
-  private order: MainMenuButton[] = [
-    MainMenuButton.Start,
-    MainMenuButton.Settings,
-    MainMenuButton.Leaderboard,
-    MainMenuButton.QuoteMode,
-    MainMenuButton.OSTMode,
-  ]
-  selected: NavMapElementMainMenu = null;
+  private mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
+    [MainMenuButton.StartGame]: null,
+    [MainMenuButton.OSTMode]: null,
+    [MainMenuButton.QuoteMode]: null,
+    [MainMenuButton.Leaderboard]: null,
+    [MainMenuButton.Settings]: null,
+  };
+  private elements: MainMenuNavElement[] = []
+  private selected: MainMenuNavElement = null;
 
-  constructor(args: UINavMapMainMenuConstructorArgs) {
-    this.elements = args.elements;
+  constructor({ elements, mainMenuButtons }: UINavMapMainMenuConstructorArgs) {
+    this.elements = elements;
+    this.mainMenuButtons = mainMenuButtons;
   }
 
   callSelected = () => {
-    if (this.selected?.callback) this.selected.callback();
+    const focusedElement = this.getFocusedElement();
+    if (!focusedElement) return;
+    if (focusedElement.button !== MainMenuButton.StartGame) {
+      DOM.deselect(this.selectedTarget());
+    }
+    focusedElement.callback();
   };
 
+  private getFocusedElement = (): MainMenuNavElement | null => {
+    if (!document.activeElement) return null;
+    for (let i = 0; i < this.elements.length; i++) {
+      const target = this.mainMenuButtons[this.elements[i].button];
+      if (target && target === document.activeElement) return this.elements[i];
+    }
+    return null;
+  }
+
   private getButtonPosition = (button: MainMenuButton): number => {
-    for (let i = 0; i < this.order.length; i++) {
-      if (this.order[i] === button) return i;
+    for (let i = 0; i < MAIN_MENU_BUTTONS.length; i++) {
+      if (MAIN_MENU_BUTTONS[i] === button) return i;
     }
     return -1;
   }
 
-  private findElement = (button: MainMenuButton): NavMapElementMainMenu | null => {
+  private getNextIndex = (direction: number): number => {
+    const focusedElement = this.getFocusedElement();
+    if (!focusedElement) return 0;
+    const currentButtonPosition = Math.max(this.getButtonPosition(focusedElement.button), 0);
+    return (MAIN_MENU_BUTTONS.length + currentButtonPosition + direction) % MAIN_MENU_BUTTONS.length;
+  }
+
+  private lookupElement = (button: MainMenuButton): MainMenuNavElement | null => {
     for (let i = 0; i < this.elements.length; i++) {
       if (this.elements[i].button === button) return this.elements[i];
     }
     return null;
   }
 
-  private goto = (diff: number) => {
-    const currentButtonPosition = Math.max(this.selected ? this.getButtonPosition(this.selected.button) : 0, 0);
-    const nextIndex = (this.order.length + currentButtonPosition + diff) % this.order.length;
-    const nextElement = this.findElement(this.order[nextIndex]);
+  private selectedTarget = (): HTMLElement | null => {
+    if (!this.selected) return null;
+    return this.mainMenuButtons[this.selected.button] || null;
+  }
+
+  private goto = (direction: number) => {
+    const nextIndex = this.getNextIndex(direction);
+    const nextElement = this.lookupElement(MAIN_MENU_BUTTONS[nextIndex]);
     if (nextElement) {
+      DOM.deselect(this.selectedTarget());
       this.selected = nextElement;
-      this.selected.target.focus();
+      DOM.select(this.selectedTarget());
     }
   }
 
+  gotoFirst = () => {
+    const nextElement = this.lookupElement(MAIN_MENU_BUTTONS[0]);
+    if (nextElement) {
+      if (this.selected) DOM.deselect(this.selectedTarget());
+      this.selected = nextElement;
+      DOM.select(this.selectedTarget());
+    }
+  };
   gotoPrev = () => {
     this.goto(-1);
   };
@@ -81,4 +126,21 @@ export class UINavMapMainMenu implements NavMap {
   gotoDown = this.gotoNext;
   gotoLeft = this.gotoPrev;
   gotoRight = this.gotoNext;
+}
+
+export class DOM {
+  static select(element: HTMLElement) {
+    if (!element) return;
+    if (document.activeElement && document.activeElement !== element) {
+      document.activeElement.classList.remove('active');
+    }
+    element.focus();
+    element.classList.add('active');
+  }
+
+  static deselect(element: HTMLElement) {
+    if (!element) return;
+    element.blur();
+    element.classList.remove('active');
+  }
 }

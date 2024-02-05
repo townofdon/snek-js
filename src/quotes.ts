@@ -421,7 +421,7 @@ That is the question
 Doubt thou the stars are fire,|
 Doubt that the sun doth move,|
 Doubt truth to be a liar,|
-But never doubt I snek.
+But never doubt snek.
 
 The fault, dear Brutus, is not in our stars, but in snek.
 

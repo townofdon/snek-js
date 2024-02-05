@@ -401,12 +401,7 @@ export enum UINavDir {
   Right,
 }
 
-export interface UINavContext {
-  // section: UISection,
-  navDir: UINavDir,
-}
-
-export type UINavEventHandler = (context: UINavContext) => boolean;
+export type UINavEventHandler = (navDir: UINavDir) => boolean;
 export type UIInteractHandler = () => boolean;
 export type UICancelHandler = () => boolean;
 export interface UIHandler {

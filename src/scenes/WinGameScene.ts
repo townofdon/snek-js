@@ -2,7 +2,7 @@ import P5 from "p5";
 import Color from "color";
 import formatNumberFn from 'format-number'
 
-import { DIR, FontsInstance, GameState, IEnumerator, SFXInstance, SceneCallbacks, Sound, Stats } from "../types";
+import { DIR, FontsInstance, GameState, IEnumerator, SFXInstance, SceneCallbacks, Sound, Stats, UINavDir } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { ACCENT_COLOR, DIMENSIONS, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "../constants";
@@ -10,6 +10,7 @@ import { indexToDir } from "../utils";
 import { HighScoreEntry, postLeaderboardResult, getLeaderboard, getToken } from "../api/leaderboard";
 import { HighscoreEntryModal, Modal } from "../ui";
 import { ApiOptions } from "../api/utils/apiUtils";
+import { handleUIEvents } from "../controls";
 
 const formatNumber = formatNumberFn({
   truncate: 0,
@@ -93,6 +94,9 @@ export class WinGameScene extends BaseScene {
 
   private fieldVisible: boolean[] = [];
   private fieldValue: number[] = [];
+
+  private modalHighScoreEntry = new HighscoreEntryModal();
+  private modalConfirm = new Modal();
 
   constructor({ p5, gameState, stats, sfx, fonts, onChangePlayerDirection, callbacks = {} }: WinGameSceneConstructorArgs) {
     super(p5, fonts, callbacks)
@@ -294,8 +298,8 @@ export class WinGameScene extends BaseScene {
     if (!isCasualModeEnabled && this.getHasHighscore()) {
       this.hideAllFields();
       this.fieldVisible[FIELD.HIGHSCORE_ENTRY] = true;
-      const modalHighScoreEntry = new HighscoreEntryModal(p5);
-      const modalConfirm = new Modal(p5, sfx);
+      const modalHighScoreEntry = new HighscoreEntryModal();
+      const modalConfirm = new Modal();
       const onSubmitHighscoreName = (name: string) => {
         const handleYesClick = () => {
           this.state.highscoreEntryName = name;
@@ -375,7 +379,31 @@ export class WinGameScene extends BaseScene {
     }
   }
 
-  keyPressed = () => { };
+  keyPressed = () => {
+    const { p5 } = this.props;
+    handleUIEvents(p5, this.onUINavigate, this.onUIInteract, this.onUICancel)
+  };
+  private onUINavigate = (navDir: UINavDir) => {
+    let handled = false;
+    if (!handled) handled = this.modalConfirm.handleUINavigation(navDir);
+    if (!handled) handled = this.modalHighScoreEntry.handleUINavigation(navDir);
+    if (handled) {
+      this.sfx.play(Sound.uiBlip, 0.5);
+    }
+    return handled;
+  }
+  private onUIInteract = () => {
+    let handled = false;
+    if (!handled) handled = this.modalConfirm.handleUIInteract();
+    if (!handled) handled = this.modalHighScoreEntry.handleUIInteract();
+    return handled;
+  }
+  private onUICancel = () => {
+    let handled = false;
+    if (!handled) handled = this.modalConfirm.handleUIInteract();
+    if (!handled) handled = this.modalHighScoreEntry.handleUIInteract();
+    return handled;
+  }
 
   draw = () => {
     const { p5 } = this.props;
