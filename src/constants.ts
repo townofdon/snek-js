@@ -112,21 +112,16 @@ export const DIFFICULTY_ULTRA: Difficulty = {
   sprintLimit: SPEED_LIMIT_ULTRA_SPRINT,
 }
 
-export const KEYCODE_W = 87;
-export const KEYCODE_A = 65;
-export const KEYCODE_S = 83;
-export const KEYCODE_D = 68;
-export const KEYCODE_J = 74;
-export const KEYCODE_0 = 48;
-export const KEYCODE_1 = 49;
-export const KEYCODE_2 = 50;
-export const KEYCODE_3 = 51;
-export const KEYCODE_4 = 52;
-export const KEYCODE_5 = 53;
-export const KEYCODE_6 = 54;
-export const KEYCODE_7 = 55;
-export const KEYCODE_8 = 56;
-export const KEYCODE_9 = 57;
+export const KEYCODE_ALPHA_0 = 48;
+export const KEYCODE_ALPHA_1 = 49;
+export const KEYCODE_ALPHA_2 = 50;
+export const KEYCODE_ALPHA_3 = 51;
+export const KEYCODE_ALPHA_4 = 52;
+export const KEYCODE_ALPHA_5 = 53;
+export const KEYCODE_ALPHA_6 = 54;
+export const KEYCODE_ALPHA_7 = 55;
+export const KEYCODE_ALPHA_8 = 56;
+export const KEYCODE_ALPHA_9 = 57;
 
 export const KEYCODE_NUMPAD_0 = 96;
 export const KEYCODE_NUMPAD_1 = 97;
@@ -141,10 +136,15 @@ export const KEYCODE_NUMPAD_9 = 105;
 
 export const KEYCODE_SPACE = 32;
 export const KEYCODE_QUOTE = 222;
+export const KEYCODE_ALPHA_A = 65;
 export const KEYCODE_ALPHA_C = 67;
+export const KEYCODE_ALPHA_D = 68;
+export const KEYCODE_ALPHA_J = 74;
 export const KEYCODE_ALPHA_L = 76;
 export const KEYCODE_ALPHA_M = 77;
 export const KEYCODE_ALPHA_R = 82;
+export const KEYCODE_ALPHA_S = 83;
+export const KEYCODE_ALPHA_W = 87;
 
 export const SCREEN_SHAKE_DURATION_MS = 1000;
 export const SCREEN_SHAKE_MAGNITUDE_PX = 4;

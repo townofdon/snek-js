@@ -384,3 +384,33 @@ export interface Portal {
 }
 
 export type PortalChannel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+
+export enum UISection {
+  MainMenu,
+  Settings,
+  SettingsInGame,
+  PauseMenu,
+}
+
+export enum UINavDir {
+  Prev,
+  Next,
+  Up,
+  Down,
+  Left,
+  Right,
+}
+
+export interface UINavContext {
+  // section: UISection,
+  navDir: UINavDir,
+}
+
+export type UINavEventHandler = (context: UINavContext) => boolean;
+export type UIInteractHandler = () => boolean;
+export type UICancelHandler = () => boolean;
+export interface UIHandler {
+  handleUINavigation: UINavEventHandler,
+  handleUIInteract: UIInteractHandler,
+  handleUICancel: UICancelHandler,
+}

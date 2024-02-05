@@ -50,7 +50,7 @@ import {
 import { clamp, dirToUnitVector, findLevelWarpIndex, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, isWithinBlockDistance, parseUrlQueryParams, removeArrayElement, rotateDirection, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key, Lock, KeyChannel, LoopState } from './types';
+import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key, Lock, KeyChannel, LoopState, UINavContext, UISection } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -269,7 +269,7 @@ export const sketch = (p5: P5) => {
   const leaderboardScene = new LeaderboardScene({ p5, sfx, fonts, callbacks: { onSceneEnded: hideLeaderboard } });
   const spriteRenderer = new SpriteRenderer({ p5, replay, gameState: state, screenShake });
   const renderer = new Renderer({ p5, staticGraphics: graphics, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
-  const modal = new Modal(p5, sfx);
+  const modal = new Modal();
 
   /**
    * https://p5js.org/reference/#/p5/preload
@@ -344,9 +344,38 @@ export const sketch = (p5: P5) => {
         onEnterOstMode: enterOstMode,
         onShowLeaderboard: showLeaderboard,
         onProceedToNextReplayClip: proceedToNextReplayClip,
+        onUINavigate: onUINavigate,
+        onUIInteract: onUIInteract,
+        onUICancel: onUICancel,
       },
       ev,
     });
+  }
+
+  function onUINavigate(context: UINavContext) {
+    let handled = false;
+    if (!handled) handled = modal.handleUINavigation(context);
+    if (!handled) handled = uiBindings.handleUINavigation(context);
+    if (handled) {
+      sfx.play(Sound.uiBlip, 0.5);
+    } else {
+      sfx.play(Sound.hurt2, 0.4);
+    }
+    return handled;
+  }
+
+  function onUIInteract() {
+    let handled = false;
+    if (!handled) handled = modal.handleUIInteract();
+    if (!handled) handled = uiBindings.handleUIInteract();
+    return handled;
+  }
+
+  function onUICancel() {
+    let handled = false;
+    if (!handled) handled = modal.handleUICancel();
+    if (!handled) handled = uiBindings.handleUICancel();
+    return handled;
   }
 
   function toggleCasualMode(value?: boolean) {
@@ -480,6 +509,7 @@ export const sketch = (p5: P5) => {
     UI.addTooltip("Leaderboard", buttonLeaderboard, 'right');
     UI.addTooltip("Settings", buttonSettings, 'right');
     UI.hideSettingsMenu();
+    UI.setLastUISectionFocused(UISection.MainMenu);
     uiBindings.refreshFieldValues();
     modal.hide();
   }
@@ -555,6 +585,7 @@ export const sketch = (p5: P5) => {
 
   function showSettingsMenu() {
     UI.showSettingsMenu();
+    UI.setLastUISectionFocused(UISection.Settings);
     uiBindings.refreshFieldValues();
     playSound(Sound.unlock, 1, true);
   }
@@ -1996,6 +2027,7 @@ export const sketch = (p5: P5) => {
   function unpause() {
     clearUI();
     UI.hideSettingsMenu();
+    UI.setLastUISectionFocused(UISection.PauseMenu);
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(1, 1500), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(1, 1000), Action.FadeMusic, true);
@@ -2019,6 +2051,7 @@ export const sketch = (p5: P5) => {
   function showInGameSettingsMenu() {
     sfx.play(Sound.unlock);
     UI.showSettingsMenu(true);
+    UI.setLastUISectionFocused(UISection.SettingsInGame);
   }
 
   function showPauseUI() {

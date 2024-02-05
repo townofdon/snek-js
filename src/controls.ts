@@ -1,21 +1,21 @@
 import P5 from "p5";
 import {
   MAX_MOVES,
-  KEYCODE_J,
-  KEYCODE_0,
-  KEYCODE_1,
-  KEYCODE_2,
-  KEYCODE_3,
-  KEYCODE_4,
-  KEYCODE_5,
-  KEYCODE_6,
-  KEYCODE_7,
-  KEYCODE_8,
-  KEYCODE_9,
-  KEYCODE_W,
-  KEYCODE_A,
-  KEYCODE_D,
-  KEYCODE_S,
+  KEYCODE_ALPHA_J,
+  KEYCODE_ALPHA_0,
+  KEYCODE_ALPHA_1,
+  KEYCODE_ALPHA_2,
+  KEYCODE_ALPHA_3,
+  KEYCODE_ALPHA_4,
+  KEYCODE_ALPHA_5,
+  KEYCODE_ALPHA_6,
+  KEYCODE_ALPHA_7,
+  KEYCODE_ALPHA_8,
+  KEYCODE_ALPHA_9,
+  KEYCODE_ALPHA_W,
+  KEYCODE_ALPHA_A,
+  KEYCODE_ALPHA_D,
+  KEYCODE_ALPHA_S,
   HURT_STUN_TIME,
   KEYCODE_QUOTE,
   KEYCODE_ALPHA_M,
@@ -27,7 +27,7 @@ import {
   KEYCODE_ALPHA_L,
   KEYCODE_ALPHA_R,
 } from './constants';
-import { AppMode, ClickState, DIR, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves } from "./types";
+import { AppMode, ClickState, DIR, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves, UICancelHandler, UIInteractHandler, UINavDir, UINavEventHandler } from "./types";
 import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "./utils";
 
 export interface InputCallbacks {
@@ -47,6 +47,9 @@ export interface InputCallbacks {
   onStartMoving: () => void,
   onStartRewinding: () => void,
   onAddMove: (move: DIR) => void,
+  onUINavigate: UINavEventHandler,
+  onUIInteract: UIInteractHandler,
+  onUICancel: UICancelHandler,
 }
 
 interface HandleKeyPressedParams {
@@ -76,7 +79,7 @@ export function handleKeyPressed({
   callbacks,
   ev,
 }: HandleKeyPressedParams) {
-  const { keyCode, ENTER, ESCAPE, SHIFT, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
+  const { keyCode, TAB, ENTER, ESCAPE, SHIFT, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   const {
     onHideStartScreen,
     onShowMainMenu,
@@ -94,10 +97,17 @@ export function handleKeyPressed({
     onStartMoving,
     onStartRewinding,
     onAddMove,
+    onUINavigate,
+    onUIInteract,
+    onUICancel,
   } = callbacks
 
   if (state.isGameStarting) {
     return;
+  }
+
+  if (keyCode === TAB) {
+    ev.preventDefault();
   }
 
   if (state.appMode === AppMode.Leaderboard) {
@@ -122,16 +132,16 @@ export function handleKeyPressed({
 
   if (!state.isGameStarted && state.appMode === AppMode.Game) {
     if (false) { }
-    else if (keyCode === KEYCODE_1 || keyCode === KEYCODE_NUMPAD_1) onStartGame(1);
-    else if (keyCode === KEYCODE_2 || keyCode === KEYCODE_NUMPAD_2) onStartGame(2);
-    else if (keyCode === KEYCODE_3 || keyCode === KEYCODE_NUMPAD_3) onStartGame(3);
-    else if (keyCode === KEYCODE_4 || keyCode === KEYCODE_NUMPAD_4) onStartGame(4);
+    else if (keyCode === KEYCODE_ALPHA_1 || keyCode === KEYCODE_NUMPAD_1) onStartGame(1);
+    else if (keyCode === KEYCODE_ALPHA_2 || keyCode === KEYCODE_NUMPAD_2) onStartGame(2);
+    else if (keyCode === KEYCODE_ALPHA_3 || keyCode === KEYCODE_NUMPAD_3) onStartGame(3);
+    else if (keyCode === KEYCODE_ALPHA_4 || keyCode === KEYCODE_NUMPAD_4) onStartGame(4);
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_QUOTE) onEnterQuoteMode();
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_M) onEnterOstMode();
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_L) onShowLeaderboard();
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_R) onProceedToNextReplayClip();
     else if (keyCode === KEYCODE_ALPHA_C) onToggleCasualMode();
-    return;
+    handleUIEvents(p5, onUINavigate, onUIInteract, onUICancel);
   }
 
   if (!state.isGameStarted) {
@@ -153,16 +163,17 @@ export function handleKeyPressed({
   }
 
   if (state.isPaused) {
-    if (keyCode === KEYCODE_0) onWarpToLevel(10);
-    else if (keyCode === KEYCODE_1) onWarpToLevel(1);
-    else if (keyCode === KEYCODE_2) onWarpToLevel(2);
-    else if (keyCode === KEYCODE_3) onWarpToLevel(3);
-    else if (keyCode === KEYCODE_4) onWarpToLevel(4);
-    else if (keyCode === KEYCODE_5) onWarpToLevel(5);
-    else if (keyCode === KEYCODE_6) onWarpToLevel(6);
-    else if (keyCode === KEYCODE_7) onWarpToLevel(7);
-    else if (keyCode === KEYCODE_8) onWarpToLevel(8);
-    else if (keyCode === KEYCODE_9) onWarpToLevel(9);
+    handleUIEvents(p5, onUINavigate, onUIInteract, onUICancel);
+    if (keyCode === KEYCODE_ALPHA_0) onWarpToLevel(10);
+    else if (keyCode === KEYCODE_ALPHA_1) onWarpToLevel(1);
+    else if (keyCode === KEYCODE_ALPHA_2) onWarpToLevel(2);
+    else if (keyCode === KEYCODE_ALPHA_3) onWarpToLevel(3);
+    else if (keyCode === KEYCODE_ALPHA_4) onWarpToLevel(4);
+    else if (keyCode === KEYCODE_ALPHA_5) onWarpToLevel(5);
+    else if (keyCode === KEYCODE_ALPHA_6) onWarpToLevel(6);
+    else if (keyCode === KEYCODE_ALPHA_7) onWarpToLevel(7);
+    else if (keyCode === KEYCODE_ALPHA_8) onWarpToLevel(8);
+    else if (keyCode === KEYCODE_ALPHA_9) onWarpToLevel(9);
     else if (keyCode === KEYCODE_ALPHA_M) onConfirmShowMainMenu();
     return;
   }
@@ -179,13 +190,13 @@ export function handleKeyPressed({
     clickState.didReceiveInput = false;
   }
 
-  if (keyCode === LEFT_ARROW || keyCode === KEYCODE_A) {
+  if (keyCode === LEFT_ARROW || keyCode === KEYCODE_ALPHA_A) {
     currentMove = DIR.LEFT;
-  } else if (keyCode === RIGHT_ARROW || keyCode === KEYCODE_D) {
+  } else if (keyCode === RIGHT_ARROW || keyCode === KEYCODE_ALPHA_D) {
     currentMove = DIR.RIGHT;
-  } else if (keyCode === UP_ARROW || keyCode === KEYCODE_W) {
+  } else if (keyCode === UP_ARROW || keyCode === KEYCODE_ALPHA_W) {
     currentMove = DIR.UP;
-  } else if (keyCode === DOWN_ARROW || keyCode === KEYCODE_S) {
+  } else if (keyCode === DOWN_ARROW || keyCode === KEYCODE_ALPHA_S) {
     currentMove = DIR.DOWN;
   }
 
@@ -227,6 +238,19 @@ export function handleKeyPressed({
   }
 
   onAddMove(currentMove);
+}
+
+function handleUIEvents(p5: P5, onUINavigate: UINavEventHandler, onUIInteract: UIInteractHandler, onUICancel: UICancelHandler) {
+  const { keyCode, ENTER, ESCAPE, SHIFT, TAB, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
+  if (false) { }
+  else if (keyCode === LEFT_ARROW || keyCode === KEYCODE_ALPHA_A) onUINavigate({ navDir: UINavDir.Left })
+  else if (keyCode === RIGHT_ARROW || keyCode === KEYCODE_ALPHA_D) onUINavigate({ navDir: UINavDir.Right })
+  else if (keyCode === UP_ARROW || keyCode === KEYCODE_ALPHA_W) onUINavigate({ navDir: UINavDir.Up })
+  else if (keyCode === DOWN_ARROW || keyCode === KEYCODE_ALPHA_S) onUINavigate({ navDir: UINavDir.Down })
+  else if (keyCode === TAB && !p5.keyIsDown(SHIFT)) onUINavigate({ navDir: UINavDir.Prev })
+  else if (keyCode === TAB && p5.keyIsDown(SHIFT)) onUINavigate({ navDir: UINavDir.Next })
+  else if (keyCode === ENTER) onUIInteract();
+  else if (keyCode === ESCAPE || keyCode === BACKSPACE || keyCode === DELETE) onUICancel();
 }
 
 function updateRecentInputs(recentInputs: RecentMoves, recentInputTimes: RecentMoveTimes, currentMove: DIR, deltaTime: number) {

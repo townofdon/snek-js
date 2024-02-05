@@ -1,7 +1,7 @@
 import P5, { Element } from 'p5';
 import { faker } from '@faker-js/faker';
 
-import { GameState, IEnumerator, SFXInstance, Sound, TitleVariant } from './types';
+import { GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavEventHandler, UISection } from './types';
 import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
 
 const UI_LABEL_OFFSET = '18px';
@@ -17,6 +17,16 @@ const TITLE_VARIANT_TRANSITION_TIME_MS = 2000;
 export class UI {
 
   private static p5: P5;
+
+  private static lastUISectionFocused: UISection;
+
+  static setLastUISectionFocused = (section: UISection) => {
+    this.lastUISectionFocused = section;
+  }
+
+  static getLastUISectionFocused = () => {
+    return this.lastUISectionFocused;
+  }
 
   static setP5Instance(p5: P5) {
     UI.p5 = p5;
@@ -54,16 +64,20 @@ export class UI {
     settingsMenu.style.display = 'block';
     settingsMenu.classList.remove('hidden');
     const gameplaySettingsSection = document.getElementById('settings-section-gameplay');
-    if (isInGameMenu) {
-      gameplaySettingsSection.style.display = 'none';
-    } else {
-      gameplaySettingsSection.style.display = 'block';
-    }
+    gameplaySettingsSection.style.display = isInGameMenu
+      ? 'none'
+      : 'block';
+    // this.setLastUISectionFocused(isInGameMenu
+    //   ? UISection.SettingsInGame
+    //   : UISection.Settings);
   }
 
   static hideSettingsMenu() {
     UI.disableGameBlur();
     document.getElementById('settings-menu').style.display = 'none';
+    // this.setLastUISectionFocused(isInGameMenu
+    //   ? UISection.Pause
+    //   : UISection.MainMenu);
   }
 
   static showMainCasualModeLabel() {
@@ -402,7 +416,7 @@ interface UIBindingsCallbacks {
   onToggleCasualMode: (value?: boolean) => void,
 }
 
-export class UIBindings {
+export class UIBindings implements UIHandler {
   private p5: P5;
   private sfx: SFXInstance;
   private gameState: GameState;
@@ -425,6 +439,18 @@ export class UIBindings {
     this.gameState = gameState;
     this.callbacks = callbacks;
     this.bindElements();
+  }
+
+  handleUINavigation: UINavEventHandler = (context) => {
+    return false;
+  }
+
+  handleUIInteract: UIInteractHandler = () => {
+    return false;
+  }
+
+  handleUICancel: UICancelHandler = () => {
+    return false;
   }
 
   refreshFieldValues() {
@@ -477,6 +503,11 @@ export class UIBindings {
 
   private onHideSettingsMenuClick = () => {
     UI.hideSettingsMenu();
+    if (UI.getLastUISectionFocused() === UISection.Settings) {
+      UI.setLastUISectionFocused(UISection.MainMenu);
+    } else if (UI.getLastUISectionFocused() === UISection.SettingsInGame) {
+      UI.setLastUISectionFocused(UISection.PauseMenu);
+    }
     this.sfx.play(Sound.doorOpen);
   }
 
@@ -500,9 +531,7 @@ export class UIBindings {
   }
 }
 
-export class Modal {
-  private p5: P5;
-  private sfx: SFXInstance;
+export class Modal implements UIHandler {
   private modal: HTMLElement;
   private title: HTMLElement;
   private message: HTMLElement;
@@ -512,9 +541,7 @@ export class Modal {
   private handleYesClick: () => void = () => { };
   private isShowing: boolean = false;
 
-  constructor(p5: P5, sfx: SFXInstance) {
-    this.p5 = p5;
-    this.sfx = sfx;
+  constructor() {
     this.modal = requireElementById<HTMLElement>('modal');
     this.title = requireElementById<HTMLElement>('modal-title');
     this.message = requireElementById<HTMLElement>('modal-message');
@@ -552,6 +579,24 @@ export class Modal {
     this.isShowing = false;
   }
 
+  handleUINavigation: UINavEventHandler = () => {
+    if (!this.isShowing) return false;
+    this.gotoNextOption();
+    return true;
+  }
+
+  handleUIInteract: UIInteractHandler = () => {
+    if (!this.isShowing) return false;
+    this.onSubmit();
+    return true;
+  }
+
+  handleUICancel: UICancelHandler = () => {
+    if (!this.isShowing) return false;
+    this.hide();
+    return true;
+  }
+
   private onNoClick = () => {
     this.handleNoClick();
   }
@@ -571,7 +616,6 @@ export class Modal {
 
   private gotoNextOption = () => {
     if (!this.isShowing) return;
-    this.sfx.play(Sound.uiBlip);
     if (document.activeElement === this.buttonNo) {
       this.buttonYes.focus();
     } else {
@@ -580,49 +624,13 @@ export class Modal {
   }
 
   private addBindings = () => {
-    document.body.addEventListener("keydown", this.handleKeydown);
     this.buttonNo.addEventListener("click", this.onNoClick);
     this.buttonYes.addEventListener("click", this.onYesClick);
   }
 
   private removeBindings = () => {
-    document.body.removeEventListener("keydown", this.handleKeydown);
     this.buttonNo.removeEventListener("click", this.onNoClick);
     this.buttonYes.removeEventListener("click", this.onYesClick);
-  }
-
-  private handleKeydown = (event: KeyboardEvent) => {
-    if (!this.isShowing) return;
-    const p5 = this.p5;
-    if (event.code) {
-      switch (event.code) {
-        case "KeyA":
-        case "ArrowLeft":
-          this.gotoNextOption();
-          break;
-        case "KeyD":
-        case "ArrowRight":
-          this.gotoNextOption();
-          break;
-        case "Enter":
-          event.preventDefault();
-          event.stopPropagation();
-          this.onSubmit();
-          break;
-      }
-    } else if (event.keyCode) {
-      switch (event.keyCode) {
-        case p5.LEFT_ARROW:
-          this.gotoNextOption();
-          break;
-        case p5.RIGHT_ARROW:
-          this.gotoNextOption();
-          break;
-        case p5.ENTER:
-          this.onSubmit();
-          break;
-      }
-    }
   }
 }
 
