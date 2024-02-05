@@ -72,7 +72,7 @@ export function handleKeyPressed(
   }
 
   if (keyCode === TAB || keyCode === ENTER) {
-    ev.preventDefault();
+    ev?.preventDefault();
   }
 
   if (state.appMode === AppMode.Leaderboard) {
@@ -86,12 +86,6 @@ export function handleKeyPressed(
 
   if (state.appMode === AppMode.Quote) {
     if (keyCode === ESCAPE) callbacks.onShowMainMenu();
-    return;
-  }
-
-  if (state.isLost) {
-    if (keyCode === ENTER) callbacks.onRetryLevel();
-    if (keyCode === KEYCODE_ALPHA_M) callbacks.onConfirmShowMainMenu();
     return;
   }
 
@@ -110,6 +104,12 @@ export function handleKeyPressed(
   }
 
   if (state.isExitingLevel || state.isExited) {
+    return;
+  }
+
+  if (state.isLost) {
+    if (keyCode === ENTER) callbacks.onRetryLevel();
+    if (keyCode === KEYCODE_ALPHA_M) callbacks.onConfirmShowMainMenu();
     return;
   }
 

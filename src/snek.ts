@@ -65,7 +65,7 @@ import { AppleParticleSystem } from './particleSystems/AppleParticleSystem';
 import { WinLevelScene } from './scenes/WinLevelScene';
 import { LOSE_MESSAGES } from './messages';
 import { ImpactParticleSystem } from './particleSystems/ImpactParticleSystem';
-import { Renderer } from './renderer';
+import { DrawSquareOptions, Renderer } from './renderer';
 import { PortalParticleSystem, PortalVortexParticleSystem } from './particleSystems/PortalParticleSystem';
 import { MusicPlayer } from './musicPlayer';
 import { resumeAudioContext } from './audio';
@@ -75,7 +75,6 @@ import { SpriteRenderer } from './spriteRenderer';
 import { WinGameScene } from './scenes/WinGameScene';
 import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './lighting';
-import { MainMenuButton } from './uiNavMap';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -170,6 +169,10 @@ const clickState: ClickState = {
   didReceiveInput: false,
   directionToPoint: DIR.RIGHT,
 }
+const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true }
+const drawAppleOptions: DrawSquareOptions = { size: 0.8, is3d: true, optimize: true }
+const drawBasicOptions: DrawSquareOptions = { optimize: true }
+const drawPortalOptions: DrawSquareOptions = {}
 
 const loseMessages: Record<number, LoseMessage[]> = {}
 
@@ -205,16 +208,6 @@ let particleSystems: ParticleSystem[] = [];
 let screenFlashElement: Element;
 
 let quotes = allQuotes.slice();
-
-// TODO: REMOVE
-// const difficultyButtons: Record<number, P5.Element> = {}
-// const mainMenuButtons: Record<MainMenuButton, P5.Element> = {
-//   [MainMenuButton.StartGame]: null,
-//   [MainMenuButton.Settings]: null,
-//   [MainMenuButton.Leaderboard]: null,
-//   [MainMenuButton.QuoteMode]: null,
-//   [MainMenuButton.OSTMode]: null,
-// }
 
 enum Action {
   FadeMusic = 'FadeMusic',
@@ -514,27 +507,6 @@ export const sketch = (p5: P5) => {
       UI.showMainCasualModeLabel();
     }
     UI.showMainMenu();
-    // TODO: REMOVE
-    // const offsetLeft = 150;
-    // difficultyButtons[1] = UI.drawButton('easy', 0 + offsetLeft, 280, () => startGame(1), uiElements).addClass('easy');
-    // difficultyButtons[2] = UI.drawButton('medium', 105 + offsetLeft, 280, () => startGame(2), uiElements).addClass('medium');
-    // difficultyButtons[3] = UI.drawButton('hard', 220 + offsetLeft, 280, () => startGame(3), uiElements).addClass('hard');
-    // difficultyButtons[4] = UI.drawButton('ULTRA', 108 + offsetLeft, 340, () => startGame(4), uiElements).addClass('ultra');
-    // for (let i = 1; i <= 4; i++) {
-    //   difficultyButtons[i].addClass('difficulty')
-    // }
-
-    // const uiButtonOptions = (altText: string) => ({ parentId: 'main-ui-buttons', altText });
-    // mainMenuButtons[MainMenuButton.StartGame] = UI.drawButton('> start game', -1, -1, () => startGame(), uiElements, uiButtonOptions('Start game')).id('ui-button-start').addClass('button-start-game');
-    // mainMenuButtons[MainMenuButton.OSTMode] = UI.drawButton('', -1, -1, () => enterOstMode(), uiElements, uiButtonOptions('Enter OST Mode')).id('ui-button-ost-mode').addClass('ui-sprite').addClass('headphones');
-    // mainMenuButtons[MainMenuButton.QuoteMode] = UI.drawButton('', -1, -1, () => enterQuoteMode(), uiElements, uiButtonOptions('Enter Quote Mode')).id('ui-button-quote-mode').addClass('ui-sprite').addClass('quote');
-    // mainMenuButtons[MainMenuButton.Leaderboard] = UI.drawButton('', -1, -1, () => showLeaderboard(), uiElements, uiButtonOptions('Show Leaderboard')).id('ui-button-leaderboard').addClass('ui-sprite').addClass('trophy');
-    // mainMenuButtons[MainMenuButton.Settings] = UI.drawButton('', -1, -1, () => showSettingsMenu(), uiElements, uiButtonOptions('Open Settings')).id('ui-button-settings').addClass('ui-sprite').addClass('gear');
-    // UI.addTooltip("OST Mode", mainMenuButtons[MainMenuButton.OSTMode]);
-    // UI.addTooltip("Quote Mode", mainMenuButtons[MainMenuButton.QuoteMode]);
-    // UI.addTooltip("Leaderboard", mainMenuButtons[MainMenuButton.Leaderboard], 'right');
-    // UI.addTooltip("Settings", mainMenuButtons[MainMenuButton.Settings], 'right');
-
     UI.hideSettingsMenu();
     uiBindings.refreshFieldValues();
     modal.hide();
@@ -547,7 +519,7 @@ export const sketch = (p5: P5) => {
     state.appMode = AppMode.Leaderboard;
     leaderboardScene.trigger();
     setTimeout(() => {
-      startScreenShake({ magnitude: 3, normalizedTime: 0.5, force: true })
+      startScreenShake(3, 0.5, 1, true)
     }, 600)
   }
 
@@ -1123,7 +1095,7 @@ export const sketch = (p5: P5) => {
     }, FRAMERATE * 2)
   }
 
-  function startScreenShake({ magnitude = 1, normalizedTime = 0, timeScale = 1, force = false } = {}) {
+  function startScreenShake(magnitude = 1, normalizedTime = 0, timeScale = 1, force = false) {
     if (!force && replay.mode === ReplayMode.Playback) return;
     screenShake.timeSinceStarted = normalizedTime * SCREEN_SHAKE_DURATION_MS;
     screenShake.magnitude = magnitude;
@@ -1650,7 +1622,7 @@ export const sketch = (p5: P5) => {
   function growSnake(appleIndex = -1) {
     if (state.isLost) return;
     if (appleIndex < 0) return;
-    startScreenShake({ magnitude: 0.4, normalizedTime: 0.8 });
+    startScreenShake(0.4, 0.8);
     removeApple(appleIndex);
     const numSegmentsToAdd = Math.max(
       (difficulty.index - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
@@ -1768,11 +1740,10 @@ export const sketch = (p5: P5) => {
   }
 
   function drawPlayerHead(vec: Vector) {
-    const options = { is3d: true, optimize: true };
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
       state.isShowingDeathColours ? PALETTE.deathInvert.playerHead : level.colors.playerHead,
-      options);
+      drawPlayerOptions);
     const direction = moves.length > 0 ? moves[0] : player.direction;
     if (state.isLost) {
       spriteRenderer.drawImage3x3(Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction));
@@ -1782,18 +1753,17 @@ export const sketch = (p5: P5) => {
   }
 
   function drawPlayerSegment(vec: Vector) {
-    const options = { is3d: true, optimize: true };
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
-        renderer.drawSquare(vec.x, vec.y, "#000", "#000", options);
+        renderer.drawSquare(vec.x, vec.y, "#000", "#000", drawPlayerOptions);
       } else {
-        renderer.drawSquare(vec.x, vec.y, "#fff", "#fff", options);
+        renderer.drawSquare(vec.x, vec.y, "#fff", "#fff", drawPlayerOptions);
       }
     } else {
       renderer.drawSquare(vec.x, vec.y,
         state.isShowingDeathColours ? PALETTE.deathInvert.playerTail : level.colors.playerTail,
         state.isShowingDeathColours ? PALETTE.deathInvert.playerTailStroke : level.colors.playerTailStroke,
-        options);
+        drawPlayerOptions);
     }
   }
 
@@ -1801,7 +1771,7 @@ export const sketch = (p5: P5) => {
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.apple : level.colors.apple,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.appleStroke : level.colors.appleStroke,
-      { size: 0.8, is3d: true, optimize: true });
+      drawAppleOptions);
   }
 
   function drawBarriers() {
@@ -1809,7 +1779,7 @@ export const sketch = (p5: P5) => {
       renderer.drawSquareStatic(barriers[i].x, barriers[i].y,
         state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrier : level.colors.barrier,
         state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke,
-        { optimize: true });
+        drawBasicOptions);
     }
     for (let i = 0; i < barriers.length; i++) {
       renderer.drawSquareBorderStatic(barriers[i].x, barriers[i].y, 'light',
@@ -1829,7 +1799,7 @@ export const sketch = (p5: P5) => {
       renderer.drawSquare(doors[i].x, doors[i].y,
         state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.door : level.colors.door,
         state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.doorStroke : level.colors.doorStroke,
-        { optimize: true });
+        drawBasicOptions);
     }
     for (let i = 0; i < doors.length; i++) {
       renderer.drawSquareBorder(doors[i].x, doors[i].y, 'light',
@@ -1872,7 +1842,7 @@ export const sketch = (p5: P5) => {
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1 : level.colors.deco1,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1Stroke : level.colors.deco1Stroke,
-      { optimize: true });
+      drawBasicOptions);
   }
 
   function drawDecorative2(vec: Vector) {
@@ -1882,7 +1852,7 @@ export const sketch = (p5: P5) => {
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2 : level.colors.deco2,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke,
-      { optimize: true });
+      drawBasicOptions);
   }
 
   function drawParticles(zIndexPass = 0) {
@@ -1907,7 +1877,7 @@ export const sketch = (p5: P5) => {
         if (!portalPosition) continue;
         const portal = portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
-        renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback);
+        renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback, drawPortalOptions);
         if (!portalParticlesStarted[portal.hash]) {
           portalParticlesStarted[portal.hash] = true;
           const accent = PORTAL_CHANNEL_COLORS[portal.channel];
@@ -1937,7 +1907,7 @@ export const sketch = (p5: P5) => {
     stats.score = parseInt(String(stats.score * 0.5), 10);
     startScreenShake();
     yield* waitForTime(200);
-    startScreenShake({ magnitude: 3, normalizedTime: -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, timeScale: 0.1 });
+    startScreenShake(3, -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, 0.1);
     state.isShowingDeathColours = true;
     renderer.invalidateStaticCache();
     yield* waitForTime(HURT_STUN_TIME * 2.5);

@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
 import { DIR, FontsInstance, GameState, HitType, Image, Portal, PortalChannel, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
-import { ACCENT_COLOR, BLOCK_SIZE, DIMENSIONS, GRIDCOUNT, HURT_STUN_TIME, NUM_PORTAL_GRADIENT_COLORS, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, SHOW_FPS, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
+import { ACCENT_COLOR, BLOCK_SIZE, DIMENSIONS, GRIDCOUNT, HURT_STUN_TIME, INVALID_PORTAL_COLOR, NUM_PORTAL_GRADIENT_COLORS, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, SHOW_FPS, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
 import { clamp, oscilateLinear } from "./utils";
 import { SpriteRenderer } from "./spriteRenderer";
 import Color from "color";
@@ -16,17 +16,23 @@ interface RendererConstructorProps {
   tutorial: Tutorial
 }
 
+export interface DrawSquareOptions {
+  is3d?: boolean,
+  size?: number,
+  strokeSize?: number,
+  optimize?: boolean,
+}
+
 export class Renderer {
-  private props: RendererConstructorProps = {
-    p5: null,
-    staticGraphics: null,
-    fonts: null,
-    replay: null,
-    gameState: null,
-    screenShake: null,
-    spriteRenderer: null,
-    tutorial: null,
-  };
+  private p5: P5 = null;
+  private staticGraphics: P5.Graphics = null;
+  private fonts: FontsInstance = null;
+  private replay: Replay = null;
+  private gameState: GameState = null;
+  private screenShake: ScreenShakeState = null
+  private spriteRenderer: SpriteRenderer = null
+  private tutorial: Tutorial = null;
+
   private elapsed = 0;
   private lightColorMap: Record<string, string> = {};
   private darkColorMap: Record<string, string> = {};
@@ -38,7 +44,14 @@ export class Renderer {
   private isStaticCached = false;
 
   constructor(props: RendererConstructorProps) {
-    this.props = props;
+    this.p5 = props.p5;
+    this.staticGraphics = props.staticGraphics;
+    this.fonts = props.fonts;
+    this.replay = props.replay;
+    this.gameState = props.gameState;
+    this.screenShake = props.screenShake;
+    this.spriteRenderer = props.spriteRenderer;
+    this.tutorial = props.tutorial;
   }
 
   reset = () => {
@@ -47,14 +60,13 @@ export class Renderer {
   }
 
   tick = () => {
-    this.elapsed += this.props.p5.deltaTime;
+    this.elapsed += this.p5.deltaTime;
   }
 
   // Static graphics (e.g. barriers) are cached in an OffscreenCanvas and re-drawn if things change (e.g. due to screen shake)
   // See: P5.createGraphics - see: https://p5js.org/reference/#/p5/createGraphics
   drawStaticGraphics = () => {
-    const { p5, staticGraphics: graphics } = this.props;
-    p5.image(graphics, 0, 0, DIMENSIONS.x, DIMENSIONS.y);
+    this.p5.image(this.staticGraphics, 0, 0, DIMENSIONS.x, DIMENSIONS.y);
     this.isStaticCached = true;
   }
 
@@ -63,23 +75,22 @@ export class Renderer {
   }
 
   drawBackground = (color: string) => {
-    const { p5 } = this.props;
-    p5.background(color);
+    this.p5.background(color);
     if (!this.isStaticCached) {
-      this.props.staticGraphics.clear(0, 0, 0, 0);
+      this.staticGraphics.clear(0, 0, 0, 0);
     }
   }
 
   /**
    * Draw a square to the canvas
    */
-  drawSquare = (x: number, y: number, background = "pink", lineColor = "fff", { is3d = false, size = 1, strokeSize = STROKE_SIZE, optimize = false } = {}) => {
-    this.drawSquareImpl(this.props.p5, x, y, background, lineColor, { is3d, size, strokeSize, optimize });
+  drawSquare = (x: number, y: number, background = "pink", lineColor = "fff", options: DrawSquareOptions) => {
+    this.drawSquareImpl(this.p5, x, y, background, lineColor, options);
   }
 
-  drawSquareStatic = (x: number, y: number, background = "pink", lineColor = "fff", { is3d = false, size = 1, strokeSize = STROKE_SIZE, optimize = false } = {}) => {
+  drawSquareStatic = (x: number, y: number, background = "pink", lineColor = "fff", options: DrawSquareOptions) => {
     if (this.isStaticCached) return;
-    this.drawSquareImpl(this.props.staticGraphics, x, y, background, lineColor, { is3d, size, strokeSize, optimize });
+    this.drawSquareImpl(this.staticGraphics, x, y, background, lineColor, options);
   }
 
   private drawSquareImpl = (graphics: P5 | P5.Graphics, x: number, y: number, background = "pink", lineColor = "fff", {
@@ -87,8 +98,7 @@ export class Renderer {
     size = 1,
     strokeSize = STROKE_SIZE,
     optimize = false,
-  } = {}) => {
-    const { screenShake } = this.props;
+  }: DrawSquareOptions) => {
     this.p5CachedFill(graphics, background, optimize);
     this.p5CachedStroke(graphics, lineColor, optimize);
     graphics.strokeWeight(strokeSize);
@@ -96,15 +106,15 @@ export class Renderer {
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
     const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
     const position = {
-      x: (x * BLOCK_SIZE.x + screenShake.offset.x + strokeOffset) + sizeOffsetX,
-      y: (y * BLOCK_SIZE.y + screenShake.offset.y + strokeOffset) + sizeOffsetY,
+      x: (x * BLOCK_SIZE.x + this.screenShake.offset.x + strokeOffset) + sizeOffsetX,
+      y: (y * BLOCK_SIZE.y + this.screenShake.offset.y + strokeOffset) + sizeOffsetY,
     }
     const squareSize = (BLOCK_SIZE.x - strokeSize - strokeOffset * 2) * size;
     graphics.square(position.x, position.y, squareSize);
     if (is3d) {
       const borderSize = STROKE_SIZE * 0.5;
-      const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + screenShake.offset.x + strokeOffset + sizeOffsetX;
-      const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + screenShake.offset.y + strokeOffset + sizeOffsetY;
+      const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x + strokeOffset + sizeOffsetX;
+      const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y + strokeOffset + sizeOffsetY;
       const x1 = x0 + (BLOCK_SIZE.x * size) - strokeOffset;
       const y1 = y0 + (BLOCK_SIZE.y * size) - strokeOffset;
       const x0i = x0 + borderSize;
@@ -125,23 +135,24 @@ export class Renderer {
     }
   }
 
-  drawSquareBorder = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, { size = 1, strokeSize = STROKE_SIZE } = {}) => {
-    this.drawSquareBorderImpl(this.props.p5, x, y, mode, strokeColor, { size, strokeSize });
+  drawSquareBorder = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string) => {
+    this.drawSquareBorderImpl(this.p5, x, y, mode, strokeColor);
   }
 
-  drawSquareBorderStatic = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, { size = 1, strokeSize = STROKE_SIZE } = {}) => {
+  drawSquareBorderStatic = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string) => {
     if (this.isStaticCached) return;
-    this.drawSquareBorderImpl(this.props.staticGraphics, x, y, mode, strokeColor, { size, strokeSize });
+    this.drawSquareBorderImpl(this.staticGraphics, x, y, mode, strokeColor);
   }
 
-  private drawSquareBorderImpl = (graphics: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, { size = 1, strokeSize = STROKE_SIZE } = {}) => {
-    const { screenShake } = this.props;
+  private drawSquareBorderImpl = (graphics: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string) => {
+    const size = 1;
+    const strokeSize = STROKE_SIZE;
     const borderSize = STROKE_SIZE * 0.5;
     const strokeOffset = STROKE_SIZE - strokeSize;
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
     const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
-    const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + screenShake.offset.x + strokeOffset + sizeOffsetX;
-    const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + screenShake.offset.y + strokeOffset + sizeOffsetY;
+    const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x + strokeOffset + sizeOffsetX;
+    const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y + strokeOffset + sizeOffsetY;
     const x1 = x0 + (BLOCK_SIZE.x * size) - strokeOffset;
     const y1 = y0 + (BLOCK_SIZE.y * size) - strokeOffset;
     const x0i = x0 + borderSize;
@@ -165,16 +176,15 @@ export class Renderer {
   }
 
   drawX = (x: number, y: number, color = "#fff", blockDivisions = 5) => {
-    this.drawXImpl(this.props.p5, x, y, color, blockDivisions);
+    this.drawXImpl(this.p5, x, y, color, blockDivisions);
   }
 
   drawXStatic = (x: number, y: number, color = "#fff", blockDivisions = 5) => {
     if (this.isStaticCached) return;
-    this.drawXImpl(this.props.staticGraphics, x, y, color, blockDivisions);
+    this.drawXImpl(this.staticGraphics, x, y, color, blockDivisions);
   }
 
   private drawXImpl = (graphics: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5) => {
-    const { screenShake } = this.props;
     const size = {
       x: (BLOCK_SIZE.x - STROKE_SIZE) / blockDivisions,
       y: (BLOCK_SIZE.y - STROKE_SIZE) / blockDivisions,
@@ -185,12 +195,12 @@ export class Renderer {
     graphics.noStroke();
     for (let i = 0; i < blockDivisions; i++) {
       const position0 = {
-        x: x * BLOCK_SIZE.x + screenShake.offset.x + i * size.x,
-        y: y * BLOCK_SIZE.y + screenShake.offset.y + i * size.y,
+        x: x * BLOCK_SIZE.x + this.screenShake.offset.x + i * size.x,
+        y: y * BLOCK_SIZE.y + this.screenShake.offset.y + i * size.y,
       }
       const position1 = {
-        x: x * BLOCK_SIZE.x + screenShake.offset.x + i * size.x,
-        y: y * BLOCK_SIZE.y + screenShake.offset.y + (blockDivisions - 1 - i) * size.y,
+        x: x * BLOCK_SIZE.x + this.screenShake.offset.x + i * size.x,
+        y: y * BLOCK_SIZE.y + this.screenShake.offset.y + (blockDivisions - 1 - i) * size.y,
       }
       graphics.square(position0.x, position0.y, Math.max(size.x, size.y));
       graphics.square(position1.x, position1.y, Math.max(size.x, size.y));
@@ -198,28 +208,26 @@ export class Renderer {
   }
 
   drawBasicSquare(x: number, y: number, color: P5.Color, size = 1) {
-    const { p5, screenShake } = this.props;
     const borderSize = STROKE_SIZE * 0.5;
     const width = BLOCK_SIZE.x;
     const height = BLOCK_SIZE.y;
-    const x0 = x * BLOCK_SIZE.x + screenShake.offset.x + (1 - size) * width - borderSize;
-    const y0 = y * BLOCK_SIZE.y + screenShake.offset.x + (1 - size) * height - borderSize;
+    const x0 = x * BLOCK_SIZE.x + this.screenShake.offset.x + (1 - size) * width - borderSize;
+    const y0 = y * BLOCK_SIZE.y + this.screenShake.offset.x + (1 - size) * height - borderSize;
     const x1 = x0 + width * size;
     const y1 = y0 + height * size;
-    p5.fill(color);
-    // p5.randomSeed(x + y * 500000);
-    // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
-    p5.noStroke();
-    p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    this.p5.fill(color);
+    // this.p5.randomSeed(x + y * 500000);
+    // this.p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
+    this.p5.noStroke();
+    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
   }
 
   /**
    * Draw red squares on level to indicate that we are in Record mode
    */
   drawCaptureMode = () => {
-    const { p5, replay, gameState } = this.props;
-    if (replay.mode !== ReplayMode.Capture) return;
-    if (gameState.isCasualModeEnabled) return;
+    if (this.replay.mode !== ReplayMode.Capture) return;
+    if (this.gameState.isCasualModeEnabled) return;
 
     const reds: [number, number][] = [
       [0, 0],
@@ -236,7 +244,7 @@ export class Renderer {
       [29, 1],
     ];
     for (let i = 0; i < reds.length; i++) {
-      this.drawBasicSquare(reds[i][0], reds[i][1], p5.color("#f00"));
+      this.drawBasicSquare(reds[i][0], reds[i][1], this.p5.color("#f00"));
     }
   }
 
@@ -244,17 +252,15 @@ export class Renderer {
    * Draw move arrows when player is not moving, or when player is hurt
    */
   drawPlayerMoveArrows = (vec: Vector, currentMove: DIR) => {
-    const { p5, fonts, replay, gameState, screenShake } = this.props;
+    if (this.replay.mode === ReplayMode.Playback) return;
 
-    if (replay.mode === ReplayMode.Playback) return;
-
-    const isWaitingToStartMoving = gameState.isGameStarted && !gameState.isMoving;
-    const isStunned = gameState.timeSinceHurt < HURT_STUN_TIME;
+    const isWaitingToStartMoving = this.gameState.isGameStarted && !this.gameState.isMoving;
+    const isStunned = this.gameState.timeSinceHurt < HURT_STUN_TIME;
     if (!isWaitingToStartMoving && !isStunned) return;
 
     if (isStunned) {
       const freq = .2;
-      const t = gameState.timeSinceHurt / HURT_STUN_TIME;
+      const t = this.gameState.timeSinceHurt / HURT_STUN_TIME;
       const shouldShow = t % freq > freq * 0.5;
       if (!shouldShow) return;
     }
@@ -272,27 +278,25 @@ export class Renderer {
       const arrow = arrowBlocks[i];
       if (!arrow.show) continue;
       const position = {
-        x: arrow.x * BLOCK_SIZE.x + BLOCK_SIZE.x * 0.4 + screenShake.offset.x,
-        y: arrow.y * BLOCK_SIZE.y + BLOCK_SIZE.y * 0.35 + screenShake.offset.y,
+        x: arrow.x * BLOCK_SIZE.x + BLOCK_SIZE.x * 0.4 + this.screenShake.offset.x,
+        y: arrow.y * BLOCK_SIZE.y + BLOCK_SIZE.y * 0.35 + this.screenShake.offset.y,
       }
-      p5.fill("#fff");
-      p5.stroke("#000");
-      p5.strokeWeight(4);
-      p5.textSize(12);
-      p5.textAlign(p5.CENTER, p5.CENTER);
-      p5.textFont(fonts.variants.zicons);
-      p5.text(arrow.text, position.x, position.y);
+      this.p5.fill("#fff");
+      this.p5.stroke("#000");
+      this.p5.strokeWeight(4);
+      this.p5.textSize(12);
+      this.p5.textAlign(this.p5.CENTER, this.p5.CENTER);
+      this.p5.textFont(this.fonts.variants.zicons);
+      this.p5.text(arrow.text, position.x, position.y);
     }
   }
 
   drawTutorialMoveControls = () => {
-    const { p5, fonts, replay, gameState, tutorial, spriteRenderer } = this.props;
+    if (!this.tutorial.needsMoveControls) return;
+    if (this.replay.mode === ReplayMode.Playback) return;
 
-    if (!tutorial.needsMoveControls) return;
-    if (replay.mode === ReplayMode.Playback) return;
-
-    const isWaitingToStartMoving = gameState.isGameStarted && !gameState.isMoving;
-    const isStunned = gameState.timeSinceHurt < HURT_STUN_TIME;
+    const isWaitingToStartMoving = this.gameState.isGameStarted && !this.gameState.isMoving;
+    const isStunned = this.gameState.timeSinceHurt < HURT_STUN_TIME;
     if (!isWaitingToStartMoving && !isStunned) return;
 
     // banner background
@@ -306,38 +310,36 @@ export class Renderer {
     const x1 = x0 + bannerWidth * BLOCK_SIZE.x - STROKE_SIZE;
     const y0 = BLOCK_SIZE.y * (bannerPosition.y);
     const y1 = y0 + bannerHeight * BLOCK_SIZE.y - STROKE_SIZE;
-    p5.fill('#000000aa');
-    p5.stroke("#000");
-    p5.strokeWeight(STROKE_SIZE);
-    p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    this.p5.fill('#000000aa');
+    this.p5.stroke("#000");
+    this.p5.strokeWeight(STROKE_SIZE);
+    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // // text
     const textX = x0 + BLOCK_SIZE.x * 1.7;
     const textY = y0 + BLOCK_SIZE.y * 3.7;
-    p5.fill(ACCENT_COLOR);
-    p5.stroke("#111");
-    p5.strokeWeight(4);
-    p5.textSize(12);
-    p5.textAlign(p5.LEFT, p5.CENTER);
-    p5.textFont(fonts.variants.miniMood);
-    p5.text("MOVE", textX, textY);
+    this.p5.fill(ACCENT_COLOR);
+    this.p5.stroke("#111");
+    this.p5.strokeWeight(4);
+    this.p5.textSize(12);
+    this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
+    this.p5.textFont(this.fonts.variants.miniMood);
+    this.p5.text("MOVE", textX, textY);
     // image
     const imgX = x0 + BLOCK_SIZE.x * 0.5;
     const imgY = y0 + BLOCK_SIZE.y * 0.1;
-    spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY);
+    this.spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY);
   }
 
   drawTutorialRewindControls = (playerPosition: Vector, canRewind: () => boolean) => {
-    const { p5, fonts, replay, gameState, tutorial, spriteRenderer } = this.props;
-
-    const hasNeverBeenHurt = gameState.lastHurtBy === HitType.Unknown;
+    const hasNeverBeenHurt = this.gameState.lastHurtBy === HitType.Unknown;
     if (hasNeverBeenHurt) return;
-    if (tutorial.needsMoveControls) return;
-    if (!tutorial.needsRewindControls) return;
-    if (gameState.isRewinding) return;
-    if (replay.mode === ReplayMode.Playback) return;
+    if (this.tutorial.needsMoveControls) return;
+    if (!this.tutorial.needsRewindControls) return;
+    if (this.gameState.isRewinding) return;
+    if (this.replay.mode === ReplayMode.Playback) return;
 
-    const isWaitingToStartMoving = gameState.isGameStarted && !gameState.isMoving;
-    const isStunned = gameState.timeSinceHurt < HURT_STUN_TIME;
+    const isWaitingToStartMoving = this.gameState.isGameStarted && !this.gameState.isMoving;
+    const isStunned = this.gameState.timeSinceHurt < HURT_STUN_TIME;
     if (!isWaitingToStartMoving && !isStunned) return;
 
     if (!canRewind()) return;
@@ -365,24 +367,24 @@ export class Renderer {
     const x1 = BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
     const y0 = BLOCK_SIZE.y * (bannerPosition.y);
     const y1 = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
-    p5.fill('#000000aa');
-    p5.stroke("#000");
-    p5.strokeWeight(STROKE_SIZE);
-    p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    this.p5.fill('#000000aa');
+    this.p5.stroke("#000");
+    this.p5.strokeWeight(STROKE_SIZE);
+    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
     const textX = BLOCK_SIZE.x * (bannerPosition.x + 3);
     const textY = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
-    p5.fill("#fff");
-    p5.stroke("#111");
-    p5.strokeWeight(4);
-    p5.textSize(12);
-    p5.textAlign(p5.LEFT, p5.CENTER);
-    p5.textFont(fonts.variants.miniMood);
-    p5.text("REWIND", textX, textY);
+    this.p5.fill("#fff");
+    this.p5.stroke("#111");
+    this.p5.strokeWeight(4);
+    this.p5.textSize(12);
+    this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
+    this.p5.textFont(this.fonts.variants.miniMood);
+    this.p5.text("REWIND", textX, textY);
     // image
     const imgX = BLOCK_SIZE.x * (bannerPosition.x + 0.6);
     const imgY = BLOCK_SIZE.y * (bannerPosition.y + 0.6);
-    spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY);
+    this.spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY);
   }
 
   drawDifficultySelect = (backgroundColor: string) => {
@@ -405,77 +407,69 @@ export class Renderer {
     textColor = "#fff",
     backgroundColor = "#000000aa",
   } = {}) => {
-    const { p5, fonts } = this.props;
     const x0 = BLOCK_SIZE.x * x;
     const x1 = BLOCK_SIZE.x * (x + bannerWidth) - STROKE_SIZE * 0.5;
     const y0 = BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
     const y1 = BLOCK_SIZE.y * (y + bannerHeight) - STROKE_SIZE;
-    p5.fill(backgroundColor);
-    p5.noStroke();
-    // p5.stroke("#000");
-    p5.strokeWeight(STROKE_SIZE);
-    p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    this.p5.fill(backgroundColor);
+    this.p5.noStroke();
+    // this.p5.stroke("#000");
+    this.p5.strokeWeight(STROKE_SIZE);
+    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
     const textX = BLOCK_SIZE.x * x + 5 + BLOCK_SIZE.x * textXOffset;
     const textY = BLOCK_SIZE.y * y + 7;
-    p5.fill(textColor);
-    // p5.stroke("#111");
-    p5.strokeWeight(4);
-    p5.textSize(12);
-    p5.textAlign(p5.LEFT, p5.CENTER);
-    p5.textFont(fonts.variants.miniMood);
-    p5.text(text, textX, textY);
+    this.p5.fill(textColor);
+    // this.p5.stroke("#111");
+    this.p5.strokeWeight(4);
+    this.p5.textSize(12);
+    this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
+    this.p5.textFont(this.fonts.variants.miniMood);
+    this.p5.text(text, textX, textY);
   }
 
   drawUIKeys = () => {
-    const { p5, gameState, spriteRenderer, replay } = this.props;
-
-    if (replay.mode === ReplayMode.Playback) return;
-    if (gameState.isGameWon) return;
-    if (!gameState.isGameStarted) return;
-    if (!gameState.hasKeyYellow && !gameState.hasKeyRed && !gameState.hasKeyBlue) return;
+    if (this.replay.mode === ReplayMode.Playback) return;
+    if (this.gameState.isGameWon) return;
+    if (!this.gameState.isGameStarted) return;
+    if (!this.gameState.hasKeyYellow && !this.gameState.hasKeyRed && !this.gameState.hasKeyBlue) return;
 
     const x0 = BLOCK_SIZE.x * 29 - STROKE_SIZE * 0.5;
     const y0 = BLOCK_SIZE.y * 1 - STROKE_SIZE * 0.5;
     const x1 = x0 + BLOCK_SIZE.x * 1 + STROKE_SIZE * 0.5;
     const y1 = y0 + BLOCK_SIZE.y * 3 + STROKE_SIZE * 0.5;
-    p5.fill("#00000099");
-    p5.noStroke();
-    p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    this.p5.fill("#00000099");
+    this.p5.noStroke();
+    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
 
     const imgX = BLOCK_SIZE.x * 29 + 1;
     const imgY = BLOCK_SIZE.y * 1 + 1;
 
-    if (gameState.hasKeyYellow) {
-      spriteRenderer.drawImage(Image.UIKeyYellow, imgX, imgY);
+    if (this.gameState.hasKeyYellow) {
+      this.spriteRenderer.drawImage(Image.UIKeyYellow, imgX, imgY);
     }
 
-    if (gameState.hasKeyRed) {
-      spriteRenderer.drawImage(Image.UIKeyRed, imgX, imgY + BLOCK_SIZE.y);
+    if (this.gameState.hasKeyRed) {
+      this.spriteRenderer.drawImage(Image.UIKeyRed, imgX, imgY + BLOCK_SIZE.y);
     }
 
-    if (gameState.hasKeyBlue) {
-      spriteRenderer.drawImage(Image.UIKeyBlue, imgX, imgY + BLOCK_SIZE.y * 2);
+    if (this.gameState.hasKeyBlue) {
+      this.spriteRenderer.drawImage(Image.UIKeyBlue, imgX, imgY + BLOCK_SIZE.y * 2);
     }
   }
 
   /**
    * Draw portal
    */
-  drawPortal = (portal: Portal, showDeathColours: boolean) => {
+  drawPortal = (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions) => {
     if (!portal) return;
-    const { p5 } = this.props;
     const delay = portal.index * PORTAL_INDEX_DELAY;
     const t1 = oscilateLinear((this.elapsed + delay) / (PORTAL_FADE_DURATION));
     const t2 = oscilateLinear((this.elapsed + delay) / (PORTAL_FADE_DURATION * 0.5));
     const [color, background] = showDeathColours
-      ? [p5.lerpColor(p5.color("#ccc"), p5.color("#000"), t1).toString(), "#555"]
+      ? [this.p5.lerpColor(this.p5.color("#ccc"), this.p5.color("#000"), t1).toString(), "#555"]
       : this.lookupPortalColors(portal.channel, t1, t2);
-    this.drawSquare(portal.position.x, portal.position.y, background, color);
-    // const accent = showDeathColours ? "#ccc" : PORTAL_CHANNEL_COLORS[portal.channel];
-    // const background = showDeathColours ? "#555" : p5.lerpColor(p5.color("#000000"), p5.color(accent), t2).toString();
-    // const color = p5.lerpColor(p5.color(accent), p5.color("#000"), t1).toString();
-    // this.drawSquare(portal.position.x, portal.position.y, background, color);
+    this.drawSquare(portal.position.x, portal.position.y, background, color, options);
   }
 
   private fpsFrames: number[] = [];
@@ -483,19 +477,18 @@ export class Renderer {
     if (!SHOW_FPS && !showFpsFromQueryParams) return;
 
     this.drawPerf(gameLoopProcessingTime);
-    const { p5, fonts } = this.props;
     const textX = BLOCK_SIZE.x * (25);
     const textY = BLOCK_SIZE.y * (1);
-    p5.fill("#fff");
-    p5.stroke("#111");
-    p5.strokeWeight(2);
-    p5.textSize(10);
-    p5.textAlign(p5.LEFT, p5.TOP);
-    p5.textFont(fonts.variants.miniMood);
+    this.p5.fill("#fff");
+    this.p5.stroke("#111");
+    this.p5.strokeWeight(2);
+    this.p5.textSize(10);
+    this.p5.textAlign(this.p5.LEFT, this.p5.TOP);
+    this.p5.textFont(this.fonts.variants.miniMood);
     if (!this.fpsFrames?.length) {
-      this.fpsFrames = new Array<number>(20).map(() => p5.frameRate());
+      this.fpsFrames = new Array<number>(20).map(() => this.p5.frameRate());
     } else {
-      this.fpsFrames[0] = p5.frameRate();
+      this.fpsFrames[0] = this.p5.frameRate();
       for (let i = this.fpsFrames.length - 1; i > 0; i--) {
         this.fpsFrames[i] = this.fpsFrames[i - 1];
       }
@@ -505,23 +498,22 @@ export class Renderer {
     const max = Math.max(...this.fpsFrames);
     const padding = 16;
     let y = 0;
-    p5.text("FPS", textX, textY);
-    p5.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
-    p5.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
-    p5.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
+    this.p5.text("FPS", textX, textY);
+    this.p5.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
+    this.p5.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
+    this.p5.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
   }
 
   private perfFrames: number[] = [];
   private drawPerf = (gameLoopProcessingTime: number) => {
-    const { p5, fonts } = this.props;
     const textX = BLOCK_SIZE.x * (21);
     const textY = BLOCK_SIZE.y * (1);
-    p5.fill("#fff");
-    p5.stroke("#111");
-    p5.strokeWeight(2);
-    p5.textSize(10);
-    p5.textAlign(p5.LEFT, p5.TOP);
-    p5.textFont(fonts.variants.miniMood);
+    this.p5.fill("#fff");
+    this.p5.stroke("#111");
+    this.p5.strokeWeight(2);
+    this.p5.textSize(10);
+    this.p5.textAlign(this.p5.LEFT, this.p5.TOP);
+    this.p5.textFont(this.fonts.variants.miniMood);
     if (!this.perfFrames?.length) {
       this.perfFrames = new Array<number>(20).map(() => gameLoopProcessingTime);
     } else {
@@ -535,10 +527,10 @@ export class Renderer {
     const max = Math.max(...this.perfFrames);
     const padding = 16;
     let y = 0;
-    p5.text("MS", textX, textY);
-    p5.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
-    p5.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
-    p5.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
+    this.p5.text("MS", textX, textY);
+    this.p5.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
+    this.p5.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
+    this.p5.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
   }
 
   private getBorderColor = (color: string, variant: 'light' | 'dark'): string => {
@@ -561,13 +553,13 @@ export class Renderer {
       this.hydratePortalCachedColors();
     }
     return [
-      this.portalCachedColorsFG[channel][Math.min(Math.floor(t1 * NUM_PORTAL_GRADIENT_COLORS), NUM_PORTAL_GRADIENT_COLORS - 1)] || "#FFC0CB",
-      this.portalCachedColorsBG[channel][Math.min(Math.floor(t2 * NUM_PORTAL_GRADIENT_COLORS), NUM_PORTAL_GRADIENT_COLORS - 1)] || "#FFC0CB",
+      this.portalCachedColorsFG[channel][Math.min(Math.floor(t1 * NUM_PORTAL_GRADIENT_COLORS), NUM_PORTAL_GRADIENT_COLORS - 1)] || INVALID_PORTAL_COLOR,
+      this.portalCachedColorsBG[channel][Math.min(Math.floor(t2 * NUM_PORTAL_GRADIENT_COLORS), NUM_PORTAL_GRADIENT_COLORS - 1)] || INVALID_PORTAL_COLOR,
     ];
   }
 
   private hydratePortalCachedColors = () => {
-    const { p5 } = this.props;
+    const p5 = this.p5;
     for (let i: PortalChannel = 0; i <= 9; i++) {
       this.portalCachedColorsFG[i] = [];
       this.portalCachedColorsBG[i] = [];
@@ -583,10 +575,9 @@ export class Renderer {
   }
 
   private lookupP5CachedColor = (colorLookup: string) => {
-    const { p5 } = this.props;
     let color = this.cachedP5Colors[colorLookup];
     if (!color) {
-      color = p5.color(colorLookup);
+      color = this.p5.color(colorLookup);
       this.cachedP5Colors[colorLookup] = color;
     }
     return color;

@@ -538,15 +538,21 @@ export class UIBindings implements UIHandler {
     this.sliderSfx = requireElementById<HTMLInputElement>("slider-volume-sfx");
     this.sliderMusic.addEventListener('input', this.onMusicSliderInput);
     this.sliderSfx.addEventListener('input', this.onSfxSliderInput);
-    document.addEventListener('keydown', this.overrideEscapeKeydown);
+    // document.addEventListener('keydown', this.overrideEscapeKeydown);
   }
 
   public cleanup = () => {
+    this.mainMenuButtons[MainMenuButton.StartGame].removeEventListener('click', this.callbacks.onStartGame);
+    this.mainMenuButtons[MainMenuButton.OSTMode].removeEventListener('click', this.callbacks.onEnterOstMode);
+    this.mainMenuButtons[MainMenuButton.QuoteMode].removeEventListener('click', this.callbacks.onEnterQuoteMode);
+    this.mainMenuButtons[MainMenuButton.Leaderboard].removeEventListener('click', this.callbacks.onShowLeaderboard);
+    this.mainMenuButtons[MainMenuButton.Settings].removeEventListener('click', this.callbacks.onShowSettingsMenu);
+
     this.buttonCloseSettingsMenu.removeEventListener('click', this.onHideSettingsMenuClick);
     this.checkboxCasualMode.removeEventListener('change', this.onCheckboxCasualModeChange);
     this.sliderMusic.removeEventListener('input', this.onMusicSliderInput);
     this.sliderSfx.removeEventListener('input', this.onSfxSliderInput);
-    document.removeEventListener('keydown', this.overrideEscapeKeydown);
+    // document.removeEventListener('keydown', this.overrideEscapeKeydown);
   }
 
   public setStartButtonVisibility = (visible: boolean) => {
@@ -554,14 +560,13 @@ export class UIBindings implements UIHandler {
     this.mainMenuButtons[MainMenuButton.StartGame].classList.add('active');
   }
 
-  private overrideEscapeKeydown = (event: KeyboardEvent) => {
-    if (!this.gameState.isGameStarted) return;
-    if (this.gameState.isGameWon) return;
-    const p5 = this.p5;
-    if (event.keyCode === p5.ESCAPE || event.code === 'Escape') {
-      event.preventDefault();
-    }
-  }
+  // private overrideEscapeKeydown = (event: KeyboardEvent) => {
+  //   if (!this.gameState.isGameStarted) return;
+  //   if (this.gameState.isGameWon) return;
+  //   if (event.keyCode === this.p5.ESCAPE || event.code === 'Escape') {
+  //     event.preventDefault();
+  //   }
+  // }
 
   private onHideSettingsMenuClick = () => {
     UI.hideSettingsMenu();
