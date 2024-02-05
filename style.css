@@ -209,56 +209,6 @@ button.minimood {
   font-size: 12px;
 }
 
-/* button.difficulty {
-  animation-name: anim-dim;
-  animation-duration: var(--hover-duration);
-  animation-iteration-count: infinite;
-  animation-timing-function: cubic-bezier(.5,0,.5,1);
-  animation-fill-mode: backwards;
-}
-
-button.difficulty:hover,
-button.difficulty:active,
-button.difficulty:focus,
-button.difficulty.selected {
-  --button-filter: brightness(1) grayscale(0.1);
-}
-
-button:hover,
-button:active,
-button:focus
-{
-  background-color: var(--button-hover-bg);
-  color: var(--button-hover-color);
-  border-color: var(--button-hover-border-color);
-}
-
-button.easy {
-  animation-delay: calc(var(--hover-duration) * 0);
-}
-
-button.medium {
-  animation-delay: calc(var(--hover-duration) * 0.1);
-}
-
-button.hard {
-  animation-delay: calc(var(--hover-duration) * 0.2);
-}
-
-button.ultra {
-  animation-delay: calc(var(--hover-duration) * 0.3);
-  background: #111;
-  color: #cdeaff;
-  border: solid 2px #cdeaff;
-}
-
-button.ultra:hover,
-button.ultra:active,
-button.ultra:focus {
-  background: #0a503e;
-  color: #00ff62;
-} */
-
 .title-sprite-container {
   z-index: 10;
   position: absolute;
@@ -355,7 +305,7 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px
 
 .main-ui-buttons .button-start-game {
   position: relative;
-  transform: translateY(-276px);
+  transform: translateY(-145px);
 }
 .main-ui-buttons .button-start-game:focus,
 .main-ui-buttons .button-start-game:active,
@@ -394,25 +344,6 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px
 .main-ui-buttons button:nth-child(5) {
   animation-delay: calc(var(--hover-duration) * 0.4);
 }
-
-/* .main-ui-buttons .button-start-game:focus:before {
-  content: "▸";
-  display: block;
-  position: absolute;
-  top: 7px;
-  right: 100%;
-  margin-right: 20px;
-  color: #fff;
-}
-.main-ui-buttons .button-start-game:focus:after {
-  content: "<";
-  display: block;
-  position: absolute;
-  top: 7px;
-  left: 100%;
-  margin-left: 20px;
-  color: #fff;
-} */
 
 .main-menu-label-casual-mode {
   z-index: 20;
