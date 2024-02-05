@@ -1,3 +1,4 @@
+import { InputAction } from "./controls";
 
 
 export interface NavMap {
@@ -32,7 +33,7 @@ export const MAIN_MENU_BUTTONS: MainMenuButton[] = [
 
 export interface MainMenuNavElement {
   button: MainMenuButton,
-  callback: () => void,
+  action: InputAction,
 }
 export interface UINavMapMainMenuConstructorArgs {
   mainMenuButtons: Record<MainMenuButton, HTMLButtonElement>,
@@ -48,10 +49,16 @@ export class UINavMapMainMenu implements NavMap {
   };
   private elements: MainMenuNavElement[] = []
   private selected: MainMenuNavElement = null;
+  private callAction: (action: InputAction) => void = null;
 
-  constructor({ elements, mainMenuButtons }: UINavMapMainMenuConstructorArgs) {
+  constructor(
+    mainMenuButtons: Record<MainMenuButton, HTMLButtonElement>,
+    elements: MainMenuNavElement[],
+    callAction: (action: InputAction) => void
+  ) {
     this.elements = elements;
     this.mainMenuButtons = mainMenuButtons;
+    this.callAction = callAction;
   }
 
   callSelected = () => {
@@ -60,7 +67,7 @@ export class UINavMapMainMenu implements NavMap {
     if (focusedElement.button !== MainMenuButton.StartGame) {
       DOM.deselect(this.selectedTarget());
     }
-    focusedElement.callback();
+    this.callAction(focusedElement.action);
   };
 
   private getFocusedElement = (): MainMenuNavElement | null => {

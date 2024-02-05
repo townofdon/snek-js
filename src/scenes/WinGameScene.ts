@@ -383,6 +383,7 @@ export class WinGameScene extends BaseScene {
     const { p5 } = this.props;
     handleUIEvents(p5, this.onUINavigate, this.onUIInteract, this.onUICancel)
   };
+
   private onUINavigate = (navDir: UINavDir) => {
     let handled = false;
     if (!handled) handled = this.modalConfirm.handleUINavigation(navDir);

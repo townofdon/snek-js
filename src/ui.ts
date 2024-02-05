@@ -4,6 +4,7 @@ import { faker } from '@faker-js/faker';
 import { GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavDir, UINavEventHandler, UISection } from './types';
 import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
 import { DOM, MainMenuButton, UINavMapMainMenu } from './uiNavMap';
+import { InputAction } from './controls';
 
 const UI_LABEL_OFFSET = '18px';
 const UI_PARENT_ID = 'game';
@@ -21,7 +22,6 @@ export class UI {
 
   private static isSettingsMenuShowing = false;
   private static isMainMenuShowing = false;
-
 
   static getIsSettingsMenuShowing = () => UI.isSettingsMenuShowing;
   static getIsMainMenuShowing = () => UI.isMainMenuShowing;
@@ -418,11 +418,12 @@ interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
   onSetSfxVolume: (volume: number) => void,
   onToggleCasualMode: (value?: boolean) => void,
-  onStartGame: () => void,
-  onEnterOstMode: () => void,
-  onEnterQuoteMode: () => void,
-  onShowLeaderboard: () => void,
-  onShowSettingsMenu: () => void,
+
+  // onStartGame: () => void,
+  // onEnterOstMode: () => void,
+  // onEnterQuoteMode: () => void,
+  // onShowLeaderboard: () => void,
+  // onShowSettingsMenu: () => void,
 }
 
 export class UIBindings implements UIHandler {
@@ -433,12 +434,14 @@ export class UIBindings implements UIHandler {
     onSetMusicVolume: (volume: number) => { },
     onSetSfxVolume: (volume: number) => { },
     onToggleCasualMode: (value?: boolean) => { },
-    onStartGame: () => { },
-    onEnterOstMode: () => { },
-    onEnterQuoteMode: () => { },
-    onShowLeaderboard: () => { },
-    onShowSettingsMenu: () => { },
+
+    // onStartGame: () => { },
+    // onEnterOstMode: () => { },
+    // onEnterQuoteMode: () => { },
+    // onShowLeaderboard: () => { },
+    // onShowSettingsMenu: () => { },
   };
+  private callAction: (action: InputAction) => void;
 
   private sliderMusic: HTMLInputElement;
   private sliderSfx: HTMLInputElement;
@@ -454,22 +457,24 @@ export class UIBindings implements UIHandler {
   }
   mainMenuNavMap: UINavMapMainMenu = null;
 
-  constructor(p5: P5, sfx: SFXInstance, gameState: GameState, callbacks: UIBindingsCallbacks) {
+  constructor(p5: P5, sfx: SFXInstance, gameState: GameState, callbacks: UIBindingsCallbacks, callAction: (action: InputAction) => void) {
     this.p5 = p5;
     this.sfx = sfx;
     this.gameState = gameState;
     this.callbacks = callbacks;
+    this.callAction = callAction;
     this.bindElements();
-    this.mainMenuNavMap = new UINavMapMainMenu({
-      mainMenuButtons: this.mainMenuButtons,
-      elements: [
-        { button: MainMenuButton.StartGame, callback: this.callbacks.onStartGame },
-        { button: MainMenuButton.OSTMode, callback: this.callbacks.onEnterOstMode },
-        { button: MainMenuButton.QuoteMode, callback: this.callbacks.onEnterQuoteMode },
-        { button: MainMenuButton.Leaderboard, callback: this.callbacks.onShowLeaderboard },
-        { button: MainMenuButton.Settings, callback: this.callbacks.onShowSettingsMenu },
-      ]
-    })
+    this.mainMenuNavMap = new UINavMapMainMenu(
+      this.mainMenuButtons,
+      [
+        { button: MainMenuButton.StartGame, action: InputAction.StartGame },
+        { button: MainMenuButton.OSTMode, action: InputAction.EnterOstMode },
+        { button: MainMenuButton.QuoteMode, action: InputAction.EnterQuoteMode },
+        { button: MainMenuButton.Leaderboard, action: InputAction.ShowLeaderboard },
+        { button: MainMenuButton.Settings, action: InputAction.ShowSettingsMenu },
+      ],
+      callAction
+    )
   }
 
   handleUINavigation: UINavEventHandler = (navDir) => {
@@ -524,29 +529,30 @@ export class UIBindings implements UIHandler {
     this.mainMenuButtons[MainMenuButton.Leaderboard] = requireElementById<HTMLButtonElement>('ui-button-leaderboard');
     this.mainMenuButtons[MainMenuButton.Settings] = requireElementById<HTMLButtonElement>('ui-button-settings');
 
-    this.mainMenuButtons[MainMenuButton.StartGame].addEventListener('click', this.callbacks.onStartGame);
-    this.mainMenuButtons[MainMenuButton.OSTMode].addEventListener('click', this.callbacks.onEnterOstMode);
-    this.mainMenuButtons[MainMenuButton.QuoteMode].addEventListener('click', this.callbacks.onEnterQuoteMode);
-    this.mainMenuButtons[MainMenuButton.Leaderboard].addEventListener('click', this.callbacks.onShowLeaderboard);
-    this.mainMenuButtons[MainMenuButton.Settings].addEventListener('click', this.callbacks.onShowSettingsMenu);
+    this.mainMenuButtons[MainMenuButton.StartGame].addEventListener('click', this.handleStartGame);
+    this.mainMenuButtons[MainMenuButton.OSTMode].addEventListener('click', this.handleEnterOstMode);
+    this.mainMenuButtons[MainMenuButton.QuoteMode].addEventListener('click', this.handleEnterQuoteMode);
+    this.mainMenuButtons[MainMenuButton.Leaderboard].addEventListener('click', this.handleShowLeaderboard);
+    this.mainMenuButtons[MainMenuButton.Settings].addEventListener('click', this.handleShowSettingsMenu);
 
     this.buttonCloseSettingsMenu = requireElementById<HTMLButtonElement>('settings-menu-close-button');
-    this.buttonCloseSettingsMenu.addEventListener('click', this.onHideSettingsMenuClick);
     this.checkboxCasualMode = requireElementById<HTMLInputElement>('checkbox-casual-mode');
-    this.checkboxCasualMode.addEventListener('change', this.onCheckboxCasualModeChange);
     this.sliderMusic = requireElementById<HTMLInputElement>("slider-volume-music");
     this.sliderSfx = requireElementById<HTMLInputElement>("slider-volume-sfx");
+
+    this.buttonCloseSettingsMenu.addEventListener('click', this.onHideSettingsMenuClick);
+    this.checkboxCasualMode.addEventListener('change', this.onCheckboxCasualModeChange);
     this.sliderMusic.addEventListener('input', this.onMusicSliderInput);
     this.sliderSfx.addEventListener('input', this.onSfxSliderInput);
     // document.addEventListener('keydown', this.overrideEscapeKeydown);
   }
 
   public cleanup = () => {
-    this.mainMenuButtons[MainMenuButton.StartGame].removeEventListener('click', this.callbacks.onStartGame);
-    this.mainMenuButtons[MainMenuButton.OSTMode].removeEventListener('click', this.callbacks.onEnterOstMode);
-    this.mainMenuButtons[MainMenuButton.QuoteMode].removeEventListener('click', this.callbacks.onEnterQuoteMode);
-    this.mainMenuButtons[MainMenuButton.Leaderboard].removeEventListener('click', this.callbacks.onShowLeaderboard);
-    this.mainMenuButtons[MainMenuButton.Settings].removeEventListener('click', this.callbacks.onShowSettingsMenu);
+    this.mainMenuButtons[MainMenuButton.StartGame].removeEventListener('click', this.handleStartGame);
+    this.mainMenuButtons[MainMenuButton.OSTMode].removeEventListener('click', this.handleEnterOstMode);
+    this.mainMenuButtons[MainMenuButton.QuoteMode].removeEventListener('click', this.handleEnterQuoteMode);
+    this.mainMenuButtons[MainMenuButton.Leaderboard].removeEventListener('click', this.handleShowLeaderboard);
+    this.mainMenuButtons[MainMenuButton.Settings].removeEventListener('click', this.handleShowSettingsMenu);
 
     this.buttonCloseSettingsMenu.removeEventListener('click', this.onHideSettingsMenuClick);
     this.checkboxCasualMode.removeEventListener('change', this.onCheckboxCasualModeChange);
@@ -590,6 +596,26 @@ export class UIBindings implements UIHandler {
     setSfxVolume(volume);
     this.callbacks.onSetSfxVolume(volume);
     this.sfx.play(Sound.eat);
+  }
+
+  private handleStartGame = () => {
+    this.callAction(InputAction.StartGame);
+  }
+
+  private handleEnterOstMode = () => {
+    this.callAction(InputAction.EnterOstMode);
+  }
+
+  private handleEnterQuoteMode = () => {
+    this.callAction(InputAction.EnterQuoteMode);
+  }
+
+  private handleShowLeaderboard = () => {
+    this.callAction(InputAction.ShowLeaderboard);
+  }
+
+  private handleShowSettingsMenu = () => {
+    this.callAction(InputAction.ShowSettingsMenu);
   }
 }
 

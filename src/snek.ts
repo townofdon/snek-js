@@ -55,7 +55,7 @@ import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
 import { quotes as allQuotes } from './quotes';
-import { InputCallbacks, handleKeyPressed, validateMove } from './controls';
+import { InputAction, InputCallbacks, handleKeyPressed, validateMove } from './controls';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
 import { QuoteScene } from './scenes/QuoteScene';
@@ -271,32 +271,64 @@ export const sketch = (p5: P5) => {
     onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
     onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
     onToggleCasualMode: toggleCasualMode,
-    onStartGame: startGame,
-    onEnterOstMode: enterOstMode,
-    onEnterQuoteMode: enterQuoteMode,
-    onShowLeaderboard: showLeaderboard,
-    onShowSettingsMenu: showSettingsMenu,
-  });
+  }, handleInputAction);
   const inputCallbacks: InputCallbacks = {
-    onHideStartScreen: onHideStartScreen,
-    onShowMainMenu: showMainMenu,
-    onConfirmShowMainMenu: confirmShowMainMenu,
-    onRetryLevel: retryLevel,
-    onStartGame: startGame,
-    onToggleCasualMode: toggleCasualMode,
-    onPause: pause,
-    onUnpause: unpause,
     onWarpToLevel: warpToLevel,
-    onStartMoving: startMoving,
-    onStartRewinding: startRewinding,
     onAddMove: onAddMove,
-    onEnterQuoteMode: enterQuoteMode,
-    onEnterOstMode: enterOstMode,
-    onShowLeaderboard: showLeaderboard,
-    onProceedToNextReplayClip: proceedToNextReplayClip,
     onUINavigate: onUINavigate,
-    onUIInteract: onUIInteract,
-    onUICancel: onUICancel,
+  }
+
+  function handleInputAction(action: InputAction) {
+    switch (action) {
+      case InputAction.HideStartScreen:
+        hideStartScreen();
+        break;
+      case InputAction.ShowMainMenu:
+        showMainMenu();
+        break;
+      case InputAction.ConfirmShowMainMenu:
+        confirmShowMainMenu();
+        break;
+      case InputAction.RetryLevel:
+        retryLevel();
+        break;
+      case InputAction.StartGame:
+        startGame();
+        break;
+      case InputAction.ToggleCasualMode:
+        toggleCasualMode();
+        break;
+      case InputAction.ShowLeaderboard:
+        showLeaderboard();
+        break;
+      case InputAction.EnterQuoteMode:
+        enterQuoteMode();
+        break;
+      case InputAction.EnterOstMode:
+        enterOstMode();
+        break;
+      case InputAction.ProceedToNextReplayClip:
+        proceedToNextReplayClip();
+        break;
+      case InputAction.Pause:
+        pause();
+        break;
+      case InputAction.UnPause:
+        unpause();
+        break;
+      case InputAction.StartMoving:
+        startMoving();
+        break;
+      case InputAction.StartRewinding:
+        startRewinding();
+        break;
+      case InputAction.UIInteract:
+        onUIInteract();
+        break;
+      case InputAction.UICancel:
+        onUICancel();
+        break;
+    }
   }
 
   /**
@@ -356,6 +388,7 @@ export const sketch = (p5: P5) => {
       recentInputTimes,
       checkPlayerWillHit,
       inputCallbacks,
+      handleInputAction,
       ev,
     );
   }
@@ -461,7 +494,7 @@ export const sketch = (p5: P5) => {
     stats.totalTimeElapsed = 0;
   }
 
-  function onHideStartScreen() {
+  function hideStartScreen() {
     if (!state.isPreloaded) return;
     showMainMenu();
     UI.hideStartScreen();
@@ -852,8 +885,9 @@ export const sketch = (p5: P5) => {
       return;
     } else {
       loopState.deltaTime = loopState.timeAccumulatedMs;
-      loopState.timeAccumulatedMs = Math.min(loopState.timeAccumulatedMs, FRAME_DUR_MS * 1.5);
-      loopState.timeAccumulatedMs = loopState.timeAccumulatedMs - FRAME_DUR_MS;
+      // loopState.timeAccumulatedMs = Math.min(loopState.timeAccumulatedMs, FRAME_DUR_MS * 1.25);
+      // loopState.timeAccumulatedMs = loopState.timeAccumulatedMs - FRAME_DUR_MS;
+      loopState.timeAccumulatedMs = 0;
     }
 
     if (p5.keyIsDown(p5.SHIFT) && (state.isMoving || state.isRewinding)) {
@@ -866,16 +900,16 @@ export const sketch = (p5: P5) => {
     if (state.isPaused) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
 
-    applesMap = {};
+    for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
+      segmentsMap[i] = false;
+      applesMap[i] = -1;
+    }
     for (let i = 0; i < apples.length; i++) {
       if (!apples[i]) continue;
       if (state.isLost || state.isExitingLevel) continue;
       applesMap[getCoordIndex(apples[i])] = i;
     }
 
-    for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
-      segmentsMap[i] = false;
-    }
     for (let i = 0; i < segments.length; i++) {
       if (state.isLost || state.isExitingLevel) continue;
       segmentsMap[getCoordIndex(segments[i])] = true;
@@ -952,6 +986,7 @@ export const sketch = (p5: P5) => {
     actions.tick();
 
     if (state.isPaused) return;
+    if (state.appMode === AppMode.StartScreen) return;
 
     setTimeout(() => { tickCoroutines(); }, 0);
 
