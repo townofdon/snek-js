@@ -1,7 +1,7 @@
 import assert from "assert";
 
-import { Apples } from "../collections";
-import { getCoordIndex2 } from "../utils";
+import { Apples } from "../../collections/apples";
+import { getCoordIndex2 } from "../../utils";
 
 describe("Collections", () => {
   describe("Apples", () => {

@@ -1,6 +1,6 @@
 import { Vector } from "p5";
-import { GRIDCOUNT, IS_DEV } from "./constants";
-import { getCoordIndex2 } from "./utils";
+import { GRIDCOUNT, IS_DEV } from "../constants";
+import { getCoordIndex2 } from "../utils";
 
 const INITIAL_APPLE_POOL_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
 
