@@ -348,8 +348,8 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px
 .main-menu-label-casual-mode {
   z-index: 20;
   position: absolute;
-  left: 300px;
-  top: 400px;
+  left: 303px;
+  top: 460px;
   display: flex;
   justify-content: center;
 }
