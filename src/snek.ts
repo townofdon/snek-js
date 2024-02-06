@@ -47,7 +47,7 @@ import {
   MAX_SNAKE_SIZE,
   GLOBAL_LIGHT_DEFAULT,
 } from './constants';
-import { clamp, dirToUnitVector, findLevelWarpIndex, getCoordIndex, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, isWithinBlockDistance, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
+import { clamp, dirToUnitVector, findLevelWarpIndex, getCoordIndex, getCoordIndex2, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, isWithinBlockDistance, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
 import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key, Lock, KeyChannel, LoopState, UINavDir } from './types';
@@ -75,6 +75,7 @@ import { SpriteRenderer } from './spriteRenderer';
 import { WinGameScene } from './scenes/WinGameScene';
 import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './lighting';
+import { Apples } from './collections';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -181,7 +182,6 @@ let recentMoves: RecentMoves = [null, null, null, null]; // most recent moves th
 let recentInputs: RecentMoves = [null, null, null, null]; // most recent inputs that the player has performed
 let recentInputTimes: RecentMoveTimings = [Infinity, Infinity, Infinity, Infinity]; // timing of the most recent inputs that the player has performed
 let segments: Vector[] = []; // snake segments
-let apples: Vector[] = []; // food that the snake can eat to grow and score points
 let barriers: Vector[] = []; // permanent structures that damage the snake
 let doors: Vector[] = []; // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
 let decoratives1: Vector[] = []; // bg decorative elements
@@ -190,13 +190,13 @@ let keys: Key[] = []; // keys
 let locks: Lock[] = []; // locks
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
-let applesMap: Record<string, number> = {};
 let segmentsMap: Record<number, boolean> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
 let keysMap: Record<number, Key> = {};
 let locksMap: Record<number, Lock> = {};
 let diffSelectMap: Record<number, number> = {};
 
+const apples = new Apples(); // food that the snake can eat to grow and score points
 const lightMap = createLightmap();
 
 let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };
@@ -758,7 +758,6 @@ export const sketch = (p5: P5) => {
     recentInputTimes = [Infinity, Infinity, Infinity, Infinity];
     barriers = [];
     doors = [];
-    apples = [];
     segments = []
     decoratives1 = [];
     decoratives2 = [];
@@ -772,6 +771,7 @@ export const sketch = (p5: P5) => {
     portalsMap = {};
     portalParticlesStarted = {};
     keysMap = {};
+    apples.reset();
 
     renderer.reset();
     UI.disableScreenScroll();
@@ -831,7 +831,6 @@ export const sketch = (p5: P5) => {
     barriersMap = levelData.barriersMap;
     doors = levelData.doors;
     doorsMap = levelData.doorsMap;
-    apples = levelData.apples;
     decoratives1 = levelData.decoratives1;
     decoratives2 = levelData.decoratives2;
     nospawnsMap = levelData.nospawnsMap;
@@ -853,10 +852,14 @@ export const sketch = (p5: P5) => {
     }
 
     // add initial apples
+    for (let i = 0; i < levelData.apples.length; i++) {
+      apples.add(levelData.apples[i].x, levelData.apples[i].y);
+    }
     const numApplesStart = level.numApplesStart ?? NUM_APPLES_START;
     for (let i = 0; i < numApplesStart; i++) {
       addApple();
     }
+
     resetLightmap(lightMap, level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
   }
 
@@ -902,20 +905,14 @@ export const sketch = (p5: P5) => {
 
     for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
       segmentsMap[i] = false;
-      applesMap[i] = -1;
-    }
-    for (let i = 0; i < apples.length; i++) {
-      if (!apples[i]) continue;
-      if (state.isLost || state.isExitingLevel) continue;
-      applesMap[getCoordIndex(apples[i])] = i;
     }
 
     for (let i = 0; i < segments.length; i++) {
       if (state.isLost || state.isExitingLevel) continue;
-      segmentsMap[getCoordIndex(segments[i])] = true;
-      const appleFound = applesMap[getCoordIndex(segments[i])];
+      const coord = getCoordIndex(segments[i]);
+      segmentsMap[coord] = true;
+      const appleFound = apples.existsAtCoord(coord) ? coord : -1;
       if (appleFound != undefined && appleFound >= 0) {
-        applesMap[getCoordIndex(segments[i])] = -1;
         spawnAppleParticles(segments[i]);
         growSnake(appleFound);
         incrementScore();
@@ -923,7 +920,8 @@ export const sketch = (p5: P5) => {
     }
 
     // check if head has reached an apple
-    const appleFound = applesMap[getCoordIndex(player.position)];
+    const coord = getCoordIndex(player.position);
+    const appleFound = apples.existsAtCoord(coord) ? coord : -1;
     if (appleFound != undefined && appleFound >= 0) {
       spawnAppleParticles(player.position);
       growSnake(appleFound);
@@ -932,7 +930,6 @@ export const sketch = (p5: P5) => {
       playSound(Sound.eat);
       if (!state.isDoorsOpen) renderLevelName();
     }
-    apples = apples.filter(apple => !!apple);
 
     handlePortalTravel();
     handleKeyPickup();
@@ -1022,9 +1019,12 @@ export const sketch = (p5: P5) => {
 
     renderer.drawCaptureMode();
 
-    for (let i = 0; i < apples.length; i++) {
-      if (!apples[i]) continue;
-      drawApple(apples[i]);
+    for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
+      if (apples.existsAtCoord(i)) {
+        const x = Math.floor(i % GRIDCOUNT.x);
+        const y = Math.floor(i / GRIDCOUNT.x);
+        drawApple(x, y);
+      }
     }
 
     renderer.drawPlayerMoveArrows(player.position, moves.length > 0 ? moves[0] : player.direction);
@@ -1487,8 +1487,8 @@ export const sketch = (p5: P5) => {
     } else if (level === START_LEVEL) {
       gotoNextLevel();
     } else {
-      const isPerfect = apples.length === 0 && state.lives === 3;
-      const hasAllApples = apples.length === 0;
+      const isPerfect = apples.getLength() === 0 && state.lives === 3;
+      const hasAllApples = apples.getLength() === 0;
       winLevelScene.triggerLevelExit({
         score: stats.score,
         levelClearBonus: getLevelClearBonus(),
@@ -1654,11 +1654,11 @@ export const sketch = (p5: P5) => {
   /**
    * actions to apply when snake eats an apple
    */
-  function growSnake(appleIndex = -1) {
+  function growSnake(appleCoord = -1) {
     if (state.isLost) return;
-    if (appleIndex < 0) return;
+    if (appleCoord < 0) return;
     startScreenShake(0.4, 0.8);
-    removeApple(appleIndex);
+    apples.removeByCoord(appleCoord);
     const numSegmentsToAdd = Math.max(
       (difficulty.index - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
       1
@@ -1728,11 +1728,6 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  function removeApple(index = -1) {
-    if (index < 0) return;
-    apples = apples.slice(0, index).concat(apples.slice(index + 1))
-  }
-
   function addApple(numTries = 0) {
     if (level.disableAppleSpawn) return;
     if (replay.mode === ReplayMode.Playback) {
@@ -1741,16 +1736,15 @@ export const sketch = (p5: P5) => {
     }
     const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
-    const apple = p5.createVector(x, y);
-    const spawnedInsideOfSomething = barriersMap[getCoordIndex(apple)]
-      || doorsMap[getCoordIndex(apple)]
-      || nospawnsMap[getCoordIndex(apple)];
+    const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
+      || doorsMap[getCoordIndex2(x, y)]
+      || nospawnsMap[getCoordIndex2(x, y)];
     if (spawnedInsideOfSomething) {
       if (numTries < 30) addApple(numTries + 1);
     } else {
-      apples.push(apple);
+      apples.add(x, y);
       if (replay.mode === ReplayMode.Capture) {
-        replay.applesToSpawn.push([apple.x, apple.y]);
+        replay.applesToSpawn.push([x, y]);
       }
     }
   }
@@ -1758,8 +1752,7 @@ export const sketch = (p5: P5) => {
   function addAppleReplayMode() {
     const appleToSpawn = replay.applesToSpawn.shift();
     if (appleToSpawn) {
-      const apple = p5.createVector(appleToSpawn[0], appleToSpawn[1]);
-      apples.push(apple);
+      apples.add(appleToSpawn[0], appleToSpawn[1]);
     } else {
       // likely ran out of apples to spawn due to changes to level settings since time of clip recording, e.g. applesToClear; just open the doors as a quickfix
       openDoors();
@@ -1802,8 +1795,8 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  function drawApple(vec: Vector) {
-    renderer.drawSquare(vec.x, vec.y,
+  function drawApple(x: number, y: number) {
+    renderer.drawSquare(x, y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.apple : level.colors.apple,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.appleStroke : level.colors.appleStroke,
       drawAppleOptions);

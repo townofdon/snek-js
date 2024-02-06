@@ -51,7 +51,7 @@ export function getCoordIndex2(x: number, y: number): number {
 export function coordToVec(p5: P5, index: number): Vector {
   index = Math.floor(index);
   const x = Math.floor(index % GRIDCOUNT.x);
-  const y = Math.floor(index / GRIDCOUNT.x) * GRIDCOUNT.y;
+  const y = Math.floor(index / GRIDCOUNT.x);
   return p5.createVector(x, y);
 }
 

@@ -209,6 +209,7 @@ export class WinGameScene extends BaseScene {
 
     this.fieldVisible[FIELD.TITLE] = true;
     this.state.stageClearY = STATE_CLEAR_Y_START;
+    sfx.play(Sound.moveStart);
     yield* coroutines.waitForTime(600, (t) => {
       this.state.bgOpacity = t;
       this.state.stageClearY = p5.lerp(STATE_CLEAR_Y_START, 0, Easing.inOutCubic(t));
