@@ -223,7 +223,7 @@ export class ParticleSystem {
       return;
     }
     this.timeElapsed += p5.deltaTime;
-    if (this.spawnOverTime > 0) {
+    if (this.spawnOverTime > 0 && p5.deltaTime > 0) {
       this.timeTillNextSpawn -= p5.deltaTime;
       while (this.timeTillNextSpawn <= 0) {
         this.spawnParticle();
@@ -232,7 +232,7 @@ export class ParticleSystem {
     }
     const prevIterations = this.iterations;
     this.iterations = Math.floor(this.timeElapsed / this.lifetime);
-    if (this.iterations !== prevIterations) {
+    if (this.iterations !== prevIterations && p5.deltaTime > 0) {
       for (let i = 0; i < this.burst; i++) {
         this.spawnParticle();
       }

@@ -545,6 +545,7 @@ export class UIBindings implements UIHandler {
     this.sliderMusic.addEventListener('input', this.onMusicSliderInput);
     this.sliderSfx.addEventListener('input', this.onSfxSliderInput);
     // document.addEventListener('keydown', this.overrideEscapeKeydown);
+    window.addEventListener('blur', this.handleWindowBlur);
   }
 
   public cleanup = () => {
@@ -559,6 +560,7 @@ export class UIBindings implements UIHandler {
     this.sliderMusic.removeEventListener('input', this.onMusicSliderInput);
     this.sliderSfx.removeEventListener('input', this.onSfxSliderInput);
     // document.removeEventListener('keydown', this.overrideEscapeKeydown);
+    window.removeEventListener('blur', this.handleWindowBlur);
   }
 
   public setStartButtonVisibility = (visible: boolean) => {
@@ -573,6 +575,11 @@ export class UIBindings implements UIHandler {
   //     event.preventDefault();
   //   }
   // }
+
+  private handleWindowBlur = () => {
+    this.p5.deltaTime = 0;
+    this.callAction(InputAction.Pause);
+  }
 
   private onHideSettingsMenuClick = () => {
     UI.hideSettingsMenu();

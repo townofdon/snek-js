@@ -286,6 +286,9 @@ export const sketch = (p5: P5) => {
       case InputAction.ShowMainMenu:
         showMainMenu();
         break;
+      case InputAction.ShowSettingsMenu:
+        showSettingsMenu();
+        break;
       case InputAction.ConfirmShowMainMenu:
         confirmShowMainMenu();
         break;
@@ -469,10 +472,12 @@ export const sketch = (p5: P5) => {
       const dirX = vectorToDir(posX, 0);
       const dirY = vectorToDir(0, posY);
       if (dirX && validateMove(player.direction, dirX)) {
+        p5.keyCode = 0;
         clickState.directionToPoint = dirX;
         clickState.didReceiveInput = true;
         keyPressed();
       } else if (dirY && validateMove(player.direction, dirY)) {
+        p5.keyCode = 0;
         clickState.directionToPoint = dirY;
         clickState.didReceiveInput = true;
         keyPressed();
@@ -587,6 +592,7 @@ export const sketch = (p5: P5) => {
     }
     stopReplay();
     level = START_LEVEL
+    difficulty = { ...DIFFICULTY_EASY };
     setLevelIndexFromCurrentLevel();
     initLevel()
     playSound(Sound.unlock);
@@ -877,19 +883,17 @@ export const sketch = (p5: P5) => {
   }
 
   function logicLoop() {
-    // ensure logic loop fires at approximately <FRAMERATE> fps
     const currentTime = window.performance.now();
     const diff = loopState.timePrevMs === 0
       ? FRAME_DUR_MS
       : Math.max(currentTime - loopState.timePrevMs, 0);
     loopState.timePrevMs = currentTime;
     loopState.timeAccumulatedMs += diff;
+    // ensure logic loop fires at approximately <FRAMERATE> fps
     if (loopState.timeAccumulatedMs < FRAME_DUR_MS) {
       return;
     } else {
       loopState.deltaTime = loopState.timeAccumulatedMs;
-      // loopState.timeAccumulatedMs = Math.min(loopState.timeAccumulatedMs, FRAME_DUR_MS * 1.25);
-      // loopState.timeAccumulatedMs = loopState.timeAccumulatedMs - FRAME_DUR_MS;
       loopState.timeAccumulatedMs = 0;
     }
 
@@ -2042,6 +2046,11 @@ export const sketch = (p5: P5) => {
   }
 
   function pause() {
+    if (!state.isGameStarted) return;
+    if (state.isLost) return;
+    if (state.isGameWon) return;
+    if (state.isPaused) return;
+    state.isPaused = true;
     showPauseUI();
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(0.07, 1500, 0.2), Action.ChangeMusicLowpass, true);
@@ -2049,6 +2058,11 @@ export const sketch = (p5: P5) => {
   }
 
   function unpause() {
+    if (!state.isGameStarted) return;
+    if (state.isLost) return;
+    if (state.isGameWon) return;
+    if (!state.isPaused) return;
+    state.isPaused = false;
     clearUI();
     UI.hideSettingsMenu();
     sfx.play(Sound.unlock, 0.8);

@@ -120,10 +120,8 @@ export function handleKeyPressed(
 
   if (keyCode === ESCAPE && !state.isGameWon) {
     if (state.isPaused) {
-      state.isPaused = false;
       callAction(InputAction.UnPause);
     } else {
-      state.isPaused = true;
       callAction(InputAction.Pause);
     }
   }
