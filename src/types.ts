@@ -15,10 +15,6 @@ import { Howl } from 'howler';
  */
 export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, null | undefined>
 
-export interface PoolableVector extends Vector {
-  free: boolean,
-}
-
 export interface QueryParams {
   enableWarp: boolean,
   enableQuoteMode: boolean,

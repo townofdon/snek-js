@@ -124,7 +124,7 @@ export class Apples {
   private validate() {
     if (IS_DEV) {
       if (this.x.length !== this.y.length) throw new Error(`lengths diverged: x.length=${this.x.length},y.length=${this.y.length}`);
-      if (this.x.length !== this.free.length) throw new Error(`lengths diverged: x.length=${this.x.length},y.length=${this.free.length}`);
+      if (this.x.length !== this.free.length) throw new Error(`lengths diverged: x.length=${this.x.length},free.length=${this.free.length}`);
     }
   }
 }
