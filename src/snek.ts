@@ -445,48 +445,6 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  /**
-   * https://p5js.org/reference/#/p5/mouseClicked
-   */
-  p5.mouseClicked = mouseClicked;
-  function mouseClicked(event?: MouseEvent): void {
-    if (state.appMode !== AppMode.Game) return;
-    if (!state.isGameStarted) return;
-    if (state.isPaused) return;
-    state.timeSinceLastInput = 0;
-    const canvasPosition = getElementPosition(canvas);
-    // set the point clicked on the grid inside the canvas
-    clickState.x = Math.floor((event.clientX - canvasPosition.x) / BLOCK_SIZE.x);
-    clickState.y = Math.floor((event.clientY - canvasPosition.y) / BLOCK_SIZE.y);
-    if (clickState.x < 0 || clickState.x >= GRIDCOUNT.x) return;
-    if (clickState.y < 0 || clickState.y >= GRIDCOUNT.y) return;
-    // get direction from player to point clicked
-    const posX = clickState.x - player.position.x;
-    const posY = clickState.y - player.position.y;
-    if (!state.isMoving) {
-      const dir = vectorToDir(posX, posY);
-      clickState.directionToPoint = dir;
-      clickState.didReceiveInput = true;
-      keyPressed();
-    } else {
-      const dirX = vectorToDir(posX, 0);
-      const dirY = vectorToDir(0, posY);
-      if (dirX && validateMove(player.direction, dirX)) {
-        p5.keyCode = 0;
-        clickState.directionToPoint = dirX;
-        clickState.didReceiveInput = true;
-        keyPressed();
-      } else if (dirY && validateMove(player.direction, dirY)) {
-        p5.keyCode = 0;
-        clickState.directionToPoint = dirY;
-        clickState.didReceiveInput = true;
-        keyPressed();
-      } else {
-        clickState.didReceiveInput = false;
-      }
-    }
-  }
-
   function resetStats() {
     stats.numDeaths = 0;
     stats.numLevelsCleared = 0;
