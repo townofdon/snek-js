@@ -76,11 +76,11 @@ import { WinGameScene } from './scenes/WinGameScene';
 import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './lighting';
 import { Apples } from './collections/apples';
+import { VectorList } from './collections/vectorList';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
 
-const canvas = document.getElementById('game-canvas');
 const queryParams = parseUrlQueryParams();
 const settings: GameSettings = {
   musicVolume: 1,
@@ -181,7 +181,7 @@ let moves: DIR[] = []; // moves that the player has queued up
 let recentMoves: RecentMoves = [null, null, null, null]; // most recent moves that the snake has performed
 let recentInputs: RecentMoves = [null, null, null, null]; // most recent inputs that the player has performed
 let recentInputTimes: RecentMoveTimings = [Infinity, Infinity, Infinity, Infinity]; // timing of the most recent inputs that the player has performed
-let segments: Vector[] = []; // snake segments
+// let segments: Vector[] = []; // snake segments
 let barriers: Vector[] = []; // permanent structures that damage the snake
 let doors: Vector[] = []; // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
 let decoratives1: Vector[] = []; // bg decorative elements
@@ -190,12 +190,13 @@ let keys: Key[] = []; // keys
 let locks: Lock[] = []; // locks
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
-let segmentsMap: Record<number, boolean> = {};
+// let segmentsMap: Record<number, boolean> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
 let keysMap: Record<number, Key> = {};
 let locksMap: Record<number, Lock> = {};
 let diffSelectMap: Record<number, number> = {};
 
+const segments = new VectorList(); // snake segments
 const apples = new Apples(); // food that the snake can eat to grow and score points
 const lightMap = createLightmap();
 
@@ -654,9 +655,9 @@ export const sketch = (p5: P5) => {
     let size = 0;
     const uniquePositions: Record<number, boolean> = {};
     for (let i = 0; i < segments.length; i++) {
-      if (!segments[i]) continue;
-      if (!uniquePositions[getCoordIndex(segments[i])]) { size++; }
-      uniquePositions[getCoordIndex(segments[i])] = true;
+      if (!segments.get(i)) continue;
+      if (!uniquePositions[getCoordIndex(segments.get(i))]) { size++; }
+      uniquePositions[getCoordIndex(segments.get(i))] = true;
     }
     return size + 1;
   }
@@ -722,13 +723,11 @@ export const sketch = (p5: P5) => {
     recentInputTimes = [Infinity, Infinity, Infinity, Infinity];
     barriers = [];
     doors = [];
-    segments = []
     decoratives1 = [];
     decoratives2 = [];
     particleSystems = [];
     keys = [];
     barriersMap = {};
-    segmentsMap = {};
     doorsMap = {};
     nospawnsMap = {};
     portals = { ...DEFAULT_PORTALS() };
@@ -736,6 +735,7 @@ export const sketch = (p5: P5) => {
     portalParticlesStarted = {};
     keysMap = {};
     apples.reset();
+    segments.reset();
 
     renderer.reset();
     UI.disableScreenScroll();
@@ -811,8 +811,7 @@ export const sketch = (p5: P5) => {
     for (let i = 0; i < (level.snakeStartSizeOverride || START_SNAKE_SIZE); i++) {
       if (i < 3) x--;
       const segment = p5.createVector(x, player.position.y);
-      segments.push(segment);
-      segmentsMap[getCoordIndex(segment)] = true;
+      segments.addVec(segment);
     }
 
     // add initial apples
@@ -865,17 +864,12 @@ export const sketch = (p5: P5) => {
     if (state.isPaused) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
 
-    for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
-      segmentsMap[i] = false;
-    }
-
     for (let i = 0; i < segments.length; i++) {
       if (state.isLost || state.isExitingLevel) continue;
-      const coord = getCoordIndex(segments[i]);
-      segmentsMap[coord] = true;
+      const coord = getCoordIndex(segments.get(i));
       const appleFound = apples.existsAtCoord(coord) ? coord : -1;
       if (appleFound != undefined && appleFound >= 0) {
-        spawnAppleParticles(segments[i]);
+        spawnAppleParticles(segments.get(i));
         growSnake(appleFound);
         incrementScore();
       }
@@ -992,7 +986,7 @@ export const sketch = (p5: P5) => {
     renderer.drawPlayerMoveArrows(player.position, moves.length > 0 ? moves[0] : player.direction);
 
     for (let i = 0; i < segments.length; i++) {
-      drawPlayerSegment(segments[i]);
+      drawPlayerSegment(segments.get(i));
     }
 
     const globalLight = level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
@@ -1142,8 +1136,9 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel) return false;
     if (state.isExited) return false;
     if (state.isGameWon) return false;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
 
-    if (segmentsMap[getCoordIndex(vec)]) {
+    if (segments.containsCoord(getCoordIndex(vec))) {
       state.lastHurtBy = HitType.HitSelf;
       return true;
     }
@@ -1315,7 +1310,7 @@ export const sketch = (p5: P5) => {
     const futurePosition = player.position.copy().add(currentMove);
 
     // disallow snake moving backwards into itself
-    if (segments.length > 0 && futurePosition.equals(segments[0].x, segments[0].y)) {
+    if (segments.length > 0 && futurePosition.equals(segments.get(0).x, segments.get(0).y)) {
       player.direction = prevDirection;
       return false;
     }
@@ -1346,9 +1341,9 @@ export const sketch = (p5: P5) => {
   function moveSegments() {
     for (let i = segments.length - 1; i >= 0; i--) {
       if (i === 0) {
-        segments[i].set(player.position);
+        segments.setVec(i, player.position);
       } else {
-        segments[i].set(segments[i - 1]);
+        segments.setVec(i, segments.get(i - 1));
       }
     }
   }
@@ -1449,8 +1444,8 @@ export const sketch = (p5: P5) => {
     } else if (level === START_LEVEL) {
       gotoNextLevel();
     } else {
-      const isPerfect = apples.getLength() === 0 && state.lives === 3;
-      const hasAllApples = apples.getLength() === 0;
+      const isPerfect = apples.length === 0 && state.lives === 3;
+      const hasAllApples = apples.length === 0;
       winLevelScene.triggerLevelExit({
         score: stats.score,
         levelClearBonus: getLevelClearBonus(),
@@ -1517,7 +1512,7 @@ export const sketch = (p5: P5) => {
 
     const move = moves.shift();
     const currentMove = dirToUnitVector(p5, move);
-    const futurePosition = player.position.copy().set(segments[0]).add(currentMove);
+    const futurePosition = player.position.copy().set(segments.get(0)).add(currentMove);
     const willHitSomething = checkHasHit(futurePosition);
     if (willHitSomething) return;
 
@@ -1586,7 +1581,7 @@ export const sketch = (p5: P5) => {
   }
 
   function getDirectionToFirstSegment() {
-    return getDirectionBetween(player.position, segments[0]);
+    return getDirectionBetween(player.position, segments.get(0));
   }
 
   function getDirectionBetween(from: Vector, to: Vector) {
@@ -1605,10 +1600,10 @@ export const sketch = (p5: P5) => {
   function reboundSnake(numTimes = 2) {
     for (let times = 0; times < numTimes; times++) {
       if (segments.length > 1) {
-        player.position.set(segments[0]);
+        player.position.set(segments.get(0));
       }
       for (let i = 0; i < segments.length - 1; i++) {
-        segments[i].set(segments[i + 1]);
+        segments.setVec(i, segments.get(i + 1));
       }
     }
   }
@@ -1722,7 +1717,7 @@ export const sketch = (p5: P5) => {
   }
 
   function addSnakeSegment() {
-    segments.push(segments[segments.length - 1].copy());
+    segments.addVec(segments.get(segments.length - 1));
   }
 
   function drawBackground() {
@@ -1828,7 +1823,7 @@ export const sketch = (p5: P5) => {
   function drawDecorative1(vec: Vector) {
     if (vec.equals(player.position)) return;
     if (doorsMap[getCoordIndex(vec)]) return;
-    if (segmentsMap[getCoordIndex(vec)]) return;
+    if (segments.containsCoord(getCoordIndex(vec))) return;
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1 : level.colors.deco1,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco1Stroke : level.colors.deco1Stroke,
@@ -1838,7 +1833,7 @@ export const sketch = (p5: P5) => {
   function drawDecorative2(vec: Vector) {
     if (vec.equals(player.position)) return;
     if (doorsMap[getCoordIndex(vec)]) return;
-    if (segmentsMap[getCoordIndex(vec)]) return;
+    if (segments.containsCoord(getCoordIndex(vec))) return;
     renderer.drawSquare(vec.x, vec.y,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2 : level.colors.deco2,
       state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.deco2Stroke : level.colors.deco2Stroke,
@@ -2008,6 +2003,7 @@ export const sketch = (p5: P5) => {
     if (state.isLost) return;
     if (state.isGameWon) return;
     if (state.isPaused) return;
+    if (state.isExitingLevel || state.isExited) return;
     state.isPaused = true;
     showPauseUI();
     sfx.play(Sound.unlock, 0.8);
@@ -2016,9 +2012,6 @@ export const sketch = (p5: P5) => {
   }
 
   function unpause() {
-    if (!state.isGameStarted) return;
-    if (state.isLost) return;
-    if (state.isGameWon) return;
     if (!state.isPaused) return;
     state.isPaused = false;
     clearUI();

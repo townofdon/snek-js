@@ -16,12 +16,12 @@ describe("Collections", () => {
     });
     it("should add apples", () => {
       const apples = new Apples();
-      assert.strictEqual(apples.getLength(), 0);
+      assert.strictEqual(apples.length, 0);
       assert.strictEqual(apples.existsAt(3, 3), false);
       assert.strictEqual(apples.existsAt(4, 4), false);
       apples.add(3, 3);
       apples.add(4, 4);
-      assert.strictEqual(apples.getLength(), 2);
+      assert.strictEqual(apples.length, 2);
       assert.strictEqual(apples.existsAt(3, 3), true);
       assert.strictEqual(apples.existsAt(4, 4), true);
     });
@@ -50,10 +50,10 @@ describe("Collections", () => {
       apples.add(8, 8);
       apples.add(9, 9);
       apples.add(10, 10);
-      assert.strictEqual(apples.getLength(), 10);
+      assert.strictEqual(apples.length, 10);
       assert.strictEqual(apples.existsAt(5, 5), true);
       apples.reset();
-      assert.strictEqual(apples.getLength(), 0);
+      assert.strictEqual(apples.length, 0);
       assert.strictEqual(apples.existsAt(5, 5), false);
     });
     it("should allow overlapping apples", () => {

@@ -34,6 +34,10 @@ export class VectorList {
 
   public getLength = (): number => this.activeLength;
 
+  public get length() {
+    return this.activeLength;
+  }
+
   public add = (x: number, y: number): void => {
     this.validate();
     const coord = getCoordIndex2(x, y);
@@ -41,7 +45,7 @@ export class VectorList {
       if (this.free[i]) {
         this.free[i] = false;
         this.points[i].set(x, y);
-        this.coordMap[coord] = this.activeLength;
+        this.coordMap[coord] = i;
         this.indices[this.activeLength] = i;
         this.activeLength++;
         return;
@@ -59,13 +63,12 @@ export class VectorList {
     this.add(vec.x, vec.y);
   }
 
-  public removeAt = (index: number): void => {
+  public remove = (index: number): void => {
     if (index < 0) return;
     this.validate();
     const found = this.indices[index];
     if (found < 0) return;
     this.free[found] = false;
-    this.coordMap[getCoordIndex2(this.points[found].x, this.points[found].y)] = -1;
     this.points[found].set(0, 0);
     // shift indices left by 1 starting from `found`
     for (let i = found; i < this.activeLength - 1; i++) {
@@ -73,10 +76,15 @@ export class VectorList {
     }
     this.indices[this.activeLength - 1] = -1;
     this.activeLength--;
+    this.recalculateCoordMap();
   }
 
   public contains = (x: number, y: number): boolean => {
     return this.coordMap[getCoordIndex2(x, y)] >= 0;
+  }
+
+  public containsCoord = (coord: number): boolean => {
+    return this.coordMap[coord] >= 0;
   }
 
   public find = (x: number, y: number): (Vector | undefined) => {
@@ -96,10 +104,48 @@ export class VectorList {
     if (found < 0) return;
     if (!this.points[found]) return;
     this.points[found].set(x, y);
+    this.recalculateCoordMap();
   }
 
-  public setVec = (index: number, vec: Vector) => {
+  public setVec = (index: number, vec: Vector | undefined) => {
+    if (!vec) return;
     this.set(index, vec.x, vec.y);
+  }
+
+  public every = (predicate: (vec: Vector) => boolean) => {
+    this.validate();
+    for (let i = 0; i < this.indices.length; i++) {
+      const found = this.indices[i];
+      if (found < 0) break;
+      if (!this.points[found]) continue;
+      if (!predicate(this.points[found])) return false;
+    }
+    return true;
+  }
+
+  public some = (predicate: (vec: Vector) => boolean) => {
+    this.validate();
+    for (let i = 0; i < this.indices.length; i++) {
+      const found = this.indices[i];
+      if (found < 0) break;
+      if (!this.points[found]) continue;
+      if (predicate(this.points[found])) return true;
+    }
+    return false;
+  }
+
+  private recalculateCoordMap = () => {
+    this.validate();
+    for (let i = 0; i < this.free.length; i++) {
+      this.coordMap[i] = -1;
+    }
+    for (let i = 0; i < this.indices.length; i++) {
+      const found = this.indices[i];
+      if (found < 0) break;
+      if (!this.points[found]) continue;
+      const coord = getCoordIndex2(this.points[found].x, this.points[found].y);
+      this.coordMap[coord] = found;
+    }
   }
 
   private validate() {

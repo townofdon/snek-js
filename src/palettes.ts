@@ -48,7 +48,7 @@ export const PALETTE: Record<PaletteName, Palette> = {
     background: "#C1C1C1",
     playerHead: "#5A5A5A",
     playerTail: "#474747",
-    playerTailStroke: "#1A1A1A",
+    playerTailStroke: "#3A3A3A",
     barrier: "#CFCFCF",
     barrierStroke: "#E1E1E1",
     apple: "#818181",

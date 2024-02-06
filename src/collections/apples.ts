@@ -40,6 +40,10 @@ export class Apples {
 
   public getLength = () => this.activeLength;
 
+  public get length() {
+    return this.activeLength;
+  }
+
   public add = (x: number, y: number) => {
     this.validate();
     const coord = getCoordIndex2(x, y);
