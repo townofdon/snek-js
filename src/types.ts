@@ -237,7 +237,7 @@ export interface DynamicLevelData {
   applesMap: Record<string, number>,
 }
 
-export type LoseMessage = [string, GetShouldShowLoseMessage];
+export type LoseMessage = [string] | [string, GetShouldShowLoseMessage];
 export type GetShouldShowLoseMessage = (state: GameState, stats: Stats, difficulty: Difficulty) => boolean;
 
 export interface Quote {

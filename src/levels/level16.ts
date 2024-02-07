@@ -3,54 +3,57 @@ import { PALETTE } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
-// const name = 'packed'
-const name = 'ensnare'
+const name = 'bait&switch'
 
 export const LEVEL_16: Level = {
   name,
-  timeToClear: 1000 * 60 * 1.3,
-  applesToClear: 20,
+  timeToClear: 1000 * 60 * 3.0,
+  applesToClear: 60,
   numApplesStart: 0,
-  growthMod: 0.01,
-  disableAppleSpawn: true,
-  snakeStartSizeOverride: 2,
-  extraHurtGraceTime: 40,
+  growthMod: 0.2,
+  extraHurtGraceTime: 20,
+  snakeStartSizeOverride: 5,
   layout: `
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-X  k  XX -=aaaaa-aaaaa=- XXXXX
-X XXX XX -=XXXXXXXXXXX=- d - X
-X XXX d  -=XXX-- --XXX=- --X-X
-X XXX d  -=XXXXXXXXXXX=- d - X
-X  -  d  -=aaaaa-aaaaa=- XXKXX
-XXXKXXXXXXXXXXX-=-XXXXXXXXXKXX
-X - - daaaad    =    daaad - X
-X-=-=-XXXXdd ==-=-== ddXXX-=-X
-X-=-=-XXXX      X  aaa XXX-=-X
-X - - XXXX ==== X ==== XXX - X
-XXXdXXX -X --o  -      XXXXdXX
-XXXdXX -=X== =aXXX = ==X=-   X
-XXXKXX -=X   =aX-X =   X=-a  X
-dLLKJJ -=X = =aX-X = = X=-a  X
-dLKKKJ---d =   =-=   = d-a-a-X
-dLLKJJ -=X = = X-Xa= = X=-a  X
-XXXKXX -=X   = X-Xa=   X=-a  X
-XXXdXX -=X== = XXXa= ==X=-   X
-XXXdXXX -X      -      XXXdXXX
-X - - XXXX ==== X ==== X  j  X
-X-=-=-XXXX aaa  X      X  X  X
-X-=-=-XXXXdd ==-=-== ddX  X  X
-X - - daaaad    =    daJ     X
-XXXLXXXXXXXXXXX-=-XXXXXXXXXLXX
-X  -  d  -=aaaaa-aaaaa=- d a X
-X XXX d  -=XXXXXXXXXXX=- daXaX
-X XXX XX -=XXXXXXXXXXX=- XaXaX
-X  l  XX -=aaaaa-aaaaa=- X a X
+XXXXXXXXXXXX+_KK_+XXXXXXXXXXXX
+X~aaaa~~~~1X+_KK_+X3~~~~aaaa~X
+X~XXXXXXXXXXXX__XXXXXXXXXXXX~X
+X~XX+X+__+X+XXLLXX+X+__+X+XX~X
+X~XX+X+__+X+XXLLXX+X+__+X+XX~X
+X~XXXXXXXXXXXX__XXXXXXXXXXXX~X
+X~X    j      --           X~X
+X~X XXXXXXXX==--==XXXXXXXX X~X
+X~X-X_~d~~3X  --  X1~~d~_X-X~X
+XJX=K+_l____-=--=-____k_+L=XJX
+X~X-XXXdXXXX  --  XXXXdXXX-X~X
+X~X XXXXXXXX==--==XXXXXXXX X~X
+X~X           --           X~X
+X~X           --           X~X
+XaX=-X~       --       ~X-=XaX
+XaX=-XX-=--=O --  =--=-XX-=XaX
+XaX=-X~ -     --     - ~X-=XaX
+X~X  -  -     --     -  -  X~X
+X~X  =  - ~X  --  X~ -  =  X~X
+X~X  -  =-XX-=--=-XX-=  -  X~X
+X~X  =  - ~X  --  X~ -  =  X~X
+X~X  -  -     --     -  -  X~X
+XaX=-X~ -     --     - ~X-=XaX
+XaX=-XX-=--=  --  =--=-XX-=XaX
+XaX=-X~       --       ~X-=XaX
+X~X           --           X~X
+X~X           --           X~X
+X~XXXXXXXXXdd+__+ddXXXXXXXXX~X
+X~~~~~~~~~~~~~~~~~~~~~~~~~~~~X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: {
-    // ...PALETTE.hospital,
-    ...PALETTE.forest,
-    ...PALETTE.violetSunset,
+    ...PALETTE.boxcar,
+    barrier: Color(PALETTE.boxcar.barrier).lighten(0.2).desaturate(0.35).hex(),
+    barrierStroke: Color(PALETTE.boxcar.barrierStroke).lighten(0.2).darken(0.15).desaturate(0.35).hex(),
+    background: PALETTE.darkStar.background,
+    deco1: PALETTE.darkStar.deco1,
+    deco1Stroke: PALETTE.darkStar.deco1Stroke,
+    deco2: PALETTE.darkStar.deco2,
+    deco2Stroke: PALETTE.darkStar.deco2Stroke,
   },
   portalExitConfig: {
     1: PortalExitMode.SameDirection,
@@ -66,6 +69,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   },
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   titleVariant: TitleVariant.GrayBlue,
-  musicTrack: MusicTrack.skycastle,
-  globalLight: 0.5,
+  musicTrack: MusicTrack.moneymaker,
 };
