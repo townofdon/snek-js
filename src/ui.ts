@@ -418,12 +418,6 @@ interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
   onSetSfxVolume: (volume: number) => void,
   onToggleCasualMode: (value?: boolean) => void,
-
-  // onStartGame: () => void,
-  // onEnterOstMode: () => void,
-  // onEnterQuoteMode: () => void,
-  // onShowLeaderboard: () => void,
-  // onShowSettingsMenu: () => void,
 }
 
 export class UIBindings implements UIHandler {
@@ -434,12 +428,6 @@ export class UIBindings implements UIHandler {
     onSetMusicVolume: (volume: number) => { },
     onSetSfxVolume: (volume: number) => { },
     onToggleCasualMode: (value?: boolean) => { },
-
-    // onStartGame: () => { },
-    // onEnterOstMode: () => { },
-    // onEnterQuoteMode: () => { },
-    // onShowLeaderboard: () => { },
-    // onShowSettingsMenu: () => { },
   };
   private callAction: (action: InputAction) => void;
 
@@ -464,15 +452,16 @@ export class UIBindings implements UIHandler {
     this.callbacks = callbacks;
     this.callAction = callAction;
     this.bindElements();
+    const actionMap = {
+      [MainMenuButton.StartGame]: InputAction.StartGame,
+      [MainMenuButton.OSTMode]: InputAction.EnterOstMode,
+      [MainMenuButton.QuoteMode]: InputAction.EnterQuoteMode,
+      [MainMenuButton.Leaderboard]: InputAction.ShowLeaderboard,
+      [MainMenuButton.Settings]: InputAction.ShowSettingsMenu,
+    }
     this.mainMenuNavMap = new UINavMapMainMenu(
       this.mainMenuButtons,
-      [
-        { button: MainMenuButton.StartGame, action: InputAction.StartGame },
-        { button: MainMenuButton.OSTMode, action: InputAction.EnterOstMode },
-        { button: MainMenuButton.QuoteMode, action: InputAction.EnterQuoteMode },
-        { button: MainMenuButton.Leaderboard, action: InputAction.ShowLeaderboard },
-        { button: MainMenuButton.Settings, action: InputAction.ShowSettingsMenu },
-      ],
+      actionMap,
       callAction
     )
   }
