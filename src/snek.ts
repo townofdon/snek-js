@@ -290,6 +290,11 @@ export const sketch = (p5: P5) => {
       case InputAction.ShowSettingsMenu:
         showSettingsMenu();
         break;
+      case InputAction.HideSettingsMenu:
+        UI.hideSettingsMenu();
+        sfx.play(Sound.doorOpen);
+        if (!state.isGameStarted) UI.showMainMenu();
+        break;
       case InputAction.ConfirmShowMainMenu:
         confirmShowMainMenu();
         break;

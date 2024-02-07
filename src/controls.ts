@@ -29,11 +29,13 @@ export interface InputCallbacks {
   onUINavigate: UINavEventHandler,
 }
 
+
 export enum InputAction {
   HideStartScreen,
   ShowMainMenu,
-  ShowSettingsMenu,
   ConfirmShowMainMenu,
+  ShowSettingsMenu,
+  HideSettingsMenu,
   RetryLevel,
   StartGame,
   ToggleCasualMode,

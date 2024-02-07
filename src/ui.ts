@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker';
 
 import { GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavDir, UINavEventHandler, UISection } from './types';
 import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
-import { DOM, MainMenuButton, UINavMapMainMenu } from './uiNavMap';
+import { DOM, MainMenuButton, MainMenuNavMap, SettingsMenuElement, SettingsMenuNavMap } from './uiNavMap';
 import { InputAction } from './controls';
 
 const UI_LABEL_OFFSET = '18px';
@@ -77,6 +77,11 @@ export class UI {
       ? 'none'
       : 'block';
     UI.isSettingsMenuShowing = true;
+    if (isInGameMenu) {
+      DOM.select(document.getElementById('slider-volume-music'));
+    } else {
+      DOM.select(document.getElementById('checkbox-casual-mode'));
+    }
   }
 
   static hideSettingsMenu() {
@@ -431,19 +436,22 @@ export class UIBindings implements UIHandler {
   };
   private callAction: (action: InputAction) => void;
 
-  private sliderMusic: HTMLInputElement;
-  private sliderSfx: HTMLInputElement;
-  private buttonCloseSettingsMenu: HTMLButtonElement;
-  private checkboxCasualMode: HTMLInputElement;
-
-  mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
+  private mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
     [MainMenuButton.StartGame]: null,
     [MainMenuButton.OSTMode]: null,
     [MainMenuButton.QuoteMode]: null,
     [MainMenuButton.Leaderboard]: null,
     [MainMenuButton.Settings]: null,
   }
-  mainMenuNavMap: UINavMapMainMenu = null;
+  private mainMenuNavMap: MainMenuNavMap;
+
+  private settingsMenuElements: Record<SettingsMenuElement, HTMLInputElement | HTMLButtonElement> = {
+    [SettingsMenuElement.CheckboxCasualMode]: null,
+    [SettingsMenuElement.SliderMusicVolume]: null,
+    [SettingsMenuElement.SliderSfxVolume]: null,
+    [SettingsMenuElement.ButtonClose]: null,
+  }
+  private settingsMenuNavMap: SettingsMenuNavMap;
 
   constructor(p5: P5, sfx: SFXInstance, gameState: GameState, callbacks: UIBindingsCallbacks, callAction: (action: InputAction) => void) {
     this.p5 = p5;
@@ -452,23 +460,37 @@ export class UIBindings implements UIHandler {
     this.callbacks = callbacks;
     this.callAction = callAction;
     this.bindElements();
-    const actionMap = {
-      [MainMenuButton.StartGame]: InputAction.StartGame,
-      [MainMenuButton.OSTMode]: InputAction.EnterOstMode,
-      [MainMenuButton.QuoteMode]: InputAction.EnterQuoteMode,
-      [MainMenuButton.Leaderboard]: InputAction.ShowLeaderboard,
-      [MainMenuButton.Settings]: InputAction.ShowSettingsMenu,
-    }
-    this.mainMenuNavMap = new UINavMapMainMenu(
+    this.mainMenuNavMap = new MainMenuNavMap(
       this.mainMenuButtons,
-      actionMap,
+      {
+        [MainMenuButton.StartGame]: InputAction.StartGame,
+        [MainMenuButton.OSTMode]: InputAction.EnterOstMode,
+        [MainMenuButton.QuoteMode]: InputAction.EnterQuoteMode,
+        [MainMenuButton.Leaderboard]: InputAction.ShowLeaderboard,
+        [MainMenuButton.Settings]: InputAction.ShowSettingsMenu,
+      },
       callAction
-    )
+    );
+    this.settingsMenuNavMap = new SettingsMenuNavMap(this.settingsMenuElements, callAction);
   }
 
   handleUINavigation: UINavEventHandler = (navDir) => {
     if (UI.getIsSettingsMenuShowing()) {
-      return false;
+      switch (navDir) {
+        case UINavDir.Prev:
+        case UINavDir.Up:
+          this.settingsMenuNavMap.gotoPrev();
+          break;
+        case UINavDir.Next:
+        case UINavDir.Down:
+          this.settingsMenuNavMap.gotoNext();
+          break;
+        case UINavDir.Left:
+        case UINavDir.Right:
+          // do not handle event so that slider can receive left/right DOM event
+          return false;
+      }
+      return true;
     }
     if (UI.getIsMainMenuShowing()) {
       switch (navDir) {
@@ -490,7 +512,8 @@ export class UIBindings implements UIHandler {
 
   handleUIInteract: UIInteractHandler = () => {
     if (UI.getIsSettingsMenuShowing()) {
-      return false;
+      this.settingsMenuNavMap.callSelected();
+      return true;
     }
     if (UI.getIsMainMenuShowing()) {
       this.mainMenuNavMap.callSelected();
@@ -500,15 +523,19 @@ export class UIBindings implements UIHandler {
   }
 
   handleUICancel: UICancelHandler = () => {
+    if (UI.getIsSettingsMenuShowing()) {
+      this.onHideSettingsMenuClick();
+      return true;
+    }
     return false;
   }
 
   refreshFieldValues() {
     const musicVolume = getMusicVolume();
     const sfxVolume = getSfxVolume();
-    this.sliderMusic.value = String(musicVolume);
-    this.sliderSfx.value = String(sfxVolume);
-    this.checkboxCasualMode.checked = this.gameState.isCasualModeEnabled;
+    this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].value = String(musicVolume);
+    this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].value = String(sfxVolume);
+    (this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] as HTMLInputElement).checked = this.gameState.isCasualModeEnabled;
   }
 
   private bindElements = () => {
@@ -524,15 +551,15 @@ export class UIBindings implements UIHandler {
     this.mainMenuButtons[MainMenuButton.Leaderboard].addEventListener('click', this.handleShowLeaderboard);
     this.mainMenuButtons[MainMenuButton.Settings].addEventListener('click', this.handleShowSettingsMenu);
 
-    this.buttonCloseSettingsMenu = requireElementById<HTMLButtonElement>('settings-menu-close-button');
-    this.checkboxCasualMode = requireElementById<HTMLInputElement>('checkbox-casual-mode');
-    this.sliderMusic = requireElementById<HTMLInputElement>("slider-volume-music");
-    this.sliderSfx = requireElementById<HTMLInputElement>("slider-volume-sfx");
+    this.settingsMenuElements[SettingsMenuElement.ButtonClose] = requireElementById<HTMLButtonElement>('settings-menu-close-button');
+    this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] = requireElementById<HTMLInputElement>('checkbox-casual-mode');
+    this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume] = requireElementById<HTMLInputElement>('slider-volume-music');
+    this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume] = requireElementById<HTMLInputElement>("slider-volume-sfx");
 
-    this.buttonCloseSettingsMenu.addEventListener('click', this.onHideSettingsMenuClick);
-    this.checkboxCasualMode.addEventListener('change', this.onCheckboxCasualModeChange);
-    this.sliderMusic.addEventListener('input', this.onMusicSliderInput);
-    this.sliderSfx.addEventListener('input', this.onSfxSliderInput);
+    this.settingsMenuElements[SettingsMenuElement.ButtonClose].addEventListener('click', this.onHideSettingsMenuClick);
+    this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].addEventListener('change', this.onCheckboxCasualModeChange);
+    this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].addEventListener('input', this.onMusicSliderInput);
+    this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].addEventListener('input', this.onSfxSliderInput);
     // document.addEventListener('keydown', this.overrideEscapeKeydown);
     window.addEventListener('blur', this.handleWindowBlur);
   }
@@ -544,10 +571,10 @@ export class UIBindings implements UIHandler {
     this.mainMenuButtons[MainMenuButton.Leaderboard].removeEventListener('click', this.handleShowLeaderboard);
     this.mainMenuButtons[MainMenuButton.Settings].removeEventListener('click', this.handleShowSettingsMenu);
 
-    this.buttonCloseSettingsMenu.removeEventListener('click', this.onHideSettingsMenuClick);
-    this.checkboxCasualMode.removeEventListener('change', this.onCheckboxCasualModeChange);
-    this.sliderMusic.removeEventListener('input', this.onMusicSliderInput);
-    this.sliderSfx.removeEventListener('input', this.onSfxSliderInput);
+    this.settingsMenuElements[SettingsMenuElement.ButtonClose].removeEventListener('click', this.onHideSettingsMenuClick);
+    this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].removeEventListener('change', this.onCheckboxCasualModeChange);
+    this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].removeEventListener('input', this.onMusicSliderInput);
+    this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].removeEventListener('input', this.onSfxSliderInput);
     // document.removeEventListener('keydown', this.overrideEscapeKeydown);
     window.removeEventListener('blur', this.handleWindowBlur);
   }
@@ -571,8 +598,7 @@ export class UIBindings implements UIHandler {
   }
 
   private onHideSettingsMenuClick = () => {
-    UI.hideSettingsMenu();
-    this.sfx.play(Sound.doorOpen);
+    this.callAction(InputAction.HideSettingsMenu);
   }
 
   private onCheckboxCasualModeChange = (ev: InputEvent) => {

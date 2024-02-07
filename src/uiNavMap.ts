@@ -13,11 +13,11 @@ export interface NavMap {
 }
 
 export enum MainMenuButton {
-  StartGame = 0,
-  Settings = 1,
-  Leaderboard = 2,
-  QuoteMode = 3,
-  OSTMode = 4,
+  StartGame,
+  Settings,
+  Leaderboard,
+  QuoteMode,
+  OSTMode,
 }
 
 /**
@@ -31,7 +31,7 @@ export const MAIN_MENU_BUTTON_ORDER: MainMenuButton[] = [
   MainMenuButton.Settings,
 ]
 
-export class UINavMapMainMenu implements NavMap {
+export class MainMenuNavMap implements NavMap {
   private mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
     [MainMenuButton.StartGame]: null,
     [MainMenuButton.OSTMode]: null,
@@ -40,7 +40,7 @@ export class UINavMapMainMenu implements NavMap {
     [MainMenuButton.Settings]: null,
   };
   private actionMap: Record<MainMenuButton, InputAction>;
-  private selected: (MainMenuButton | null) = null;
+  private selected: MainMenuButton | null = null;
   private callAction: (action: InputAction) => void = null;
 
   constructor(
@@ -54,15 +54,15 @@ export class UINavMapMainMenu implements NavMap {
   }
 
   callSelected = () => {
-    const focusedButton = this.getFocusedButton();
-    if (focusedButton === null) return;
-    if (focusedButton !== MainMenuButton.StartGame) {
+    const focused = this.getFocused();
+    if (focused === null) return;
+    if (focused !== MainMenuButton.StartGame) {
       DOM.deselect(this.selectedTarget());
     }
-    this.callAction(this.actionMap[focusedButton]);
+    this.callAction(this.actionMap[focused]);
   };
 
-  private getFocusedButton = (): MainMenuButton | null => {
+  private getFocused = (): MainMenuButton | null => {
     if (!document.activeElement) return null;
     for (let i = 0; i < MAIN_MENU_BUTTON_ORDER.length; i++) {
       const target = this.mainMenuButtons[MAIN_MENU_BUTTON_ORDER[i]];
@@ -79,9 +79,9 @@ export class UINavMapMainMenu implements NavMap {
   }
 
   private getNextIndex = (direction: number): number => {
-    const focusedButton = this.getFocusedButton();
-    if (focusedButton === null) return 0;
-    const currentButtonPosition = Math.max(this.getButtonPosition(focusedButton), 0);
+    const focused = this.getFocused();
+    if (focused === null) return 0;
+    const currentButtonPosition = Math.max(this.getButtonPosition(focused), 0);
     return (MAIN_MENU_BUTTON_ORDER.length + currentButtonPosition + direction) % MAIN_MENU_BUTTON_ORDER.length;
   }
 
@@ -139,4 +139,80 @@ export class DOM {
     element.blur();
     element.classList.remove('active');
   }
+}
+
+export enum SettingsMenuElement {
+  CheckboxCasualMode,
+  SliderMusicVolume,
+  SliderSfxVolume,
+  ButtonClose,
+}
+
+const SETTINGS_MENU_ELEMENT_ORDER = [
+  SettingsMenuElement.CheckboxCasualMode,
+  SettingsMenuElement.SliderMusicVolume,
+  SettingsMenuElement.SliderSfxVolume,
+  SettingsMenuElement.ButtonClose,
+];
+
+export class SettingsMenuNavMap implements NavMap {
+  private elementMap: Record<SettingsMenuElement, HTMLElement>;
+  private callAction: (action: InputAction) => void;
+
+  constructor(elementMap: Record<SettingsMenuElement, HTMLElement>, callAction: (action: InputAction) => void) {
+    this.elementMap = elementMap;
+    this.callAction = callAction;
+  }
+
+  callSelected = () => {
+    const focused = this.getFocused();
+    if (focused === SettingsMenuElement.ButtonClose) {
+      this.callAction(InputAction.HideSettingsMenu);
+    } else if (focused === SettingsMenuElement.CheckboxCasualMode) {
+      this.callAction(InputAction.ToggleCasualMode);
+    }
+  };
+
+  private getFocused = (): SettingsMenuElement | null => {
+    if (!document.activeElement) return null;
+    for (let i = 0; i < SETTINGS_MENU_ELEMENT_ORDER.length; i++) {
+      const target = this.elementMap[SETTINGS_MENU_ELEMENT_ORDER[i]];
+      if (target && target === document.activeElement) return SETTINGS_MENU_ELEMENT_ORDER[i];
+    }
+    return null;
+  }
+
+  private getElementPosition = (element: SettingsMenuElement): number => {
+    for (let i = 0; i < SETTINGS_MENU_ELEMENT_ORDER.length; i++) {
+      if (SETTINGS_MENU_ELEMENT_ORDER[i] === element) return i;
+    }
+    return -1;
+  }
+
+  private getNextIndex = (direction: number): number => {
+    const focused = this.getFocused();
+    if (focused === null) return 0;
+    const currentElementPosition = Math.max(this.getElementPosition(focused), 0);
+    return (SETTINGS_MENU_ELEMENT_ORDER.length + currentElementPosition + direction) % SETTINGS_MENU_ELEMENT_ORDER.length;
+  }
+
+  private goto = (direction: number) => {
+    const nextIndex = this.getNextIndex(direction);
+    DOM.select(this.elementMap[SETTINGS_MENU_ELEMENT_ORDER[nextIndex]]);
+  }
+
+  gotoFirst = () => {
+    DOM.select(this.elementMap[SETTINGS_MENU_ELEMENT_ORDER[0]]);
+  };
+  gotoPrev = () => {
+    this.goto(-1);
+  };
+  gotoNext = () => {
+    this.goto(1);
+  };
+  gotoUp = this.gotoPrev;
+  gotoDown = this.gotoNext;
+  gotoLeft = this.gotoPrev;
+  gotoRight = this.gotoNext;
+
 }
