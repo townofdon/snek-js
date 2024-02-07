@@ -55,7 +55,7 @@ import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
 import { quotes as allQuotes } from './quotes';
-import { InputAction, InputCallbacks, handleKeyPressed, validateMove } from './controls';
+import { InputAction, InputCallbacks, handleKeyPressed, handleUIEvents, validateMove } from './controls';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
 import { QuoteScene } from './scenes/QuoteScene';
@@ -326,12 +326,6 @@ export const sketch = (p5: P5) => {
       case InputAction.StartRewinding:
         startRewinding();
         break;
-      case InputAction.UIInteract:
-        onUIInteract();
-        break;
-      case InputAction.UICancel:
-        onUICancel();
-        break;
     }
   }
 
@@ -381,6 +375,20 @@ export const sketch = (p5: P5) => {
   function keyPressed(ev?: KeyboardEvent) {
     state.timeSinceLastInput = 0;
     resumeAudioContext();
+    let handled = false;
+    // check if can handle UI events
+    if (!state.isGameStarting && state.appMode === AppMode.Game) {
+      if (!handled && state.isGameWon) {
+        handled = winGameScene.keyPressed();
+      }
+      if (!handled && (!state.isGameStarted || state.isPaused)) {
+        handled = handleUIEvents(p5, onUINavigate, onUIInteract, onUICancel);
+      }
+    }
+    if (handled) {
+      ev?.preventDefault();
+      return;
+    }
     handleKeyPressed(
       p5,
       state,

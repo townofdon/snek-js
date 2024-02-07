@@ -1,7 +1,6 @@
 import P5 from "p5";
 import {
   MAX_MOVES,
-  KEYCODE_ALPHA_J,
   KEYCODE_ALPHA_0,
   KEYCODE_ALPHA_1,
   KEYCODE_ALPHA_2,
@@ -17,14 +16,8 @@ import {
   KEYCODE_ALPHA_D,
   KEYCODE_ALPHA_S,
   HURT_STUN_TIME,
-  KEYCODE_QUOTE,
   KEYCODE_ALPHA_M,
-  KEYCODE_NUMPAD_1,
-  KEYCODE_NUMPAD_2,
-  KEYCODE_NUMPAD_3,
-  KEYCODE_NUMPAD_4,
   KEYCODE_ALPHA_C,
-  KEYCODE_ALPHA_L,
   KEYCODE_ALPHA_R,
 } from './constants';
 import { AppMode, ClickState, DIR, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves, UINavDir, UINavEventHandler } from "./types";
@@ -52,8 +45,6 @@ export enum InputAction {
   UnPause,
   StartMoving,
   StartRewinding,
-  UIInteract,
-  UICancel,
 }
 
 export function handleKeyPressed(
@@ -69,7 +60,7 @@ export function handleKeyPressed(
   callbacks: InputCallbacks,
   callAction: (action: InputAction) => void,
   ev?: KeyboardEvent,
-) {
+): boolean {
   const { keyCode, TAB, ENTER, ESCAPE, SHIFT, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
 
   if (state.isGameStarting) {
@@ -96,12 +87,8 @@ export function handleKeyPressed(
 
   if (!state.isGameStarted && state.appMode === AppMode.Game) {
     if (false) { }
-    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_QUOTE) callAction(InputAction.EnterQuoteMode);
-    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_M) callAction(InputAction.EnterOstMode);
-    else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_L) callAction(InputAction.ShowLeaderboard);
     else if (p5.keyIsDown(SHIFT) && keyCode === KEYCODE_ALPHA_R) callAction(InputAction.ProceedToNextReplayClip);
     else if (keyCode === KEYCODE_ALPHA_C) callAction(InputAction.ToggleCasualMode);
-    handleUIEvents(p5, callbacks.onUINavigate, () => callAction(InputAction.UIInteract), () => callAction(InputAction.UICancel));
   }
 
   if (!state.isGameStarted) {
@@ -127,7 +114,6 @@ export function handleKeyPressed(
   }
 
   if (state.isPaused) {
-    handleUIEvents(p5, callbacks.onUINavigate, () => callAction(InputAction.UIInteract), () => callAction(InputAction.UICancel));
     if (keyCode === KEYCODE_ALPHA_0) callbacks.onWarpToLevel(10);
     else if (keyCode === KEYCODE_ALPHA_1) callbacks.onWarpToLevel(1);
     else if (keyCode === KEYCODE_ALPHA_2) callbacks.onWarpToLevel(2);
@@ -204,17 +190,17 @@ export function handleKeyPressed(
   callbacks.onAddMove(currentMove);
 }
 
-export function handleUIEvents(p5: P5, onUINavigate: UINavEventHandler, onUIInteract: () => void, onUICancel: () => void) {
+export function handleUIEvents(p5: P5, onUINavigate: UINavEventHandler, onUIInteract: () => boolean, onUICancel: () => boolean): boolean {
   const { keyCode, ENTER, ESCAPE, SHIFT, TAB, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
-  if (false) { }
-  else if (keyCode === LEFT_ARROW || keyCode === KEYCODE_ALPHA_A) onUINavigate(UINavDir.Left)
-  else if (keyCode === RIGHT_ARROW || keyCode === KEYCODE_ALPHA_D) onUINavigate(UINavDir.Right)
-  else if (keyCode === UP_ARROW || keyCode === KEYCODE_ALPHA_W) onUINavigate(UINavDir.Up)
-  else if (keyCode === DOWN_ARROW || keyCode === KEYCODE_ALPHA_S) onUINavigate(UINavDir.Down)
-  else if (keyCode === TAB && p5.keyIsDown(SHIFT)) onUINavigate(UINavDir.Prev)
-  else if (keyCode === TAB && !p5.keyIsDown(SHIFT)) onUINavigate(UINavDir.Next)
-  else if (keyCode === ENTER) onUIInteract();
-  else if (keyCode === ESCAPE || keyCode === BACKSPACE || keyCode === DELETE) onUICancel();
+  if (keyCode === LEFT_ARROW || keyCode === KEYCODE_ALPHA_A) return onUINavigate(UINavDir.Left)
+  if (keyCode === RIGHT_ARROW || keyCode === KEYCODE_ALPHA_D) return onUINavigate(UINavDir.Right)
+  if (keyCode === UP_ARROW || keyCode === KEYCODE_ALPHA_W) return onUINavigate(UINavDir.Up)
+  if (keyCode === DOWN_ARROW || keyCode === KEYCODE_ALPHA_S) return onUINavigate(UINavDir.Down)
+  if (keyCode === TAB && p5.keyIsDown(SHIFT)) return onUINavigate(UINavDir.Prev)
+  if (keyCode === TAB && !p5.keyIsDown(SHIFT)) return onUINavigate(UINavDir.Next)
+  if (keyCode === ENTER) return onUIInteract();
+  if (keyCode === ESCAPE || keyCode === BACKSPACE || keyCode === DELETE) return onUICancel();
+  return false;
 }
 
 function updateRecentInputs(recentInputs: RecentMoves, recentInputTimes: RecentMoveTimes, currentMove: DIR, deltaTime: number) {

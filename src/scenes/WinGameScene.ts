@@ -299,8 +299,8 @@ export class WinGameScene extends BaseScene {
     if (!isCasualModeEnabled && this.getHasHighscore()) {
       this.hideAllFields();
       this.fieldVisible[FIELD.HIGHSCORE_ENTRY] = true;
-      const modalHighScoreEntry = new HighscoreEntryModal();
-      const modalConfirm = new Modal();
+      const modalHighScoreEntry = this.modalHighScoreEntry;
+      const modalConfirm = this.modalConfirm;
       const onSubmitHighscoreName = (name: string) => {
         const handleYesClick = () => {
           this.state.highscoreEntryName = name;
@@ -380,9 +380,8 @@ export class WinGameScene extends BaseScene {
     }
   }
 
-  keyPressed = () => {
-    const { p5 } = this.props;
-    handleUIEvents(p5, this.onUINavigate, this.onUIInteract, this.onUICancel)
+  keyPressed = (): boolean => {
+    return handleUIEvents(this.props.p5, this.onUINavigate, this.onUIInteract, this.onUICancel)
   };
 
   private onUINavigate = (navDir: UINavDir) => {

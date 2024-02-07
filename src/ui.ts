@@ -767,22 +767,12 @@ export class HighscoreEntryModal implements UIHandler {
     this.inputName.value = initialName ? initialName : "Snek" + faker.person.firstName();
     this.inputName.focus();
     this.inputName.select();
-    this.addBindings();
   }
 
   hide = () => {
     UI.disableGameBlur();
-    this.removeBindings();
     this.modal.classList.add("hidden");
     this.isShowing = false;
-  }
-
-  private addBindings = () => {
-    this.form.addEventListener('submit', this.onSubmit);
-  }
-
-  private removeBindings = () => {
-    this.form.removeEventListener('submit', this.onSubmit);
   }
 
   private onSubmit = () => {
