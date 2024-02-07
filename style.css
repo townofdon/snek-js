@@ -1,6 +1,7 @@
 :root {
   --hover-distance: 10px;
   --hover-duration: 3s;
+  --selection-expand-duration: 1.5s;
 
   --button-bg: rgb(38, 41, 43);
   --button-color: rgb(221, 218, 214);
@@ -166,6 +167,12 @@ p {
   100% { filter: var(--button-filter, brightness(1) grayscale(0.1)); }
 }
 
+@keyframes selection-expand {
+  0%   { transform: scaleX(1) scaleY(1); }
+  50%  { transform: scaleX(1.05) scaleY(1.1); }
+  100% { transform: scaleX(1) scaleY(1); }
+}
+
 .main-title > .variant > span {
   display: inline-block;
   animation-name: anim-hover;
@@ -192,6 +199,7 @@ p {
 }
 
 button {
+  position: relative;
   padding: 5px 20px;
   padding-bottom: 4px;
   border-radius: 2px;
@@ -305,6 +313,7 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px
 
 .main-ui-buttons .button-start-game {
   position: relative;
+  z-index: 1;
   transform: translateY(-145px);
 }
 .main-ui-buttons .button-start-game:focus,
@@ -315,6 +324,59 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px
   color: #242C4A;
   border-color: #DFEDED;
   /* --button-filter: brightness(1) grayscale(0); */
+}
+
+button:focus:before {
+  content: "";
+  animation-name: selection-expand;
+  animation-duration: var(--selection-expand-duration);
+  animation-iteration-count: infinite;
+  animation-timing-function: cubic-bezier(.5,0,.5,1);
+  animation-fill-mode: backwards;
+  position: absolute;
+  /* z-index: -1; */
+  left: -20px;
+  right: -20px;
+  top: -16px;
+  bottom: -20px;
+  background: white;
+  --button-filter: brightness(1) grayscale(0);
+  
+  --path: polygon(
+    evenodd,
+    0 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    /* top-left */
+    0px 9px,
+    3px 9px,
+    3px 3px,
+    9px 3px,
+    9px 0px,
+    /* top-right */
+    calc(100% - 9px) 0,
+    calc(100% - 9px) 3px,
+    calc(100% - 3px) 3px,
+    calc(100% - 3px) 9px,
+    100% 9px,
+    /* bottom-right */
+    calc(100% - 0px) calc(100% - 9px),
+    calc(100% - 3px) calc(100% - 9px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 9px) calc(100% - 3px),
+    calc(100% - 9px) calc(100% - 0px),
+    /* bottom-left */
+    9px calc(100% - 0px),
+    9px calc(100% - 3px),
+    3px calc(100% - 3px),
+    3px calc(100% - 9px),
+    0px calc(100% - 9px),
+    /* back to origin */
+    0 0
+  );
+  clip-path: var(--path);
+  -webkit-clip-path: var(--path);
 }
 
 .main-ui-buttons button {
@@ -517,6 +579,12 @@ button.ui-sprite:focus .tooltip
   display: inline-block;
 }
 
+.settings-menu button:focus {
+  background-color: #c4d5d5;
+  color: #242C4A;
+  border-color: #DFEDED;
+  outline: 2px solid black;
+}
 
 
 
@@ -558,8 +626,7 @@ button.ui-sprite:focus .tooltip
   background-color: #444;
 }
 .modal input[type="text"]:focus,
-.modal input[type="text"]:active,
-.modal input[type="text"].active {
+.modal input[type="text"]:active {
   outline: none;
   background-color: #fff;
   color: #000;
@@ -577,8 +644,7 @@ button.ui-sprite:focus .tooltip
   background-color: #444;
 }
 .modal button:focus,
-.modal button:active,
-.modal button.active {
+.modal button:active {
   outline: none;
   background-color: #fff;
   color: #000;
@@ -618,6 +684,9 @@ button.ui-sprite:focus .tooltip
 }
 .checkbox-label:hover input ~ .checkmark {
   background-color: #ccc;
+}
+.checkbox-label input[type='checkbox']:focus ~ .checkmark {
+  outline: 4px solid #2196F3;
 }
 .checkbox-label input[type='checkbox']:checked ~ .checkmark {
   background-color: #2196F3;
@@ -804,6 +873,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 input[type="range"]:hover::-webkit-slider-thumb,
+input[type="range"]:focus::-webkit-slider-thumb,
 input[type="range"]:active::-webkit-slider-thumb {
 	/* filter: brightness(var(--brightness-hover)); */
   color: var(--slider-track-color);
