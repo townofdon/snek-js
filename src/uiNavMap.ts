@@ -1,3 +1,4 @@
+import { IS_DEV } from "./constants";
 import { InputAction } from "./controls";
 
 
@@ -143,6 +144,7 @@ export class DOM {
 
 export enum SettingsMenuElement {
   CheckboxCasualMode,
+  CheckboxDisableScreenshake,
   SliderMusicVolume,
   SliderSfxVolume,
   ButtonClose,
@@ -150,6 +152,7 @@ export enum SettingsMenuElement {
 
 const SETTINGS_MENU_ELEMENT_ORDER = [
   SettingsMenuElement.CheckboxCasualMode,
+  SettingsMenuElement.CheckboxDisableScreenshake,
   SettingsMenuElement.SliderMusicVolume,
   SettingsMenuElement.SliderSfxVolume,
   SettingsMenuElement.ButtonClose,
@@ -170,6 +173,8 @@ export class SettingsMenuNavMap implements NavMap {
       this.callAction(InputAction.HideSettingsMenu);
     } else if (focused === SettingsMenuElement.CheckboxCasualMode) {
       this.callAction(InputAction.ToggleCasualMode);
+    } else if (focused === SettingsMenuElement.CheckboxDisableScreenshake) {
+      this.callAction(InputAction.ToggleScreenshakeDisabled);
     }
   };
 
@@ -183,6 +188,7 @@ export class SettingsMenuNavMap implements NavMap {
   }
 
   private getElementPosition = (element: SettingsMenuElement): number => {
+    if (!element) return -1;
     for (let i = 0; i < SETTINGS_MENU_ELEMENT_ORDER.length; i++) {
       if (SETTINGS_MENU_ELEMENT_ORDER[i] === element) return i;
     }
@@ -191,18 +197,31 @@ export class SettingsMenuNavMap implements NavMap {
 
   private getNextIndex = (direction: number): number => {
     const focused = this.getFocused();
-    if (focused === null) return 0;
     const currentElementPosition = Math.max(this.getElementPosition(focused), 0);
     return (SETTINGS_MENU_ELEMENT_ORDER.length + currentElementPosition + direction) % SETTINGS_MENU_ELEMENT_ORDER.length;
   }
 
-  private goto = (direction: number) => {
-    const nextIndex = this.getNextIndex(direction);
-    DOM.select(this.elementMap[SETTINGS_MENU_ELEMENT_ORDER[nextIndex]]);
+  private goto = (direction: number, count = 1) => {
+    const nextIndex = this.getNextIndex(direction * count);
+    const element = this.elementMap[SETTINGS_MENU_ELEMENT_ORDER[nextIndex]];
+    DOM.select(element);
+    // if element does not have focus, prob means it's hidden. focus on next element.
+    if (!element || element !== document.activeElement) {
+      // prevent infinite loop
+      if (count >= 100) {
+        if (IS_DEV) console.warn("getNextIndex: infinite loop was just prevented");
+        return;
+      }
+      this.goto(direction, count + 1);
+    }
   }
 
   gotoFirst = () => {
-    DOM.select(this.elementMap[SETTINGS_MENU_ELEMENT_ORDER[0]]);
+    const element = this.elementMap[SETTINGS_MENU_ELEMENT_ORDER[0]];
+    DOM.select(element);
+    if (!element || element !== document.activeElement) {
+      this.goto(1);
+    }
   };
   gotoPrev = () => {
     this.goto(-1);

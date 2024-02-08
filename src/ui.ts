@@ -1,7 +1,7 @@
 import P5, { Element } from 'p5';
 import { faker } from '@faker-js/faker';
 
-import { GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavDir, UINavEventHandler, UISection } from './types';
+import { GameSettings, GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavDir, UINavEventHandler, UISection } from './types';
 import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
 import { DOM, MainMenuButton, MainMenuNavMap, SettingsMenuElement, SettingsMenuNavMap } from './uiNavMap';
 import { InputAction } from './controls';
@@ -72,16 +72,18 @@ export class UI {
     const settingsMenu = document.getElementById('settings-menu');
     settingsMenu.style.display = 'block';
     settingsMenu.classList.remove('hidden');
-    const gameplaySettingsSection = document.getElementById('settings-section-gameplay');
-    gameplaySettingsSection.style.display = isInGameMenu
+    const fieldCasualMode = document.getElementById('field-casual-mode');
+    fieldCasualMode.style.display = isInGameMenu
       ? 'none'
       : 'block';
     UI.isSettingsMenuShowing = true;
-    if (isInGameMenu) {
-      DOM.select(document.getElementById('slider-volume-music'));
-    } else {
-      DOM.select(document.getElementById('checkbox-casual-mode'));
-    }
+    setTimeout(() => {
+      if (isInGameMenu) {
+        DOM.select(document.getElementById('checkbox-disable-screenshake'));
+      } else {
+        DOM.select(document.getElementById('checkbox-casual-mode'));
+      }
+    }, 0)
   }
 
   static hideSettingsMenu() {
@@ -429,6 +431,7 @@ export class UIBindings implements UIHandler {
   private p5: P5;
   private sfx: SFXInstance;
   private gameState: GameState;
+  private settings: GameSettings;
   private callbacks: UIBindingsCallbacks = {
     onSetMusicVolume: (volume: number) => { },
     onSetSfxVolume: (volume: number) => { },
@@ -447,16 +450,18 @@ export class UIBindings implements UIHandler {
 
   private settingsMenuElements: Record<SettingsMenuElement, HTMLInputElement | HTMLButtonElement> = {
     [SettingsMenuElement.CheckboxCasualMode]: null,
+    [SettingsMenuElement.CheckboxDisableScreenshake]: null,
     [SettingsMenuElement.SliderMusicVolume]: null,
     [SettingsMenuElement.SliderSfxVolume]: null,
     [SettingsMenuElement.ButtonClose]: null,
   }
   private settingsMenuNavMap: SettingsMenuNavMap;
 
-  constructor(p5: P5, sfx: SFXInstance, gameState: GameState, callbacks: UIBindingsCallbacks, callAction: (action: InputAction) => void) {
+  constructor(p5: P5, sfx: SFXInstance, gameState: GameState, settings: GameSettings, callbacks: UIBindingsCallbacks, callAction: (action: InputAction) => void) {
     this.p5 = p5;
     this.sfx = sfx;
     this.gameState = gameState;
+    this.settings = settings;
     this.callbacks = callbacks;
     this.callAction = callAction;
     this.bindElements();
@@ -536,6 +541,7 @@ export class UIBindings implements UIHandler {
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].value = String(musicVolume);
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].value = String(sfxVolume);
     (this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] as HTMLInputElement).checked = this.gameState.isCasualModeEnabled;
+    (this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake] as HTMLInputElement).checked = this.settings.isScreenShakeDisabled;
   }
 
   private bindElements = () => {
@@ -553,11 +559,13 @@ export class UIBindings implements UIHandler {
 
     this.settingsMenuElements[SettingsMenuElement.ButtonClose] = requireElementById<HTMLButtonElement>('settings-menu-close-button');
     this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] = requireElementById<HTMLInputElement>('checkbox-casual-mode');
+    this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake] = requireElementById<HTMLInputElement>('checkbox-disable-screenshake');
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume] = requireElementById<HTMLInputElement>('slider-volume-music');
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume] = requireElementById<HTMLInputElement>("slider-volume-sfx");
 
     this.settingsMenuElements[SettingsMenuElement.ButtonClose].addEventListener('click', this.onHideSettingsMenuClick);
     this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].addEventListener('change', this.onCheckboxCasualModeChange);
+    this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].addEventListener('change', this.onCheckboxDisableScreenshakeChange);
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].addEventListener('input', this.onMusicSliderInput);
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].addEventListener('input', this.onSfxSliderInput);
     // document.addEventListener('keydown', this.overrideEscapeKeydown);
@@ -573,6 +581,7 @@ export class UIBindings implements UIHandler {
 
     this.settingsMenuElements[SettingsMenuElement.ButtonClose].removeEventListener('click', this.onHideSettingsMenuClick);
     this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].removeEventListener('change', this.onCheckboxCasualModeChange);
+    this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].removeEventListener('change', this.onCheckboxDisableScreenshakeChange);
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].removeEventListener('input', this.onMusicSliderInput);
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].removeEventListener('input', this.onSfxSliderInput);
     // document.removeEventListener('keydown', this.overrideEscapeKeydown);
@@ -604,6 +613,10 @@ export class UIBindings implements UIHandler {
   private onCheckboxCasualModeChange = (ev: InputEvent) => {
     const isCasualModeEnabled = (ev.target as HTMLInputElement).checked;
     this.callbacks.onToggleCasualMode(isCasualModeEnabled);
+  }
+
+  private onCheckboxDisableScreenshakeChange = (ev: InputEvent) => {
+    this.callAction(InputAction.ToggleScreenshakeDisabled);
   }
 
   private onMusicSliderInput = (ev: InputEvent) => {

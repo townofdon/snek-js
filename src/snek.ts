@@ -85,6 +85,7 @@ const queryParams = parseUrlQueryParams();
 const settings: GameSettings = {
   musicVolume: 1,
   sfxVolume: 1,
+  isScreenShakeDisabled: false,
 }
 const loopState: LoopState = {
   interval: null,
@@ -268,7 +269,7 @@ export const sketch = (p5: P5) => {
   const renderer = new Renderer({ p5, staticGraphics: graphics, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
   const modal = new Modal();
 
-  const uiBindings = new UIBindings(p5, sfx, state, {
+  const uiBindings = new UIBindings(p5, sfx, state, settings, {
     onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
     onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
     onToggleCasualMode: toggleCasualMode,
@@ -306,6 +307,9 @@ export const sketch = (p5: P5) => {
         break;
       case InputAction.ToggleCasualMode:
         toggleCasualMode();
+        break;
+      case InputAction.ToggleScreenshakeDisabled:
+        toggleScreenshakeDisabled();
         break;
       case InputAction.ShowLeaderboard:
         showLeaderboard();
@@ -444,6 +448,12 @@ export const sketch = (p5: P5) => {
     } else {
       UI.hideMainCasualModeLabel();
     }
+    uiBindings.refreshFieldValues();
+  }
+
+  function toggleScreenshakeDisabled(value?: boolean) {
+    sfx.play(Sound.uiBlip);
+    settings.isScreenShakeDisabled = value ?? !settings.isScreenShakeDisabled;
     uiBindings.refreshFieldValues();
   }
 
@@ -1107,6 +1117,13 @@ export const sketch = (p5: P5) => {
   }
 
   function updateScreenShake() {
+    if (settings.isScreenShakeDisabled) {
+      screenShake.offset.x = 0;
+      screenShake.offset.y = 0;
+      screenShake.magnitude = 1;
+      screenShake.timeScale = 1;
+      return;
+    }
     screenShake.timeSinceStarted += p5.deltaTime;
     screenShake.timeSinceLastStep += p5.deltaTime * screenShake.timeScale;
     if (screenShake.offset == null) screenShake.offset = p5.createVector(0, 0);

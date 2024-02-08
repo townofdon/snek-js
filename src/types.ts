@@ -139,6 +139,7 @@ export interface Tutorial {
 export interface GameSettings {
   musicVolume: number,
   sfxVolume: number,
+  isScreenShakeDisabled: boolean,
 }
 
 export interface Palette {

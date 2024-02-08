@@ -39,6 +39,7 @@ export enum InputAction {
   RetryLevel,
   StartGame,
   ToggleCasualMode,
+  ToggleScreenshakeDisabled,
   ShowLeaderboard,
   EnterQuoteMode,
   EnterOstMode,
