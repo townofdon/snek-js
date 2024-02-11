@@ -295,7 +295,13 @@ export function getTrackName(track?: MusicTrack) {
     case MusicTrack.gravy:
       return "Snekraid";
     case MusicTrack.lostcolony:
-      return "Warpcore"
+      return "Warpcore";
+    case MusicTrack.reconstitute:
+      return "Reconstitute";
+    case MusicTrack.ascension:
+      return "Ascension";
+    case MusicTrack.backrooms:
+      return "Backrooms";
     default:
       return "Unknown";
   }

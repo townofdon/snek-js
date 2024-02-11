@@ -62,5 +62,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     ["I've teleported so much I think my brain is scrambled."],
     ["I hear playing SNEK rewires your brain..."],
   ],
-  musicTrack: MusicTrack.observer,
+  musicTrack: MusicTrack.ascension,
 };

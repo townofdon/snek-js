@@ -312,6 +312,9 @@ export enum MusicTrack {
   woorb = '15-woorb.wav',
   gravy = '16-gravy.wav',
   lostcolony = '17-lost-colony.wav',
+  reconstitute = '18-reconstitute.wav',
+  ascension = '19-ascension.wav',
+  backrooms = '20-dillema.wav',
 }
 
 export enum Image {

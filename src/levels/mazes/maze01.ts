@@ -59,6 +59,6 @@ XXXXXXXXXXXXXD3DXXXXXXXXDD4DXX
     9: PortalExitMode.SameDirection,
     0: PortalExitMode.SameDirection,
   },
-  musicTrack: MusicTrack.None,
+  musicTrack: MusicTrack.backrooms,
   globalLight: 0.4,
 };

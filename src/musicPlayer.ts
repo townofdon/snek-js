@@ -47,6 +47,9 @@ export class MusicPlayer {
     [MusicTrack.woorb]: false,
     [MusicTrack.gravy]: false,
     [MusicTrack.lostcolony]: false,
+    [MusicTrack.reconstitute]: false,
+    [MusicTrack.ascension]: false,
+    [MusicTrack.backrooms]: false,
   };
   private settings: GameSettings;
 
