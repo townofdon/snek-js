@@ -1,7 +1,7 @@
 import assert from "assert";
 import { Vector } from "p5";
 
-import { VectorList } from "../../collections/vectorList"
+import { INITIAL_POINTS_POOL_SIZE, VectorList } from "../../collections/vectorList"
 import { getCoordIndex2 } from "../../utils";
 
 describe("Collections", () => {
@@ -240,5 +240,18 @@ describe("Collections", () => {
       assert.strictEqual(points.containsCoord(getCoordIndex2(7, 7)), false);
       assert.strictEqual(points.containsCoord(getCoordIndex2(20, 20)), true);
     });
+    it("should double array size when adding too many items", () => {
+      const points = new VectorList();
+      assert.strictEqual(points.getLength(), 0);
+      assert.strictEqual(points.getMaxLength(), INITIAL_POINTS_POOL_SIZE);
+      for (let i = 0; i < INITIAL_POINTS_POOL_SIZE; i++) {
+        points.add(Math.floor(Math.random() * 30), Math.floor(Math.random() * 30));
+      }
+      assert.strictEqual(points.getLength(), INITIAL_POINTS_POOL_SIZE);
+      assert.strictEqual(points.getMaxLength(), INITIAL_POINTS_POOL_SIZE);
+      points.add(Math.floor(Math.random() * 30), Math.floor(Math.random() * 30));
+      assert.strictEqual(points.getLength(), INITIAL_POINTS_POOL_SIZE + 1);
+      assert.strictEqual(points.getMaxLength(), INITIAL_POINTS_POOL_SIZE * 2);
+    })
   });
 })

@@ -2,7 +2,7 @@ import { Vector } from "p5";
 import { GRIDCOUNT, IS_DEV } from "../constants";
 import { getCoordIndex2 } from "../utils";
 
-const INITIAL_APPLE_POOL_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
+export const INITIAL_APPLE_POOL_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
 
 /**
  * Non-allocating collection of apples.
@@ -12,16 +12,18 @@ const INITIAL_APPLE_POOL_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
  * Simple-to-use interface.
  */
 export class Apples {
-  private x: number[];
-  private y: number[];
-  private free: boolean[];
+  private x: Uint8Array;
+  private y: Uint8Array;
+  private free: Uint8Array;
   private activeLength: number;
+  private maxLength: number;
   private coordMap: Record<number, boolean>;
 
   constructor() {
-    this.x = new Array(INITIAL_APPLE_POOL_SIZE).fill(0);
-    this.y = new Array(INITIAL_APPLE_POOL_SIZE).fill(0);
-    this.free = new Array(INITIAL_APPLE_POOL_SIZE).fill(true);
+    this.maxLength = INITIAL_APPLE_POOL_SIZE;
+    this.x = new Uint8Array(INITIAL_APPLE_POOL_SIZE).fill(0);
+    this.y = new Uint8Array(INITIAL_APPLE_POOL_SIZE).fill(0);
+    this.free = new Uint8Array(INITIAL_APPLE_POOL_SIZE).fill(1);
     this.activeLength = 0;
     this.coordMap = {};
     this.reset();
@@ -32,13 +34,14 @@ export class Apples {
     for (let i = 0; i < this.free.length; i++) {
       this.x[i] = 0;
       this.y[i] = 0;
-      this.free[i] = true;
+      this.free[i] = 1;
       this.coordMap[i] = false;
     }
     this.activeLength = 0;
   }
 
   public getLength = () => this.activeLength;
+  public getMaxLength = () => this.maxLength;
 
   public get length() {
     return this.activeLength;
@@ -51,16 +54,18 @@ export class Apples {
       if (this.free[i]) {
         this.x[i] = x;
         this.y[i] = y;
-        this.free[i] = false;
+        this.free[i] = 0;
         this.coordMap[coord] = true;
         this.recalculateLength();
         return;
       }
     }
     // no free elements; add one
-    this.x.push(x);
-    this.y.push(y);
-    this.free.push(false);
+    const i = this.free.length;
+    this.doubleSize();
+    this.x[i] = x;
+    this.y[i] = y;
+    this.free[i] = 0;
     this.coordMap[coord] = true;
     this.recalculateLength();
   }
@@ -79,7 +84,7 @@ export class Apples {
       if (this.x[i] === x && this.y[i] === y) {
         this.x[i] = 0;
         this.y[i] = 0;
-        this.free[i] = true;
+        this.free[i] = 1;
         this.coordMap[getCoordIndex2(x, y)] = this.internalExistsAt(x, y);
         this.recalculateLength();
         return;
@@ -123,6 +128,21 @@ export class Apples {
       if (!this.free[i]) numActive++;
     }
     this.activeLength = numActive;
+  }
+
+  private doubleSize = () => {
+    this.maxLength = this.maxLength * 2;
+    const x = new Uint8Array(this.maxLength).fill(0);
+    const y = new Uint8Array(this.maxLength).fill(0);
+    const free = new Uint8Array(this.maxLength).fill(1);
+    for (let i = 0; i < this.free.length; i++) {
+      x[i] = this.x[i];
+      y[i] = this.y[i];
+      free[i] = this.free[i];
+    }
+    this.x = x;
+    this.y = y;
+    this.free = free;
   }
 
   private validate() {

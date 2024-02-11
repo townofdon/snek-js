@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import { Apples } from "../../collections/apples";
+import { Apples, INITIAL_APPLE_POOL_SIZE } from "../../collections/apples";
 import { getCoordIndex2 } from "../../utils";
 
 describe("Collections", () => {
@@ -118,5 +118,19 @@ describe("Collections", () => {
       assert.strictEqual(apples.existsAtCoord(getCoordIndex2(5, 5)), true);
       assert.strictEqual(apples.existsAtCoord(getCoordIndex2(6, 6)), false);
     });
+
+    it("should double array size when adding too many items", () => {
+      const apples = new Apples();
+      assert.strictEqual(apples.getLength(), 0);
+      assert.strictEqual(apples.getMaxLength(), INITIAL_APPLE_POOL_SIZE);
+      for (let i = 0; i < INITIAL_APPLE_POOL_SIZE; i++) {
+        apples.add(Math.floor(Math.random() * 30), Math.floor(Math.random() * 30));
+      }
+      assert.strictEqual(apples.getLength(), INITIAL_APPLE_POOL_SIZE);
+      assert.strictEqual(apples.getMaxLength(), INITIAL_APPLE_POOL_SIZE);
+      apples.add(Math.floor(Math.random() * 30), Math.floor(Math.random() * 30));
+      assert.strictEqual(apples.getLength(), INITIAL_APPLE_POOL_SIZE + 1);
+      assert.strictEqual(apples.getMaxLength(), INITIAL_APPLE_POOL_SIZE * 2);
+    })
   });
 });
