@@ -22,16 +22,16 @@ X-    -XXXXXXXLX7===8XXJKKKJXX
 X_    _X6===7XLXXXXXXXXJJKJJXX
 X__--__X6---7X---      -=-=-XX
 XXXXXXXX6===7X---       -=- XX
-X5====6XXXXXXX---           XX
-X5----6X     ----           XX
-X5=k==6X     ----           XX
+XX5===6XXXXXXX---           XX
+XX5---6X     ----           XX
+XX5=k=6X     ----           XX
 XXXXXXXX   o=----=---------=1X
 X9=---------=-  -=---------=1X
 X9=---------=-  -=---------=1X
 X9=---------=----=    XXXXXXXX
-XX           ----     X4====5X
-XX           ----     X4-j--5X
-XX           ---XXXXXXX4====5X
+XX           ----     X4===5XX
+XX           ----     X4-j-5XX
+XX           ---XXXXXXX4===5XX
 XX           ---X3===4XXXXXXXX
 XX           ---X3---4X__--__X
 XXL_L_L_XXXXXXXLX3===4X_    _X
@@ -59,7 +59,9 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     0: PortalExitMode.SameDirection,
   },
   extraLoseMessages: [
-    ["I've teleported so much I think my brain is scrambled."],
+    ["I've teleported so much my neurons are scrambled."],
+    ["I'm curious - does consciousness transfer over when teleporting?"],
+    ["Teleportation, molecular decimation, breakdown, reformation, is inherently purging. It makes a snek a king."],
     ["I hear playing SNEK rewires your brain..."],
   ],
   musicTrack: MusicTrack.ascension,
