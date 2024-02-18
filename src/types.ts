@@ -315,6 +315,7 @@ export enum MusicTrack {
   reconstitute = '18-reconstitute.wav',
   ascension = '19-ascension.wav',
   backrooms = '20-dillema.wav',
+  slyguy = '21-slyguy.wav',
 }
 
 export enum Image {

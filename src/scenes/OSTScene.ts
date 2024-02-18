@@ -31,6 +31,7 @@ const tracks: MusicTrack[] = [
   MusicTrack.gravy,
   MusicTrack.lostcolony,
   MusicTrack.backrooms,
+  MusicTrack.slyguy,
   MusicTrack.reconstitute,
   MusicTrack.ascension,
   MusicTrack.moneymaker,

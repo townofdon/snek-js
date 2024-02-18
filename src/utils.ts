@@ -302,6 +302,8 @@ export function getTrackName(track?: MusicTrack) {
       return "Ascension";
     case MusicTrack.backrooms:
       return "Backrooms";
+    case MusicTrack.slyguy:
+      return "Consigo";
     default:
       return "Unknown";
   }

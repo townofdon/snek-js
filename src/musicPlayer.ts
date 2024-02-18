@@ -50,6 +50,7 @@ export class MusicPlayer {
     [MusicTrack.reconstitute]: false,
     [MusicTrack.ascension]: false,
     [MusicTrack.backrooms]: false,
+    [MusicTrack.slyguy]: false,
   };
   private settings: GameSettings;
 
