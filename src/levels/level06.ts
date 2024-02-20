@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack } from "../types";
 
@@ -23,11 +23,11 @@ X~    ~X_+__      __+_X~    ~X
 X~    ~XX_+_      _+_XX~    ~X
 X~   ~~XXX_+      +_XXX~~   ~X
 XX   ~~XXXX_      _XXXX~~   XX
-XX   XXXXXXX      XXXXXXX   XX
+XX   xxXXXXX      XXXXXxx   XX
 D~     ~   ~       ~   ~    ~D
 D~         O                ~D
 D~     ~ ~        ~ ~   ~   ~D
-XX   XXXXXXX      XXXXXXX   XX
+XX   xxXXXXX      XXXXXxx   XX
 XX   ~~XXXX_      _XXXX~~   XX
 X~   ~~XXX_+      +_XXX~~   ~X
 X~    ~XX_+_      _+_XX~    ~X
@@ -42,7 +42,7 @@ XXXX~~~ ~  ~   ~  ~ ~  ~~~XXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
-  colors: PALETTE.cornflower,
+  colors: getExtendedPalette(PALETTE.cornflower),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.lordy,

@@ -1,18 +1,20 @@
 import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
-import { KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
+import { Difficulty, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { getCoordIndex } from "../utils";
-import { LEVEL_01 } from ".";
+import { LEVEL_01, LEVEL_99 } from ".";
 
 interface BuildLevelParams {
   p5: P5
   level: Level
+  difficulty: Difficulty
 }
 
-export function buildLevel({ p5, level }: BuildLevelParams) {
+export function buildLevel({ p5, level, difficulty }: BuildLevelParams) {
   const data: LevelData = {
     barriers: [],
     barriersMap: {},
+    passablesMap: {},
     doors: [],
     doorsMap: {},
     apples: [],
@@ -31,6 +33,8 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
     locksMap: {},
     diffSelectMap: {},
   }
+
+  const passables: Vector[] = []
 
   // keep track of which group a portal cell belongs to
   const portalGroupIndex: Record<PortalChannel, number> = {
@@ -64,6 +68,9 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
       switch (char) {
         case 'X':
         case 'x':
+          if (char === 'x') {
+            passables.push(vec);
+          }
           data.barriers.push(vec);
           break;
         case 'D':
@@ -79,7 +86,6 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
           }
           break;
         case 'O':
-        case 'o':
           data.playerSpawnPosition = vec;
           break;
 
@@ -112,11 +118,27 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
           break;
 
         // keys / locks
+        case 'u':
+          data.keys.push({ position: vec, channel: KeyChannel.Yellow });
+          passables.push(vec);
+          data.barriers.push(vec);
+          break;
+        case 'i':
+          data.keys.push({ position: vec, channel: KeyChannel.Red });
+          passables.push(vec);
+          data.barriers.push(vec);
+          break;
+        case 'o':
+          data.keys.push({ position: vec, channel: KeyChannel.Blue });
+          passables.push(vec);
+          data.barriers.push(vec);
+          break;
         case 'j':
           data.keys.push({ position: vec, channel: KeyChannel.Yellow });
           data.nospawns.push(vec);
           break;
         case 'k':
+          if (level === LEVEL_99 && difficulty.index >= 3) break;
           data.keys.push({ position: vec, channel: KeyChannel.Red });
           data.nospawns.push(vec);
           break;
@@ -164,14 +186,15 @@ export function buildLevel({ p5, level }: BuildLevelParams) {
     if (y >= GRIDCOUNT.y) { console.warn("level layout is too tall"); break; }
   }
 
+  passables.forEach(vec => { data.passablesMap[getCoordIndex(vec)] = true; })
   data.nospawns.forEach(vec => { data.nospawnsMap[getCoordIndex(vec)] = true; });
-  data.barriers.forEach(vec => { data.barriersMap[getCoordIndex(vec)] = true });
-  data.doors.forEach(vec => { data.doorsMap[getCoordIndex(vec)] = true });
-  data.decoratives1.forEach(vec => { data.decoratives1Map[getCoordIndex(vec)] = true });
-  data.decoratives2.forEach(vec => { data.decoratives2Map[getCoordIndex(vec)] = true });
-  data.nospawns.forEach(vec => { data.nospawnsMap[getCoordIndex(vec)] = true });
-  data.keys.forEach(key => { data.keysMap[getCoordIndex(key.position)] = key });
-  data.locks.forEach(lock => { data.locksMap[getCoordIndex(lock.position)] = lock });
+  data.barriers.forEach(vec => { data.barriersMap[getCoordIndex(vec)] = true; });
+  data.doors.forEach(vec => { data.doorsMap[getCoordIndex(vec)] = true; });
+  data.decoratives1.forEach(vec => { data.decoratives1Map[getCoordIndex(vec)] = true; });
+  data.decoratives2.forEach(vec => { data.decoratives2Map[getCoordIndex(vec)] = true; });
+  data.nospawns.forEach(vec => { data.nospawnsMap[getCoordIndex(vec)] = true; });
+  data.keys.forEach(key => { data.keysMap[getCoordIndex(key.position)] = key; });
+  data.locks.forEach(lock => { data.locksMap[getCoordIndex(lock.position)] = lock; });
 
   linkPortals(data);
 

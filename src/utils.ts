@@ -293,7 +293,7 @@ export function getTrackName(track?: MusicTrack) {
     case MusicTrack.woorb:
       return "Hightech";
     case MusicTrack.gravy:
-      return "Snekraid";
+      return "Snektroid";
     case MusicTrack.lostcolony:
       return "Warpcore";
     case MusicTrack.reconstitute:
@@ -303,7 +303,7 @@ export function getTrackName(track?: MusicTrack) {
     case MusicTrack.backrooms:
       return "Backrooms";
     case MusicTrack.slyguy:
-      return "Consigo";
+      return "Resolute";
     default:
       return "Unknown";
   }

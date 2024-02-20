@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 
@@ -40,7 +40,7 @@ XXXXXXX~~~~~~~~~~~~~~~~XXXXXXX
 XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
 XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
 `,
-  colors: PALETTE.panopticon,
+  colors: getExtendedPalette(PALETTE.panopticon),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.observer,
   titleVariant: TitleVariant.GrayBlue,

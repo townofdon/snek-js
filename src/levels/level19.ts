@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode } from "../types";
 
@@ -25,7 +25,7 @@ XXXXXXXX6===7X---       -=- XX
 XX5===6XXXXXXX---           XX
 XX5---6X     ----           XX
 XX5=k=6X     ----           XX
-XXXXXXXX   o=----=---------=1X
+XXXXXXXX   O=----=---------=1X
 X9=---------=-  -=---------=1X
 X9=---------=-  -=---------=1X
 X9=---------=----=    XXXXXXXX
@@ -43,7 +43,7 @@ XX1----2X0===----            X
 XX1====2X0===----            X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
-  colors: PALETTE.gravChamber,
+  colors: getExtendedPalette(PALETTE.gravChamber),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   portalExitConfig: {

@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 
@@ -42,7 +42,7 @@ X~~       ~~~~DD~~~~       ~~X
 X~~~~~~~~~~~XXDDXX~~~~~~~~~~~X
 XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   `,
-  colors: PALETTE.burningCity,
+  colors: getExtendedPalette(PALETTE.burningCity),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   extraLoseMessages: [

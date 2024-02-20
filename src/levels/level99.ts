@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 
@@ -30,7 +30,7 @@ Ld__KK------KdaadK------KK__dL
 XX~~        -_dd_-        ~~XX
 XX~           KK           ~XX
 X~~           --           ~~X
-X~        o   --            ~X
+X~        O   --            ~X
 X~            --            ~X
 0_----LL      --      LL----_1
 0_----LL      --      LL----_1
@@ -42,7 +42,7 @@ X~~   --  ~~~~__~~~~  --   ~~X
 X~~~~~__~~~~XXddXX~~~~__~~~~~X
 XXXXXX33XXXXXXLLXXXXXX33XXXXXX
   `,
-  colors: PALETTE.darkStar,
+  colors: getExtendedPalette(PALETTE.darkStar),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   extraLoseMessages: [
     ["What? Not enough apples for ya?"],

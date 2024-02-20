@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack } from "../types";
 
 const name = 'wingame';
@@ -42,7 +42,7 @@ export const LEVEL_WIN_GAME: Level = {
 ~     --      --      --     ~
 ~~~~~~--~~~~~~--~~~~~~--~~~~~~
   `,
-  colors: PALETTE.darkStar,
+  colors: getExtendedPalette(PALETTE.darkStar),
   isWinGame: true,
   showQuoteOnLevelWin: false,
   musicTrack: MusicTrack.champion,

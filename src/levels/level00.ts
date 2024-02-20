@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack } from "../types";
 
 const name = 'INIT';
@@ -43,12 +43,12 @@ XXXXXXXXXXaX-X--X-X XXXDDXXX X
 ===- XXXXX     aaaaaXXX  XXXDX
 ===-XXXXXXXXXXXXXXXXX      XDX
   `,
-  colors: {
+  colors: getExtendedPalette({
     ...PALETTE.violetSunset,
     playerHead: PALETTE.plumsea.playerHead,
     playerTail: PALETTE.plumsea.playerTail,
     playerTailStroke: PALETTE.plumsea.playerTailStroke,
-  },
+  }),
   musicTrack: MusicTrack.conquerer,
   globalLight: 0.4,
 };

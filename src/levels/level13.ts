@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
@@ -42,7 +42,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
   `,
-  colors: PALETTE.scienceLab,
+  colors: getExtendedPalette(PALETTE.scienceLab),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   portalExitConfig: {

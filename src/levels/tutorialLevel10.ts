@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 
@@ -44,7 +44,7 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXXXXDDXXDDXXXXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   `,
-  colors: PALETTE.hospital,
+  colors: getExtendedPalette(PALETTE.hospital),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   extraLoseMessages: [
     ["Pst... Press down-left real fast next time.", (state, stats) => stats.applesEatenThisLevel >= 5],

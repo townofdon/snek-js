@@ -122,6 +122,7 @@ export interface GameState {
   steps: number,
   frameCount: number,
   lastHurtBy: HitType,
+  nextLevel: Level | null,
 }
 
 export interface LoopState {
@@ -159,6 +160,15 @@ export interface Palette {
   deco2Stroke: string,
 }
 
+export interface ExtendedPalette extends Palette {
+  barrierBorderLight: string,
+  barrierBorderDark: string,
+  passable: string,
+  passableStroke: string,
+  passableBorderLight: string,
+  passableBorderDark: string,
+}
+
 export enum TitleVariant {
   GrayBlue,
   Gray,
@@ -179,7 +189,7 @@ export interface Level {
   timeToClear: number,
   applesToClear: number,
   layout: string,
-  colors: Palette,
+  colors: ExtendedPalette,
   numApplesStart?: number,
   growthMod?: number,
   extraHurtGraceTime?: number,
@@ -194,6 +204,8 @@ export interface Level {
   musicTrack?: MusicTrack,
   titleVariant?: TitleVariant,
   globalLight?: number,
+  nextLevelMap?: Record<number, Level>,
+  nextLevel?: Level,
 }
 
 export enum KeyChannel {
@@ -214,6 +226,7 @@ export interface Lock extends Key {
 export interface LevelData {
   barriers: Vector[],
   barriersMap: Record<number, boolean>,
+  passablesMap: Record<number, boolean>,
   doors: Vector[],
   doorsMap: Record<number, boolean>,
   apples: Vector[],

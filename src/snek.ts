@@ -125,6 +125,7 @@ const state: GameState = {
   hasKeyYellow: false,
   hasKeyRed: false,
   hasKeyBlue: false,
+  nextLevel: null,
 };
 const stats: Stats = {
   numDeaths: 0,
@@ -189,6 +190,7 @@ let decoratives1: Vector[] = []; // bg decorative elements
 let decoratives2: Vector[] = []; // bg decorative elements
 let keys: Key[] = []; // keys
 let locks: Lock[] = []; // locks
+let passablesMap: Record<number, boolean> = {};
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
 // let segmentsMap: Record<number, boolean> = {};
@@ -740,6 +742,7 @@ export const sketch = (p5: P5) => {
     state.hasKeyYellow = false;
     state.hasKeyRed = false;
     state.hasKeyBlue = false;
+    state.nextLevel = null;
     moves = [];
     recentMoves = [null, null, null, null];
     recentInputs = [null, null, null, null];
@@ -750,6 +753,7 @@ export const sketch = (p5: P5) => {
     decoratives2 = [];
     particleSystems = [];
     keys = [];
+    passablesMap = {};
     barriersMap = {};
     doorsMap = {};
     nospawnsMap = {};
@@ -812,10 +816,11 @@ export const sketch = (p5: P5) => {
       startAction(mainTitleFader.setTitleVariant(level.titleVariant ?? TitleVariant.GrayBlue), Action.SetTitleVariant, true);
     }
 
-    const levelData = buildLevel({ p5, level });
+    const levelData = buildLevel({ p5, level, difficulty });
     player.position = levelData.playerSpawnPosition;
     barriers = levelData.barriers;
     barriersMap = levelData.barriersMap;
+    passablesMap = levelData.passablesMap;
     doors = levelData.doors;
     doorsMap = levelData.doorsMap;
     decoratives1 = levelData.decoratives1;
@@ -914,6 +919,7 @@ export const sketch = (p5: P5) => {
     handleKeyPickup();
     handleUnlock();
     handleDifficultySelect();
+    handleSetNextLevel();
 
     const didHit = checkHasHit(player.position);
     state.isLost = didHit;
@@ -1013,13 +1019,16 @@ export const sketch = (p5: P5) => {
     }
 
     const globalLight = level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
+
+    drawPlayerHead(player.position);
+    drawPassableBarriers();
+    drawParticles(10);
+
     if (state.isGameStarted && replay.mode !== ReplayMode.Playback && globalLight < 1 && !state.isShowingDeathColours) {
       updateLighting(lightMap, globalLight, player.position, portals);
       drawLighting(lightMap, renderer);
     }
 
-    drawPlayerHead(player.position);
-    drawParticles(10);
 
     if (level === START_LEVEL) renderer.drawDifficultySelect(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background);
     renderer.drawUIKeys();
@@ -1178,7 +1187,8 @@ export const sketch = (p5: P5) => {
       return true;
     }
 
-    if (barriersMap[getCoordIndex(vec)]) {
+    const isPassableBarrier = state.isDoorsOpen && passablesMap[getCoordIndex(vec)];
+    if (!isPassableBarrier && barriersMap[getCoordIndex(vec)]) {
       state.lastHurtBy = HitType.HitBarrier;
       return true;
     }
@@ -1304,11 +1314,17 @@ export const sketch = (p5: P5) => {
 
   function handleDifficultySelect() {
     if (level !== START_LEVEL) return;
-
     const index = getCoordIndex(player.position);
     const difficultyIndex = diffSelectMap[index];
     if (difficultyIndex === undefined) return;
     difficulty = getDifficultyFromIndex(difficultyIndex);
+  }
+
+  function handleSetNextLevel() {
+    if (!level.nextLevelMap) return;
+    const nextLevel = level.nextLevelMap[getCoordIndex(player.position)];
+    if (!nextLevel) return;
+    state.nextLevel = nextLevel;
   }
 
   function handleSnakeMovement() {
@@ -1789,23 +1805,63 @@ export const sketch = (p5: P5) => {
       drawAppleOptions);
   }
 
+  function getBarrierColor(vec: Vector, deathColor: string, mainColor: string, passableColor: string) {
+    if (state.isShowingDeathColours && replay.mode !== ReplayMode.Playback) {
+      return deathColor;
+    }
+    if (state.isDoorsOpen && passablesMap[getCoordIndex(vec)]) {
+      return passableColor;
+    }
+    return mainColor;
+  }
+
   function drawBarriers() {
     for (let i = 0; i < barriers.length; i++) {
+      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
       renderer.drawSquareStatic(barriers[i].x, barriers[i].y,
-        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrier : level.colors.barrier,
-        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke,
+        getBarrierColor(barriers[i], PALETTE.deathInvert.barrier, level.colors.barrier, level.colors.passableStroke),
+        getBarrierColor(barriers[i], PALETTE.deathInvert.barrierStroke, level.colors.barrierStroke, level.colors.passableStroke),
         drawBasicOptions);
     }
     for (let i = 0; i < barriers.length; i++) {
+      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
       renderer.drawSquareBorderStatic(barriers[i].x, barriers[i].y, 'light',
-        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
+        getBarrierColor(barriers[i], PALETTE.deathInvert.barrierStroke, level.colors.barrierBorderLight, level.colors.passableBorderLight),
+        true);
     }
     for (let i = 0; i < barriers.length; i++) {
+      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
       renderer.drawSquareBorderStatic(barriers[i].x, barriers[i].y, 'dark',
-        state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
+        getBarrierColor(barriers[i], PALETTE.deathInvert.barrierStroke, level.colors.barrierBorderDark, level.colors.passableBorderDark),
+        true);
     }
     for (let i = 0; i < barriers.length; i++) {
-      renderer.drawXStatic(barriers[i].x, barriers[i].y, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.barrierStroke : level.colors.barrierStroke);
+      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
+      renderer.drawXStatic(barriers[i].x, barriers[i].y,
+        getBarrierColor(barriers[i], PALETTE.deathInvert.barrierStroke, level.colors.barrierStroke, level.colors.passable));
+    }
+  }
+
+  function drawPassableBarriers() {
+    if (!state.isDoorsOpen) return;
+    for (let i = 0; i < barriers.length; i++) {
+      if (!passablesMap[getCoordIndex(barriers[i])]) continue;
+      renderer.drawSquare(barriers[i].x, barriers[i].y,
+        getBarrierColor(barriers[i], PALETTE.deathInvert.barrier, level.colors.barrier, level.colors.passableStroke),
+        getBarrierColor(barriers[i], PALETTE.deathInvert.barrierStroke, level.colors.barrierStroke, level.colors.passableStroke),
+        drawBasicOptions);
+    }
+    for (let i = 0; i < barriers.length; i++) {
+      if (!passablesMap[getCoordIndex(barriers[i])]) continue;
+      renderer.drawSquareBorder(barriers[i].x, barriers[i].y, 'light',
+        getBarrierColor(barriers[i], PALETTE.deathInvert.barrierStroke, level.colors.barrierBorderLight, level.colors.passableBorderLight),
+        true);
+    }
+    for (let i = 0; i < barriers.length; i++) {
+      if (!passablesMap[getCoordIndex(barriers[i])]) continue;
+      renderer.drawSquareBorder(barriers[i].x, barriers[i].y, 'dark',
+        getBarrierColor(barriers[i], PALETTE.deathInvert.barrierStroke, level.colors.barrierBorderDark, level.colors.passableBorderDark),
+        true);
     }
   }
 
@@ -1827,6 +1883,7 @@ export const sketch = (p5: P5) => {
   }
 
   function drawKey(key: Key) {
+    if (!state.isDoorsOpen && passablesMap[getCoordIndex(key.position)]) return;
     if (state.isShowingDeathColours) {
       spriteRenderer.drawImage3x3(Image.KeyGrey, key.position.x, key.position.y);
     } else if (key.channel === KeyChannel.Yellow) {
@@ -2143,8 +2200,13 @@ export const sketch = (p5: P5) => {
     stats.numLevelsCleared += 1;
     stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
-    state.levelIndex++;
-    level = LEVELS[state.levelIndex % LEVELS.length];
+    if (state.nextLevel || level.nextLevel) {
+      level = state.nextLevel || level.nextLevel;
+      setLevelIndexFromCurrentLevel();
+    } else {
+      state.levelIndex++;
+      level = LEVELS[state.levelIndex % LEVELS.length];
+    }
 
     maybeSaveReplayStateToFile();
 

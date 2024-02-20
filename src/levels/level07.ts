@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack } from "../types";
 
@@ -41,7 +41,7 @@ X~~       ~XX~~~~XX~       ~~X
 XXXXXXX~~~~XXDDDDXX~~~~XXXXXXX
 XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   `,
-  colors: PALETTE.violetSunset,
+  colors: getExtendedPalette(PALETTE.violetSunset),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   extraLoseMessages: [

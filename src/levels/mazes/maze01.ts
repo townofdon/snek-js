@@ -1,4 +1,4 @@
-import { PALETTE } from "../../palettes";
+import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 
@@ -28,7 +28,7 @@ XXXXXXXXXX XXX XXX XXX XXX XXX
 XXX        XXX XXX XXX     XXX
 XXXXXXXXXXXXXX XXXXXXXXXXXXXXX
 XXXDDDDDDDDXXX3XXXXXXXXXXXDDDD
-XXXDXXXXXXXX Ao    3   4     2
+XXXDXXXXXXXX AO    3   4     2
 XXXDDDDDDDDXXX3XXX3XXXXXXXDDDD
 XXXXXXXXXXXXXX XXX XXXXXXXXXXX
 XXX        XXX XXX XXXXX XXXXX
@@ -45,7 +45,7 @@ XXXXXXXXXXXXXD DXXXXXXXXDD DXX
 XXXXXXXXXXXXXD DXXXXXXXXDD DXX
 XXXXXXXXXXXXXD3DXXXXXXXXDD4DXX
   `,
-  colors: PALETTE.gravChamber,
+  colors: getExtendedPalette(PALETTE.gravChamber),
   showQuoteOnLevelWin: false,
   portalExitConfig: {
     1: PortalExitMode.SameDirection,

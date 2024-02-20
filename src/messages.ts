@@ -100,7 +100,7 @@ export const LOSE_MESSAGES: LoseMessage[] = [
     ["Are you starting to question your life decisions?", (state, stats, difficulty) => difficulty.index >= 4],
     ["Fate, it seems, has finally caught up with you.", (state, stats, difficulty) => difficulty.index >= 4 && stats.numLevelsCleared >= 2],
     ["Yea... it's called ultra for a reason...", (state, stats, difficulty) => difficulty.index >= 4 && stats.numLevelsCleared <= 1 && state.lastHurtBy !== HitType.HitLock],
-    ["The definition of insanity is... trying snek.", (state, stats, difficulty) => difficulty.index === 4],
+    ["The definition of insanity is trying snek over and over again and expecting different results.", (state, stats, difficulty) => difficulty.index === 4],
     ["Really didn't expect you to make it this far...", (state, stats, difficulty) => stats.numLevelsCleared >= 3 && difficulty.index >= 4],
     ["What are you, part lizard or something?", (state, stats, difficulty) => stats.numLevelsCleared >= 4 && difficulty.index >= 4],
     ["Didn't know we had a pro gamer on our hands...", (state, stats, difficulty) => stats.numLevelsCleared >= 8 && difficulty.index >= 4],

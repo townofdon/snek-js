@@ -1,5 +1,5 @@
 import Color from "color";
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
@@ -45,7 +45,7 @@ XXX        X_X_XX_X_X        X
 XXX        X1X_j__X3X        X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
-  colors: {
+  colors: getExtendedPalette({
     ...PALETTE.panopticon,
     apple: PALETTE.violetSunset.apple,
     appleStroke: PALETTE.violetSunset.appleStroke,
@@ -53,7 +53,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     barrierStroke: PALETTE.scienceLab.barrierStroke,
     door: PALETTE.boxcar.door,
     doorStroke: PALETTE.boxcar.doorStroke,
-  },
+  }),
   portalExitConfig: {
     1: PortalExitMode.InvertDirection,
     2: PortalExitMode.InvertDirection,

@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 
@@ -45,12 +45,12 @@ XXXXXXXXXXaX-X--X-X XXXddXXX X
 ===- XXXXX     aaaaaXXX  XXXDX
 ===-XXXXXXXXXXXXXXXXX      XDX
   `,
-  colors: {
+  colors: getExtendedPalette({
     ...PALETTE.violetSunset,
     playerHead: PALETTE.plumsea.playerHead,
     playerTail: PALETTE.plumsea.playerTail,
     playerTailStroke: PALETTE.plumsea.playerTailStroke,
-  },
+  }),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.aqueduct,
   titleVariant: TitleVariant.GrayBlue,

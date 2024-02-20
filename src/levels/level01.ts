@@ -1,5 +1,5 @@
 import Color from "color";
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 
@@ -41,14 +41,14 @@ X~    --     ===     --     ~X
 X~~~~~++~~~~~+++~~~~~++~~~~~~X
 XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   `,
-  colors: {
+  colors: getExtendedPalette({
     ...PALETTE.boxcar,
     // background: Color("#505050").mix(Color("#2F4858"), 0.2).darken(0.25).mix(Color('#008080'), 0.06).hex(),
     // deco1: Color("#535353").mix(Color("#2F4858"), 0.2).darken(0.21).mix(Color('#008080'), 0.045).hex(),
     // deco1Stroke: Color("#515151").mix(Color("#2F4858"), 0.2).darken(0.23).mix(Color('#008080'), 0.05).hex(),
     // deco2: Color("#595959").mix(Color("#2F4858"), 0.2).darken(0.1).mix(Color('#008080'), 0.04).hex(),
     // deco2Stroke: Color("#555555").mix(Color("#2F4858"), 0.2).darken(0.17).mix(Color('#008080'), 0.04).hex(),
-  },
+  }),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   extraLoseMessages: [

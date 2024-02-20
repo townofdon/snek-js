@@ -1,5 +1,5 @@
 import Color from "color";
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
@@ -27,7 +27,7 @@ X - - daaaad    =    daaad - X
 X-=-=-XXXXdd ==-=-== ddXXX-=-X
 X-=-=-XXXX      X  aaa XXX-=-X
 X - - XXXX ==== X ==== XXX - X
-XXXdXXX -X --o  -      XXXXdXX
+XXXdXXX -X --O  -      XXXXdXX
 XXXdXX -=X== =aXXX = ==X=-   X
 XXXKXX -=X   =aX-X =   X=-a  X
 dLLKJJ -=X = =aX-X = = X=-a  X
@@ -47,11 +47,11 @@ X XXX XX -=XXXXXXXXXXX=- XaXaX
 X  l  XX -=aaaaa-aaaaa=- X a X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
-  colors: {
+  colors: getExtendedPalette({
     // ...PALETTE.hospital,
     ...PALETTE.forest,
     ...PALETTE.violetSunset,
-  },
+  }),
   portalExitConfig: {
     1: PortalExitMode.SameDirection,
     2: PortalExitMode.SameDirection,

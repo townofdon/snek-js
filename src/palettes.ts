@@ -1,4 +1,4 @@
-import { Palette } from "./types";
+import { ExtendedPalette, Palette } from "./types";
 import Color from 'color';
 
 enum PaletteName {
@@ -20,6 +20,21 @@ enum PaletteName {
   crimson = 'crimson',
   gravChamber = 'gravChamber',
   stonelair = 'stonelair',
+}
+
+export function getExtendedPalette(palette: Palette): ExtendedPalette {
+  const passable = Color(palette.barrier).darken(0.2).saturate(0.1).hex();
+  const passableStroke = Color(palette.barrierStroke).darken(0.2).saturate(0.1).hex();
+  const extended: ExtendedPalette = {
+    ...palette,
+    barrierBorderLight: Color(palette.barrierStroke).lighten(0.2).desaturate(0.1).hex(),
+    barrierBorderDark: Color(palette.barrierStroke).darken(0.2).saturate(0.1).hex(),
+    passable: Color(passableStroke).alpha(0.7).hexa(),
+    passableStroke: Color(passableStroke).alpha(0.7).hexa(),
+    passableBorderLight: Color(passableStroke).lighten(0.1).desaturate(0.1).hex(),
+    passableBorderDark: Color(passable).darken(0.1).saturate(0.1).hex(),
+  }
+  return extended;
 }
 
 // online palette tools

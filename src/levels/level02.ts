@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 
@@ -41,7 +41,7 @@ XXX++-       -=-        -++XXX
 XXXX++   ~   -_-   ~    ++XXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
-  colors: PALETTE.plumsea,
+  colors: getExtendedPalette(PALETTE.plumsea),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.simpleTime,
   titleVariant: TitleVariant.Green,

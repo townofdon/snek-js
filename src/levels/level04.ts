@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 
@@ -32,8 +32,8 @@ DD             ==      ~XX=-=X
 XX   ======dd====     ~~XX=-=X
 X~   ======dd====     ~~XX=-=X
 X~   ++               ~~XX=-=X
-X~   xx~              XX++=-=X
-X~   xx~              XX++=-+X
+X~   XX~              XX++=-=X
+X~   XX~              XX++=-+X
 X~   ~~                ---- ~X
 X~                         ~~X
 X~    O --                ~~~X
@@ -42,7 +42,7 @@ XXXXXXXXXXX_-         ~~~XXXXX
 XXXXXXXXXXX++_---   ~~~XXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 `,
-  colors: PALETTE.hospital,
+  colors: getExtendedPalette(PALETTE.hospital),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   extraLoseMessages: [
     ["I've heard this level makes people irrationally angry."],

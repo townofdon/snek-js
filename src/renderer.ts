@@ -135,16 +135,16 @@ export class Renderer {
     }
   }
 
-  drawSquareBorder = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string) => {
-    this.drawSquareBorderImpl(this.p5, x, y, mode, strokeColor);
+  drawSquareBorder = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
+    this.drawSquareBorderImpl(this.p5, x, y, mode, strokeColor, overrideColor);
   }
 
-  drawSquareBorderStatic = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string) => {
+  drawSquareBorderStatic = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
     if (this.isStaticCached) return;
-    this.drawSquareBorderImpl(this.staticGraphics, x, y, mode, strokeColor);
+    this.drawSquareBorderImpl(this.staticGraphics, x, y, mode, strokeColor, overrideColor);
   }
 
-  private drawSquareBorderImpl = (graphics: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string) => {
+  private drawSquareBorderImpl = (graphics: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
     const size = 1;
     const strokeSize = STROKE_SIZE;
     const borderSize = STROKE_SIZE * 0.5;
@@ -160,14 +160,17 @@ export class Renderer {
     const x1i = x1 - borderSize;
     const y1i = y1 - borderSize;
     graphics.noStroke();
+    if (overrideColor) {
+      this.p5CachedFill(graphics, strokeColor);
+    } else {
+      this.p5CachedFill(graphics, this.getBorderColor(strokeColor, mode));
+    }
     if (mode === 'light') {
-      this.p5CachedFill(graphics, this.getBorderColor(strokeColor, 'light'));
       // TOP
       graphics.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
       // RIGHT
       graphics.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
     } else if (mode === 'dark') {
-      this.p5CachedFill(graphics, this.getBorderColor(strokeColor, 'dark'));
       // BOTTOM
       graphics.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
       // LEFT

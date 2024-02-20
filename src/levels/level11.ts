@@ -1,4 +1,4 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack } from "../types";
 
@@ -47,7 +47,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   // colors: PALETTE.hospital,
   // colors: PALETTE.atomic,
-  colors: PALETTE.stonelair,
+  colors: getExtendedPalette(PALETTE.stonelair),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.stonemaze,

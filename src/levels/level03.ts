@@ -1,6 +1,8 @@
-import { PALETTE } from "../palettes";
+import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { BONUS_LEVEL_10 } from "./bonusLevels/bonusLevel10";
 
 const name = 'metro'
 
@@ -33,17 +35,20 @@ XXXX =-=   XXXXXXX   =-=  XXXX
 X+_~ =-=     =-=     =-=  ~_+X
 X+-  =-=     =-=     =-=   -+X
 X+-  =-=     =-=     =-=   -+X
-X+-  =-= XXXXXXXXXXX =-=   -+X
-X+-  =-= ~~XXXXXXX~~ =-=   -+X
-X+-  =-=   ~~XXX~~   =-=   -+X
+X+-  =-= XXXXXxXXXXX =-=   -+X
+X+-  =-= ~~XXXuXXX~~ =-=   -+X
+X+-  =-=   ~~XxX~~   =-=   -+X
 X+_  =-=     =-=     =-=   _+X
 XXX~ =-=     =-=     =-=  ~XXX
 XXX~~=-=     =-=     =-= ~~XXX
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXJXXXXXXXXXXXXXXX
 `,
-  colors: PALETTE.atomic,
+  colors: getExtendedPalette(PALETTE.atomic),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.transient,
   titleVariant: TitleVariant.Yellow,
+  nextLevelMap: {
+    [getCoordIndex2(14, 29)]: BONUS_LEVEL_10
+  }
 };
