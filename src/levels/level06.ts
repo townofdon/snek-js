@@ -23,11 +23,11 @@ X~    ~X_+__      __+_X~    ~X
 X~    ~XX_+_      _+_XX~    ~X
 X~   ~~XXX_+      +_XXX~~   ~X
 XX   ~~XXXX_      _XXXX~~   XX
-XX   xxXXXXX      XXXXXxx   XX
+XX   XXXXXXX      XXXXXXX   XX
 D~     ~   ~       ~   ~    ~D
 D~         O                ~D
 D~     ~ ~        ~ ~   ~   ~D
-XX   xxXXXXX      XXXXXxx   XX
+XX   XXXXXXX      XXXXXXX   XX
 XX   ~~XXXX_      _XXXX~~   XX
 X~   ~~XXX_+      +_XXX~~   ~X
 X~    ~XX_+_      _+_XX~    ~X

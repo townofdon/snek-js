@@ -30,7 +30,6 @@ import {
   HURT_FLASH_RATE,
   HURT_GRACE_TIME,
   DIFFICULTY_EASY,
-  DIFFICULTY_MEDIUM,
   DEBUG_EASY_LEVEL_EXIT,
   DISABLE_TRANSITIONS,
   LIVES_LEFT_BONUS,
@@ -93,6 +92,7 @@ import {
   KeyChannel,
   LoopState,
   UINavDir,
+  LevelType,
 } from './types';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
@@ -124,7 +124,7 @@ import { Apples } from './collections/apples';
 import { VectorList } from './collections/vectorList';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
-let difficulty: Difficulty = { ...DIFFICULTY_MEDIUM };
+let difficulty: Difficulty = { ...DIFFICULTY_EASY };
 
 const queryParams = parseUrlQueryParams();
 const settings: GameSettings = {
@@ -653,6 +653,7 @@ export const sketch = (p5: P5) => {
 
   function renderDifficultyUI() {
     if (level === START_LEVEL) return;
+    if (level.type === LevelType.Maze) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     UI.renderDifficulty(difficulty.index, state.isShowingDeathColours, state.isCasualModeEnabled);
@@ -660,6 +661,7 @@ export const sketch = (p5: P5) => {
 
   function renderHeartsUI() {
     if (level === START_LEVEL) return;
+    if (level.type === LevelType.Maze) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.isCasualModeEnabled) {
@@ -671,6 +673,7 @@ export const sketch = (p5: P5) => {
 
   function renderScoreUI(score = stats.score) {
     if (level === START_LEVEL) return;
+    if (level.type === LevelType.Maze) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.isCasualModeEnabled) return;
@@ -679,6 +682,7 @@ export const sketch = (p5: P5) => {
 
   function renderLevelName() {
     if (level === START_LEVEL) return;
+    if (level.type === LevelType.Maze) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     const progress = clamp(stats.applesEatenThisLevel / (level.applesToClear * difficulty.applesMod), 0, 1);
@@ -1510,6 +1514,7 @@ export const sketch = (p5: P5) => {
     if (!state.isExitingLevel) return;
     if (state.isExited) return;
     if (level === START_LEVEL) return;
+    if (level.type === LevelType.Maze) return;
 
     incrementScoreWhileExitingLevel();
     renderScoreUI();
@@ -1533,6 +1538,8 @@ export const sketch = (p5: P5) => {
     } else if (DISABLE_TRANSITIONS) {
       gotoNextLevel();
     } else if (level === START_LEVEL) {
+      gotoNextLevel();
+    } else if (level.type === LevelType.Maze) {
       gotoNextLevel();
     } else {
       const isPerfect = apples.length === 0 && state.lives === 3;
@@ -1872,13 +1879,13 @@ export const sketch = (p5: P5) => {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
       renderer.drawSquareBorderStatic(barriers[i].x, barriers[i].y, 'light',
         getBarrierColor(barriers[i], PALETTE.deathInvert.barrierStroke, level.colors.barrierBorderLight, level.colors.passableBorderLight),
-        true);
+        !state.isShowingDeathColours);
     }
     for (let i = 0; i < barriers.length; i++) {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
       renderer.drawSquareBorderStatic(barriers[i].x, barriers[i].y, 'dark',
         getBarrierColor(barriers[i], PALETTE.deathInvert.barrierStroke, level.colors.barrierBorderDark, level.colors.passableBorderDark),
-        true);
+        !state.isShowingDeathColours);
     }
     for (let i = 0; i < barriers.length; i++) {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
@@ -2180,7 +2187,7 @@ export const sketch = (p5: P5) => {
     UI.drawButton("MAIN MENU", 20, 20, confirmShowMainMenu, uiElements).addClass('minimood');
     UI.drawButton("SETTINGS", 445, 20, showInGameSettingsMenu, uiElements).addClass('minimood');
 
-    if (!queryParams.enableWarp && !state.isCasualModeEnabled) {
+    if (!queryParams.enableWarp && !state.isCasualModeEnabled || level === START_LEVEL) {
       return;
     }
     UI.drawText('WARP TO LEVEL', '24px', 380, uiElements, { color: ACCENT_COLOR });

@@ -9,7 +9,7 @@ const name = 'metroteque'
 
 export const VARIANT_LEVEL_03: Level = {
   name,
-  timeToClear: 1000 * 60 * 1.5,
+  timeToClear: 1000 * 60 * 1.4,
   applesToClear: 100,
   numApplesStart: 10,
   growthMod: 0.75,

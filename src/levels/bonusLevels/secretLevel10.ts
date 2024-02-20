@@ -16,36 +16,36 @@ export const SECRET_LEVEL_10: Level = {
   // snakeStartSizeOverride: 150,
   growthMod: 0,
   layout: `
-XXXXXXXX  XXXXXXXXXX  XXXXXXXX
+XXXXXX  XXXXXX  XXXXXX  XXXXXX
 XAaaAAaaAAaaAAaaAAaaAAaaAAaaAX
 XaXX==XX==XX==XX==XX==XX==XXaX
 XaXX==XX==XX==XX==XX==XX==XXaX
 XA== AaaAAaaAAaaAA==AAaaAA==AX
 XA== A==  ==  == A==A == A==AX
-XaXX=aXX==XX==XX=aXXa=XX=aXXaX
-XaXX=aXX==XX==XX=aXXa=XX=aXXaX
- A== A==  ==  == A==A == A==A 
- A==AA== AaaAAaaAA==A == A==A 
-XaXXa=XXaaXX==XX==XXa=XX=aXXaX
+ aXX=aXX==XX==XX=aXXa=XX=aXXa 
+ aXX=aXX==XX==XX=aXXa=XX=aXXa 
+XA== A==  ==  == A==A == A==AX
+XA==AA==AAaaAAaaAA==A == A==AX
 XaXXa=XXa=XX==XX==XXa=XX=aXXaX
-XA==A ==A ==O ==AAaaA ==AA==AX
-XA==A ==A ==  ==  ==  ==A ==AX
-XaXXa=XXa=XX==XX==XX==XXa=XXaX
-XaXXa=XXa=XX==XX==XX==XXa=XXaX
-XA==A ==A ==AAaaAA== AaaA ==AX
+XaXXa=XXa=XX==XX==XXa=XX=aXXaX
+XA==A ==A ==O ==AAaaA == A==AX
+XA==A ==A ==  ==  ==  == A==AX
+ aXXa=XXa=XX==XX==XX==XX=aXXa 
+ aXXa=XXa=XX==XX==XX==XX=aXXa 
+XA==A ==A ==AAaaAA== AaaAA==AX
 XA==A ==A ==A == A== A==  ==AX
 XaXXa=XXa=XXa=XX=aXX=aXX==XXaX
 XaXXa=XXa=XXa=XX=aXX=aXX==XXaX
- A==AA==A ==A == A== AaaA ==A 
- A== A==A ==A == A==  ==A ==A 
-XaXX=aXXa=XXa=XX=aXX==XXaaXXaX
-XaXX=aXXa=XXa=XXaaXX==XX=aXXaX
-XA== A==A ==A ==A ==  == A==AX
-XA== A==AAaaA ==AAaaAAaaAA==AX
+XA==AA==A ==A == A== AaaAA==AX
+XA== A==A ==A == A==  == A==AX
+ aXX=aXXa=XXa=XX=aXX==XX=aXXa 
+ aXX=aXXa=XXa=XX=aXX==XX=aXXa 
+XA== A==A ==A == A==  == A==AX
+XA== A==AAaaA == AaaAAaaAA==AX
 XaXX=aXX==XX==XX==XX==XX==XXaX
 XaXX=aXX==XX==XX==XX==XX==XXaX
 XAaaAA==AAaaAAaaAAaaAAaaAAaaAX
-XXXXXXXX  XXXXXXXXXX  XXXXXXXX
+XXXXXX  XXXXXX  XXXXXX  XXXXXX
   `,
   colors: getExtendedPalette(PALETTE.gravChamber),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
