@@ -39,7 +39,7 @@ X~                         ~~X
 X~    O --                ~~~X
 X~~--=====-             ~~~XXX
 XXXXXXXXXXX_-         ~~~XXXXX
-XXXXXXXXXXX++_---   ~~~XXXXXXX
+xxxxxxxxxxx++_---   ~~~XXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 `,
   colors: getExtendedPalette(PALETTE.hospital),

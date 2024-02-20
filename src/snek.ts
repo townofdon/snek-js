@@ -30,6 +30,7 @@ import {
   HURT_FLASH_RATE,
   HURT_GRACE_TIME,
   DIFFICULTY_EASY,
+  DIFFICULTY_MEDIUM,
   DEBUG_EASY_LEVEL_EXIT,
   DISABLE_TRANSITIONS,
   LIVES_LEFT_BONUS,
@@ -42,15 +43,59 @@ import {
   SPEED_INCREMENT_SPEED_MS,
   SPRINT_INCREMENT_SPEED_MS,
   ACCENT_COLOR,
-  BLOCK_SIZE,
   SPEED_LIMIT_ULTRA_SPRINT,
   MAX_SNAKE_SIZE,
   GLOBAL_LIGHT_DEFAULT,
 } from './constants';
-import { clamp, dirToUnitVector, findLevelWarpIndex, getCoordIndex, getCoordIndex2, getDifficultyFromIndex, getElementPosition, getRotationFromDirection, getWarpLevelFromNum, invertDirection, isWithinBlockDistance, parseUrlQueryParams, removeArrayElement, shuffleArray, vectorToDir } from './utils';
+import {
+  clamp,
+  dirToUnitVector,
+  findLevelWarpIndex,
+  getCoordIndex,
+  getCoordIndex2,
+  getDifficultyFromIndex,
+  getRotationFromDirection,
+  getWarpLevelFromNum,
+  invertDirection,
+  isWithinBlockDistance,
+  parseUrlQueryParams,
+  removeArrayElement,
+  shuffleArray,
+} from './utils';
+import {
+  DIR,
+  HitType,
+  Difficulty,
+  GameState,
+  IEnumerator,
+  Level,
+  PlayerState,
+  Replay,
+  ReplayMode,
+  ScreenShakeState,
+  Sound,
+  Stats,
+  Portal,
+  PortalChannel,
+  PortalExitMode,
+  LoseMessage,
+  MusicTrack,
+  GameSettings,
+  AppMode,
+  TitleVariant,
+  Image,
+  Tutorial,
+  ClickState,
+  RecentMoves,
+  RecentMoveTimings,
+  Key,
+  Lock,
+  KeyChannel,
+  LoopState,
+  UINavDir,
+} from './types';
 import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
-import { DIR, HitType, Difficulty, GameState, IEnumerator, Level, PlayerState, Replay, ReplayMode, ScreenShakeState, Sound, Stats, Portal, PortalChannel, PortalExitMode, LoseMessage, MusicTrack, GameSettings, AppMode, TitleVariant, Image, Tutorial, ClickState, RecentMoves, RecentMoveTimings, Key, Lock, KeyChannel, LoopState, UINavDir } from './types';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -79,7 +124,7 @@ import { Apples } from './collections/apples';
 import { VectorList } from './collections/vectorList';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
-let difficulty: Difficulty = { ...DIFFICULTY_EASY };
+let difficulty: Difficulty = { ...DIFFICULTY_MEDIUM };
 
 const queryParams = parseUrlQueryParams();
 const settings: GameSettings = {

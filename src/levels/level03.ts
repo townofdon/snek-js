@@ -2,7 +2,7 @@ import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 import { getCoordIndex2 } from "../utils";
-import { BONUS_LEVEL_10 } from "./bonusLevels/bonusLevel10";
+import { SECRET_LEVEL_10 } from "./bonusLevels/secretLevel10";
 
 const name = 'metro'
 
@@ -49,6 +49,6 @@ XXXXXXXXXXXXXXJXXXXXXXXXXXXXXX
   musicTrack: MusicTrack.transient,
   titleVariant: TitleVariant.Yellow,
   nextLevelMap: {
-    [getCoordIndex2(14, 29)]: BONUS_LEVEL_10
+    [getCoordIndex2(14, 29)]: SECRET_LEVEL_10
   }
 };

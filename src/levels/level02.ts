@@ -1,6 +1,8 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { VARIANT_LEVEL_03 } from "./bonusLevels/variantLevel03";
 
 const name = 'plaza'
 
@@ -37,7 +39,7 @@ X~           -=-             X
 X            -=-            ~X
 X++-         -=-          -++X
 XX++-        -=-         -++XX
-XXX++-       -=-        -++XXX
+XXX++-       -=-        -++xxx
 XXXX++   ~   -_-   ~    ++XXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
@@ -45,4 +47,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.simpleTime,
   titleVariant: TitleVariant.Green,
+  nextLevelMap: {
+    [getCoordIndex2(29, 27)]: VARIANT_LEVEL_03
+  }
 };
