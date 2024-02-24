@@ -1,0 +1,54 @@
+import { PALETTE, getExtendedPalette } from "../../palettes";
+import { TitleScene } from "../../scenes/TitleScene";
+import { Level, MusicTrack } from "../../types";
+import { LEVEL_08 } from "../level08";
+
+const name = 'factory subfloor';
+
+export const VARIANT_LEVEL_07: Level = {
+  name,
+  timeToClear: 1000 * 60 * 1.8,
+  applesToClear: 60,
+  numApplesStart: 5,
+  layout: `
+XXXXXXXXXXXXXXJJXXXXXXXXXXXXXX
+X~~ ---~ ~~~~XxxX~~~~  --- ~~X
+X~  ===     ~XxxX~     ===  ~X
+X~  ---                ---  ~X
+X   XXXddJJJJLLLLJJJJddXXX  ~X
+X~  X==~---- ---- ----~XXX~  X
+X  ~X=X~      l       ~XXX  ~X
+X~ ~X=X~              ~XXX~ ~X
+X  ~==X~~~ ~    ~ ~ ~~~XXX~ ~X
+X   XXXXXXXXXDDDDXXXXXXXXX   X
+X~      ~  ~  ~   ~  ~       X
+X~                          ~X
+X~~~~~~ ---- KKKK ---- ~~~~~~X
+XDDDXXX_====-K jK-====_XXXDDDX
+X~~~~~~ ---- KKKK ---- ~~~~~~X
+X~     O                    ~X
+X      ~  ~  ~ ~  ~  ~   ~  ~X
+X   XXXXXXXXXDDDDXXXXXXXXX   X
+X~  XXX~~~          ~~~XXX  ~X
+X  ~XXX~       k      ~XXX~ ~X
+X  ~XXX~              ~XXX~ ~X
+X~ ~XXX~---- ---- ----~XXX~ ~X
+X~  XXXddJJJJLLLLLJJJddXXX   X
+X   ---                ---  ~X
+X~   =                  =   ~X
+X~   =                  =    X
+X~   =                  =   ~X
+X~~ ---   ~XX~~~~XX~   --- ~~X
+XXXXXXX~~~~XXDDDDXX~~~~XXXXXXX
+XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
+  `,
+  colors: getExtendedPalette(PALETTE.stonelair),
+  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showQuoteOnLevelWin: true,
+  extraLoseMessages: [
+    ["There are older and fouler things than Orcs in the deep places of the world."],
+  ],
+  musicTrack: MusicTrack.stonemaze,
+  globalLight: 0.4,
+  nextLevel: LEVEL_08,
+};

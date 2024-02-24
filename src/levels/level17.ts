@@ -66,6 +66,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   },
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   titleVariant: TitleVariant.GrayBlue,
-  musicTrack: MusicTrack.skycastle,
+  musicTrack: MusicTrack.stonemaze,
   globalLight: 0.5,
 };
