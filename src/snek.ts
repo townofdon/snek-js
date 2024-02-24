@@ -2231,6 +2231,7 @@ export const sketch = (p5: P5) => {
     doors = [];
     doorsMap = {};
     state.isDoorsOpen = true;
+    renderer.invalidateStaticCache();
   }
 
   function gotoNextLevel() {

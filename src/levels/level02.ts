@@ -26,7 +26,7 @@ X            ---             X
 X~~          -=-           ~~X
 X++-         -=-          -++X
 XX+=----------------------=+XX
-XXX=----====- O -====-----=XXX
+XXX=----====- O -====-----=xxx
 XX+=----------------------=+XX
 X++-         -=-          -++X
 X~~          -=-           ~~X
@@ -39,7 +39,7 @@ X~           -=-             X
 X            -=-            ~X
 X++-         -=-          -++X
 XX++-        -=-         -++XX
-XXX++-       -=-        -++xxx
+XXX++-       -=-        -++XXX
 XXXX++   ~   -_-   ~    ++XXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
@@ -48,6 +48,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   musicTrack: MusicTrack.simpleTime,
   titleVariant: TitleVariant.Green,
   nextLevelMap: {
-    [getCoordIndex2(29, 27)]: VARIANT_LEVEL_03
+    [getCoordIndex2(29, 14)]: VARIANT_LEVEL_03
   }
 };
