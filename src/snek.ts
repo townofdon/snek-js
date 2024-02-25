@@ -45,6 +45,8 @@ import {
   SPEED_LIMIT_ULTRA_SPRINT,
   MAX_SNAKE_SIZE,
   GLOBAL_LIGHT_DEFAULT,
+  DIFFICULTY_HARD,
+  DIFFICULTY_ULTRA,
 } from './constants';
 import {
   clamp,
@@ -122,6 +124,7 @@ import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './lighting';
 import { Apples } from './collections/apples';
 import { VectorList } from './collections/vectorList';
+import { VARIANT_LEVEL_99 } from './levels/bonusLevels/variantLevel99';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -622,6 +625,13 @@ export const sketch = (p5: P5) => {
     stopReplay();
     level = START_LEVEL
     difficulty = { ...DIFFICULTY_EASY };
+
+
+    // level = VARIANT_LEVEL_99
+    // difficulty = { ...DIFFICULTY_ULTRA };
+
+
+
     setLevelIndexFromCurrentLevel();
     initLevel()
     playSound(Sound.unlock);

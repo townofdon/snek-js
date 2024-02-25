@@ -9,7 +9,8 @@ export const LEVEL_99: Level = {
   timeToClear: 1000 * 60 * 10,
   applesToClear: 200,
   numApplesStart: 20,
-  growthMod: 0.7,
+  growthMod: 0.5,
+  extraHurtGraceTime: 15,
   layout: `
 XXXXXX44XXXXXXLLXXXXXX44XXXXXX
 X~~~~~__~~~~XXddXX~~~~__~~~~~X

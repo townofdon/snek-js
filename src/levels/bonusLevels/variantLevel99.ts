@@ -10,7 +10,8 @@ export const VARIANT_LEVEL_99: Level = {
   timeToClear: 1000 * 60 * 10,
   applesToClear: 300,
   numApplesStart: 20,
-  growthMod: 0.5,
+  growthMod: 0.2,
+  extraHurtGraceTime: 20,
   layout: `
 XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
 X     --~~~~XXddXX~~~~__ JJJJX
@@ -46,7 +47,8 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   colors: getExtendedPalette(PALETTE.darkStar),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   extraLoseMessages: [
-    ["What? Not enough apples for ya?"],
+    ["The bold. The courageous. The Snek."],
+    ["Too much for you, eh?"],
     ["Don't quit now, this is the final level!"],
   ],
   showQuoteOnLevelWin: false,
