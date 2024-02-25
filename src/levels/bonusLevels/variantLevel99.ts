@@ -8,9 +8,9 @@ const name = 'endurance';
 export const VARIANT_LEVEL_99: Level = {
   name,
   timeToClear: 1000 * 60 * 10,
-  applesToClear: 300,
+  applesToClear: 295,
   numApplesStart: 20,
-  growthMod: 0.2,
+  growthMod: 0.18,
   extraHurtGraceTime: 20,
   layout: `
 XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX

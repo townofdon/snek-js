@@ -31,6 +31,7 @@ export class SFX implements SFXInstance {
     hurt1: null,
     hurt2: null,
     hurt3: null,
+    hurtSave: null,
     moveStart: null,
     pickup: null,
     rewindLoop: null,
@@ -99,6 +100,7 @@ export class SFX implements SFXInstance {
       this.sounds.hurt1 = loadSound('hurt-1.wav');
       this.sounds.hurt2 = loadSound('hurt-2.wav');
       this.sounds.hurt3 = loadSound('hurt-3.wav');
+      this.sounds.hurtSave = loadSound('hurt-save.wav');
       this.sounds.moveStart = loadSound('move-start.wav');
       this.sounds.pickup = loadSound('pickup.wav');
       this.sounds.rewindLoop = loadSound('rewind-loop.wav');

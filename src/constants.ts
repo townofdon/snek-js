@@ -149,6 +149,7 @@ export const KEYCODE_ALPHA_W = 87;
 export const SCREEN_SHAKE_DURATION_MS = 1000;
 export const SCREEN_SHAKE_MAGNITUDE_PX = 4;
 
+export const HURT_FORGIVENESS_TIME = 160;
 export const HURT_STUN_TIME = 600;
 export const HURT_FLASH_RATE = 55;
 export const HURT_GRACE_TIME = 30;

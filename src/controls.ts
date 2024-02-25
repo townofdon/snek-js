@@ -19,6 +19,7 @@ import {
   KEYCODE_ALPHA_M,
   KEYCODE_ALPHA_C,
   KEYCODE_ALPHA_R,
+  HURT_FORGIVENESS_TIME,
 } from './constants';
 import { AppMode, ClickState, DIR, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves, UINavDir, UINavEventHandler } from "./types";
 import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "./utils";
@@ -102,13 +103,13 @@ export function handleKeyPressed(
     return;
   }
 
-  if (state.isLost) {
+  if (state.isLost && state.timeSinceHurt > HURT_FORGIVENESS_TIME) {
     if (keyCode === ENTER) callAction(InputAction.RetryLevel);
     if (keyCode === KEYCODE_ALPHA_M) callAction(InputAction.ConfirmShowMainMenu);
     return;
   }
 
-  if (keyCode === ESCAPE && !state.isGameWon) {
+  if (!state.isLost && keyCode === ESCAPE && !state.isGameWon) {
     if (state.isPaused) {
       callAction(InputAction.UnPause);
     } else {

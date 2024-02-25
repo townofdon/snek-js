@@ -114,6 +114,7 @@ export interface GameState {
   timeSinceLastMove: number,
   timeSinceLastTeleport: number,
   timeSinceHurt: number,
+  timeSinceHurtForgiveness: number,
   timeSinceLastInput: number,
   hurtGraceTime: number,
   lives: number,
@@ -278,7 +279,6 @@ export interface SFXInstance {
   load: () => void
 }
 
-
 export enum Sound {
   death = 'death',
   doorOpen = 'doorOpen',
@@ -287,6 +287,7 @@ export enum Sound {
   hurt1 = 'hurt1',
   hurt2 = 'hurt2',
   hurt3 = 'hurt3',
+  hurtSave = 'hurtSave',
   moveStart = 'moveStart',
   pickup = 'pickup',
   rewindLoop = 'rewindLoop',

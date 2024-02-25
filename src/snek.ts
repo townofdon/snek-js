@@ -47,6 +47,7 @@ import {
   GLOBAL_LIGHT_DEFAULT,
   DIFFICULTY_HARD,
   DIFFICULTY_ULTRA,
+  HURT_FORGIVENESS_TIME,
 } from './constants';
 import {
   clamp,
@@ -162,6 +163,7 @@ const state: GameState = {
   timeSinceLastMove: Infinity,
   timeSinceLastTeleport: Infinity,
   timeSinceHurt: Infinity,
+  timeSinceHurtForgiveness: Infinity,
   timeSinceLastInput: Infinity,
   hurtGraceTime: HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0),
   lives: MAX_LIVES,
@@ -257,7 +259,6 @@ let portalParticlesStarted: Record<number, boolean> = {}
 
 let uiElements: Element[] = [];
 let particleSystems: ParticleSystem[] = [];
-let screenFlashElement: Element;
 
 let quotes = allQuotes.slice();
 
@@ -266,6 +267,7 @@ enum Action {
   ExecuteQuotesMode = 'ExecuteQuotesMode',
   SetTitleVariant = 'SetTitleVariant',
   ChangeMusicLowpass = 'ChangeMusicLowpass',
+  GameOver = 'GameOver',
 }
 type ActionKey = keyof typeof Action
 
@@ -273,7 +275,6 @@ export const sketch = (p5: P5) => {
   const coroutines = new Coroutines(p5);
   const startCoroutine = coroutines.start;
   const stopAllCoroutines = coroutines.stopAll;
-  const tickCoroutines = coroutines.tick;
   const waitForTime = coroutines.waitForTime;
 
   // actions are unique, singleton coroutines, meaning that only one coroutine of a type can run at a time
@@ -283,6 +284,7 @@ export const sketch = (p5: P5) => {
     [Action.ExecuteQuotesMode]: null,
     [Action.SetTitleVariant]: null,
     [Action.ChangeMusicLowpass]: null,
+    [Action.GameOver]: null,
   };
   const startAction = (enumerator: IEnumerator, actionKey: Action, force = false) => {
     if (!force && replay.mode === ReplayMode.Playback) {
@@ -625,13 +627,8 @@ export const sketch = (p5: P5) => {
     stopReplay();
     level = START_LEVEL
     difficulty = { ...DIFFICULTY_EASY };
-
-
     // level = VARIANT_LEVEL_99
     // difficulty = { ...DIFFICULTY_ULTRA };
-
-
-
     setLevelIndexFromCurrentLevel();
     initLevel()
     playSound(Sound.unlock);
@@ -791,6 +788,7 @@ export const sketch = (p5: P5) => {
     state.timeSinceLastMove = Infinity;
     state.timeSinceLastTeleport = Infinity;
     state.timeSinceHurt = Infinity;
+    state.timeSinceHurtForgiveness = Infinity;
     state.hurtGraceTime = HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0);
     state.lives = MAX_LIVES;
     screenShake.timeSinceStarted = Infinity;
@@ -951,9 +949,12 @@ export const sketch = (p5: P5) => {
       state.isSprinting = false;
     }
 
-    if (state.isLost) return;
     if (state.isPaused) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
+
+    handleHurtForgiveness();
+
+    if (state.isLost) return;
 
     for (let i = 0; i < segments.length; i++) {
       if (state.isLost || state.isExitingLevel) continue;
@@ -986,7 +987,6 @@ export const sketch = (p5: P5) => {
 
     const didHit = checkHasHit(player.position);
     state.isLost = didHit;
-    tryRescueHit(didHit);
     handleSnakeDamage(state.isLost && state.lives > 0);
 
     // handle snake death
@@ -994,7 +994,8 @@ export const sketch = (p5: P5) => {
       spawnHurtParticles();
       renderHeartsUI();
       flashScreen();
-      showGameOver();
+      startScreenShake();
+      startAction(triggerGameOverRoutine(), Action.GameOver);
       playSound(Sound.death);
       return;
     }
@@ -1017,6 +1018,7 @@ export const sketch = (p5: P5) => {
     handleTeleportOnGameWin();
 
     state.timeSinceHurt += loopState.deltaTime;
+    state.timeSinceHurtForgiveness += loopState.deltaTime;
     state.timeSinceLastInput += loopState.deltaTime;
     state.timeSinceLastTeleport += loopState.deltaTime;
     state.frameCount += 1;
@@ -1033,7 +1035,7 @@ export const sketch = (p5: P5) => {
     if (state.isPaused) return;
     if (state.appMode === AppMode.StartScreen) return;
 
-    setTimeout(() => { tickCoroutines(); }, 0);
+    setTimeout(() => { coroutines.tick(); }, 0);
 
     if (state.appMode === AppMode.Quote) {
       p5.background("#000");
@@ -1175,7 +1177,7 @@ export const sketch = (p5: P5) => {
 
   function flashScreen() {
     if (replay.mode === ReplayMode.Playback) return;
-    screenFlashElement = UI.drawScreenFlash();
+    const screenFlashElement = UI.drawScreenFlash();
     setTimeout(() => {
       screenFlashElement?.remove();
     }, FRAMERATE * 2)
@@ -1612,15 +1614,13 @@ export const sketch = (p5: P5) => {
     winGameScene.draw();
   }
 
-  /**
-   * Check if the player has just applied input in the same frame that the snake will
-   * receive damage. If the current move is a safe one and will result in no damage,
-   * rewind and apply that movement.
-   */
-  function tryRescueHit(didHit: boolean) {
+  function handleHurtForgiveness() {
+    if (state.timeSinceHurtForgiveness < HURT_STUN_TIME * 2) return;
+    if (state.timeSinceHurt >= HURT_FORGIVENESS_TIME) return;
     if (state.isGameWon) return;
-    if (!didHit) return;
+    if (state.isCasualModeEnabled) return;
     if (!state.isGameStarted) return;
+    if (!state.isMoving) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (moves.length <= 0) return;
     if (segments.length <= 0) return;
@@ -1632,10 +1632,19 @@ export const sketch = (p5: P5) => {
     if (willHitSomething) return;
 
     player.direction = move;
-    reboundSnake(1);
-    moveSegments();
-    player.position.add(currentMove);
+    if (state.isLost && state.lives === 0) {
+      reboundSnake(segments.length > 3 ? 2 : 1);
+      playSound(Sound.hurt3);
+    } else {
+      state.lives += 1;
+    }
     state.isLost = false;
+    state.timeSinceHurt = Infinity;
+    state.timeSinceHurtForgiveness = 0;
+    sfx.stop(Sound.death);
+    playSound(Sound.hurtSave);
+    renderHeartsUI();
+    stopAction(Action.GameOver);
   }
 
   function handleSnakeDamage(didReceiveDamage: boolean) {
@@ -2031,7 +2040,19 @@ export const sketch = (p5: P5) => {
     }
   }
 
+  function* triggerGameOverRoutine(): IEnumerator {
+    state.isLost = true;
+    state.timeSinceHurt = 0;
+    yield null;
+    yield* actions.waitForTime(HURT_FORGIVENESS_TIME * 2);
+    clearAction(Action.GameOver);
+    yield null;
+    showGameOver();
+  }
+
   function showGameOver() {
+    state.isLost = true;
+    state.timeSinceHurt = Infinity;
     if (replay.mode !== ReplayMode.Playback) {
       // musicPlayer.stop(level.musicTrack);
       state.lives = 0;
