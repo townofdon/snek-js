@@ -1,6 +1,8 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { VARIANT_LEVEL_08 } from "./bonusLevels/variantLevel08";
 
 const name = 'factory floor';
 
@@ -23,7 +25,7 @@ X~ ~XXXXXXXXXDDDDXXXXXXXXX~  X
 X~      ~  ~  ~   ~  ~       X
 X~                          ~X
 X~~~~~~ ---- ---- ---- ~~~~~~X
-XDDDXXX_====-====-====_XXXDDDX
+XDDDXXX_====-====-====_XXXDDDx
 X~~~~~~ ---- ---- ---- ~~~~~~X
 X~     O                    ~X
 X      ~  ~  ~ ~  ~  ~   ~  ~X
@@ -49,4 +51,7 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   ],
   musicTrack: MusicTrack.factorio,
   globalLight: 0.75,
+  nextLevelMap: {
+    [getCoordIndex2(29, 13)]: VARIANT_LEVEL_08,
+  },
 };

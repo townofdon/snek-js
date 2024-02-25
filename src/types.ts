@@ -181,6 +181,7 @@ export enum TitleVariant {
 export enum LevelType {
   Level = 0,
   Maze,
+  WarpZone,
 }
 
 export interface Level {

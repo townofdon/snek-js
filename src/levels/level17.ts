@@ -23,8 +23,8 @@ X XXX d  -=XXX-- --XXX=- --X-X
 X XXX d  -=XXXXXXXXXXX=- d - X
 X  -  d  -=aaaaa-aaaaa=- XXKXX
 XXXKXXXXXXXXXXX-=-XXXXXXXXXKXX
-X - - daaaad    =    daaad - X
-X-=-=-XXXXdd ==-=-== ddXXX-=-X
+X - - xaaaax    =    xaaax - X
+X-=-=-XXXXxx ==-=-== xxXXX-=-X
 X-=-=-XXXX      X  aaa XXX-=-X
 X - - XXXX ==== X ==== XXX - X
 XXXdXXX -X --O  -      XXXXdXX
@@ -38,8 +38,8 @@ XXXdXX -=X== = XXXa= ==X=-   X
 XXXdXXX -X      -      XXXdXXX
 X - - XXXX ==== X ==== X  j  X
 X-=-=-XXXX aaa  X      X  X  X
-X-=-=-XXXXdd ==-=-== ddX  X  X
-X - - daaaad    =    daJ     X
+X-=-=-XXXXxx ==-=-== xxX  X  X
+X - - xaaaax    =    xaJ     X
 XXXLXXXXXXXXXXX-=-XXXXXXXXXLXX
 X  -  d  -=aaaaa-aaaaa=- d a X
 X XXX d  -=XXXXXXXXXXX=- daXaX

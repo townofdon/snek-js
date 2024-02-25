@@ -4,6 +4,7 @@ import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../../types";
 import { getCoordIndex2 } from "../../utils";
 import { TUTORIAL_LEVEL_10 } from "../tutorialLevel10";
 import { SECRET_LEVEL_10 } from "./secretLevel10";
+import { WARP_ZONE_01 } from "./warpZone01";
 
 const name = 'metroteque'
 
@@ -14,12 +15,12 @@ export const VARIANT_LEVEL_03: Level = {
   numApplesStart: 10,
   growthMod: 0.75,
   layout: `
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXLXXXXXXXXXXXXXXX
 XXX~~=-=     =-=     =-= ~~XXX
 XXX~ =-=     =-=     =-=  ~XXX
-X1_  =-=   ~~XXX~~   =-=   _3X
-X1-  =-= ~~XXXXXXX~~ =-=   -3X
-X1-  =-= XXXXXXXXXXX =-=   -3X
+X1_  =-=   ~~XxX~~   =-=   _3X
+X1-  =-= ~~XXXoXXX~~ =-=   -3X
+X1-  =-= XXXXXxXXXXX =-=   -3X
 X1-  =-=     =-=     =-=   -3X
 X1-  =-=    O=-=     =-=   -3X
 X1_~ =-=     =-=     =-=  ~_3X
@@ -64,6 +65,7 @@ XXXXXXXXXXXXXXJXXXXXXXXXXXXXXX
   },
   nextLevel: TUTORIAL_LEVEL_10,
   nextLevelMap: {
-    [getCoordIndex2(14, 29)]: SECRET_LEVEL_10
+    [getCoordIndex2(14, 0)]: WARP_ZONE_01,
+    [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
   }
 };

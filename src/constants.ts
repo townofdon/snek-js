@@ -5,10 +5,8 @@ import Color from "color";
 export const TITLE = 'SNEK';
 
 export const SHOW_FPS = false;
-
-// TODO: REVERT
 export const DEBUG_EASY_LEVEL_EXIT = false;
-export const DISABLE_TRANSITIONS = true;
+export const DISABLE_TRANSITIONS = false;
 export const RECORD_REPLAY_STATE = false;
 export const IS_DEV = window.location.href.includes('localhost') || process.env.NODE_ENV === 'test';
 

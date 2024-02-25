@@ -55,5 +55,4 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     [getCoordIndex2(1, 0)]: VARIANT_LEVEL_07,
     [getCoordIndex2(28, 0)]: VARIANT_LEVEL_07,
   },
-  // globalLight: 0.85,
 };

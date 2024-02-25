@@ -122,6 +122,7 @@ import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './lighting';
 import { Apples } from './collections/apples';
 import { VectorList } from './collections/vectorList';
+import { WARP_ZONE_01 } from './levels/bonusLevels/warpZone01';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -654,6 +655,7 @@ export const sketch = (p5: P5) => {
   function renderDifficultyUI() {
     if (level === START_LEVEL) return;
     if (level.type === LevelType.Maze) return;
+    if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     UI.renderDifficulty(difficulty.index, state.isShowingDeathColours, state.isCasualModeEnabled);
@@ -662,6 +664,7 @@ export const sketch = (p5: P5) => {
   function renderHeartsUI() {
     if (level === START_LEVEL) return;
     if (level.type === LevelType.Maze) return;
+    if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.isCasualModeEnabled) {
@@ -674,6 +677,7 @@ export const sketch = (p5: P5) => {
   function renderScoreUI(score = stats.score) {
     if (level === START_LEVEL) return;
     if (level.type === LevelType.Maze) return;
+    if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.isCasualModeEnabled) return;
@@ -683,6 +687,7 @@ export const sketch = (p5: P5) => {
   function renderLevelName() {
     if (level === START_LEVEL) return;
     if (level.type === LevelType.Maze) return;
+    if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     const progress = clamp(stats.applesEatenThisLevel / (level.applesToClear * difficulty.applesMod), 0, 1);
@@ -1515,6 +1520,7 @@ export const sketch = (p5: P5) => {
     if (state.isExited) return;
     if (level === START_LEVEL) return;
     if (level.type === LevelType.Maze) return;
+    if (level.type === LevelType.WarpZone) return;
 
     incrementScoreWhileExitingLevel();
     renderScoreUI();
@@ -1540,6 +1546,8 @@ export const sketch = (p5: P5) => {
     } else if (level === START_LEVEL) {
       gotoNextLevel();
     } else if (level.type === LevelType.Maze) {
+      gotoNextLevel();
+    } else if (level.type === LevelType.WarpZone) {
       gotoNextLevel();
     } else {
       const isPerfect = apples.length === 0 && state.lives === 3;

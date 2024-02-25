@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack } from "../../types";
-import { LEVEL_08 } from "../level08";
+import { VARIANT_LEVEL_08 } from "./variantLevel08";
 
 const name = 'factory subfloor';
 
@@ -46,9 +46,9 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   showQuoteOnLevelWin: true,
   extraLoseMessages: [
-    ["There are older and fouler things than Orcs in the deep places of the world."],
+    ["There are older and fouler things than Snek in the deep places of the world."],
   ],
   musicTrack: MusicTrack.stonemaze,
   globalLight: 0.4,
-  nextLevel: LEVEL_08,
+  nextLevel: VARIANT_LEVEL_08,
 };
