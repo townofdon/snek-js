@@ -18,16 +18,16 @@ export const LEVEL_17: Level = {
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 X  k  XX -=aaaaa-aaaaa=- XXXXX
-X XXX XX -=XXXXXXXXXXX=- d - X
+X XXX XX -=XXXXXXXXXXX=- x - X
 X XXX d  -=XXX-- --XXX=- --X-X
-X XXX d  -=XXXXXXXXXXX=- d - X
+X XXX d  -=XXXXXXXXXXX=- x - X
 X  -  d  -=aaaaa-aaaaa=- XXKXX
 XXXKXXXXXXXXXXX-=-XXXXXXXXXKXX
 X - - xaaaax    =    xaaax - X
 X-=-=-XXXXxx ==-=-== xxXXX-=-X
 X-=-=-XXXX      X  aaa XXX-=-X
 X - - XXXX ==== X ==== XXX - X
-XXXdXXX -X --O  -      XXXXdXX
+XXXdXXX -X --O  -      XXXXxXX
 XXXdXX -=X== =aXXX = ==X=-   X
 XXXKXX -=X   =aX-X =   X=-a  X
 dLLKJJ -=X = =aX-X = = X=-a  X
@@ -35,14 +35,14 @@ dLKKKJ---d =   =-=   = d-a-a-X
 dLLKJJ -=X = = X-Xa= = X=-a  X
 XXXKXX -=X   = X-Xa=   X=-a  X
 XXXdXX -=X== = XXXa= ==X=-   X
-XXXdXXX -X      -      XXXdXXX
+XXXdXXX -X      -      XXXxXXX
 X - - XXXX ==== X ==== X  j  X
 X-=-=-XXXX aaa  X      X  X  X
 X-=-=-XXXXxx ==-=-== xxX  X  X
-X - - xaaaax    =    xaJ     X
+X - - xaaaax    =    xax     X
 XXXLXXXXXXXXXXX-=-XXXXXXXXXLXX
-X  -  d  -=aaaaa-aaaaa=- d a X
-X XXX d  -=XXXXXXXXXXX=- daXaX
+X  -  d  -=aaaaa-aaaaa=- x a X
+X XXX d  -=XXXXXXXXXXX=- xaXaX
 X XXX XX -=XXXXXXXXXXX=- XaXaX
 X  l  XX -=aaaaa-aaaaa=- X a X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

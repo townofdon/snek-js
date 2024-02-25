@@ -1,6 +1,8 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { VARIANT_LEVEL_99 } from "./bonusLevels/variantLevel99";
 
 const name = 'escada';
 
@@ -12,13 +14,13 @@ export const LEVEL_19: Level = {
   growthMod: 0.25,
   extraHurtGraceTime: 15,
   layout: `
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-X            ----===0X8====9XX
-X            ----===0X8----9XX
-X            --XXXXXXX8====9XX
+XXXXXXXXXXXXXXXXXXXXXLXXXXXXXX
+X            ----===0x8====9XX
+X            ----===0x8----9XX
+X            --XXXXXXx8====9XX
 X            --X7===8XXXXXXXXX
 X-=  =-      --X7---8XX~_l_~XX
-X-    -XXXXXXXLX7===8XXJKKKJXX
+X-    -XXXXXXXLX7===8xxJKKKJXX
 X_    _X6===7XLXXXXXXXXJJKJJXX
 X__--__X6---7X---      -=-=-XX
 XXXXXXXX6===7X---       -=- XX
@@ -65,4 +67,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     ["I hear playing SNEK rewires your brain..."],
   ],
   musicTrack: MusicTrack.ascension,
+  nextLevelMap: {
+    [getCoordIndex2(21, 0)]: VARIANT_LEVEL_99,
+  },
 };
