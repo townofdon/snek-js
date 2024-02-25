@@ -24,10 +24,10 @@ X8X   dd=-=ddX1XX3Xdd=-=dd   X
 X_X   === =ddXXXXXXdd= ===   X
 X_X       ===  --  ===       X
 X_X            --            X
-X_X            --            X
-X_X=       ~~X~__~X~~       =X
-X_X==      ~XXLLLLXX~      ==X
-X_XXXX     XXXLLLLXXX     XXLX
+XxX            --            X
+XxX=       ~~X~__~X~~       =X
+XxX==      ~XXLLLLXX~      ==X
+XxXXXX     XXXLLLLXXX     XXLX
 XdJKLd-----_LLaaaaLL_-----dKlX
 XdJKLd-----_LLaaaaLL_-----dK_X
 XXXXXX     XXXLLLLXXX     XXLX
@@ -35,10 +35,10 @@ X8X==      ~XXLLLLXX~      ==X
 X_X=       ~~X~__~X~~       =X
 X_X            --            X
 X_X    O       --            X
-X_X       ===  --  ===       X
-X_X   === =JJXXXXXXJJ= ===   X
-d_X   dd=-=JJX5XX6XJJ=-=dd   X
-d_X   dd=-=X_X_XX_X_X=-=dd   X
+XxX       ===  --  ===       X
+XxX   === =JJXXXXXXJJ= ===   X
+dxX   dd=-=JJX5XX6XJJ=-=dd   X
+dxX   dd=-=X_X_XX_X_X=-=dd   X
 XXX   === =X_X_XX_X_X= ===   X
 XXX       =X_X_XX_X_X=       X
 XXX        X_X_XX_X_X        X

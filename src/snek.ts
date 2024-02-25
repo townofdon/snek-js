@@ -122,7 +122,6 @@ import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './lighting';
 import { Apples } from './collections/apples';
 import { VectorList } from './collections/vectorList';
-import { WARP_ZONE_01 } from './levels/bonusLevels/warpZone01';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };

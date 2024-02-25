@@ -1,8 +1,10 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { VARIANT_LEVEL_15 } from "./bonusLevels/variantLevel15";
 
-const name = 'grav chamber'
+const name = 'test chamber'
 
 export const LEVEL_14: Level = {
   name,
@@ -13,11 +15,11 @@ export const LEVEL_14: Level = {
   layout: `
 XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
 XXXXXXXXXDDDX4444XDDDXXXXXXXXX
-XX1  ----    7XX0    ----  6XX
-XX1          7XX0          3XX
-XX1  ----    7XX0    ----  3XX
+XX1  ----    7xx0    ----  6XX
+XX1          7xx0          3XX
+XX1  ----    7xx0    ----  3XX
 XXXXXXX9-    -=--    -7XXXXXXX
-DDDDDDX9-------=------7XDDDDDD
+DDDDDxx9-------=------7xxDDDDD
 XXXXXXX9------=-------7XXXXXXX
 X5   ----    --=-    ----   2X
 X2           -=--           2X
@@ -34,11 +36,11 @@ X2          ------          2X
 X2     O     -=--           2X
 X2   ----    --=-    ----   5X
 XXXXXXX0------=-------8XXXXXXX
-DDDDDDX0-------=------8XDDDDDD
+DDDDDxx0-------=------8xxDDDDD
 XXXXXXX0-    -=--    -8XXXXXXX
-XX1  ----    8XX9    ----  3XX
-XX1          8XX9          3XX
-XX1  ----    8XX9    ----  6XX
+XX1  ----    8xx9    ----  3XX
+XX1          8xx9          3XX
+XX1  ----    8xx9    ----  6XX
 XXXXXXXXXDDDX4444XDDDXXXXXXXXX
 XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
   `,
@@ -64,5 +66,10 @@ XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
   ],
   musicTrack: MusicTrack.gravy,
   titleVariant: TitleVariant.Yellow,
-  // globalLight: 0.35,
+  nextLevelMap: {
+    [getCoordIndex2(0, 6)]: VARIANT_LEVEL_15,
+    [getCoordIndex2(29, 6)]: VARIANT_LEVEL_15,
+    [getCoordIndex2(0, 23)]: VARIANT_LEVEL_15,
+    [getCoordIndex2(29, 23)]: VARIANT_LEVEL_15,
+  },
 };
