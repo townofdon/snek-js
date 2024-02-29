@@ -4,20 +4,18 @@ import { BLOCK_SIZE, STROKE_SIZE } from "./constants";
 
 const IMAGE_SCALE = 1.01;
 
-interface RendererConstructorProps {
+interface SpriteRendererConstructorProps {
   p5: P5
-  replay: Replay
-  gameState: GameState
+  staticGraphics: P5.Graphics
   screenShake: ScreenShakeState
 }
 
 export class SpriteRenderer {
-  private props: RendererConstructorProps = {
-    p5: null,
-    replay: null,
-    gameState: null,
-    screenShake: null,
-  }
+  private p5: P5 = null;
+  private staticGraphics: P5.Graphics = null;
+  private screenShake: ScreenShakeState = null;
+
+  private isStaticCached = false;
 
   private images: Record<Image, P5.Image | null> = {
     [Image.ControlsKeyboardDelete]: null,
@@ -40,11 +38,10 @@ export class SpriteRenderer {
     [Image.UIKeyBlue]: null,
   }
 
-  constructor({ p5, replay, gameState, screenShake }: RendererConstructorProps) {
-    this.props.p5 = p5;
-    this.props.replay = replay;
-    this.props.gameState = gameState;
-    this.props.screenShake = screenShake;
+  constructor(props: SpriteRendererConstructorProps) {
+    this.p5 = props.p5;
+    this.staticGraphics = props.staticGraphics;
+    this.screenShake = props.screenShake;
   }
 
   private fullPath(image: Image): string {
@@ -53,10 +50,13 @@ export class SpriteRenderer {
   }
 
   private loadImage(image: Image) {
-    const { p5 } = this.props;
-    p5.loadImage(this.fullPath(image), (loadedImage) => {
+    this.p5.loadImage(this.fullPath(image), (loadedImage) => {
       this.images[image] = loadedImage;
     })
+  }
+
+  setIsStaticCached = (value: boolean) => {
+    this.isStaticCached = value;
   }
 
   loadImages() {
@@ -84,33 +84,41 @@ export class SpriteRenderer {
     }
   }
 
-  drawImage3x3(image: Image, x: number, y: number, rotation: number = 0) {
-    const { p5, screenShake } = this.props;
+  drawImage3x3 = (image: Image, x: number, y: number, rotation: number = 0) => {
+    this.drawImage3x3Impl(this.p5, image, x, y, rotation);
+  }
+
+  drawImage3x3Static = (image: Image, x: number, y: number, rotation: number = 0) => {
+    if (this.isStaticCached) return;
+    this.drawImage3x3Impl(this.staticGraphics, image, x, y, rotation);
+  }
+
+  private drawImage3x3Impl = (graphics: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0) => {
     const loaded = this.images[image];
     if (!loaded) return;
     const widthX = BLOCK_SIZE.x;
     const widthY = BLOCK_SIZE.y;
     const position = {
-      x: x * BLOCK_SIZE.x + screenShake.offset.x - BLOCK_SIZE.x * IMAGE_SCALE,
-      y: y * BLOCK_SIZE.y + screenShake.offset.y - BLOCK_SIZE.y * IMAGE_SCALE,
+      x: x * BLOCK_SIZE.x + this.screenShake.offset.x - BLOCK_SIZE.x * IMAGE_SCALE,
+      y: y * BLOCK_SIZE.y + this.screenShake.offset.y - BLOCK_SIZE.y * IMAGE_SCALE,
     }
 
     const offset = -STROKE_SIZE * 0.5;
-    p5.push();
-    p5.translate(
+    graphics.push();
+    graphics.translate(
       position.x,
       position.y,
     );
-    p5.translate(
+    graphics.translate(
       (widthX * 1.5 + offset) * IMAGE_SCALE,
       (widthY * 1.5 + offset) * IMAGE_SCALE,
     );
-    p5.rotate(rotation);
-    p5.translate(
+    graphics.rotate(rotation);
+    graphics.translate(
       (-widthX * 1.5 - offset) * IMAGE_SCALE,
       (-widthY * 1.5 - offset) * IMAGE_SCALE,
     );
-    p5.image(
+    graphics.image(
       loaded,
       0,
       0,
@@ -120,18 +128,26 @@ export class SpriteRenderer {
       0,
       loaded.width,
       loaded.height,
-      p5.COVER,
-      p5.LEFT,
-      p5.TOP
+      this.p5.COVER,
+      this.p5.LEFT,
+      this.p5.TOP
     );
-    p5.pop();
+    graphics.pop();
   }
 
-  drawImage(image: Image, x: number, y: number) {
-    const { p5 } = this.props;
+  drawImage = (image: Image, x: number, y: number) => {
+    this.drawImageImpl(this.p5, image, x, y);
+  }
+
+  drawImageStatic = (image: Image, x: number, y: number) => {
+    if (this.isStaticCached) return;
+    this.drawImageImpl(this.staticGraphics, image, x, y);
+  }
+
+  private drawImageImpl = (graphics: P5 | P5.Graphics, image: Image, x: number, y: number) => {
     const loaded = this.images[image];
     if (!loaded) return;
-    p5.image(
+    graphics.image(
       loaded,
       x,
       y,
@@ -141,9 +157,9 @@ export class SpriteRenderer {
       0,
       loaded.width,
       loaded.height,
-      p5.COVER,
-      p5.LEFT,
-      p5.TOP
+      this.p5.COVER,
+      this.p5.LEFT,
+      this.p5.TOP
     );
   }
 }

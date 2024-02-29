@@ -1,4 +1,4 @@
-import p5, { Vector } from "p5";
+import P5, { Vector } from "p5";
 import { Howl } from 'howler';
 
 /**
@@ -202,7 +202,7 @@ export interface Level {
   isWinGame?: boolean,
   extraLoseMessages?: LoseMessage[],
   portalExitConfig?: Partial<Record<PortalChannel, PortalExitMode>>,
-  titleScene?: (p5: p5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene,
+  titleScene?: (p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene,
   musicTrack?: MusicTrack,
   titleVariant?: TitleVariant,
   globalLight?: number,
@@ -267,9 +267,9 @@ export interface FontsInstance {
 }
 
 export interface FontVariants {
-  miniMood: p5.Font
-  zicons: p5.Font
-  casual: p5.Font
+  miniMood: P5.Font
+  zicons: P5.Font
+  casual: P5.Font
 }
 
 export interface SFXInstance {
@@ -428,4 +428,15 @@ export interface UIHandler {
   handleUINavigation: UINavEventHandler,
   handleUIInteract: UIInteractHandler,
   handleUICancel: UICancelHandler,
+}
+
+export interface GraphicalComponents {
+  deco1: P5.Graphics,
+  deco2: P5.Graphics,
+  barrier: P5.Graphics,
+  barrierPassable: P5.Graphics,
+  door: P5.Graphics,
+  apple: P5.Graphics,
+  snakeHead: P5.Graphics,
+  snakeSegment: P5.Graphics,
 }
