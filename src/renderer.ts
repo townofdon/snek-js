@@ -246,16 +246,12 @@ export class Renderer {
     // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
     graphics.noStroke();
     for (let i = 0; i < blockDivisions; i++) {
-      const position0 = {
-        x: x * BLOCK_SIZE.x + this.screenShake.offset.x + i * sizeX,
-        y: y * BLOCK_SIZE.y + this.screenShake.offset.y + i * sizeY,
-      }
-      const position1 = {
-        x: x * BLOCK_SIZE.x + this.screenShake.offset.x + i * sizeX,
-        y: y * BLOCK_SIZE.y + this.screenShake.offset.y + (blockDivisions - 1 - i) * sizeY,
-      }
-      graphics.square(position0.x, position0.y, Math.max(sizeX, sizeY));
-      graphics.square(position1.x, position1.y, Math.max(sizeX, sizeY));
+      const px0 = x * BLOCK_SIZE.x + this.screenShake.offset.x + i * sizeX;
+      const py0 = y * BLOCK_SIZE.y + this.screenShake.offset.y + i * sizeY;
+      const px1 = x * BLOCK_SIZE.x + this.screenShake.offset.x + i * sizeX;
+      const py1 = y * BLOCK_SIZE.y + this.screenShake.offset.y + (blockDivisions - 1 - i) * sizeY;
+      graphics.square(px0, py0, Math.max(sizeX, sizeY));
+      graphics.square(px1, py1, Math.max(sizeX, sizeY));
     }
   }
 
