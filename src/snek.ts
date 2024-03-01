@@ -45,25 +45,26 @@ import {
   SPEED_LIMIT_ULTRA_SPRINT,
   MAX_SNAKE_SIZE,
   GLOBAL_LIGHT_DEFAULT,
-  DIFFICULTY_ULTRA,
   HURT_FORGIVENESS_TIME,
   BLOCK_SIZE,
 } from './constants';
 import {
   clamp,
   dirToUnitVector,
-  findLevelWarpIndex,
   getCoordIndex,
   getCoordIndex2,
   getDifficultyFromIndex,
   getRotationFromDirection,
-  getWarpLevelFromNum,
   invertDirection,
   isWithinBlockDistance,
   parseUrlQueryParams,
   removeArrayElement,
   shuffleArray,
 } from './utils';
+import {
+  findLevelWarpIndex,
+  getWarpLevelFromNum,
+} from './levels/levelUtils';
 import {
   DIR,
   HitType,
@@ -110,7 +111,7 @@ import { buildLevel } from './levels/levelBuilder';
 import { QuoteScene } from './scenes/QuoteScene';
 import { SFX } from './sfx';
 import { replayClips } from './replayClips/replayClips';
-import { AppleParticleSystem } from './particleSystems/AppleParticleSystem';
+import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
 import { WinLevelScene } from './scenes/WinLevelScene';
 import { LOSE_MESSAGES } from './messages';
 import { ImpactParticleSystem } from './particleSystems/ImpactParticleSystem';
@@ -126,7 +127,9 @@ import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './lighting';
 import { Apples } from './collections/apples';
 import { VectorList } from './collections/vectorList';
-import { VARIANT_LEVEL_99 } from './levels/bonusLevels/variantLevel99';
+import { Particles } from './collections/particles';
+import { Emitters } from './collections/emitters';
+import { Gradients } from './collections/gradients';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -315,6 +318,10 @@ export const sketch = (p5: P5) => {
     snakeHead: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     snakeSegment: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
   }
+  const gradients = new Gradients(p5);
+  const particles = new Particles(p5, gradients, screenShake);
+  const emitters = new Emitters(p5, particles);
+  const appleParticleSystem = new AppleParticleSystem2(p5, level, emitters, gradients);
 
   const fonts = new Fonts(p5);
   const sfx = new SFX();
@@ -636,19 +643,8 @@ export const sketch = (p5: P5) => {
       yield null;
     }
     stopReplay();
-    level = START_LEVEL
+    level = START_LEVEL;
     difficulty = { ...DIFFICULTY_EASY };
-
-
-
-
-
-    // level = VARIANT_LEVEL_99
-    // difficulty = { ...DIFFICULTY_ULTRA };
-
-
-
-
     setLevelIndexFromCurrentLevel();
     initLevel()
     playSound(Sound.unlock);
@@ -815,6 +811,8 @@ export const sketch = (p5: P5) => {
     screenShake.timeSinceLastStep = Infinity;
     screenShake.magnitude = 1;
     screenShake.timeScale = 1;
+    screenShake.offset.x = 0;
+    screenShake.offset.y = 0;
     state.targetSpeed = 1;
     state.currentSpeed = 1;
     state.steps = 0;
@@ -844,9 +842,12 @@ export const sketch = (p5: P5) => {
     keysMap = {};
     apples.reset();
     segments.reset();
+    emitters.reset();
+    particles.reset();
 
     renderer.reset();
     cacheGraphicalComponents();
+    appleParticleSystem.setColorsFromLevel(level);
     UI.disableScreenScroll();
     UI.clearLabels();
     clearUI();
@@ -1193,8 +1194,9 @@ export const sketch = (p5: P5) => {
   }
 
   function spawnAppleParticles(position: Vector) {
-    particleSystems.push(new AppleParticleSystem(p5, level, position));
-    particleSystems.push(new AppleParticleSystem(p5, level, position, { spawnMod: .3, speedMod: 4, scaleMod: .5 }));
+    // particleSystems.push(new AppleParticleSystem(p5, level, position));
+    // particleSystems.push(new AppleParticleSystem(p5, level, position, { spawnMod: .3, speedMod: 4, scaleMod: .5 }));
+    appleParticleSystem.emit(position.x, position.y);
   }
 
   function flashScreen() {
@@ -2068,6 +2070,11 @@ export const sketch = (p5: P5) => {
   }
 
   function drawParticles(zIndexPass = 0) {
+    if (zIndexPass < 10) {
+      emitters.tick(p5.deltaTime);
+      particles.tick(p5.deltaTime);
+    }
+    // TODO: REMOVE LEGACY PARTICLE SYSTEMS
     const tempParticleSystems = [];
     for (let i = 0; i < particleSystems.length; i++) {
       if (!particleSystems[i]) continue;

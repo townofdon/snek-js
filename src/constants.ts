@@ -1,6 +1,7 @@
 import P5 from "p5";
-import { Difficulty, PortalChannel } from "./types";
 import Color from "color";
+
+import { Difficulty, PortalChannel } from "./types";
 
 export const TITLE = 'SNEK';
 

@@ -440,3 +440,26 @@ export interface GraphicalComponents {
   snakeHead: P5.Graphics,
   snakeSegment: P5.Graphics,
 }
+
+export interface ParticleSystem2 {
+  emit: (x: number, y: number) => void,
+  opt1: EmitterOptions,
+  opt2?: EmitterOptions,
+  opt3?: EmitterOptions,
+}
+
+export interface EmitterOptions {
+  gradientIndex: number,
+  originOffset: number,
+  lifetime: number,
+  burst: number,
+  spawnOverTime: number,
+  speed: number,
+  speedVariance: number,
+  scaleStart: number,
+  scaleEnd: number,
+  scaleVariance: number,
+  loop: boolean,
+  orbit: number,
+  easingFnc?: (x: number) => number,
+}

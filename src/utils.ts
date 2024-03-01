@@ -5,35 +5,9 @@ import {
   DIFFICULTY_MEDIUM,
   DIFFICULTY_ULTRA,
   GRIDCOUNT,
-  IS_DEV,
 } from "./constants";
-import {
-  LEVEL_01,
-  LEVEL_02,
-  LEVEL_03,
-  LEVEL_04,
-  LEVEL_05,
-  LEVEL_06,
-  LEVEL_07,
-  LEVEL_08,
-  LEVEL_09,
-  LEVEL_10,
-  LEVEL_11,
-  LEVEL_12,
-  LEVEL_13,
-  LEVEL_14,
-  LEVEL_15,
-  LEVEL_17,
-  LEVEL_16,
-  LEVEL_18,
-  LEVEL_19,
-  LEVEL_99,
-} from './levels';
-import { DIR, Level, MusicTrack, QueryParams } from "./types";
-import { TUTORIAL_LEVEL_10 } from "./levels/tutorialLevel10";
-import { TUTORIAL_LEVEL_20 } from "./levels/tutorialLevel20";
-import { TUTORIAL_LEVEL_30 } from "./levels/tutorialLevel30";
-import { TUTORIAL_LEVEL_40 } from "./levels/tutorialLevel40";
+
+import { DIR, MusicTrack, QueryParams } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
   const clamped = Math.max(Math.min(val, maxVal), minVal);
@@ -78,71 +52,6 @@ export function shuffleArray<T>(array: T[]) {
     copy[j] = temp;
   }
   return copy;
-}
-
-export function getWarpLevelFromNum(levelNum: number): Level {
-  switch (levelNum) {
-    case 1:
-      return LEVEL_01;
-    case 2:
-      return LEVEL_02;
-    case 3:
-      return LEVEL_03;
-    case 4:
-      return LEVEL_04;
-    case 5:
-      return LEVEL_05;
-    case 6:
-      return LEVEL_06;
-    case 7:
-      return LEVEL_07;
-    case 8:
-      return LEVEL_08;
-    case 9:
-      return LEVEL_09;
-    case 10:
-      return LEVEL_10;
-    case 11:
-      return LEVEL_11;
-    case 12:
-      return LEVEL_12;
-    case 13:
-      return LEVEL_13;
-    case 14:
-      return LEVEL_14;
-    case 15:
-      return LEVEL_15;
-    case 16:
-      return LEVEL_16;
-    case 17:
-      return LEVEL_17;
-    case 18:
-      return LEVEL_18;
-    case 19:
-      return LEVEL_19;
-    case 99:
-      return LEVEL_99;
-    case 110:
-      return TUTORIAL_LEVEL_10;
-    case 120:
-      return TUTORIAL_LEVEL_20;
-    case 130:
-      return TUTORIAL_LEVEL_30;
-    case 140:
-      return TUTORIAL_LEVEL_40;
-    default:
-      if (IS_DEV) {
-        throw new Error(`Could not find warp level for num: ${levelNum}`)
-      }
-      return LEVEL_01;
-  }
-}
-
-export function findLevelWarpIndex(level: Level): number {
-  for (let i = 1; i < 200; i++) {
-    if (getWarpLevelFromNum(i) === level) return i;
-  }
-  return -1;
 }
 
 export function getDifficultyFromIndex(index: number) {

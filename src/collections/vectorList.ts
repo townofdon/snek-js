@@ -75,8 +75,8 @@ export class VectorList {
     if (found < 0) return;
     this.free[found] = 1;
     this.points[found].set(0, 0);
-    // shift indices left by 1 starting from `found`
-    for (let i = found; i < this.activeLength - 1; i++) {
+    // shift indices left by 1 starting from index
+    for (let i = index; i < this.activeLength - 1; i++) {
       this.indices[i] = this.indices[i + 1];
     }
     this.indices[this.activeLength - 1] = -1;
