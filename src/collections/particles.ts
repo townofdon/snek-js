@@ -52,12 +52,12 @@ export class Particles {
   private timeElapsed: number;
 
   // PROPERTIES
-  private originX: Uint8Array;
-  private originY: Uint8Array;
-  private positionStartX: Uint8Array;
-  private positionStartY: Uint8Array;
-  private positionEndX: Uint8Array;
-  private positionEndY: Uint8Array;
+  private originX: Float32Array;
+  private originY: Float32Array;
+  private positionStartX: Float32Array;
+  private positionStartY: Float32Array;
+  private positionEndX: Float32Array;
+  private positionEndY: Float32Array;
 
   private scaleStart: Float32Array;
   private scaleEnd: Float32Array;
@@ -211,8 +211,7 @@ export class Particles {
   private drawParticle = (i: number): void => {
     if (!this.lifetime[i]) return;
     const normalizedTimeElapsed = Math.max((this.timeElapsed - this.birthtime[i]) / this.lifetime[i], 0);
-    // const t = this.easing[i] ? this.easing[i](normalizedTimeElapsed) : normalizedTimeElapsed;
-    const t = this.easing[i](normalizedTimeElapsed);
+    const t = this.easing[i] ? this.easing[i](normalizedTimeElapsed) : normalizedTimeElapsed;
     const scale = lerp(this.scaleStart[i], this.scaleEnd[i], t);
     // const calcColor = p5.lerpColor(this.colorStart, this.colorEnd, clamp(t * 10 - 9, 0, 1));
     const color = this.gradients.calc(this.gradientIndex[i], clamp(t * 10 - 9, 0, 1));
@@ -246,12 +245,12 @@ export class Particles {
   }
 
   private doubleSize = () => {
-    const originX = new Uint8Array(this.maxLength).fill(DEFAULT_OPTIONS.originX);
-    const originY = new Uint8Array(this.maxLength).fill(DEFAULT_OPTIONS.originY);
-    const positionStartX = new Uint8Array(this.maxLength).fill(DEFAULT_OPTIONS.positionStartX);
-    const positionStartY = new Uint8Array(this.maxLength).fill(DEFAULT_OPTIONS.positionStartY);
-    const positionEndX = new Uint8Array(this.maxLength).fill(DEFAULT_OPTIONS.positionEndX);
-    const positionEndY = new Uint8Array(this.maxLength).fill(DEFAULT_OPTIONS.positionEndY);
+    const originX = new Float32Array(this.maxLength).fill(DEFAULT_OPTIONS.originX);
+    const originY = new Float32Array(this.maxLength).fill(DEFAULT_OPTIONS.originY);
+    const positionStartX = new Float32Array(this.maxLength).fill(DEFAULT_OPTIONS.positionStartX);
+    const positionStartY = new Float32Array(this.maxLength).fill(DEFAULT_OPTIONS.positionStartY);
+    const positionEndX = new Float32Array(this.maxLength).fill(DEFAULT_OPTIONS.positionEndX);
+    const positionEndY = new Float32Array(this.maxLength).fill(DEFAULT_OPTIONS.positionEndY);
 
     const scaleStart = new Float32Array(this.maxLength).fill(DEFAULT_OPTIONS.scaleStart);
     const scaleEnd = new Float32Array(this.maxLength).fill(DEFAULT_OPTIONS.scaleEnd);

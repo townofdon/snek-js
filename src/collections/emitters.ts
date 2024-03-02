@@ -5,6 +5,8 @@ import { Particles } from "./particles";
 import { EmitterOptions } from "../types";
 
 export const INITIAL_POOL_SIZE = 2000;
+const ORIGIN_OFFSET_X = 0.33
+const ORIGIN_OFFSET_Y = 0.28
 
 export class Emitters {
   // GLOBAL
@@ -176,7 +178,7 @@ export class Emitters {
   }
 
   private spawnParticle = (x: number, y: number, options: EmitterOptions) => {
-    const origin = this.p5.createVector(x, y);
+    const origin = (new Vector(x, y)).add(ORIGIN_OFFSET_X, ORIGIN_OFFSET_Y);
     const randomVector = (scale = 1) => {
       return P5.Vector.random2D().mult(scale);
     }

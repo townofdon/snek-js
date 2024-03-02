@@ -99,7 +99,6 @@ import {
   LevelType,
   GraphicalComponents,
 } from './types';
-import { ParticleSystem } from './particle-system';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
@@ -111,12 +110,9 @@ import { buildLevel } from './levels/levelBuilder';
 import { QuoteScene } from './scenes/QuoteScene';
 import { SFX } from './sfx';
 import { replayClips } from './replayClips/replayClips';
-import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
 import { WinLevelScene } from './scenes/WinLevelScene';
 import { LOSE_MESSAGES } from './messages';
-import { ImpactParticleSystem } from './particleSystems/ImpactParticleSystem';
 import { DrawSquareOptions, Renderer } from './renderer';
-import { PortalParticleSystem, PortalVortexParticleSystem } from './particleSystems/PortalParticleSystem';
 import { MusicPlayer } from './musicPlayer';
 import { resumeAudioContext } from './audio';
 import { Easing } from './easing';
@@ -130,6 +126,10 @@ import { VectorList } from './collections/vectorList';
 import { Particles } from './collections/particles';
 import { Emitters } from './collections/emitters';
 import { Gradients } from './collections/gradients';
+import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
+import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
+import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
+import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -259,10 +259,8 @@ const lightMap = createLightmap();
 
 let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };
 let portalsMap: Record<number, Portal> = {};
-let portalParticlesStarted: Record<number, boolean> = {}
 
 let uiElements: Element[] = [];
-let particleSystems: ParticleSystem[] = [];
 
 let quotes = allQuotes.slice();
 
@@ -319,9 +317,14 @@ export const sketch = (p5: P5) => {
     snakeSegment: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
   }
   const gradients = new Gradients(p5);
-  const particles = new Particles(p5, gradients, screenShake);
+  const particles = new Particles(p5, gradients, screenShake); // z-index 0
+  const particles10 = new Particles(p5, gradients, screenShake); // z-index 10
   const emitters = new Emitters(p5, particles);
+  const emitters10 = new Emitters(p5, particles10);
   const appleParticleSystem = new AppleParticleSystem2(p5, level, emitters, gradients);
+  const impactParticleSystem = new ImpactParticleSystem2(p5, level, emitters10, gradients);
+  const portalParticleSystem = new PortalParticleSystem2(p5, emitters10, gradients);
+  const portalVortexParticleSystem = new PortalVortexParticleSystem2(p5, emitters, gradients);
 
   const fonts = new Fonts(p5);
   const sfx = new SFX();
@@ -830,7 +833,6 @@ export const sketch = (p5: P5) => {
     doors = [];
     decoratives1 = [];
     decoratives2 = [];
-    particleSystems = [];
     keys = [];
     passablesMap = {};
     barriersMap = {};
@@ -838,12 +840,13 @@ export const sketch = (p5: P5) => {
     nospawnsMap = {};
     portals = { ...DEFAULT_PORTALS() };
     portalsMap = {};
-    portalParticlesStarted = {};
     keysMap = {};
     apples.reset();
     segments.reset();
     emitters.reset();
+    emitters10.reset();
     particles.reset();
+    particles10.reset();
 
     renderer.reset();
     cacheGraphicalComponents();
@@ -935,6 +938,7 @@ export const sketch = (p5: P5) => {
     }
 
     resetLightmap(lightMap, level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
+    startPortalParticles();
   }
 
   function startLogicLoop() {
@@ -1194,8 +1198,6 @@ export const sketch = (p5: P5) => {
   }
 
   function spawnAppleParticles(position: Vector) {
-    // particleSystems.push(new AppleParticleSystem(p5, level, position));
-    // particleSystems.push(new AppleParticleSystem(p5, level, position, { spawnMod: .3, speedMod: 4, scaleMod: .5 }));
     appleParticleSystem.emit(position.x, position.y);
   }
 
@@ -1725,9 +1727,7 @@ export const sketch = (p5: P5) => {
   }
 
   function spawnHurtParticles() {
-    const position = player.position.copy()
-    particleSystems.push(new ImpactParticleSystem(p5, level, position));
-    particleSystems.push(new ImpactParticleSystem(p5, level, position, { spawnMod: .3, speedMod: 1.5, scaleMod: .5 }));
+    impactParticleSystem.emit(player.position.x, player.position.y);
   }
 
   function getDirectionToFirstSegment() {
@@ -2073,20 +2073,10 @@ export const sketch = (p5: P5) => {
     if (zIndexPass < 10) {
       emitters.tick(p5.deltaTime);
       particles.tick(p5.deltaTime);
+    } else if (zIndexPass < 20) {
+      emitters10.tick(p5.deltaTime);
+      particles10.tick(p5.deltaTime);
     }
-    // TODO: REMOVE LEGACY PARTICLE SYSTEMS
-    const tempParticleSystems = [];
-    for (let i = 0; i < particleSystems.length; i++) {
-      if (!particleSystems[i]) continue;
-      if (particleSystems[i].isActive()) {
-        particleSystems[i].draw(p5, screenShake, zIndexPass);
-        particleSystems[i].tick(p5);
-        tempParticleSystems.push(particleSystems[i]);
-      } else {
-        delete particleSystems[i];
-      }
-    }
-    particleSystems = tempParticleSystems;
   }
 
   function drawPortals() {
@@ -2097,14 +2087,19 @@ export const sketch = (p5: P5) => {
         const portal = portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
         renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback, drawPortalOptions);
-        if (!portalParticlesStarted[portal.hash]) {
-          portalParticlesStarted[portal.hash] = true;
-          const accent = PORTAL_CHANNEL_COLORS[portal.channel];
-          particleSystems.push(new PortalParticleSystem(p5, portal.position, accent));
-          particleSystems.push(new PortalParticleSystem(p5, portal.position, "#fff"));
-          particleSystems.push(new PortalVortexParticleSystem(p5, portal.position, "#000"));
-          particleSystems.push(new PortalVortexParticleSystem(p5, portal.position, "#fff"));
-        }
+      }
+    }
+  }
+
+  function startPortalParticles() {
+    for (let i = 0; i <= 9; i++) {
+      for (let j = 0; j < portals[i as PortalChannel].length; j++) {
+        const portalPosition = portals[i as PortalChannel][j];
+        if (!portalPosition) continue;
+        const portal = portalsMap[getCoordIndex(portalPosition)];
+        if (!portal) continue;
+        portalParticleSystem.emit(portal.position.x, portal.position.y, portal.channel);
+        portalVortexParticleSystem.emit(portal.position.x, portal.position.y, portal.channel);
       }
     }
   }

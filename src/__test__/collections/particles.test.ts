@@ -104,7 +104,7 @@ describe("Collections", () => {
       particles.spawn(getParticle(9));
       assert.strictEqual(particles.length, 10);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE);
-      assert.strictEqual(particles.get(0).originX, 0);
+      assert.strictEqual(particles.get(0).positionStartX, 0);
       assert.strictEqual(particles.get(5).positionEndY, 5);
       particles.reset();
       assert.strictEqual(particles.length, 0);

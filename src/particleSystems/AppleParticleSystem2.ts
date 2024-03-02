@@ -53,7 +53,7 @@ export class AppleParticleSystem2 implements ParticleSystem2 {
   public setColorsFromLevel = (level: Level) => {
     const colorStart = this.p5.color(level.colors.appleStroke);
     const colorEnd = this.p5.color(level.colors.background);
-    const gradientIndex = this.gradients.add(colorStart, colorEnd, 10);
+    const gradientIndex = this.gradients.add(colorStart, colorEnd, 20);
     this.opt1.gradientIndex = gradientIndex;
     this.opt2.gradientIndex = gradientIndex;
   }
