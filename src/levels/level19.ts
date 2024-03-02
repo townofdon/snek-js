@@ -14,13 +14,13 @@ export const LEVEL_19: Level = {
   growthMod: 0.25,
   extraHurtGraceTime: 15,
   layout: `
-XXXXXXXXXXXXXXXXXXXXXLXXXXXXXX
-X            ----===0x8====9XX
-X            ----===0x8----9XX
-X            --XXXXXXx8====9XX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+X            ----===0X8====9XX
+X            ----===0X8----9XX
+X            --XXXXXXX8====9XX
 X            --X7===8XXXXXXXXX
 X-=  =-      --X7---8XX~_l_~XX
-X-    -XXXXXXXLX7===8xxJKKKJXX
+X-    -XXXXXXXLX7===8XXJKKKJXX
 X_    _X6===7XLXXXXXXXXJJKJJXX
 X__--__X6---7X---      -=-=-XX
 XXXXXXXX6===7X---       -=- XX
@@ -32,9 +32,9 @@ X9=---------=-  -=---------=1X
 X9=---------=-  -=---------=1X
 X9=---------=----=    XXXXXXXX
 XX           ----     X4===5XX
-XX           ----     X4-j-5XX
-XX           ---XXXXXXX4===5XX
-XX           ---X3===4XXXXXXXX
+XX           ----     X4-j-5DL
+XX           ---XXXXXXX4===5DX
+XX           ---X3===4XXXXXXDX
 XX           ---X3---4X__--__X
 XXL_L_L_XXXXXXXLX3===4X_    _X
 DD_L_L_LX2===3XLXXXXXXX-    -X
@@ -68,6 +68,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   ],
   musicTrack: MusicTrack.ascension,
   nextLevelMap: {
-    [getCoordIndex2(21, 0)]: VARIANT_LEVEL_99,
+    [getCoordIndex2(29, 18)]: VARIANT_LEVEL_99,
   },
 };

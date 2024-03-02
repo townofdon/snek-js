@@ -14,7 +14,7 @@ export const VARIANT_LEVEL_99: Level = {
   extraHurtGraceTime: 20,
   layout: `
 XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
-X     --~~~~XXddXX~~~~__ JJJJX
+X     --~~~~XXddXX~~~~__ JJJKX
 X     --      __      -- JKkJX
 X     --    ~KKKK~    -- JKKJX
 X     --     KXXK     -- JJJJX

@@ -48,6 +48,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   musicTrack: MusicTrack.simpleTime,
   titleVariant: TitleVariant.Green,
   nextLevelMap: {
-    [getCoordIndex2(29, 14)]: VARIANT_LEVEL_03
+    [getCoordIndex2(29, 14)]: VARIANT_LEVEL_03,
+    // [getCoordIndex2(14, 0)]: VARIANT_LEVEL_03,
   }
 };

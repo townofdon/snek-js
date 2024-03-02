@@ -17,12 +17,12 @@ export const VARIANT_LEVEL_03: Level = {
 XXXXXXXXXXXXXXLXXXXXXXXXXXXXXX
 XXX~~=-=     =-=     =-= ~~XXX
 XXX~ =-=     =-=     =-=  ~XXX
-X1_  =-=   ~~XxX~~   =-=   _3X
-X1-  =-= ~~XXXxXXX~~ =-=   -3X
-X1-  =-= XXXXXxXXXXX =-=   -3X
-X1-  =-=     =-=     =-=   -3X
-X1-  =-=    O=-=     =-=   -3X
-X1_~ =-=     =-=     =-=  ~_3X
+X1_  =-=   ~~XxX~~   =-=   _1X
+X1-  =-= ~~XXXxXXX~~ =-=   -1X
+X1-  =-= XXXXXxXXXXX =-=   -1X
+X1-  =-=     =-=     =-=   -1X
+X1-  =-=    O=-=     =-=   -1X
+X1_~ =-=     =-=     =-=  ~_1X
 XXXX =-=   XXXxXXX   =-=  XXXX
 XXXX =-=   XXXxXXX   =-=  XXXX
 XX+_ =-=   ~~XxX~~   =-=  _+XX
@@ -34,13 +34,13 @@ XX+_ =-=     =-=     =-=  _+XX
 XX+_ =-=   ~~XxX~~   =-=  _+XX
 XXXX =-=   XXXxXXX   =-=  XXXX
 XXXX =-=   XXXxXXX   =-=  XXXX
-X3_~ =-=     =-=     =-=  ~_1X
-X3-  =-=     =-=     =-=   -1X
-X3-  =-=     =-=     =-=   -1X
-X3-  =-= XXXXXxXXXXX =-=   -1X
-X3-  =-= ~~XXXoXXX~~ =-=   -1X
-X3-  =-=   ~~XxX~~   =-=   -1X
-X3_  =-=     =-=     =-=   _1X
+X3_~ =-=     =-=     =-=  ~_3X
+X3-  =-=     =-=     =-=   -3X
+X3-  =-=     =-=     =-=   -3X
+X3-  =-= XXXXXxXXXXX =-=   -3X
+X3-  =-= ~~XXXoXXX~~ =-=   -3X
+X3-  =-=   ~~XxX~~   =-=   -3X
+X3_  =-=     =-=     =-=   _3X
 XXX~ =-=     =-=     =-=  ~XXX
 XXX~~=-=     =-=     =-= ~~XXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX

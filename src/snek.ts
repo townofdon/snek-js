@@ -5,6 +5,7 @@ import {
   START_LEVEL,
   LEVELS,
   LEVEL_AFTER_WIN,
+  LEVEL_19,
 } from './levels';
 import {
   RECORD_REPLAY_STATE,
@@ -1380,6 +1381,7 @@ export const sketch = (p5: P5) => {
 
   function unlockGate(lockTriggered: Lock) {
     playSound(Sound.doorOpenHuge);
+    startScreenShake(0.7, 0.5);
     const group: Record<number, boolean> = {}
     const directionsToCheck: Vector[] = [
       dirToUnitVector(p5, DIR.LEFT),
