@@ -536,10 +536,8 @@ export class UIBindings implements UIHandler {
   }
 
   refreshFieldValues() {
-    const musicVolume = getMusicVolume();
-    const sfxVolume = getSfxVolume();
-    this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].value = String(musicVolume);
-    this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].value = String(sfxVolume);
+    this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].value = String(this.settings.musicVolume);
+    this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].value = String(this.settings.sfxVolume);
     (this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] as HTMLInputElement).checked = this.gameState.isCasualModeEnabled;
     (this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake] as HTMLInputElement).checked = this.settings.isScreenShakeDisabled;
   }
