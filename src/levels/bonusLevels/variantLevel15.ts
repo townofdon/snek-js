@@ -12,6 +12,7 @@ export const VARIANT_LEVEL_15: Level = {
   applesToClear: 1,
   numApplesStart: 30,
   growthMod: 0.8,
+  disableWallCollision: true,
   layout: `
 xxxxxxxxxxxxDDDxxxxxxxxxxxxxxx
 xxXXXXXXXXXXDDDxxxxxxxxxxxxxxx

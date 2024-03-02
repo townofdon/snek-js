@@ -33,14 +33,12 @@ export const STRANGELY_NEEDED_OFFSET = { x: STROKE_SIZE / GRIDCOUNT.x, y: STROKE
  * Typically { x: 20, y: 20 }
  */
 export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x + STRANGELY_NEEDED_OFFSET.x, y: DIMENSIONS.y / GRIDCOUNT.y + STRANGELY_NEEDED_OFFSET.y };
-export const BASE_TICK_MS = 300;
 export const MAX_MOVES = 4;
 export const MAX_LIVES = 3;
 export const MAX_SNAKE_SIZE = GRIDCOUNT.x * GRIDCOUNT.y * 0.55;
 export const START_SNAKE_SIZE = 3;
-export const SPEED_INCREMENT = 1;
-export const SPEED_INCREMENT_SPEED_MS = 1000;
-export const SPRINT_INCREMENT_SPEED_MS = 350;
+export const SPEED_INCREMENT_SPEED_MS = 600;
+export const SPRINT_INCREMENT_SPEED_MS = 250;
 export const NUM_APPLES_START = 3;
 
 export const SCORE_INCREMENT = 10;
@@ -60,15 +58,15 @@ export const SCORE_MOD_MEDIUM = 2;
 export const SCORE_MOD_HARD = 5;
 export const SCORE_MOD_ULTRA = 10;
 
-export const SPEED_MOD_EASY = .45;
-export const SPEED_MOD_MEDIUM = .75;
-export const SPEED_MOD_HARD = 1.6;
-export const SPEED_MOD_ULTRA = 1;
-
 export const NUM_APPLES_MOD_EASY = .5;
 export const NUM_APPLES_MOD_MEDIUM = .9;
 export const NUM_APPLES_MOD_HARD = 1;
 export const NUM_APPLES_MOD_ULTRA = 1.5;
+
+export const SPEED_START_EASY = 300;
+export const SPEED_START_MEDIUM = 260;
+export const SPEED_START_HARD = 190;
+export const SPEED_START_ULTRA = 110;
 
 export const SPEED_LIMIT_EASY = 110;
 export const SPEED_LIMIT_MEDIUM = 56;
@@ -76,40 +74,49 @@ export const SPEED_LIMIT_HARD = 38;
 export const SPEED_LIMIT_ULTRA = 25;
 export const SPEED_LIMIT_ULTRA_SPRINT = 15;
 
+export const SPEED_STEPS_EASY = 20;
+export const SPEED_STEPS_MEDIUM = 20;
+export const SPEED_STEPS_HARD = 10;
+export const SPEED_STEPS_ULTRA = 4;
+
 export const DIFFICULTY_EASY: Difficulty = {
   index: 1,
-  speedMod: SPEED_MOD_EASY,
   applesMod: NUM_APPLES_MOD_EASY,
   scoreMod: SCORE_MOD_EASY,
   bonusMod: BONUS_MOD_EASY,
+  speedStart: SPEED_START_EASY,
   speedLimit: SPEED_LIMIT_EASY,
+  speedSteps: SPEED_STEPS_EASY,
   sprintLimit: SPEED_LIMIT_MEDIUM,
 }
 export const DIFFICULTY_MEDIUM: Difficulty = {
   index: 2,
-  speedMod: SPEED_MOD_MEDIUM,
   applesMod: NUM_APPLES_MOD_MEDIUM,
   scoreMod: SCORE_MOD_MEDIUM,
   bonusMod: BONUS_MOD_MEDIUM,
+  speedStart: SPEED_START_MEDIUM,
   speedLimit: SPEED_LIMIT_MEDIUM,
+  speedSteps: SPEED_STEPS_MEDIUM,
   sprintLimit: SPEED_LIMIT_HARD,
 }
 export const DIFFICULTY_HARD: Difficulty = {
   index: 3,
-  speedMod: SPEED_MOD_HARD,
   applesMod: NUM_APPLES_MOD_HARD,
   scoreMod: SCORE_MOD_HARD,
   bonusMod: BONUS_MOD_HARD,
+  speedStart: SPEED_START_HARD,
   speedLimit: SPEED_LIMIT_HARD,
+  speedSteps: SPEED_STEPS_HARD,
   sprintLimit: SPEED_LIMIT_ULTRA,
 }
 export const DIFFICULTY_ULTRA: Difficulty = {
   index: 4,
-  speedMod: SPEED_MOD_ULTRA,
   applesMod: NUM_APPLES_MOD_ULTRA,
   scoreMod: SCORE_MOD_ULTRA,
   bonusMod: BONUS_MOD_ULTRA,
+  speedStart: SPEED_START_ULTRA,
   speedLimit: SPEED_LIMIT_ULTRA,
+  speedSteps: SPEED_STEPS_ULTRA,
   sprintLimit: SPEED_LIMIT_ULTRA_SPRINT,
 }
 

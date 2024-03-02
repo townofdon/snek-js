@@ -12,10 +12,8 @@ import {
   FRAME_DUR_MS,
   DIMENSIONS,
   GRIDCOUNT,
-  BASE_TICK_MS,
   MAX_LIVES,
   START_SNAKE_SIZE,
-  SPEED_INCREMENT,
   NUM_APPLES_START,
   SCORE_INCREMENT,
   CLEAR_BONUS,
@@ -35,7 +33,6 @@ import {
   LIVES_LEFT_BONUS,
   PERFECT_BONUS,
   DEFAULT_PORTALS,
-  PORTAL_CHANNEL_COLORS,
   ALL_APPLES_BONUS,
   HURT_MUSIC_DUCK_VOL,
   HURT_MUSIC_DUCK_TIME_MS,
@@ -57,6 +54,7 @@ import {
   getRotationFromDirection,
   invertDirection,
   isWithinBlockDistance,
+  lerp,
   parseUrlQueryParams,
   removeArrayElement,
   shuffleArray,
@@ -1162,22 +1160,17 @@ export const sketch = (p5: P5) => {
       if (state.currentSpeed <= 4) return p5.lerp(SPEED_LIMIT_HARD, SPEED_LIMIT_ULTRA, state.currentSpeed - 3);
       return SPEED_LIMIT_ULTRA;
     }
-    return Math.max(
-      BASE_TICK_MS / Math.max(state.currentSpeed * difficulty.speedMod, 1),
-      state.isSprinting ? difficulty.sprintLimit : difficulty.speedLimit
-    );
+    return lerp(difficulty.speedStart,
+      state.isSprinting ? difficulty.sprintLimit : difficulty.speedLimit,
+      state.currentSpeed / difficulty.speedSteps);
   }
 
-  // A NOTE ON THE SPEED SYSTEM
-  // Yes, I know it's hacky and relies on magic numbers.
-  // A better solution would be to assign a quadratic curve to each difficulty.
-  // I may do this in a future iteration if I feel up to it. Right now, the game is good enough.
   function updateCurrentMoveSpeed() {
     if (state.isSprinting) {
-      const deltaSpeed = 10 * (loopState.deltaTime / SPRINT_INCREMENT_SPEED_MS);
+      const deltaSpeed = difficulty.speedSteps * (loopState.deltaTime / SPRINT_INCREMENT_SPEED_MS);
       state.currentSpeed += deltaSpeed;
-      if (state.currentSpeed > 10) {
-        state.currentSpeed = 10;
+      if (state.currentSpeed > difficulty.speedSteps) {
+        state.currentSpeed = difficulty.speedSteps;
       }
       return;
     }
@@ -1187,11 +1180,11 @@ export const sketch = (p5: P5) => {
     if (state.currentSpeed < state.targetSpeed) {
       const t = Easing.inOutCubic(clamp((state.timeSinceHurt - HURT_STUN_TIME) * 0.5, 0, 1));
       const diff = Math.abs(state.targetSpeed - state.currentSpeed);
-      const deltaSpeed = clamp(diff, 1, SPEED_INCREMENT) * (loopState.deltaTime / SPEED_INCREMENT_SPEED_MS) * p5.lerp(0, 1, t);
+      const deltaSpeed = clamp(diff, 1, difficulty.speedSteps) * (loopState.deltaTime / SPEED_INCREMENT_SPEED_MS) * p5.lerp(0, 1, t);
       state.currentSpeed += deltaSpeed;
       if (state.currentSpeed > state.targetSpeed) state.currentSpeed = state.targetSpeed;
     } else if (state.currentSpeed > state.targetSpeed) {
-      const deltaSpeed = 10 * (loopState.deltaTime / SPRINT_INCREMENT_SPEED_MS);
+      const deltaSpeed = difficulty.speedSteps * (loopState.deltaTime / SPRINT_INCREMENT_SPEED_MS);
       state.currentSpeed -= deltaSpeed;
       if (state.currentSpeed < state.targetSpeed) state.currentSpeed = state.targetSpeed;
     }
@@ -1272,6 +1265,8 @@ export const sketch = (p5: P5) => {
       state.lastHurtBy = HitType.HitSelf;
       return true;
     }
+
+    if (level.disableWallCollision) return false;
 
     if (doorsMap[getCoordIndex(vec)]) {
       state.lastHurtBy = HitType.HitDoor;
@@ -1826,12 +1821,9 @@ export const sketch = (p5: P5) => {
 
   function increaseSpeed() {
     if (state.isLost) return;
-    if (difficulty.index === 4) {
-      state.targetSpeed += 1;
-    } else if (difficulty.index === 1) {
-      state.targetSpeed += 1.2;
-    } else {
-      state.targetSpeed += SPEED_INCREMENT * Math.min(difficulty.speedMod, 1);
+    state.targetSpeed += 1;
+    if (level.appleSlowdownMod && !state.isSprinting) {
+      state.currentSpeed = Math.min(difficulty.speedSteps * level.appleSlowdownMod, state.currentSpeed);
     }
   }
 

@@ -58,11 +58,12 @@ export interface ScreenShakeState {
 
 export interface Difficulty {
   index: number,
-  speedMod: number,
   applesMod: number,
   scoreMod: number,
   bonusMod: number,
+  speedStart: number,
   speedLimit: number,
+  speedSteps: number,
   sprintLimit: number,
 }
 
@@ -198,6 +199,7 @@ export interface Level {
   snakeStartSizeOverride?: number,
   disableAppleSpawn?: boolean,
   disableNormalLoseMessages?: boolean,
+  disableWallCollision?: boolean,
   showQuoteOnLevelWin?: boolean,
   isWinGame?: boolean,
   extraLoseMessages?: LoseMessage[],
@@ -208,6 +210,7 @@ export interface Level {
   globalLight?: number,
   nextLevelMap?: Record<number, Level>,
   nextLevel?: Level,
+  appleSlowdownMod?: number,
 }
 
 export enum KeyChannel {

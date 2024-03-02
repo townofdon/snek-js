@@ -2,7 +2,6 @@ import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../../types";
 import { getCoordIndex2 } from "../../utils";
-import { TUTORIAL_LEVEL_10 } from "../tutorialLevel10";
 import { SECRET_LEVEL_10 } from "./secretLevel10";
 import { WARP_ZONE_01 } from "./warpZone01";
 
@@ -19,32 +18,32 @@ XXXXXXXXXXXXXXLXXXXXXXXXXXXXXX
 XXX~~=-=     =-=     =-= ~~XXX
 XXX~ =-=     =-=     =-=  ~XXX
 X1_  =-=   ~~XxX~~   =-=   _3X
-X1-  =-= ~~XXXoXXX~~ =-=   -3X
+X1-  =-= ~~XXXxXXX~~ =-=   -3X
 X1-  =-= XXXXXxXXXXX =-=   -3X
 X1-  =-=     =-=     =-=   -3X
 X1-  =-=    O=-=     =-=   -3X
 X1_~ =-=     =-=     =-=  ~_3X
-XXXX =-=   XXXXXXX   =-=  XXXX
-XXXX =-=   XXXXXXX   =-=  XXXX
-XX+_ =-=   ~~XXX~~   =-=  _+XX
+XXXX =-=   XXXxXXX   =-=  XXXX
+XXXX =-=   XXXxXXX   =-=  XXXX
+XX+_ =-=   ~~XxX~~   =-=  _+XX
 XX+_ =-=     =-=     =-=  _+XX
 Dd+_ =-=     =-=     =-=  _+dD
 Dd+_ =-=     =-=     =-=  _+dD
 Dd+_ =-=     =-=     =-=  _+dD
 XX+_ =-=     =-=     =-=  _+XX
-XX+_ =-=   ~~XXX~~   =-=  _+XX
-XXXX =-=   XXXXXXX   =-=  XXXX
-XXXX =-=   XXXXXXX   =-=  XXXX
+XX+_ =-=   ~~XxX~~   =-=  _+XX
+XXXX =-=   XXXxXXX   =-=  XXXX
+XXXX =-=   XXXxXXX   =-=  XXXX
 X3_~ =-=     =-=     =-=  ~_1X
 X3-  =-=     =-=     =-=   -1X
 X3-  =-=     =-=     =-=   -1X
 X3-  =-= XXXXXxXXXXX =-=   -1X
-X3-  =-= ~~XXXuXXX~~ =-=   -1X
+X3-  =-= ~~XXXoXXX~~ =-=   -1X
 X3-  =-=   ~~XxX~~   =-=   -1X
 X3_  =-=     =-=     =-=   _1X
 XXX~ =-=     =-=     =-=  ~XXX
 XXX~~=-=     =-=     =-= ~~XXX
-XXXXXXXXXXXXXXJXXXXXXXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 `,
   colors: getExtendedPalette(PALETTE.gravChamber),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
@@ -63,9 +62,9 @@ XXXXXXXXXXXXXXJXXXXXXXXXXXXXXX
     9: PortalExitMode.SameDirection,
     0: PortalExitMode.SameDirection,
   },
-  nextLevel: TUTORIAL_LEVEL_10,
+  nextLevel: SECRET_LEVEL_10,
   nextLevelMap: {
     [getCoordIndex2(14, 0)]: WARP_ZONE_01,
-    [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
+    [getCoordIndex2(14, 29)]: WARP_ZONE_01,
   }
 };

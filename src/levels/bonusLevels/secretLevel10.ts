@@ -12,6 +12,7 @@ export const SECRET_LEVEL_10: Level = {
   applesToClear: Infinity,
   disableAppleSpawn: true,
   numApplesStart: 0,
+  appleSlowdownMod: 0.5,
   // extraHurtGraceTime: 10,
   // snakeStartSizeOverride: 150,
   growthMod: 0,
