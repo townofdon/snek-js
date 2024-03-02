@@ -103,7 +103,7 @@ export function handleKeyPressed(
     return;
   }
 
-  if (state.isLost && state.timeSinceHurt > HURT_FORGIVENESS_TIME) {
+  if (state.isLost && state.timeSinceHurt > 20) {
     if (keyCode === ENTER) callAction(InputAction.RetryLevel);
     if (keyCode === KEYCODE_ALPHA_M) callAction(InputAction.ConfirmShowMainMenu);
     return;
@@ -275,7 +275,7 @@ function getSpecialMove(currentDirection: DIR, recentMoves: RecentMoves, recentI
   return null;
 }
 
-export function validateMove(prev: DIR, current: DIR, disallowEqual = true) {
+export function validateMove(prev: DIR, current: DIR, disallowEqual = true): boolean {
   if (!current) return false;
   if (disallowEqual && prev === current) return false;
   if (prev === DIR.UP && current === DIR.DOWN) return false;

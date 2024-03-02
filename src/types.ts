@@ -39,6 +39,8 @@ export enum DIR {
 export interface PlayerState {
   position: Vector,
   direction: DIR,
+  directionToFirstSegment: DIR,
+  directionLastHit: DIR,
 }
 
 export interface ClickState {

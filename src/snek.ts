@@ -53,11 +53,13 @@ import {
   getDifficultyFromIndex,
   getRotationFromDirection,
   invertDirection,
+  isOrthogonalDirection,
   isWithinBlockDistance,
   lerp,
   parseUrlQueryParams,
   removeArrayElement,
   shuffleArray,
+  vecToString,
 } from './utils';
 import {
   findLevelWarpIndex,
@@ -196,6 +198,8 @@ const metrics = {
 const player: PlayerState = {
   position: null,
   direction: DIR.RIGHT,
+  directionToFirstSegment: DIR.RIGHT,
+  directionLastHit: DIR.RIGHT,
 };
 const screenShake: ScreenShakeState = {
   offset: new Vector(0, 0),
@@ -331,7 +335,8 @@ export const sketch = (p5: P5) => {
   const winLevelScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
   const onChangePlayerDirection: (direction: DIR) => void = (dir) => {
     if (validateMove(player.direction, dir)) {
-      player.direction = dir
+      player.direction = dir;
+      player.directionToFirstSegment = invertDirection(dir);
     }
   };
   const winGameScene = new WinGameScene({ p5, gameState: state, stats, sfx, fonts, onChangePlayerDirection, callbacks: { onSceneEnded: gotoNextLevel } })
@@ -791,6 +796,8 @@ export const sketch = (p5: P5) => {
     // init state for new level
     player.position = p5.createVector(15, 15);
     player.direction = DIR.RIGHT;
+    player.directionToFirstSegment = DIR.LEFT;
+    player.directionLastHit = DIR.LEFT;
     state.isPaused = false;
     state.isMoving = false;
     state.isRewinding = false;
@@ -857,6 +864,7 @@ export const sketch = (p5: P5) => {
     winGameScene.reset();
     stopAction(Action.ChangeMusicLowpass);
     stopAction(Action.FadeMusic);
+    stopAction(Action.GameOver);
     startAction(fadeMusic(1, 100), Action.FadeMusic);
     sfx.setGlobalVolume(settings.sfxVolume);
 
@@ -1010,6 +1018,7 @@ export const sketch = (p5: P5) => {
     handleSetNextLevel();
 
     const didHit = checkHasHit(player.position);
+    if (didHit) player.directionLastHit = player.direction;
     state.isLost = didHit;
     handleSnakeDamage(state.isLost && state.lives > 0);
 
@@ -1259,7 +1268,6 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel) return false;
     if (state.isExited) return false;
     if (state.isGameWon) return false;
-    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
 
     if (segments.containsCoord(getCoordIndex(vec))) {
       state.lastHurtBy = HitType.HitSelf;
@@ -1319,6 +1327,7 @@ export const sketch = (p5: P5) => {
     switch (level.portalExitConfig?.[portal.channel] || portal.exitMode) {
       case PortalExitMode.InvertDirection:
         player.direction = invertDirection(player.direction);
+        player.directionToFirstSegment = invertDirection(player.direction);
         break;
       case PortalExitMode.SameDirection:
         break;
@@ -1424,6 +1433,7 @@ export const sketch = (p5: P5) => {
     if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
       const normalizedSpeed = clamp(difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
       didMove = movePlayer(normalizedSpeed);
+      if (didMove) player.directionToFirstSegment = invertDirection(player.direction);
     } else {
       state.timeSinceLastMove += loopState.deltaTime;
     }
@@ -1435,17 +1445,19 @@ export const sketch = (p5: P5) => {
   function movePlayer(normalizedSpeed = 0): boolean {
     if (!state.isMoving) return false;
     if (state.isExited) return false;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     state.timeSinceLastMove = 0;
     const prevDirection = player.direction;
     if (moves.length > 0 && !state.isExitingLevel) {
-      player.direction = moves.shift()
+      const move = moves.shift();
+      if (move !== player.directionToFirstSegment) player.direction = move;
     }
     const currentMove = dirToUnitVector(p5, player.direction);
     const futurePosition = player.position.copy().add(currentMove);
 
     // disallow snake moving backwards into itself
     if (segments.length > 0 && futurePosition.equals(segments.get(0).x, segments.get(0).y)) {
-      player.direction = prevDirection;
+      player.direction = player.direction === prevDirection ? getDirectionSnakeForward() : prevDirection;
       return false;
     }
 
@@ -1504,7 +1516,8 @@ export const sketch = (p5: P5) => {
     }
     state.timeSinceLastMove = 0;
     reboundSnake(1);
-    player.direction = getDirectionToFirstSegment();
+    player.direction = getDirectionSnakeForward();
+    player.directionToFirstSegment = invertDirection(player.direction);
   }
 
   function handleSnakeMovementDuringReplay(didHit: boolean) {
@@ -1514,7 +1527,8 @@ export const sketch = (p5: P5) => {
     if (position != undefined) {
       moveSegments();
       player.position.set(position[0], position[1])
-      player.direction = getDirectionToFirstSegment();
+      player.direction = getDirectionSnakeForward();
+      player.directionToFirstSegment = invertDirection(player.direction);
     }
   }
 
@@ -1648,19 +1662,39 @@ export const sketch = (p5: P5) => {
     if (moves.length <= 0) return;
     if (segments.length <= 0) return;
 
+    const isGameOver = state.isLost && state.lives === 0;
     const move = moves.shift();
-    const currentMove = dirToUnitVector(p5, move);
-    const futurePosition = player.position.copy().set(segments.get(0)).add(currentMove);
-    const willHitSomething = checkHasHit(futurePosition);
-    if (willHitSomething) return;
+    if (!isOrthogonalDirection(move, player.directionLastHit)) {
+      state.timeSinceHurtForgiveness = 0;
+      return;
+    }
+    if (move === player.directionToFirstSegment) {
+      state.timeSinceHurtForgiveness = 0;
+      return;
+    }
+    if (move === player.direction && isGameOver) {
+      state.timeSinceHurtForgiveness = 0;
+      return;
+    }
 
-    player.direction = move;
-    if (state.isLost && state.lives === 0) {
+    const currentMove = dirToUnitVector(p5, move);
+    const futurePosition = isGameOver
+      ? segments.get(0).copy().add(currentMove)
+      : player.position.copy().add(currentMove);
+    const willHitSomething = checkHasHit(futurePosition);
+    if (willHitSomething) {
+      state.timeSinceHurtForgiveness = 0;
+      return;
+    }
+
+    if (isGameOver) {
       reboundSnake(segments.length > 3 ? 2 : 1);
       playSound(Sound.hurt3);
     } else {
       state.lives += 1;
     }
+    player.direction = move;
+    player.directionToFirstSegment = getDirectionSnakeBackward();
     state.isLost = false;
     state.timeSinceHurt = Infinity;
     state.timeSinceHurtForgiveness = 0;
@@ -1691,10 +1725,9 @@ export const sketch = (p5: P5) => {
     renderHeartsUI();
     spawnHurtParticles();
     reboundSnake(segments.length > 3 ? 2 : 1);
-    // reset any queued up moves so that next action player takes feels more intentional
-    moves = [];
     // set current direction to be the direction from the first segment towards the snake head
-    player.direction = getDirectionToFirstSegment();
+    player.direction = getDirectionSnakeForward();
+    player.directionToFirstSegment = invertDirection(player.direction);
     startAction(duckMusicOnHurt(), Action.FadeMusic);
     switch (state.lives) {
       case 2:
@@ -1725,17 +1758,22 @@ export const sketch = (p5: P5) => {
     impactParticleSystem.emit(player.position.x, player.position.y);
   }
 
-  function getDirectionToFirstSegment() {
+  function getDirectionSnakeForward() {
     return getDirectionBetween(player.position, segments.get(0));
+  }
+
+  function getDirectionSnakeBackward() {
+    return invertDirection(getDirectionSnakeForward())
   }
 
   function getDirectionBetween(from: Vector, to: Vector) {
     if (!from || !to) return DIR.RIGHT;
-    const diff = from.copy().sub(to);
-    if (diff.x === -1) return DIR.LEFT;
-    if (diff.x === 1) return DIR.RIGHT;
-    if (diff.y === -1) return DIR.UP;
-    if (diff.y === 1) return DIR.DOWN;
+    const diffX = clamp(from.x - to.x, -1, 1);
+    const diffY = clamp(from.y - to.y, -1, 1);
+    if (diffX === -1) return DIR.LEFT;
+    if (diffX === 1) return DIR.RIGHT;
+    if (diffY === -1) return DIR.UP;
+    if (diffY === 1) return DIR.DOWN;
     return DIR.RIGHT;
   }
 
@@ -1908,7 +1946,7 @@ export const sketch = (p5: P5) => {
     } else {
       renderer.drawGraphicalComponent(graphicalComponents.snakeHead, vec.x, vec.y);
     }
-    const direction = moves.length > 0 ? moves[0] : player.direction;
+    const direction = (!state.isLost && moves.length > 0) ? moves[0] : player.direction;
     if (state.isLost) {
       spriteRenderer.drawImage3x3(Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction));
     } else {
@@ -2109,9 +2147,9 @@ export const sketch = (p5: P5) => {
     state.timeSinceHurt = 0;
     yield null;
     yield* actions.waitForTime(HURT_FORGIVENESS_TIME * 2);
-    clearAction(Action.GameOver);
     yield null;
     showGameOver();
+    clearAction(Action.GameOver);
   }
 
   function showGameOver() {
