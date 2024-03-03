@@ -13,7 +13,7 @@ export const LEVEL_06: Level = {
   numApplesStart: 5,
   growthMod: 0.9,
   layout: `
-X1XXXXXXXXXXXXXXXXXXXXXXXXXX3X
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXX~~~ ~  ~ ~  ~  ~  ~ ~~XXXX
 XXXX    ------  ------    XXXX
 XXXX   -======--======-   XXXX
@@ -41,8 +41,8 @@ XXXX~ -+DDDDDD++DDDDDD+- ~XXXX
 Xxxx~  -=+=+==--==+=+=-  ~xxxX
 XxXX~   ------  ------   ~XXxX
 XxXX~~~ ~  ~   ~  ~ ~  ~~~XXxX
-X1XXXXXXXXXXXXXXXXXXXXXXXXXX3X
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XxXXXXXXXXXXXXXXXXXXXXXXXXXXxX
+XxXXXXXXXXXXXXXXXXXXXXXXXXXXxX
   `,
   colors: getExtendedPalette(PALETTE.cornflower),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
@@ -52,7 +52,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     1: PortalExitMode.InvertDirection,
   },
   nextLevelMap: {
-    [getCoordIndex2(1, 0)]: VARIANT_LEVEL_07,
-    [getCoordIndex2(28, 0)]: VARIANT_LEVEL_07,
+    [getCoordIndex2(1, 29)]: VARIANT_LEVEL_07,
+    [getCoordIndex2(28, 29)]: VARIANT_LEVEL_07,
   },
 };
