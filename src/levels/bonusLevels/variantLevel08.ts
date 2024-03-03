@@ -1,7 +1,9 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../../types";
+import { getCoordIndex2 } from "../../utils";
 import { LEVEL_09 } from "../level09";
+import { SECRET_LEVEL_20 } from "./secretLevel20";
 
 const name = 'boneyard';
 
@@ -27,8 +29,8 @@ X__                 -=-    ~~X
 X~_       -          -     ~XX
 X~~      -=-    ---  -    ~~XX
 X~~     -===- --===--=-   ~XXX
-X~~     -==-    -=-  -   ~XDDD
-X~~     -=-      -       ~XDDD
+X~~     -==-    -=-  -   ~xDDD
+X~~     -=-      -       ~xDDD
 X~~      -               ~~XXX
 X~~               ~       ~XXX
 X~~               XX~     ~XXX
@@ -49,4 +51,8 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
   titleVariant: TitleVariant.Green,
   globalLight: 0.2,
   nextLevel: LEVEL_09,
+  nextLevelMap: {
+    [getCoordIndex2(29, 16)]: SECRET_LEVEL_20,
+    [getCoordIndex2(29, 17)]: SECRET_LEVEL_20,
+  },
 };

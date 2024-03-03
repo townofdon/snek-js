@@ -5,7 +5,6 @@ import {
   START_LEVEL,
   LEVELS,
   LEVEL_AFTER_WIN,
-  LEVEL_19,
 } from './levels';
 import {
   RECORD_REPLAY_STATE,
@@ -45,6 +44,9 @@ import {
   GLOBAL_LIGHT_DEFAULT,
   HURT_FORGIVENESS_TIME,
   BLOCK_SIZE,
+  DIFFICULTY_ULTRA,
+  DIFFICULTY_HARD,
+  DIFFICULTY_MEDIUM,
 } from './constants';
 import {
   clamp,
@@ -60,7 +62,6 @@ import {
   parseUrlQueryParams,
   removeArrayElement,
   shuffleArray,
-  vecToString,
 } from './utils';
 import {
   findLevelWarpIndex,
@@ -131,6 +132,7 @@ import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
 import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
 import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
+import { SECRET_LEVEL_20 } from './levels/bonusLevels/secretLevel20';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -654,6 +656,18 @@ export const sketch = (p5: P5) => {
     stopReplay();
     level = START_LEVEL;
     difficulty = { ...DIFFICULTY_EASY };
+
+    // TODO: REVERT
+    // TODO: REVERT
+    // TODO: REVERT
+    // TODO: REVERT
+    // TODO: REVERT
+    // TODO: REVERT
+    // level = SECRET_LEVEL_20;
+    // difficulty = { ...DIFFICULTY_MEDIUM };
+    // difficulty = { ...DIFFICULTY_HARD };
+    // difficulty = { ...DIFFICULTY_ULTRA };
+
     setLevelIndexFromCurrentLevel();
     initLevel()
     playSound(Sound.unlock);
@@ -721,7 +735,7 @@ export const sketch = (p5: P5) => {
     if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    const progress = clamp(stats.applesEatenThisLevel / (level.applesToClear * difficulty.applesMod), 0, 1);
+    const progress = clamp(stats.applesEatenThisLevel / (level.applesToClear * (level.applesModOverride || difficulty.applesMod)), 0, 1);
     UI.renderLevelName(level.name, state.isShowingDeathColours, progress);
   }
 
@@ -1251,10 +1265,11 @@ export const sketch = (p5: P5) => {
   }
 
   function getHasClearedLevel() {
+    const applesMod = level.applesModOverride || difficulty.applesMod || 1;
     if (state.isGameWon) return false;
     if (DEBUG_EASY_LEVEL_EXIT && stats.applesEatenThisLevel > 0) return true;
-    if (stats.applesEatenThisLevel >= level.applesToClear * difficulty.applesMod) return true;
-    if (state.timeElapsed >= level.timeToClear && stats.applesEatenThisLevel >= level.applesToClear * difficulty.applesMod * 0.5) return true;
+    if (stats.applesEatenThisLevel >= level.applesToClear * applesMod) return true;
+    if (state.timeElapsed >= level.timeToClear && stats.applesEatenThisLevel >= level.applesToClear * applesMod * 0.5) return true;
     return false;
   }
 

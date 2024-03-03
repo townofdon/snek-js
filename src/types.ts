@@ -213,6 +213,7 @@ export interface Level {
   nextLevelMap?: Record<number, Level>,
   nextLevel?: Level,
   appleSlowdownMod?: number,
+  applesModOverride?: number,
 }
 
 export enum KeyChannel {
