@@ -1,6 +1,8 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { SECRET_LEVEL_20 } from "./bonusLevels/secretLevel20";
 
 const name = 'courtyard';
 
@@ -26,8 +28,8 @@ X__                 -=-    ~~X
 X~_       -          -     ~XX
 X~~      -=-    ---  -    ~~XX
 X~~     -===- --===--=-   ~XXX
-X~~     -==-    -=-  -   ~XDDD
-X~~     -=-      -       ~XDDD
+X~~     -==-    -=-  -   ~xDDD
+X~~     -=-      -       ~xDDD
 X~~      -               ~~XXX
 X~~               ~       ~XXX
 X~~               XX~     ~XXX
@@ -47,4 +49,8 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
   musicTrack: MusicTrack.skycastle,
   titleVariant: TitleVariant.Green,
   globalLight: 0.9,
+  nextLevelMap: {
+    [getCoordIndex2(29, 16)]: SECRET_LEVEL_20,
+    [getCoordIndex2(29, 17)]: SECRET_LEVEL_20,
+  },
 };

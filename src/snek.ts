@@ -133,6 +133,8 @@ import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
 import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
 import { SECRET_LEVEL_20 } from './levels/bonusLevels/secretLevel20';
+import { SECRET_LEVEL_21 } from './levels/bonusLevels/secretLevel21';
+import { VARIANT_LEVEL_10 } from './levels/bonusLevels/variantLevel10';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -663,7 +665,7 @@ export const sketch = (p5: P5) => {
     // TODO: REVERT
     // TODO: REVERT
     // TODO: REVERT
-    // level = SECRET_LEVEL_20;
+    // level = VARIANT_LEVEL_10;
     // difficulty = { ...DIFFICULTY_MEDIUM };
     // difficulty = { ...DIFFICULTY_HARD };
     // difficulty = { ...DIFFICULTY_ULTRA };
@@ -1043,7 +1045,7 @@ export const sketch = (p5: P5) => {
     if (state.isLost) {
       spawnHurtParticles();
       renderHeartsUI();
-      flashScreen();
+      flashScreen(HURT_FORGIVENESS_TIME);
       startScreenShake();
       triggerGameOver();
       playSound(Sound.death);
@@ -1220,12 +1222,12 @@ export const sketch = (p5: P5) => {
     appleParticleSystem.emit(position.x, position.y);
   }
 
-  function flashScreen() {
+  function flashScreen(extraDuration = 0) {
     if (replay.mode === ReplayMode.Playback) return;
     const screenFlashElement = UI.drawScreenFlash();
     setTimeout(() => {
       screenFlashElement?.remove();
-    }, FRAMERATE * 2)
+    }, FRAMERATE * 2 + extraDuration)
   }
 
   function startScreenShake(magnitude = 1, normalizedTime = 0, timeScale = 1, force = false) {

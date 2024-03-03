@@ -1,6 +1,8 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack } from "../../types";
+import { getCoordIndex2 } from "../../utils";
+import { LEVEL_08 } from "../level08";
 import { VARIANT_LEVEL_08 } from "./variantLevel08";
 
 const name = 'factory subfloor';
@@ -50,5 +52,9 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   ],
   musicTrack: MusicTrack.stonemaze,
   globalLight: 0.4,
-  nextLevel: VARIANT_LEVEL_08,
+  nextLevel: LEVEL_08,
+  nextLevelMap: {
+    [getCoordIndex2(14, 0)]: VARIANT_LEVEL_08,
+    [getCoordIndex2(15, 0)]: VARIANT_LEVEL_08,
+  },
 };
