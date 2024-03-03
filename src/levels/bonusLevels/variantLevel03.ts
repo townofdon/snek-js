@@ -2,8 +2,8 @@ import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../../types";
 import { getCoordIndex2 } from "../../utils";
+import { TUTORIAL_LEVEL_10 } from "../tutorialLevel10";
 import { SECRET_LEVEL_10 } from "./secretLevel10";
-import { WARP_ZONE_01 } from "./warpZone01";
 
 const name = 'metroteque'
 
@@ -62,9 +62,9 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     9: PortalExitMode.SameDirection,
     0: PortalExitMode.SameDirection,
   },
-  nextLevel: SECRET_LEVEL_10,
+  nextLevel: TUTORIAL_LEVEL_10,
   nextLevelMap: {
-    [getCoordIndex2(14, 0)]: WARP_ZONE_01,
-    [getCoordIndex2(14, 29)]: WARP_ZONE_01,
-  }
+    [getCoordIndex2(14, 0)]: SECRET_LEVEL_10,
+    [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
+  },
 };

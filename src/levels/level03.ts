@@ -2,7 +2,7 @@ import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 import { getCoordIndex2 } from "../utils";
-import { WARP_ZONE_01 } from "./bonusLevels/warpZone01";
+import { SECRET_LEVEL_10 } from "./bonusLevels/secretLevel10";
 
 const name = 'metro'
 
@@ -49,7 +49,7 @@ XXXXXXXXXXXXXXJXXXXXXXXXXXXXXX
   musicTrack: MusicTrack.transient,
   titleVariant: TitleVariant.Yellow,
   nextLevelMap: {
-    [getCoordIndex2(14, 0)]: WARP_ZONE_01,
-    [getCoordIndex2(14, 29)]: WARP_ZONE_01
-  }
+    [getCoordIndex2(14, 0)]: SECRET_LEVEL_10,
+    [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
+  },
 };

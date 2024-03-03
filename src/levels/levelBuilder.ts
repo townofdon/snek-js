@@ -138,7 +138,6 @@ export function buildLevel({ p5, level, difficulty }: BuildLevelParams) {
           data.nospawns.push(vec);
           break;
         case 'k':
-          if (level === LEVEL_99 && difficulty.index >= 3) break;
           data.keys.push({ position: vec, channel: KeyChannel.Red });
           data.nospawns.push(vec);
           break;

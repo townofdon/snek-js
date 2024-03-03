@@ -1,12 +1,14 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { WARP_ZONE_01 } from "./bonusLevels/warpZone01";
 
 const name = 'turnaround';
 
 export const TUTORIAL_LEVEL_10: Level = {
   name,
-  timeToClear: 1000 * 60 * 5,
+  timeToClear: Infinity,
   applesToClear: 10,
   numApplesStart: -1,
   disableAppleSpawn: true,
@@ -29,19 +31,19 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XX~~~O~~~~~aaaaaaaaaaaaaaaaaaX
 D~~~~~~~~~~~~~~~~~~~~~~~~~~~~X
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXxxXxxXXxxXxxXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
-XXXXXXXXXXXXDDXXDDXXXXXXXXXXXX
+XXXXXXXXXxxXDDXXDDXxxXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
-XXXXXXXXXXXXDDXXDDXXXXXXXXXXXX
+XXXXXXXXXxxXDDXXDDXxxXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.hospital),
@@ -54,4 +56,14 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   musicTrack: MusicTrack.aqueduct,
   titleVariant: TitleVariant.Gray,
   globalLight: 0.5,
+  nextLevelMap: {
+    [getCoordIndex2(9, 29)]: WARP_ZONE_01,
+    [getCoordIndex2(10, 29)]: WARP_ZONE_01,
+    [getCoordIndex2(12, 29)]: WARP_ZONE_01,
+    [getCoordIndex2(13, 29)]: WARP_ZONE_01,
+    [getCoordIndex2(16, 29)]: WARP_ZONE_01,
+    [getCoordIndex2(17, 29)]: WARP_ZONE_01,
+    [getCoordIndex2(19, 29)]: WARP_ZONE_01,
+    [getCoordIndex2(20, 29)]: WARP_ZONE_01,
+  },
 };
