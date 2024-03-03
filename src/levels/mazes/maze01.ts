@@ -1,5 +1,8 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
+import { getCoordIndex2 } from "../../utils";
+import { LEVEL_01_HARD } from "../level01hard";
+import { LEVEL_01_ULTRA } from "../level01ultra";
 
 const name = 'maze-01';
 
@@ -60,4 +63,8 @@ XXXXXXXXXXXXXD3DXXXXXXXXDD4DXX
   },
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.4,
+  nextLevelMap: {
+    [getCoordIndex2(14, 29)]: LEVEL_01_HARD,
+    [getCoordIndex2(26, 29)]: LEVEL_01_ULTRA,
+  },
 };
