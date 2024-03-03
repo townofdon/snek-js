@@ -3,7 +3,7 @@ import { faker } from '@faker-js/faker';
 
 import { GameSettings, GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavDir, UINavEventHandler, UISection } from './types';
 import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
-import { DOM, MainMenuButton, MainMenuNavMap, SettingsMenuElement, SettingsMenuNavMap } from './uiNavMap';
+import { DOM, MainMenuButton, MainMenuNavMap, PauseMenuElement, PauseMenuNavMap, SettingsMenuElement, SettingsMenuNavMap } from './uiNavMap';
 import { InputAction } from './controls';
 
 const UI_LABEL_OFFSET = '18px';
@@ -425,6 +425,7 @@ interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
   onSetSfxVolume: (volume: number) => void,
   onToggleCasualMode: (value?: boolean) => void,
+  onWarpToLevel: (index: number) => void,
 }
 
 export class UIBindings implements UIHandler {
@@ -436,8 +437,91 @@ export class UIBindings implements UIHandler {
     onSetMusicVolume: (volume: number) => { },
     onSetSfxVolume: (volume: number) => { },
     onToggleCasualMode: (value?: boolean) => { },
+    onWarpToLevel: (index: number) => { }
   };
   private callAction: (action: InputAction) => void;
+  private callPauseMenuAction = (element: PauseMenuElement) => {
+    switch (element) {
+      case PauseMenuElement.ButtonMainMenu:
+        this.callAction(InputAction.ConfirmShowMainMenu);
+        break;
+      case PauseMenuElement.ButtonSettings:
+        this.callAction(InputAction.ShowSettingsMenu);
+        break;
+      case PauseMenuElement.ButtonWarp01:
+        this.callbacks.onWarpToLevel(1);
+        break;
+      case PauseMenuElement.ButtonWarp02:
+        this.callbacks.onWarpToLevel(2);
+        break;
+      case PauseMenuElement.ButtonWarp03:
+        this.callbacks.onWarpToLevel(3);
+        break;
+      case PauseMenuElement.ButtonWarp04:
+        this.callbacks.onWarpToLevel(4);
+        break;
+      case PauseMenuElement.ButtonWarp05:
+        this.callbacks.onWarpToLevel(5);
+        break;
+      case PauseMenuElement.ButtonWarp06:
+        this.callbacks.onWarpToLevel(6);
+        break;
+      case PauseMenuElement.ButtonWarp07:
+        this.callbacks.onWarpToLevel(7);
+        break;
+      case PauseMenuElement.ButtonWarp08:
+        this.callbacks.onWarpToLevel(8);
+        break;
+      case PauseMenuElement.ButtonWarp09:
+        this.callbacks.onWarpToLevel(9);
+        break;
+      case PauseMenuElement.ButtonWarp10:
+        this.callbacks.onWarpToLevel(10);
+        break;
+      case PauseMenuElement.ButtonWarp11:
+        this.callbacks.onWarpToLevel(11);
+        break;
+      case PauseMenuElement.ButtonWarp12:
+        this.callbacks.onWarpToLevel(12);
+        break;
+      case PauseMenuElement.ButtonWarp13:
+        this.callbacks.onWarpToLevel(13);
+        break;
+      case PauseMenuElement.ButtonWarp14:
+        this.callbacks.onWarpToLevel(14);
+        break;
+      case PauseMenuElement.ButtonWarp15:
+        this.callbacks.onWarpToLevel(15);
+        break;
+      case PauseMenuElement.ButtonWarp16:
+        this.callbacks.onWarpToLevel(16);
+        break;
+      case PauseMenuElement.ButtonWarp17:
+        this.callbacks.onWarpToLevel(17);
+        break;
+      case PauseMenuElement.ButtonWarp18:
+        this.callbacks.onWarpToLevel(18);
+        break;
+      case PauseMenuElement.ButtonWarp19:
+        this.callbacks.onWarpToLevel(19);
+        break;
+      case PauseMenuElement.ButtonWarp20:
+        this.callbacks.onWarpToLevel(20);
+        break;
+      case PauseMenuElement.ButtonWarpS1:
+        this.callbacks.onWarpToLevel(110);
+        break;
+      case PauseMenuElement.ButtonWarpS2:
+        this.callbacks.onWarpToLevel(120);
+        break;
+      case PauseMenuElement.ButtonWarpS3:
+        this.callbacks.onWarpToLevel(130);
+        break;
+      case PauseMenuElement.ButtonWarpS4:
+        this.callbacks.onWarpToLevel(140);
+        break;
+    }
+  }
 
   private mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
     [MainMenuButton.StartGame]: null,
@@ -456,6 +540,8 @@ export class UIBindings implements UIHandler {
     [SettingsMenuElement.ButtonClose]: null,
   }
   private settingsMenuNavMap: SettingsMenuNavMap;
+
+  private pauseMenuNavMap: PauseMenuNavMap;
 
   constructor(p5: P5, sfx: SFXInstance, gameState: GameState, settings: GameSettings, callbacks: UIBindingsCallbacks, callAction: (action: InputAction) => void) {
     this.p5 = p5;
@@ -477,6 +563,7 @@ export class UIBindings implements UIHandler {
       callAction
     );
     this.settingsMenuNavMap = new SettingsMenuNavMap(this.settingsMenuElements, callAction);
+    this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
   }
 
   handleUINavigation: UINavEventHandler = (navDir) => {
@@ -512,6 +599,29 @@ export class UIBindings implements UIHandler {
       }
       return true;
     }
+    if (this.gameState.isPaused) {
+      switch (navDir) {
+        case UINavDir.Prev:
+          this.pauseMenuNavMap.gotoPrev();
+          break;
+        case UINavDir.Next:
+          this.pauseMenuNavMap.gotoNext();
+          break;
+        case UINavDir.Up:
+          this.pauseMenuNavMap.gotoUp();
+          break;
+        case UINavDir.Down:
+          this.pauseMenuNavMap.gotoDown();
+          break;
+        case UINavDir.Left:
+          this.pauseMenuNavMap.gotoLeft();
+          break;
+        case UINavDir.Right:
+          this.pauseMenuNavMap.gotoRight();
+          break;
+      }
+      return true;
+    }
     return false;
   }
 
@@ -524,6 +634,10 @@ export class UIBindings implements UIHandler {
       this.mainMenuNavMap.callSelected();
       return true;
     }
+    if (this.gameState.isPaused) {
+      this.pauseMenuNavMap.callSelected();
+      return true;
+    }
     return false;
   }
 
@@ -533,6 +647,12 @@ export class UIBindings implements UIHandler {
       return true;
     }
     return false;
+  }
+
+  onPause = () => {
+    if (this.gameState.isPaused && !UI.getIsSettingsMenuShowing() && !UI.getIsMainMenuShowing()) {
+      this.pauseMenuNavMap.gotoFirst();
+    }
   }
 
   refreshFieldValues() {

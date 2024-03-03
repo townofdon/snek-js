@@ -350,6 +350,7 @@ export const sketch = (p5: P5) => {
     onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
     onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
     onToggleCasualMode: toggleCasualMode,
+    onWarpToLevel: warpToLevel,
   }, handleInputAction);
   const inputCallbacks: InputCallbacks = {
     onWarpToLevel: warpToLevel,
@@ -372,6 +373,7 @@ export const sketch = (p5: P5) => {
         UI.hideSettingsMenu();
         sfx.play(Sound.doorOpen);
         if (!state.isGameStarted) UI.showMainMenu();
+        if (state.isPaused) uiBindings.onPause();
         break;
       case InputAction.ConfirmShowMainMenu:
         confirmShowMainMenu();
@@ -676,7 +678,7 @@ export const sketch = (p5: P5) => {
   }
 
   function showSettingsMenu() {
-    UI.showSettingsMenu();
+    UI.showSettingsMenu(state.isGameStarted);
     uiBindings.refreshFieldValues();
     playSound(Sound.unlock, 1, true);
   }
@@ -2287,6 +2289,7 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel || state.isExited) return;
     state.isPaused = true;
     showPauseUI();
+    uiBindings.onPause();
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(0.07, 1500, 0.2), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(0.6, 2000), Action.FadeMusic, true);
@@ -2312,6 +2315,7 @@ export const sketch = (p5: P5) => {
     const handleNo = () => {
       modal.hide();
       sfx.play(Sound.uiBlip);
+      if (state.isPaused) uiBindings.onPause();
     }
     modal.show('Goto Main Menu?', 'All progress will be lost.', handleYes, handleNo);
     sfx.play(Sound.unlock);
@@ -2326,8 +2330,8 @@ export const sketch = (p5: P5) => {
     UI.drawDarkOverlay(uiElements);
     UI.drawText('PAUSED', '30px', 235, uiElements, { color: ACCENT_COLOR });
     UI.drawText('[ESC] To Unpause', '14px', 285, uiElements);
-    UI.drawButton("MAIN MENU", 20, 20, confirmShowMainMenu, uiElements).addClass('minimood');
-    UI.drawButton("SETTINGS", 445, 20, showInGameSettingsMenu, uiElements).addClass('minimood');
+    UI.drawButton("MAIN MENU", 20, 20, confirmShowMainMenu, uiElements).addClass('minimood').id('pauseButtonMainMenu');
+    UI.drawButton("SETTINGS", 445, 20, showInGameSettingsMenu, uiElements).addClass('minimood').id('pauseButtonSettings');
 
     if (!queryParams.enableWarp && !state.isCasualModeEnabled || level === START_LEVEL) {
       return;
@@ -2340,33 +2344,33 @@ export const sketch = (p5: P5) => {
     const yRow3 = 520;
     const yRow4 = 560;
     let x = xInitial;
-    UI.drawButton("01", x, yRow1, () => warpToLevel(1), uiElements);
-    UI.drawButton("02", x += offset, yRow1, () => warpToLevel(2), uiElements);
-    UI.drawButton("03", x += offset, yRow1, () => warpToLevel(3), uiElements);
-    UI.drawButton("04", x += offset, yRow1, () => warpToLevel(4), uiElements);
-    UI.drawButton("05", x += offset, yRow1, () => warpToLevel(5), uiElements);
-    UI.drawButton("06", x += offset, yRow1, () => warpToLevel(6), uiElements);
+    UI.drawButton("01", x + 0.00000, yRow1, () => warpToLevel(1), uiElements).id('pauseButtonWarp01');
+    UI.drawButton("02", x += offset, yRow1, () => warpToLevel(2), uiElements).id('pauseButtonWarp02');
+    UI.drawButton("03", x += offset, yRow1, () => warpToLevel(3), uiElements).id('pauseButtonWarp03');
+    UI.drawButton("04", x += offset, yRow1, () => warpToLevel(4), uiElements).id('pauseButtonWarp04');
+    UI.drawButton("05", x += offset, yRow1, () => warpToLevel(5), uiElements).id('pauseButtonWarp05');
+    UI.drawButton("06", x += offset, yRow1, () => warpToLevel(6), uiElements).id('pauseButtonWarp06');
     x = xInitial;
-    UI.drawButton("07", x, yRow2, () => warpToLevel(7), uiElements);
-    UI.drawButton("08", x += offset, yRow2, () => warpToLevel(8), uiElements);
-    UI.drawButton("09", x += offset, yRow2, () => warpToLevel(9), uiElements);
-    UI.drawButton("10", x += offset, yRow2, () => warpToLevel(10), uiElements);
-    UI.drawButton("11", x += offset, yRow2, () => warpToLevel(11), uiElements);
-    UI.drawButton("12", x += offset, yRow2, () => warpToLevel(12), uiElements);
+    UI.drawButton("07", x + 0.00000, yRow2, () => warpToLevel(7), uiElements).id('pauseButtonWarp07');
+    UI.drawButton("08", x += offset, yRow2, () => warpToLevel(8), uiElements).id('pauseButtonWarp08');
+    UI.drawButton("09", x += offset, yRow2, () => warpToLevel(9), uiElements).id('pauseButtonWarp09');
+    UI.drawButton("10", x += offset, yRow2, () => warpToLevel(10), uiElements).id('pauseButtonWarp10');
+    UI.drawButton("11", x += offset, yRow2, () => warpToLevel(11), uiElements).id('pauseButtonWarp11');
+    UI.drawButton("12", x += offset, yRow2, () => warpToLevel(12), uiElements).id('pauseButtonWarp12');
     x = xInitial;
-    UI.drawButton("13", x, yRow3, () => warpToLevel(13), uiElements);
-    UI.drawButton("14", x += offset, yRow3, () => warpToLevel(14), uiElements);
-    UI.drawButton("15", x += offset, yRow3, () => warpToLevel(15), uiElements);
-    UI.drawButton("16", x += offset, yRow3, () => warpToLevel(16), uiElements);
-    UI.drawButton("17", x += offset, yRow3, () => warpToLevel(17), uiElements);
-    UI.drawButton("18", x += offset, yRow3, () => warpToLevel(18), uiElements);
+    UI.drawButton("13", x + 0.00000, yRow3, () => warpToLevel(13), uiElements).id('pauseButtonWarp13');
+    UI.drawButton("14", x += offset, yRow3, () => warpToLevel(14), uiElements).id('pauseButtonWarp14');
+    UI.drawButton("15", x += offset, yRow3, () => warpToLevel(15), uiElements).id('pauseButtonWarp15');
+    UI.drawButton("16", x += offset, yRow3, () => warpToLevel(16), uiElements).id('pauseButtonWarp16');
+    UI.drawButton("17", x += offset, yRow3, () => warpToLevel(17), uiElements).id('pauseButtonWarp17');
+    UI.drawButton("18", x += offset, yRow3, () => warpToLevel(18), uiElements).id('pauseButtonWarp18');
     x = xInitial;
-    UI.drawButton("19", x, yRow4, () => warpToLevel(19), uiElements);
-    UI.drawButton("20", x += offset, yRow4, () => warpToLevel(99), uiElements);
-    UI.drawButton("S1", x += offset, yRow4, () => warpToLevel(110), uiElements);
-    UI.drawButton("S2", x += offset, yRow4, () => warpToLevel(120), uiElements);
-    UI.drawButton("S3", x += offset, yRow4, () => warpToLevel(130), uiElements);
-    UI.drawButton("S4", x += offset, yRow4, () => warpToLevel(140), uiElements);
+    UI.drawButton("19", x + 0.00000, yRow4, () => warpToLevel(19), uiElements).id('pauseButtonWarp19');
+    UI.drawButton("20", x += offset, yRow4, () => warpToLevel(99), uiElements).id('pauseButtonWarp20');
+    UI.drawButton("S1", x += offset, yRow4, () => warpToLevel(110), uiElements).id('pauseButtonWarpS1');
+    UI.drawButton("S2", x += offset, yRow4, () => warpToLevel(120), uiElements).id('pauseButtonWarpS2');
+    UI.drawButton("S3", x += offset, yRow4, () => warpToLevel(130), uiElements).id('pauseButtonWarpS3');
+    UI.drawButton("S4", x += offset, yRow4, () => warpToLevel(140), uiElements).id('pauseButtonWarpS4');
   }
 
   function openDoors() {
