@@ -216,6 +216,16 @@ button.minimood {
   padding-top: 6px;
   font-size: 12px;
 }
+button.focus-invert:focus,
+button.focus-invert:active,
+button.focus-invert.active {
+  outline: none;
+  background-color: #c4d5d5;
+  color: #242C4A;
+  border-color: #DFEDED;
+  z-index: 10;
+  /* --button-filter: brightness(1) grayscale(0); */
+}
 
 .title-sprite-container {
   z-index: 10;
