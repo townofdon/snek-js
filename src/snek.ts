@@ -132,6 +132,7 @@ import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
 import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
 import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
+import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
 import { SECRET_LEVEL_20 } from './levels/bonusLevels/secretLevel20';
 import { SECRET_LEVEL_21 } from './levels/bonusLevels/secretLevel21';
 import { VARIANT_LEVEL_10 } from './levels/bonusLevels/variantLevel10';
@@ -332,6 +333,7 @@ export const sketch = (p5: P5) => {
   const impactParticleSystem = new ImpactParticleSystem2(p5, level, emitters10, gradients);
   const portalParticleSystem = new PortalParticleSystem2(p5, emitters10, gradients);
   const portalVortexParticleSystem = new PortalVortexParticleSystem2(p5, emitters, gradients);
+  const gateUnlockParticleSystem = new GateUnlockParticleSystem2(p5, emitters, gradients);
 
   const fonts = new Fonts(p5);
   const sfx = new SFX();
@@ -1422,12 +1424,12 @@ export const sketch = (p5: P5) => {
     locks = locks.filter((lock) => {
       if (coords.includes(lock.coord)) {
         locksMap[lock.coord] = null;
+        gateUnlockParticleSystem.emit(lock.position.x, lock.position.y, lock.channel);
         return false;
       }
       return true;
     });
     renderer.invalidateStaticCache();
-    // TODO: ADD PARTICLE FX OR SOMETHING
   }
 
   function handleDifficultySelect() {

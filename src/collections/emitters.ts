@@ -53,11 +53,20 @@ export class Emitters {
   }
 
   public tick = (deltaTime: number) => {
-    for (let index = 0; index < this.indices.length; index++) {
+    let index = 0;
+    while (index < this.activeLength) {
       const i = this.indices[index];
       if (i < 0) return;
       if (this.free[i]) return;
+
+      if (this.options[i] && !this.options[i].loop && this.timeElapsed[i] >= this.options[i].lifetime) {
+        // do not increment index, as indices will be shifted upon removal
+        this.unallocate(i, index);
+        return;
+      }
+
       this.tickEmitter(i, deltaTime);
+      index++;
     }
   }
 
@@ -88,7 +97,7 @@ export class Emitters {
     this.validate();
     const found = this.indices[index];
     if (found < 0) return;
-    this.unallocate(found);
+    this.unallocate(found, index);
   }
 
   public get = (index: number) => {
@@ -118,20 +127,33 @@ export class Emitters {
   }
 
   private clearEmitter = (i: number) => {
-    this.originX[i] = 29;
-    this.originY[i] = 29;
+    this.originX[i] = 0;
+    this.originY[i] = 0;
     this.timeElapsed[i] = 0;
     this.timeTillNextSpawn[i] = 0;
     this.options[i] = null;
   }
 
-  private unallocate = (i: number) => {
+  private unallocate = (i: number, reportedIndex: number) => {
     if (i < 0) return;
+    if (reportedIndex < 0) return;
     if (this.free[i]) return;
     this.free[i] = 1;
     this.clearEmitter(i);
-    // shift indices left by 1 starting from `i`
-    for (let index = i; index < this.activeLength - 1; index++) {
+    // find the matching index
+    let found = -1;
+    for (let index = 0; index < this.activeLength; index++) {
+      if (this.indices[index] === i) {
+        found = index;
+        break;
+      }
+    }
+    if (found !== reportedIndex) {
+      if (IS_DEV) throw new Error(`[emitter::unallocate] indices did not match: reportedIndex=${reportedIndex},found=${found}`);
+      return;
+    }
+    // shift indices left by 1 starting from `found`
+    for (let index = found; index < this.activeLength - 1; index++) {
       this.indices[index] = this.indices[index + 1];
     }
     this.indices[this.activeLength - 1] = -1;
@@ -154,15 +176,11 @@ export class Emitters {
     if (!this.originX[i]) return;
     if (!this.options[i]) return;
     if (this.options[i].lifetime <= 0) return;
+    if (!this.options[i].loop && this.timeElapsed[i] >= this.options[i].lifetime) return;
 
     const iterationsPrev = Math.floor(this.timeElapsed[i] / this.options[i].lifetime);
     this.timeElapsed[i] += deltaTime;
     const iterationsCur = Math.floor(this.timeElapsed[i] / this.options[i].lifetime);
-
-    if (!this.options[i].loop && this.timeElapsed[i] >= this.options[i].lifetime) {
-      this.unallocate(i);
-      return;
-    }
 
     if (this.options[i].spawnOverTime > 0) {
       this.timeTillNextSpawn[i] -= deltaTime;
@@ -172,7 +190,7 @@ export class Emitters {
       }
     }
 
-    if (iterationsCur !== iterationsPrev && deltaTime > 0) {
+    if (this.options[i].loop && iterationsCur !== iterationsPrev && deltaTime > 0) {
       this.spawnBurst(i);
     }
   }
