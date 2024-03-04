@@ -1,6 +1,8 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { WARP_ZONE_03 } from "./bonusLevels/warpZone03";
 
 const name = 'portal';
 
@@ -32,20 +34,30 @@ X2---     -----------------=1X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 X2aaaaa--aaaaa--aaaaa--aaaaaDD
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XXXXXXXXXxxXxxXXxxXxxXXXXXxxXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXxxXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXxxXX
+XXXXXXXXXxxXDDXXDDXxxxxxxxxxXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
-XXXXXXXXXXXXDDXXDDXXXXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
-XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
-XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
-XXXXXXXXXXXXDDXXDDXXXXXXXXXXXX
+XXXXXXXXXxxXDDXXDDXxxXXXXXXXXX
 XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.mintJulip),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.aqueduct,
   globalLight: 0.6,
+  nextLevelMap: {
+    [getCoordIndex2(9, 29)]: WARP_ZONE_03,
+    [getCoordIndex2(10, 29)]: WARP_ZONE_03,
+    [getCoordIndex2(12, 29)]: WARP_ZONE_03,
+    [getCoordIndex2(13, 29)]: WARP_ZONE_03,
+    [getCoordIndex2(16, 29)]: WARP_ZONE_03,
+    [getCoordIndex2(17, 29)]: WARP_ZONE_03,
+    [getCoordIndex2(19, 29)]: WARP_ZONE_03,
+    [getCoordIndex2(20, 29)]: WARP_ZONE_03,
+  },
 };

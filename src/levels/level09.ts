@@ -1,6 +1,8 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { VARIANT_LEVEL_10 } from "./bonusLevels/variantLevel10";
 
 const name = 'labyrinth';
 
@@ -18,13 +20,13 @@ X= +XXXXXXXXXDDDDX+-+X+-+X+-+X
 X+-=X+++++++XD++DX= =X= +X= +X
 X= =X+ - - +XD++DX=-+X+-=X+-=X
 X=-+X+-   -=XDDDDX+ +X= +X+ +X
-X+ =X+ +X+ +XD__DX=-+X=-+X=-=X
+X+ =X+ +o+ +XD__DX=-+X=-+X=-=X
 X=-+X=-+X+-=XD__DX= =X+ +X+ +X
 X= =X+ =X= +XD__DX+-+X=-+X=-+X
 X=-=X+-+X+-=XD__DX= +X= +X= =X
 X+ +X= =X= +XD__DX=-=X+-=X+-+X
 X=-=X+-+X=-+XD__DX+ +X+ +X+ +X
-X+ =X+ =X+ +XDDDDX+-   -+X=-=X
+X+ =X+ =X+ +XDDDDX+-   -+X=-=L
 X=-+X=-+X+-=XD++DX+ - - +X+ =X
 X+ =X+ +X= +XD++DX+++++++X=-+X
 X=-=X+-=X+-+XDDDDXXXXXXXXX+ =X
@@ -47,4 +49,7 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   musicTrack: MusicTrack.creeplord,
   titleVariant: TitleVariant.Gray,
   globalLight: 0.6,
+  nextLevelMap: {
+    [getCoordIndex2(29, 14)]: VARIANT_LEVEL_10,
+  },
 };

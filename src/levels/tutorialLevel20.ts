@@ -1,6 +1,8 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { WARP_ZONE_02 } from "./bonusLevels/warpZone02";
 
 const name = 'turnonadime';
 
@@ -38,10 +40,10 @@ XXXXXXXXXXaX-X--X-X XXXddXXX X
 ----XXXXXXaX-X--X-X XXXddXXXaX
 ===- XXXXXaX-XXXX-X XXXddXXXaX
 ===-XXXXXXaX-X--X-X XXX--XXXaX
----- XXXXXaX-X--X-X X-X--X-XDX
-   -XXXXXX X-X--X-XaX-X--X-XDX
+---- XXXXXaX-X--X-X X-X--x-xDX
+   -XXXXXX X-X--X-XaX-X--x-xDX
    - XXXXX XXX--XXXaXXX--XXXDX
-----XXXXXX XXXXXXXXaXXXXXXXXDX
+----XXXXXX XXXXXXXXaXXXxxXXXDX
 ===- XXXXX     aaaaaXXX  XXXDX
 ===-XXXXXXXXXXXXXXXXX      XDX
   `,
@@ -55,4 +57,8 @@ XXXXXXXXXXaX-X--X-X XXXddXXX X
   musicTrack: MusicTrack.aqueduct,
   titleVariant: TitleVariant.GrayBlue,
   globalLight: 0.85,
+  nextLevelMap: {
+    [getCoordIndex2(23, 28)]: WARP_ZONE_02,
+    [getCoordIndex2(24, 28)]: WARP_ZONE_02,
+  },
 };

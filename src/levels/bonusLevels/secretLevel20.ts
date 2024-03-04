@@ -3,7 +3,7 @@ import { TitleScene } from "../../scenes/TitleScene";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { LEVEL_10 } from "../level10";
 
-const name = 'secret area 2-2';
+const name = 'secret area 5-2';
 
 export const SECRET_LEVEL_20: Level = {
   type: LevelType.Level,
