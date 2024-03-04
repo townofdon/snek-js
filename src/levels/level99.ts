@@ -12,15 +12,15 @@ export const LEVEL_99: Level = {
   growthMod: 0.5,
   extraHurtGraceTime: 15,
   layout: `
-XXXXXX44XXXXXXLLXXXXXX44XXXXXX
+XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
 X~~~~~__~~~~XXddXX~~~~__~~~~~X
 X~~   --  ~~~~__~~~~  --   k~X
 X~    --    ~~__~~    --    ~X
 X~    --      KK      --    ~X
 X~    --      KK      --    ~X
 X~    --      --      --    ~X
-0_----LL      --      LL----_1
-0_----LL      --      LL----_1
+X_----LL      --      LL----_X
+X_----LL      --      LL----_X
 X~            --            ~X
 X~            --            ~X
 X~~           --           ~~X
@@ -33,15 +33,15 @@ XX~           KK           ~XX
 X~~           --           ~~X
 X~        O   --            ~X
 X~            --            ~X
-0_----LL      --      LL----_1
-0_----LL      --      LL----_1
+X_----LL      --      LL----_X
+X_----LL      --      LL----_X
 X~    --      --      --    ~X
 X~    --      KK      --    ~X
 X~    --      KK      --    ~X
 X~    --    ~~__~~    --    ~X
 X~~   --  ~~~~__~~~~  --   ~~X
 X~~~~~__~~~~XXddXX~~~~__~~~~~X
-XXXXXX33XXXXXXLLXXXXXX33XXXXXX
+XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.darkStar),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
