@@ -44,6 +44,7 @@ export class SFX implements SFXInstance {
     unlock: null,
     warp: null,
     winLevel: null,
+    winGame: null,
     xplode: null,
     xplodeLong: null,
     xpound: null,
@@ -52,6 +53,11 @@ export class SFX implements SFXInstance {
   setGlobalVolume(volume: number) {
     this.globalVolume = volume;
     setSfxVolume(volume);
+  }
+
+  isPlaying(sound: keyof SoundVariants): boolean {
+    if (!this.sounds[sound]) return false;
+    return this.sounds[sound].playing();
   }
 
   play(sound: keyof SoundVariants, volume = 1) {
@@ -113,6 +119,7 @@ export class SFX implements SFXInstance {
       this.sounds.unlock = loadSound('unlock.wav');
       this.sounds.warp = loadSound('warp.wav');
       this.sounds.winLevel = loadSound('winlevel.wav');
+      this.sounds.winGame = loadSound('wingame.wav');
       this.sounds.xplode = loadSound('xplode.wav');
       this.sounds.xplodeLong = loadSound('xplode-long.wav');
       this.sounds.xpound = loadSound('xpound.wav');

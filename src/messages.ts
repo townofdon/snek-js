@@ -83,7 +83,7 @@ export const LOSE_MESSAGES: LoseMessage[] = [
     ["Who knew your fate would arrive so soon?", (state, stats, difficulty) => difficulty.index === 3],
     ["That was a grave mistake.", (state, stats, difficulty) => difficulty.index === 3],
     ["Planning your funeral<br />will be a big undertaking.", (state, stats, difficulty) => difficulty.index === 3],
-    ["Sadly I cannot attend your funeral...<br /><br />I'm not a mourning person.", (state, stats, difficulty) => difficulty.index === 3],
+    ["Sadly I cannot attend your funeral<br /><br />...<br /><br />I'm not a mourning person.", (state, stats, difficulty) => difficulty.index === 3],
     ["This humor is a little dark...<br /><br />is it tomb much for you?", (state, stats, difficulty) => difficulty.index === 3],
     ["We are only pawns in the game of Snek.", (state, stats, difficulty) => difficulty.index === 3],
     ["You've met the scales of justice.", (state, stats, difficulty) => difficulty.index === 3],

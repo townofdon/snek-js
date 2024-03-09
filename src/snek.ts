@@ -5,6 +5,7 @@ import {
   START_LEVEL,
   LEVELS,
   LEVEL_AFTER_WIN,
+  LEVEL_99,
 } from './levels';
 import {
   RECORD_REPLAY_STATE,
@@ -44,9 +45,6 @@ import {
   GLOBAL_LIGHT_DEFAULT,
   HURT_FORGIVENESS_TIME,
   BLOCK_SIZE,
-  DIFFICULTY_ULTRA,
-  DIFFICULTY_HARD,
-  DIFFICULTY_MEDIUM,
 } from './constants';
 import {
   clamp,
@@ -133,9 +131,7 @@ import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
 import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
 import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
-import { SECRET_LEVEL_20 } from './levels/bonusLevels/secretLevel20';
-import { SECRET_LEVEL_21 } from './levels/bonusLevels/secretLevel21';
-import { VARIANT_LEVEL_10 } from './levels/bonusLevels/variantLevel10';
+import { VARIANT_LEVEL_99 } from './levels/bonusLevels/variantLevel99';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -1579,6 +1575,8 @@ export const sketch = (p5: P5) => {
       startAction(fadeMusic(0, 1000), Action.FadeMusic);
       if (level === START_LEVEL) {
         playSound(Sound.doorOpenHuge);
+      } else if (level === LEVEL_99 || level === VARIANT_LEVEL_99) {
+        playSound(Sound.winGame);
       } else {
         playSound(Sound.winLevel);
       }
@@ -1686,7 +1684,7 @@ export const sketch = (p5: P5) => {
     if (segments.length <= 0) return;
 
     const isGameOver = state.isLost && state.lives === 0;
-    const move = moves.shift();
+    const move = moves[0];
     if (!isOrthogonalDirection(move, player.directionLastHit)) {
       state.timeSinceHurtForgiveness = 0;
       return;
@@ -1716,6 +1714,7 @@ export const sketch = (p5: P5) => {
     } else {
       state.lives += 1;
     }
+    moves.shift();
     player.direction = move;
     player.directionToFirstSegment = getDirectionSnakeBackward();
     state.isLost = false;
