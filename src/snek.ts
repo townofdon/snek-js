@@ -6,6 +6,8 @@ import {
   LEVELS,
   LEVEL_AFTER_WIN,
   LEVEL_99,
+  LEVEL_AFTER_WIN_ULTRA,
+  LEVEL_AFTER_WIN_HARD,
 } from './levels';
 import {
   RECORD_REPLAY_STATE,
@@ -2407,7 +2409,13 @@ export const sketch = (p5: P5) => {
       difficulty.index++;
       difficulty = getDifficultyFromIndex(difficulty.index);
       resetStats();
-      level = LEVEL_AFTER_WIN;
+      if (difficulty.index === 4) {
+        level = LEVEL_AFTER_WIN_ULTRA;
+      } else if (difficulty.index === 3) {
+        level = LEVEL_AFTER_WIN_HARD;
+      } else {
+        level = LEVEL_AFTER_WIN;
+      }
       setLevelIndexFromCurrentLevel();
       initLevel();
       return;

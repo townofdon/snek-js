@@ -59,6 +59,15 @@ export interface ScreenShakeState {
 }
 
 export interface Difficulty {
+  /**
+   * 1 => easy
+   *
+   * 2 => medium
+   *
+   * 3 => hard
+   *
+   * 4 => ultra
+   */
   index: number,
   applesMod: number,
   scoreMod: number,
@@ -324,7 +333,7 @@ export enum MusicTrack {
   champion = '05-champion-2.wav',
   dangerZone = '06-dangerzone-2.wav',
   aqueduct = '07-aqueduct.wav',
-  creeplord = '08-creeplord.wav',
+  creeplord = '08-creeplord-2.wav',
   moneymaker = '09-snekmoney4.wav',
   factorio = '10-factorio.wav',
   observer = '11-observer.wav',
