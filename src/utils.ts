@@ -261,3 +261,7 @@ export function round(num: number, precision = 2) {
 export function isWithinBlockDistance(a: Vector, b: Vector, distance: number = 1) {
   return Math.abs(a.x - b.x) <= distance && Math.abs(a.y - b.y) <= distance;
 }
+
+export function getTraversalDistance(x0: number, y0: number, x1: number, y1: number): number {
+  return Math.abs(x0 - x1) + Math.abs(y0 - y1);
+}

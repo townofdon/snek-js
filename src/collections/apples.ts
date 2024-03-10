@@ -1,6 +1,6 @@
 import { Vector } from "p5";
 import { GRIDCOUNT, IS_DEV } from "../constants";
-import { getCoordIndex2 } from "../utils";
+import { getCoordIndex2, getTraversalDistance } from "../utils";
 
 export const INITIAL_APPLE_POOL_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
 
@@ -110,6 +110,19 @@ export class Apples {
 
   public existsAt = (x: number, y: number): boolean => {
     return this.coordMap[getCoordIndex2(x, y)] || false;
+  }
+
+  public getClosestTraversalDistance = (x: number, y: number): number => {
+    this.validate();
+    let min = Infinity;
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      const dist = getTraversalDistance(x, y, this.x[i], this.y[i]);
+      if (dist < min) {
+        min = dist;
+      }
+    }
+    return min;
   }
 
   private internalExistsAt = (x: number, y: number): boolean => {
