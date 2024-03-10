@@ -47,6 +47,11 @@ import {
   GLOBAL_LIGHT_DEFAULT,
   HURT_FORGIVENESS_TIME,
   BLOCK_SIZE,
+  SNAKE_INVINCIBLE_COLORS,
+  NUM_SNAKE_INVINCIBLE_COLORS,
+  INVINCIBILITY_EXPIRE_WARN_MS,
+  INVINCIBILITY_EXPIRE_FLASH_MS,
+  INVINCIBILITY_COLOR_CYCLE_MS,
 } from './constants';
 import {
   clamp,
@@ -173,6 +178,7 @@ const state: GameState = {
   timeSinceHurt: Infinity,
   timeSinceHurtForgiveness: Infinity,
   timeSinceLastInput: Infinity,
+  timeSinceInvincibleStart: Infinity,
   hurtGraceTime: HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0),
   lives: MAX_LIVES,
   targetSpeed: 1,
@@ -333,6 +339,8 @@ export const sketch = (p5: P5) => {
   const portalVortexParticleSystem = new PortalVortexParticleSystem2(p5, emitters, gradients);
   const gateUnlockParticleSystem = new GateUnlockParticleSystem2(p5, emitters, gradients);
 
+  const invincibleColorGradient = gradients.addMultiple(SNAKE_INVINCIBLE_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
+
   const fonts = new Fonts(p5);
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer(settings);
@@ -481,6 +489,12 @@ export const sketch = (p5: P5) => {
       ev?.preventDefault();
       return;
     }
+
+    // // TODO: REMOVE
+    // if (state.isGameStarted && p5.keyCode === p5.ENTER) {
+    //   startInvincibility();
+    // }
+
     handleKeyPressed(
       p5,
       state,
@@ -768,7 +782,7 @@ export const sketch = (p5: P5) => {
   }
 
   function canRewind(): boolean {
-    if (!state.isCasualModeEnabled) return false;
+    if (!state.isCasualModeEnabled && state.timeSinceInvincibleStart >= difficulty.invincibilityTime) return false;
     if (state.isLost) return false;
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
@@ -786,6 +800,11 @@ export const sketch = (p5: P5) => {
       uniquePositions[getCoordIndex(segments.get(i))] = true;
     }
     return size + 1;
+  }
+
+  function startInvincibility() {
+    state.timeSinceInvincibleStart = 0;
+    // TODO: PLAY INVINCIBLE MUSIC
   }
 
   function retryLevel() {
@@ -832,6 +851,7 @@ export const sketch = (p5: P5) => {
     state.timeSinceLastTeleport = Infinity;
     state.timeSinceHurt = Infinity;
     state.timeSinceHurtForgiveness = Infinity;
+    state.timeSinceInvincibleStart = Infinity;
     state.hurtGraceTime = HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0);
     state.lives = MAX_LIVES;
     screenShake.timeSinceStarted = Infinity;
@@ -1071,6 +1091,7 @@ export const sketch = (p5: P5) => {
 
     state.timeSinceHurt += loopState.deltaTime;
     state.timeSinceHurtForgiveness += loopState.deltaTime;
+    state.timeSinceInvincibleStart += loopState.deltaTime;
     state.timeSinceLastInput += loopState.deltaTime;
     state.timeSinceLastTeleport += loopState.deltaTime;
     state.frameCount += 1;
@@ -1133,7 +1154,7 @@ export const sketch = (p5: P5) => {
     renderer.drawPlayerMoveArrows(player.position, moves.length > 0 ? moves[0] : player.direction);
 
     for (let i = 0; i < segments.length; i++) {
-      drawPlayerSegment(segments.get(i));
+      drawPlayerSegment(segments.get(i), i);
     }
 
     const globalLight = level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
@@ -1146,7 +1167,6 @@ export const sketch = (p5: P5) => {
       updateLighting(lightMap, globalLight, player.position, portals);
       drawLighting(lightMap, renderer);
     }
-
 
     if (level === START_LEVEL) renderer.drawDifficultySelect(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background);
     renderer.drawUIKeys();
@@ -1288,8 +1308,9 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel) return false;
     if (state.isExited) return false;
     if (state.isGameWon) return false;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
 
-    if (segments.containsCoord(getCoordIndex(vec))) {
+    if (segments.containsCoord(getCoordIndex(vec)) && state.timeSinceInvincibleStart >= difficulty.invincibilityTime) {
       state.lastHurtBy = HitType.HitSelf;
       return true;
     }
@@ -1486,6 +1507,10 @@ export const sketch = (p5: P5) => {
     const willHitSomething = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
     if (willHitSomething && state.hurtGraceTime > 0) {
       state.hurtGraceTime -= loopState.deltaTime;
+      return false;
+    }
+    if (willHitSomething && state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
+      startRewinding();
       return false;
     }
 
@@ -1978,22 +2003,29 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  function drawPlayerSegment(vec: Vector) {
+  function drawPlayerSegment(vec: Vector, i = 0) {
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
         renderer.drawSquare(vec.x, vec.y, "#000", "#000", drawPlayerOptions);
       } else {
         renderer.drawSquare(vec.x, vec.y, "#fff", "#fff", drawPlayerOptions);
       }
-    } else {
-      if (state.isShowingDeathColours) {
-        renderer.drawSquare(vec.x, vec.y,
-          PALETTE.deathInvert.playerTail,
-          PALETTE.deathInvert.playerTailStroke,
-          drawPlayerOptions);
+    } else if (state.isShowingDeathColours) {
+      renderer.drawSquare(vec.x, vec.y,
+        PALETTE.deathInvert.playerTail,
+        PALETTE.deathInvert.playerTailStroke,
+        drawPlayerOptions);
+    } else if (!state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
+      const timeLeft = difficulty.invincibilityTime - state.timeSinceInvincibleStart;
+      if (timeLeft < INVINCIBILITY_EXPIRE_WARN_MS && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0) {
+        renderer.drawSquare(vec.x, vec.y, "#000", "#000", drawPlayerOptions);
       } else {
-        renderer.drawGraphicalComponent(graphicalComponents.snakeSegment, vec.x, vec.y);
+        const cycle = Math.floor(state.timeSinceInvincibleStart / INVINCIBILITY_COLOR_CYCLE_MS);
+        const color = gradients.calc(invincibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
+        renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
       }
+    } else {
+      renderer.drawGraphicalComponent(graphicalComponents.snakeSegment, vec.x, vec.y);
     }
   }
 

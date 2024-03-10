@@ -76,6 +76,7 @@ export interface Difficulty {
   speedLimit: number,
   speedSteps: number,
   sprintLimit: number,
+  invincibilityTime: number,
 }
 
 
@@ -128,6 +129,7 @@ export interface GameState {
   timeSinceHurt: number,
   timeSinceHurtForgiveness: number,
   timeSinceLastInput: number,
+  timeSinceInvincibleStart: number,
   hurtGraceTime: number,
   lives: number,
   targetSpeed: number,

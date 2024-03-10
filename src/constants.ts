@@ -48,6 +48,14 @@ export const LIVES_LEFT_BONUS = 1000;
 export const ALL_APPLES_BONUS = 2500;
 export const PERFECT_BONUS = 5000;
 
+export const INVINCIBILITY_EXPIRE_WARN_MS = 2000;
+export const INVINCIBILITY_EXPIRE_FLASH_MS = 200;
+export const INVINCIBILITY_COLOR_CYCLE_MS = 20;
+const INVINCIBILITY_TIME_EASY = 10000;
+const INVINCIBILITY_TIME_MEDIUM = 7500;
+const INVINCIBILITY_TIME_HARD = 5000;
+const INVINCIBILITY_TIME_ULTRA = 3000;
+
 export const BONUS_MOD_EASY = .1;
 export const BONUS_MOD_MEDIUM = .5;
 export const BONUS_MOD_HARD = 4;
@@ -88,6 +96,7 @@ export const DIFFICULTY_EASY: Difficulty = {
   speedLimit: SPEED_LIMIT_EASY,
   speedSteps: SPEED_STEPS_EASY,
   sprintLimit: SPEED_LIMIT_MEDIUM,
+  invincibilityTime: INVINCIBILITY_TIME_EASY,
 }
 export const DIFFICULTY_MEDIUM: Difficulty = {
   index: 2,
@@ -98,6 +107,7 @@ export const DIFFICULTY_MEDIUM: Difficulty = {
   speedLimit: SPEED_LIMIT_MEDIUM,
   speedSteps: SPEED_STEPS_MEDIUM,
   sprintLimit: SPEED_LIMIT_HARD,
+  invincibilityTime: INVINCIBILITY_TIME_MEDIUM,
 }
 export const DIFFICULTY_HARD: Difficulty = {
   index: 3,
@@ -108,6 +118,7 @@ export const DIFFICULTY_HARD: Difficulty = {
   speedLimit: SPEED_LIMIT_HARD,
   speedSteps: SPEED_STEPS_HARD,
   sprintLimit: SPEED_LIMIT_ULTRA,
+  invincibilityTime: INVINCIBILITY_TIME_HARD,
 }
 export const DIFFICULTY_ULTRA: Difficulty = {
   index: 4,
@@ -118,6 +129,7 @@ export const DIFFICULTY_ULTRA: Difficulty = {
   speedLimit: SPEED_LIMIT_ULTRA,
   speedSteps: SPEED_STEPS_ULTRA,
   sprintLimit: SPEED_LIMIT_ULTRA_SPRINT,
+  invincibilityTime: INVINCIBILITY_TIME_ULTRA,
 }
 
 export const KEYCODE_ALPHA_0 = 48;
@@ -195,3 +207,10 @@ export const PORTAL_CHANNEL_COLORS: Record<PortalChannel, string> = {
 };
 export const NUM_PORTAL_GRADIENT_COLORS = 4;
 export const INVALID_PORTAL_COLOR = "#FFC0CB";
+export const SNAKE_INVINCIBLE_COLORS = [
+  "#15C2CB",
+  "#FCB045",
+  "#FD1D1D",
+  "#833AB4",
+];
+export const NUM_SNAKE_INVINCIBLE_COLORS = 20;
