@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack } from "../types";
+import { Level, MusicTrack, PickupType } from "../types";
 
 const name = 'boxed'
 
@@ -44,4 +44,12 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   colors: getExtendedPalette(PALETTE.plumsea),
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.shopkeeper,
+  pickupDrops: {
+    30: { likelihood: .5, type: PickupType.Invincibility },
+    35: { likelihood: .3, type: PickupType.Invincibility },
+    40: { likelihood: .5, type: PickupType.Invincibility },
+    45: { likelihood: .3, type: PickupType.Invincibility },
+    50: { likelihood: .5, type: PickupType.Invincibility },
+    55: { likelihood: .3, type: PickupType.Invincibility },
+  },
 };

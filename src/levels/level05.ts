@@ -44,4 +44,5 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.observer,
   titleVariant: TitleVariant.GrayBlue,
+  pickupDrops: {},
 };

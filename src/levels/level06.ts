@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, PortalExitMode } from "../types";
+import { Level, MusicTrack, PickupType, PortalExitMode } from "../types";
 import { getCoordIndex2 } from "../utils";
 import { VARIANT_LEVEL_07 } from "./bonusLevels/variantLevel07";
 
@@ -54,5 +54,9 @@ XxXXXXXXXXXXXXXXXXXXXXXXXXXXxX
   nextLevelMap: {
     [getCoordIndex2(1, 29)]: VARIANT_LEVEL_07,
     [getCoordIndex2(28, 29)]: VARIANT_LEVEL_07,
+  },
+  pickupDrops: {
+    39: { likelihood: 1, type: PickupType.Invincibility },
+    59: { likelihood: .8, type: PickupType.Invincibility },
   },
 };

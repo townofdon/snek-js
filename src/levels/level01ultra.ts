@@ -1,7 +1,7 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 import { LEVEL_02 } from "./level02";
 
 const name = 'snekadia'
@@ -13,7 +13,7 @@ export const LEVEL_01_ULTRA: Level = {
   layout: `
 XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
 X~    ++  ~XX+++XX~  ++     ~X
-X     --   xx===xx   --      X
+X     --   xx+++xx   --      X
 X     --     ===     --      X
 X     --     ===     --      X
 X    xddx    ===    xddx     X
@@ -24,9 +24,9 @@ X     --     ===     --      X
 X~    --     ===     --     ~X
 XXx   --     ===     --    xXX
 XXx   --     ===     --    xXX
-d+==========================+d
-d+==========================+d
-d+==========================+d
+d++========================++d
+d++========================++d
+d++========================++d
 XXx   --     ===     --    xXX
 XXx   --     ===     --    xXX
 X~    --     ===     --     ~X
@@ -38,7 +38,7 @@ X    xddx    ===    xddx     X
 X     --     ===     --      X
 X     --  O  ===     --      X
 X     --     ===     --      X
-X     --   xx===xx   --      X
+X     --   xx+++xx   --      X
 X~    ++  ~XX+++XX~  ++     ~X
 XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   `,
@@ -60,4 +60,7 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   musicTrack: MusicTrack.champion,
   titleVariant: TitleVariant.Yellow,
   nextLevel: LEVEL_02,
+  pickupDrops: {
+    40: { likelihood: 1, type: PickupType.Invincibility },
+  },
 };

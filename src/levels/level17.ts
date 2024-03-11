@@ -68,4 +68,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   titleVariant: TitleVariant.GrayBlue,
   musicTrack: MusicTrack.stonemaze,
   globalLight: 0.5,
+  pickupDrops: {},
 };

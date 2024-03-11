@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
-import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../../types";
+import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../../types";
 import { getCoordIndex2 } from "../../utils";
 import { TUTORIAL_LEVEL_10 } from "../tutorialLevel10";
 import { SECRET_LEVEL_10 } from "./secretLevel10";
@@ -66,5 +66,11 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   nextLevelMap: {
     [getCoordIndex2(14, 0)]: SECRET_LEVEL_10,
     [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
+  },
+  pickupDrops: {
+    70: { likelihood: 1, type: PickupType.Invincibility },
+    110: { likelihood: 1, type: PickupType.Invincibility },
+    140: { likelihood: 1, type: PickupType.Invincibility },
+    149: { likelihood: 1, type: PickupType.Invincibility },
   },
 };

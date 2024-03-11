@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 
 const name = 'survive!';
 
@@ -52,4 +52,16 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   showQuoteOnLevelWin: false,
   titleVariant: TitleVariant.Red,
   musicTrack: MusicTrack.moneymaker,
+  pickupDrops: {
+    50: { likelihood: .8, type: PickupType.Invincibility },
+    75: { likelihood: .5, type: PickupType.Invincibility },
+    100: { likelihood: .8, type: PickupType.Invincibility },
+    125: { likelihood: .5, type: PickupType.Invincibility },
+    150: { likelihood: 1, type: PickupType.Invincibility },
+    175: { likelihood: .5, type: PickupType.Invincibility },
+    200: { likelihood: .8, type: PickupType.Invincibility },
+    225: { likelihood: .4, type: PickupType.Invincibility },
+    250: { likelihood: 1, type: PickupType.Invincibility },
+    275: { likelihood: .5, type: PickupType.Invincibility },
+  },
 };

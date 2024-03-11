@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 import { getCoordIndex2 } from "../utils";
 import { SECRET_LEVEL_20 } from "./bonusLevels/secretLevel20";
 
@@ -52,5 +52,18 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
   nextLevelMap: {
     [getCoordIndex2(29, 16)]: SECRET_LEVEL_20,
     [getCoordIndex2(29, 17)]: SECRET_LEVEL_20,
+  },
+  pickupDrops: {
+    10: { likelihood: .4, type: PickupType.Invincibility },
+    20: { likelihood: .4, type: PickupType.Invincibility },
+    30: { likelihood: .4, type: PickupType.Invincibility },
+    40: { likelihood: .4, type: PickupType.Invincibility },
+    50: { likelihood: .4, type: PickupType.Invincibility },
+    60: { likelihood: .4, type: PickupType.Invincibility },
+    69: { likelihood: .4, type: PickupType.Invincibility },
+    79: { likelihood: .4, type: PickupType.Invincibility },
+    89: { likelihood: .4, type: PickupType.Invincibility },
+    99: { likelihood: .4, type: PickupType.Invincibility },
+    104: { likelihood: .4, type: PickupType.Invincibility },
   },
 };

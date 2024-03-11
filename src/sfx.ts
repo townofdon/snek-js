@@ -32,8 +32,10 @@ export class SFX implements SFXInstance {
     hurt2: null,
     hurt3: null,
     hurtSave: null,
+    invincibleLoop: null,
     moveStart: null,
     pickup: null,
+    pickupInvincibility: null,
     rewindLoop: null,
     step1: null,
     step2: null,
@@ -107,8 +109,10 @@ export class SFX implements SFXInstance {
       this.sounds.hurt2 = loadSound('hurt-2.wav');
       this.sounds.hurt3 = loadSound('hurt-3.wav');
       this.sounds.hurtSave = loadSound('hurt-save.wav');
+      this.sounds.invincibleLoop = loadSound('invincible-loop.wav');
       this.sounds.moveStart = loadSound('move-start.wav');
       this.sounds.pickup = loadSound('pickup.wav');
+      this.sounds.pickupInvincibility = loadSound('pickup-invincibility.wav');
       this.sounds.rewindLoop = loadSound('rewind-loop.wav');
       this.sounds.step1 = loadSound('step-1.wav');
       this.sounds.step2 = loadSound('step-2.wav');

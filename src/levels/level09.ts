@@ -52,4 +52,5 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   nextLevelMap: {
     [getCoordIndex2(29, 14)]: VARIANT_LEVEL_10,
   },
+  pickupDrops: {},
 };

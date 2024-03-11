@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 import { getCoordIndex2 } from "../utils";
 import { VARIANT_LEVEL_03 } from "./bonusLevels/variantLevel03";
 
@@ -50,5 +50,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   nextLevelMap: {
     [getCoordIndex2(29, 14)]: VARIANT_LEVEL_03,
     // [getCoordIndex2(14, 0)]: VARIANT_LEVEL_03,
-  }
+  },
+  pickupDrops: {},
 };

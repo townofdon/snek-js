@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
-import { Level, MusicTrack, TitleVariant } from "../../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
 import { LEVEL_WIN_GAME } from "../winGame";
 
 const name = 'endurance';
@@ -55,4 +55,24 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   titleVariant: TitleVariant.Red,
   musicTrack: MusicTrack.slyguy,
   nextLevel: LEVEL_WIN_GAME,
-};
+  pickupDrops: {
+    50: { likelihood: 0.8, type: PickupType.Invincibility },
+    75: { likelihood: 0.5, type: PickupType.Invincibility },
+    100: { likelihood: 0.8, type: PickupType.Invincibility },
+    125: { likelihood: 0.5, type: PickupType.Invincibility },
+    150: { likelihood: 0.8, type: PickupType.Invincibility },
+    175: { likelihood: 0.5, type: PickupType.Invincibility },
+    200: { likelihood: 0.8, type: PickupType.Invincibility },
+    225: { likelihood: 0.5, type: PickupType.Invincibility },
+    250: { likelihood: 0.8, type: PickupType.Invincibility },
+    275: { likelihood: 0.5, type: PickupType.Invincibility },
+    300: { likelihood: 0.8, type: PickupType.Invincibility },
+    325: { likelihood: 0.5, type: PickupType.Invincibility },
+    350: { likelihood: 0.8, type: PickupType.Invincibility },
+    375: { likelihood: 0.5, type: PickupType.Invincibility },
+    400: { likelihood: 0.8, type: PickupType.Invincibility },
+    425: { likelihood: 0.5, type: PickupType.Invincibility },
+    450: { likelihood: 0.8, type: PickupType.Invincibility },
+    460: { likelihood: 1, type: PickupType.Invincibility },
+  },
+}; 

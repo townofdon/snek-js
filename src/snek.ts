@@ -55,6 +55,8 @@ import {
   INVINCIBILITY_PICKUP_FREEZE_MS,
   PICKUP_LIFETIME_MS,
   PICKUP_EXPIRE_WARN_MS,
+  PICKUP_INVINCIBILITY_BONUS,
+  PICKUP_INVINCIBILITY_DROP_LIKELIHOOD as PICKUP_DROP_LIKELIHOOD,
 } from './constants';
 import {
   clamp,
@@ -289,6 +291,7 @@ enum Action {
   SetTitleVariant = 'SetTitleVariant',
   ChangeMusicLowpass = 'ChangeMusicLowpass',
   GameOver = 'GameOver',
+  Invincibility = 'Invincibility',
 }
 type ActionKey = keyof typeof Action
 
@@ -306,6 +309,7 @@ export const sketch = (p5: P5) => {
     [Action.SetTitleVariant]: null,
     [Action.ChangeMusicLowpass]: null,
     [Action.GameOver]: null,
+    [Action.Invincibility]: null,
   };
   const startAction = (enumerator: IEnumerator, actionKey: Action, force = false) => {
     if (!force && replay.mode === ReplayMode.Playback) {
@@ -496,12 +500,6 @@ export const sketch = (p5: P5) => {
       ev?.preventDefault();
       return;
     }
-
-    // // // // TODO: REMOVE
-    // if (state.isGameStarted && p5.keyCode === p5.ENTER) {
-    //   spawnInvincibilityPickup();
-    // }
-
     handleKeyPressed(
       p5,
       state,
@@ -809,20 +807,37 @@ export const sketch = (p5: P5) => {
   }
 
   function startInvincibility() {
-    startCoroutine(startInvincibilityRoutine());
+    if (replay.mode === ReplayMode.Playback) return;
+    if (!state.isGameStarted) return;
+    if (state.isLost) return;
+    if (state.isGameWon) return;
+    if (state.isExitingLevel) return;
+    if (state.isExited) return;
+    startAction(startInvincibilityRoutine(), Action.Invincibility);
   }
 
   function* startInvincibilityRoutine(): IEnumerator {
+    sfx.stop(Sound.invincibleLoop);
+    playSound(Sound.pickupInvincibility);
+    musicPlayer.setPlaybackRate(level.musicTrack, 0);
+    musicPlayer.setVolume(0);
     state.timeSinceInvincibleStart = 0;
     state.isShowingDeathColours = true;
     loopState.timeScale = 0;
     startScreenShake(2, 0, 0.8);
-    // TODO: PLAY INVINCIBLE MUSIC
     yield* waitForTime(INVINCIBILITY_PICKUP_FREEZE_MS);
     state.isShowingDeathColours = false;
     loopState.timeScale = 1;
     startScreenShake(0, 1);
     renderer.invalidateStaticCache();
+    yield* waitForTime(600);
+    sfx.playLoop(Sound.invincibleLoop, 0.55);
+    while (state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
+      yield;
+    }
+    sfx.stop(Sound.invincibleLoop);
+    musicPlayer.setPlaybackRate(level.musicTrack, 1);
+    musicPlayer.setVolume(1);
   }
 
   function retryLevel() {
@@ -1048,14 +1063,15 @@ export const sketch = (p5: P5) => {
 
     if (state.isLost) return;
 
+    // check if a segment intersects with an apple
     for (let i = 0; i < segments.length; i++) {
       if (state.isLost || state.isExitingLevel) continue;
       const coord = getCoordIndex(segments.get(i));
       const appleFound = apples.existsAtCoord(coord) ? coord : -1;
       if (appleFound != undefined && appleFound >= 0) {
         spawnAppleParticles(segments.get(i));
-        growSnake(appleFound);
         incrementScore();
+        growSnake(appleFound);
       }
     }
 
@@ -1064,17 +1080,19 @@ export const sketch = (p5: P5) => {
     const appleFound = apples.existsAtCoord(coord) ? coord : -1;
     if (appleFound != undefined && appleFound >= 0) {
       spawnAppleParticles(player.position);
-      growSnake(appleFound);
       incrementScore();
+      growSnake(appleFound);
       increaseSpeed();
       playSound(Sound.eat);
       if (!state.isDoorsOpen) renderLevelName();
       if (pickupsMap[coord]?.type === PickupType.Invincibility) {
+        incrementPickupBonus();
         startInvincibility();
       }
       pickupsMap[coord] = null;
     }
 
+    // tick time for all pickups
     for (let x = 0; x < GRIDCOUNT.x; x++) {
       for (let y = 0; y < GRIDCOUNT.y; y++) {
         const i = getCoordIndex2(x, y);
@@ -1647,6 +1665,9 @@ export const sketch = (p5: P5) => {
 
     state.isExitingLevel = true;
     winLevelScene.reset(level === START_LEVEL ? 'GET PSYCHED!' : 'SNEK CLEAR!');
+    sfx.stop(Sound.invincibleLoop);
+    stopAction(Action.Invincibility);
+    musicPlayer.setPlaybackRate(level.musicTrack, 1);
     if (replay.mode !== ReplayMode.Playback) {
       startAction(fadeMusic(0, 1000), Action.FadeMusic);
       if (level === START_LEVEL) {
@@ -1948,10 +1969,17 @@ export const sketch = (p5: P5) => {
     renderScoreUI();
   }
 
+  function incrementPickupBonus() {
+    if (state.isGameWon) return;
+    if (state.isLost) return;
+    const points = PICKUP_INVINCIBILITY_BONUS * difficulty.scoreMod;
+    addPoints(points);
+    renderScoreUI();
+  }
+
   function incrementScoreWhileExitingLevel() {
     if (state.isGameWon) return;
-    const points = SCORE_INCREMENT;
-    addPoints(points);
+    addPoints(SCORE_INCREMENT);
   }
 
   function increaseSpeed() {
@@ -1975,16 +2003,26 @@ export const sketch = (p5: P5) => {
       || nospawnsMap[getCoordIndex2(x, y)];
     if (spawnedInsideOfSomething) {
       if (numTries < 30) spawnApple(numTries + 1);
-    } else {
-      apples.add(x, y);
-      if (replay.mode === ReplayMode.Capture) {
-        replay.applesToSpawn.push([x, y]);
-      }
+      return;
     }
-    // determine if pickup should be spawned
-    if (level.pickupDrops && level.pickupDrops[stats.applesEatenThisLevel]) {
-      const r = Math.random() + level.pickupDrops[stats.applesEatenThisLevel].likelihood;
-      if (r >= 1) spawnInvincibilityPickup();
+    apples.add(x, y);
+    if (replay.mode === ReplayMode.Capture) {
+      replay.applesToSpawn.push([x, y]);
+    }
+    spawnPickupDrops();
+  }
+
+  function spawnPickupDrops() {
+    if (stats.applesEatenThisLevel === 0) return;
+    if (!level.pickupDrops) return;
+    const type = level.pickupDrops[stats.applesEatenThisLevel]?.type || PickupType.Invincibility;
+    const likelihood = level.pickupDrops[stats.applesEatenThisLevel]?.likelihood || PICKUP_DROP_LIKELIHOOD;
+    const r = Math.random() + likelihood;
+    if (r < 1) return;
+    switch (type) {
+      case PickupType.Invincibility:
+        spawnInvincibilityPickup()
+        break;
     }
   }
 
@@ -2118,6 +2156,7 @@ export const sketch = (p5: P5) => {
       const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
       const color = gradients.calc(invincibleColorGradient, (cycle % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
       renderer.drawSquare(x, y, color.toString(), color.toString(), drawInvincibilityPickupOptions);
+      spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
     } else {
       renderer.drawGraphicalComponent(graphicalComponents.apple, x, y);
     }

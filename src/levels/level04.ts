@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 import { getCoordIndex2 } from "../utils";
 import { VARIANT_LEVEL_05 } from "./bonusLevels/variantLevel05";
 
@@ -54,5 +54,9 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   titleVariant: TitleVariant.Yellow,
   nextLevelMap: {
     [getCoordIndex2(0, 28)]: VARIANT_LEVEL_05,
+  },
+  pickupDrops: {
+    45: { likelihood: 1, type: PickupType.Invincibility },
+    65: { likelihood: 1, type: PickupType.Invincibility },
   },
 };

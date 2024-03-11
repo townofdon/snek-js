@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../types";
 
 const name = 'SCI-LAB'
 
@@ -56,4 +56,8 @@ XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
   ],
   musicTrack: MusicTrack.woorb,
   titleVariant: TitleVariant.GrayBlue,
+  pickupDrops: {
+    54: { likelihood: .4, type: PickupType.Invincibility },
+    59: { likelihood: .4, type: PickupType.Invincibility },
+  },
 };

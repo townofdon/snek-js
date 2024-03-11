@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 
 const name = 'x-factor';
 
@@ -50,4 +50,8 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   ],
   musicTrack: MusicTrack.dangerZone,
   titleVariant: TitleVariant.Red,
+  pickupDrops: {
+    30: { likelihood: .4, type: PickupType.Invincibility },
+    50: { likelihood: .7, type: PickupType.Invincibility },
+  },
 };

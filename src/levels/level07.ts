@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack } from "../types";
+import { Level, MusicTrack, PickupType } from "../types";
 import { getCoordIndex2 } from "../utils";
 import { VARIANT_LEVEL_08 } from "./bonusLevels/variantLevel08";
 
@@ -53,5 +53,11 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   globalLight: 0.75,
   nextLevelMap: {
     [getCoordIndex2(29, 13)]: VARIANT_LEVEL_08,
+  },
+  pickupDrops: {
+    15: { likelihood: .4, type: PickupType.Invincibility },
+    20: { likelihood: .4, type: PickupType.Invincibility },
+    30: { likelihood: .4, type: PickupType.Invincibility },
+    50: { likelihood: 1, type: PickupType.Invincibility },
   },
 };

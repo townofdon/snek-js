@@ -52,4 +52,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.stonemaze,
   globalLight: 0.4,
+  pickupDrops: {},
 };

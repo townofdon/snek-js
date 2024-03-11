@@ -1,7 +1,9 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
+import { getCoordIndex2 } from "../../utils";
 import { LEVEL_10 } from "../level10";
+import { VARIANT_LEVEL_10 } from "./variantLevel10";
 
 const name = 'secret area 5-2';
 
@@ -44,9 +46,9 @@ XA X AAAA   LLLLLL     X X=-=X
 XA XXXXXXXXXXXXXXXXXXXXX X=-=X
 X  AAA AA AAA XX AAA AAA X=-=X
 XXXXXXXXXXXXd-XX-dXXXXXXXX=-=X
--==K=-      d----d     -=K- -X
--==K=-  AAA dddddd AAA -=K- -X
--==K=-      AAAAAA     -=K- -X
+-==K=-      d----d     -=K- -x
+-==K=-  AAA dddddd AAA -=K- -x
+-==K=-      AAAAAA     -=K- -x
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.hospital),
@@ -63,6 +65,11 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     8: PortalExitMode.SameDirection,
     9: PortalExitMode.SameDirection,
     0: PortalExitMode.SameDirection,
+  },
+  nextLevelMap: {
+    [getCoordIndex2(29, 26)]: VARIANT_LEVEL_10,
+    [getCoordIndex2(29, 27)]: VARIANT_LEVEL_10,
+    [getCoordIndex2(29, 28)]: VARIANT_LEVEL_10,
   },
   musicTrack: MusicTrack.creeplord,
   globalLight: 0.2,

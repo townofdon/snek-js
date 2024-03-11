@@ -52,4 +52,5 @@ XXXXXXXXXXXXXXJXXXXXXXXXXXXXXX
     [getCoordIndex2(14, 0)]: SECRET_LEVEL_10,
     [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
   },
+  pickupDrops: {},
 };

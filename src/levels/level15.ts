@@ -1,7 +1,7 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../types";
 
 const name = 'quantum mirror'
 
@@ -68,4 +68,15 @@ XXXXXXXXXXXXXXXDDDXXXXXXXXXXXX
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   titleVariant: TitleVariant.GrayBlue,
   musicTrack: MusicTrack.lostcolony,
+  extraLoseMessages: [
+    ["Quantum snekanics confounds even the brightest minds."],
+    ["I daresay that was one teleport too many."],
+  ],
+  pickupDrops: {
+    20: { likelihood: .5, type: PickupType.Invincibility },
+    30: { likelihood: .6, type: PickupType.Invincibility },
+    40: { likelihood: .7, type: PickupType.Invincibility },
+    50: { likelihood: .8, type: PickupType.Invincibility },
+    59: { likelihood: .9, type: PickupType.Invincibility },
+  },
 };
