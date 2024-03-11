@@ -52,6 +52,9 @@ import {
   INVINCIBILITY_EXPIRE_WARN_MS,
   INVINCIBILITY_EXPIRE_FLASH_MS,
   INVINCIBILITY_COLOR_CYCLE_MS,
+  INVINCIBILITY_PICKUP_FREEZE_MS,
+  PICKUP_LIFETIME_MS,
+  PICKUP_EXPIRE_WARN_MS,
 } from './constants';
 import {
   clamp,
@@ -60,6 +63,7 @@ import {
   getCoordIndex2,
   getDifficultyFromIndex,
   getRotationFromDirection,
+  getTraversalDistance,
   invertDirection,
   isOrthogonalDirection,
   isWithinBlockDistance,
@@ -105,6 +109,8 @@ import {
   UINavDir,
   LevelType,
   GraphicalComponents,
+  PickupType,
+  Pickup,
 } from './types';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
 import { PALETTE } from './palettes';
@@ -153,6 +159,7 @@ const loopState: LoopState = {
   interval: null,
   timePrevMs: 0,
   timeAccumulatedMs: 0,
+  timeScale: 1,
   deltaTime: 0,
 }
 const state: GameState = {
@@ -172,6 +179,7 @@ const state: GameState = {
   isExited: false,
   isShowingDeathColours: false,
   levelIndex: 0,
+  actualTimeElapsed: 0,
   timeElapsed: 0,
   timeSinceLastMove: Infinity,
   timeSinceLastTeleport: Infinity,
@@ -198,7 +206,6 @@ const stats: Stats = {
   numPointsEverScored: 0,
   numApplesEverEaten: 0,
   score: 0,
-  applesEaten: 0,
   applesEatenThisLevel: 0,
   totalTimeElapsed: 0,
 }
@@ -240,6 +247,7 @@ const clickState: ClickState = {
 }
 const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true }
 const drawAppleOptions: DrawSquareOptions = { size: 0.8, is3d: true, optimize: true }
+const drawInvincibilityPickupOptions: DrawSquareOptions = { size: 0.5, is3d: true, optimize: true }
 const drawBasicOptions: DrawSquareOptions = { optimize: true }
 const drawPortalOptions: DrawSquareOptions = {}
 
@@ -249,7 +257,6 @@ let moves: DIR[] = []; // moves that the player has queued up
 let recentMoves: RecentMoves = [null, null, null, null]; // most recent moves that the snake has performed
 let recentInputs: RecentMoves = [null, null, null, null]; // most recent inputs that the player has performed
 let recentInputTimes: RecentMoveTimings = [Infinity, Infinity, Infinity, Infinity]; // timing of the most recent inputs that the player has performed
-// let segments: Vector[] = []; // snake segments
 let barriers: Vector[] = []; // permanent structures that damage the snake
 let doors: Vector[] = []; // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
 let decoratives1: Vector[] = []; // bg decorative elements
@@ -259,7 +266,7 @@ let locks: Lock[] = []; // locks
 let passablesMap: Record<number, boolean> = {};
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
-// let segmentsMap: Record<number, boolean> = {};
+let pickupsMap: Record<number, Pickup> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
 let keysMap: Record<number, Key> = {};
 let locksMap: Record<number, Lock> = {};
@@ -490,9 +497,9 @@ export const sketch = (p5: P5) => {
       return;
     }
 
-    // // TODO: REMOVE
+    // // // // TODO: REMOVE
     // if (state.isGameStarted && p5.keyCode === p5.ENTER) {
-    //   startInvincibility();
+    //   spawnInvincibilityPickup();
     // }
 
     handleKeyPressed(
@@ -573,7 +580,6 @@ export const sketch = (p5: P5) => {
     stats.numPointsEverScored = 0;
     stats.numApplesEverEaten = 0;
     stats.score = 0;
-    stats.applesEaten = 0;
     stats.applesEatenThisLevel = 0;
     stats.totalTimeElapsed = 0;
   }
@@ -803,8 +809,20 @@ export const sketch = (p5: P5) => {
   }
 
   function startInvincibility() {
+    startCoroutine(startInvincibilityRoutine());
+  }
+
+  function* startInvincibilityRoutine(): IEnumerator {
     state.timeSinceInvincibleStart = 0;
+    state.isShowingDeathColours = true;
+    loopState.timeScale = 0;
+    startScreenShake(2, 0, 0.8);
     // TODO: PLAY INVINCIBLE MUSIC
+    yield* waitForTime(INVINCIBILITY_PICKUP_FREEZE_MS);
+    state.isShowingDeathColours = false;
+    loopState.timeScale = 1;
+    startScreenShake(0, 1);
+    renderer.invalidateStaticCache();
   }
 
   function retryLevel() {
@@ -846,6 +864,7 @@ export const sketch = (p5: P5) => {
     state.isExitingLevel = false;
     state.isExited = false;
     state.isShowingDeathColours = false;
+    state.actualTimeElapsed = 0;
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
     state.timeSinceLastTeleport = Infinity;
@@ -881,6 +900,7 @@ export const sketch = (p5: P5) => {
     passablesMap = {};
     barriersMap = {};
     doorsMap = {};
+    pickupsMap = {};
     nospawnsMap = {};
     portals = { ...DEFAULT_PORTALS() };
     portalsMap = {};
@@ -979,7 +999,7 @@ export const sketch = (p5: P5) => {
     }
     const numApplesStart = level.numApplesStart ?? NUM_APPLES_START;
     for (let i = 0; i < numApplesStart; i++) {
-      addApple();
+      spawnApple();
     }
 
     resetLightmap(lightMap, level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
@@ -997,6 +1017,7 @@ export const sketch = (p5: P5) => {
     loopState.deltaTime = 0;
     loopState.timeAccumulatedMs = 0;
     loopState.timePrevMs = 0;
+    loopState.timeScale = 1;
   }
 
   function logicLoop() {
@@ -1010,7 +1031,7 @@ export const sketch = (p5: P5) => {
     if (loopState.timeAccumulatedMs < FRAME_DUR_MS) {
       return;
     } else {
-      loopState.deltaTime = loopState.timeAccumulatedMs;
+      loopState.deltaTime = loopState.timeAccumulatedMs * loopState.timeScale;
       loopState.timeAccumulatedMs = 0;
     }
 
@@ -1048,6 +1069,33 @@ export const sketch = (p5: P5) => {
       increaseSpeed();
       playSound(Sound.eat);
       if (!state.isDoorsOpen) renderLevelName();
+      if (pickupsMap[coord]?.type === PickupType.Invincibility) {
+        startInvincibility();
+      }
+      pickupsMap[coord] = null;
+    }
+
+    for (let x = 0; x < GRIDCOUNT.x; x++) {
+      for (let y = 0; y < GRIDCOUNT.y; y++) {
+        const i = getCoordIndex2(x, y);
+        if (pickupsMap[i]) {
+          pickupsMap[i].timeTillDeath -= loopState.deltaTime;
+          if (pickupsMap[i].timeTillDeath <= 0) {
+            pickupsMap[i] = null;
+            apples.removeByCoord(i);
+          }
+        }
+      }
+    }
+
+    for (let i = 0; i < BLOCK_SIZE.x * BLOCK_SIZE.y; i++) {
+      if (pickupsMap[i]) {
+        pickupsMap[i].timeTillDeath -= loopState.deltaTime;
+        if (pickupsMap[i].timeTillDeath <= 0) {
+          pickupsMap[i] = null;
+          apples.removeByCoord(i);
+        }
+      }
     }
 
     handlePortalTravel();
@@ -1182,6 +1230,7 @@ export const sketch = (p5: P5) => {
     if (state.isMoving || replay.mode === ReplayMode.Playback) {
       state.timeElapsed += p5.deltaTime;
     }
+    state.actualTimeElapsed += p5.deltaTime;
 
     handleSnakeExitLevelUI();
     handleRenderWinGameScene();
@@ -1858,7 +1907,7 @@ export const sketch = (p5: P5) => {
       }
     }
     if (!state.isDoorsOpen) {
-      addApple();
+      spawnApple();
     }
   }
 
@@ -1893,7 +1942,6 @@ export const sketch = (p5: P5) => {
       bonus = CLEAR_BONUS * difficulty.scoreMod;
     }
     const points = SCORE_INCREMENT * difficulty.scoreMod + bonus
-    stats.applesEaten += 1;
     stats.applesEatenThisLevel += 1;
     stats.numApplesEverEaten += 1;
     addPoints(points);
@@ -1914,7 +1962,7 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  function addApple(numTries = 0) {
+  function spawnApple(numTries = 0) {
     if (level.disableAppleSpawn) return;
     if (replay.mode === ReplayMode.Playback) {
       addAppleReplayMode();
@@ -1926,12 +1974,39 @@ export const sketch = (p5: P5) => {
       || doorsMap[getCoordIndex2(x, y)]
       || nospawnsMap[getCoordIndex2(x, y)];
     if (spawnedInsideOfSomething) {
-      if (numTries < 30) addApple(numTries + 1);
+      if (numTries < 30) spawnApple(numTries + 1);
     } else {
       apples.add(x, y);
       if (replay.mode === ReplayMode.Capture) {
         replay.applesToSpawn.push([x, y]);
       }
+    }
+    // determine if pickup should be spawned
+    if (level.pickupDrops && level.pickupDrops[stats.applesEatenThisLevel]) {
+      const r = Math.random() + level.pickupDrops[stats.applesEatenThisLevel].likelihood;
+      if (r >= 1) spawnInvincibilityPickup();
+    }
+  }
+
+  function spawnInvincibilityPickup(numTries = 0) {
+    if (level.disableAppleSpawn) return;
+    if (replay.mode === ReplayMode.Playback) return;
+    const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
+    const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
+    const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
+      || doorsMap[getCoordIndex2(x, y)]
+      || nospawnsMap[getCoordIndex2(x, y)]
+      || segments.containsCoord(getCoordIndex2(x, y))
+      || player.position.equals(x, y);
+    const spawnedTooCloseToPlayer = getTraversalDistance(x, y, player.position.x, player.position.y) < 20;
+    if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
+      if (numTries < 30) spawnInvincibilityPickup(numTries + 1);
+    } else {
+      if (!apples.existsAt(x, y)) apples.add(x, y);
+      pickupsMap[getCoordIndex2(x, y)] = {
+        timeTillDeath: PICKUP_LIFETIME_MS,
+        type: PickupType.Invincibility,
+      };
     }
   }
 
@@ -2010,20 +2085,20 @@ export const sketch = (p5: P5) => {
       } else {
         renderer.drawSquare(vec.x, vec.y, "#fff", "#fff", drawPlayerOptions);
       }
-    } else if (state.isShowingDeathColours) {
-      renderer.drawSquare(vec.x, vec.y,
-        PALETTE.deathInvert.playerTail,
-        PALETTE.deathInvert.playerTailStroke,
-        drawPlayerOptions);
     } else if (!state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
       const timeLeft = difficulty.invincibilityTime - state.timeSinceInvincibleStart;
       if (timeLeft < INVINCIBILITY_EXPIRE_WARN_MS && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0) {
         renderer.drawSquare(vec.x, vec.y, "#000", "#000", drawPlayerOptions);
       } else {
-        const cycle = Math.floor(state.timeSinceInvincibleStart / INVINCIBILITY_COLOR_CYCLE_MS);
+        const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
         const color = gradients.calc(invincibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
         renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
       }
+    } else if (state.isShowingDeathColours) {
+      renderer.drawSquare(vec.x, vec.y,
+        PALETTE.deathInvert.playerTail,
+        PALETTE.deathInvert.playerTailStroke,
+        drawPlayerOptions);
     } else {
       renderer.drawGraphicalComponent(graphicalComponents.snakeSegment, vec.x, vec.y);
     }
@@ -2035,6 +2110,14 @@ export const sketch = (p5: P5) => {
         PALETTE.deathInvert.apple,
         PALETTE.deathInvert.appleStroke,
         drawAppleOptions);
+    } else if (pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility) {
+      const timeLeft = pickupsMap[getCoordIndex2(x, y)].timeTillDeath;
+      if (timeLeft <= PICKUP_EXPIRE_WARN_MS && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0) {
+        return;
+      }
+      const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
+      const color = gradients.calc(invincibleColorGradient, (cycle % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
+      renderer.drawSquare(x, y, color.toString(), color.toString(), drawInvincibilityPickupOptions);
     } else {
       renderer.drawGraphicalComponent(graphicalComponents.apple, x, y);
     }
@@ -2247,8 +2330,6 @@ export const sketch = (p5: P5) => {
       const offset = -50
       UI.drawText('YOU DIED!', '28px', 250 + offset, uiElements, { color: ACCENT_COLOR });
       UI.drawText(randomMessage, '12px', 340 + offset, uiElements);
-      // UI.drawText(`SCORE: ${Math.floor(score)}`, '30px', 370 + offset, uiElements);
-      // UI.drawText(`APPLES: ${applesEaten}`, '18px', 443 + offset, uiElements);
       UI.drawText('[ENTER]&nbsp;&nbsp;&nbsp;Try Again ', '14px', 450 + offset, uiElements, { color: ACCENT_COLOR });
       UI.drawText('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[M]&nbsp;&nbsp;&nbsp;Main Menu ', '14px', 480 + offset, uiElements, { color: ACCENT_COLOR, marginLeft: 16 });
       UI.enableScreenScroll();

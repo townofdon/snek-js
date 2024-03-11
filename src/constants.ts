@@ -48,44 +48,49 @@ export const LIVES_LEFT_BONUS = 1000;
 export const ALL_APPLES_BONUS = 2500;
 export const PERFECT_BONUS = 5000;
 
+export const PICKUP_LIFETIME_MS = 10000;
+export const PICKUP_EXPIRE_WARN_MS = 3500;
+
+export const INVINCIBILITY_PICKUP_FREEZE_MS = 1000;
 export const INVINCIBILITY_EXPIRE_WARN_MS = 2000;
 export const INVINCIBILITY_EXPIRE_FLASH_MS = 200;
 export const INVINCIBILITY_COLOR_CYCLE_MS = 20;
+
 const INVINCIBILITY_TIME_EASY = 10000;
 const INVINCIBILITY_TIME_MEDIUM = 7500;
 const INVINCIBILITY_TIME_HARD = 5000;
 const INVINCIBILITY_TIME_ULTRA = 3000;
 
-export const BONUS_MOD_EASY = .1;
-export const BONUS_MOD_MEDIUM = .5;
-export const BONUS_MOD_HARD = 4;
-export const BONUS_MOD_ULTRA = 12;
+const BONUS_MOD_EASY = .1;
+const BONUS_MOD_MEDIUM = .5;
+const BONUS_MOD_HARD = 4;
+const BONUS_MOD_ULTRA = 12;
 
-export const SCORE_MOD_EASY = .5;
-export const SCORE_MOD_MEDIUM = 2;
-export const SCORE_MOD_HARD = 5;
-export const SCORE_MOD_ULTRA = 10;
+const SCORE_MOD_EASY = .5;
+const SCORE_MOD_MEDIUM = 2;
+const SCORE_MOD_HARD = 5;
+const SCORE_MOD_ULTRA = 10;
 
-export const NUM_APPLES_MOD_EASY = .5;
-export const NUM_APPLES_MOD_MEDIUM = .9;
-export const NUM_APPLES_MOD_HARD = 1;
-export const NUM_APPLES_MOD_ULTRA = 1.5;
+const NUM_APPLES_MOD_EASY = .6;
+const NUM_APPLES_MOD_MEDIUM = 1;
+const NUM_APPLES_MOD_HARD = 1.1;
+const NUM_APPLES_MOD_ULTRA = 1.5;
 
-export const SPEED_START_EASY = 300;
-export const SPEED_START_MEDIUM = 260;
-export const SPEED_START_HARD = 190;
-export const SPEED_START_ULTRA = 110;
+const SPEED_START_EASY = 300;
+const SPEED_START_MEDIUM = 260;
+const SPEED_START_HARD = 190;
+const SPEED_START_ULTRA = 110;
+
+const SPEED_STEPS_EASY = 20;
+const SPEED_STEPS_MEDIUM = 20;
+const SPEED_STEPS_HARD = 10;
+const SPEED_STEPS_ULTRA = 4;
 
 export const SPEED_LIMIT_EASY = 110;
 export const SPEED_LIMIT_MEDIUM = 56;
 export const SPEED_LIMIT_HARD = 38;
 export const SPEED_LIMIT_ULTRA = 25;
 export const SPEED_LIMIT_ULTRA_SPRINT = 15;
-
-export const SPEED_STEPS_EASY = 20;
-export const SPEED_STEPS_MEDIUM = 20;
-export const SPEED_STEPS_HARD = 10;
-export const SPEED_STEPS_ULTRA = 4;
 
 export const DIFFICULTY_EASY: Difficulty = {
   index: 1,

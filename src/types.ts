@@ -98,7 +98,6 @@ export interface Stats {
   numPointsEverScored: number, // total points scored, regardless of deaths (resets on new game)
   numApplesEverEaten: number, // total apples eaten, regardless of deaths (resets on new game)
   score: number,
-  applesEaten: number,
   applesEatenThisLevel: number,
   totalTimeElapsed: number,
 }
@@ -123,6 +122,13 @@ export interface GameState {
   hasKeyRed: boolean,
   hasKeyBlue: boolean,
   levelIndex: number,
+  /**
+   * The actual time elapsed from the start of the level
+   */
+  actualTimeElapsed: number,
+  /**
+   * The time elapsed since the player started moving
+   */
   timeElapsed: number,
   timeSinceLastMove: number,
   timeSinceLastTeleport: number,
@@ -144,6 +150,7 @@ export interface LoopState {
   interval: NodeJS.Timeout,
   timePrevMs: number,
   timeAccumulatedMs: number,
+  timeScale: number,
   deltaTime: number,
 }
 
@@ -225,6 +232,7 @@ export interface Level {
   nextLevel?: Level,
   appleSlowdownMod?: number,
   applesModOverride?: number,
+  pickupDrops?: Record<number, PickupDrop>,
 }
 
 export enum KeyChannel {
@@ -480,4 +488,19 @@ export interface EmitterOptions {
   loop: boolean,
   orbit: number,
   easingFnc?: (x: number) => number,
+}
+
+export enum PickupType {
+  None = 0,
+  Invincibility,
+}
+
+export interface Pickup {
+  timeTillDeath: number,
+  type: PickupType,
+}
+
+export interface PickupDrop {
+  likelihood: number,
+  type: PickupType,
 }
