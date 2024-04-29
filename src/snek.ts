@@ -831,7 +831,7 @@ export const sketch = (p5: P5) => {
     startScreenShake(0, 1);
     renderer.invalidateStaticCache();
     yield* waitForTime(600);
-    sfx.playLoop(Sound.invincibleLoop, 0.55);
+    sfx.playLoop(Sound.invincibleLoop, 0.55 * settings.musicVolume);
     while (state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
       yield;
     }
