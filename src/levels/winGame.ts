@@ -45,7 +45,7 @@ export const LEVEL_WIN_GAME: Level = {
   colors: getExtendedPalette(PALETTE.darkStar),
   isWinGame: true,
   showQuoteOnLevelWin: false,
-  musicTrack: MusicTrack.champion,
+  musicTrack: MusicTrack.overture,
   disableAppleSpawn: false,
   globalLight: 0.1,
 };

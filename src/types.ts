@@ -359,6 +359,7 @@ export enum MusicTrack {
   ascension = '19-ascension.wav',
   backrooms = '20-dillema.wav',
   slyguy = '21-slyguy.wav',
+  overture = '22-snek-overture.wav',
 }
 
 export enum Image {

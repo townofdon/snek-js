@@ -213,6 +213,8 @@ export function getTrackName(track?: MusicTrack) {
       return "Backrooms";
     case MusicTrack.slyguy:
       return "Resolute";
+    case MusicTrack.overture:
+      return "Overture";
     default:
       return "Unknown";
   }

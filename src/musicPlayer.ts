@@ -51,6 +51,7 @@ export class MusicPlayer {
     [MusicTrack.ascension]: false,
     [MusicTrack.backrooms]: false,
     [MusicTrack.slyguy]: false,
+    [MusicTrack.overture]: false,
   };
   private settings: GameSettings;
 
@@ -103,7 +104,7 @@ export class MusicPlayer {
     try {
       this.tracksPlaying[track] = true;
       this.state.currentTrack = track;
-      await playMusic(this.fullPath(track), { volume, loop: true, createAnalyser });
+      await playMusic(this.fullPath(track), { volume, loop: this.shouldLoop(track), createAnalyser });
     } catch (err) {
       console.error(err);
     }
@@ -206,5 +207,10 @@ export class MusicPlayer {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  private shouldLoop(track: MusicTrack) {
+    if (track === MusicTrack.overture) return false;
+    return true;
   }
 }

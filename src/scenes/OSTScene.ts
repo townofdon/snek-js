@@ -35,6 +35,7 @@ const tracks: MusicTrack[] = [
   MusicTrack.reconstitute,
   MusicTrack.ascension,
   MusicTrack.moneymaker,
+  MusicTrack.overture,
 ];
 
 enum VisualizerMode {
