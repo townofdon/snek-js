@@ -19,3 +19,5 @@ export * from './level16';
 export * from './level18';
 export * from './level19';
 export * from './level99';
+export * from './winGame';
+export * from './bonusLevels/variantLevel99';

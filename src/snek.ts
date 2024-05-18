@@ -8,6 +8,8 @@ import {
   LEVEL_99,
   LEVEL_AFTER_WIN_ULTRA,
   LEVEL_AFTER_WIN_HARD,
+  LEVEL_WIN_GAME,
+  VARIANT_LEVEL_99,
 } from './levels';
 import {
   RECORD_REPLAY_STATE,
@@ -56,7 +58,8 @@ import {
   PICKUP_LIFETIME_MS,
   PICKUP_EXPIRE_WARN_MS,
   PICKUP_INVINCIBILITY_BONUS,
-  PICKUP_INVINCIBILITY_DROP_LIKELIHOOD as PICKUP_DROP_LIKELIHOOD,
+  PICKUP_DROP_LIKELIHOOD,
+  PICKUP_SPAWN_COOLDOWN,
 } from './constants';
 import {
   clamp,
@@ -64,6 +67,7 @@ import {
   getCoordIndex,
   getCoordIndex2,
   getDifficultyFromIndex,
+  getLevelProgress,
   getRotationFromDirection,
   getTraversalDistance,
   invertDirection,
@@ -146,7 +150,6 @@ import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
 import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
 import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
-import { VARIANT_LEVEL_99 } from './levels/bonusLevels/variantLevel99';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -189,6 +192,7 @@ const state: GameState = {
   timeSinceHurtForgiveness: Infinity,
   timeSinceLastInput: Infinity,
   timeSinceInvincibleStart: Infinity,
+  timeSinceSpawnedPickup: Infinity,
   hurtGraceTime: HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0),
   lives: MAX_LIVES,
   targetSpeed: 1,
@@ -755,7 +759,7 @@ export const sketch = (p5: P5) => {
     if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    const progress = clamp(stats.applesEatenThisLevel / (level.applesToClear * (level.applesModOverride || difficulty.applesMod)), 0, 1);
+    const progress = getLevelProgress(stats, level, difficulty);
     UI.renderLevelName(level.name, state.isShowingDeathColours, progress);
   }
 
@@ -1158,6 +1162,7 @@ export const sketch = (p5: P5) => {
     state.timeSinceHurt += loopState.deltaTime;
     state.timeSinceHurtForgiveness += loopState.deltaTime;
     state.timeSinceInvincibleStart += loopState.deltaTime;
+    state.timeSinceSpawnedPickup += loopState.deltaTime;
     state.timeSinceLastInput += loopState.deltaTime;
     state.timeSinceLastTeleport += loopState.deltaTime;
     state.frameCount += 1;
@@ -1922,7 +1927,8 @@ export const sketch = (p5: P5) => {
       (difficulty.index - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
       1
     );
-    if (segments.length < MAX_SNAKE_SIZE) {
+    const maxSize = level === LEVEL_WIN_GAME ? 0.25 : MAX_SNAKE_SIZE;
+    if (segments.length < maxSize) {
       for (let i = 0; i < numSegmentsToAdd; i++) {
         addSnakeSegment();
       }
@@ -2015,8 +2021,11 @@ export const sketch = (p5: P5) => {
   function spawnPickupDrops() {
     if (stats.applesEatenThisLevel === 0) return;
     if (!level.pickupDrops) return;
+    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return;
+    const progress = getLevelProgress(stats, level, difficulty);
+    const baseLikelihood = PICKUP_DROP_LIKELIHOOD * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0);
     const type = level.pickupDrops[stats.applesEatenThisLevel]?.type || PickupType.Invincibility;
-    const likelihood = level.pickupDrops[stats.applesEatenThisLevel]?.likelihood || PICKUP_DROP_LIKELIHOOD;
+    const likelihood = level.pickupDrops[stats.applesEatenThisLevel]?.likelihood || baseLikelihood;
     const r = Math.random() + likelihood;
     if (r < 1) return;
     switch (type) {
@@ -2045,6 +2054,7 @@ export const sketch = (p5: P5) => {
         timeTillDeath: PICKUP_LIFETIME_MS,
         type: PickupType.Invincibility,
       };
+      state.timeSinceSpawnedPickup = 0;
     }
   }
 

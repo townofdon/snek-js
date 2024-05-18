@@ -136,6 +136,7 @@ export interface GameState {
   timeSinceHurtForgiveness: number,
   timeSinceLastInput: number,
   timeSinceInvincibleStart: number,
+  timeSinceSpawnedPickup: number,
   hurtGraceTime: number,
   lives: number,
   targetSpeed: number,

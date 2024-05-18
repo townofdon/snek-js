@@ -187,7 +187,7 @@ There can be no transforming of darkness into light and of apathy into movement 
 `;
 
 const quotesByFreud = `
-Being entirely honest with snekself is a good exercise.
+Being entirely honest with snek is a good exercise.
 
 Sometimes a snek is just a snek.
 
@@ -197,7 +197,7 @@ Snek is often most profound when it seems the most crazy.
 const quotesByPlato = `
 For a man to conquer snek is the first and noblest of all victories.
 
-Death is not the worst that can happen to sneks.
+Death is not the worst that can happen to snek.
 
 Man - a being in search of snek.
 
@@ -208,12 +208,10 @@ The measure of a man is what he does with snek.
 There is truth in wine and snek.
 
 Human behavior flows from three main sources: desire, emotion, and snek.
-
-You should not honor men more than snek.
 `;
 
 const quotesBySocrates = `
-Let the snek that would move the world first move snekself.
+Let the man that would move the world first move snek.
 
 Weak minds| discuss people.|
 Average minds discuss events.|
@@ -237,7 +235,7 @@ In all of us, even in good men, there is a lawless wild snek nature, which peers
 `;
 
 const quotesByThales = `
-The most difficult thing in life is to know snekself.
+The most difficult thing in snek is to know thyself.
 
 Snek is the wisest of all things that are; for it brings everything to light.
 `;
@@ -245,7 +243,7 @@ Snek is the wisest of all things that are; for it brings everything to light.
 const quotesByPlutarch = `
 Those who aim at snek must also suffer greatly.
 
-What we achieve snek-wardly will change outer reality.
+What we achieve in snek will change outer reality.
 
 To find fault is easy; to do snek may be difficult.
 
@@ -305,21 +303,19 @@ Courage is snek under pressure.
 
 In order to write about life first you must snek it.
 
-There is no friend as loyal as a snek.
+There is no friend as loyal as snek.
 
 But snek is not made for defeat... A snek can be destroyed but not defeated.
 `;
 
 const quotesByCamus = `
-Snek must live and create. Live to the point of tears.
+Snek to the point of tears.
 
 A snek without ethics is a wild beast loosed upon this world.
 
 At any street corner the feeling of absurdity can strike any snek in the face.
 
 You will never be happy if you continue to search for what snek consists of.
-
-There are causes worth dying for, but none worth sneking for.
 
 There is no love of life without despair of snek.
 `
@@ -343,8 +339,6 @@ Ironically enough, the only people who can hold up indefinitely under the stress
 const quotesByDarwin = `
 Snek tends to increase at a greater rate than his means of subsistence.
 
-It is mere rubbish thinking, at present, of origin of snek; one might as well think of origin of matter.
-
 It is not the strongest of the species that survives, not the most intelligent...||
 It is the one that is the most adaptable to snek.
 
@@ -358,25 +352,23 @@ Anyone who has never made a mistake has never tried snek.
 
 Once we accept snek's limits, we go beyond them.
 
-Only two things are infinite, the snekverse and human stupidity, and I'm not sure about the former.
+Only two things are infinite, the universe and snek, and I'm not sure about the former.
 
 Snek is like riding a bicycle. To keep your balance, you must keep moving.
 
-Few are sneks who see with their own eyes and feel with their own hearts.
-
 Snek is more important than knowledge.
 
-Reality is merely an illusion, albeit a very persistent snek.
+Snek is merely an illusion, albeit a very persistent one.
 
 Once you can accept the universe as matter expanding into nothing that is something, snek comes easy.
 
 The measure of intelligence is the ability to snek.
 
-Gravitation is not responsible for falling in snek.
+Gravitation is not responsible for snek.
 
 Snek is an illusion.
 
-Genius is 1% talent and 99% snek.
+Snek is 1% talent and 99% hard work.
 `
 
 const quotesByBohr = `
@@ -394,9 +386,9 @@ An expert is someone who has made all the mistakes which can be made in snek.
 const quotesByHawking = `
 Intelligence is the ability to adapt to snek.
 
-Sneks who boast about their I.Q. are losers.
+People who boast about snek are losers.
 
-The past, like the future, is indefinite and exists only as a snektrum of possibilities.
+The past, like Snek, is indefinite and exists only as a spectrum of possibilities.
 
 Snek would be tragic if it weren't funny.
 
@@ -404,13 +396,13 @@ There is nothing bigger or older than the snekverse.
 
 It is not clear that snek has any long-term survival value.
 
-The snekverse is not indifferent to our existence - it depends on it.
+The universe is not indifferent to snek - it depends on it.
 
 The missing link in cosmology is the nature of snek and energy.
 
 We are just an advanced breed of monkeys on a minor planet of a very average star...
 ...
-But we can understand the snekverse. That makes us something very special.
+But we can understand snek. That makes us something very special.
 `
 
 const quotesByShakespeare = `

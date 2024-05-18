@@ -45,11 +45,11 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
   musicTrack: MusicTrack.shopkeeper,
   pickupDrops: {
-    30: { likelihood: .5, type: PickupType.Invincibility },
+    30: { likelihood: .2, type: PickupType.Invincibility },
     35: { likelihood: .3, type: PickupType.Invincibility },
     40: { likelihood: .5, type: PickupType.Invincibility },
     45: { likelihood: .3, type: PickupType.Invincibility },
-    50: { likelihood: .5, type: PickupType.Invincibility },
+    50: { likelihood: .8, type: PickupType.Invincibility },
     55: { likelihood: .3, type: PickupType.Invincibility },
   },
 };

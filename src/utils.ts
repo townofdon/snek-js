@@ -7,7 +7,7 @@ import {
   GRIDCOUNT,
 } from "./constants";
 
-import { DIR, MusicTrack, QueryParams } from "./types";
+import { DIR, Difficulty, Level, MusicTrack, QueryParams, Stats } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
   const clamped = Math.max(Math.min(val, maxVal), minVal);
@@ -241,6 +241,10 @@ export function getElementPosition(el: HTMLElement) {
     x: xPosition,
     y: yPosition
   };
+}
+
+export function getLevelProgress(stats: Stats, level: Level, difficulty: Difficulty) {
+  return clamp(stats.applesEatenThisLevel / (level.applesToClear * (level.applesModOverride || difficulty.applesMod)), 0, 1);
 }
 
 export function lerp(a: number, b: number, t: number) {
