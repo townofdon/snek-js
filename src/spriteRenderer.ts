@@ -37,6 +37,7 @@ export class SpriteRenderer {
     [Image.UIKeyYellow]: null,
     [Image.UIKeyRed]: null,
     [Image.UIKeyBlue]: null,
+    [Image.UILocked]: null,
   }
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -81,6 +82,7 @@ export class SpriteRenderer {
       this.loadImage(Image.UIKeyYellow);
       this.loadImage(Image.UIKeyRed);
       this.loadImage(Image.UIKeyBlue);
+      this.loadImage(Image.UILocked);
     } catch (err) {
       console.error(err)
     }
@@ -144,6 +146,18 @@ export class SpriteRenderer {
   drawImageStatic = (image: Image, x: number, y: number) => {
     if (this.isStaticCached) return;
     this.drawImageImpl(this.staticGraphics, image, x, y);
+  }
+
+  getImageWidth = (image: Image): number => {
+    const loaded = this.images[image];
+    if (!loaded) return 0;
+    return loaded.width;
+  }
+
+  getImageHeight = (image: Image): number => {
+    const loaded = this.images[image];
+    if (!loaded) return 0;
+    return loaded.height;
   }
 
   private drawImageImpl = (graphics: P5 | P5.Graphics, image: Image, x: number, y: number) => {

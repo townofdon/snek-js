@@ -7,6 +7,7 @@ const audioBufferMap: Record<string, AudioBuffer> = {}
 const audioSourceMap: Record<string, AudioBufferSourceNode> = {}
 const audioGainNodeMap: Record<string, GainNode> = {}
 const audioAnalyserMap: Record<string, AnalyserNode> = {}
+const audioTimeStartedMap: Record<string, number> = {}
 
 // for legacy browsers
 // @ts-ignore
@@ -96,6 +97,7 @@ interface AudioSourceOptions {
   loop?: boolean,
   loopStart?: number,
   createAnalyser?: boolean,
+  trackElapsed?: boolean,
 }
 
 async function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOptions) {
@@ -129,6 +131,9 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
   }
   // start audio
   source.start();
+  if (options.trackElapsed) {
+    audioTimeStartedMap[path] = audioContext.currentTime;
+  }
   source.onended = () => {
     stopAudio(path);
   }
@@ -155,11 +160,19 @@ export async function getPlaybackRate(path: string): Promise<number> {
   return source.playbackRate.value;
 }
 
+export function getTimeElapsed(path: string): number {
+  if (audioTimeStartedMap[path] === undefined || audioTimeStartedMap[path] < 0) return 0;
+  return Math.max(audioContext.currentTime - audioTimeStartedMap[path], 0);
+}
+
 export function stopAudio(path: string) {
   if (audioSourceMap[path]) {
     audioSourceMap[path].onended = undefined;
     audioSourceMap[path].stop();
     audioSourceMap[path].disconnect();
+  }
+  if (audioTimeStartedMap[path]) {
+    audioTimeStartedMap[path] = -1;
   }
   audioGainNodeMap[path]?.disconnect();
   audioSourceMap[path] = null;

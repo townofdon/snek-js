@@ -326,6 +326,7 @@ export enum Sound {
   uiChipLoop = 'uiChipLoop',
   uiConfirm = 'uiConfirm',
   unlock = 'unlock',
+  unlockAbility = 'unlockAbility',
   warp = 'warp',
   winLevel = 'winLevel',
   winGame = 'winGame',
@@ -339,7 +340,7 @@ export type SoundVariants = Record<keyof typeof Sound, Howl>
 
 export enum MusicTrack {
   None = '__NO_TRACK__',
-  simpleTime = '01-simpletime4.wav',
+  simpleTime = '01-simpletime5.wav',
   conquerer = '02-conquerer.wav',
   transient = '03-transient-2.wav',
   lordy = '04-lordy.wav',
@@ -363,6 +364,8 @@ export enum MusicTrack {
   overture = '22-snek-overture.wav',
 }
 
+export type UnlockedMusicTracks = Record<MusicTrack, Boolean>
+
 export enum Image {
   SnekHead = 'snek-head.png',
   SnekHeadDead = 'snek-head-dead.png',
@@ -383,6 +386,7 @@ export enum Image {
   UIKeyYellow = 'snek-smkey2-yellow.png',
   UIKeyRed = 'snek-smkey2-red.png',
   UIKeyBlue = 'snek-smkey2-blue.png',
+  UILocked = 'ui-locked.png',
 }
 
 export interface Scene {

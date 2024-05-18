@@ -1,8 +1,11 @@
 import P5 from "p5";
-import { FontsInstance, GameState, SFXInstance, SceneCallbacks, Sound } from "../types";
+import { FontsInstance, GameState, MusicTrack, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import Color from "color";
+import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
+import { OST_MODE_TRACKS } from "../constants";
+import { getTrackName } from "../utils";
 
 interface TriggerLevelExitParams {
   score: number,
@@ -14,16 +17,20 @@ interface TriggerLevelExitParams {
   isPerfect: boolean,
   hasAllApples: boolean,
   isCasualModeEnabled: boolean,
+  levelMusicTrack?: MusicTrack,
   onApplyScore: () => void,
 }
 
 export class WinLevelScene extends BaseScene {
   private sfx: SFXInstance;
   private titleText: string = 'SNEK CLEAR!';
+  private unlockedMusicStore: UnlockedMusicStore;
+  private levelMusicTrack: MusicTrack | null = null;
 
-  constructor(p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+  constructor(p5: P5, sfx: SFXInstance, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, callbacks: SceneCallbacks = {}) {
     super(p5, fonts, callbacks)
     this.sfx = sfx;
+    this.unlockedMusicStore = unlockedMusicStore;
   }
 
   private stageClearY = 0.5;
@@ -51,6 +58,7 @@ export class WinLevelScene extends BaseScene {
     hasAllApples,
     isPerfect,
     isCasualModeEnabled,
+    levelMusicTrack,
     onApplyScore,
   }: TriggerLevelExitParams) {
     if (this.isTriggered) return;
@@ -63,6 +71,7 @@ export class WinLevelScene extends BaseScene {
     this.perfectBonus = perfectBonus;
     this.hasAllApples = hasAllApples;
     this.isPerfect = isPerfect;
+    this.levelMusicTrack = levelMusicTrack || null;
     if (isCasualModeEnabled) {
       onApplyScore();
       this.cleanup();
@@ -180,6 +189,18 @@ export class WinLevelScene extends BaseScene {
       this.drawScore(finalScore);
     });
 
+    // unlock music track
+    if (this.levelMusicTrack && !this.unlockedMusicStore.getIsUnlocked(this.levelMusicTrack) && OST_MODE_TRACKS.includes(this.levelMusicTrack)) {
+      sfx.play(Sound.unlockAbility, 1);
+      this.unlockedMusicStore.unlockTrack(this.levelMusicTrack);
+      yield* coroutines.waitForTime(3200, (t) => {
+        // flash
+        const freq = 0.3;
+        const shouldShow = t % freq < freq * 0.5;
+        if (shouldShow) this.drawMusicTrackUnlocked(this.levelMusicTrack);
+      });
+    }
+
     this.cleanup();
     this.isTriggered = false;
   }
@@ -288,5 +309,30 @@ export class WinLevelScene extends BaseScene {
     p5.textSize(24);
     p5.fill('#fff');
     p5.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.6));
+  }
+
+  drawMusicTrackUnlocked = (track: MusicTrack) => {
+    const { p5, fonts } = this.props;
+    const accentColor = "#15C2CB";
+    const accentColorBg = Color("#119DA4").darken(0.4).hex();
+    const shadowOffset = 0.01;
+    p5.textFont(fonts.variants.miniMood);
+    p5.textSize(16);
+    p5.textAlign(p5.CENTER, p5.TOP);
+    p5.fill('#000');
+    p5.noStroke();
+    p5.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY + shadowOffset));
+    p5.fill(accentColor);
+    p5.stroke(accentColorBg);
+    p5.strokeWeight(4);
+    p5.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY));
+    p5.textSize(28);
+    p5.fill('#000');
+    p5.noStroke();
+    p5.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY + shadowOffset));
+    p5.fill(accentColor);
+    p5.stroke(accentColorBg);
+    p5.strokeWeight(4);
+    p5.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY));
   }
 }

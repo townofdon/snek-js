@@ -117,6 +117,7 @@ import {
   GraphicalComponents,
   PickupType,
   Pickup,
+  UnlockedMusicTracks,
 } from './types';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
 import { PALETTE } from './palettes';
@@ -150,11 +151,14 @@ import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
 import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
 import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
+import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
 
 const queryParams = parseUrlQueryParams();
+const unlockedMusicStore = new UnlockedMusicStore()
+
 const settings: GameSettings = {
   musicVolume: 1,
   sfxVolume: 1,
@@ -360,7 +364,7 @@ export const sketch = (p5: P5) => {
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer(settings);
   const mainTitleFader = new MainTitleFader(p5);
-  const winLevelScene = new WinLevelScene(p5, sfx, fonts, { onSceneEnded: gotoNextLevel });
+  const winLevelScene = new WinLevelScene(p5, sfx, fonts, unlockedMusicStore, { onSceneEnded: gotoNextLevel });
   const onChangePlayerDirection: (direction: DIR) => void = (dir) => {
     if (validateMove(player.direction, dir)) {
       player.direction = dir;
@@ -961,6 +965,7 @@ export const sketch = (p5: P5) => {
             winGameScene.trigger();
             state.isGameWon = true;
             state.isMoving = true;
+            unlockedMusicStore.unlockTrack(MusicTrack.overture);
           }
           renderDifficultyUI();
           renderHeartsUI();
@@ -1733,6 +1738,7 @@ export const sketch = (p5: P5) => {
         isPerfect,
         hasAllApples,
         isCasualModeEnabled: state.isCasualModeEnabled,
+        levelMusicTrack: level === START_LEVEL ? undefined : level.musicTrack,
         onApplyScore: () => {
           musicPlayer.stopAllTracks();
           const perfectBonus = isPerfect ? getPerfectBonus() : 0;
@@ -2666,7 +2672,7 @@ export const sketch = (p5: P5) => {
       showMainMenu();
     }
     musicPlayer.setVolume(1.3);
-    new OSTScene(p5, sfx, musicPlayer, fonts, { onEscapePress })
+    new OSTScene(p5, sfx, musicPlayer, fonts, unlockedMusicStore, spriteRenderer, { onEscapePress })
   }
 
   function setLevelIndexFromCurrentLevel() {

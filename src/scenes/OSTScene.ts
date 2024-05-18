@@ -1,10 +1,12 @@
 import P5 from "p5";
-import { FontsInstance, IEnumerator, MusicTrack, Quote, SFXInstance, SceneCallbacks, Sound } from "../types";
+import { FontsInstance, IEnumerator, Image, MusicTrack, Quote, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { MusicPlayer } from "../musicPlayer";
 import { clamp, getTrackName } from "../utils";
-import { DIMENSIONS } from "../constants";
+import { DIMENSIONS, OST_MODE_TRACKS } from "../constants";
 import { UI } from "../ui";
+import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
+import { SpriteRenderer } from "../spriteRenderer";
 
 const VISUALIZER = {
   width: 360,
@@ -12,31 +14,6 @@ const VISUALIZER = {
   y: 80,
   sweepCycleTimeMs: 4000,
 }
-
-const tracks: MusicTrack[] = [
-  MusicTrack.champion,
-  MusicTrack.simpleTime,
-  MusicTrack.transient,
-  MusicTrack.aqueduct,
-  MusicTrack.conquerer,
-  MusicTrack.observer,
-  MusicTrack.lordy,
-  MusicTrack.factorio,
-  MusicTrack.skycastle,
-  MusicTrack.creeplord,
-  MusicTrack.dangerZone,
-  MusicTrack.stonemaze,
-  MusicTrack.shopkeeper,
-  MusicTrack.woorb,
-  MusicTrack.gravy,
-  MusicTrack.lostcolony,
-  MusicTrack.backrooms,
-  MusicTrack.slyguy,
-  MusicTrack.reconstitute,
-  MusicTrack.ascension,
-  MusicTrack.moneymaker,
-  MusicTrack.overture,
-];
 
 enum VisualizerMode {
   OsciliscopeLine,
@@ -48,9 +25,12 @@ enum VisualizerMode {
 export class OSTScene extends BaseScene {
   private sfx: SFXInstance;
   private musicPlayer: MusicPlayer;
+  private unlockedMusicStore: UnlockedMusicStore;
+  private spriteRenderer: SpriteRenderer;
   private uiElements: P5.Element[] = []
 
   private state = {
+    locked: false,
     trackIndex: 0,
     timeStarted: 0,
     timeModeLastChanged: 0,
@@ -68,10 +48,12 @@ export class OSTScene extends BaseScene {
     [VisualizerMode.FrequencySpectrum]: null,
   }
 
-  constructor(p5: P5, sfx: SFXInstance, musicPlayer: MusicPlayer, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+  constructor(p5: P5, sfx: SFXInstance, musicPlayer: MusicPlayer, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, spriteRenderer: SpriteRenderer, callbacks: SceneCallbacks = {}) {
     super(p5, fonts, callbacks)
     this.sfx = sfx;
     this.musicPlayer = musicPlayer;
+    this.unlockedMusicStore = unlockedMusicStore;
+    this.spriteRenderer = spriteRenderer;
     this.bindActions();
     this.initState();
     this.stopTrack();
@@ -81,6 +63,7 @@ export class OSTScene extends BaseScene {
 
   private initState() {
     this.state = {
+      locked: false,
       trackIndex: 0,
       timeStarted: Date.now(),
       timeModeLastChanged: Date.now(),
@@ -145,6 +128,7 @@ export class OSTScene extends BaseScene {
     this.drawVisualization();
     this.drawSceneTitle();
     this.drawTrackMetadata();
+    this.drawLocked();
     this.drawInstructions();
     this.drawExit();
     this.tick();
@@ -180,16 +164,20 @@ export class OSTScene extends BaseScene {
   private playTrack() {
     const sfx = this.sfx;
     sfx.play(Sound.unlock, 0.8);
-    const track = tracks[this.state.trackIndex];
-    this.musicPlayer.play(track, 1, true);
+    const track = OST_MODE_TRACKS[this.state.trackIndex];
+    const isUnlocked = this.unlockedMusicStore.getIsUnlocked(track);
+    this.state.locked = !isUnlocked;
+    if (isUnlocked) {
+      this.musicPlayer.play(track, 1, true, true);
+    }
   }
 
   private advanceTrack(step: number) {
     this.stopTrack();
     this.state.timeStarted = Date.now();
-    this.state.trackIndex += tracks.length;
+    this.state.trackIndex += OST_MODE_TRACKS.length;
     this.state.trackIndex += step;
-    this.state.trackIndex %= tracks.length
+    this.state.trackIndex %= OST_MODE_TRACKS.length
     this.frequencySweep.t = 0;
     this.playTrack();
   }
@@ -216,15 +204,20 @@ export class OSTScene extends BaseScene {
 
   private drawTrackMetadata = () => {
     const { p5, fonts } = this.props;
-    const track = tracks[this.state.trackIndex];
+    const track = OST_MODE_TRACKS[this.state.trackIndex];
     // track name
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
     p5.textSize(32);
     p5.textAlign(p5.CENTER, p5.TOP);
-    p5.fill('#fff');
+    if (this.state.locked) {
+      p5.fill('#555');
+    } else {
+      p5.fill('#fff');
+    }
     p5.text(getTrackName(track), ...this.getPosition(0.5, 0.8));
+
     // time elapsed background
     let x0 = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + 1;
     let x1 = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + VISUALIZER.width - 1;
@@ -235,18 +228,52 @@ export class OSTScene extends BaseScene {
     p5.strokeWeight(1);
     p5.quad(x0, y0, x0, y1, x1, y1, x1, y0);
     p5.strokeWeight(2);
-    // time elapsed
+
+    // time elapsed, track number
+    p5.textFont(fonts.variants.miniMood);
     p5.fill('#ccc');
     p5.textSize(12);
-    p5.textAlign(p5.LEFT, p5.BOTTOM);
+
+    if (!this.state.locked) {
+      this.drawTimeElapsed();
+    }
+    this.drawTrackNumber();
+  }
+
+  private drawTimeElapsed = () => {
+    const { p5, fonts } = this.props;
+    const track = OST_MODE_TRACKS[this.state.trackIndex];
     const padding = 5;
     const x = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + 2 + padding;
     const y = (VISUALIZER.y + VISUALIZER.height) + 4 - padding;
-    const timeElapsed = (Date.now() - this.state.timeStarted) / 1000;
+    const timeElapsed = this.musicPlayer.getTimeElapsed(track);
     const millis = Math.floor((timeElapsed % 1) * 1000);
     const seconds = Math.floor(timeElapsed % 60);
     const minutes = Math.floor(timeElapsed / 60);
+    p5.textAlign(p5.LEFT, p5.BOTTOM);
     p5.text(`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}.${millis.toString().padStart(3, '0')}`, x, y);
+  }
+
+  private drawTrackNumber = () => {
+    const trackNumber = (this.state.trackIndex + 1).toString().padStart(2, '0');
+    const { p5, fonts } = this.props;
+    const padding = 5;
+    const x = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + VISUALIZER.width - 5 - padding;
+    const y = (VISUALIZER.y + VISUALIZER.height) + 4 - padding;
+    p5.textAlign(p5.RIGHT, p5.BOTTOM);
+    p5.text(trackNumber, x, y);
+  }
+
+  private drawLocked = () => {
+    if (!this.state.locked) {
+      return;
+    }
+    const image = Image.UILocked
+    const width = this.spriteRenderer.getImageWidth(image);
+    const height = this.spriteRenderer.getImageHeight(image);
+    const x = DIMENSIONS.x * 0.5 - (width * 0.5);
+    const y = VISUALIZER.y + (VISUALIZER.height * 0.5) - (height * 0.5);
+    this.spriteRenderer.drawImage(image, x, y);
   }
 
   private drawInstructions = () => {
@@ -261,7 +288,12 @@ export class OSTScene extends BaseScene {
   }
 
   private drawVisualization = () => {
-    const track = tracks[this.state.trackIndex];
+    if (this.state.locked) {
+      this.drawVisualizationBackground();
+      return;
+    }
+
+    const track = OST_MODE_TRACKS[this.state.trackIndex];
     const analyser = this.musicPlayer.getAnalyser(track);
     if (!analyser) {
       return;

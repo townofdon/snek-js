@@ -172,7 +172,7 @@ export function getTrackName(track?: MusicTrack) {
   if (!track) return "No Track";
   switch (track) {
     case MusicTrack.simpleTime:
-      return "Adventuring";
+      return "Adventurer";
     case MusicTrack.conquerer:
       return "Conquerer";
     case MusicTrack.transient:

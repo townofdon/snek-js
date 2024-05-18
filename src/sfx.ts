@@ -44,6 +44,7 @@ export class SFX implements SFXInstance {
     uiChipLoop: null,
     uiConfirm: null,
     unlock: null,
+    unlockAbility: null,
     warp: null,
     winLevel: null,
     winGame: null,
@@ -121,6 +122,7 @@ export class SFX implements SFXInstance {
       this.sounds.uiChipLoop = loadSound('ui-chip-loop.wav');
       this.sounds.uiConfirm = loadSound('ui-confirm.wav');
       this.sounds.unlock = loadSound('unlock.wav');
+      this.sounds.unlockAbility = loadSound('unlock-ability.wav');
       this.sounds.warp = loadSound('warp.wav');
       this.sounds.winLevel = loadSound('winlevel.wav');
       this.sounds.winGame = loadSound('wingame.wav');

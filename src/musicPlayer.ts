@@ -1,4 +1,4 @@
-import { getAnalyser, getMusicLowpassFrequency, getMusicVolume, loadAudioToBuffer, playMusic, setMusicLowpassFrequency, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
+import { getAnalyser, getMusicLowpassFrequency, getMusicVolume, getTimeElapsed, loadAudioToBuffer, playMusic, setMusicLowpassFrequency, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
 import { GameSettings, MusicTrack } from "./types";
 
 const DEBUG_MUSIC = false;
@@ -82,7 +82,7 @@ export class MusicPlayer {
     return getAnalyser(this.fullPath(track));
   }
 
-  async play(track?: MusicTrack, volume = 1, createAnalyser = false) {
+  async play(track?: MusicTrack, volume = 1, createAnalyser = false, trackElapsed = false) {
     if (!navigator.userActivation.hasBeenActive) {
       if (DEBUG_MUSIC) console.warn(`[MusicPlayer][play] user not yet active when trying to play track=${track}`);
       return;
@@ -104,7 +104,7 @@ export class MusicPlayer {
     try {
       this.tracksPlaying[track] = true;
       this.state.currentTrack = track;
-      await playMusic(this.fullPath(track), { volume, loop: this.shouldLoop(track), createAnalyser });
+      await playMusic(this.fullPath(track), { volume, loop: this.shouldLoop(track), createAnalyser, trackElapsed });
     } catch (err) {
       console.error(err);
     }
@@ -189,6 +189,13 @@ export class MusicPlayer {
 
   getLowpassFrequency = () => {
     return getMusicLowpassFrequency();
+  }
+
+  getTimeElapsed = (track: MusicTrack | undefined): number => {
+    if (!track) {
+      return 0;
+    }
+    return getTimeElapsed(this.fullPath(track))
   }
 
   load(track: MusicTrack) {

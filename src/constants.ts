@@ -1,7 +1,7 @@
 import P5 from "p5";
 import Color from "color";
 
-import { Difficulty, PortalChannel } from "./types";
+import { Difficulty, MusicTrack, PortalChannel } from "./types";
 
 export const TITLE = 'SNEK';
 
@@ -222,3 +222,28 @@ export const SNAKE_INVINCIBLE_COLORS = [
   "#833AB4",
 ];
 export const NUM_SNAKE_INVINCIBLE_COLORS = 20;
+
+export const OST_MODE_TRACKS: MusicTrack[] = [
+  MusicTrack.champion,
+  MusicTrack.simpleTime,
+  MusicTrack.transient,
+  MusicTrack.aqueduct,
+  MusicTrack.conquerer,
+  MusicTrack.observer,
+  MusicTrack.lordy,
+  MusicTrack.factorio,
+  MusicTrack.skycastle,
+  MusicTrack.creeplord,
+  MusicTrack.dangerZone,
+  MusicTrack.stonemaze,
+  MusicTrack.shopkeeper,
+  MusicTrack.woorb,
+  MusicTrack.gravy,
+  MusicTrack.lostcolony,
+  MusicTrack.backrooms,
+  MusicTrack.slyguy,
+  MusicTrack.reconstitute,
+  MusicTrack.ascension,
+  MusicTrack.moneymaker,
+  MusicTrack.overture,
+];
