@@ -1,5 +1,6 @@
 import { IS_DEV } from "../constants";
 import { InputAction } from "../controls";
+import { DOM } from "./uiUtils";
 
 
 export interface NavMap {
@@ -123,33 +124,6 @@ export class MainMenuNavMap implements NavMap {
   gotoDown = this.gotoNext;
   gotoLeft = this.gotoPrev;
   gotoRight = this.gotoNext;
-}
-
-export class DOM {
-  private static prev: HTMLElement;
-
-  static select(element: HTMLElement) {
-    if (!element) return;
-    if (document.activeElement && document.activeElement !== element) {
-      document.activeElement.classList.remove('active');
-    }
-    element.focus();
-    const didFocusWork = document.activeElement === element;
-    if (didFocusWork) {
-      element.classList.add('active');
-      if (DOM.prev && DOM.prev !== element) DOM.deselect(DOM.prev);
-      DOM.prev = element;
-    } else {
-      element.classList.remove('active');
-      if (DOM.prev && DOM.prev !== element) DOM.select(DOM.prev);
-    }
-  }
-
-  static deselect(element: HTMLElement) {
-    if (!element) return;
-    element.blur();
-    element.classList.remove('active');
-  }
 }
 
 export enum SettingsMenuElement {
