@@ -42,7 +42,6 @@ import {
   HURT_MUSIC_DUCK_TIME_MS,
   SPEED_INCREMENT_SPEED_MS,
   SPRINT_INCREMENT_SPEED_MS,
-  ACCENT_COLOR,
   SPEED_LIMIT_ULTRA_SPRINT,
   MAX_SNAKE_SIZE,
   GLOBAL_LIGHT_DEFAULT,
@@ -117,6 +116,7 @@ import {
   PickupType,
   Pickup,
   GameMode,
+  DrawSquareOptions,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -135,7 +135,7 @@ import { SFX } from './sfx';
 import { replayClips } from './replayClips/replayClips';
 import { WinLevelScene } from './scenes/WinLevelScene';
 import { LOSE_MESSAGES } from './messages';
-import { DrawSquareOptions, Renderer } from './renderer';
+import { Renderer } from './renderer';
 import { MusicPlayer } from './musicPlayer';
 import { resumeAudioContext } from './audio';
 import { Easing } from './easing';
@@ -1282,8 +1282,8 @@ export const sketch = (p5: P5) => {
       drawLighting(lightMap, renderer);
     }
 
-    if (getIsStartLevel()) {
-      renderer.drawDifficultySelect(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background, state.gameMode === GameMode.Cobra);
+    if (level.renderInstructions) {
+      level.renderInstructions(renderer, state, level.colors);
     }
     renderer.drawUIKeys();
     renderer.drawTutorialMoveControls();

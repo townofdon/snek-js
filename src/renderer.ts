@@ -1,9 +1,38 @@
 import P5, { Vector } from "p5";
-import { DIR, FontsInstance, GameMode, GameState, HitType, Image, Portal, PortalChannel, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
-import { ACCENT_COLOR, BLOCK_SIZE, DIMENSIONS, GRIDCOUNT, HURT_STUN_TIME, INVALID_PORTAL_COLOR, NUM_PORTAL_GRADIENT_COLORS, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, SHOW_FPS, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
+import Color from "color";
+
+import {
+  DIR,
+  DrawSquareOptions,
+  FontsInstance,
+  GameMode,
+  GameState,
+  HitType,
+  IRenderer,
+  Image,
+  Portal,
+  PortalChannel,
+  Replay,
+  ReplayMode,
+  ScreenShakeState,
+  Tutorial,
+} from "./types";
+import {
+  ACCENT_COLOR,
+  BLOCK_SIZE,
+  DIMENSIONS,
+  GRIDCOUNT,
+  HURT_STUN_TIME,
+  INVALID_PORTAL_COLOR,
+  NUM_PORTAL_GRADIENT_COLORS,
+  PORTAL_CHANNEL_COLORS,
+  PORTAL_FADE_DURATION,
+  PORTAL_INDEX_DELAY,
+  SHOW_FPS,
+  STROKE_SIZE,
+} from "./constants";
 import { clamp, oscilateLinear } from "./utils";
 import { SpriteRenderer } from "./spriteRenderer";
-import Color from "color";
 
 interface RendererConstructorProps {
   p5: P5
@@ -16,14 +45,7 @@ interface RendererConstructorProps {
   tutorial: Tutorial
 }
 
-export interface DrawSquareOptions {
-  is3d?: boolean,
-  size?: number,
-  strokeSize?: number,
-  optimize?: boolean,
-}
-
-export class Renderer {
+export class Renderer implements IRenderer {
   private p5: P5 = null;
   private staticGraphics: P5.Graphics = null;
   private fonts: FontsInstance = null;
@@ -435,25 +457,57 @@ export class Renderer {
     this.spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY);
   }
 
-  drawDifficultySelect = (backgroundColor: string, isCobraModeEnabled = false) => {
+  drawSprintControls = (x: number, y: number) => {
+    // banner background
+    const bannerWidth = 7.8;
+    const bannerHeight = 2.8;
+    const bannerPosition = { x, y };
+    const x0 = BLOCK_SIZE.x * (bannerPosition.x);
+    const x1 = BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
+    const y0 = BLOCK_SIZE.y * (bannerPosition.y);
+    const y1 = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
+    this.p5.fill('#000000aa');
+    this.p5.stroke("#000");
+    this.p5.strokeWeight(STROKE_SIZE);
+    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    // text
+    const textX = BLOCK_SIZE.x * (bannerPosition.x + 3.5);
+    const textY = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
+    this.p5.fill(ACCENT_COLOR);
+    this.p5.stroke("#111");
+    this.p5.strokeWeight(4);
+    this.p5.textSize(12);
+    this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
+    this.p5.textFont(this.fonts.variants.miniMood);
+    this.p5.text("SPRINT", textX, textY);
+    // image
+    const imgX = BLOCK_SIZE.x * (bannerPosition.x + 0.6);
+    const imgY = BLOCK_SIZE.y * (bannerPosition.y + 0.6);
+    this.spriteRenderer.drawImage(Image.ControlsKeyboardSprint, imgX, imgY);
+  }
+
+  drawDifficultySelect = (backgroundColor: string) => {
     const colorEas = '#43C59E';
     const colorMed = '#fa0'
     const colorHar = '#E76F51'
     const colorUlt = '#F21F5E'
     // const colorUlt = '#8F3985'
-
     this.drawDifficultySelectBanner(3, 0, 5, 1.1, 'choose', { backgroundColor, textXOffset: .1 });
     this.drawDifficultySelectBanner(3, 1, 6, 1, 'difficulty', { backgroundColor, textXOffset: .1 });
-    if (!isCobraModeEnabled) {
-      this.drawDifficultySelectBanner(12.9, 0, 3.1, 1, 'easy', { backgroundColor, textColor: colorEas });
-      this.drawDifficultySelectBanner(26, 14, 4, 1, 'medium', { backgroundColor, textColor: colorMed });
-      this.drawDifficultySelectBanner(12.9, 29, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
-      this.drawDifficultySelectBanner(24, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
-    } else {
-      this.drawDifficultySelectBanner(19, 0, 7, 1, 'COBRA MODE', { backgroundColor, textXOffset: .35 });
-      this.drawDifficultySelectBanner(27, 14, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
-      this.drawDifficultySelectBanner(12.5, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
-    }
+    this.drawDifficultySelectBanner(12.9, 0, 3.1, 1, 'easy', { backgroundColor, textColor: colorEas });
+    this.drawDifficultySelectBanner(26, 14, 4, 1, 'medium', { backgroundColor, textColor: colorMed });
+    this.drawDifficultySelectBanner(12.9, 29, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
+    this.drawDifficultySelectBanner(24, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
+  }
+
+  drawDifficultySelectCobra = (backgroundColor: string) => {
+    const colorHar = '#E76F51'
+    const colorUlt = '#F21F5E'
+    this.drawDifficultySelectBanner(3, 0, 5, 1.1, 'choose', { backgroundColor, textXOffset: .1 });
+    this.drawDifficultySelectBanner(3, 1, 6, 1, 'difficulty', { backgroundColor, textXOffset: .1 });
+    this.drawDifficultySelectBanner(19, 0, 7, 1, 'COBRA MODE', { backgroundColor, textXOffset: .35 });
+    this.drawDifficultySelectBanner(27, 14, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
+    this.drawDifficultySelectBanner(12.5, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
   }
 
   private drawDifficultySelectBanner = (x: number, y: number, bannerWidth: number, bannerHeight: number, text: string, {

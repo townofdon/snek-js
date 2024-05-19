@@ -28,8 +28,8 @@ XX XXXXXXXXXXXXXXXXXXXXXXXXXXX
 XX XXXXXXXXXXXXXXXXXXXXXXXXXXX
 XX XXXXXXXXXXXXXXXXXXXXXXXXXXX
 XX XXXXXXXXXXXXXXXXXXXXXXXXXXX
-DD =--=  =--=  =-=  =--=  =--=
-DD =--=  =--=  =-=  =--=  =--=
+DD =--=DD=DD=DD=-=DD=DD=  =--=
+DD =--=AA=AA=AA=-=AA=AA=  =--=
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXX=--=XX XX XX   XX XX=--=XXX
@@ -46,6 +46,9 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.gravChamber),
+  renderInstructions: (renderer, state, palette) => {
+    renderer.drawSprintControls(19, 8);
+  },
   showQuoteOnLevelWin: false,
   portalExitConfig: {
     1: PortalExitMode.SameDirection,

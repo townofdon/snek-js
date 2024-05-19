@@ -48,6 +48,9 @@ XXXXXXXXXXXXXD DXXXXXXXXDD DXX
 XXXXXXXXXXXXXD3DXXXXXXXXDD4DXX
   `,
   colors: getExtendedPalette(PALETTE.gravChamber),
+  renderInstructions: (renderer, state, palette) => {
+    renderer.drawDifficultySelect(state.isShowingDeathColours ? PALETTE.deathInvert.background : palette.background);
+  },
   showQuoteOnLevelWin: false,
   portalExitConfig: {
     1: PortalExitMode.SameDirection,

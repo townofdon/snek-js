@@ -239,6 +239,7 @@ export interface Level {
   extraLoseMessages?: LoseMessage[],
   portalExitConfig?: Partial<Record<PortalChannel, PortalExitMode>>,
   titleScene?: (p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene,
+  renderInstructions?: (renderer: IRenderer, state: GameState, palette: Palette) => void
   musicTrack?: MusicTrack,
   titleVariant?: TitleVariant,
   globalLight?: number,
@@ -247,6 +248,42 @@ export interface Level {
   appleSlowdownMod?: number,
   applesModOverride?: number,
   pickupDrops?: Record<number, PickupDrop>,
+}
+
+export interface IRenderer {
+  reset: () => void
+  tick: () => void
+  drawStaticGraphics: () => void
+  invalidateStaticCache: () => void
+  clearGraphicalComponent: (component: P5.Graphics) => void
+  drawGraphicalComponent: (component: P5.Graphics, x: number, y: number) => void
+  drawGraphicalComponentStatic: (component: P5.Graphics, x: number, y: number) => void
+  drawSquare: (x: number, y: number, background: string, lineColor: string, options: DrawSquareOptions) => void
+  drawSquareStatic: (x: number, y: number, background: string, lineColor: string, options: DrawSquareOptions) => void
+  drawSquareCustom: (component: P5 | P5.Graphics, x: number, y: number, background: string, lineColor: string, options: DrawSquareOptions) => void
+  drawSquareBorder: (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor: boolean) => void
+  drawSquareBorderStatic: (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor: boolean) => void
+  drawSquareBorderCustom: (component: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor: boolean) => void
+  drawX: (x: number, y: number, color: string, blockDivisions: number) => void
+  drawXStatic: (x: number, y: number, color: string, blockDivisions: number) => void
+  drawXCustom: (component: P5 | P5.Graphics, x: number, y: number, color: string, blockDivisions: number) => void
+  drawBasicSquare: (x: number, y: number, color: P5.Color, size: number) => void
+  drawCaptureMode: () => void
+  drawPlayerMoveArrows: (vec: Vector, currentMove: DIR) => void
+  drawTutorialMoveControls: () => void
+  drawTutorialRewindControls: (playerPosition: Vector, canRewind: () => boolean) => void
+  drawSprintControls: (x: number, y: number) => void
+  drawDifficultySelect: (backgroundColor: string) => void
+  drawDifficultySelectCobra: (backgroundColor: string) => void
+  drawUIKeys: () => void
+  drawPortal: (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions) => void
+}
+
+export interface DrawSquareOptions {
+  is3d?: boolean,
+  size?: number,
+  strokeSize?: number,
+  optimize?: boolean,
 }
 
 export enum KeyChannel {
@@ -386,6 +423,7 @@ export enum Image {
   SnekButt = 'snek-butt.png',
   ControlsKeyboardMove = 'controls-keyboard-move.png',
   ControlsKeyboardDelete = 'controls-keyboard-delete.png',
+  ControlsKeyboardSprint = 'controls-keyboard-sprint.png',
   ControlsMouseLeft = 'controls-mouse-left.png',
   KeyGrey = 'snek-key2-grey.png',
   KeyYellow = 'snek-key2-yellow.png',

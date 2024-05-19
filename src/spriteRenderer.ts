@@ -20,6 +20,7 @@ export class SpriteRenderer {
   private images: Record<Image, P5.Image | null> = {
     [Image.ControlsKeyboardDelete]: null,
     [Image.ControlsKeyboardMove]: null,
+    [Image.ControlsKeyboardSprint]: null,
     [Image.ControlsMouseLeft]: null,
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
@@ -65,6 +66,7 @@ export class SpriteRenderer {
     try {
       this.loadImage(Image.ControlsKeyboardDelete);
       this.loadImage(Image.ControlsKeyboardMove);
+      this.loadImage(Image.ControlsKeyboardSprint);
       this.loadImage(Image.ControlsMouseLeft);
       this.loadImage(Image.SnekHead);
       this.loadImage(Image.SnekHeadDead);

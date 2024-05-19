@@ -40,7 +40,7 @@ X            -=-            ~X
 X++-         -=-          -++X
 XX++-        -=-         -++XX
 XXX++-       -=-        -++XXX
-8XXX++   ~   -_-   ~    ++xxx8
+8xxx++   ~   -_-   ~    ++xxx8
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.plumsea),
@@ -48,6 +48,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   musicTrack: MusicTrack.simpleTime,
   titleVariant: TitleVariant.Green,
   nextLevelMap: {
+    [getCoordIndex2(1, 28)]: VARIANT_LEVEL_03,
     [getCoordIndex2(28, 28)]: VARIANT_LEVEL_03,
   },
   portalExitConfig: {
