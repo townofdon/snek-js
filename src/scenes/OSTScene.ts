@@ -4,7 +4,7 @@ import { BaseScene } from "./BaseScene";
 import { MusicPlayer } from "../musicPlayer";
 import { clamp, getTrackName } from "../utils";
 import { DIMENSIONS, OST_MODE_TRACKS } from "../constants";
-import { UI } from "../ui";
+import { UI } from "../ui/ui";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { SpriteRenderer } from "../spriteRenderer";
 

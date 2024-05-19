@@ -5,10 +5,7 @@ import {
   START_LEVEL,
   START_LEVEL_COBRA,
   LEVELS,
-  LEVEL_AFTER_WIN,
   LEVEL_99,
-  LEVEL_AFTER_WIN_ULTRA,
-  LEVEL_AFTER_WIN_HARD,
   LEVEL_WIN_GAME,
   VARIANT_LEVEL_99,
 } from './levels';
@@ -121,7 +118,7 @@ import {
   Pickup,
   GameMode,
 } from './types';
-import { MainTitleFader, UIBindings, UI, Modal } from './ui';
+import { MainTitleFader, UIBindings, UI, Modal } from './ui/ui';
 import { PALETTE } from './palettes';
 import { Coroutines } from './coroutines';
 import { Fonts } from './fonts';
@@ -2440,7 +2437,7 @@ export const sketch = (p5: P5) => {
   }
 
   function showGameOverUI() {
-    const randomMessage = getRandomMessage();
+    const loseMessage = getNextLoseMessage();
     UI.drawDarkOverlay(uiElements);
     UI.drawButton("MAIN MENU", 20, 20, showMainMenu, uiElements);
     if (state.gameMode !== GameMode.Cobra) {
@@ -2448,77 +2445,10 @@ export const sketch = (p5: P5) => {
     }
     const offset = -50
     UI.drawText('YOU DIED!', '28px', 250 + offset, uiElements, { color: ACCENT_COLOR });
-    UI.drawText(randomMessage, '12px', 340 + offset, uiElements);
+    UI.drawText(loseMessage, '12px', 340 + offset, uiElements);
     if (state.gameMode !== GameMode.Cobra) {
       UI.drawText('[ENTER]&nbsp;&nbsp;&nbsp;Try Again ', '14px', 450 + offset, uiElements, { color: ACCENT_COLOR });
       UI.drawText('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[M]&nbsp;&nbsp;&nbsp;Main Menu ', '14px', 480 + offset, uiElements, { color: ACCENT_COLOR, marginLeft: 16 });
-    }
-  }
-
-  function* fadeMusic(toVolume: number, durationMs: number): IEnumerator {
-    yield null;
-    const startVolume = musicPlayer.getVolume();
-    let t = 0;
-    while (durationMs > 0 && t < 1) {
-      musicPlayer.setVolume(p5.lerp(startVolume, toVolume, Easing.inOutCubic(clamp(t, 0, 1))));
-      t += p5.deltaTime / durationMs;
-      yield null;
-    }
-    musicPlayer.setVolume(toVolume);
-    clearAction(Action.FadeMusic);
-  }
-
-  function* changeMusicLowpass(toFreq: number, duration: number, start?: number): IEnumerator {
-    yield null;
-    const startFreq = start ?? musicPlayer.getLowpassFrequency();
-    let t = 0;
-    while (duration > 0 && t < 1) {
-      musicPlayer.setLowpassFrequency(p5.lerp(startFreq, toFreq, Easing.inCubic(clamp(t, 0, 1))));
-      t += p5.deltaTime / duration;
-      yield null;
-    }
-    musicPlayer.setLowpassFrequency(toFreq);
-    clearAction(Action.ChangeMusicLowpass);
-  }
-
-  // I will buy a beer for whoever can decipher my spaghetticode
-  const getRandomMessage = (numIterations = 0): string => {
-    const allMessages = (loseMessages[state.levelIndex] || []).concat(level.disableNormalLoseMessages ? [] : loseMessages[-1]);
-    const relevantMessages = allMessages.filter(([message, callback]) => {
-      if (callback) return callback(state, stats, difficulty);
-      return state.lastHurtBy !== HitType.HitLock && stats.numLevelsCleared <= 2;
-    }).map((contents) => contents[0]);
-    if (relevantMessages.length <= 0) {
-      if (numIterations > 0) {
-        return "Death smiles at us all. All we can do is smile back.";
-      }
-      hydrateLoseMessages(state.levelIndex);
-      return getRandomMessage(numIterations + 1);
-    }
-    const randomMessage = relevantMessages[Math.floor(p5.random(0, relevantMessages.length))];
-    // remove from existing messages
-    loseMessages[-1] = loseMessages[-1].filter(([message, callback]) => message != randomMessage);
-    if (loseMessages[state.levelIndex]) {
-      loseMessages[state.levelIndex] = loseMessages[state.levelIndex].filter(([message, callback]) => message != randomMessage);
-    }
-    return randomMessage;
-  }
-
-  const hydrateLoseMessages = (levelIndex: number) => {
-    loseMessages[-1] = [...LOSE_MESSAGES];
-    // if -1, hydrate lose messages for all levels
-    if (levelIndex < 0) {
-      for (let i = 0; i <= 99; i++) {
-        const level = LEVELS[i];
-        if (!level) continue;
-        if (!level.extraLoseMessages) continue;
-        loseMessages[i] = [...level.extraLoseMessages];
-      }
-    } else {
-      const level = LEVELS[levelIndex];
-      if (!level) return;
-      if (!level.extraLoseMessages) return;
-      loseMessages[levelIndex] = [...level.extraLoseMessages];
     }
   }
 
@@ -2676,6 +2606,47 @@ export const sketch = (p5: P5) => {
     }
   }
 
+  // I will buy a beer for whoever can decipher my spaghetticode
+  const getNextLoseMessage = (numIterations = 0): string => {
+    const allMessages = (loseMessages[state.levelIndex] || []).concat(level.disableNormalLoseMessages ? [] : loseMessages[-1]);
+    const relevantMessages = allMessages.filter(([message, callback]) => {
+      if (callback) return callback(state, stats, difficulty);
+      return state.lastHurtBy !== HitType.HitLock && stats.numLevelsCleared <= 2;
+    }).map((contents) => contents[0]);
+    if (relevantMessages.length <= 0) {
+      if (numIterations > 0) {
+        return "Death smiles at us all. All we can do is smile back.";
+      }
+      hydrateLoseMessages(state.levelIndex);
+      return getNextLoseMessage(numIterations + 1);
+    }
+    const randomMessage = relevantMessages[Math.floor(p5.random(0, relevantMessages.length))];
+    // remove from existing messages
+    loseMessages[-1] = loseMessages[-1].filter(([message, callback]) => message != randomMessage);
+    if (loseMessages[state.levelIndex]) {
+      loseMessages[state.levelIndex] = loseMessages[state.levelIndex].filter(([message, callback]) => message != randomMessage);
+    }
+    return randomMessage;
+  }
+
+  const hydrateLoseMessages = (levelIndex: number) => {
+    loseMessages[-1] = [...LOSE_MESSAGES];
+    // if -1, hydrate lose messages for all levels
+    if (levelIndex < 0) {
+      for (let i = 0; i <= 99; i++) {
+        const level = LEVELS[i];
+        if (!level) continue;
+        if (!level.extraLoseMessages) continue;
+        loseMessages[i] = [...level.extraLoseMessages];
+      }
+    } else {
+      const level = LEVELS[levelIndex];
+      if (!level) return;
+      if (!level.extraLoseMessages) return;
+      loseMessages[levelIndex] = [...level.extraLoseMessages];
+    }
+  }
+
   function getNextQuote() {
     const quoteIndex = Math.floor(p5.random(0, quotes.length));
     const quote = quotes[quoteIndex];
@@ -2804,6 +2775,32 @@ export const sketch = (p5: P5) => {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  function* fadeMusic(toVolume: number, durationMs: number): IEnumerator {
+    yield null;
+    const startVolume = musicPlayer.getVolume();
+    let t = 0;
+    while (durationMs > 0 && t < 1) {
+      musicPlayer.setVolume(p5.lerp(startVolume, toVolume, Easing.inOutCubic(clamp(t, 0, 1))));
+      t += p5.deltaTime / durationMs;
+      yield null;
+    }
+    musicPlayer.setVolume(toVolume);
+    clearAction(Action.FadeMusic);
+  }
+
+  function* changeMusicLowpass(toFreq: number, duration: number, start?: number): IEnumerator {
+    yield null;
+    const startFreq = start ?? musicPlayer.getLowpassFrequency();
+    let t = 0;
+    while (duration > 0 && t < 1) {
+      musicPlayer.setLowpassFrequency(p5.lerp(startFreq, toFreq, Easing.inCubic(clamp(t, 0, 1))));
+      t += p5.deltaTime / duration;
+      yield null;
+    }
+    musicPlayer.setLowpassFrequency(toFreq);
+    clearAction(Action.ChangeMusicLowpass);
   }
 
   function getIsStartLevel() {

@@ -1,10 +1,10 @@
 import P5, { Element } from 'p5';
 import { faker } from '@faker-js/faker';
 
-import { GameMode, GameSettings, GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavDir, UINavEventHandler, UISection } from './types';
-import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
+import { GameMode, GameSettings, GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavDir, UINavEventHandler } from '../types';
+import { setMusicVolume, setSfxVolume } from '../audio';
 import { DOM, MainMenuButton, MainMenuNavMap, PauseMenuElement, PauseMenuNavMap, SettingsMenuElement, SettingsMenuNavMap } from './uiNavMap';
-import { InputAction } from './controls';
+import { InputAction } from '../controls';
 
 const UI_LABEL_OFFSET = '18px';
 const UI_PARENT_ID = 'game';

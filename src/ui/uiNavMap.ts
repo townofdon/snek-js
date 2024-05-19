@@ -1,5 +1,5 @@
-import { IS_DEV } from "./constants";
-import { InputAction } from "./controls";
+import { IS_DEV } from "../constants";
+import { InputAction } from "../controls";
 
 
 export interface NavMap {
