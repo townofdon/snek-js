@@ -8,9 +8,11 @@ import { Easing } from "../easing";
 import { ACCENT_COLOR, DIMENSIONS, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "../constants";
 import { indexToDir } from "../utils";
 import { HighScoreEntry, postLeaderboardResult, getLeaderboard, getToken } from "../api/leaderboard";
-import { HighscoreEntryModal, Modal } from "../ui/ui";
+// import { HighscoreEntryModal, Modal } from "../ui/ui";
 import { ApiOptions } from "../api/utils/apiUtils";
 import { handleUIEvents } from "../controls";
+import { HighscoreEntryModal } from "../ui/highscoreEntryModal";
+import { Modal } from "../ui/modal";
 
 const formatNumber = formatNumberFn({
   truncate: 0,

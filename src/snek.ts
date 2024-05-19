@@ -118,7 +118,9 @@ import {
   Pickup,
   GameMode,
 } from './types';
-import { MainTitleFader, UI, Modal } from './ui/ui';
+import { MainTitleFader } from './ui/mainTitleFader';
+import { Modal } from './ui/modal';
+import { UI } from './ui/ui';
 import { UIBindings } from './ui/uiBindings';
 import { showGameOverUI, showPauseUI } from './ui/uiComponents';
 import { PALETTE } from './palettes';
