@@ -134,9 +134,15 @@ export class DOM {
       document.activeElement.classList.remove('active');
     }
     element.focus();
-    element.classList.add('active');
-    if (DOM.prev && DOM.prev !== element) DOM.deselect(DOM.prev);
-    DOM.prev = element;
+    const didFocusWork = document.activeElement === element;
+    if (didFocusWork) {
+      element.classList.add('active');
+      if (DOM.prev && DOM.prev !== element) DOM.deselect(DOM.prev);
+      DOM.prev = element;
+    } else {
+      element.classList.remove('active');
+      if (DOM.prev && DOM.prev !== element) DOM.select(DOM.prev);
+    }
   }
 
   static deselect(element: HTMLElement) {
@@ -148,6 +154,7 @@ export class DOM {
 
 export enum SettingsMenuElement {
   CheckboxCasualMode,
+  CheckboxCobraMode,
   CheckboxDisableScreenshake,
   SliderMusicVolume,
   SliderSfxVolume,
@@ -156,6 +163,7 @@ export enum SettingsMenuElement {
 
 const SETTINGS_MENU_ELEMENT_ORDER = [
   SettingsMenuElement.CheckboxCasualMode,
+  SettingsMenuElement.CheckboxCobraMode,
   SettingsMenuElement.CheckboxDisableScreenshake,
   SettingsMenuElement.SliderMusicVolume,
   SettingsMenuElement.SliderSfxVolume,
@@ -177,6 +185,8 @@ export class SettingsMenuNavMap implements NavMap {
       this.callAction(InputAction.HideSettingsMenu);
     } else if (focused === SettingsMenuElement.CheckboxCasualMode) {
       this.callAction(InputAction.ToggleCasualMode);
+    } else if (focused === SettingsMenuElement.CheckboxCobraMode) {
+      this.callAction(InputAction.ToggleCobraMode);
     } else if (focused === SettingsMenuElement.CheckboxDisableScreenshake) {
       this.callAction(InputAction.ToggleScreenshakeDisabled);
     }
@@ -193,10 +203,7 @@ export class SettingsMenuNavMap implements NavMap {
 
   private getElementPosition = (element: SettingsMenuElement): number => {
     if (!element) return -1;
-    for (let i = 0; i < SETTINGS_MENU_ELEMENT_ORDER.length; i++) {
-      if (SETTINGS_MENU_ELEMENT_ORDER[i] === element) return i;
-    }
-    return -1;
+    return SETTINGS_MENU_ELEMENT_ORDER.indexOf(element);
   }
 
   private getNextIndex = (direction: number): number => {

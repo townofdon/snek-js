@@ -1,7 +1,7 @@
 import P5, { Element } from 'p5';
 import { faker } from '@faker-js/faker';
 
-import { GameSettings, GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavDir, UINavEventHandler, UISection } from './types';
+import { GameMode, GameSettings, GameState, IEnumerator, SFXInstance, Sound, TitleVariant, UICancelHandler, UIHandler, UIInteractHandler, UINavDir, UINavEventHandler, UISection } from './types';
 import { getMusicVolume, getSfxVolume, setMusicVolume, setSfxVolume } from './audio';
 import { DOM, MainMenuButton, MainMenuNavMap, PauseMenuElement, PauseMenuNavMap, SettingsMenuElement, SettingsMenuNavMap } from './uiNavMap';
 import { InputAction } from './controls';
@@ -67,15 +67,24 @@ export class UI {
     UI.isMainMenuShowing = false;
   }
 
-  static showSettingsMenu(isInGameMenu = false) {
+  static showSettingsMenu({ isInGameMenu = false, isCobraModeUnlocked = false }) {
     UI.enableGameBlur();
     const settingsMenu = document.getElementById('settings-menu');
     settingsMenu.style.display = 'block';
     settingsMenu.classList.remove('hidden');
     const fieldCasualMode = document.getElementById('field-casual-mode');
-    fieldCasualMode.style.display = isInGameMenu
-      ? 'none'
-      : 'block';
+    const fieldCobraMode = document.getElementById('field-cobra-mode');
+    if (isInGameMenu) {
+      fieldCasualMode.classList.add('hidden');
+      fieldCobraMode.classList.add('hidden');
+    } else {
+      fieldCasualMode.classList.remove('hidden');
+      if (isCobraModeUnlocked) {
+        fieldCobraMode.classList.remove('hidden');
+      } else {
+        fieldCobraMode.classList.add('hidden');
+      }
+    }
     UI.isSettingsMenuShowing = true;
     setTimeout(() => {
       if (isInGameMenu) {
@@ -95,10 +104,22 @@ export class UI {
   static showMainCasualModeLabel() {
     const label = document.getElementById('main-menu-label-casual-mode');
     label.classList.remove('hidden');
+    UI.hideMainCobraModeLabel();
   }
 
   static hideMainCasualModeLabel() {
     const label = document.getElementById('main-menu-label-casual-mode');
+    label.classList.add('hidden');
+  }
+
+  static showMainCobraModeLabel() {
+    const label = document.getElementById('main-menu-label-cobra-mode');
+    label.classList.remove('hidden');
+    UI.hideMainCasualModeLabel();
+  }
+
+  static hideMainCobraModeLabel() {
+    const label = document.getElementById('main-menu-label-cobra-mode');
     label.classList.add('hidden');
   }
 
@@ -253,15 +274,15 @@ export class UI {
     p.parent(UI_PARENT_ID);
   }
 
-  static renderDifficulty(difficultyIndex = 0, isShowingDeathColours: boolean, isCasualModeEnabled = false) {
+  static renderDifficulty(difficultyIndex = 0, isShowingDeathColours: boolean, isCasualModeEnabled = false, isCobraModeEnabled = false) {
     const id = 'difficulty-field';
     const difficultyText = (() => {
       if (difficultyIndex >= 4) return 'ULTRA';
-      if (difficultyIndex >= 3) return 'HARD';
+      if (difficultyIndex >= 3) return isCobraModeEnabled ? 'KING' : 'HARD';
       if (difficultyIndex >= 2) return 'MEDIUM';
       if (difficultyIndex >= 1) return 'EASY';
       return 'UNKNOWN'
-    })() + (isCasualModeEnabled ? ' CASUAL' : '');
+    })() + (isCasualModeEnabled ? ' CASUAL' : '') + (isCobraModeEnabled ? ' COBRA' : '');
     document.getElementById(id)?.remove();
     const p = UI.p5.createP(difficultyText);
     p.position(0, 0);
@@ -425,6 +446,7 @@ interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
   onSetSfxVolume: (volume: number) => void,
   onToggleCasualMode: (value?: boolean) => void,
+  onToggleCobraMode: (value?: boolean) => void,
   onWarpToLevel: (index: number) => void,
 }
 
@@ -437,6 +459,7 @@ export class UIBindings implements UIHandler {
     onSetMusicVolume: (volume: number) => { },
     onSetSfxVolume: (volume: number) => { },
     onToggleCasualMode: (value?: boolean) => { },
+    onToggleCobraMode: (value?: boolean) => { },
     onWarpToLevel: (index: number) => { }
   };
   private callAction: (action: InputAction) => void;
@@ -537,6 +560,7 @@ export class UIBindings implements UIHandler {
 
   private settingsMenuElements: Record<SettingsMenuElement, HTMLInputElement | HTMLButtonElement> = {
     [SettingsMenuElement.CheckboxCasualMode]: null,
+    [SettingsMenuElement.CheckboxCobraMode]: null,
     [SettingsMenuElement.CheckboxDisableScreenshake]: null,
     [SettingsMenuElement.SliderMusicVolume]: null,
     [SettingsMenuElement.SliderSfxVolume]: null,
@@ -667,7 +691,8 @@ export class UIBindings implements UIHandler {
   refreshFieldValues() {
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].value = String(this.settings.musicVolume);
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].value = String(this.settings.sfxVolume);
-    (this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] as HTMLInputElement).checked = this.gameState.isCasualModeEnabled;
+    (this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] as HTMLInputElement).checked = this.gameState.gameMode === GameMode.Casual;
+    (this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode] as HTMLInputElement).checked = this.gameState.gameMode === GameMode.Cobra;
     (this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake] as HTMLInputElement).checked = this.settings.isScreenShakeDisabled;
   }
 
@@ -686,12 +711,14 @@ export class UIBindings implements UIHandler {
 
     this.settingsMenuElements[SettingsMenuElement.ButtonClose] = requireElementById<HTMLButtonElement>('settings-menu-close-button');
     this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] = requireElementById<HTMLInputElement>('checkbox-casual-mode');
+    this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode] = requireElementById<HTMLInputElement>('checkbox-cobra-mode');
     this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake] = requireElementById<HTMLInputElement>('checkbox-disable-screenshake');
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume] = requireElementById<HTMLInputElement>('slider-volume-music');
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume] = requireElementById<HTMLInputElement>("slider-volume-sfx");
 
     this.settingsMenuElements[SettingsMenuElement.ButtonClose].addEventListener('click', this.onHideSettingsMenuClick);
     this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].addEventListener('change', this.onCheckboxCasualModeChange);
+    this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode].addEventListener('change', this.onCheckboxCobraModeChange);
     this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].addEventListener('change', this.onCheckboxDisableScreenshakeChange);
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].addEventListener('input', this.onMusicSliderInput);
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].addEventListener('input', this.onSfxSliderInput);
@@ -708,6 +735,7 @@ export class UIBindings implements UIHandler {
 
     this.settingsMenuElements[SettingsMenuElement.ButtonClose].removeEventListener('click', this.onHideSettingsMenuClick);
     this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].removeEventListener('change', this.onCheckboxCasualModeChange);
+    this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode].removeEventListener('change', this.onCheckboxCobraModeChange);
     this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].removeEventListener('change', this.onCheckboxDisableScreenshakeChange);
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].removeEventListener('input', this.onMusicSliderInput);
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].removeEventListener('input', this.onSfxSliderInput);
@@ -740,6 +768,11 @@ export class UIBindings implements UIHandler {
   private onCheckboxCasualModeChange = (ev: InputEvent) => {
     const isCasualModeEnabled = (ev.target as HTMLInputElement).checked;
     this.callbacks.onToggleCasualMode(isCasualModeEnabled);
+  }
+
+  private onCheckboxCobraModeChange = (ev: InputEvent) => {
+    const isCobraModeEnabled = (ev.target as HTMLInputElement).checked;
+    this.callbacks.onToggleCobraMode(isCobraModeEnabled);
   }
 
   private onCheckboxDisableScreenshakeChange = (ev: InputEvent) => {

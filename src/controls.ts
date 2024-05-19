@@ -21,7 +21,7 @@ import {
   KEYCODE_ALPHA_R,
   KEYCODE_ALPHA_P,
 } from './constants';
-import { AppMode, ClickState, DIR, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves, UINavDir, UINavEventHandler } from "./types";
+import { AppMode, ClickState, DIR, GameMode, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves, UINavDir, UINavEventHandler } from "./types";
 import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "./utils";
 
 export interface InputCallbacks {
@@ -40,6 +40,7 @@ export enum InputAction {
   RetryLevel,
   StartGame,
   ToggleCasualMode,
+  ToggleCobraMode,
   ToggleScreenshakeDisabled,
   ShowLeaderboard,
   EnterQuoteMode,
@@ -104,7 +105,7 @@ export function handleKeyPressed(
   }
 
   if (state.isLost && state.timeSinceHurt > 20) {
-    if (keyCode === ENTER) callAction(InputAction.RetryLevel);
+    if (keyCode === ENTER && state.gameMode !== GameMode.Cobra) callAction(InputAction.RetryLevel);
     if (keyCode === KEYCODE_ALPHA_M) callAction(InputAction.ConfirmShowMainMenu);
     return;
   }

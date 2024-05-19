@@ -52,6 +52,7 @@ export class MusicPlayer {
     [MusicTrack.backrooms]: false,
     [MusicTrack.slyguy]: false,
     [MusicTrack.overture]: false,
+    [MusicTrack.drone]: false,
   };
   private settings: GameSettings;
 

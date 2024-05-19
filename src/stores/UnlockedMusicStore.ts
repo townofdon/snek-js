@@ -8,6 +8,7 @@ export class UnlockedMusicStore extends BaseStore<UnlockedMusicTracks> {
 
   private readonly defaultValue: UnlockedMusicTracks = {
     [MusicTrack.None]: false,
+    [MusicTrack.drone]: false,
     [MusicTrack.champion]: true,
     [MusicTrack.simpleTime]: false,
     [MusicTrack.transient]: false,
@@ -34,7 +35,7 @@ export class UnlockedMusicStore extends BaseStore<UnlockedMusicTracks> {
 
   private state: UnlockedMusicTracks = this.getStore() || { ...this.defaultValue };
 
-  public getIsUnlocked = (track: MusicTrack): Boolean => {
+  public getIsUnlocked = (track: MusicTrack): boolean => {
     return this.state[track];
   }
 

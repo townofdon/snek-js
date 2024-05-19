@@ -24,7 +24,6 @@ import { TUTORIAL_LEVEL_20 } from "./tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "./tutorialLevel40";
 import { Level } from "../types";
-import { IS_DEV } from "../constants";
 
 export function getWarpLevelFromNum(levelNum: number): Level {
   switch (levelNum) {
@@ -77,9 +76,6 @@ export function getWarpLevelFromNum(levelNum: number): Level {
     case 140:
       return TUTORIAL_LEVEL_40;
     default:
-      if (IS_DEV) {
-        throw new Error(`Could not find warp level for num: ${levelNum}`)
-      }
       return LEVEL_01;
   }
 }

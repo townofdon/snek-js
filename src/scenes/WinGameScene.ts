@@ -2,7 +2,7 @@ import P5 from "p5";
 import Color from "color";
 import formatNumberFn from 'format-number'
 
-import { DIR, FontsInstance, GameState, IEnumerator, SFXInstance, SceneCallbacks, Sound, Stats, UINavDir } from "../types";
+import { DIR, FontsInstance, GameMode, GameState, IEnumerator, SFXInstance, SceneCallbacks, Sound, Stats, UINavDir } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { ACCENT_COLOR, DIMENSIONS, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "../constants";
@@ -170,7 +170,7 @@ export class WinGameScene extends BaseScene {
 
   private getHasHighscore = () => {
     const { leaderboardResults } = this.state;
-    const { isCasualModeEnabled } = this.gameState;
+    const isCasualModeEnabled = this.gameState.gameMode === GameMode.Casual
     const { score } = this.stats;
     if (isCasualModeEnabled) {
       return false;
@@ -203,7 +203,7 @@ export class WinGameScene extends BaseScene {
   *action() {
     const { p5, coroutines } = this.props;
     const sfx = this.sfx;
-    const { isCasualModeEnabled } = this.gameState;
+    const isCasualModeEnabled = this.gameState.gameMode === GameMode.Casual
     const { score, numApplesEverEaten, numDeaths, totalTimeElapsed } = this.stats;
     let playingChipSound = ""
 
@@ -596,7 +596,8 @@ export class WinGameScene extends BaseScene {
 
   private drawLeaderboard = () => {
     const { p5 } = this.props;
-    const { isCasualModeEnabled, timeElapsed } = this.gameState;
+    const { timeElapsed } = this.gameState;
+    const isCasualModeEnabled = this.gameState.gameMode === GameMode.Casual
     const { score } = this.stats;
     const newResult: HighScoreEntry = {
       id: "123",

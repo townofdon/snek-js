@@ -268,12 +268,18 @@ export class OSTScene extends BaseScene {
     if (!this.state.locked) {
       return;
     }
+    const { p5, fonts } = this.props;
     const image = Image.UILocked
-    const width = this.spriteRenderer.getImageWidth(image);
-    const height = this.spriteRenderer.getImageHeight(image);
-    const x = DIMENSIONS.x * 0.5 - (width * 0.5);
-    const y = VISUALIZER.y + (VISUALIZER.height * 0.5) - (height * 0.5);
+    const imgWidth = this.spriteRenderer.getImageWidth(image);
+    const imgHeight = this.spriteRenderer.getImageHeight(image);
+    const x = DIMENSIONS.x * 0.5 - (imgWidth * 0.5);
+    const y = VISUALIZER.y + (VISUALIZER.height * 0.5) - (imgHeight * 0.5);
     this.spriteRenderer.drawImage(image, x, y);
+    p5.textFont(fonts.variants.miniMood);
+    p5.textSize(14);
+    p5.textAlign(p5.CENTER, p5.TOP);
+    p5.fill('#ccc');
+    p5.text('locked', ...this.getPosition(0.5, 0.54));
   }
 
   private drawInstructions = () => {

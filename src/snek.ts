@@ -3,6 +3,7 @@ import P5, { Element, Vector } from 'p5';
 import {
   MAIN_TITLE_SCREEN_LEVEL,
   START_LEVEL,
+  START_LEVEL_COBRA,
   LEVELS,
   LEVEL_AFTER_WIN,
   LEVEL_99,
@@ -23,6 +24,7 @@ import {
   SCORE_INCREMENT,
   CLEAR_BONUS,
   LEVEL_BONUS,
+  COBRA_SCORE_MOD,
   SPEED_LIMIT_EASY,
   SPEED_LIMIT_MEDIUM,
   SPEED_LIMIT_HARD,
@@ -117,7 +119,7 @@ import {
   GraphicalComponents,
   PickupType,
   Pickup,
-  UnlockedMusicTracks,
+  GameMode,
 } from './types';
 import { MainTitleFader, UIBindings, UI, Modal } from './ui';
 import { PALETTE } from './palettes';
@@ -152,12 +154,14 @@ import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
 import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
 import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
 import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
+import { SaveDataStore } from './stores/SaveDataStore';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
 
 const queryParams = parseUrlQueryParams();
 const unlockedMusicStore = new UnlockedMusicStore()
+const saveDataStore = new SaveDataStore();
 
 const settings: GameSettings = {
   musicVolume: 1,
@@ -173,8 +177,8 @@ const loopState: LoopState = {
 }
 const state: GameState = {
   appMode: AppMode.StartScreen,
+  gameMode: GameMode.Normal,
   isPreloaded: false,
-  isCasualModeEnabled: false,
   isGameStarted: false,
   isGameStarting: false,
   isPaused: false,
@@ -381,6 +385,7 @@ export const sketch = (p5: P5) => {
     onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
     onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
     onToggleCasualMode: toggleCasualMode,
+    onToggleCobraMode: toggleCobraMode,
     onWarpToLevel: warpToLevel,
   }, handleInputAction);
   const inputCallbacks: InputCallbacks = {
@@ -417,6 +422,9 @@ export const sketch = (p5: P5) => {
         break;
       case InputAction.ToggleCasualMode:
         toggleCasualMode();
+        break;
+      case InputAction.ToggleCobraMode:
+        toggleCobraMode();
         break;
       case InputAction.ToggleScreenshakeDisabled:
         toggleScreenshakeDisabled();
@@ -551,12 +559,40 @@ export const sketch = (p5: P5) => {
   }
 
   function toggleCasualMode(value?: boolean) {
-    sfx.play(Sound.uiBlip);
-    state.isCasualModeEnabled = value ?? !state.isCasualModeEnabled;
-    if (state.isCasualModeEnabled) {
+    sfx.play(Sound.uiBlip, 0.7);
+    if (value === false && state.gameMode === GameMode.Casual) {
+      state.gameMode = GameMode.Normal;
+    } else if (value === true) {
+      state.gameMode = GameMode.Casual;
+    } else if (state.gameMode === GameMode.Casual) {
+      state.gameMode = GameMode.Normal;
+    } else {
+      state.gameMode = GameMode.Casual;
+    }
+    if (state.gameMode === GameMode.Casual) {
       UI.showMainCasualModeLabel();
     } else {
       UI.hideMainCasualModeLabel();
+    }
+    uiBindings.refreshFieldValues();
+  }
+
+  function toggleCobraMode(value?: boolean) {
+    if (!saveDataStore.get().isCobraModeUnlocked) return;
+    sfx.play(Sound.uiBlip, 0.7);
+    if (value === false && state.gameMode === GameMode.Cobra) {
+      state.gameMode = GameMode.Normal;
+    } else if (value === true) {
+      state.gameMode = GameMode.Cobra;
+    } else if (state.gameMode === GameMode.Cobra) {
+      state.gameMode = GameMode.Normal;
+    } else {
+      state.gameMode = GameMode.Cobra;
+    }
+    if (state.gameMode === GameMode.Cobra) {
+      UI.showMainCobraModeLabel();
+    } else {
+      UI.hideMainCobraModeLabel();
     }
     uiBindings.refreshFieldValues();
   }
@@ -632,8 +668,11 @@ export const sketch = (p5: P5) => {
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
     UI.showTitle();
-    if (state.isCasualModeEnabled) {
+    if (state.gameMode === GameMode.Casual) {
       UI.showMainCasualModeLabel();
+    }
+    if (state.gameMode === GameMode.Cobra) {
+      UI.showMainCobraModeLabel();
     }
     UI.showMainMenu();
     UI.hideSettingsMenu();
@@ -662,6 +701,7 @@ export const sketch = (p5: P5) => {
     if (!state.isPreloaded) return;
     if (state.isGameStarting) return;
     state.isGameStarting = true;
+    state.lives = MAX_LIVES;
     resetStats();
     UI.disableScreenScroll();
     setTimeout(() => {
@@ -682,19 +722,8 @@ export const sketch = (p5: P5) => {
       yield null;
     }
     stopReplay();
-    level = START_LEVEL;
+    level = state.gameMode === GameMode.Cobra ? START_LEVEL_COBRA : START_LEVEL;
     difficulty = { ...DIFFICULTY_EASY };
-
-    // TODO: REVERT
-    // TODO: REVERT
-    // TODO: REVERT
-    // TODO: REVERT
-    // TODO: REVERT
-    // TODO: REVERT
-    // level = VARIANT_LEVEL_10;
-    // difficulty = { ...DIFFICULTY_MEDIUM };
-    // difficulty = { ...DIFFICULTY_HARD };
-    // difficulty = { ...DIFFICULTY_ULTRA };
 
     setLevelIndexFromCurrentLevel();
     initLevel()
@@ -716,31 +745,34 @@ export const sketch = (p5: P5) => {
     uiElements = [];
     UI.hideTitle();
     UI.hideMainCasualModeLabel();
+    UI.hideMainCobraModeLabel();
     UI.hideMainMenu();
   }
 
   function showSettingsMenu() {
-    UI.showSettingsMenu(state.isGameStarted);
+    UI.showSettingsMenu({ isInGameMenu: state.isGameStarted, isCobraModeUnlocked: saveDataStore.get().isCobraModeUnlocked });
     uiBindings.refreshFieldValues();
     playSound(Sound.unlock, 1, true);
   }
 
   function renderDifficultyUI() {
     if (level === START_LEVEL) return;
+    if (level === START_LEVEL_COBRA) return;
     if (level.type === LevelType.Maze) return;
     if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    UI.renderDifficulty(difficulty.index, state.isShowingDeathColours, state.isCasualModeEnabled);
+    UI.renderDifficulty(difficulty.index, state.isShowingDeathColours, state.gameMode === GameMode.Casual, state.gameMode === GameMode.Cobra);
   }
 
   function renderHeartsUI() {
     if (level === START_LEVEL) return;
+    if (level === START_LEVEL_COBRA) return;
     if (level.type === LevelType.Maze) return;
     if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    if (state.isCasualModeEnabled) {
+    if (state.gameMode === GameMode.Casual) {
       UI.renderCasualRewindTip();
     } else {
       UI.renderHearts(state.lives, state.isShowingDeathColours);
@@ -749,16 +781,18 @@ export const sketch = (p5: P5) => {
 
   function renderScoreUI(score = stats.score) {
     if (level === START_LEVEL) return;
+    if (level === START_LEVEL_COBRA) return;
     if (level.type === LevelType.Maze) return;
     if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    if (state.isCasualModeEnabled) return;
+    if (state.gameMode === GameMode.Casual) return;
     UI.renderScore(score, state.isShowingDeathColours);
   }
 
   function renderLevelName() {
     if (level === START_LEVEL) return;
+    if (level === START_LEVEL_COBRA) return;
     if (level.type === LevelType.Maze) return;
     if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
@@ -794,7 +828,7 @@ export const sketch = (p5: P5) => {
   }
 
   function canRewind(): boolean {
-    if (!state.isCasualModeEnabled && state.timeSinceInvincibleStart >= difficulty.invincibilityTime) return false;
+    if (state.gameMode !== GameMode.Casual && state.timeSinceInvincibleStart >= difficulty.invincibilityTime) return false;
     if (state.isLost) return false;
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
@@ -822,6 +856,8 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel) return;
     if (state.isExited) return;
     startAction(startInvincibilityRoutine(), Action.Invincibility);
+    state.lives = Math.min(state.lives + 1, MAX_LIVES);
+    renderHeartsUI();
   }
 
   function* startInvincibilityRoutine(): IEnumerator {
@@ -895,7 +931,7 @@ export const sketch = (p5: P5) => {
     state.timeSinceHurtForgiveness = Infinity;
     state.timeSinceInvincibleStart = Infinity;
     state.hurtGraceTime = HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0);
-    state.lives = MAX_LIVES;
+    state.lives = state.gameMode === GameMode.Cobra ? state.lives : MAX_LIVES;
     screenShake.timeSinceStarted = Infinity;
     screenShake.timeSinceLastStep = Infinity;
     screenShake.magnitude = 1;
@@ -966,6 +1002,7 @@ export const sketch = (p5: P5) => {
             state.isGameWon = true;
             state.isMoving = true;
             unlockedMusicStore.unlockTrack(MusicTrack.overture);
+            saveDataStore.unlockCobraMode();
           }
           renderDifficultyUI();
           renderHeartsUI();
@@ -1244,7 +1281,9 @@ export const sketch = (p5: P5) => {
       drawLighting(lightMap, renderer);
     }
 
-    if (level === START_LEVEL) renderer.drawDifficultySelect(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background);
+    if (getIsStartLevel()) {
+      renderer.drawDifficultySelect(state.isShowingDeathColours ? PALETTE.deathInvert.background : level.colors.background, state.gameMode === GameMode.Cobra);
+    }
     renderer.drawUIKeys();
     renderer.drawTutorialMoveControls();
     renderer.drawTutorialRewindControls(player.position, canRewind);
@@ -1529,7 +1568,7 @@ export const sketch = (p5: P5) => {
   }
 
   function handleDifficultySelect() {
-    if (level !== START_LEVEL) return;
+    if (!getIsStartLevel()) return;
     const index = getCoordIndex(player.position);
     const difficultyIndex = diffSelectMap[index];
     if (difficultyIndex === undefined) return;
@@ -1656,7 +1695,7 @@ export const sketch = (p5: P5) => {
   }
 
   function handleCaptureReplayInfo(didMove: boolean, didHit: boolean) {
-    if (state.isCasualModeEnabled) return;
+    if (state.gameMode === GameMode.Casual) return;
     if (!state.isMoving) return;
     if (replay.mode !== ReplayMode.Capture) return;
     if (didMove) {
@@ -1673,14 +1712,15 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel) return;
     if (!getHasSegmentExited(player.position)) return;
 
+    const isStartLevel = getIsStartLevel()
     state.isExitingLevel = true;
-    winLevelScene.reset(level === START_LEVEL ? 'GET PSYCHED!' : 'SNEK CLEAR!');
+    winLevelScene.reset(isStartLevel ? 'GET PSYCHED!' : 'SNEK CLEAR!');
     sfx.stop(Sound.invincibleLoop);
     stopAction(Action.Invincibility);
     musicPlayer.setPlaybackRate(level.musicTrack, 1);
     if (replay.mode !== ReplayMode.Playback) {
       startAction(fadeMusic(0, 1000), Action.FadeMusic);
-      if (level === START_LEVEL) {
+      if (isStartLevel) {
         playSound(Sound.doorOpenHuge);
       } else if (level === LEVEL_99 || level === VARIANT_LEVEL_99) {
         playSound(Sound.winGame);
@@ -1694,7 +1734,7 @@ export const sketch = (p5: P5) => {
     if (!didMove) return;
     if (!state.isExitingLevel) return;
     if (state.isExited) return;
-    if (level === START_LEVEL) return;
+    if (getIsStartLevel()) return;
     if (level.type === LevelType.Maze) return;
     if (level.type === LevelType.WarpZone) return;
 
@@ -1719,7 +1759,7 @@ export const sketch = (p5: P5) => {
       proceedToNextReplayClip();
     } else if (DISABLE_TRANSITIONS) {
       gotoNextLevel();
-    } else if (level === START_LEVEL) {
+    } else if (getIsStartLevel()) {
       gotoNextLevel();
     } else if (level.type === LevelType.Maze) {
       gotoNextLevel();
@@ -1737,8 +1777,8 @@ export const sketch = (p5: P5) => {
         livesLeft: state.lives,
         isPerfect,
         hasAllApples,
-        isCasualModeEnabled: state.isCasualModeEnabled,
-        levelMusicTrack: level === START_LEVEL ? undefined : level.musicTrack,
+        isCasualModeEnabled: state.gameMode === GameMode.Casual,
+        levelMusicTrack: getIsStartLevel() ? undefined : level.musicTrack,
         onApplyScore: () => {
           musicPlayer.stopAllTracks();
           const perfectBonus = isPerfect ? getPerfectBonus() : 0;
@@ -1784,7 +1824,7 @@ export const sketch = (p5: P5) => {
     if (state.timeSinceHurtForgiveness < HURT_STUN_TIME * 2) return;
     if (state.timeSinceHurt >= HURT_FORGIVENESS_TIME) return;
     if (state.isGameWon) return;
-    if (state.isCasualModeEnabled) return;
+    if (state.gameMode === GameMode.Casual) return;
     if (!state.isGameStarted) return;
     if (!state.isMoving) return;
     if (replay.mode === ReplayMode.Playback) return;
@@ -1839,7 +1879,7 @@ export const sketch = (p5: P5) => {
     if (!didReceiveDamage) return;
 
     state.isLost = false;
-    if (state.isCasualModeEnabled && replay.mode !== ReplayMode.Playback) {
+    if (state.gameMode === GameMode.Casual && replay.mode !== ReplayMode.Playback) {
       state.isMoving = false;
     } else {
       state.lives -= 1;
@@ -1946,26 +1986,30 @@ export const sketch = (p5: P5) => {
 
   function addPoints(points: number) {
     if (state.isGameWon) return;
-    if (state.isCasualModeEnabled) return;
-    if (level === START_LEVEL) return;
+    if (state.gameMode === GameMode.Casual) return;
+    if (getIsStartLevel()) return;
     stats.score += points;
     stats.numPointsEverScored += points;
   }
 
   function getLevelClearBonus() {
-    return LEVEL_BONUS * difficulty.bonusMod;
+    const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
+    return LEVEL_BONUS * difficulty.bonusMod * cobraMod;
   }
 
   function getLivesLeftBonus() {
-    return LIVES_LEFT_BONUS * difficulty.bonusMod;
+    const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
+    return LIVES_LEFT_BONUS * difficulty.bonusMod * cobraMod;
   }
 
   function getAllApplesBonus() {
-    return ALL_APPLES_BONUS * difficulty.bonusMod;
+    const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
+    return ALL_APPLES_BONUS * difficulty.bonusMod * cobraMod;
   }
 
   function getPerfectBonus() {
-    return PERFECT_BONUS * difficulty.bonusMod;
+    const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
+    return PERFECT_BONUS * difficulty.bonusMod * cobraMod;
   }
 
   function incrementScore() {
@@ -1974,7 +2018,8 @@ export const sketch = (p5: P5) => {
     if (state.isDoorsOpen) {
       bonus = CLEAR_BONUS * difficulty.scoreMod;
     }
-    const points = SCORE_INCREMENT * difficulty.scoreMod + bonus
+    const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
+    const points = SCORE_INCREMENT * difficulty.scoreMod * cobraMod + bonus
     stats.applesEatenThisLevel += 1;
     stats.numApplesEverEaten += 1;
     addPoints(points);
@@ -2096,10 +2141,18 @@ export const sketch = (p5: P5) => {
     renderer.drawSquareBorderCustom(graphicalComponents.door, 1, 1, 'dark', level.colors.doorStroke, false);
 
     renderer.clearGraphicalComponent(graphicalComponents.snakeHead);
-    renderer.drawSquareCustom(graphicalComponents.snakeHead, 1, 1, level.colors.playerHead, level.colors.playerHead, drawPlayerOptions);
+    if (state.gameMode === GameMode.Cobra) {
+      renderer.drawSquareCustom(graphicalComponents.snakeHead, 1, 1, PALETTE.cobra.playerHead, PALETTE.cobra.playerHead, drawPlayerOptions);
+    } else {
+      renderer.drawSquareCustom(graphicalComponents.snakeHead, 1, 1, level.colors.playerHead, level.colors.playerHead, drawPlayerOptions);
+    }
 
     renderer.clearGraphicalComponent(graphicalComponents.snakeSegment);
-    renderer.drawSquareCustom(graphicalComponents.snakeSegment, 1, 1, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
+    if (state.gameMode === GameMode.Cobra) {
+      renderer.drawSquareCustom(graphicalComponents.snakeSegment, 1, 1, PALETTE.cobra.playerTail, PALETTE.cobra.playerTailStroke, drawPlayerOptions);
+    } else {
+      renderer.drawSquareCustom(graphicalComponents.snakeSegment, 1, 1, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
+    }
 
     renderer.clearGraphicalComponent(graphicalComponents.apple);
     renderer.drawSquareCustom(graphicalComponents.apple, 1, 1, level.colors.apple, level.colors.appleStroke, drawAppleOptions);
@@ -2377,18 +2430,26 @@ export const sketch = (p5: P5) => {
       proceedToNextReplayClip();
     } else {
       startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
-      const randomMessage = getRandomMessage();
-      stats.numLevelsCleared = 0;
-      UI.drawDarkOverlay(uiElements);
-      UI.drawButton("MAIN MENU", 20, 20, showMainMenu, uiElements);
-      UI.drawButton("TRY AGAIN", 475, 20, () => initLevel(false), uiElements);
-      const offset = -50
-      UI.drawText('YOU DIED!', '28px', 250 + offset, uiElements, { color: ACCENT_COLOR });
-      UI.drawText(randomMessage, '12px', 340 + offset, uiElements);
-      UI.drawText('[ENTER]&nbsp;&nbsp;&nbsp;Try Again ', '14px', 450 + offset, uiElements, { color: ACCENT_COLOR });
-      UI.drawText('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[M]&nbsp;&nbsp;&nbsp;Main Menu ', '14px', 480 + offset, uiElements, { color: ACCENT_COLOR, marginLeft: 16 });
+      showGameOverUI();
       UI.enableScreenScroll();
       renderScoreUI(stats.score);
+      stats.numLevelsCleared = 0;
+    }
+  }
+
+  function showGameOverUI() {
+    const randomMessage = getRandomMessage();
+    UI.drawDarkOverlay(uiElements);
+    UI.drawButton("MAIN MENU", 20, 20, showMainMenu, uiElements);
+    if (state.gameMode !== GameMode.Cobra) {
+      UI.drawButton("TRY AGAIN", 475, 20, () => initLevel(false), uiElements);
+    }
+    const offset = -50
+    UI.drawText('YOU DIED!', '28px', 250 + offset, uiElements, { color: ACCENT_COLOR });
+    UI.drawText(randomMessage, '12px', 340 + offset, uiElements);
+    if (state.gameMode !== GameMode.Cobra) {
+      UI.drawText('[ENTER]&nbsp;&nbsp;&nbsp;Try Again ', '14px', 450 + offset, uiElements, { color: ACCENT_COLOR });
+      UI.drawText('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[M]&nbsp;&nbsp;&nbsp;Main Menu ', '14px', 480 + offset, uiElements, { color: ACCENT_COLOR, marginLeft: 16 });
     }
   }
 
@@ -2460,7 +2521,7 @@ export const sketch = (p5: P5) => {
   }
 
   function warpToLevel(levelNum = 1) {
-    if (!queryParams.enableWarp && !state.isCasualModeEnabled) return;
+    if (!queryParams.enableWarp && state.gameMode !== GameMode.Casual) return;
     stats.numLevelsCleared = 0;
     musicPlayer.stopAllTracks();
     level = getWarpLevelFromNum(levelNum);
@@ -2511,7 +2572,7 @@ export const sketch = (p5: P5) => {
 
   function showInGameSettingsMenu() {
     sfx.play(Sound.unlock);
-    UI.showSettingsMenu(true);
+    UI.showSettingsMenu({ isInGameMenu: true, isCobraModeUnlocked: saveDataStore.get().isCobraModeUnlocked });
   }
 
   function showPauseUI() {
@@ -2521,7 +2582,7 @@ export const sketch = (p5: P5) => {
     UI.drawButton("MAIN MENU", 221, 20, confirmShowMainMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonMainMenu');
     UI.drawButton("SETTINGS", 445, 20, showInGameSettingsMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonSettings');
 
-    if (!queryParams.enableWarp && !state.isCasualModeEnabled || level === START_LEVEL) {
+    if (!queryParams.enableWarp && state.gameMode !== GameMode.Casual || getIsStartLevel()) {
       return;
     }
     UI.drawText('WARP TO LEVEL', '24px', 380, uiElements, { color: ACCENT_COLOR });
@@ -2574,16 +2635,11 @@ export const sketch = (p5: P5) => {
     musicPlayer.stopAllTracks();
 
     if (state.isGameWon) {
+      resetStats();
+      state.gameMode = GameMode.Cobra;
       difficulty.index++;
       difficulty = getDifficultyFromIndex(difficulty.index);
-      resetStats();
-      if (difficulty.index === 4) {
-        level = LEVEL_AFTER_WIN_ULTRA;
-      } else if (difficulty.index === 3) {
-        level = LEVEL_AFTER_WIN_HARD;
-      } else {
-        level = LEVEL_AFTER_WIN;
-      }
+      level = START_LEVEL_COBRA;
       setLevelIndexFromCurrentLevel();
       initLevel();
       return;
@@ -2746,5 +2802,9 @@ export const sketch = (p5: P5) => {
     } catch (err) {
       console.error(err);
     }
+  }
+
+  function getIsStartLevel() {
+    return level === START_LEVEL || level == START_LEVEL_COBRA
   }
 }

@@ -417,7 +417,7 @@ button:focus:before {
   animation-delay: calc(var(--hover-duration) * 0.4);
 }
 
-.main-menu-label-casual-mode {
+.main-menu-label-casual-mode, .main-menu-label-cobra-mode {
   z-index: 20;
   position: absolute;
   left: 303px;
@@ -439,6 +439,20 @@ button:focus:before {
   -webkit-text-stroke-width: 1.5px;
   -webkit-text-stroke-color: var(--casual-mode-bg);
   text-shadow: 1px 4px 2px var(--casual-mode-bg);
+}
+.main-menu-label-cobra-mode > span {
+  --cobra-mode-color: #b1491c;
+  --cobra-mode-bg: #2a303e;
+  display: block;
+  position: absolute;
+  font-family: Casual, monospace;
+  font-size: 40px;
+  white-space: nowrap;
+  color: var(--cobra-mode-color);
+  -webkit-text-fill-color: var(--cobra-mode-color);
+  -webkit-text-stroke-width: 1.5px;
+  -webkit-text-stroke-color: var(--cobra-mode-bg);
+  text-shadow: 1px 4px 2px var(--cobra-mode-bg);
 }
 
 
@@ -729,10 +743,35 @@ button.ui-sprite:focus .tooltip
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
 }
-
-
-
-
+.checkbox-label input[type='checkbox']:disabled ~ .checkmark {
+  background-color: #333;
+}
+.field.disabled .checkbox-label {
+  cursor: initial;
+  color: #888;
+}
+.field .tooltip {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  width: auto;
+  min-width: 130px;
+  margin-bottom: 8px;
+  padding: 6px;
+  padding-bottom: 2px;
+  background: #000;
+  color: #fff;
+  border-radius: 4px;
+  font-family: 'MiniMOOD', 'VT323', monospace;
+  filter: invert(1);
+  font-size: 12px;
+}
+.field.disabled:hover .tooltip,
+.field.disabled:active .tooltip,
+.field.disabled:focus .tooltip
+{
+  display: block;
+}
 
 
 

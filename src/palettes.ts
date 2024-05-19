@@ -20,6 +20,7 @@ enum PaletteName {
   crimson = 'crimson',
   gravChamber = 'gravChamber',
   stonelair = 'stonelair',
+  cobra = 'cobra',
 }
 
 export function getExtendedPalette(palette: Palette): ExtendedPalette {
@@ -328,6 +329,22 @@ export const PALETTE: Record<PaletteName, Palette> = {
     playerHead: "#FFB41F",
     playerTail: "#FFC857",
     playerTailStroke: "#FFDD99",
+    apple: "#15C2CB",
+    appleStroke: "#119DA4",
+  },
+  cobra: {
+    background: "#161925",
+    deco1: "#1F2333",
+    deco1Stroke: "#161925",
+    deco2: "#272C3F",
+    deco2Stroke: "#1F2333",
+    barrier: "#223758",
+    barrierStroke: "#2E4A76",
+    door: "#4C82A9",
+    doorStroke: "#3F6C8D",
+    playerHead: "#FFF6F1",
+    playerTail: "#0A0E14",
+    playerTailStroke: "#E9EFFF",
     apple: "#15C2CB",
     appleStroke: "#119DA4",
   },

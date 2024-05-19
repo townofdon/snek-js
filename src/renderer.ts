@@ -1,5 +1,5 @@
 import P5, { Vector } from "p5";
-import { DIR, FontsInstance, GameState, HitType, Image, Portal, PortalChannel, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
+import { DIR, FontsInstance, GameMode, GameState, HitType, Image, Portal, PortalChannel, Replay, ReplayMode, ScreenShakeState, Tutorial } from "./types";
 import { ACCENT_COLOR, BLOCK_SIZE, DIMENSIONS, GRIDCOUNT, HURT_STUN_TIME, INVALID_PORTAL_COLOR, NUM_PORTAL_GRADIENT_COLORS, PORTAL_CHANNEL_COLORS, PORTAL_FADE_DURATION, PORTAL_INDEX_DELAY, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG, SHOW_FPS, STRANGELY_NEEDED_OFFSET, STROKE_SIZE } from "./constants";
 import { clamp, oscilateLinear } from "./utils";
 import { SpriteRenderer } from "./spriteRenderer";
@@ -275,7 +275,7 @@ export class Renderer {
    */
   drawCaptureMode = () => {
     if (this.replay.mode !== ReplayMode.Capture) return;
-    if (this.gameState.isCasualModeEnabled) return;
+    if (this.gameState.gameMode === GameMode.Casual) return;
 
     const reds: [number, number][] = [
       [0, 0],
@@ -435,7 +435,7 @@ export class Renderer {
     this.spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY);
   }
 
-  drawDifficultySelect = (backgroundColor: string) => {
+  drawDifficultySelect = (backgroundColor: string, isCobraModeEnabled = false) => {
     const colorEas = '#43C59E';
     const colorMed = '#fa0'
     const colorHar = '#E76F51'
@@ -444,10 +444,16 @@ export class Renderer {
 
     this.drawDifficultySelectBanner(3, 0, 5, 1.1, 'choose', { backgroundColor, textXOffset: .1 });
     this.drawDifficultySelectBanner(3, 1, 6, 1, 'difficulty', { backgroundColor, textXOffset: .1 });
-    this.drawDifficultySelectBanner(12.9, 0, 3.1, 1, 'easy', { backgroundColor, textColor: colorEas });
-    this.drawDifficultySelectBanner(26, 14, 4, 1, 'medium', { backgroundColor, textColor: colorMed });
-    this.drawDifficultySelectBanner(12.9, 29, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
-    this.drawDifficultySelectBanner(24, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
+    if (!isCobraModeEnabled) {
+      this.drawDifficultySelectBanner(12.9, 0, 3.1, 1, 'easy', { backgroundColor, textColor: colorEas });
+      this.drawDifficultySelectBanner(26, 14, 4, 1, 'medium', { backgroundColor, textColor: colorMed });
+      this.drawDifficultySelectBanner(12.9, 29, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
+      this.drawDifficultySelectBanner(24, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
+    } else {
+      this.drawDifficultySelectBanner(19, 0, 7, 1, 'COBRA MODE', { backgroundColor, textXOffset: .35 });
+      this.drawDifficultySelectBanner(27, 14, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
+      this.drawDifficultySelectBanner(12.5, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
+    }
   }
 
   private drawDifficultySelectBanner = (x: number, y: number, bannerWidth: number, bannerHeight: number, text: string, {

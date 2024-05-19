@@ -17,7 +17,7 @@ export abstract class BaseStore<T> {
     }
   }
 
-  public setStore = (value: T) => {
+  protected setStore = (value: T) => {
     this.validate();
     try {
       localStorage.setItem(this.key, JSON.stringify(value))

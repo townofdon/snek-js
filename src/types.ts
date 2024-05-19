@@ -29,6 +29,12 @@ export enum AppMode {
   Leaderboard,
 }
 
+export enum GameMode {
+  Normal,
+  Casual,
+  Cobra,
+}
+
 export enum DIR {
   UP = 'UP',
   DOWN = 'DOWN',
@@ -58,6 +64,8 @@ export interface ScreenShakeState {
   timeScale: number,
 }
 
+export type DifficultyIndex = 1 | 2 | 3 | 4;
+
 export interface Difficulty {
   /**
    * 1 => easy
@@ -68,7 +76,7 @@ export interface Difficulty {
    *
    * 4 => ultra
    */
-  index: number,
+  index: DifficultyIndex,
   applesMod: number,
   scoreMod: number,
   bonusMod: number,
@@ -104,8 +112,8 @@ export interface Stats {
 
 export interface GameState {
   appMode: AppMode,
+  gameMode: GameMode,
   isPreloaded: boolean,
-  isCasualModeEnabled: boolean,
   isGameStarted: boolean,
   isGameStarting: boolean,
   isPaused: boolean,
@@ -164,6 +172,11 @@ export interface GameSettings {
   musicVolume: number,
   sfxVolume: number,
   isScreenShakeDisabled: boolean,
+}
+
+export interface SaveData {
+  isCobraModeUnlocked: boolean,
+  levelProgress: Record<DifficultyIndex, number>,
 }
 
 export interface Palette {
@@ -362,9 +375,10 @@ export enum MusicTrack {
   backrooms = '20-dillema.wav',
   slyguy = '21-slyguy.wav',
   overture = '22-snek-overture.wav',
+  drone = '00-drone.wav',
 }
 
-export type UnlockedMusicTracks = Record<MusicTrack, Boolean>
+export type UnlockedMusicTracks = Record<MusicTrack, boolean>
 
 export enum Image {
   SnekHead = 'snek-head.png',
