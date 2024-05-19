@@ -1464,6 +1464,7 @@ export const sketch = (p5: P5) => {
   }
 
   function checkPortalTeleportWillHit(position: Vector, dir: DIR): boolean {
+    if (state.isExitingLevel) return false;
     const portal = portalsMap[getCoordIndex(position)];
     if (!portal) return false;
     if (!portal.link) return false;
@@ -1474,6 +1475,7 @@ export const sketch = (p5: P5) => {
   }
 
   function handlePortalTravel() {
+    if (state.isExitingLevel) return;
     const portal = portalsMap[getCoordIndex(player.position)];
     if (!portal) return;
     if (!portal.link) {

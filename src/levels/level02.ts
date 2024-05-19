@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../types";
 import { getCoordIndex2 } from "../utils";
 import { VARIANT_LEVEL_03 } from "./bonusLevels/variantLevel03";
 
@@ -26,7 +26,7 @@ X            ---             X
 X~~          -=-           ~~X
 X++-         -=-          -++X
 XX+=----------------------=+XX
-XXX=----====- O -====-----=xxx
+XXX=----====- O -====-----=XXX
 XX+=----------------------=+XX
 X++-         -=-          -++X
 X~~          -=-           ~~X
@@ -40,7 +40,7 @@ X            -=-            ~X
 X++-         -=-          -++X
 XX++-        -=-         -++XX
 XXX++-       -=-        -++XXX
-XXXX++   ~   -_-   ~    ++XXXX
+8XXX++   ~   -_-   ~    ++xxx8
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.plumsea),
@@ -48,8 +48,10 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   musicTrack: MusicTrack.simpleTime,
   titleVariant: TitleVariant.Green,
   nextLevelMap: {
-    [getCoordIndex2(29, 14)]: VARIANT_LEVEL_03,
-    // [getCoordIndex2(14, 0)]: VARIANT_LEVEL_03,
+    [getCoordIndex2(28, 28)]: VARIANT_LEVEL_03,
+  },
+  portalExitConfig: {
+    8: PortalExitMode.InvertDirection,
   },
   pickupDrops: {},
 };

@@ -10,7 +10,7 @@ const name = 'metroteque'
 export const VARIANT_LEVEL_03: Level = {
   name,
   timeToClear: 1000 * 60 * 1.4,
-  applesToClear: 100,
+  applesToClear: 70,
   numApplesStart: 10,
   growthMod: 0.75,
   layout: `
@@ -68,9 +68,9 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
   },
   pickupDrops: {
-    70: { likelihood: 1, type: PickupType.Invincibility },
-    110: { likelihood: 1, type: PickupType.Invincibility },
-    140: { likelihood: 1, type: PickupType.Invincibility },
-    149: { likelihood: 1, type: PickupType.Invincibility },
+    35: { likelihood: 1, type: PickupType.Invincibility },
+    60: { likelihood: 1, type: PickupType.Invincibility },
+    100: { likelihood: 1, type: PickupType.Invincibility },
+    120: { likelihood: .5, type: PickupType.Invincibility },
   },
 };
