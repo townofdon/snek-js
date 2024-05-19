@@ -106,7 +106,6 @@ export function handleKeyPressed(
 
   if (state.isLost && state.timeSinceHurt > 20) {
     if (keyCode === ENTER && state.gameMode !== GameMode.Cobra) callAction(InputAction.RetryLevel);
-    if (keyCode === KEYCODE_ALPHA_M) callAction(InputAction.ConfirmShowMainMenu);
     return;
   }
 

@@ -4,24 +4,39 @@ import { ACCENT_COLOR } from '../constants';
 import { GameMode, GameState, QueryParams } from '../types';
 
 interface GameOverCallbacks {
-  showMainMenu: () => void
+  confirmShowMainMenu: () => void
   initLevel(shouldShowTransitions?: boolean): void
 }
 
 export function showGameOverUI(loseMessage: string, uiElements: Element[], state: GameState, callbacks: GameOverCallbacks) {
-  const { showMainMenu, initLevel } = callbacks;
-  UI.drawDarkOverlay(uiElements);
-  UI.drawButton("MAIN MENU", 20, 20, showMainMenu, uiElements);
-  if (state.gameMode !== GameMode.Cobra) {
-    UI.drawButton("TRY AGAIN", 475, 20, () => initLevel(false), uiElements);
+  const { confirmShowMainMenu, initLevel } = callbacks;
+
+  const drawButtonMainMenu = (x: number, y: number) => {
+    UI.drawButton("MAIN MENU", x, y, confirmShowMainMenu, uiElements).addClass('minimood').addClass('focus-invert').id('gameOverButtonMainMenu');
   }
+  const drawButtonTryAgain = (x: number, y: number) => {
+    UI.drawButton("TRY AGAIN", x, y, () => initLevel(false), uiElements).addClass('minimood').addClass('focus-invert').id('gameOverButtonTryAgain')
+  }
+
+  UI.drawDarkOverlay(uiElements);
+
+  if (state.gameMode === GameMode.Cobra) {
+    // TODO: go through leaderboard entry flow instead
+    drawButtonMainMenu(221, 20);
+  } else {
+    drawButtonTryAgain(20, 20);
+    drawButtonMainMenu(440, 20);
+  }
+
   const offset = -50
   UI.drawText('YOU DIED!', '28px', 250 + offset, uiElements, { color: ACCENT_COLOR });
   UI.drawText(loseMessage, '12px', 340 + offset, uiElements);
-  if (state.gameMode !== GameMode.Cobra) {
-    UI.drawText('[ENTER]&nbsp;&nbsp;&nbsp;Try Again ', '14px', 450 + offset, uiElements, { color: ACCENT_COLOR });
-    UI.drawText('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[M]&nbsp;&nbsp;&nbsp;Main Menu ', '14px', 480 + offset, uiElements, { color: ACCENT_COLOR, marginLeft: 16 });
-  }
+
+  // TODO: REMOVE
+  // if (state.gameMode !== GameMode.Cobra) {
+  //   UI.drawText('[ENTER]&nbsp;&nbsp;&nbsp;Try Again ', '14px', 450 + offset, uiElements, { color: ACCENT_COLOR });
+  //   UI.drawText('&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;[M]&nbsp;&nbsp;&nbsp;Main Menu ', '14px', 480 + offset, uiElements, { color: ACCENT_COLOR, marginLeft: 16 });
+  // }
 }
 
 interface PauseMenuCallbacks {

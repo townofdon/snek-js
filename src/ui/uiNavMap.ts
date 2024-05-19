@@ -4,7 +4,7 @@ import { DOM } from "./uiUtils";
 
 
 export interface NavMap {
-  callSelected: () => void,
+  callSelected: () => boolean,
   gotoFirst: () => void,
   gotoPrev: () => void,
   gotoNext: () => void,
@@ -12,6 +12,147 @@ export interface NavMap {
   gotoDown: () => void,
   gotoLeft: () => void,
   gotoRight: () => void,
+}
+
+export abstract class GroupedNavMap<ElementType extends string> implements NavMap {
+  private readonly callAction: (element: ElementType) => void;
+  private readonly ORDER: ElementType[][]
+
+  private selectedGroup = -1;
+  private selectedIndex = -1;
+
+  constructor(callAction: (element: ElementType) => void, order: ElementType[][]) {
+    this.callAction = callAction;
+    this.ORDER = order;
+  }
+
+  callSelected = () => {
+    const focused = this.getFocused();
+    if (focused) this.callAction(focused);
+    return !!focused;
+  };
+
+  private getFocused = (): ElementType | null => {
+    if (!document.activeElement) return null;
+    const ORDER = this.ORDER;
+    for (let group = 0; group < ORDER.length; group++) {
+      for (let i = 0; i < 6; i++) {
+        if (!ORDER[group] || i >= ORDER[group].length) break;
+        const target = document.getElementById(ORDER[group][i]);
+        if (target && target === document.activeElement) {
+          this.selectedGroup = group;
+          this.selectedIndex = i;
+          return ORDER[group][i];
+        }
+      }
+    }
+    return null;
+  }
+
+  private gotoVert = (direction: number, count = 1) => {
+    const ORDER = this.ORDER;
+    const element = this.getFocused();
+    if (!element
+      || this.selectedGroup < 0
+      || this.selectedIndex < 0
+      || !ORDER[this.selectedGroup]
+      || !ORDER[this.selectedGroup][this.selectedIndex]
+    ) {
+      this.gotoFirst();
+      return;
+    }
+    const currentGroupSize = ORDER[this.selectedGroup].length;
+    const nextGroupIndex = (ORDER.length + this.selectedGroup + direction * count) % ORDER.length;
+    const nextGroupSize = ORDER[nextGroupIndex].length;
+    const nextIndex = Math.round(this.selectedIndex * ((nextGroupSize - 1) / (currentGroupSize - 1)));
+    const nextElement = ORDER[nextGroupIndex][nextIndex];
+    const node = document.getElementById(nextElement);
+    if (node) DOM.select(node);
+    if (!node || node !== document.activeElement) {
+      if (count >= 100) {
+        if (IS_DEV) console.warn("gotoVert: infinite loop was just prevented");
+        return;
+      }
+      this.gotoVert(direction, count + 1);
+    }
+  }
+
+  private gotoHoriz = (direction: number, count = 1) => {
+    const ORDER = this.ORDER;
+    const element = this.getFocused();
+    if (!element
+      || this.selectedGroup < 0
+      || this.selectedIndex < 0
+      || !ORDER[this.selectedGroup]
+      || !ORDER[this.selectedGroup][this.selectedIndex]
+    ) {
+      this.gotoFirst();
+      return;
+    }
+    const currentGroupSize = ORDER[this.selectedGroup].length;
+    const nextIndex = (currentGroupSize + this.selectedIndex + direction * count) % currentGroupSize;
+    const nextElement = ORDER[this.selectedGroup][nextIndex];
+    const node = document.getElementById(nextElement);
+    if (node) DOM.select(node);
+    if (!node || node !== document.activeElement) {
+      if (count >= 100) {
+        if (IS_DEV) console.warn("gotoHoriz: infinite loop was just prevented");
+        return;
+      }
+      this.gotoHoriz(direction, count + 1);
+    }
+  }
+
+  gotoFirst = () => {
+    const node = document.getElementById(this.ORDER[0][0]);
+    if (node) DOM.select(node);
+    if (node && node === document.activeElement) {
+      this.selectedGroup = 0;
+      this.selectedIndex = 0;
+    } else {
+      this.selectedGroup = -1;
+      this.selectedIndex = -1;
+    }
+  };
+
+  gotoCurrent = () => {
+    const group = this.ORDER[this.selectedGroup];
+    if (!group) {
+      this.gotoFirst();
+      return;
+    }
+    const element = group[this.selectedIndex]
+    if (!element) {
+      this.gotoFirst();
+      return;
+    }
+    const node = document.getElementById(element);
+    if (!node) {
+      this.gotoFirst();
+      return;
+    }
+    DOM.select(node);
+  }
+
+  gotoPrev = () => {
+    this.gotoHoriz(-1);
+  };
+  gotoNext = () => {
+    this.gotoHoriz(1);
+  };
+
+  gotoUp = () => {
+    this.gotoVert(-1);
+  };
+  gotoDown = () => {
+    this.gotoVert(1);
+  };
+  gotoLeft = () => {
+    this.gotoHoriz(-1);
+  };
+  gotoRight = () => {
+    this.gotoHoriz(1);
+  }
 }
 
 export enum MainMenuButton {
@@ -62,6 +203,7 @@ export class MainMenuNavMap implements NavMap {
       DOM.deselect(this.selectedTarget());
     }
     this.callAction(this.actionMap[focused]);
+    return true;
   };
 
   private getFocused = (): MainMenuButton | null => {
@@ -157,13 +299,18 @@ export class SettingsMenuNavMap implements NavMap {
     const focused = this.getFocused();
     if (focused === SettingsMenuElement.ButtonClose) {
       this.callAction(InputAction.HideSettingsMenu);
+      return true
     } else if (focused === SettingsMenuElement.CheckboxCasualMode) {
       this.callAction(InputAction.ToggleCasualMode);
+      return true
     } else if (focused === SettingsMenuElement.CheckboxCobraMode) {
       this.callAction(InputAction.ToggleCobraMode);
+      return true
     } else if (focused === SettingsMenuElement.CheckboxDisableScreenshake) {
       this.callAction(InputAction.ToggleScreenshakeDisabled);
+      return true
     }
+    return true
   };
 
   private getFocused = (): SettingsMenuElement | null => {
@@ -296,136 +443,26 @@ const PAUSE_MENU_ELEMENT_ORDER: [
     ],
   ]
 
-export class PauseMenuNavMap implements NavMap {
-  private callAction: (element: PauseMenuElement) => void;
-  private selectedGroup = -1;
-  private selectedIndex = -1;
-
+export class PauseMenuNavMap extends GroupedNavMap<PauseMenuElement> {
   constructor(callAction: (element: PauseMenuElement) => void) {
-    this.callAction = callAction;
+    super(callAction, PAUSE_MENU_ELEMENT_ORDER)
   }
+}
 
-  callSelected = () => {
-    const focused = this.getFocused();
-    if (focused) this.callAction(focused);
-  };
+export enum GameOverMenuElement {
+  ButtonTryAgain = 'gameOverButtonTryAgain',
+  ButtonMainMenu = 'gameOverButtonMainMenu',
+}
 
-  private getFocused = (): PauseMenuElement | null => {
-    if (!document.activeElement) return null;
-    for (let group = 0; group < PAUSE_MENU_ELEMENT_ORDER.length; group++) {
-      for (let i = 0; i < 6; i++) {
-        if (!PAUSE_MENU_ELEMENT_ORDER[group] || i >= PAUSE_MENU_ELEMENT_ORDER[group].length) break;
-        const target = document.getElementById(PAUSE_MENU_ELEMENT_ORDER[group][i]);
-        if (target && target === document.activeElement) {
-          this.selectedGroup = group;
-          this.selectedIndex = i;
-          return PAUSE_MENU_ELEMENT_ORDER[group][i];
-        }
-      }
-    }
-    return null;
-  }
+const GAME_OVER_ELEMENT_ORDER = [
+  [
+    GameOverMenuElement.ButtonTryAgain,
+    GameOverMenuElement.ButtonMainMenu,
+  ],
+];
 
-  private gotoVert = (direction: number, count = 1) => {
-    const element = this.getFocused();
-    if (!element
-      || this.selectedGroup < 0
-      || this.selectedIndex < 0
-      || !PAUSE_MENU_ELEMENT_ORDER[this.selectedGroup]
-      || !PAUSE_MENU_ELEMENT_ORDER[this.selectedGroup][this.selectedIndex]
-    ) {
-      this.gotoFirst();
-      return;
-    }
-    const currentGroupSize = PAUSE_MENU_ELEMENT_ORDER[this.selectedGroup].length;
-    const nextGroupIndex = (PAUSE_MENU_ELEMENT_ORDER.length + this.selectedGroup + direction * count) % PAUSE_MENU_ELEMENT_ORDER.length;
-    const nextGroupSize = PAUSE_MENU_ELEMENT_ORDER[nextGroupIndex].length;
-    const nextIndex = Math.round(this.selectedIndex * ((nextGroupSize - 1) / (currentGroupSize - 1)));
-    const nextElement = PAUSE_MENU_ELEMENT_ORDER[nextGroupIndex][nextIndex];
-    const node = document.getElementById(nextElement);
-    if (node) DOM.select(node);
-    if (!node || node !== document.activeElement) {
-      if (count >= 100) {
-        if (IS_DEV) console.warn("gotoVert: infinite loop was just prevented");
-        return;
-      }
-      this.gotoVert(direction, count + 1);
-    }
-  }
-
-  private gotoHoriz = (direction: number, count = 1) => {
-    const element = this.getFocused();
-    if (!element
-      || this.selectedGroup < 0
-      || this.selectedIndex < 0
-      || !PAUSE_MENU_ELEMENT_ORDER[this.selectedGroup]
-      || !PAUSE_MENU_ELEMENT_ORDER[this.selectedGroup][this.selectedIndex]
-    ) {
-      this.gotoFirst();
-      return;
-    }
-    const currentGroupSize = PAUSE_MENU_ELEMENT_ORDER[this.selectedGroup].length;
-    const nextIndex = (currentGroupSize + this.selectedIndex + direction * count) % currentGroupSize;
-    const nextElement = PAUSE_MENU_ELEMENT_ORDER[this.selectedGroup][nextIndex];
-    const node = document.getElementById(nextElement);
-    if (node) DOM.select(node);
-    if (!node || node !== document.activeElement) {
-      if (count >= 100) {
-        if (IS_DEV) console.warn("gotoHoriz: infinite loop was just prevented");
-        return;
-      }
-      this.gotoHoriz(direction, count + 1);
-    }
-  }
-
-  gotoFirst = () => {
-    const node = document.getElementById(PAUSE_MENU_ELEMENT_ORDER[0][0]);
-    if (node) DOM.select(node);
-    if (node && node === document.activeElement) {
-      this.selectedGroup = 0;
-      this.selectedIndex = 0;
-    } else {
-      this.selectedGroup = -1;
-      this.selectedIndex = -1;
-    }
-  };
-
-  gotoCurrent = () => {
-    const group = PAUSE_MENU_ELEMENT_ORDER[this.selectedGroup];
-    if (!group) {
-      this.gotoFirst();
-      return;
-    }
-    const element = group[this.selectedIndex]
-    if (!element) {
-      this.gotoFirst();
-      return;
-    }
-    const node = document.getElementById(element);
-    if (!node) {
-      this.gotoFirst();
-      return;
-    }
-    DOM.select(node);
-  }
-
-  gotoPrev = () => {
-    this.gotoHoriz(-1);
-  };
-  gotoNext = () => {
-    this.gotoHoriz(1);
-  };
-
-  gotoUp = () => {
-    this.gotoVert(-1);
-  };
-  gotoDown = () => {
-    this.gotoVert(1);
-  };
-  gotoLeft = () => {
-    this.gotoHoriz(-1);
-  };
-  gotoRight = () => {
-    this.gotoHoriz(1);
+export class GameOverMenuNavMap extends GroupedNavMap<GameOverMenuElement> {
+  constructor(callAction: (element: GameOverMenuElement) => void) {
+    super(callAction, GAME_OVER_ELEMENT_ORDER)
   }
 }

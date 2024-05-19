@@ -15,6 +15,8 @@ import {
 } from '../types';
 import { InputAction } from '../controls';
 import {
+  GameOverMenuElement,
+  GameOverMenuNavMap,
   MainMenuButton,
   MainMenuNavMap,
   PauseMenuElement,
@@ -131,7 +133,18 @@ export class UIBindings implements UIHandler {
         break;
     }
   }
+  private callGameOverMenuAction = (element: GameOverMenuElement) => {
+    switch (element) {
+      case GameOverMenuElement.ButtonTryAgain:
+        this.callAction(InputAction.RetryLevel);
+        break;
+      case GameOverMenuElement.ButtonMainMenu:
+        this.callAction(InputAction.ConfirmShowMainMenu);
+        break;
+    }
+  }
 
+  private mainMenuNavMap: MainMenuNavMap;
   private mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
     [MainMenuButton.StartGame]: null,
     [MainMenuButton.OSTMode]: null,
@@ -139,8 +152,7 @@ export class UIBindings implements UIHandler {
     [MainMenuButton.Leaderboard]: null,
     [MainMenuButton.Settings]: null,
   }
-  private mainMenuNavMap: MainMenuNavMap;
-
+  private settingsMenuNavMap: SettingsMenuNavMap;
   private settingsMenuElements: Record<SettingsMenuElement, HTMLInputElement | HTMLButtonElement> = {
     [SettingsMenuElement.CheckboxCasualMode]: null,
     [SettingsMenuElement.CheckboxCobraMode]: null,
@@ -149,9 +161,8 @@ export class UIBindings implements UIHandler {
     [SettingsMenuElement.SliderSfxVolume]: null,
     [SettingsMenuElement.ButtonClose]: null,
   }
-  private settingsMenuNavMap: SettingsMenuNavMap;
-
   private pauseMenuNavMap: PauseMenuNavMap;
+  private gameOverMenuNavMap: GameOverMenuNavMap;
 
   constructor(p5: P5, sfx: SFXInstance, gameState: GameState, settings: GameSettings, callbacks: UIBindingsCallbacks, callAction: (action: InputAction) => void) {
     this.p5 = p5;
@@ -174,6 +185,7 @@ export class UIBindings implements UIHandler {
     );
     this.settingsMenuNavMap = new SettingsMenuNavMap(this.settingsMenuElements, callAction);
     this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
+    this.gameOverMenuNavMap = new GameOverMenuNavMap(this.callGameOverMenuAction);
   }
 
   handleUINavigation: UINavEventHandler = (navDir) => {
@@ -209,6 +221,29 @@ export class UIBindings implements UIHandler {
       }
       return true;
     }
+    if (this.gameState.isLost) {
+      switch (navDir) {
+        case UINavDir.Prev:
+          this.gameOverMenuNavMap.gotoPrev();
+          break;
+        case UINavDir.Next:
+          this.gameOverMenuNavMap.gotoNext();
+          break;
+        case UINavDir.Up:
+          this.gameOverMenuNavMap.gotoUp();
+          break;
+        case UINavDir.Down:
+          this.gameOverMenuNavMap.gotoDown();
+          break;
+        case UINavDir.Left:
+          this.gameOverMenuNavMap.gotoLeft();
+          break;
+        case UINavDir.Right:
+          this.gameOverMenuNavMap.gotoRight();
+          break;
+      }
+      return true;
+    }
     if (this.gameState.isPaused) {
       switch (navDir) {
         case UINavDir.Prev:
@@ -237,16 +272,16 @@ export class UIBindings implements UIHandler {
 
   handleUIInteract: UIInteractHandler = () => {
     if (UI.getIsSettingsMenuShowing()) {
-      this.settingsMenuNavMap.callSelected();
-      return true;
+      return this.settingsMenuNavMap.callSelected();
     }
     if (UI.getIsMainMenuShowing()) {
-      this.mainMenuNavMap.callSelected();
-      return true;
+      return this.mainMenuNavMap.callSelected();
+    }
+    if (this.gameState.isLost) {
+      return this.gameOverMenuNavMap.callSelected();
     }
     if (this.gameState.isPaused) {
-      this.pauseMenuNavMap.callSelected();
-      return true;
+      return this.pauseMenuNavMap.callSelected();
     }
     return false;
   }
@@ -268,6 +303,18 @@ export class UIBindings implements UIHandler {
   onPauseCancelModal = () => {
     if (this.gameState.isPaused && !UI.getIsSettingsMenuShowing() && !UI.getIsMainMenuShowing()) {
       this.pauseMenuNavMap.gotoCurrent();
+    }
+  }
+
+  onGameOver = () => {
+    if (this.gameState.isLost && !UI.getIsSettingsMenuShowing() && !UI.getIsMainMenuShowing()) {
+      this.gameOverMenuNavMap.gotoFirst();
+    }
+  }
+
+  onGameOverCancelModal = () => {
+    if (this.gameState.isLost && !UI.getIsSettingsMenuShowing() && !UI.getIsMainMenuShowing()) {
+      this.gameOverMenuNavMap.gotoCurrent();
     }
   }
 

@@ -509,7 +509,7 @@ export const sketch = (p5: P5) => {
       if (!handled && state.isGameWon) {
         handled = winGameScene.keyPressed();
       }
-      if (!handled && (!state.isGameStarted || state.isPaused)) {
+      if (!handled && (!state.isGameStarted || state.isPaused || (state.isLost && state.timeSinceHurt > 20))) {
         handled = handleUIEvents(p5, onUINavigate, onUIInteract, onUICancel);
       }
     }
@@ -2433,7 +2433,8 @@ export const sketch = (p5: P5) => {
       proceedToNextReplayClip();
     } else {
       startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
-      showGameOverUI(getNextLoseMessage(), uiElements, state, { showMainMenu, initLevel });
+      showGameOverUI(getNextLoseMessage(), uiElements, state, { confirmShowMainMenu, initLevel });
+      uiBindings.onGameOver();
       UI.enableScreenScroll();
       renderScoreUI(stats.score);
       stats.numLevelsCleared = 0;
@@ -2489,7 +2490,11 @@ export const sketch = (p5: P5) => {
     const handleNo = () => {
       modal.hide();
       sfx.play(Sound.uiBlip);
-      if (state.isPaused) uiBindings.onPauseCancelModal();
+      if (state.isLost) {
+        uiBindings.onGameOverCancelModal();
+      } else if (state.isPaused) {
+        uiBindings.onPauseCancelModal();
+      }
     }
     modal.show('Goto Main Menu?', 'All progress will be lost.', handleYes, handleNo);
     sfx.play(Sound.unlock);
