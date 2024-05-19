@@ -442,6 +442,9 @@ export class UIBindings implements UIHandler {
   private callAction: (action: InputAction) => void;
   private callPauseMenuAction = (element: PauseMenuElement) => {
     switch (element) {
+      case PauseMenuElement.ButtonResume:
+        this.callAction(InputAction.UnPause);
+        break;
       case PauseMenuElement.ButtonMainMenu:
         this.callAction(InputAction.ConfirmShowMainMenu);
         break;
@@ -652,6 +655,12 @@ export class UIBindings implements UIHandler {
   onPause = () => {
     if (this.gameState.isPaused && !UI.getIsSettingsMenuShowing() && !UI.getIsMainMenuShowing()) {
       this.pauseMenuNavMap.gotoFirst();
+    }
+  }
+
+  onPauseCancelModal = () => {
+    if (this.gameState.isPaused && !UI.getIsSettingsMenuShowing() && !UI.getIsMainMenuShowing()) {
+      this.pauseMenuNavMap.gotoCurrent();
     }
   }
 

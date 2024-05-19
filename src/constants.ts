@@ -170,6 +170,7 @@ export const KEYCODE_ALPHA_D = 68;
 export const KEYCODE_ALPHA_J = 74;
 export const KEYCODE_ALPHA_L = 76;
 export const KEYCODE_ALPHA_M = 77;
+export const KEYCODE_ALPHA_P = 80;
 export const KEYCODE_ALPHA_R = 82;
 export const KEYCODE_ALPHA_S = 83;
 export const KEYCODE_ALPHA_W = 87;

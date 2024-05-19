@@ -19,7 +19,7 @@ import {
   KEYCODE_ALPHA_M,
   KEYCODE_ALPHA_C,
   KEYCODE_ALPHA_R,
-  HURT_FORGIVENESS_TIME,
+  KEYCODE_ALPHA_P,
 } from './constants';
 import { AppMode, ClickState, DIR, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves, UINavDir, UINavEventHandler } from "./types";
 import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "./utils";
@@ -109,8 +109,8 @@ export function handleKeyPressed(
     return;
   }
 
-  if (!state.isLost && keyCode === ESCAPE && !state.isGameWon) {
-    if (state.isPaused) {
+  if (!state.isLost && !state.isGameWon && [ENTER, ESCAPE, KEYCODE_ALPHA_P].includes(keyCode)) {
+    if (state.isPaused && keyCode !== ENTER) {
       callAction(InputAction.UnPause);
     } else {
       callAction(InputAction.Pause);

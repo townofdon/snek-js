@@ -404,7 +404,7 @@ export const sketch = (p5: P5) => {
         UI.hideSettingsMenu();
         sfx.play(Sound.doorOpen);
         if (!state.isGameStarted) UI.showMainMenu();
-        if (state.isPaused) uiBindings.onPause();
+        if (state.isPaused) uiBindings.onPauseCancelModal();
         break;
       case InputAction.ConfirmShowMainMenu:
         confirmShowMainMenu();
@@ -2503,7 +2503,7 @@ export const sketch = (p5: P5) => {
     const handleNo = () => {
       modal.hide();
       sfx.play(Sound.uiBlip);
-      if (state.isPaused) uiBindings.onPause();
+      if (state.isPaused) uiBindings.onPauseCancelModal();
     }
     modal.show('Goto Main Menu?', 'All progress will be lost.', handleYes, handleNo);
     sfx.play(Sound.unlock);
@@ -2516,9 +2516,9 @@ export const sketch = (p5: P5) => {
 
   function showPauseUI() {
     UI.drawDarkOverlay(uiElements);
-    UI.drawText('PAUSED', '30px', 235, uiElements, { color: ACCENT_COLOR });
-    UI.drawText('[ESC] To Unpause', '14px', 285, uiElements);
-    UI.drawButton("MAIN MENU", 20, 20, confirmShowMainMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonMainMenu');
+    UI.drawText('PAUSED', '30px', 246, uiElements, { color: ACCENT_COLOR });
+    UI.drawButton("RESUME", 20, 20, unpause, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonResume');
+    UI.drawButton("MAIN MENU", 221, 20, confirmShowMainMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonMainMenu');
     UI.drawButton("SETTINGS", 445, 20, showInGameSettingsMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonSettings');
 
     if (!queryParams.enableWarp && !state.isCasualModeEnabled || level === START_LEVEL) {

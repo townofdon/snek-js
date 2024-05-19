@@ -126,6 +126,8 @@ export class MainMenuNavMap implements NavMap {
 }
 
 export class DOM {
+  private static prev: HTMLElement;
+
   static select(element: HTMLElement) {
     if (!element) return;
     if (document.activeElement && document.activeElement !== element) {
@@ -133,6 +135,8 @@ export class DOM {
     }
     element.focus();
     element.classList.add('active');
+    if (DOM.prev && DOM.prev !== element) DOM.deselect(DOM.prev);
+    DOM.prev = element;
   }
 
   static deselect(element: HTMLElement) {
@@ -236,6 +240,7 @@ export class SettingsMenuNavMap implements NavMap {
 }
 
 export enum PauseMenuElement {
+  ButtonResume = 'pauseButtonResume',
   ButtonMainMenu = 'pauseButtonMainMenu',
   ButtonSettings = 'pauseButtonSettings',
   ButtonWarp01 = 'pauseButtonWarp01',
@@ -265,13 +270,14 @@ export enum PauseMenuElement {
 }
 
 const PAUSE_MENU_ELEMENT_ORDER: [
-  [PauseMenuElement, PauseMenuElement],
+  [PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
 ] = [
     [
+      PauseMenuElement.ButtonResume,
       PauseMenuElement.ButtonMainMenu,
       PauseMenuElement.ButtonSettings,
     ],
@@ -402,6 +408,25 @@ export class PauseMenuNavMap implements NavMap {
       this.selectedIndex = -1;
     }
   };
+
+  gotoCurrent = () => {
+    const group = PAUSE_MENU_ELEMENT_ORDER[this.selectedGroup];
+    if (!group) {
+      this.gotoFirst();
+      return;
+    }
+    const element = group[this.selectedIndex]
+    if (!element) {
+      this.gotoFirst();
+      return;
+    }
+    const node = document.getElementById(element);
+    if (!node) {
+      this.gotoFirst();
+      return;
+    }
+    DOM.select(node);
+  }
 
   gotoPrev = () => {
     this.gotoHoriz(-1);
