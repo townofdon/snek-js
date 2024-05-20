@@ -248,6 +248,7 @@ export interface Level {
   appleSlowdownMod?: number,
   applesModOverride?: number,
   pickupDrops?: Record<number, PickupDrop>,
+  recordProgressAsLevel?: Level,
 }
 
 export interface IRenderer {

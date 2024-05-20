@@ -2,6 +2,7 @@ import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack, PickupType } from "../../types";
 import { getCoordIndex2 } from "../../utils";
+import { LEVEL_07 } from "../level07";
 import { LEVEL_08 } from "../level08";
 import { VARIANT_LEVEL_08 } from "./variantLevel08";
 
@@ -57,6 +58,7 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
     [getCoordIndex2(14, 0)]: VARIANT_LEVEL_08,
     [getCoordIndex2(15, 0)]: VARIANT_LEVEL_08,
   },
+  recordProgressAsLevel: LEVEL_07,
   pickupDrops: {
     50: { likelihood: 1, type: PickupType.Invincibility },
   },

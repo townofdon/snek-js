@@ -3,6 +3,7 @@ import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../../types";
 import { TUTORIAL_LEVEL_40 } from "../tutorialLevel40";
+import { LEVEL_15 } from "../level15";
 
 const name = 'phased reality'
 
@@ -72,4 +73,5 @@ xxxxxxxxxxxxxxxDDDxxxxxxxxxxxx
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.5,
   nextLevel: TUTORIAL_LEVEL_40,
+  recordProgressAsLevel: LEVEL_15,
 };

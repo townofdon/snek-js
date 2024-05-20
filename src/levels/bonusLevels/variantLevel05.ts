@@ -2,6 +2,7 @@ import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
 import { getCoordIndex2 } from "../../utils";
+import { LEVEL_05 } from "../level05";
 import { LEVEL_06 } from "../level06";
 import { MAZE_02_NE } from "../mazes/maze02ne";
 import { MAZE_02_NW } from "../mazes/maze02nw";
@@ -63,6 +64,7 @@ XXXXXXXXXXXXXxdxXXXXXXXXXXXXXX
     [getCoordIndex2(29, 21)]: MAZE_02_SE,
     [getCoordIndex2(29, 22)]: MAZE_02_SE,
   },
+  recordProgressAsLevel: LEVEL_05,
   pickupDrops: {
     49: { likelihood: 1, type: PickupType.Invincibility },
   },

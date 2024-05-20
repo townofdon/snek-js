@@ -368,7 +368,7 @@ Gravitation is not responsible for snek.
 
 Snek is an illusion.
 
-Snek is 1% talent and 99% hard work.
+Genius is 1% talent and 99% snek.
 `
 
 const quotesByBohr = `

@@ -1280,7 +1280,13 @@ export const sketch = (p5: P5) => {
     drawPassableBarriers();
     drawParticles(10);
 
-    if (state.isGameStarted && replay.mode !== ReplayMode.Playback && globalLight < 1 && !state.isShowingDeathColours) {
+    if (
+      state.isGameStarted &&
+      replay.mode !== ReplayMode.Playback &&
+      globalLight < 1 &&
+      !state.isShowingDeathColours &&
+      state.timeSinceInvincibleStart >= difficulty.invincibilityTime
+    ) {
       updateLighting(lightMap, globalLight, player.position, portals);
       drawLighting(lightMap, renderer);
     }
@@ -1772,6 +1778,8 @@ export const sketch = (p5: P5) => {
     } else if (level.type === LevelType.WarpZone) {
       gotoNextLevel();
     } else {
+      const levelIndex = LEVELS.indexOf(level.recordProgressAsLevel || level) + 1;
+      saveDataStore.recordLevelProgress(levelIndex, difficulty);
       const isPerfect = apples.length === 0 && state.lives === 3;
       const hasAllApples = apples.length === 0;
       winLevelScene.triggerLevelExit({
@@ -2552,9 +2560,6 @@ export const sketch = (p5: P5) => {
       showMainMenu();
       return;
     }
-
-    const levelIndex = LEVELS.indexOf(level);
-    saveDataStore.recordLevelProgress(levelIndex, difficulty);
 
     const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !DISABLE_TRANSITIONS;
     stats.numLevelsCleared += 1;

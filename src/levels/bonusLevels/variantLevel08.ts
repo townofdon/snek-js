@@ -2,6 +2,7 @@ import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../../types";
 import { getCoordIndex2 } from "../../utils";
+import { LEVEL_08 } from "../level08";
 import { LEVEL_09 } from "../level09";
 import { SECRET_LEVEL_20 } from "./secretLevel20";
 import { SECRET_LEVEL_21 } from "./secretLevel21";
@@ -56,4 +57,5 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
     [getCoordIndex2(29, 16)]: SECRET_LEVEL_21,
     [getCoordIndex2(29, 17)]: SECRET_LEVEL_21,
   },
+  recordProgressAsLevel: LEVEL_08,
 };

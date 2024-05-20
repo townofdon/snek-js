@@ -2,6 +2,7 @@ import { PALETTE, getExtendedPalette } from "../../palettes";
 import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../../types";
 import { getCoordIndex2 } from "../../utils";
+import { LEVEL_03 } from "../level03";
 import { TUTORIAL_LEVEL_10 } from "../tutorialLevel10";
 import { SECRET_LEVEL_10 } from "./secretLevel10";
 
@@ -67,6 +68,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     [getCoordIndex2(14, 0)]: SECRET_LEVEL_10,
     [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
   },
+  recordProgressAsLevel: LEVEL_03,
   pickupDrops: {
     35: { likelihood: 1, type: PickupType.Invincibility },
     60: { likelihood: 1, type: PickupType.Invincibility },
