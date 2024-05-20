@@ -1,25 +1,14 @@
 import P5 from "p5";
 import {
   MAX_MOVES,
-  KEYCODE_ALPHA_0,
-  KEYCODE_ALPHA_1,
-  KEYCODE_ALPHA_2,
-  KEYCODE_ALPHA_3,
-  KEYCODE_ALPHA_4,
-  KEYCODE_ALPHA_5,
-  KEYCODE_ALPHA_6,
-  KEYCODE_ALPHA_7,
-  KEYCODE_ALPHA_8,
-  KEYCODE_ALPHA_9,
-  KEYCODE_ALPHA_W,
   KEYCODE_ALPHA_A,
-  KEYCODE_ALPHA_D,
-  KEYCODE_ALPHA_S,
-  HURT_STUN_TIME,
-  KEYCODE_ALPHA_M,
   KEYCODE_ALPHA_C,
-  KEYCODE_ALPHA_R,
+  KEYCODE_ALPHA_D,
   KEYCODE_ALPHA_P,
+  KEYCODE_ALPHA_R,
+  KEYCODE_ALPHA_S,
+  KEYCODE_ALPHA_W,
+  HURT_STUN_TIME,
 } from './constants';
 import { AppMode, ClickState, DIR, GameMode, GameState, RecentMoveTimings as RecentMoveTimes, RecentMoves, UINavDir, UINavEventHandler } from "./types";
 import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "./utils";
@@ -118,17 +107,6 @@ export function handleKeyPressed(
   }
 
   if (state.isPaused) {
-    if (keyCode === KEYCODE_ALPHA_0) callbacks.onWarpToLevel(10);
-    else if (keyCode === KEYCODE_ALPHA_1) callbacks.onWarpToLevel(1);
-    else if (keyCode === KEYCODE_ALPHA_2) callbacks.onWarpToLevel(2);
-    else if (keyCode === KEYCODE_ALPHA_3) callbacks.onWarpToLevel(3);
-    else if (keyCode === KEYCODE_ALPHA_4) callbacks.onWarpToLevel(4);
-    else if (keyCode === KEYCODE_ALPHA_5) callbacks.onWarpToLevel(5);
-    else if (keyCode === KEYCODE_ALPHA_6) callbacks.onWarpToLevel(6);
-    else if (keyCode === KEYCODE_ALPHA_7) callbacks.onWarpToLevel(7);
-    else if (keyCode === KEYCODE_ALPHA_8) callbacks.onWarpToLevel(8);
-    else if (keyCode === KEYCODE_ALPHA_9) callbacks.onWarpToLevel(9);
-    else if (keyCode === KEYCODE_ALPHA_M) callAction(InputAction.ConfirmShowMainMenu);
     return;
   }
 

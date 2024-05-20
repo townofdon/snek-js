@@ -66,14 +66,41 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     const nextGroupSize = ORDER[nextGroupIndex].length;
     const nextIndex = Math.round(this.selectedIndex * ((nextGroupSize - 1) / (currentGroupSize - 1)));
     const nextElement = ORDER[nextGroupIndex][nextIndex];
-    const node = document.getElementById(nextElement);
-    if (node) DOM.select(node);
-    if (!node || node !== document.activeElement) {
+    const didSelect = (elem: HTMLElement) => !!elem && elem === document.activeElement
+    let node = document.getElementById(nextElement);
+    DOM.select(node);
+    if (!didSelect(node)) {
+      // search in both directions from nextIndex, finding first selectable node
+      let i0 = nextIndex;
+      let i1 = nextIndex;
+      while (!didSelect(node) && (i0 >= 0 || i1 < nextGroupSize)) {
+        if (i0 >= 0) {
+          node = document.getElementById(ORDER[nextGroupIndex][i0]);
+          DOM.select(node);
+        }
+        if (!didSelect(node) && i1 < nextGroupSize) {
+          node = document.getElementById(ORDER[nextGroupIndex][i1]);
+          DOM.select(node);
+        }
+        i0--;
+        i1++;
+      }
+    }
+    if (!didSelect(node)) {
+      if (nextGroupIndex === this.selectedGroup) {
+        return;
+      }
       if (count >= 100) {
         if (IS_DEV) console.warn("gotoVert: infinite loop was just prevented");
         return;
       }
       this.gotoVert(direction, count + 1);
+      return;
+    }
+    if (didSelect(node)) {
+      this.selectedGroup = nextGroupIndex;
+      this.selectedIndex = nextIndex;
+      return;
     }
   }
 
@@ -92,21 +119,35 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     const currentGroupSize = ORDER[this.selectedGroup].length;
     const nextIndex = (currentGroupSize + this.selectedIndex + direction * count) % currentGroupSize;
     const nextElement = ORDER[this.selectedGroup][nextIndex];
+    const didSelect = (elem: HTMLElement) => !!elem && elem === document.activeElement
     const node = document.getElementById(nextElement);
     if (node) DOM.select(node);
-    if (!node || node !== document.activeElement) {
+    if (!didSelect(node)) {
       if (count >= 100) {
         if (IS_DEV) console.warn("gotoHoriz: infinite loop was just prevented");
         return;
       }
       this.gotoHoriz(direction, count + 1);
+      return;
+    }
+    if (didSelect(node)) {
+      this.selectedIndex = nextIndex;
     }
   }
 
   gotoFirst = () => {
-    const node = document.getElementById(this.ORDER[0][0]);
-    if (node) DOM.select(node);
-    if (node && node === document.activeElement) {
+    const didSelect = (elem: HTMLElement) => !!elem && elem === document.activeElement
+    let node = document.getElementById(this.ORDER[0][0]);
+    DOM.select(node);
+    if (!didSelect(node)) {
+      for (let group = 0; group < this.ORDER.length && !didSelect(node); group++) {
+        for (let index = 0; index < this.ORDER[group].length && !didSelect(node); index++) {
+          node = document.getElementById(this.ORDER[group][index]);
+          DOM.select(node);
+        }
+      }
+    }
+    if (didSelect(node)) {
       this.selectedGroup = 0;
       this.selectedIndex = 0;
     } else {
@@ -116,22 +157,26 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
   };
 
   gotoCurrent = () => {
+    const didSelect = (elem: HTMLElement) => !!elem && elem === document.activeElement
+    if (
+      !this.ORDER[this.selectedGroup] ||
+      !this.ORDER[this.selectedGroup][this.selectedIndex]
+    ) {
+      this.gotoFirst();
+      return;
+    }
     const group = this.ORDER[this.selectedGroup];
-    if (!group) {
-      this.gotoFirst();
-      return;
-    }
     const element = group[this.selectedIndex]
-    if (!element) {
-      this.gotoFirst();
-      return;
-    }
     const node = document.getElementById(element);
     if (!node) {
       this.gotoFirst();
       return;
     }
     DOM.select(node);
+    if (!didSelect(node)) {
+      this.gotoFirst();
+      return;
+    }
   }
 
   gotoPrev = () => {

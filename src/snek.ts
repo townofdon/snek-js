@@ -582,7 +582,7 @@ export const sketch = (p5: P5) => {
   }
 
   function toggleCobraMode(value?: boolean) {
-    if (!saveDataStore.get().isCobraModeUnlocked) return;
+    if (!saveDataStore.getIsCobraModeUnlocked()) return;
     sfx.play(Sound.uiBlip, 0.7);
     if (value === false && state.gameMode === GameMode.Cobra) {
       state.gameMode = GameMode.Normal;
@@ -754,7 +754,7 @@ export const sketch = (p5: P5) => {
   }
 
   function showSettingsMenu() {
-    UI.showSettingsMenu({ isInGameMenu: state.isGameStarted, isCobraModeUnlocked: saveDataStore.get().isCobraModeUnlocked });
+    UI.showSettingsMenu({ isInGameMenu: state.isGameStarted, isCobraModeUnlocked: saveDataStore.getIsCobraModeUnlocked() });
     uiBindings.refreshFieldValues();
     playSound(Sound.unlock, 1, true);
   }
@@ -2456,7 +2456,7 @@ export const sketch = (p5: P5) => {
   }
 
   function warpToLevel(levelNum = 1) {
-    if (!queryParams.enableWarp && state.gameMode !== GameMode.Casual) return;
+    if (getIsStartLevel() || state.gameMode === GameMode.Cobra) return;
     stats.numLevelsCleared = 0;
     musicPlayer.stopAllTracks();
     level = getWarpLevelFromNum(levelNum);
@@ -2472,7 +2472,11 @@ export const sketch = (p5: P5) => {
     if (state.isPaused) return;
     if (state.isExitingLevel || state.isExited) return;
     state.isPaused = true;
-    showPauseUI(uiElements, state, queryParams, getIsStartLevel(), {
+    showPauseUI(uiElements, {
+      isWarpDisabled: getIsStartLevel() || state.gameMode === GameMode.Cobra,
+      hasWarpEnabledParam: queryParams.enableWarp,
+      levelProgress: saveDataStore.getLevelProgress(difficulty),
+    }, {
       unpause,
       confirmShowMainMenu,
       showInGameSettingsMenu,
@@ -2516,7 +2520,7 @@ export const sketch = (p5: P5) => {
 
   function showInGameSettingsMenu() {
     sfx.play(Sound.unlock);
-    UI.showSettingsMenu({ isInGameMenu: true, isCobraModeUnlocked: saveDataStore.get().isCobraModeUnlocked });
+    UI.showSettingsMenu({ isInGameMenu: true, isCobraModeUnlocked: saveDataStore.getIsCobraModeUnlocked() });
   }
 
   function openDoors() {
@@ -2548,6 +2552,9 @@ export const sketch = (p5: P5) => {
       showMainMenu();
       return;
     }
+
+    const levelIndex = LEVELS.indexOf(level);
+    saveDataStore.recordLevelProgress(levelIndex, difficulty);
 
     const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !DISABLE_TRANSITIONS;
     stats.numLevelsCleared += 1;

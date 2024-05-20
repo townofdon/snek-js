@@ -1,5 +1,4 @@
-import { findLevelWarpIndex } from "../levels/levelUtils";
-import { Difficulty, Level, SaveData } from "../types";
+import { Difficulty, SaveData } from "../types";
 import { BaseStore } from "./BaseStore";
 
 export class SaveDataStore extends BaseStore<SaveData> {
@@ -19,8 +18,18 @@ export class SaveDataStore extends BaseStore<SaveData> {
 
   private state: SaveData = this.getStore() || { ...this.defaultValue };
 
-  public get = (): SaveData => {
-    return this.state;
+  public getIsCobraModeUnlocked = (): boolean => {
+    return this.state.isCobraModeUnlocked;
+  }
+
+  public getLevelProgress = (difficulty: Difficulty): number => {
+    let difficultyIndex = difficulty.index;
+    let levelProgress = 0;
+    do {
+      levelProgress = Math.max(levelProgress, this.state.levelProgress[difficultyIndex] || 0)
+      difficultyIndex++;
+    } while (difficultyIndex < 5);
+    return levelProgress;
   }
 
   public unlockCobraMode = () => {
@@ -28,10 +37,9 @@ export class SaveDataStore extends BaseStore<SaveData> {
     this.setStore(this.state);
   }
 
-  public recordLevelProgress = (level: Level, difficulty: Difficulty) => {
-    const levelNum = findLevelWarpIndex(level);
-    if (levelNum > this.state.levelProgress[difficulty.index]) {
-      this.state.levelProgress[difficulty.index] = levelNum;
+  public recordLevelProgress = (levelIndex: number, difficulty: Difficulty) => {
+    if (levelIndex > this.state.levelProgress[difficulty.index]) {
+      this.state.levelProgress[difficulty.index] = levelIndex;
       this.setStore(this.state);
     }
   }
