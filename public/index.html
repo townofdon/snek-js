@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="<%= webpackConfig.output.publicPath %>/style.css">
 
     <!-- google fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -177,6 +177,7 @@
         </div>
       </main>
     </div>
-    <script src="bundle.js"></script>
+    <!-- SCRIPT WILL BE INJECTED BY WEBPACK -->
+    <!-- <script src="<%= webpackConfig.output.publicPath %>/bundle.js"></script> -->
   </body>
 </html>

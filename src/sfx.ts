@@ -2,7 +2,7 @@ import { Howl } from 'howler';
 
 import { SFXInstance, SoundVariants } from "./types";
 import { setSfxVolume } from './audio';
-
+import { getRelativeDir } from './utils';
 
 /**
  * Usage
@@ -100,7 +100,7 @@ export class SFX implements SFXInstance {
 
   load() {
     try {
-      const relativeDir = process.env.NODE_ENV === 'production' ? '' : window.location.pathname;
+      const relativeDir = getRelativeDir();
       const loadSound = (soundFile: string) => new Howl({ src: [`${relativeDir}assets/sounds/${soundFile}`] });
       this.sounds.death = loadSound('death.wav');
       this.sounds.doorOpen = loadSound('door-open.wav');

@@ -3,6 +3,11 @@
 const path = require('path');
 var webpack = require('webpack');
 const CopyPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+function stripTrailingSlash(text) {
+  return String(text).replace(/\/$/, '')
+}
 
 const isProduction = process.env.NODE_ENV == 'production';
 
@@ -10,7 +15,8 @@ const config = {
   entry: './src/index.ts',
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, isProduction ? 'dist-prod' : 'dist')
+    path: path.resolve(__dirname, isProduction ? 'dist-prod' : 'dist/snek-js'),
+    publicPath: stripTrailingSlash(isProduction ? '' : '/snek-js'),
   },
   plugins: [
     // Add your plugins here
@@ -20,8 +26,20 @@ const config = {
     }),
     new CopyPlugin({
       patterns: [
-        { from: "public" },
+        { from: "public/assets", to: "assets/" },
+        { from: "public/readme", to: "readme/" },
+        { from: "public/style.css" },
       ],
+    }),
+    new HtmlWebpackPlugin({
+      template: 'public/index.html',
+    }),
+    // we can automate this if need be by using node FS
+    new HtmlWebpackPlugin({
+      title: 'Test',
+      filename: 'test/index.html',
+      template: './public/pages/test/index.html',
+      inject: false,
     }),
   ],
   module: {
@@ -35,13 +53,12 @@ const config = {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
         type: 'asset',
       },
-
       // Add your rules for custom modules here
       // Learn more about loaders from https://webpack.js.org/loaders/
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js', '...'],
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
   },
 };
 

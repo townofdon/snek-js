@@ -1,6 +1,8 @@
 import P5 from "p5";
-import { GameState, Replay, ScreenShakeState, Image } from "./types";
+
+import { ScreenShakeState, Image } from "./types";
 import { BLOCK_SIZE, STROKE_SIZE } from "./constants";
+import { getRelativeDir } from "./utils";
 
 const IMAGE_SCALE = 1.01;
 
@@ -48,8 +50,7 @@ export class SpriteRenderer {
   }
 
   private fullPath(image: Image): string {
-    const relativeDir = process.env.NODE_ENV === 'production' ? '' : window.location.pathname;
-    return `${relativeDir}assets/graphics/${image}`;
+    return `${getRelativeDir()}assets/graphics/${image}`;
   }
 
   private loadImage(image: Image) {

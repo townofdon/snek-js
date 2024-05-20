@@ -9,8 +9,9 @@
     "serve-prod": "http-server ./dist-prod -p 3000 -c-1",
     "test": "NODE_ENV=test mocha --require mochaSetup.cjs",
     "build": "webpack --mode=production --node-env=production",
+    "build-dev": "webpack --mode=development --node-env=development",
     "deploy": "npm run build && cd bin && ./deploy.sh",
-    "deploy-gh-pages": "git subtree push --prefix dist origin gh-pages",
+    "deploy-gh-pages": "git subtree push --prefix dist/snek-js origin gh-pages",
     "watch": "webpack --watch --node-env=development"
   },
   "browser": {
@@ -37,6 +38,7 @@
     "assert": "^2.1.0",
     "copy-webpack-plugin": "^11.0.0",
     "eslint": "^8.50.0",
+    "html-webpack-plugin": "^5.6.0",
     "http-server": "^14.1.1",
     "jsdom": "24.0.0",
     "jsdom-global": "3.0.2",
