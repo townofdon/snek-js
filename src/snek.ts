@@ -2451,6 +2451,7 @@ export const sketch = (p5: P5) => {
     } else if (state.gameMode === GameMode.Cobra) {
       startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
       clearUI();
+      UI.clearLabels();
       winGameScene.trigger();
       UI.enableScreenScroll();
     } else {
