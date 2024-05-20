@@ -511,7 +511,7 @@ button.ui-sprite.quote {
   bottom: 0;
   left: 42px;
 }
-button.ui-sprite .tooltip {
+button > .tooltip {
   display: none;
   position: absolute;
   bottom: 100%;
@@ -527,10 +527,14 @@ button.ui-sprite .tooltip {
   filter: invert(1);
   font-size: 12px;
 }
-button.ui-sprite.active .tooltip,
-button.ui-sprite:hover .tooltip,
-button.ui-sprite:active .tooltip,
-button.ui-sprite:focus .tooltip
+button > .tooltip.invert {
+  background: #fff;
+  color: #000;
+}
+button.active > .tooltip,
+button:hover > .tooltip,
+button:active > .tooltip,
+button:focus > .tooltip
 {
   display: block;
 }

@@ -319,15 +319,21 @@ export class UI {
 
   static drawButton(textStr = '', x = 0, y = 0, onClick: () => void, uiElements: Element[], {
     parentId = "game",
+    tooltipText,
   }: {
     parentId?: string | P5.Element,
+    tooltipText?: string,
   } = {}) {
+    const tooltip = tooltipText ? UI.p5.createSpan(tooltipText).addClass('tooltip align-left invert') : null;
     const button = UI.p5.createButton(textStr);
     if (x >= 0 && y >= 0) {
       button.position(x, y);
     }
     button.mousePressed(onClick);
     button.parent(parentId);
+    if (tooltip) {
+      tooltip.parent(button);
+    }
     button.attribute("tabindex", "0");
     uiElements.push(button);
     return button;

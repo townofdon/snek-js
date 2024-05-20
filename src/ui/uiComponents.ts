@@ -70,7 +70,8 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
       return true;
     })()
     if (shouldShow) {
-      UI.drawButton(text, x, y, () => warpToLevel(levelNum), uiElements).addClass('focus-invert').id(id);
+      const tooltipText = level.name;
+      UI.drawButton(text, x, y, () => warpToLevel(levelNum), uiElements, { tooltipText }).addClass('focus-invert').id(id);
       anyWarpButtonsVisible = true;
     }
   }

@@ -2514,7 +2514,7 @@ export const sketch = (p5: P5) => {
         uiBindings.onPauseCancelModal();
       }
     }
-    modal.show('Goto Main Menu?', 'All progress will be lost.', handleYes, handleNo);
+    modal.show('Goto Main Menu?', 'Progress will be saved.', handleYes, handleNo);
     sfx.play(Sound.unlock);
   }
 
