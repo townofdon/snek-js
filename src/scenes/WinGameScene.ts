@@ -192,6 +192,7 @@ export class WinGameScene extends BaseScene {
 
   reset = () => {
     this.stopAllCoroutines();
+    this.initFields();
   }
 
   trigger = () => {
@@ -208,6 +209,8 @@ export class WinGameScene extends BaseScene {
     const isCasualModeEnabled = this.gameState.gameMode === GameMode.Casual
     const { score, numApplesEverEaten, numDeaths, totalTimeElapsed } = this.stats;
     let playingChipSound = ""
+
+    this.hideAllFields();
 
     this.fieldVisible[FIELD.TITLE] = true;
     this.state.stageClearY = STATE_CLEAR_Y_START;
@@ -373,7 +376,7 @@ export class WinGameScene extends BaseScene {
 
   *moveRandomDirection(): IEnumerator {
     const { p5, coroutines } = this.props;
-    while (true) {
+    while (true && this.gameState.isGameWon) {
       yield* coroutines.waitForTime(p5.random(20, 400));
       if (this.gameState.timeSinceLastInput > 2000) {
         this.onChangePlayerDirection(indexToDir(p5.random(0, 4)));
@@ -388,8 +391,8 @@ export class WinGameScene extends BaseScene {
 
   private onUINavigate = (navDir: UINavDir) => {
     let handled = false;
-    if (!handled) handled = this.modalConfirm.handleUINavigation(navDir);
     if (!handled) handled = this.modalHighScoreEntry.handleUINavigation(navDir);
+    if (!handled) handled = this.modalConfirm.handleUINavigation(navDir);
     if (handled) {
       this.sfx.play(Sound.uiBlip, 0.5);
     }
@@ -397,14 +400,14 @@ export class WinGameScene extends BaseScene {
   }
   private onUIInteract = () => {
     let handled = false;
-    if (!handled) handled = this.modalConfirm.handleUIInteract();
     if (!handled) handled = this.modalHighScoreEntry.handleUIInteract();
+    if (!handled) handled = this.modalConfirm.handleUIInteract();
     return handled;
   }
   private onUICancel = () => {
     let handled = false;
-    if (!handled) handled = this.modalConfirm.handleUIInteract();
-    if (!handled) handled = this.modalHighScoreEntry.handleUIInteract();
+    if (!handled) handled = this.modalHighScoreEntry.handleUICancel();
+    if (!handled) handled = this.modalConfirm.handleUICancel();
     return handled;
   }
 
@@ -414,7 +417,12 @@ export class WinGameScene extends BaseScene {
     this.drawBackground(p5.lerpColor(p5.color("#00000000"), p5.color("#00000099"), bgOpacity).toString());
 
     if (this.fieldVisible[FIELD.TITLE]) {
-      this.drawTitle();
+      const title = (() => {
+        if (this.gameState.isLost) return 'GAME OVER';
+        if (this.gameState.isGameWon) return 'YOU WIN!';
+        return 'GAME STATS';
+      })()
+      this.drawTitle(title);
     }
 
     const fieldPadding = 0.05;
@@ -468,7 +476,7 @@ export class WinGameScene extends BaseScene {
     this.tick();
   };
 
-  private drawTitle = (title = "YOU WIN!", type: 'primary' | 'secondary' = 'primary') => {
+  private drawTitle = (title: string, type: 'primary' | 'secondary' = 'primary') => {
     const color = type === "primary" ? ACCENT_COLOR : SECONDARY_ACCENT_COLOR;
     const bgColor = type === "primary" ? "#000" : SECONDARY_ACCENT_COLOR_BG;
     const { p5, fonts } = this.props;

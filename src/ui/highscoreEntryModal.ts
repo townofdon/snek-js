@@ -18,7 +18,8 @@ export class HighscoreEntryModal implements UIHandler {
     this.inputName = requireElementById<HTMLInputElement>('input-highscore-name');
   }
   handleUINavigation: UINavEventHandler = () => {
-    return false;
+    if (!this.isShowing) return false;
+    return true;
   };
   handleUIInteract: UIInteractHandler = () => {
     if (!this.isShowing) return false;
@@ -26,7 +27,8 @@ export class HighscoreEntryModal implements UIHandler {
     return true;
   };
   handleUICancel: UICancelHandler = () => {
-    return false;
+    if (!this.isShowing) return false;
+    return true;
   };
 
   getIsShowing = (): boolean => {

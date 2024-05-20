@@ -506,15 +506,18 @@ export const sketch = (p5: P5) => {
     let handled = false;
     // check if can handle UI events
     if (!state.isGameStarting && state.appMode === AppMode.Game) {
-      if (!handled && state.isGameWon) {
+      const isGameOverNormal = state.isLost && state.gameMode !== GameMode.Cobra && state.timeSinceHurt > 20;
+      const isGameOverCobra = state.isLost && state.gameMode === GameMode.Cobra;
+      if (!handled && (state.isGameWon || isGameOverCobra)) {
         handled = winGameScene.keyPressed();
       }
-      if (!handled && (!state.isGameStarted || state.isPaused || (state.isLost && state.timeSinceHurt > 20))) {
+      if (!handled && (!state.isGameStarted || state.isPaused || isGameOverNormal)) {
         handled = handleUIEvents(p5, onUINavigate, onUIInteract, onUICancel);
+        if (handled) { ev?.preventDefault(); }
       }
     }
     if (handled) {
-      ev?.preventDefault();
+      ev?.stopPropagation();
       return;
     }
     handleKeyPressed(
@@ -999,9 +1002,9 @@ export const sketch = (p5: P5) => {
           console.error(err);
         }).finally(() => {
           if (level.isWinGame) {
-            winGameScene.trigger();
             state.isGameWon = true;
             state.isMoving = true;
+            winGameScene.trigger();
             unlockedMusicStore.unlockTrack(MusicTrack.overture);
             saveDataStore.unlockCobraMode();
           }
@@ -1291,7 +1294,7 @@ export const sketch = (p5: P5) => {
     renderer.drawFps(queryParams.showFps, metrics.gameLoopProcessingTime);
     if (!state.isGameStarted) leaderboardScene.draw();
 
-    if (state.isLost) return;
+    if (state.isLost && state.gameMode !== GameMode.Cobra) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
 
     // tick time elapsed
@@ -1819,8 +1822,12 @@ export const sketch = (p5: P5) => {
   }
 
   function handleRenderWinGameScene() {
-    if (!state.isGameWon) return;
-    winGameScene.draw();
+    if (state.isShowingDeathColours) return;
+    if (replay.mode === ReplayMode.Playback) return;
+    const isCobraGameOver = state.isLost && state.gameMode === GameMode.Cobra;
+    if (state.isGameWon || isCobraGameOver) {
+      winGameScene.draw();
+    }
   }
 
   function handleHurtForgiveness() {
@@ -2418,7 +2425,9 @@ export const sketch = (p5: P5) => {
   }
 
   function* showGameOverRoutine(): IEnumerator {
-    stats.score = parseInt(String(stats.score * 0.5), 10);
+    if (state.gameMode !== GameMode.Cobra) {
+      stats.score = parseInt(String(stats.score * 0.5), 10);
+    }
     startScreenShake();
     yield* waitForTime(200);
     startScreenShake(3, -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, 0.1);
@@ -2431,6 +2440,11 @@ export const sketch = (p5: P5) => {
     if (replay.mode === ReplayMode.Playback) {
       yield* waitForTime(1000);
       proceedToNextReplayClip();
+    } else if (state.gameMode === GameMode.Cobra) {
+      startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
+      clearUI();
+      winGameScene.trigger();
+      UI.enableScreenScroll();
     } else {
       startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
       showGameOverUI(getNextLoseMessage(), uiElements, state, { confirmShowMainMenu, initLevel });
@@ -2525,6 +2539,13 @@ export const sketch = (p5: P5) => {
       level = START_LEVEL_COBRA;
       setLevelIndexFromCurrentLevel();
       initLevel();
+      return;
+    }
+
+    if (state.isLost && state.gameMode === GameMode.Cobra) {
+      winGameScene.reset();
+      resetStats();
+      showMainMenu();
       return;
     }
 
