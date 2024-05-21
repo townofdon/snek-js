@@ -57,9 +57,9 @@ export class QuoteScene extends BaseScene {
   }
 
   keyPressed = () => {
-    const { keyCode, ESCAPE } = this.props.p5;
+    const { keyCode, ESCAPE, BACKSPACE, DELETE } = this.props.p5;
     const { onEscapePress } = this.props.callbacks;
-    if (keyCode === ESCAPE) {
+    if (keyCode === ESCAPE || keyCode === BACKSPACE || keyCode === DELETE) {
       if (onEscapePress) {
         this.stopAllCoroutines();
         onEscapePress();
@@ -144,7 +144,7 @@ export class QuoteScene extends BaseScene {
     p5.textFont(fonts.variants.miniMood);
     p5.textSize(12);
     p5.textAlign(p5.LEFT, p5.TOP);
-    p5.text('[ESC] EXIT', ...this.getPosition(0.02, 0.02));
+    p5.text('[DEL] EXIT', ...this.getPosition(0.02, 0.02));
   }
 
   private _estimateNumLines = (paragraph: string, rectWidth: number, font: P5.Font, textSize: number) => {

@@ -137,9 +137,9 @@ export class OSTScene extends BaseScene {
   *action(): Generator<IEnumerator, void, unknown> { }
 
   keyPressed = () => {
-    const { keyCode, ESCAPE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = this.props.p5;
+    const { keyCode, ESCAPE, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = this.props.p5;
     const { onEscapePress } = this.props.callbacks;
-    if (keyCode === ESCAPE) {
+    if (keyCode === ESCAPE || keyCode === BACKSPACE || keyCode === DELETE) {
       if (onEscapePress) {
         this.stopAllCoroutines();
         onEscapePress();
@@ -199,7 +199,7 @@ export class OSTScene extends BaseScene {
     p5.textFont(fonts.variants.miniMood);
     p5.textSize(12);
     p5.textAlign(p5.LEFT, p5.TOP);
-    p5.text('[ESC] EXIT', ...this.getPosition(0.02, 0.02));
+    p5.text('[DEL] EXIT', ...this.getPosition(0.02, 0.02));
   }
 
   private drawTrackMetadata = () => {
