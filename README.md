@@ -40,13 +40,15 @@ If you need to force push subtree changes, [see here](https://gist.github.com/td
 
 bitrate=[128k|256k]
 
+128k is a tad bit lossy for my taste. Loses some of the high-end.
+
 ```
 brew install ffmpeg
 ```
 
 ```
 cd /path/to/dir
-BITRATE=128k
+BITRATE=256k
 for i in *.wav; do ffmpeg -i "$i" -acodec mp3 -b:a $BITRATE "mp3/${i%.*}.mp3"; done
 ```
 
