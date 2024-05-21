@@ -96,7 +96,8 @@ export enum HitType {
   HitLock,
 }
 
-export type RecentMoves = [DIR, DIR, DIR, DIR];
+export type RecentMove = DIR | null
+export type RecentMoves = [RecentMove, RecentMove, RecentMove, RecentMove];
 export type RecentMoveTimings = [number, number, number, number];
 
 export interface Stats {
@@ -156,7 +157,7 @@ export interface GameState {
 }
 
 export interface LoopState {
-  interval: NodeJS.Timeout,
+  interval: NodeJS.Timeout | null,
   timePrevMs: number,
   timeAccumulatedMs: number,
   timeScale: number,

@@ -64,7 +64,8 @@ export class VectorList {
     this.activeLength++;
   }
 
-  public addVec = (vec: Vector): void => {
+  public addVec = (vec: Vector | undefined): void => {
+    if (!vec) return;
     this.add(vec.x, vec.y);
   }
 

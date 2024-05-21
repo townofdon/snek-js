@@ -66,7 +66,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     const nextGroupSize = ORDER[nextGroupIndex].length;
     const nextIndex = Math.round(this.selectedIndex * ((nextGroupSize - 1) / (currentGroupSize - 1)));
     const nextElement = ORDER[nextGroupIndex][nextIndex];
-    const didSelect = (elem: HTMLElement) => !!elem && elem === document.activeElement
+    const didSelect = (elem: HTMLElement | null) => !!elem && elem === document.activeElement
     let node = document.getElementById(nextElement);
     DOM.select(node);
     if (!didSelect(node)) {
@@ -119,7 +119,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     const currentGroupSize = ORDER[this.selectedGroup].length;
     const nextIndex = (currentGroupSize + this.selectedIndex + direction * count) % currentGroupSize;
     const nextElement = ORDER[this.selectedGroup][nextIndex];
-    const didSelect = (elem: HTMLElement) => !!elem && elem === document.activeElement
+    const didSelect = (elem: HTMLElement | null) => !!elem && elem === document.activeElement
     const node = document.getElementById(nextElement);
     if (node) DOM.select(node);
     if (!didSelect(node)) {
@@ -136,7 +136,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
   }
 
   gotoFirst = () => {
-    const didSelect = (elem: HTMLElement) => !!elem && elem === document.activeElement
+    const didSelect = (elem: HTMLElement | null) => !!elem && elem === document.activeElement
     let node = document.getElementById(this.ORDER[0][0]);
     DOM.select(node);
     if (!didSelect(node)) {
@@ -220,16 +220,11 @@ export const MAIN_MENU_BUTTON_ORDER: MainMenuButton[] = [
 ]
 
 export class MainMenuNavMap implements NavMap {
-  private mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
-    [MainMenuButton.StartGame]: null,
-    [MainMenuButton.OSTMode]: null,
-    [MainMenuButton.QuoteMode]: null,
-    [MainMenuButton.Leaderboard]: null,
-    [MainMenuButton.Settings]: null,
-  };
-  private actionMap: Record<MainMenuButton, InputAction>;
+  private readonly mainMenuButtons: Record<MainMenuButton, HTMLButtonElement>;
+  private readonly actionMap: Record<MainMenuButton, InputAction>;
+  private readonly callAction: (action: InputAction) => void;
+
   private selected: MainMenuButton | null = null;
-  private callAction: (action: InputAction) => void = null;
 
   constructor(
     mainMenuButtons: Record<MainMenuButton, HTMLButtonElement>,
@@ -243,7 +238,7 @@ export class MainMenuNavMap implements NavMap {
 
   callSelected = () => {
     const focused = this.getFocused();
-    if (focused === null) return;
+    if (focused === null) return false;
     if (focused !== MainMenuButton.StartGame) {
       DOM.deselect(this.selectedTarget());
     }
@@ -367,7 +362,7 @@ export class SettingsMenuNavMap implements NavMap {
     return null;
   }
 
-  private getElementPosition = (element: SettingsMenuElement): number => {
+  private getElementPosition = (element: SettingsMenuElement | null): number => {
     if (!element) return -1;
     return SETTINGS_MENU_ELEMENT_ORDER.indexOf(element);
   }

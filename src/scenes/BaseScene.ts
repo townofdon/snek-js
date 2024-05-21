@@ -67,7 +67,7 @@ export abstract class BaseScene implements Scene {
   /**
    * declare some async action, and call this.cleanup() as last line
    */
-  abstract action(): Generator<IEnumerator, void, unknown>;
+  abstract action(): IEnumerator;
 
   cleanup = () => {
     if (this._internalState.isCleaningUp) return;

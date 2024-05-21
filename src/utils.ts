@@ -14,7 +14,8 @@ export function clamp(val: number, minVal: number, maxVal: number) {
   return isNaN(clamped) ? minVal : clamped;
 }
 
-export function getCoordIndex(vec: Vector): number {
+export function getCoordIndex(vec: Vector | undefined): number {
+  if (!vec) return -1;
   return getCoordIndex2(vec.x, vec.y);
 }
 
@@ -130,7 +131,7 @@ export function isOrthogonalDirection(a: DIR, b: DIR): boolean {
  * Get the closest direction that fits a vector
  */
 export function vectorToDir(x: number, y: number): DIR {
-  if (x == 0 && y == 0) return null;
+  if (x == 0 && y == 0) return DIR.RIGHT;
   if (Math.abs(x) >= Math.abs(y)) {
     if (x >= 0) {
       return DIR.RIGHT;

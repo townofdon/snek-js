@@ -10,7 +10,9 @@ export abstract class BaseStore<T> {
   protected getStore = (): (T | null) => {
     this.validate();
     try {
-      return JSON.parse(localStorage.getItem(this.key)) as T
+      const itemRaw = localStorage.getItem(this.key);
+      if (!itemRaw) return null;
+      return JSON.parse(itemRaw) as T
     } catch (err) {
       console.warn(err);
       return null;

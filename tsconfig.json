@@ -6,7 +6,11 @@
     "module": "NodeNext",
     "target": "es2015",
     "allowJs": true,
-    "moduleResolution": "nodenext"
+    "moduleResolution": "nodenext",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "jsx": "react",
+    "sourceMap": true,
+    "strict": false
   },
   "include": ["src/**/*"]
 }

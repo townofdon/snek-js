@@ -82,9 +82,9 @@ export class OSTScene extends BaseScene {
     const buttonKeys = Object.keys(this.buttons);
     buttonKeys.forEach(buttonKey => {
       if (buttonKey === String(mode)) {
-        this.buttons[buttonKey as unknown as VisualizerMode].addClass('active');
+        this.buttons[buttonKey as unknown as VisualizerMode]?.addClass('active');
       } else {
-        this.buttons[buttonKey as unknown as VisualizerMode].removeClass('active');
+        this.buttons[buttonKey as unknown as VisualizerMode]?.removeClass('active');
       }
     })
   }

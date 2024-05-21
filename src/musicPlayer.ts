@@ -201,7 +201,7 @@ export class MusicPlayer {
     return getTimeElapsed(this.fullPath(track))
   }
 
-  load(track: MusicTrack) {
+  load(track: MusicTrack | undefined) {
     if (!track) {
       console.warn("[MusicPlayer][load] Track was undefined");
       return;

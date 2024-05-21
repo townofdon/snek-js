@@ -8,7 +8,7 @@ export function requireElementById<T>(id: string) {
 export class DOM {
   private static prev: HTMLElement;
 
-  static select(element: HTMLElement) {
+  static select(element: HTMLElement | null | undefined) {
     if (!element) return;
     if (document.activeElement && document.activeElement !== element) {
       document.activeElement.classList.remove('active');
@@ -25,7 +25,7 @@ export class DOM {
     }
   }
 
-  static deselect(element: HTMLElement) {
+  static deselect(element: HTMLElement | null | undefined) {
     if (!element) return;
     element.blur();
     element.classList.remove('active');

@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import P5 from "p5";
 

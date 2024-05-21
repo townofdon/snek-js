@@ -49,29 +49,29 @@ export class Particles {
   private p5: P5;
   private gradients: Gradients;
   private screenShake: ScreenShakeState;
-  private timeElapsed: number;
+  private timeElapsed: number = 0;
 
   // PROPERTIES
-  private originX: Float32Array;
-  private originY: Float32Array;
-  private positionStartX: Float32Array;
-  private positionStartY: Float32Array;
-  private positionEndX: Float32Array;
-  private positionEndY: Float32Array;
+  private originX: Float32Array = new Float32Array(0);
+  private originY: Float32Array = new Float32Array(0);
+  private positionStartX: Float32Array = new Float32Array(0);
+  private positionStartY: Float32Array = new Float32Array(0);
+  private positionEndX: Float32Array = new Float32Array(0);
+  private positionEndY: Float32Array = new Float32Array(0);
 
-  private scaleStart: Float32Array;
-  private scaleEnd: Float32Array;
-  private birthtime: Float32Array;
-  private lifetime: Float32Array;
-  private orbit: Float32Array;
+  private scaleStart: Float32Array = new Float32Array(0);
+  private scaleEnd: Float32Array = new Float32Array(0);
+  private birthtime: Float32Array = new Float32Array(0);
+  private lifetime: Float32Array = new Float32Array(0);
+  private orbit: Float32Array = new Float32Array(0);
 
-  private gradientIndex: Uint8Array;
-  private easing: (ParticleOptions['easing'])[]
+  private gradientIndex: Uint8Array = new Uint8Array(0);
+  private easing: (ParticleOptions['easing'])[] = [];
 
   // INTERNAL
-  private free: Int8Array;
-  private indices: Int16Array;
-  private activeLength: number;
+  private free: Int8Array = new Int8Array;
+  private indices: Int16Array = new Int16Array;
+  private activeLength: number = 0;
   private maxLength: number;
 
   constructor(p5: P5, gradients: Gradients, screenShake: ScreenShakeState) {

@@ -14,7 +14,7 @@ const isProduction = process.env.NODE_ENV == 'production';
 const config = {
   entry: {
     main: './src/index.ts',
-    editor: './src/editor/editor.ts',
+    editor: './src/editor/index.ts',
   },
   output: {
     filename: '[name].bundle-[contenthash].js',
@@ -60,7 +60,25 @@ const config = {
         exclude: ['/node_modules/'],
       },
       {
-        test: /\.(eot|svg|ttf|woff|woff2|png|jpg|gif)$/i,
+        test: /\.(js|jsx)$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [
+              '@babel/preset-react',
+              '@babel/preset-env',
+              '@babel/preset-typescript',
+            ]
+          }
+        }
+      },
+      {
+        test: /\.(css|scss)$/,
+        use: ["style-loader", "css-loader"],
+      },
+      {
+        test: /\.(eot|svg|ttf|woff|woff2|png|jpg|jpeg|gif)$/i,
         type: 'asset',
       },
       // Add your rules for custom modules here

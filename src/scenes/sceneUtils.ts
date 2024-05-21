@@ -19,7 +19,9 @@ export const buildSceneActionFactory = (p5: P5, sfx: SFXInstance, fonts: FontsIn
             const onSceneEnded = () => {
                 resolve()
             }
-            onScene(p5, sfx, fonts, { onSceneEnded });
+            if (onScene) {
+                onScene(p5, sfx, fonts, { onSceneEnded });
+            }
         } catch (err) {
             reject(err)
         }

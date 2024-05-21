@@ -228,7 +228,7 @@ const metrics = {
   gameLoopProcessingTime: 0,
 }
 const player: PlayerState = {
-  position: null,
+  position: new Vector(0, 0),
   direction: DIR.RIGHT,
   directionToFirstSegment: DIR.RIGHT,
   directionLastHit: DIR.RIGHT,
@@ -281,10 +281,10 @@ let locks: Lock[] = []; // locks
 let passablesMap: Record<number, boolean> = {};
 let barriersMap: Record<number, boolean> = {};
 let doorsMap: Record<number, boolean> = {};
-let pickupsMap: Record<number, Pickup> = {};
+let pickupsMap: Record<number, Pickup | null> = {};
 let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
-let keysMap: Record<number, Key> = {};
-let locksMap: Record<number, Lock> = {};
+let keysMap: Record<number, Key | null> = {};
+let locksMap: Record<number, Lock | null> = {};
 let diffSelectMap: Record<number, number> = {};
 
 const segments = new VectorList(); // snake segments
@@ -481,6 +481,7 @@ export const sketch = (p5: P5) => {
     level = MAIN_TITLE_SCREEN_LEVEL;
     UI.setP5Instance(p5);
     const canvas = document.getElementById("game-canvas");
+    if (!canvas) throw new Error('could not find canvas with id="game-canvas"');
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
     p5.frameRate(FRAMERATE);
     initLevel(false);
@@ -883,7 +884,7 @@ export const sketch = (p5: P5) => {
     yield* waitForTime(600);
     sfx.playLoop(Sound.invincibleLoop, 0.55 * settings.musicVolume);
     while (state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
-      yield;
+      yield null;
     }
     sfx.stop(Sound.invincibleLoop);
     musicPlayer.setPlaybackRate(level.musicTrack, 1);
@@ -999,7 +1000,7 @@ export const sketch = (p5: P5) => {
       musicPlayer.setVolume(1);
       const buildSceneAction = buildSceneActionFactory(p5, sfx, fonts, state);
       Promise.resolve()
-        .then(buildSceneAction(level.titleScene))
+        .then(level.titleScene ? buildSceneAction(level.titleScene) : Promise.resolve)
         .catch(err => {
           console.error(err);
         }).finally(() => {
@@ -1366,7 +1367,8 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  function spawnAppleParticles(position: Vector) {
+  function spawnAppleParticles(position: Vector | undefined) {
+    if (!position) return;
     appleParticleSystem.emit(position.x, position.y);
   }
 
@@ -1596,9 +1598,9 @@ export const sketch = (p5: P5) => {
     state.nextLevel = nextLevel;
   }
 
-  function handleSnakeMovement() {
-    if (!state.isMoving) return;
-    if (replay.mode === ReplayMode.Playback) return;
+  function handleSnakeMovement(): boolean {
+    if (!state.isMoving) return false;
+    if (replay.mode === ReplayMode.Playback) return false;
 
     let didMove = false;
     const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
@@ -1622,7 +1624,7 @@ export const sketch = (p5: P5) => {
     const prevDirection = player.direction;
     if (moves.length > 0 && !state.isExitingLevel) {
       const move = moves.shift();
-      if (move !== player.directionToFirstSegment) player.direction = move;
+      if (move && move !== player.directionToFirstSegment) player.direction = move;
     }
     const currentMove = dirToUnitVector(p5, player.direction);
     const futurePosition = player.position.copy().add(currentMove);
@@ -2205,7 +2207,8 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  function drawPlayerSegment(vec: Vector, i = 0) {
+  function drawPlayerSegment(vec: Vector | undefined, i = 0) {
+    if (!vec) return;
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
         renderer.drawSquare(vec.x, vec.y, "#000", "#000", drawPlayerOptions);
