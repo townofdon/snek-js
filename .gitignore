@@ -141,3 +141,5 @@ dist-prod.zip
 archives
 
 TODO.md
+
+public/assets/music/*.wav

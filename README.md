@@ -34,3 +34,24 @@ git subtree push --prefix dist origin gh-pages
 ```
 
 If you need to force push subtree changes, [see here](https://gist.github.com/tduarte/eac064b4778711b116bb827f8c9bef7b).
+
+
+## Convert WAV to MP3
+
+bitrate=[128k|256k]
+
+```
+brew install ffmpeg
+```
+
+```
+cd /path/to/dir
+BITRATE=128k
+for i in *.wav; do ffmpeg -i "$i" -acodec mp3 -b:a $BITRATE "mp3/${i%.*}.mp3"; done
+```
+
+Sources:
+
+- https://www.christopherlovell.co.uk/blog/2016/08/16/convert-wav-mp3.html
+- https://trac.ffmpeg.org/wiki/Encode/MP3
+- https://stackoverflow.com/a/33766147
