@@ -30,7 +30,7 @@ const config = {
     }),
     new CopyPlugin({
       patterns: [
-        { from: "public/assets", to: "assets/" },
+        { from: "public/assets", to: "assets/", globOptions: { ignore: ["**/*.wav"] } },
         { from: "public/readme", to: "readme/" },
         { from: "public/style.css" },
       ],
