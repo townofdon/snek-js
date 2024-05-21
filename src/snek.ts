@@ -640,6 +640,8 @@ export const sketch = (p5: P5) => {
   function showMainMenu() {
     if (!state.isPreloaded) return;
 
+    document.body.requestFullscreen();
+
     state.appMode = AppMode.Game;
     state.isGameStarted = false;
     state.isGameStarting = false;
