@@ -12,11 +12,15 @@ function stripTrailingSlash(text) {
 const isProduction = process.env.NODE_ENV == 'production';
 
 const config = {
-  entry: './src/index.ts',
+  entry: {
+    main: './src/index.ts',
+    editor: './src/editor/editor.ts',
+  },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].bundle-[contenthash].js',
     path: path.resolve(__dirname, isProduction ? 'dist-prod' : 'dist/snek-js'),
     publicPath: stripTrailingSlash(isProduction ? '' : '/snek-js'),
+    clean: true,
   },
   plugins: [
     // Add your plugins here
@@ -32,13 +36,19 @@ const config = {
       ],
     }),
     new HtmlWebpackPlugin({
-      template: 'public/index.html',
+      template: 'public/index.ejs',
+      inject: false,
     }),
-    // we can automate this if need be by using node FS
     new HtmlWebpackPlugin({
-      title: 'Test',
-      filename: 'test/index.html',
-      template: './public/pages/test/index.html',
+      title: 'SNEK EDITOR',
+      filename: 'editor/index.html',
+      template: './public/pages/editor/index.ejs',
+      inject: false,
+    }),
+    new HtmlWebpackPlugin({
+      title: 'SNEK CUSTOM LEVEL PLAYER',
+      filename: 'player/index.html',
+      template: './public/pages/player/index.ejs',
       inject: false,
     }),
   ],
