@@ -71,13 +71,9 @@ html, body {
   height: 100%;
 }
 
-html {
+html, body {
   background: #030303;
   background: #181A1B
-}
-
-body {
-  background: transparent;
 }
 
 .start-screen {
