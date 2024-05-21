@@ -36,6 +36,7 @@ const config = {
       ],
     }),
     new HtmlWebpackPlugin({
+      filename: 'index.html',
       template: 'public/index.ejs',
       inject: false,
     }),
@@ -46,7 +47,7 @@ const config = {
       inject: false,
     }),
     new HtmlWebpackPlugin({
-      title: 'SNEK CUSTOM LEVEL PLAYER',
+      title: 'SNEK LEVEL PLAYER',
       filename: 'player/index.html',
       template: './public/pages/player/index.ejs',
       inject: false,
