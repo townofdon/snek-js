@@ -51,7 +51,7 @@ then
   ZIPFILE="$TEMP_ARCHIVE_DIR/build-${SAFE_VERSION}.zip"
   assertFileExists "${BUILD_DIR}/index.html"
   log "creating zip archive for ${ZIPFILE} from ${BUILD_DIR}..."
-  zip -rq $ZIPFILE $BUILD_DIR -x "*.wav"
+  zip -rq $ZIPFILE $BUILD_DIR
   assertFileExists $ZIPFILE
 else
   log "creating zip archive for ${ZIPFILE}..."
