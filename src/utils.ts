@@ -23,11 +23,11 @@ export function getCoordIndex2(x: number, y: number): number {
   return clamp(x, 0, GRIDCOUNT.x - 1) + clamp(y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
 }
 
-export function coordToVec(p5: P5, index: number): Vector {
+export function coordToVec(index: number): Vector {
   index = Math.floor(index);
   const x = Math.floor(index % GRIDCOUNT.x);
   const y = Math.floor(index / GRIDCOUNT.x);
-  return p5.createVector(x, y);
+  return new Vector(x, y);
 }
 
 export function vecToString(vec: Vector) {

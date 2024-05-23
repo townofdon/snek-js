@@ -57,3 +57,19 @@ Sources:
 - https://www.christopherlovell.co.uk/blog/2016/08/16/convert-wav-mp3.html
 - https://trac.ffmpeg.org/wiki/Encode/MP3
 - https://stackoverflow.com/a/33766147
+
+## Testing
+
+Run all tests
+
+```
+npm test
+```
+
+Run a single test
+
+```
+npm test -- -g <grep_pattern>
+// e.g.
+npm test -- -g "editorUtils"
+```

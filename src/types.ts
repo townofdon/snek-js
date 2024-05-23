@@ -303,25 +303,28 @@ export interface Lock extends Key {
   coord: number,
 }
 
-export interface LevelData {
+export interface BasicLevelData {
   barriers: Vector[],
-  barriersMap: Record<number, boolean>,
-  passablesMap: Record<number, boolean>,
   doors: Vector[],
-  doorsMap: Record<number, boolean>,
   apples: Vector[],
   decoratives1: Vector[],
-  decoratives1Map: Record<number, boolean>,
   decoratives2: Vector[],
-  decoratives2Map: Record<number, boolean>,
   nospawns: Vector[],
-  nospawnsMap: Record<number, boolean>,
-  playerSpawnPosition: Vector,
-  portalsMap: Record<number, Portal>,
   portals: Record<PortalChannel, Vector[]>,
+  playerSpawnPosition: Vector,
   keys: Key[],
-  keysMap: Record<number, Key>,
   locks: Lock[],
+}
+
+export interface LevelData extends BasicLevelData {
+  barriersMap: Record<number, boolean>,
+  passablesMap: Record<number, boolean>,
+  doorsMap: Record<number, boolean>,
+  decoratives1Map: Record<number, boolean>,
+  decoratives2Map: Record<number, boolean>,
+  nospawnsMap: Record<number, boolean>,
+  portalsMap: Record<number, Portal>,
+  keysMap: Record<number, Key>,
   locksMap: Record<number, Lock>,
   diffSelectMap: Record<number, number>,
 }

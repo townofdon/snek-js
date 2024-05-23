@@ -3,7 +3,7 @@ import { PALETTE, getExtendedPalette } from "../palettes";
 import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
-const name = 'hidden temple'
+const name = 'ruins'
 
 export const LEVEL_17: Level = {
   name,

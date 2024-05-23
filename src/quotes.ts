@@ -37,7 +37,7 @@ was not accompanied by at least one snek.
 
 Without snek, life would be a mistake.
 
-In individuals, insanity is rare; but in groups, parties, nations
+In individuals, insanity is rare; but in groups, parties,
 and snek, it is the rule.
 
 Is man merely a mistake of Snek? Or Snek merely a mistake of man?

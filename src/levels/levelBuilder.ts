@@ -1,16 +1,10 @@
 import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
-import { Difficulty, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
+import { KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { getCoordIndex } from "../utils";
-import { LEVEL_01, LEVEL_99 } from ".";
+import { LEVEL_01 } from "./level01";
 
-interface BuildLevelParams {
-  p5: P5
-  level: Level
-  difficulty: Difficulty
-}
-
-export function buildLevel({ p5, level, difficulty }: BuildLevelParams) {
+export function buildLevel(level: Level) {
   const data: LevelData = {
     barriers: [],
     barriersMap: {},
@@ -24,7 +18,7 @@ export function buildLevel({ p5, level, difficulty }: BuildLevelParams) {
     decoratives2Map: {},
     nospawns: [],
     nospawnsMap: {},
-    playerSpawnPosition: p5.createVector(15, 15),
+    playerSpawnPosition: new Vector(15, 15),
     portals: { ...DEFAULT_PORTALS() },
     portalsMap: {},
     keys: [],
@@ -62,7 +56,7 @@ export function buildLevel({ p5, level, difficulty }: BuildLevelParams) {
         continue;
       }
 
-      const vec = p5.createVector(x, y);
+      const vec = new Vector(x, y);
       const coord = getCoordIndex(vec);
 
       switch (char) {

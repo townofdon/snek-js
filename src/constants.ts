@@ -47,7 +47,7 @@ export const LEVEL_BONUS = 500;
 export const LIVES_LEFT_BONUS = 1000;
 export const ALL_APPLES_BONUS = 2500;
 export const PERFECT_BONUS = 5000;
-export const COBRA_SCORE_MOD = 2;
+export const COBRA_SCORE_MOD = 1.5;
 export const PICKUP_INVINCIBILITY_BONUS = 200;
 
 export const PICKUP_DROP_LIKELIHOOD = 0.04;

@@ -1035,7 +1035,7 @@ export const sketch = (p5: P5) => {
       startAction(mainTitleFader.setTitleVariant(level.titleVariant ?? TitleVariant.GrayBlue), Action.SetTitleVariant, true);
     }
 
-    const levelData = buildLevel({ p5, level, difficulty });
+    const levelData = buildLevel(level);
     player.position = levelData.playerSpawnPosition;
     barriers = levelData.barriers;
     barriersMap = levelData.barriersMap;
