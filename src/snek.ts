@@ -999,8 +999,8 @@ export const sketch = (p5: P5) => {
       musicPlayer.load(level.musicTrack);
       musicPlayer.setVolume(1);
       const buildSceneAction = buildSceneActionFactory(p5, sfx, fonts, state);
-      Promise.resolve()
-        .then(level.titleScene ? buildSceneAction(level.titleScene) : Promise.resolve)
+      const maybeTitleScene = buildSceneAction(level.titleScene);
+      maybeTitleScene()
         .catch(err => {
           console.error(err);
         }).finally(() => {
