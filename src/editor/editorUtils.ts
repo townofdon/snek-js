@@ -3,8 +3,8 @@ import { Buffer } from 'buffer'
 
 import JSONCrush from './JSONCrush/JSONCrush';
 
-import { BasicLevelData, Key, KeyChannel, Lock } from '../types'
-import { coordToVec, getCoordIndex } from '../utils';
+import { EditorData, LevelDataItems, Key, KeyChannel, Lock } from '../types'
+import { coordToVec, getCoordIndex, getCoordIndex2 } from '../utils';
 import { GRIDCOUNT } from '../constants';
 import { bton, ntob } from './Base64';
 
@@ -19,7 +19,7 @@ export function decodeMapLayout(encoded: string): string {
   return JSONCrush.uncrush(Buffer.from(encoded, 'base64url').toString())
 }
 
-export function encodeMapData(levelData: BasicLevelData, isOutputBase64 = OUTPUT_BASE_64): string {
+export function encodeMapData(levelData: LevelDataItems, isOutputBase64 = OUTPUT_BASE_64): string {
   const getByColor = (items: Key[], channel: KeyChannel) => {
     return items.filter(item => item.channel === channel).map(item => item.position);
   }
@@ -82,7 +82,7 @@ export function encodeMapData(levelData: BasicLevelData, isOutputBase64 = OUTPUT
   }
 }
 
-export function decodeMapData(encoded: string, isOutputBase64 = OUTPUT_BASE_64): BasicLevelData {
+export function decodeMapData(encoded: string, isOutputBase64 = OUTPUT_BASE_64): LevelDataItems {
   const decoded = (() => {
     if (isOutputBase64) {
       return Buffer.from(encoded, 'base64url').toString()
@@ -136,7 +136,7 @@ export function decodeMapData(encoded: string, isOutputBase64 = OUTPUT_BASE_64):
   const toLock = (key: Key): Lock => ({ ...key, coord: getCoordIndex(key.position) })
   const locks: Lock[] = locksYellow.map(toLock).concat(locksRed.map(toLock)).concat(locksBlue.map(toLock));
 
-  const mapData: BasicLevelData = {
+  const mapData: LevelDataItems = {
     barriers,
     doors,
     apples,
@@ -198,4 +198,75 @@ export function bitmaskToVectors(encoded: string): Vector[] {
     }
   }
   return vectors;
+}
+
+export function buildMapLayout(data: EditorData): string {
+  const chars: string[] = []
+  const getCharFromCoord = (coord: number) => {
+    if (data.keysMap[coord] != undefined) {
+      const keyChannel = data.keysMap[coord];
+      if (data.barriersMap[coord]) {
+        return {
+          [KeyChannel.Yellow]: 'u',
+          [KeyChannel.Red]: 'i',
+          [KeyChannel.Blue]: 'o',
+        }[keyChannel] ?? '?';
+      }
+      return {
+        [KeyChannel.Yellow]: 'j',
+        [KeyChannel.Red]: 'k',
+        [KeyChannel.Blue]: 'l',
+      }[keyChannel] ?? '?';
+    }
+    if (data.locksMap[coord] != undefined) {
+      const keyChannel = data.locksMap[coord];
+      return {
+        [KeyChannel.Yellow]: 'J',
+        [KeyChannel.Red]: 'K',
+        [KeyChannel.Blue]: 'L',
+      }[keyChannel] ?? '?';
+    }
+    if (data.portalsMap[coord] != undefined) {
+      const portalChannel = data.portalsMap[coord];
+      return portalChannel.toString();
+    }
+    if (data.barriersMap[coord]) {
+      if (data.passablesMap[coord]) {
+        return 'x';
+      }
+      return 'X';
+    }
+    if (data.doorsMap[coord]) {
+      if (data.decoratives1Map[coord]) {
+        return 'd';
+      }
+      return 'D';
+    }
+    if (data.applesMap[coord]) {
+      return 'A';
+    }
+    if (data.decoratives1Map[coord]) {
+      if (data.nospawnsMap[coord]) {
+        return '_';
+      }
+      return '-';
+    }
+    if (data.decoratives2Map[coord]) {
+      if (data.nospawnsMap[coord]) {
+        return '+';
+      }
+      return '=';
+    }
+    if (data.nospawnsMap[coord]) {
+      return '~';
+    }
+    return ' ';
+  }
+  for (let y = 0; y < GRIDCOUNT.y; y++) {
+    for (let x = 0; x < GRIDCOUNT.x; x++) {
+      const coord = getCoordIndex2(x, y);
+      chars.push(getCharFromCoord(coord));
+    }
+  }
+  return chars.map((char, index) => index && index % 30 === 0 ? `\n${char}` : char).join('');
 }

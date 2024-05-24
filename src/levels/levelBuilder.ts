@@ -4,7 +4,7 @@ import { KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalE
 import { getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./level01";
 
-export function buildLevel(level: Level) {
+export function buildLevel(level: Level): LevelData {
   const data: LevelData = {
     barriers: [],
     barriersMap: {},

@@ -4,11 +4,28 @@ import expect from "expect"
 import { buildLevel } from "../../levels/levelBuilder";
 import { LEVEL_01 } from "../../levels/level01";
 import { LEVEL_10 } from "../../levels/level10";
-import { BasicLevelData, Key, KeyChannel, Lock, PortalChannel } from "../../types"
+import { LEVELS } from "../../levels";
+import { EditorData, Key, KeyChannel, Level, LevelDataItems, LevelType, Lock, PortalChannel } from "../../types"
 import { getCoordIndex2 } from "../../utils";
 
-import { decodeMapData, decodeMapLayout, encodeMapData, encodeMapLayout } from "../editorUtils"
-import JSONCrush from "../JSONCrush/JSONCrush";
+import { buildMapLayout, decodeMapData, decodeMapLayout, encodeMapData, encodeMapLayout } from "../editorUtils"
+import { GRIDCOUNT } from "../../constants";
+
+function expectLayoutMatches(actual: string, expected: string) {
+  const stripBlankLine = /^\s*\n\s*$/gm
+  const stripMarginsStart = /^\s*\|(?=.)/gm
+  const stripMarginsEnd = /\|\s*$/gm
+  const expectedLayout = expected
+    .replace(stripBlankLine, '')
+    .replace(stripMarginsStart, '')
+    .replace(stripMarginsEnd, '')
+    .replace(/\./g, ' ')
+    .replace(/O/g, ' ')
+    .replace(/a/g, 'A')
+  const actualLayout = actual
+    .replace(/a/g, 'A');
+  expect(actualLayout.trim()).toEqual(expectedLayout.trim());
+}
 
 describe('editorUtils', () => {
   describe('encodeMapLayout', () => {
@@ -42,7 +59,7 @@ describe('editorUtils', () => {
         8: [],
         9: [],
       }
-      const levelData: BasicLevelData = {
+      const levelData: LevelDataItems = {
         playerSpawnPosition,
         barriers,
         doors,
@@ -116,7 +133,7 @@ describe('editorUtils', () => {
         8: [new Vector(16, 0)],
         9: [new Vector(17, 0)],
       }
-      const levelData: BasicLevelData = {
+      const levelData: LevelDataItems = {
         playerSpawnPosition,
         barriers,
         doors,
@@ -136,7 +153,7 @@ describe('editorUtils', () => {
       const decoded0 = decodeMapData(encoded0, true);
       const decoded1 = decodeMapData(encoded1, false);
 
-      const fields: (keyof BasicLevelData)[] = [
+      const fields: (keyof LevelDataItems)[] = [
         'apples',
         'barriers',
         'decoratives1',
@@ -187,7 +204,7 @@ describe('editorUtils', () => {
         barriers.push(new Vector(i, 0));
         barriers.push(new Vector(i, 29));
       }
-      const levelData: BasicLevelData = {
+      const levelData: LevelDataItems = {
         playerSpawnPosition,
         barriers,
         doors,
@@ -234,5 +251,127 @@ describe('editorUtils', () => {
         if (!found) throw new Error(`unable to find match for decorative2 ${source.toString()}`);
       })
     })
+  });
+
+  describe('buildMapLayout', () => {
+    it('should build a map layout correctly for all possible types', () => {
+      const data: EditorData = {
+        applesMap: { 0: true },
+        barriersMap: { 1: true, 2: true, 100: true, 101: true, 102: true },
+        passablesMap: { 2: true },
+        doorsMap: { 3: true },
+        decoratives1Map: { 4: true, 7: true },
+        decoratives2Map: { 5: true, 8: true },
+        nospawnsMap: { 6: true, 7: true, 8: true },
+        portalsMap: {
+          50: 0,
+          51: 1,
+          52: 2,
+          53: 3,
+          54: 4,
+          55: 5,
+          56: 6,
+          57: 7,
+          58: 8,
+          59: 9,
+        },
+        keysMap: {
+          20: KeyChannel.Yellow,
+          21: KeyChannel.Red,
+          22: KeyChannel.Blue,
+          100: KeyChannel.Yellow,
+          101: KeyChannel.Red,
+          102: KeyChannel.Blue,
+        },
+        locksMap: {
+          30: KeyChannel.Yellow,
+          31: KeyChannel.Red,
+          32: KeyChannel.Blue,
+        },
+      }
+      const layout = buildMapLayout(data);
+      const expected = `
+      |AXxD-=~_+...........jkl.......|
+      |JKL.................0123456789|
+      |..............................|
+      |..........uio.................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      |..............................|
+      `
+      expectLayoutMatches(layout, expected);
+    })
+
+    it('should build a map layout correctly for all game levels', () => {
+      const testLevel = (level: Level, index: number) => {
+        try {
+          const levelData = buildLevel(level);
+          const expectedLayout = level.layout;
+          const data: EditorData = {
+            applesMap: {},
+            barriersMap: { ...levelData.barriersMap },
+            passablesMap: { ...levelData.passablesMap },
+            doorsMap: { ...levelData.doorsMap },
+            decoratives1Map: { ...levelData.decoratives1Map },
+            decoratives2Map: { ...levelData.decoratives2Map },
+            nospawnsMap: { ...levelData.nospawnsMap },
+            portalsMap: {},
+            keysMap: {},
+            locksMap: {},
+          };
+          for (let y = 0; y < GRIDCOUNT.y; y++) {
+            for (let x = 0; x < GRIDCOUNT.x; x++) {
+              const coord = getCoordIndex2(x, y);
+              if (levelData.portalsMap[coord]) {
+                data.portalsMap[coord] = levelData.portalsMap[coord].channel;
+              }
+              if (levelData.keysMap[coord]) {
+                data.keysMap[coord] = levelData.keysMap[coord].channel;
+              }
+              if (levelData.locksMap[coord]) {
+                data.locksMap[coord] = levelData.locksMap[coord].channel;
+              }
+            }
+          }
+          levelData.apples.forEach(apple => {
+            const coord = getCoordIndex2(apple.x, apple.y);
+            data.applesMap[coord] = true;
+          })
+          const layout = buildMapLayout(data);
+          expectLayoutMatches(layout, expectedLayout);
+
+          console.log(`      ✔ layouts matched for ${String(index).padStart(2, '0')} ${level.name}`)
+        } catch (err) {
+          console.log(`      x layout failed for level ${level.name}`);
+          throw err;
+        }
+      };
+      LEVELS
+        .filter(level => level !== LEVEL_01 && level.type !== LevelType.Maze && level.type !== LevelType.WarpZone)
+        .forEach(testLevel)
+    });
   });
 });
