@@ -72,4 +72,6 @@ Run a single test
 npm test -- -g <grep_pattern>
 // e.g.
 npm test -- -g "editorUtils"
+// verbose logging
+DEBUG=true npm test -- -g "editorUtils"
 ```

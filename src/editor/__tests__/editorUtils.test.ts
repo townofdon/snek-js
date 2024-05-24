@@ -12,6 +12,8 @@ import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditor
 import { GRIDCOUNT } from "../../constants";
 import { PALETTE } from "../../palettes";
 
+const DEBUG = process.env.DEBUG;
+
 function expectLayoutMatches(actual: string, expected: string) {
   const stripBlankLine = /^\s*\n\s*$/gm
   const stripMarginsStart = /^\s*\|(?=.)/gm
@@ -356,8 +358,12 @@ describe('editorUtils', () => {
           const layout = buildMapLayout(data);
           expectLayoutMatches(layout, expectedLayout);
 
-          printLayout(layout);
-          printLayout(expectedLayout);
+          if (DEBUG) {
+            console.log("layout:")
+            printLayout(layout);
+            console.log("expected:")
+            printLayout(expectedLayout);
+          }
 
           console.log(`      ✔ layouts matched for ${String(index).padStart(2, '0')} ${level.name}`)
         } catch (err) {
