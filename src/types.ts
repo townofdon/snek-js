@@ -303,16 +303,34 @@ export interface Lock extends Key {
   coord: number,
 }
 
-export interface LevelDataLookup {
+export interface EditorOptions {
+  name: string,
+  timeToClear: number, // default: 60
+  applesToClear: number, // default: 20
+  numApplesStart: number, // default: 3
+  disableAppleSpawn: boolean, // default: false
+  snakeStartSize: number, // default: START_SNAKE_SIZE
+  growthMod: number, // default: 1
+  extraHurtGraceTime: number, // default: 0
+  globalLight: number, // default: 1
+  palette: Palette,
+}
+
+export interface EditorData {
   barriersMap: Record<number, boolean>,
   passablesMap: Record<number, boolean>,
   doorsMap: Record<number, boolean>,
   decoratives1Map: Record<number, boolean>,
   decoratives2Map: Record<number, boolean>,
   nospawnsMap: Record<number, boolean>,
+  applesMap: Record<number, boolean>,
+  keysMap: Record<number, KeyChannel>,
+  locksMap: Record<number, KeyChannel>,
+  portalsMap: Record<number, PortalChannel>,
+  playerSpawnPosition: Vector,
 }
 
-export interface LevelDataItems {
+export interface LevelData {
   barriers: Vector[],
   doors: Vector[],
   apples: Vector[],
@@ -323,16 +341,12 @@ export interface LevelDataItems {
   playerSpawnPosition: Vector,
   keys: Key[],
   locks: Lock[],
-}
-
-export interface EditorData extends LevelDataLookup {
-  applesMap: Record<number, boolean>,
-  keysMap: Record<number, KeyChannel>,
-  locksMap: Record<number, KeyChannel>,
-  portalsMap: Record<number, PortalChannel>,
-}
-
-export interface LevelData extends LevelDataLookup, LevelDataItems {
+  barriersMap: Record<number, boolean>,
+  passablesMap: Record<number, boolean>,
+  doorsMap: Record<number, boolean>,
+  decoratives1Map: Record<number, boolean>,
+  decoratives2Map: Record<number, boolean>,
+  nospawnsMap: Record<number, boolean>,
   keysMap: Record<number, Key>,
   locksMap: Record<number, Lock>,
   portalsMap: Record<number, Portal>,

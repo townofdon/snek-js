@@ -5,11 +5,12 @@ import { buildLevel } from "../../levels/levelBuilder";
 import { LEVEL_01 } from "../../levels/level01";
 import { LEVEL_10 } from "../../levels/level10";
 import { LEVELS } from "../../levels";
-import { EditorData, Key, KeyChannel, Level, LevelDataItems, LevelType, Lock, PortalChannel } from "../../types"
-import { getCoordIndex2 } from "../../utils";
+import { EditorData, EditorOptions, Key, KeyChannel, Level, LevelType, Lock, PortalChannel } from "../../types"
+import { coordToVec, getCoordIndex2 } from "../../utils";
 
-import { buildMapLayout, decodeMapData, decodeMapLayout, encodeMapData, encodeMapLayout } from "../editorUtils"
+import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "../editorUtils"
 import { GRIDCOUNT } from "../../constants";
+import { PALETTE } from "../../palettes";
 
 function expectLayoutMatches(actual: string, expected: string) {
   const stripBlankLine = /^\s*\n\s*$/gm
@@ -30,226 +31,216 @@ function expectLayoutMatches(actual: string, expected: string) {
 describe('editorUtils', () => {
   describe('encodeMapLayout', () => {
     it('should encode / decode a map layout', () => {
-      const encoded = encodeMapLayout(LEVEL_01.layout);
-      const decoded = decodeMapLayout(encoded);
+      const encoded = encode(LEVEL_01.layout);
+      const decoded = decode(encoded);
       expect(decoded).toStrictEqual(LEVEL_01.layout);
     });
   });
 
   describe('encodeMapData', () => {
     it('should encode map data for initial values', () => {
-      const playerSpawnPosition: Vector = new Vector(15, 15);
-      const barriers: Vector[] = []
-      const doors: Vector[] = []
-      const apples: Vector[] = []
-      const decoratives1: Vector[] = []
-      const decoratives2: Vector[] = []
-      const nospawns: Vector[] = []
-      const keys: Key[] = []
-      const locks: Lock[] = []
-      const portals: Record<PortalChannel, Vector[]> = {
-        0: [],
-        1: [],
-        2: [],
-        3: [],
-        4: [],
-        5: [],
-        6: [],
-        7: [],
-        8: [],
-        9: [],
+      const options: EditorOptions = {
+        name: "test",
+        timeToClear: 0,
+        applesToClear: 0,
+        numApplesStart: 0,
+        disableAppleSpawn: false,
+        snakeStartSize: 0,
+        growthMod: 0,
+        extraHurtGraceTime: 0,
+        globalLight: 0,
+        palette: PALETTE.atomic,
       }
-      const levelData: LevelDataItems = {
-        playerSpawnPosition,
-        barriers,
-        doors,
-        apples,
-        decoratives1,
-        decoratives2,
-        nospawns,
-        keys,
-        locks,
-        portals,
+      const data: EditorData = {
+        barriersMap: {},
+        passablesMap: {},
+        doorsMap: {},
+        decoratives1Map: {},
+        decoratives2Map: {},
+        nospawnsMap: {},
+        applesMap: {},
+        keysMap: {},
+        locksMap: {},
+        portalsMap: {},
+        playerSpawnPosition: new Vector(15, 15),
       }
-      const encoded = encodeMapData(levelData);
-      const decoded = decodeMapData(encoded);
+      const encoded = encodeMapData(data, options);
+      const [decodedData, decodedOptions] = decodeMapData(encoded);
 
-      expect(decoded.playerSpawnPosition).toEqual(levelData.playerSpawnPosition);
-      expect(decoded.barriers).toEqual([]);
-      expect(decoded.doors).toEqual([]);
-      expect(decoded.apples).toEqual([]);
-      expect(decoded.decoratives1).toEqual([]);
-      expect(decoded.decoratives2).toEqual([]);
-      expect(decoded.nospawns).toEqual([]);
-      expect(decoded.keys).toEqual([]);
-      expect(decoded.locks).toEqual([]);
-      expect(decoded.portals[0]).toEqual([]);
-      expect(decoded.portals[1]).toEqual([]);
-      expect(decoded.portals[2]).toEqual([]);
-      expect(decoded.portals[3]).toEqual([]);
-      expect(decoded.portals[4]).toEqual([]);
-      expect(decoded.portals[5]).toEqual([]);
-      expect(decoded.portals[6]).toEqual([]);
-      expect(decoded.portals[7]).toEqual([]);
-      expect(decoded.portals[8]).toEqual([]);
-      expect(decoded.portals[9]).toEqual([]);
+      expect(decodedData.playerSpawnPosition).toEqual(data.playerSpawnPosition);
+      expect(decodedData.barriersMap).toEqual({});
+      expect(decodedData.doorsMap).toEqual({});
+      expect(decodedData.applesMap).toEqual({});
+      expect(decodedData.decoratives1Map).toEqual({});
+      expect(decodedData.decoratives2Map).toEqual({});
+      expect(decodedData.nospawnsMap).toEqual({});
+      expect(decodedData.keysMap).toEqual({});
+      expect(decodedData.locksMap).toEqual({});
+      expect(decodedData.portalsMap).toEqual({});
     });
 
-    it('should support different encoding options', () => {
-      const playerSpawnPosition: Vector = new Vector(13, 13);
-      const barriers: Vector[] = [
-        new Vector(1, 1),
-      ];
-      const doors: Vector[] = [
-        new Vector(2, 2),
-      ];
-      const apples: Vector[] = [
-        new Vector(3, 3),
-      ];
-      const decoratives1: Vector[] = [
-        new Vector(4, 4),
-      ];
-      const decoratives2: Vector[] = [
-        new Vector(5, 5),
-      ];
-      const nospawns: Vector[] = [
-        new Vector(6, 6),
-      ];
-      const keys: Key[] = [
-        { position: new Vector(6, 6), channel: KeyChannel.Yellow },
-      ]
-      const locks: Lock[] = [
-        { position: new Vector(7, 7), channel: KeyChannel.Yellow, coord: getCoordIndex2(7, 7) },
-      ]
-      const portals: Record<PortalChannel, Vector[]> = {
-        0: [new Vector(8, 0)],
-        1: [new Vector(9, 0)],
-        2: [new Vector(10, 0)],
-        3: [new Vector(11, 0)],
-        4: [new Vector(12, 0)],
-        5: [new Vector(13, 0)],
-        6: [new Vector(14, 0)],
-        7: [new Vector(15, 0)],
-        8: [new Vector(16, 0)],
-        9: [new Vector(17, 0)],
+    it('should encode map data for filled values', () => {
+      const options: EditorOptions = {
+        name: "doomzone",
+        timeToClear: 1000,
+        applesToClear: 999,
+        numApplesStart: 20,
+        disableAppleSpawn: true,
+        snakeStartSize: 50,
+        growthMod: 2,
+        extraHurtGraceTime: 40,
+        globalLight: 0.5,
+        palette: PALETTE.forest,
       }
-      const levelData: LevelDataItems = {
-        playerSpawnPosition,
-        barriers,
-        doors,
-        apples,
-        decoratives1,
-        decoratives2,
-        nospawns,
-        keys,
-        locks,
-        portals,
+      const data: EditorData = {
+        barriersMap: { 1: true, 2: true, 3: true, 4: true },
+        passablesMap: { 3: true, 4: true },
+        doorsMap: { 5: true, 6: true },
+        decoratives1Map: { 7: true, 8: true },
+        decoratives2Map: { 9: true, 10: true },
+        nospawnsMap: { 11: true, 12: true },
+        applesMap: { 13: true, 14: true },
+        keysMap: { 15: KeyChannel.Yellow, 16: KeyChannel.Red, 17: KeyChannel.Blue },
+        locksMap: { 18: KeyChannel.Yellow, 19: KeyChannel.Red, 20: KeyChannel.Blue },
+        portalsMap: {
+          30: 0,
+          31: 1,
+          32: 2,
+          33: 3,
+          34: 4,
+          35: 5,
+          36: 6,
+          37: 7,
+          38: 8,
+          39: 9,
+        },
+        playerSpawnPosition: new Vector(15, 15),
       }
-      const encoded0 = encodeMapData(levelData, true);
-      const encoded1 = encodeMapData(levelData, false);
+      const encoded = encodeMapData(data, options);
+      const [decodedData, decodedOptions] = decodeMapData(encoded);
 
-      expect(encoded0).not.toEqual(encoded1);
-
-      const decoded0 = decodeMapData(encoded0, true);
-      const decoded1 = decodeMapData(encoded1, false);
-
-      const fields: (keyof LevelDataItems)[] = [
-        'apples',
-        'barriers',
-        'decoratives1',
-        'decoratives2',
-        'doors',
-        'keys',
-        'locks',
-        'nospawns',
-        'playerSpawnPosition',
-      ];
-      fields.forEach(field => {
-        expect(decoded0[field]).toEqual(levelData[field]);
-        expect(decoded0[field]).toEqual(decoded1[field]);
-      })
-      const portalChannels: PortalChannel[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-      portalChannels.forEach(channel => {
-        expect(decoded0.portals[channel]).toEqual(levelData.portals[channel]);
-        expect(decoded0.portals[channel]).toEqual(decoded1.portals[channel]);
+      expect(decodedOptions).toEqual(options)
+      expect(decodedData.playerSpawnPosition).toEqual(data.playerSpawnPosition);
+      expect(decodedData.barriersMap).toEqual(data.barriersMap);
+      expect(decodedData.passablesMap).toEqual(data.passablesMap);
+      expect(decodedData.doorsMap).toEqual(data.doorsMap);
+      expect(decodedData.applesMap).toEqual(data.applesMap);
+      expect(decodedData.decoratives1Map).toEqual(data.decoratives1Map);
+      expect(decodedData.decoratives2Map).toEqual({
+        ...data.decoratives2Map,
+        // locks
+        18: true,
+        19: true,
+        20: true,
       });
+      expect(decodedData.nospawnsMap).toEqual({
+        ...data.nospawnsMap,
+        ...data.applesMap,
+        // keys
+        15: true,
+        16: true,
+        17: true,
+        // locks
+        18: true,
+        19: true,
+        20: true,
+        // portals
+        30: true,
+        31: true,
+        32: true,
+        33: true,
+        34: true,
+        35: true,
+        36: true,
+        37: true,
+        38: true,
+        39: true,
+      });
+      expect(decodedData.keysMap).toEqual(data.keysMap);
+      expect(decodedData.locksMap).toEqual(data.locksMap);
+      expect(decodedData.portalsMap).toEqual(data.portalsMap);
     });
 
     it('should encode map data barriers', () => {
-      const playerSpawnPosition: Vector = new Vector(13, 13);
-      const barriers: Vector[] = []
-      const doors: Vector[] = []
-      const apples: Vector[] = []
-      const decoratives1: Vector[] = []
-      const decoratives2: Vector[] = []
-      const nospawns: Vector[] = []
-      const keys: Key[] = []
-      const locks: Lock[] = []
-      const portals: Record<PortalChannel, Vector[]> = {
-        0: [],
-        1: [],
-        2: [],
-        3: [],
-        4: [],
-        5: [],
-        6: [],
-        7: [],
-        8: [],
-        9: [],
+      const options: EditorOptions = {
+        name: "test",
+        timeToClear: 0,
+        applesToClear: 0,
+        numApplesStart: 0,
+        disableAppleSpawn: false,
+        snakeStartSize: 0,
+        growthMod: 0,
+        extraHurtGraceTime: 0,
+        globalLight: 0,
+        palette: PALETTE.atomic,
+      }
+      const data: EditorData = {
+        barriersMap: {},
+        passablesMap: {},
+        doorsMap: {},
+        decoratives1Map: {},
+        decoratives2Map: {},
+        nospawnsMap: {},
+        applesMap: {},
+        keysMap: {},
+        locksMap: {},
+        portalsMap: {},
+        playerSpawnPosition: new Vector(13, 13),
       }
       for (let i = 0; i < 29; i++) {
         if (i === 14 || i === 15) continue;
-        barriers.push(new Vector(0, i));
-        barriers.push(new Vector(29, i));
-        barriers.push(new Vector(i, 0));
-        barriers.push(new Vector(i, 29));
+        data.barriersMap[getCoordIndex2(0, i)] = true;
+        data.barriersMap[getCoordIndex2(29, i)] = true;
+        data.barriersMap[getCoordIndex2(i, 0)] = true;
+        data.barriersMap[getCoordIndex2(i, 29)] = true;
       }
-      const levelData: LevelDataItems = {
-        playerSpawnPosition,
-        barriers,
-        doors,
-        apples,
-        decoratives1,
-        decoratives2,
-        nospawns,
-        keys,
-        locks,
-        portals,
-      }
-      const encoded = encodeMapData(levelData);
-      const decoded = decodeMapData(encoded);
+      data.barriersMap[getCoordIndex2(29, 29)] = true;
+      const encoded = encodeMapData(data, options);
+      const [decodedData, decodedOptions] = decodeMapData(encoded);
 
-      expect(decoded.playerSpawnPosition).toEqual(levelData.playerSpawnPosition);
-      levelData.barriers.forEach(source => {
-        const found = decoded.barriers.find(target => target.x === source.x && target.y === source.y);
-        if (!found) {
-          throw new Error(`unable to find match for barrier ${source.toString()}`);
-        }
+      expect(decodedOptions).toEqual(options);
+      expect(decodedData.playerSpawnPosition).toEqual(data.playerSpawnPosition);
+      Object.entries(data.barriersMap).forEach(([coord, visible]) => {
+        const found = decodedData.barriersMap[Number(coord)]
+        if (visible && !found) throw new Error(`unable to find match for barrier ${coordToVec(Number(coord)).toString()}`);
       });
     });
 
     it('should encode a real level', () => {
-      const levelData = buildLevel(LEVEL_10);
-      const encoded = encodeMapData(levelData);
-      const decoded = decodeMapData(encoded);
+      const options: EditorOptions = {
+        name: "test",
+        timeToClear: 0,
+        applesToClear: 0,
+        numApplesStart: 0,
+        disableAppleSpawn: false,
+        snakeStartSize: 0,
+        growthMod: 0,
+        extraHurtGraceTime: 0,
+        globalLight: 0,
+        palette: PALETTE.atomic,
+      }
+      const data = getEditorDataFromLayout(LEVEL_10.layout, new Vector(0, 0));
+      const encoded = encodeMapData(data, options);
+      const [decodedData, decodedOptions] = decodeMapData(encoded);
 
-      expect(decoded.playerSpawnPosition).toEqual(levelData.playerSpawnPosition);
-      levelData.barriers.forEach(source => {
-        const found = decoded.barriers.find(target => target.x === source.x && target.y === source.y);
-        if (!found) throw new Error(`unable to find match for barrier ${source.toString()}`);
+      expect(decodedData.playerSpawnPosition).toEqual(data.playerSpawnPosition);
+      expect(decodedOptions).toEqual(options);
+      Object.entries(data.barriersMap).forEach(([coord, visible]) => {
+        const found = !!decodedData.barriersMap[Number(coord)]
+        if (visible && !found) throw new Error(`unable to find match for barrier ${coordToVec(Number(coord)).toString()}`);
       });
-      levelData.doors.forEach(source => {
-        const found = decoded.doors.find(target => target.x === source.x && target.y === source.y);
-        if (!found) throw new Error(`unable to find match for door ${source.toString()}`);
+      Object.entries(data.doorsMap).forEach(([coord, visible]) => {
+        const found = !!decodedData.doorsMap[Number(coord)]
+        if (visible && !found) throw new Error(`unable to find match for door ${coordToVec(Number(coord)).toString()}`);
       });
-      levelData.decoratives1.forEach(source => {
-        const found = decoded.decoratives1.find(target => target.x === source.x && target.y === source.y);
-        if (!found) throw new Error(`unable to find match for decorative1 ${source.toString()}`);
-      })
-      levelData.decoratives2.forEach(source => {
-        const found = decoded.decoratives2.find(target => target.x === source.x && target.y === source.y);
-        if (!found) throw new Error(`unable to find match for decorative2 ${source.toString()}`);
-      })
+      Object.entries(data.decoratives1Map).forEach(([coord, visible]) => {
+        const found = !!decodedData.decoratives1Map[Number(coord)]
+        if (visible && !found) throw new Error(`unable to find match for decorative1 ${coordToVec(Number(coord)).toString()}`);
+      });
+      Object.entries(data.decoratives2Map).forEach(([coord, visible]) => {
+        const found = !!decodedData.decoratives2Map[Number(coord)]
+        if (visible && !found) throw new Error(`unable to find match for decorative2 ${coordToVec(Number(coord)).toString()}`);
+      });
     })
   });
 
@@ -288,6 +279,7 @@ describe('editorUtils', () => {
           31: KeyChannel.Red,
           32: KeyChannel.Blue,
         },
+        playerSpawnPosition: new Vector(0, 0),
       }
       const layout = buildMapLayout(data);
       const expected = `
@@ -341,6 +333,7 @@ describe('editorUtils', () => {
             portalsMap: {},
             keysMap: {},
             locksMap: {},
+            playerSpawnPosition: new Vector(0, 0),
           };
           for (let y = 0; y < GRIDCOUNT.y; y++) {
             for (let x = 0; x < GRIDCOUNT.x; x++) {
@@ -362,6 +355,9 @@ describe('editorUtils', () => {
           })
           const layout = buildMapLayout(data);
           expectLayoutMatches(layout, expectedLayout);
+
+          printLayout(layout);
+          printLayout(expectedLayout);
 
           console.log(`      ✔ layouts matched for ${String(index).padStart(2, '0')} ${level.name}`)
         } catch (err) {

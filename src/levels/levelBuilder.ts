@@ -44,7 +44,13 @@ export function buildLevel(level: Level): LevelData {
     9: 0
   };
 
-  const layoutRows = level.layout.trim().split('\n');
+  const layoutRows = level.layout.split('\n').filter(row => {
+    if (!row?.length) return false;
+    // a row with all whitespace but less than 30?
+    if (!row.replace(/\s/g, '') && row.length < 30) return false;
+    return true;
+  });
+
   for (let y = 0; y < layoutRows.length; y++) {
     const rowStr = layoutRows[y];
 
