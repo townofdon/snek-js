@@ -3,33 +3,15 @@ import { Buffer } from 'buffer'
 
 import JSONCrush from './JSONCrush/JSONCrush';
 
-import { EditorData, EditorOptions, KeyChannel, Level, Palette } from '../types'
-import { coordToVec, getCoordIndex, getCoordIndex2 } from '../utils';
+import { DIR, EditorData, EditorOptions, KeyChannel, Level, Palette, PortalChannel, PortalExitMode } from '../types'
+import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../utils';
 import { GRIDCOUNT } from '../constants';
 import { bton, ntob } from './Base64';
-import { PALETTE } from '../palettes';
 import { buildLevel } from '../levels/levelBuilder';
 import { LEVEL_01 } from '../levels';
+import { EDITOR_DEFAULTS } from './editorConstants';
 
 const MASK_BASE_64 = true;
-
-const EDITOR_DEFAULTS: { data: Pick<EditorData, 'playerSpawnPosition'>, options: EditorOptions } = {
-  data: {
-    playerSpawnPosition: new Vector(15, 15),
-  },
-  options: {
-    name: 'SNEKBOSS',
-    timeToClear: 60,
-    applesToClear: 20,
-    numApplesStart: 3,
-    disableAppleSpawn: false,
-    snakeStartSize: 3,
-    growthMod: 1,
-    extraHurtGraceTime: 0,
-    globalLight: 1,
-    palette: PALETTE.hospital,
-  },
-}
 
 export function encode(layout: string): string {
   return Buffer.from(JSONCrush.crush(layout)).toString('base64url');
@@ -58,9 +40,22 @@ export function encodeMapData(data: EditorData, options: EditorOptions): string 
     options.palette.playerTail,
     options.palette.playerTailStroke,
   ].join('-')
+  const portalExitConfigStr = [
+    options.portalExitConfig[0],
+    options.portalExitConfig[1],
+    options.portalExitConfig[2],
+    options.portalExitConfig[3],
+    options.portalExitConfig[4],
+    options.portalExitConfig[5],
+    options.portalExitConfig[6],
+    options.portalExitConfig[7],
+    options.portalExitConfig[8],
+    options.portalExitConfig[9],
+  ].join('-');
   const parts = [
     layout,
     playerSpawnPositionStr,
+    data.startDirection,
     options.name,
     options.timeToClear,
     options.applesToClear,
@@ -71,6 +66,7 @@ export function encodeMapData(data: EditorData, options: EditorOptions): string 
     options.extraHurtGraceTime,
     options.globalLight,
     paletteStr,
+    portalExitConfigStr,
   ].join('|');
   return encode(parts);
 }
@@ -81,6 +77,7 @@ export function decodeMapData(encoded: string): [EditorData, EditorOptions] {
   const [
     layout,
     playerSpawnPositionStr,
+    startDirectionStr,
     name,
     timeToClear,
     applesToClear,
@@ -91,11 +88,13 @@ export function decodeMapData(encoded: string): [EditorData, EditorOptions] {
     extraHurtGraceTime,
     globalLight,
     paletteStr,
+    portalExitConfigStr,
   ] = parts;
 
   const playerSpawnPosition = coordToVec(NumberOrDefault(playerSpawnPositionStr, 15 + 15 * 30));
+  const startDirection = toDIR(startDirectionStr);
 
-  const defaultPalette = EDITOR_DEFAULTS.options.palette;
+  const defaultPalette = { ...EDITOR_DEFAULTS.options.palette };
   const palette: Palette = defaultPalette;
   [
     palette.apple = defaultPalette.apple,
@@ -114,6 +113,12 @@ export function decodeMapData(encoded: string): [EditorData, EditorOptions] {
     palette.playerTailStroke = defaultPalette.playerTailStroke,
   ] = paletteStr.split('-').concat(Array.from({ length: 14 }, () => undefined));
 
+  const portalExitConfig = { ...EDITOR_DEFAULTS.options.portalExitConfig };
+  const portalExitConfigParsed = portalExitConfigStr.split('-').map(mode => NumberOrDefault(mode, 0) as PortalExitMode)
+  for (let i = 0; i < 10; i++) {
+    portalExitConfig[i as PortalChannel] = portalExitConfigParsed[i] ?? PortalExitMode.InvertDirection
+  }
+
   const options: EditorOptions = {
     name,
     timeToClear: NumberOrDefault(timeToClear, 60),
@@ -125,12 +130,13 @@ export function decodeMapData(encoded: string): [EditorData, EditorOptions] {
     extraHurtGraceTime: NumberOrDefault(extraHurtGraceTime, 0),
     globalLight: NumberOrDefault(globalLight, 1),
     palette,
+    portalExitConfig,
   }
-  const data = getEditorDataFromLayout(layout || LEVEL_01.layout, playerSpawnPosition)
+  const data = getEditorDataFromLayout(layout || LEVEL_01.layout, playerSpawnPosition, startDirection)
   return [data, options];
 }
 
-export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vector): EditorData {
+export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vector, startDirection: DIR): EditorData {
   const level: Level = {
     name: undefined,
     layout,
@@ -151,6 +157,7 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     locksMap: {},
     portalsMap: {},
     playerSpawnPosition,
+    startDirection,
   }
   for (let y = 0; y < GRIDCOUNT.y; y++) {
     for (let x = 0; x < GRIDCOUNT.x; x++) {

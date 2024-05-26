@@ -49,6 +49,10 @@ export class PortalParticleSystem2 {
     }
   }
 
+  public reset = () => {
+    this.emitters.reset();
+  }
+
   public emit = (x: number, y: number, portalChannel: PortalChannel) => {
     if (!this.optionsMap1[portalChannel]) {
       if (IS_DEV) throw new Error(`No optionsMap1 for portal channel ${portalChannel}`);

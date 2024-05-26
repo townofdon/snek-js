@@ -7,7 +7,7 @@ import {
   GRIDCOUNT,
 } from "./constants";
 
-import { DIR, Difficulty, Level, MusicTrack, QueryParams, Stats } from "./types";
+import { DIR, Difficulty, Level, MusicTrack, PortalChannel, QueryParams, Stats } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
   const clamped = Math.max(Math.min(val, maxVal), minVal);
@@ -277,4 +277,22 @@ export const getRelativeDir = () => {
   if (process.env.NODE_ENV === 'production') return ''
   const rootPath = window.location.pathname.replace(/^\//, '').replace(/\/$/, '').split('/')[0]
   return rootPath ? `/${rootPath}/` : '/';
+}
+
+export const isValidPortalChannel = (portalChannel: number): portalChannel is PortalChannel => {
+  return Number.isInteger(portalChannel) && portalChannel >= 0 && portalChannel <= 9
+}
+
+export const toDIR = (dir: string): DIR => {
+  switch (dir.toUpperCase()) {
+    case DIR.DOWN:
+      return DIR.DOWN;
+    case DIR.UP:
+      return DIR.UP;
+    case DIR.LEFT:
+      return DIR.LEFT;
+    case DIR.RIGHT:
+    default:
+      return DIR.RIGHT;
+  }
 }

@@ -44,6 +44,10 @@ export class PortalVortexParticleSystem2 {
     };
   }
 
+  public reset = () => {
+    this.emitters.reset();
+  }
+
   public emit = (x: number, y: number, portalChannel: PortalChannel) => {
     this.emitters.add(x, y, this.options1);
     this.emitters.add(x, y, this.options2);

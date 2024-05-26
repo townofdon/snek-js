@@ -255,6 +255,7 @@ export interface Level {
 export interface IRenderer {
   reset: () => void
   tick: () => void
+  drawBackground: (color: string) => void
   drawStaticGraphics: () => void
   invalidateStaticCache: () => void
   clearGraphicalComponent: (component: P5.Graphics) => void
@@ -314,6 +315,7 @@ export interface EditorOptions {
   extraHurtGraceTime: number, // default: 0
   globalLight: number, // default: 1
   palette: Palette,
+  portalExitConfig: Record<PortalChannel, PortalExitMode>,
 }
 
 export interface EditorData {
@@ -328,6 +330,7 @@ export interface EditorData {
   locksMap: Record<number, KeyChannel>,
   portalsMap: Record<number, PortalChannel>,
   playerSpawnPosition: Vector,
+  startDirection: DIR,
 }
 
 export interface LevelData {

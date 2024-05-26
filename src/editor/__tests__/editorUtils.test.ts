@@ -5,12 +5,13 @@ import { buildLevel } from "../../levels/levelBuilder";
 import { LEVEL_01 } from "../../levels/level01";
 import { LEVEL_10 } from "../../levels/level10";
 import { LEVELS } from "../../levels";
-import { EditorData, EditorOptions, Key, KeyChannel, Level, LevelType, Lock, PortalChannel } from "../../types"
+import { DIR, EditorData, EditorOptions, Key, KeyChannel, Level, LevelType, Lock, PortalChannel, PortalExitMode } from "../../types"
 import { coordToVec, getCoordIndex2 } from "../../utils";
 
 import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "../editorUtils"
 import { GRIDCOUNT } from "../../constants";
 import { PALETTE } from "../../palettes";
+import { EDITOR_DEFAULTS } from "../editorConstants";
 
 const DEBUG = process.env.DEBUG;
 
@@ -52,6 +53,7 @@ describe('editorUtils', () => {
         extraHurtGraceTime: 0,
         globalLight: 0,
         palette: PALETTE.atomic,
+        portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
       }
       const data: EditorData = {
         barriersMap: {},
@@ -65,11 +67,14 @@ describe('editorUtils', () => {
         locksMap: {},
         portalsMap: {},
         playerSpawnPosition: new Vector(15, 15),
+        startDirection: DIR.RIGHT,
       }
       const encoded = encodeMapData(data, options);
       const [decodedData, decodedOptions] = decodeMapData(encoded);
 
+      expect(decodedOptions).toEqual(options);
       expect(decodedData.playerSpawnPosition).toEqual(data.playerSpawnPosition);
+      expect(decodedData.startDirection).toEqual(data.startDirection);
       expect(decodedData.barriersMap).toEqual({});
       expect(decodedData.doorsMap).toEqual({});
       expect(decodedData.applesMap).toEqual({});
@@ -93,6 +98,18 @@ describe('editorUtils', () => {
         extraHurtGraceTime: 40,
         globalLight: 0.5,
         palette: PALETTE.forest,
+        portalExitConfig: {
+          0: PortalExitMode.SameDirection,
+          1: PortalExitMode.SameDirection,
+          2: PortalExitMode.InvertDirection,
+          3: PortalExitMode.InvertDirection,
+          4: PortalExitMode.SameDirection,
+          5: PortalExitMode.SameDirection,
+          6: PortalExitMode.SameDirection,
+          7: PortalExitMode.SameDirection,
+          8: PortalExitMode.InvertDirection,
+          9: PortalExitMode.SameDirection,
+        },
       }
       const data: EditorData = {
         barriersMap: { 1: true, 2: true, 3: true, 4: true },
@@ -117,12 +134,14 @@ describe('editorUtils', () => {
           39: 9,
         },
         playerSpawnPosition: new Vector(15, 15),
+        startDirection: DIR.LEFT,
       }
       const encoded = encodeMapData(data, options);
       const [decodedData, decodedOptions] = decodeMapData(encoded);
 
-      expect(decodedOptions).toEqual(options)
+      expect(decodedOptions).toEqual(options);
       expect(decodedData.playerSpawnPosition).toEqual(data.playerSpawnPosition);
+      expect(decodedData.startDirection).toEqual(data.startDirection);
       expect(decodedData.barriersMap).toEqual(data.barriersMap);
       expect(decodedData.passablesMap).toEqual(data.passablesMap);
       expect(decodedData.doorsMap).toEqual(data.doorsMap);
@@ -175,6 +194,7 @@ describe('editorUtils', () => {
         extraHurtGraceTime: 0,
         globalLight: 0,
         palette: PALETTE.atomic,
+        portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
       }
       const data: EditorData = {
         barriersMap: {},
@@ -188,6 +208,7 @@ describe('editorUtils', () => {
         locksMap: {},
         portalsMap: {},
         playerSpawnPosition: new Vector(13, 13),
+        startDirection: DIR.DOWN,
       }
       for (let i = 0; i < 29; i++) {
         if (i === 14 || i === 15) continue;
@@ -220,8 +241,9 @@ describe('editorUtils', () => {
         extraHurtGraceTime: 0,
         globalLight: 0,
         palette: PALETTE.atomic,
+        portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
       }
-      const data = getEditorDataFromLayout(LEVEL_10.layout, new Vector(0, 0));
+      const data = getEditorDataFromLayout(LEVEL_10.layout, new Vector(0, 0), DIR.UP);
       const encoded = encodeMapData(data, options);
       const [decodedData, decodedOptions] = decodeMapData(encoded);
 
@@ -282,6 +304,7 @@ describe('editorUtils', () => {
           32: KeyChannel.Blue,
         },
         playerSpawnPosition: new Vector(0, 0),
+        startDirection: DIR.RIGHT,
       }
       const layout = buildMapLayout(data);
       const expected = `
@@ -336,6 +359,7 @@ describe('editorUtils', () => {
             keysMap: {},
             locksMap: {},
             playerSpawnPosition: new Vector(0, 0),
+            startDirection: DIR.RIGHT,
           };
           for (let y = 0; y < GRIDCOUNT.y; y++) {
             for (let x = 0; x < GRIDCOUNT.x; x++) {
