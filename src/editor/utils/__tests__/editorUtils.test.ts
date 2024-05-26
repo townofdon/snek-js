@@ -1,17 +1,17 @@
 import { Vector } from "p5"
 import expect from "expect"
 
-import { buildLevel } from "../../levels/levelBuilder";
-import { LEVEL_01 } from "../../levels/level01";
-import { LEVEL_10 } from "../../levels/level10";
-import { LEVELS } from "../../levels";
-import { DIR, EditorData, EditorOptions, Key, KeyChannel, Level, LevelType, Lock, PortalChannel, PortalExitMode } from "../../types"
-import { coordToVec, getCoordIndex2 } from "../../utils";
+import { buildLevel } from "../../../levels/levelBuilder";
+import { LEVEL_01 } from "../../../levels/level01";
+import { LEVEL_10 } from "../../../levels/level10";
+import { LEVELS } from "../../../levels";
+import { DIR, EditorData, EditorOptions, Key, KeyChannel, Level, LevelType, Lock, PortalChannel, PortalExitMode } from "../../../types"
+import { coordToVec, getCoordIndex2 } from "../../../utils";
 
-import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "../editorUtils"
-import { GRIDCOUNT } from "../../constants";
-import { PALETTE } from "../../palettes";
-import { EDITOR_DEFAULTS } from "../editorConstants";
+import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "../../utils/editorUtils"
+import { GRIDCOUNT } from "../../../constants";
+import { PALETTE } from "../../../palettes";
+import { EDITOR_DEFAULTS } from "../../editorConstants";
 
 const DEBUG = process.env.DEBUG;
 

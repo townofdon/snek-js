@@ -3,13 +3,13 @@ import { Buffer } from 'buffer'
 
 import JSONCrush from './JSONCrush/JSONCrush';
 
-import { DIR, EditorData, EditorOptions, KeyChannel, Level, Palette, PortalChannel, PortalExitMode } from '../types'
-import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../utils';
-import { GRIDCOUNT } from '../constants';
+import { DIR, EditorData, EditorOptions, KeyChannel, Level, Palette, PortalChannel, PortalExitMode } from '../../types'
+import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../../utils';
+import { GRIDCOUNT } from '../../constants';
 import { bton, ntob } from './Base64';
-import { buildLevel } from '../levels/levelBuilder';
-import { LEVEL_01 } from '../levels';
-import { EDITOR_DEFAULTS } from './editorConstants';
+import { buildLevel } from '../../levels/levelBuilder';
+import { LEVEL_01 } from '../../levels';
+import { EDITOR_DEFAULTS } from '../editorConstants';
 
 const MASK_BASE_64 = true;
 
