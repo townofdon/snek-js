@@ -7,14 +7,14 @@ interface EditorCanvasProps {
 }
 
 export const EditorCanvas = ({ data }: EditorCanvasProps) => {
-  const canvasRef = useRef<HTMLCanvasElement>();
+  const container = useRef<HTMLDivElement>();
   const sketch = useRef<EditorSketchReturn | null>(null);
 
   useEffect(() => {
-    if (canvasRef.current && !sketch.current) {
-      sketch.current = editorSketch();
+    if (container.current && !sketch.current) {
+      sketch.current = editorSketch(container.current);
     }
-  }, [canvasRef.current]);
+  }, [container.current]);
 
   useEffect(() => {
     if (sketch.current) {
@@ -28,6 +28,6 @@ export const EditorCanvas = ({ data }: EditorCanvasProps) => {
     }
   }, []);
   return (
-    <canvas ref={canvasRef} id="editor-canvas" className="p5Canvas" style={{ width: '600px', height: '600px' }} width="1200" height="1200" />
+    <div ref={container} />
   );
 };

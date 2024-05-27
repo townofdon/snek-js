@@ -46,7 +46,7 @@ export interface EditorSketchReturn {
   cleanup: () => void,
 }
 
-export const editorSketch = (): EditorSketchReturn => {
+export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
   const data: EditorData = {
     barriersMap: {},
     passablesMap: {},
@@ -168,7 +168,7 @@ export const editorSketch = (): EditorSketchReturn => {
     })
   }
 
-  const p5Instance = new P5((p5: P5) => {
+  const sketch = (p5: P5) => {
     const screenShake: ScreenShakeState = {
       offset: new Vector(0, 0),
       timeSinceStarted: 0,
@@ -274,9 +274,7 @@ export const editorSketch = (): EditorSketchReturn => {
      */
     p5.setup = setup;
     function setup() {
-      const canvas = document.getElementById("editor-canvas");
-      if (!canvas) throw new Error('could not find canvas with id="editor-canvas"');
-      p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
+      p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D).id("editor-canvas");
       p5.frameRate(60);
 
       cacheGraphicalComponents();
@@ -526,7 +524,9 @@ export const editorSketch = (): EditorSketchReturn => {
         );
       }
     }
-  });
+  };
+
+  const p5Instance = new P5(sketch, container);
 
   const cleanup = () => {
     p5Instance.remove();
