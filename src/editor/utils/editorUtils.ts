@@ -3,7 +3,7 @@ import { Buffer } from 'buffer'
 
 import JSONCrush from './JSONCrush/JSONCrush';
 
-import { DIR, EditorData, EditorOptions, KeyChannel, Level, Palette, PortalChannel, PortalExitMode } from '../../types'
+import { DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PortalChannel, PortalExitMode } from '../../types'
 import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../../utils';
 import { GRIDCOUNT } from '../../constants';
 import { bton, ntob } from './Base64';
@@ -299,4 +299,69 @@ export function buildMapLayout(data: EditorData): string {
 
 export function printLayout(layout: string) {
   console.log(layout.replace(/ /g, '.'));
+}
+
+export function deepCloneData(data: EditorData): EditorData {
+  return {
+    barriersMap: { ...data.barriersMap },
+    passablesMap: { ...data.passablesMap },
+    doorsMap: { ...data.doorsMap },
+    decoratives1Map: { ...data.decoratives1Map },
+    decoratives2Map: { ...data.decoratives2Map },
+    nospawnsMap: { ...data.nospawnsMap },
+    applesMap: { ...data.applesMap },
+    keysMap: { ...data.keysMap },
+    locksMap: { ...data.locksMap },
+    portalsMap: { ...data.portalsMap },
+    playerSpawnPosition: data.playerSpawnPosition.copy(),
+    startDirection: data.startDirection,
+  };
+}
+
+export function mergeData(data: EditorData, incoming: Partial<EditorData>): EditorData {
+  return {
+    barriersMap: { ...data.barriersMap, ...incoming.barriersMap },
+    passablesMap: { ...data.passablesMap, ...incoming.passablesMap },
+    doorsMap: { ...data.doorsMap, ...incoming.doorsMap },
+    decoratives1Map: { ...data.decoratives1Map, ...incoming.decoratives1Map },
+    decoratives2Map: { ...data.decoratives2Map, ...incoming.decoratives2Map },
+    nospawnsMap: { ...data.nospawnsMap, ...incoming.nospawnsMap },
+    applesMap: { ...data.applesMap, ...incoming.applesMap },
+    keysMap: { ...data.keysMap, ...incoming.keysMap },
+    locksMap: { ...data.locksMap, ...incoming.locksMap },
+    portalsMap: { ...data.portalsMap, ...incoming.portalsMap },
+    playerSpawnPosition: incoming.playerSpawnPosition ? incoming.playerSpawnPosition.copy() : data.playerSpawnPosition,
+    startDirection: incoming.startDirection ? incoming.startDirection : data.startDirection,
+  };
+}
+
+export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice): EditorData {
+  const newData: EditorData = {
+    applesMap: { [incoming.coord]: incoming.apple },
+    barriersMap: { [incoming.coord]: incoming.barrier },
+    decoratives1Map: { [incoming.coord]: incoming.deco1 },
+    decoratives2Map: { [incoming.coord]: incoming.deco2 },
+    doorsMap: { [incoming.coord]: incoming.door },
+    keysMap: { [incoming.coord]: incoming.key },
+    locksMap: { [incoming.coord]: incoming.lock },
+    nospawnsMap: { [incoming.coord]: incoming.nospawn },
+    passablesMap: { [incoming.coord]: incoming.passable },
+    portalsMap: { [incoming.coord]: incoming.portal },
+    playerSpawnPosition: incoming.playerSpawnPosition,
+    startDirection: incoming.startDirection,
+  }
+  return {
+    applesMap: { ...data.applesMap, ...newData.applesMap },
+    barriersMap: { ...data.barriersMap, ...newData.barriersMap },
+    decoratives1Map: { ...data.decoratives1Map, ...newData.decoratives1Map },
+    decoratives2Map: { ...data.decoratives2Map, ...newData.decoratives2Map },
+    doorsMap: { ...data.doorsMap, ...newData.doorsMap },
+    keysMap: { ...data.keysMap, ...newData.keysMap },
+    locksMap: { ...data.locksMap, ...newData.locksMap },
+    nospawnsMap: { ...data.nospawnsMap, ...newData.nospawnsMap },
+    passablesMap: { ...data.passablesMap, ...newData.passablesMap },
+    portalsMap: { ...data.portalsMap, ...newData.portalsMap },
+    playerSpawnPosition: newData.playerSpawnPosition ? newData.playerSpawnPosition.copy() : data.playerSpawnPosition,
+    startDirection: newData.startDirection ? newData.startDirection : data.startDirection,
+  };
 }

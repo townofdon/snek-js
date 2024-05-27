@@ -318,17 +318,35 @@ export interface EditorOptions {
   portalExitConfig: Record<PortalChannel, PortalExitMode>,
 }
 
+export type Maybe<T> = T | null | undefined;
+
 export interface EditorData {
-  barriersMap: Record<number, boolean>,
-  passablesMap: Record<number, boolean>,
-  doorsMap: Record<number, boolean>,
-  decoratives1Map: Record<number, boolean>,
-  decoratives2Map: Record<number, boolean>,
-  nospawnsMap: Record<number, boolean>,
-  applesMap: Record<number, boolean>,
-  keysMap: Record<number, KeyChannel>,
-  locksMap: Record<number, KeyChannel>,
-  portalsMap: Record<number, PortalChannel>,
+  applesMap: Record<number, Maybe<boolean>>,
+  barriersMap: Record<number, Maybe<boolean>>,
+  decoratives1Map: Record<number, Maybe<boolean>>,
+  decoratives2Map: Record<number, Maybe<boolean>>,
+  doorsMap: Record<number, Maybe<boolean>>,
+  keysMap: Record<number, Maybe<KeyChannel>>,
+  locksMap: Record<number, Maybe<KeyChannel>>,
+  nospawnsMap: Record<number, Maybe<boolean>>,
+  passablesMap: Record<number, Maybe<boolean>>,
+  portalsMap: Record<number, Maybe<PortalChannel>>,
+  playerSpawnPosition: Vector,
+  startDirection: DIR,
+}
+
+export interface EditorDataSlice {
+  coord: number,
+  apple: Maybe<boolean>,
+  barrier: Maybe<boolean>,
+  deco1: Maybe<boolean>,
+  deco2: Maybe<boolean>,
+  door: Maybe<boolean>,
+  key: Maybe<KeyChannel>,
+  lock: Maybe<KeyChannel>,
+  nospawn: Maybe<boolean>,
+  passable: Maybe<boolean>,
+  portal: Maybe<PortalChannel>,
   playerSpawnPosition: Vector,
   startDirection: DIR,
 }

@@ -71,7 +71,7 @@ export const editorSketch = (): EditorSketchReturn => {
   const state: EditorState = {
     dirty: false,
     colorsDirty: false,
-    extendedPalette: getExtendedPalette(options.palette),
+    extendedPalette: getExtendedPalette(options.palette, true),
   }
 
   const setData = (incoming: EditorData): void => {
@@ -294,6 +294,7 @@ export const editorSketch = (): EditorSketchReturn => {
     function draw() {
       if (state.colorsDirty) {
         state.colorsDirty = false;
+        state.extendedPalette = getExtendedPalette(options.palette, true);
         cacheGraphicalComponents();
         state.dirty = true;
       }
@@ -359,13 +360,8 @@ export const editorSketch = (): EditorSketchReturn => {
             renderer.drawGraphicalComponentStatic(graphicalComponents.door, x, y);
           }
 
-          if (data.barriersMap[coord]) {
-            const isPassable = data.passablesMap[coord];
-            if (isPassable) {
-              renderer.drawGraphicalComponentStatic(graphicalComponents.barrierPassable, x, y);
-            } else {
-              renderer.drawGraphicalComponentStatic(graphicalComponents.barrier, x, y);
-            }
+          if (data.barriersMap[coord] && !data.passablesMap[coord]) {
+            renderer.drawGraphicalComponentStatic(graphicalComponents.barrier, x, y);
           }
 
           if (data.locksMap[coord]) {
@@ -401,6 +397,10 @@ export const editorSketch = (): EditorSketchReturn => {
           if (data.playerSpawnPosition.equals(x, y)) {
             renderer.drawGraphicalComponentStatic(graphicalComponents.snakeHead, x, y);
             spriteRenderer.drawImage3x3Static(Image.SnekHead, x, y, getRotationFromDirection(data.startDirection));
+          }
+
+          if (data.barriersMap[coord] && data.passablesMap[coord]) {
+            renderer.drawGraphicalComponentStatic(graphicalComponents.barrierPassable, x, y);
           }
         }
       }
@@ -444,7 +444,6 @@ export const editorSketch = (): EditorSketchReturn => {
       for (let y = 0; y < GRIDCOUNT.y; y++) {
         for (let x = 0; x < GRIDCOUNT.x; x++) {
           const coord = getCoordIndex2(x, y);
-
           if (isValidPortalChannel(data.portalsMap[coord])) {
             const portalChannel = data.portalsMap[coord];
             const portal: Portal = {

@@ -3,8 +3,18 @@ import { Vector } from 'p5';
 import { DIR, EditorData, EditorOptions, PortalExitMode } from '../types'
 import { PALETTE } from '../palettes';
 
-export const EDITOR_DEFAULTS: { data: Pick<EditorData, 'playerSpawnPosition' | 'startDirection'>, options: EditorOptions } = {
+export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
   data: {
+    applesMap: {},
+    barriersMap: {},
+    decoratives1Map: {},
+    decoratives2Map: {},
+    doorsMap: {},
+    keysMap: {},
+    locksMap: {},
+    nospawnsMap: {},
+    passablesMap: {},
+    portalsMap: {},
     playerSpawnPosition: new Vector(15, 15),
     startDirection: DIR.RIGHT,
   },
