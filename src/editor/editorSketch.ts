@@ -40,12 +40,10 @@ interface EditorState {
   colorsDirty: boolean,
   extendedPalette: ExtendedPalette,
 }
-
-interface EditorSketchReturn {
+export interface EditorSketchReturn {
   setData: (data: EditorData) => void,
   setOptions: (options: EditorOptions) => void,
   cleanup: () => void,
-  p5: P5,
 }
 
 export const editorSketch = (): EditorSketchReturn => {
@@ -64,7 +62,7 @@ export const editorSketch = (): EditorSketchReturn => {
     startDirection: EDITOR_DEFAULTS.data.startDirection,
   };
   const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig'> = {
-    globalLight: 0,
+    globalLight: EDITOR_DEFAULTS.options.globalLight,
     palette: { ...EDITOR_DEFAULTS.options.palette },
     portalExitConfig: { ...EDITOR_DEFAULTS.options.portalExitConfig },
   };
@@ -76,8 +74,8 @@ export const editorSketch = (): EditorSketchReturn => {
 
   const setData = (incoming: EditorData): void => {
     const getIsDiff = (key: keyof EditorData): boolean => {
-      for (let y = 0; y < GRIDCOUNT.y && !state.dirty; y++) {
-        for (let x = 0; x < GRIDCOUNT.x && !state.dirty; x++) {
+      for (let y = 0; y < GRIDCOUNT.y; y++) {
+        for (let x = 0; x < GRIDCOUNT.x; x++) {
           const coord = getCoordIndex2(x, y);
           // @ts-ignore
           if (data[key][coord] !== incoming[key][coord]) {
@@ -504,27 +502,27 @@ export const editorSketch = (): EditorSketchReturn => {
     function hasSegmentAt(x: number, y: number) {
       if (data.startDirection === DIR.DOWN) {
         return (
-          data.playerSpawnPosition.equals(x, y - 1) ||
-          data.playerSpawnPosition.equals(x, y - 2) ||
-          data.playerSpawnPosition.equals(x, y - 3)
-        );
-      } else if (data.startDirection === DIR.UP) {
-        return (
           data.playerSpawnPosition.equals(x, y + 1) ||
           data.playerSpawnPosition.equals(x, y + 2) ||
           data.playerSpawnPosition.equals(x, y + 3)
         );
-      } else if (data.startDirection === DIR.LEFT) {
+      } else if (data.startDirection === DIR.UP) {
         return (
-          data.playerSpawnPosition.equals(x + 1, y) ||
-          data.playerSpawnPosition.equals(x + 2, y) ||
-          data.playerSpawnPosition.equals(x + 3, y)
+          data.playerSpawnPosition.equals(x, y - 1) ||
+          data.playerSpawnPosition.equals(x, y - 2) ||
+          data.playerSpawnPosition.equals(x, y - 3)
         );
-      } else {
+      } else if (data.startDirection === DIR.LEFT) {
         return (
           data.playerSpawnPosition.equals(x - 1, y) ||
           data.playerSpawnPosition.equals(x - 2, y) ||
           data.playerSpawnPosition.equals(x - 3, y)
+        );
+      } else {
+        return (
+          data.playerSpawnPosition.equals(x + 1, y) ||
+          data.playerSpawnPosition.equals(x + 2, y) ||
+          data.playerSpawnPosition.equals(x + 3, y)
         );
       }
     }
@@ -534,5 +532,5 @@ export const editorSketch = (): EditorSketchReturn => {
     p5Instance.remove();
   };
 
-  return { setData, setOptions, cleanup, p5: p5Instance };
+  return { setData, setOptions, cleanup };
 }

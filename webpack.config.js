@@ -14,7 +14,7 @@ const isProduction = process.env.NODE_ENV == 'production';
 const config = {
   entry: {
     main: './src/index.ts',
-    editor: './src/editor/index.ts',
+    editor: './src/editor/index',
   },
   output: {
     filename: '[name].bundle-[contenthash].js',

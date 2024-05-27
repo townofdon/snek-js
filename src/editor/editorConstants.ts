@@ -2,20 +2,24 @@ import { Vector } from 'p5';
 
 import { DIR, EditorData, EditorOptions, PortalExitMode } from '../types'
 import { PALETTE } from '../palettes';
+import { buildLevel } from '../levels/levelBuilder';
+import { LEVEL_01 } from '../levels';
+
+const levelData = buildLevel(LEVEL_01);
 
 export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
   data: {
     applesMap: {},
-    barriersMap: {},
-    decoratives1Map: {},
-    decoratives2Map: {},
-    doorsMap: {},
+    barriersMap: { ...levelData.barriersMap },
+    decoratives1Map: { ...levelData.decoratives1Map },
+    decoratives2Map: { ...levelData.decoratives2Map },
+    doorsMap: { ...levelData.doorsMap },
     keysMap: {},
     locksMap: {},
     nospawnsMap: {},
     passablesMap: {},
     portalsMap: {},
-    playerSpawnPosition: new Vector(15, 15),
+    playerSpawnPosition: levelData.playerSpawnPosition.copy(),
     startDirection: DIR.RIGHT,
   },
   options: {
