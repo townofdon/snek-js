@@ -10,8 +10,8 @@
   <%= htmlWebpackPlugin
     .tags
     .headTags
-    .filter((tag) => tag.attributes?.src?.includes('editor.bundle'))
-    .join('')
+    .filter((tag) => tag.attributes?.src?.includes('editor.bundle') || /\.css$/.test(tag.attributes?.href) || tag.tagName === 'link' || tag.tagName === 'style')
+    .join('\n')
   %>
 </head>
 <body>

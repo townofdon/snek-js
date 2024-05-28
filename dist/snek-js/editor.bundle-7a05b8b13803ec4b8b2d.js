@@ -70,6 +70,17 @@ eval("const colorString = __webpack_require__(/*! color-string */ \"./node_modul
 
 /***/ }),
 
+/***/ "./src/editor/editor.css":
+/*!*******************************!*\
+  !*** ./src/editor/editor.css ***!
+  \*******************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   container: () => (/* binding */ _1),\n/* harmony export */   layout: () => (/* binding */ _2)\n/* harmony export */ });\n// extracted by mini-css-extract-plugin\nvar _1 = \"vKv8UOtc6W2yJxVLdo3T\";\nvar _2 = \"k4cMYy4cr2Gud3Y40YSD\";\n\n\n\n//# sourceURL=webpack://snekjs/./src/editor/editor.css?");
+
+/***/ }),
+
 /***/ "./node_modules/p5/lib/p5.min.js":
 /*!***************************************!*\
   !*** ./node_modules/p5/lib/p5.min.js ***!
@@ -251,7 +262,7 @@ eval("\n// https://easings.net\nObject.defineProperty(exports, \"__esModule\", (
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
-eval("\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.Editor = void 0;\nconst react_1 = __importDefault(__webpack_require__(/*! react */ \"./node_modules/react/index.js\"));\nconst useEditorData_1 = __webpack_require__(/*! ./hooks/useEditorData */ \"./src/editor/hooks/useEditorData.ts\");\nconst editorCanvas_1 = __webpack_require__(/*! ./editorCanvas */ \"./src/editor/editorCanvas.tsx\");\n// import { LEVEL_02, LEVEL_03, LEVEL_04, LEVEL_05, LEVEL_06, LEVEL_07, LEVEL_08 } from \"../levels\";\n// import { buildLevel } from \"../levels/levelBuilder\";\n// const levels = [\n//   LEVEL_02,\n//   LEVEL_03,\n//   LEVEL_04,\n//   LEVEL_05,\n//   LEVEL_06,\n//   LEVEL_07,\n//   LEVEL_08,\n// ]\nconst Editor = () => {\n    const [data, dataRef, setData] = (0, useEditorData_1.useEditorData)();\n    // React.useEffect(() => {\n    //   const interval = setInterval(() => {\n    //     const nextLevel = levels[Math.floor(Math.random() * levels.length)];\n    //     const levelData = buildLevel(nextLevel);\n    //     setData(prev => ({\n    //       ...prev,\n    //       barriersMap: { ...levelData.barriersMap },\n    //       doorsMap: { ...levelData.doorsMap },\n    //       decoratives1Map: { ...levelData.decoratives1Map },\n    //       decoratives2Map: { ...levelData.decoratives2Map },\n    //       playerSpawnPosition: levelData.playerSpawnPosition.copy(),\n    //     }))\n    //   }, 1000);\n    //   return () => clearInterval(interval);\n    // }, [])\n    return (react_1.default.createElement(\"div\", null,\n        react_1.default.createElement(editorCanvas_1.EditorCanvas, { data: data })));\n};\nexports.Editor = Editor;\n\n\n//# sourceURL=webpack://snekjs/./src/editor/editor.tsx?");
+eval("\nvar __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {\n    if (k2 === undefined) k2 = k;\n    var desc = Object.getOwnPropertyDescriptor(m, k);\n    if (!desc || (\"get\" in desc ? !m.__esModule : desc.writable || desc.configurable)) {\n      desc = { enumerable: true, get: function() { return m[k]; } };\n    }\n    Object.defineProperty(o, k2, desc);\n}) : (function(o, m, k, k2) {\n    if (k2 === undefined) k2 = k;\n    o[k2] = m[k];\n}));\nvar __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {\n    Object.defineProperty(o, \"default\", { enumerable: true, value: v });\n}) : function(o, v) {\n    o[\"default\"] = v;\n});\nvar __importStar = (this && this.__importStar) || function (mod) {\n    if (mod && mod.__esModule) return mod;\n    var result = {};\n    if (mod != null) for (var k in mod) if (k !== \"default\" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);\n    __setModuleDefault(result, mod);\n    return result;\n};\nvar __importDefault = (this && this.__importDefault) || function (mod) {\n    return (mod && mod.__esModule) ? mod : { \"default\": mod };\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.Editor = void 0;\nconst react_1 = __importDefault(__webpack_require__(/*! react */ \"./node_modules/react/index.js\"));\nconst useEditorData_1 = __webpack_require__(/*! ./hooks/useEditorData */ \"./src/editor/hooks/useEditorData.ts\");\nconst editorCanvas_1 = __webpack_require__(/*! ./editorCanvas */ \"./src/editor/editorCanvas.tsx\");\n// import { LEVEL_02, LEVEL_03, LEVEL_04, LEVEL_05, LEVEL_06, LEVEL_07, LEVEL_08 } from \"../levels\";\n// import { buildLevel } from \"../levels/levelBuilder\";\nconst styles = __importStar(__webpack_require__(/*! ./editor.css */ \"./src/editor/editor.css\"));\n// const levels = [\n//   LEVEL_02,\n//   LEVEL_03,\n//   LEVEL_04,\n//   LEVEL_05,\n//   LEVEL_06,\n//   LEVEL_07,\n//   LEVEL_08,\n// ]\nconst Editor = () => {\n    const [data, dataRef, setData] = (0, useEditorData_1.useEditorData)();\n    // React.useEffect(() => {\n    //   const interval = setInterval(() => {\n    //     const nextLevel = levels[Math.floor(Math.random() * levels.length)];\n    //     const levelData = buildLevel(nextLevel);\n    //     setData(prev => ({\n    //       ...prev,\n    //       barriersMap: { ...levelData.barriersMap },\n    //       doorsMap: { ...levelData.doorsMap },\n    //       decoratives1Map: { ...levelData.decoratives1Map },\n    //       decoratives2Map: { ...levelData.decoratives2Map },\n    //       playerSpawnPosition: levelData.playerSpawnPosition.copy(),\n    //     }))\n    //   }, 1000);\n    //   return () => clearInterval(interval);\n    // }, [])\n    return (react_1.default.createElement(\"div\", { className: styles.layout },\n        react_1.default.createElement(\"div\", { className: styles.container },\n            react_1.default.createElement(editorCanvas_1.EditorCanvas, { data: data }))));\n};\nexports.Editor = Editor;\n\n\n//# sourceURL=webpack://snekjs/./src/editor/editor.tsx?");
 
 /***/ }),
 
@@ -1187,6 +1198,18 @@ eval("\n\nObject.defineProperty(exports, \"__esModule\", ({\n  value: true\n}));
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/global */
 /******/ 	(() => {
 /******/ 		__webpack_require__.g = (function() {
@@ -1197,6 +1220,22 @@ eval("\n\nObject.defineProperty(exports, \"__esModule\", ({\n  value: true\n}));
 /******/ 				if (typeof window === 'object') return window;
 /******/ 			}
 /******/ 		})();
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/node module decorator */

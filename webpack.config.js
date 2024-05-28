@@ -4,6 +4,8 @@ const path = require('path');
 var webpack = require('webpack');
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+
 
 function stripTrailingSlash(text) {
   return String(text).replace(/\/$/, '')
@@ -52,6 +54,10 @@ const config = {
       template: './public/pages/player/index.ejs',
       inject: false,
     }),
+    new MiniCssExtractPlugin({
+      filename: "[name]-[contenthash].css",
+      chunkFilename: "[id]-[contenthash].css",
+    }),
   ],
   module: {
     rules: [
@@ -75,8 +81,35 @@ const config = {
         }
       },
       {
-        test: /\.(css|scss)$/,
-        use: ["style-loader", "css-loader"],
+        test: /\.(css|scss|sass)$/,
+        // use: ["style-loader", "css-loader"],
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // publicPath: stripTrailingSlash(isProduction ? 'css' : '/snek-js/css')
+              // publicPath: "./css",
+            },
+          },
+          // {
+          //   loader: "style-loader",
+          //   options: { injectType: "styleTag" },
+          // },
+          {
+            loader: "css-loader",
+            options: {
+              modules: true,
+              sourceMap: true,
+            },
+          },
+          {
+            loader: "sass-loader",
+            options: {
+              modules: true,
+              sourceMap: true,
+            },
+          },
+        ]
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|jpeg|gif)$/i,
@@ -87,7 +120,7 @@ const config = {
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json', '.css', '.scss'],
   },
 };
 

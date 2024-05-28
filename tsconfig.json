@@ -10,7 +10,8 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "jsx": "react",
     "sourceMap": true,
-    "strict": false
+    "strict": false,
+    "plugins": [{ "name": "typescript-plugin-css-modules" }]
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "types/index.d.ts"]
 }

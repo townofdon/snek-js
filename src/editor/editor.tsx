@@ -4,6 +4,8 @@ import { EditorCanvas } from "./editorCanvas";
 // import { LEVEL_02, LEVEL_03, LEVEL_04, LEVEL_05, LEVEL_06, LEVEL_07, LEVEL_08 } from "../levels";
 // import { buildLevel } from "../levels/levelBuilder";
 
+import * as styles from "./editor.css";
+
 // const levels = [
 //   LEVEL_02,
 //   LEVEL_03,
@@ -34,8 +36,10 @@ export const Editor = () => {
   // }, [])
 
   return (
-    <div>
-      <EditorCanvas data={data} />
+    <div className={styles.layout}>
+      <div className={styles.container}>
+        <EditorCanvas data={data} />
+      </div>
     </div>
   );
-}
+};
