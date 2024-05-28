@@ -31,7 +31,7 @@ import {
   SHOW_FPS,
   STROKE_SIZE,
 } from "./constants";
-import { clamp, oscilateLinear } from "./utils";
+import { clamp, lerp, oscilateLinear } from "./utils";
 import { SpriteRenderer } from "./spriteRenderer";
 
 interface RendererConstructorProps {
@@ -110,16 +110,16 @@ export class Renderer implements IRenderer {
     component.clear(0, 0, 0, 0);
   }
 
-  drawGraphicalComponent = (component: P5.Graphics, x: number, y: number) => {
-    this.drawGraphicalComponentImpl(this.p5, component, x, y);
+  drawGraphicalComponent = (component: P5.Graphics, x: number, y: number, alpha = 1) => {
+    this.drawGraphicalComponentImpl(this.p5, component, x, y, alpha);
   }
 
-  drawGraphicalComponentStatic = (component: P5.Graphics, x: number, y: number) => {
+  drawGraphicalComponentStatic = (component: P5.Graphics, x: number, y: number, alpha = 1) => {
     if (this.isStaticCached) return;
-    this.drawGraphicalComponentImpl(this.staticGraphics, component, x, y);
+    this.drawGraphicalComponentImpl(this.staticGraphics, component, x, y, alpha);
   }
 
-  private drawGraphicalComponentImpl = (graphics: P5 | P5.Graphics, component: P5.Graphics, x: number, y: number) => {
+  private drawGraphicalComponentImpl = (graphics: P5 | P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1) => {
     const offset = -STROKE_SIZE * 0.5;
     const sizeOffset = STROKE_SIZE;
     // destination
@@ -128,6 +128,7 @@ export class Renderer implements IRenderer {
     // source
     const sx = 1 * BLOCK_SIZE.x + offset;
     const sy = 1 * BLOCK_SIZE.y + offset;
+    graphics.tint(255, 255, 255, lerp(0, 255, alpha));
     graphics.image(
       component,
       dx,
@@ -142,6 +143,7 @@ export class Renderer implements IRenderer {
       this.p5.LEFT,
       this.p5.TOP
     );
+    graphics.tint(255, 255, 255, 255);
   }
 
   /**

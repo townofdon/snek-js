@@ -1,13 +1,18 @@
 
 import { Vector } from "p5";
 import { DIR, EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../types";
-import { getCoordIndex2, isValidKeyChannel, isValidPortalChannel } from "../utils";
-import { mergeDataSlice } from "./utils/editorUtils";
+import { coordToVec, getCoordIndex, isValidKeyChannel, isValidPortalChannel } from "../utils";
+import { mergeData, mergeDataSlice } from "./utils/editorUtils";
 
 //  THE COMMAND PATTERN
-interface Command {
+export interface Command {
   execute: () => boolean,
   rollback: () => void,
+}
+
+export class NoOpCommand implements Command {
+  execute = () => false;
+  rollback = () => { };
 }
 
 export type SetData = (setter: (prevData: EditorData) => EditorData) => void
@@ -17,9 +22,9 @@ abstract class SetElementCommand implements Command {
   protected newData: EditorDataSlice | null;
   protected readonly coord: number;
   protected readonly setData: SetData;
-  public constructor(x: number, y: number, data: EditorData, setData: SetData) {
+  public constructor(coord: number, data: EditorData, setData: SetData) {
     this.setData = setData;
-    this.coord = getCoordIndex2(x, y);
+    this.coord = coord;
     this.initial = {
       coord: this.coord,
       apple: data.applesMap[this.coord],
@@ -47,8 +52,8 @@ abstract class SetElementCommand implements Command {
       nospawn: false,
       passable: false,
       portal: null,
-      playerSpawnPosition: new Vector(15, 15),
-      startDirection: DIR.RIGHT,
+      playerSpawnPosition: data.playerSpawnPosition.copy(),
+      startDirection: data.startDirection,
     }
   }
   execute = () => {
@@ -63,9 +68,50 @@ abstract class SetElementCommand implements Command {
   };
 }
 
+export class SetPlayerSpawnCommand extends SetElementCommand {
+  public constructor(coord: number, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
+    if (getCoordIndex(data.playerSpawnPosition) === coord) {
+      this.newData = null;
+    } else {
+      this.newData.playerSpawnPosition = coordToVec(coord);
+      this.newData.apple = data.applesMap[this.coord];
+      this.newData.barrier = data.barriersMap[this.coord];
+      this.newData.deco1 = data.decoratives1Map[this.coord];
+      this.newData.deco2 = data.decoratives2Map[this.coord];
+      this.newData.door = data.doorsMap[this.coord];
+      this.newData.key = data.keysMap[this.coord];
+      this.newData.lock = data.locksMap[this.coord];
+      this.newData.nospawn = data.nospawnsMap[this.coord];
+      this.newData.passable = data.passablesMap[this.coord];
+      this.newData.portal = data.portalsMap[this.coord];
+    }
+  }
+}
+
+export class DeleteElementCommand extends SetElementCommand {
+  public constructor(coord: number, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
+    if (
+      !data.applesMap[this.coord] &&
+      !data.barriersMap[this.coord] &&
+      !data.decoratives1Map[this.coord] &&
+      !data.decoratives2Map[this.coord] &&
+      !data.doorsMap[this.coord] &&
+      !isValidKeyChannel(data.keysMap[this.coord]) &&
+      !isValidKeyChannel(data.locksMap[this.coord]) &&
+      !data.nospawnsMap[this.coord] &&
+      !data.passablesMap[this.coord] &&
+      !isValidPortalChannel(data.portalsMap[this.coord])
+    ) {
+      this.newData = null;
+    }
+  }
+}
+
 export class SetAppleCommand extends SetElementCommand {
-  public constructor(x: number, y: number, data: EditorData, setData: SetData) {
-    super(x, y, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
     if (data.applesMap[this.coord]) {
       this.newData = null;
     } else {
@@ -75,9 +121,9 @@ export class SetAppleCommand extends SetElementCommand {
 }
 
 export class SetBarrierCommand extends SetElementCommand {
-  public constructor(x: number, y: number, data: EditorData, setData: SetData) {
-    super(x, y, data, setData);
-    if (data.barriersMap[this.coord]) {
+  public constructor(coord: number, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
+    if (data.barriersMap[this.coord] && !data.passablesMap[this.coord]) {
       this.newData = null;
     } else {
       this.newData.barrier = true;
@@ -86,9 +132,9 @@ export class SetBarrierCommand extends SetElementCommand {
 }
 
 export class SetDecorative1Command extends SetElementCommand {
-  public constructor(x: number, y: number, data: EditorData, setData: SetData) {
-    super(x, y, data, setData);
-    if (data.decoratives1Map[this.coord]) {
+  public constructor(coord: number, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
+    if (data.decoratives1Map[this.coord] && !data.nospawnsMap[this.coord]) {
       this.newData = null;
     } else {
       this.newData.deco1 = true;
@@ -97,9 +143,9 @@ export class SetDecorative1Command extends SetElementCommand {
 }
 
 export class SetDecorative2Command extends SetElementCommand {
-  public constructor(x: number, y: number, data: EditorData, setData: SetData) {
-    super(x, y, data, setData);
-    if (data.decoratives2Map[this.coord]) {
+  public constructor(coord: number, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
+    if (data.decoratives2Map[this.coord] && !data.nospawnsMap[this.coord]) {
       this.newData = null;
     } else {
       this.newData.deco2 = true;
@@ -108,8 +154,8 @@ export class SetDecorative2Command extends SetElementCommand {
 }
 
 export class SetDoorCommand extends SetElementCommand {
-  public constructor(x: number, y: number, data: EditorData, setData: SetData) {
-    super(x, y, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
     if (data.doorsMap[this.coord]) {
       this.newData = null;
     } else {
@@ -119,8 +165,8 @@ export class SetDoorCommand extends SetElementCommand {
 }
 
 export class SetKeyCommand extends SetElementCommand {
-  public constructor(x: number, y: number, channel: KeyChannel, data: EditorData, setData: SetData) {
-    super(x, y, data, setData);
+  public constructor(coord: number, channel: KeyChannel, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
     if (isValidKeyChannel(data.keysMap[this.coord]) && data.keysMap[this.coord] === channel) {
       this.newData = null;
     } else {
@@ -134,8 +180,8 @@ export class SetKeyCommand extends SetElementCommand {
 }
 
 export class SetLockCommand extends SetElementCommand {
-  public constructor(x: number, y: number, channel: KeyChannel, data: EditorData, setData: SetData) {
-    super(x, y, data, setData);
+  public constructor(coord: number, channel: KeyChannel, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
     if (isValidKeyChannel(data.locksMap[this.coord]) && data.locksMap[this.coord] === channel) {
       this.newData = null;
     } else {
@@ -145,8 +191,8 @@ export class SetLockCommand extends SetElementCommand {
 }
 
 export class SetNospawnCommand extends SetElementCommand {
-  public constructor(x: number, y: number, data: EditorData, setData: SetData) {
-    super(x, y, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
     const shouldIgnore = (
       data.applesMap[this.coord] ||
       data.barriersMap[this.coord] ||
@@ -159,13 +205,19 @@ export class SetNospawnCommand extends SetElementCommand {
       this.newData = null;
     } else {
       this.newData.nospawn = true;
+      if (data.decoratives1Map[this.coord]) {
+        this.newData.deco1 = true;
+      }
+      if (data.decoratives2Map[this.coord]) {
+        this.newData.deco2 = true;
+      }
     }
   }
 }
 
 export class SetPassableCommand extends SetElementCommand {
-  public constructor(x: number, y: number, data: EditorData, setData: SetData) {
-    super(x, y, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
     if (data.passablesMap[this.coord] || !data.barriersMap[this.coord]) {
       this.newData = null;
     } else {
@@ -176,12 +228,63 @@ export class SetPassableCommand extends SetElementCommand {
 }
 
 export class SetPortalCommand extends SetElementCommand {
-  public constructor(x: number, y: number, channel: PortalChannel, data: EditorData, setData: SetData) {
-    super(x, y, data, setData);
+  public constructor(coord: number, channel: PortalChannel, data: EditorData, setData: SetData) {
+    super(coord, data, setData);
     if (isValidPortalChannel(data.portalsMap[this.coord]) && data.portalsMap[this.coord] === channel) {
       this.newData = null;
     } else {
       this.newData.portal = channel;
     }
   }
+}
+
+// TODO: GET BATCH UPDATE WORKING FOR RECTANGLE FILL
+abstract class SetBatchElementsCommand implements Command {
+  protected readonly initial: EditorData;
+  protected newData: EditorDataSlice | null;
+  protected readonly coords: number[];
+  protected readonly setData: SetData;
+  public constructor(coords: number[], data: EditorData, setData: SetData) {
+    this.setData = setData;
+    this.coords = coords;
+    this.initial = {
+      applesMap: data.applesMap,
+      barriersMap: data.barriersMap,
+      decoratives1Map: data.decoratives1Map,
+      decoratives2Map: data.decoratives2Map,
+      doorsMap: data.doorsMap,
+      keysMap: data.keysMap,
+      locksMap: data.locksMap,
+      nospawnsMap: data.nospawnsMap,
+      passablesMap: data.passablesMap,
+      portalsMap: data.portalsMap,
+      playerSpawnPosition: data.playerSpawnPosition.copy(),
+      startDirection: data.startDirection,
+    };
+    this.newData = {
+      coord: -1,
+      apple: false,
+      barrier: false,
+      deco1: false,
+      deco2: false,
+      door: false,
+      key: null,
+      lock: null,
+      nospawn: false,
+      passable: false,
+      portal: null,
+      playerSpawnPosition: new Vector(15, 15),
+      startDirection: DIR.RIGHT,
+    }
+  }
+  execute = () => {
+    if (!this.newData) {
+      return false;
+    }
+    // this.setData(prevData => mergeDataSlice(prevData, this.newData));
+    return true;
+  };
+  rollback = () => {
+    this.setData(prevData => mergeData(prevData, this.initial));
+  };
 }

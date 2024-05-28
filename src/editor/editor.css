@@ -1,25 +1,4 @@
 
-@font-face {
-  font-family: MiniMOOD;
-  /* src: url(assets/fonts/MiniMOOD.ttf); */
-  src: url(../../public/assets/fonts/MiniMOOD.ttf);
-}
-
-@font-face {
-  font-family: BIOSfontII;
-  src: url(../../public/assets/fonts/BIOSfontII.ttf);
-}
-
-@font-face {
-  font-family: Casual;
-  src: url(../../public/assets/fonts/casual/LowIndustrial.ttf);
-}
-
-@font-face {
-  font-family: Zicons;
-  src: url(../../public/assets/fonts/casual/Zicons.ttf);
-}
-
 body, html {
   color: #fafafa;
 }

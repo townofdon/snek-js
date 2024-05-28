@@ -10,7 +10,7 @@ import {
   ExtendedPalette,
   GameMode,
   GameState,
-  GraphicalComponents,
+  EditorGraphicalComponents,
   HitType,
   Image,
   KeyChannel,
@@ -30,23 +30,44 @@ import { PortalVortexParticleSystem2 } from '../particleSystems/PortalVortexPart
 import { SpriteRenderer } from '../spriteRenderer';
 import { Renderer } from '../renderer';
 import { Fonts } from '../fonts';
-import { getExtendedPalette } from '../palettes';
-import { getCoordIndex2, getRotationFromDirection, isValidPortalChannel } from '../utils';
+import { PALETTE, getExtendedPalette } from '../palettes';
+import { getCoordIndex2, getRotationFromDirection, isValidKeyChannel, isValidPortalChannel } from '../utils';
 import { EDITOR_DEFAULTS } from './editorConstants';
 import { createLightmap, drawLighting, initLighting, updateLighting } from '../lighting';
 
-interface EditorState {
+export enum EditorTool {
+  Pencil,
+  Rectangle,
+  Bucket,
+}
+
+export enum Operation {
+  None,
+  Add,
+  Remove,
+}
+
+export interface EditorState {
   dirty: boolean,
   colorsDirty: boolean,
   extendedPalette: ExtendedPalette,
+  mouseAt: number,
+  mouseFrom: number,
+  operation: Operation,
+  tool: EditorTool,
 }
+
 export interface EditorSketchReturn {
+  setMouseAt: (coord: number) => void,
+  setMouseFrom: (coord: number) => void,
+  setOperation: (val: Operation) => void,
+  setTool: (tool: EditorTool) => void,
   setData: (data: EditorData) => void,
   setOptions: (options: EditorOptions) => void,
   cleanup: () => void,
 }
 
-export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
+export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): EditorSketchReturn => {
   const data: EditorData = {
     barriersMap: {},
     passablesMap: {},
@@ -69,9 +90,25 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
   const state: EditorState = {
     dirty: false,
     colorsDirty: false,
-    extendedPalette: getExtendedPalette(options.palette, true),
+    extendedPalette: getExtendedPalette(options.palette),
+    mouseAt: -1,
+    mouseFrom: -1,
+    operation: Operation.None,
+    tool: EditorTool.Pencil,
   }
 
+  const setMouseAt = (incoming: number): void => {
+    state.mouseAt = incoming;
+  }
+  const setMouseFrom = (incoming: number): void => {
+    state.mouseFrom = incoming;
+  }
+  const setOperation = (incoming: Operation): void => {
+    state.operation = incoming;
+  }
+  const setTool = (incoming: EditorTool) => {
+    state.tool = incoming;
+  }
   const setData = (incoming: EditorData): void => {
     const getIsDiff = (key: keyof EditorData): boolean => {
       for (let y = 0; y < GRIDCOUNT.y; y++) {
@@ -230,7 +267,7 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
     }
 
     const staticGraphics: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-    const graphicalComponents: GraphicalComponents = {
+    const graphicalComponents: EditorGraphicalComponents = {
       deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
       deco2: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
       barrier: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -239,6 +276,7 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
       apple: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
       snakeHead: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
       snakeSegment: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
+      nospawn: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     }
     const gradients = new Gradients(p5);
     const particles = new Particles(p5, gradients, screenShake); // z-index 0
@@ -276,9 +314,10 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
     function setup() {
       p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D).id("editor-canvas");
       p5.frameRate(60);
+      canvas.current = document.getElementById("editor-canvas") as HTMLCanvasElement;
 
-      cacheGraphicalComponents();
       renderer.reset();
+      cacheGraphicalComponents();
       startPortalParticles();
     }
 
@@ -290,7 +329,7 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
     function draw() {
       if (state.colorsDirty) {
         state.colorsDirty = false;
-        state.extendedPalette = getExtendedPalette(options.palette, true);
+        state.extendedPalette = getExtendedPalette(options.palette);
         cacheGraphicalComponents();
         state.dirty = true;
       }
@@ -304,6 +343,7 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
     }
 
     function cacheGraphicalComponents() {
+      renderer.invalidateStaticCache();
       const colors = state.extendedPalette;
       renderer.clearGraphicalComponent(graphicalComponents.barrier);
       renderer.drawSquareCustom(graphicalComponents.barrier, 1, 1, colors.barrier, colors.barrierStroke, drawBasicOptions);
@@ -335,6 +375,9 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
 
       renderer.clearGraphicalComponent(graphicalComponents.deco2);
       renderer.drawSquareCustom(graphicalComponents.deco2, 1, 1, colors.deco2, colors.deco2Stroke, drawBasicOptions);
+
+      renderer.clearGraphicalComponent(graphicalComponents.nospawn);
+      renderer.drawXCustom(graphicalComponents.nospawn, 1, 1, PALETTE.atomic.apple);
     }
 
     function renderElements() {
@@ -352,6 +395,11 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
             renderer.drawGraphicalComponentStatic(graphicalComponents.deco2, x, y);
           }
 
+          if (data.nospawnsMap[coord]) {
+            const alpha = data.decoratives2Map[coord] ? 0.6 : data.decoratives1Map[coord] ? 0.4 : 0.25;
+            renderer.drawGraphicalComponentStatic(graphicalComponents.nospawn, x, y, alpha);
+          }
+
           if (data.doorsMap[coord]) {
             renderer.drawGraphicalComponentStatic(graphicalComponents.door, x, y);
           }
@@ -360,8 +408,8 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
             renderer.drawGraphicalComponentStatic(graphicalComponents.barrier, x, y);
           }
 
-          if (data.locksMap[coord]) {
-            const channel = data.keysMap[coord];
+          if (isValidKeyChannel(data.locksMap[coord])) {
+            const channel = data.locksMap[coord];
             if (channel === KeyChannel.Yellow) {
               spriteRenderer.drawImage3x3Static(Image.LockYellow, x, y);
             } else if (channel === KeyChannel.Red) {
@@ -371,7 +419,7 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
             }
           }
 
-          if (data.keysMap[coord]) {
+          if (isValidKeyChannel(data.keysMap[coord])) {
             const channel = data.keysMap[coord];
             if (channel === KeyChannel.Yellow) {
               spriteRenderer.drawImage3x3Static(Image.KeyYellow, x, y);
@@ -386,13 +434,14 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
             renderer.drawGraphicalComponentStatic(graphicalComponents.apple, x, y);
           }
 
+          const snakeAlpha = 0.75;
           if (hasSegmentAt(x, y)) {
-            renderer.drawGraphicalComponentStatic(graphicalComponents.snakeSegment, x, y);
+            renderer.drawGraphicalComponentStatic(graphicalComponents.snakeSegment, x, y, snakeAlpha);
           }
 
           if (data.playerSpawnPosition.equals(x, y)) {
-            renderer.drawGraphicalComponentStatic(graphicalComponents.snakeHead, x, y);
-            spriteRenderer.drawImage3x3Static(Image.SnekHead, x, y, getRotationFromDirection(data.startDirection));
+            renderer.drawGraphicalComponentStatic(graphicalComponents.snakeHead, x, y, snakeAlpha);
+            spriteRenderer.drawImage3x3Static(Image.SnekHead, x, y, getRotationFromDirection(data.startDirection), snakeAlpha);
           }
 
           if (data.barriersMap[coord] && data.passablesMap[coord]) {
@@ -532,5 +581,13 @@ export const editorSketch = (container: HTMLElement): EditorSketchReturn => {
     p5Instance.remove();
   };
 
-  return { setData, setOptions, cleanup };
+  return {
+    setData,
+    setOptions,
+    setMouseAt,
+    setMouseFrom,
+    setOperation,
+    setTool,
+    cleanup,
+  };
 }

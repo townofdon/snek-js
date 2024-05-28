@@ -2,7 +2,7 @@ import P5 from "p5";
 
 import { ScreenShakeState, Image } from "./types";
 import { BLOCK_SIZE, STROKE_SIZE } from "./constants";
-import { getRelativeDir } from "./utils";
+import { getRelativeDir, lerp } from "./utils";
 
 const IMAGE_SCALE = 1.01;
 
@@ -91,16 +91,16 @@ export class SpriteRenderer {
     }
   }
 
-  drawImage3x3 = (image: Image, x: number, y: number, rotation: number = 0) => {
-    this.drawImage3x3Impl(this.p5, image, x, y, rotation);
+  drawImage3x3 = (image: Image, x: number, y: number, rotation: number = 0, alpha = 1) => {
+    this.drawImage3x3Impl(this.p5, image, x, y, rotation, alpha);
   }
 
-  drawImage3x3Static = (image: Image, x: number, y: number, rotation: number = 0) => {
+  drawImage3x3Static = (image: Image, x: number, y: number, rotation: number = 0, alpha = 1) => {
     if (this.isStaticCached) return;
-    this.drawImage3x3Impl(this.staticGraphics, image, x, y, rotation);
+    this.drawImage3x3Impl(this.staticGraphics, image, x, y, rotation, alpha);
   }
 
-  private drawImage3x3Impl = (graphics: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0) => {
+  private drawImage3x3Impl = (graphics: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1) => {
     const loaded = this.images[image];
     if (!loaded) return;
     const widthX = BLOCK_SIZE.x;
@@ -125,6 +125,7 @@ export class SpriteRenderer {
       (-widthX * 1.5 - offset) * IMAGE_SCALE,
       (-widthY * 1.5 - offset) * IMAGE_SCALE,
     );
+    graphics.tint(255, 255, 255, lerp(0, 255, alpha));
     graphics.image(
       loaded,
       0,
@@ -139,6 +140,7 @@ export class SpriteRenderer {
       this.p5.LEFT,
       this.p5.TOP
     );
+    graphics.tint(255, 255, 255, 255);
     graphics.pop();
   }
 

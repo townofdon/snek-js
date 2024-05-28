@@ -578,6 +578,10 @@ export interface GraphicalComponents {
   snakeSegment: P5.Graphics,
 }
 
+export interface EditorGraphicalComponents extends GraphicalComponents {
+  nospawn: P5.Graphics,
+}
+
 export interface ParticleSystem2 {
   emit: (x: number, y: number) => void,
   opt1: EmitterOptions,

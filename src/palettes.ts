@@ -23,7 +23,7 @@ enum PaletteName {
   cobra = 'cobra',
 }
 
-export function getExtendedPalette(palette: Palette, transparentSnake = false): ExtendedPalette {
+export function getExtendedPalette(palette: Palette): ExtendedPalette {
   const passable = Color(palette.barrier).darken(0.2).saturate(0.1).hex();
   const passableStroke = Color(palette.barrierStroke).darken(0.2).saturate(0.1).hex();
   const extended: ExtendedPalette = {
@@ -34,11 +34,6 @@ export function getExtendedPalette(palette: Palette, transparentSnake = false): 
     passableStroke: Color(passableStroke).alpha(0.7).hexa(),
     passableBorderLight: Color(passableStroke).lighten(0.1).desaturate(0.1).hex(),
     passableBorderDark: Color(passable).darken(0.1).saturate(0.1).hex(),
-  }
-  if (transparentSnake) {
-    extended.playerHead = Color(extended.playerHead).alpha(0.5).hexa();
-    extended.playerTail = Color(extended.playerTail).alpha(0.5).hexa();
-    extended.playerTailStroke = Color(extended.playerTailStroke).alpha(0.5).hexa();
   }
   return extended;
 }
