@@ -6,7 +6,6 @@ const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
-
 function stripTrailingSlash(text) {
   return String(text).replace(/\/$/, '')
 }
@@ -82,30 +81,21 @@ const config = {
       },
       {
         test: /\.(css|scss|sass)$/,
-        // use: ["style-loader", "css-loader"],
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
-            options: {
-              // publicPath: stripTrailingSlash(isProduction ? 'css' : '/snek-js/css')
-              // publicPath: "./css",
-            },
           },
-          // {
-          //   loader: "style-loader",
-          //   options: { injectType: "styleTag" },
-          // },
           {
             loader: "css-loader",
             options: {
               modules: true,
               sourceMap: true,
+              url: false,
             },
           },
           {
             loader: "sass-loader",
             options: {
-              modules: true,
               sourceMap: true,
             },
           },
@@ -113,7 +103,7 @@ const config = {
       },
       {
         test: /\.(eot|svg|ttf|woff|woff2|png|jpg|jpeg|gif)$/i,
-        type: 'asset',
+        type: 'asset/resource',
       },
       // Add your rules for custom modules here
       // Learn more about loaders from https://webpack.js.org/loaders/

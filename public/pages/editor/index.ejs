@@ -11,7 +11,7 @@
     .tags
     .headTags
     .filter((tag) => tag.attributes?.src?.includes('editor.bundle') || /\.css$/.test(tag.attributes?.href) || tag.tagName === 'link' || tag.tagName === 'style')
-    .join('\n')
+    .join('')
   %>
 </head>
 <body>

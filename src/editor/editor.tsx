@@ -38,6 +38,9 @@ export const Editor = () => {
   return (
     <div className={styles.layout}>
       <div className={styles.container}>
+        <h1 className={styles.mainTitle}>SNEK EDITOR</h1>
+      </div>
+      <div className={styles.editorContainer}>
         <EditorCanvas data={data} />
       </div>
     </div>
