@@ -97,6 +97,9 @@ p, button {
 .static-gfx-canvas.fg3 {
   z-index: 3;
 }
+.static-gfx-canvas.fg4 {
+  z-index: 4;
+}
 .game.hide-gfx-canvas > .static-gfx-canvas {
   display: none!important;
 }
@@ -165,6 +168,7 @@ main div {
 .game {
   position: relative;
   filter: none;
+  overflow: hidden;
 }
 
 .blur {

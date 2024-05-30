@@ -156,6 +156,10 @@ export interface GameState {
   nextLevel: Level | null,
 }
 
+export interface DrawState {
+  shouldDrawApples: boolean,
+}
+
 export interface LoopState {
   interval: NodeJS.Timeout | null,
   timePrevMs: number,

@@ -117,6 +117,10 @@ export class Renderer implements IRenderer {
     this.drawGraphicalComponentImpl(this.p5, component, x, y, alpha);
   }
 
+  drawGraphicalComponentCustom = (gfx: P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1) => {
+    this.drawGraphicalComponentImpl(gfx, component, x, y, alpha);
+  }
+
   drawGraphicalComponentStatic = (gfx: P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1) => {
     if (this.isStaticCached) return;
     this.drawGraphicalComponentImpl(gfx, component, x, y, alpha);
@@ -282,20 +286,20 @@ export class Renderer implements IRenderer {
     }
   }
 
-  drawBasicSquare(x: number, y: number, color: P5.Color, size = 1) {
-    this.drawBasicSquareImpl(this.p5, x, y, color, size);
+  drawBasicSquare(x: number, y: number, color: P5.Color, size = 1, screenshakeMul = 1) {
+    this.drawBasicSquareImpl(this.p5, x, y, color, size, screenshakeMul);
   }
 
-  drawBasicSquareCustom(component: P5 | P5.Graphics, x: number, y: number, color: P5.Color, size = 1) {
-    this.drawBasicSquareImpl(component, x, y, color, size);
+  drawBasicSquareCustom(component: P5 | P5.Graphics, x: number, y: number, color: P5.Color, size = 1, screenshakeMul = 0) {
+    this.drawBasicSquareImpl(component, x, y, color, size, screenshakeMul);
   }
 
-  private drawBasicSquareImpl(gfx: P5 | P5.Graphics, x: number, y: number, color: P5.Color, size = 1) {
+  private drawBasicSquareImpl(gfx: P5 | P5.Graphics, x: number, y: number, color: P5.Color, size = 1, screenshakeMul = 1) {
     const borderSize = STROKE_SIZE * 0.5;
     const width = BLOCK_SIZE.x;
     const height = BLOCK_SIZE.y;
-    const x0 = x * BLOCK_SIZE.x + this.screenShake.offset.x + (1 - size) * width - borderSize;
-    const y0 = y * BLOCK_SIZE.y + this.screenShake.offset.x + (1 - size) * height - borderSize;
+    const x0 = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + (1 - size) * width - borderSize;
+    const y0 = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + (1 - size) * height - borderSize;
     const x1 = x0 + width * size;
     const y1 = y0 + height * size;
     gfx.fill(color);

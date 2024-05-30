@@ -92,6 +92,10 @@ export class SpriteRenderer {
     this.drawImage3x3Impl(this.p5, image, x, y, rotation, alpha);
   }
 
+  drawImage3x3Custom = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1) => {
+    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha);
+  }
+
   drawImage3x3Static = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1) => {
     if (this.isStaticCached) return;
     this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha);

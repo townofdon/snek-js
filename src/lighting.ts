@@ -55,7 +55,7 @@ export function drawLighting(lightMap: number[], renderer: Renderer, graphics: P
     const color = lightColorLookup[Math.floor(a * numUniqLightColors + Number.EPSILON)];
     if (!color) continue;
     const coefficient = 1 / LIGHTMAP_RESOLUTION;
-    renderer.drawBasicSquareCustom(graphics, x * coefficient, y * coefficient, color, coefficient);
+    renderer.drawBasicSquareCustom(graphics, x * coefficient, y * coefficient, color, coefficient, 0);
   }
 }
 

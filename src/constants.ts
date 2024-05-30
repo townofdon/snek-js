@@ -51,7 +51,7 @@ export const COBRA_SCORE_MOD = 1.5;
 export const PICKUP_INVINCIBILITY_BONUS = 200;
 
 export const PICKUP_DROP_LIKELIHOOD = 0.04;
-export const PICKUP_LIFETIME_MS = 10000;
+export const PICKUP_LIFETIME_MS = 8000;
 export const PICKUP_EXPIRE_WARN_MS = 3500;
 export const PICKUP_SPAWN_COOLDOWN = 15000;
 

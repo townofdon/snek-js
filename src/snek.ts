@@ -117,6 +117,7 @@ import {
   Pickup,
   GameMode,
   DrawSquareOptions,
+  DrawState,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -214,6 +215,9 @@ const state: GameState = {
   hasKeyRed: false,
   hasKeyBlue: false,
   nextLevel: null,
+};
+const drawState: DrawState = {
+  shouldDrawApples: true,
 };
 const stats: Stats = {
   numDeaths: 0,
@@ -344,12 +348,14 @@ export const sketch = (p5: P5) => {
   // hack P5's "offscreen canvas" to layer multiple canvases for MAX PERF - see: https://p5js.org/reference/#/p5/createGraphics
   const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  const gfxApples: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxPresentation: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  gfxBG.addClass('static-gfx-canvas').addClass('bg').parent('game');
-  gfxFG.addClass('static-gfx-canvas').addClass('fg1').parent('game');
-  gfxLighting.addClass('static-gfx-canvas').addClass('fg2').parent('game');
-  gfxPresentation.addClass('static-gfx-canvas').addClass('fg3').parent('game');
+  gfxBG.addClass('static-gfx-canvas').addClass('bg').parent('game').addClass('gfx-bg');
+  gfxFG.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-fg');
+  gfxApples.addClass('static-gfx-canvas').addClass('fg2').parent('game').addClass('gfx-apples');
+  gfxLighting.addClass('static-gfx-canvas').addClass('fg3').parent('game').addClass('gfx-lighting');
+  gfxPresentation.addClass('static-gfx-canvas').addClass('fg4').parent('game').addClass('gfx-presentation');
   const graphicalComponents: GraphicalComponents = {
     deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     deco2: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -882,10 +888,13 @@ export const sketch = (p5: P5) => {
     musicPlayer.setVolume(0);
     state.timeSinceInvincibleStart = 0;
     state.isShowingDeathColours = true;
+    drawState.shouldDrawApples = true;
     loopState.timeScale = 0;
     startScreenShake(2, 0, 0.8);
+    renderer.invalidateStaticCache();
     yield* waitForTime(INVINCIBILITY_PICKUP_FREEZE_MS);
     state.isShowingDeathColours = false;
+    drawState.shouldDrawApples = true;
     loopState.timeScale = 1;
     startScreenShake(0, 1);
     renderer.invalidateStaticCache();
@@ -924,6 +933,7 @@ export const sketch = (p5: P5) => {
     stats.applesEatenThisLevel = 0;
 
     // init state for new level
+    drawState.shouldDrawApples = true;
     player.position = p5.createVector(15, 15);
     player.direction = DIR.RIGHT;
     player.directionToFirstSegment = DIR.LEFT;
@@ -1000,6 +1010,8 @@ export const sketch = (p5: P5) => {
     stopAction(Action.GameOver);
     startAction(fadeMusic(1, 100), Action.FadeMusic);
     sfx.setGlobalVolume(settings.sfxVolume);
+    resetScreenShake();
+    applyScreenShakeGfx(0, 0);
 
     gfxBG.clear(0, 0, 0, 0);
     gfxFG.clear(0, 0, 0, 0);
@@ -1144,6 +1156,7 @@ export const sketch = (p5: P5) => {
         spawnAppleParticles(segments.get(i));
         incrementScore();
         growSnake(appleFound);
+        drawState.shouldDrawApples = true;
       }
     }
 
@@ -1162,6 +1175,7 @@ export const sketch = (p5: P5) => {
         startInvincibility();
       }
       pickupsMap[coord] = null;
+      drawState.shouldDrawApples = true;
     }
 
     // tick time for all pickups
@@ -1173,17 +1187,8 @@ export const sketch = (p5: P5) => {
           if (pickupsMap[i].timeTillDeath <= 0) {
             pickupsMap[i] = null;
             apples.removeByCoord(i);
+            drawState.shouldDrawApples = true;
           }
-        }
-      }
-    }
-
-    for (let i = 0; i < BLOCK_SIZE.x * BLOCK_SIZE.y; i++) {
-      if (pickupsMap[i]) {
-        pickupsMap[i].timeTillDeath -= loopState.deltaTime;
-        if (pickupsMap[i].timeTillDeath <= 0) {
-          pickupsMap[i] = null;
-          apples.removeByCoord(i);
         }
       }
     }
@@ -1277,10 +1282,7 @@ export const sketch = (p5: P5) => {
       drawLock(locks[i])
     }
 
-    renderer.setStaticCacheFlags();
     drawPortals();
-
-    renderer.drawCaptureMode();
 
     for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
       if (apples.existsAtCoord(i)) {
@@ -1290,7 +1292,7 @@ export const sketch = (p5: P5) => {
       }
     }
 
-    renderer.drawPlayerMoveArrows(gfxPresentation, player.position, moves.length > 0 ? moves[0] : player.direction);
+    renderer.drawPlayerMoveArrows(p5, player.position, moves.length > 0 ? moves[0] : player.direction);
 
     for (let i = 0; i < segments.length; i++) {
       drawPlayerSegment(segments.get(i), i);
@@ -1301,6 +1303,9 @@ export const sketch = (p5: P5) => {
     drawPlayerHead(player.position);
     drawPassableBarriers();
     drawParticles(10);
+    renderer.drawCaptureMode();
+    renderer.setStaticCacheFlags();
+    drawState.shouldDrawApples = false;
 
     if (
       state.isGameStarted &&
@@ -1408,10 +1413,7 @@ export const sketch = (p5: P5) => {
 
   function updateScreenShake() {
     if (settings.isScreenShakeDisabled) {
-      screenShake.offset.x = 0;
-      screenShake.offset.y = 0;
-      screenShake.magnitude = 1;
-      screenShake.timeScale = 1;
+      resetScreenShake();
       return;
     }
     screenShake.timeSinceStarted += p5.deltaTime;
@@ -1422,17 +1424,32 @@ export const sketch = (p5: P5) => {
         screenShake.offset.x = (p5.random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
         screenShake.offset.y = (p5.random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
         screenShake.timeSinceLastStep = 0;
-        renderer.invalidateStaticCache();
+        if (state.isLost) renderer.invalidateStaticCache();
+        applyScreenShakeGfx(screenShake.offset.x, screenShake.offset.y);
       }
     } else {
       if (screenShake.offset.x !== 0 || screenShake.offset.y !== 0) {
         renderer.invalidateStaticCache();
+        applyScreenShakeGfx(0, 0);
+        drawState.shouldDrawApples = true;
       }
-      screenShake.offset.x = 0;
-      screenShake.offset.y = 0;
-      screenShake.magnitude = 1;
-      screenShake.timeScale = 1;
+      resetScreenShake();
     }
+  }
+
+  function applyScreenShakeGfx(x: number, y: number) {
+    const shake = (g: P5.Graphics, mul = 1) => { g.style('transform', `translate(${x * mul}px, ${y * mul}px)`); }
+    shake(gfxBG, 0);
+    shake(gfxFG, 2);
+    shake(gfxApples, 1);
+  }
+
+  function resetScreenShake() {
+    screenShake.offset.x = 0;
+    screenShake.offset.y = 0;
+    screenShake.magnitude = 1;
+    screenShake.timeScale = 1;
+    screenShake.timeSinceStarted = Infinity;
   }
 
   function getHasClearedLevel() {
@@ -1548,6 +1565,7 @@ export const sketch = (p5: P5) => {
     keysMap[index] = null;
     playSound(Sound.pickup, 0.35);
     renderer.invalidateStaticCache();
+    drawState.shouldDrawApples = true;
   }
 
   function handleUnlock() {
@@ -1600,6 +1618,7 @@ export const sketch = (p5: P5) => {
       return true;
     });
     renderer.invalidateStaticCache();
+    drawState.shouldDrawApples = true;
   }
 
   function handleDifficultySelect() {
@@ -1750,6 +1769,7 @@ export const sketch = (p5: P5) => {
     const isStartLevel = getIsStartLevel()
     state.isExitingLevel = true;
     winLevelScene.reset(isStartLevel ? 'GET PSYCHED!' : 'SNEK CLEAR!');
+    if (isStartLevel) startScreenShake(1.5, -1);
     sfx.stop(Sound.invincibleLoop);
     stopAction(Action.Invincibility);
     musicPlayer.setPlaybackRate(level.musicTrack, 1);
@@ -1788,6 +1808,10 @@ export const sketch = (p5: P5) => {
     if (state.isExited) return;
     if (state.isGameWon) return;
     if (!segments.every(segment => getHasSegmentExited(segment))) return;
+
+    drawState.shouldDrawApples = true;
+    renderer.invalidateStaticCache();
+    drawBackground();
 
     state.isExited = true;
     if (replay.mode === ReplayMode.Playback) {
@@ -2006,9 +2030,10 @@ export const sketch = (p5: P5) => {
    * actions to apply when snake eats an apple
    */
   function growSnake(appleCoord = -1) {
+    drawState.shouldDrawApples = true;
     if (state.isLost) return;
     if (appleCoord < 0) return;
-    startScreenShake(0.4, 0.8);
+    startScreenShake(0.25, 0.8);
     apples.removeByCoord(appleCoord);
     const numSegmentsToAdd = Math.max(
       (difficulty.index - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
@@ -2089,6 +2114,7 @@ export const sketch = (p5: P5) => {
   }
 
   function spawnApple(numTries = 0) {
+    drawState.shouldDrawApples = true;
     if (level.disableAppleSpawn) return;
     if (replay.mode === ReplayMode.Playback) {
       addAppleReplayMode();
@@ -2151,6 +2177,7 @@ export const sketch = (p5: P5) => {
   }
 
   function addAppleReplayMode() {
+    drawState.shouldDrawApples = true;
     const appleToSpawn = replay.applesToSpawn.shift();
     if (appleToSpawn) {
       apples.add(appleToSpawn[0], appleToSpawn[1]);
@@ -2161,6 +2188,7 @@ export const sketch = (p5: P5) => {
   }
 
   function addSnakeSegment() {
+    drawState.shouldDrawApples = true;
     segments.addVec(segments.get(segments.length - 1));
   }
 
@@ -2210,6 +2238,9 @@ export const sketch = (p5: P5) => {
     renderer.drawBackground(backgroundColor, gfxBG, gfxFG);
     gfxLighting.clear(0, 0, 0, 0);
     gfxPresentation.clear(0, 0, 0, 0);
+    if (drawState.shouldDrawApples) {
+      gfxApples.clear(0, 0, 0, 0);
+    }
   }
 
   function drawPlayerHead(vec: Vector) {
@@ -2218,12 +2249,14 @@ export const sketch = (p5: P5) => {
         PALETTE.deathInvert.playerHead,
         PALETTE.deathInvert.playerHead,
         drawPlayerOptions);
+    } else if (!state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
+      renderer.drawSquare(vec.x, vec.y, PALETTE.cobra.playerHead, PALETTE.cobra.playerHead, drawPlayerOptions);
     } else {
       renderer.drawGraphicalComponent(graphicalComponents.snakeHead, vec.x, vec.y);
     }
     const direction = (!state.isLost && moves.length > 0) ? moves[0] : player.direction;
     if (state.isLost) {
-      spriteRenderer.drawImage3x3(Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction));
+      spriteRenderer.drawImage3x3Custom(gfxFG, Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction));
     } else {
       spriteRenderer.drawImage3x3(Image.SnekHead, vec.x, vec.y, getRotationFromDirection(direction));
     }
@@ -2252,7 +2285,12 @@ export const sketch = (p5: P5) => {
         PALETTE.deathInvert.playerTailStroke,
         drawPlayerOptions);
     } else {
-      renderer.drawGraphicalComponent(graphicalComponents.snakeSegment, vec.x, vec.y);
+      if (state.gameMode === GameMode.Cobra) {
+        renderer.drawSquare(vec.x, vec.y, PALETTE.cobra.playerTail, PALETTE.cobra.playerTailStroke, drawPlayerOptions);
+      } else {
+        renderer.drawSquare(vec.x, vec.y, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
+      }
+      // renderer.drawGraphicalComponent(graphicalComponents.snakeSegment, vec.x, vec.y);
     }
   }
 
@@ -2271,8 +2309,8 @@ export const sketch = (p5: P5) => {
       const color = gradients.calc(invincibleColorGradient, (cycle % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
       renderer.drawSquare(x, y, color.toString(), color.toString(), drawInvincibilityPickupOptions);
       spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
-    } else {
-      renderer.drawGraphicalComponent(graphicalComponents.apple, x, y);
+    } else if (drawState.shouldDrawApples) {
+      renderer.drawGraphicalComponentCustom(gfxApples, graphicalComponents.apple, x, y);
     }
   }
 
@@ -2308,7 +2346,7 @@ export const sketch = (p5: P5) => {
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < barriers.length; i++) {
         if (!passablesMap[getCoordIndex(barriers[i])]) continue;
-        renderer.drawGraphicalComponent(graphicalComponents.barrierPassable, barriers[i].x, barriers[i].y);
+        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrierPassable, barriers[i].x, barriers[i].y);
       }
       return;
     }
@@ -2329,7 +2367,7 @@ export const sketch = (p5: P5) => {
   function drawDoors() {
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < doors.length; i++) {
-        renderer.drawGraphicalComponent(graphicalComponents.door, doors[i].x, doors[i].y);
+        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.door, doors[i].x, doors[i].y);
       }
       return;
     }
@@ -2463,9 +2501,11 @@ export const sketch = (p5: P5) => {
     yield* waitForTime(200);
     startScreenShake(3, -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, 0.1);
     state.isShowingDeathColours = true;
+    drawState.shouldDrawApples = true;
     renderer.invalidateStaticCache();
     yield* waitForTime(HURT_STUN_TIME * 2.5);
     state.isShowingDeathColours = false;
+    drawState.shouldDrawApples = true;
     renderer.invalidateStaticCache();
     startScreenShake();
     if (replay.mode === ReplayMode.Playback) {
@@ -2560,6 +2600,7 @@ export const sketch = (p5: P5) => {
     doorsMap = {};
     state.isDoorsOpen = true;
     renderer.invalidateStaticCache();
+    drawState.shouldDrawApples = true;
   }
 
   function gotoNextLevel() {
