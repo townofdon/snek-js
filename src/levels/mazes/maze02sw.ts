@@ -46,8 +46,8 @@ XXXXXXXXXXXXXXXXXXXXXXXDDDDDXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.gravChamber),
-  renderInstructions: (renderer, state, palette) => {
-    renderer.drawSprintControls(19, 19);
+  renderInstructions: (gfx, renderer, state, palette) => {
+    renderer.drawSprintControls(gfx, 19, 19);
   },
   showQuoteOnLevelWin: false,
   portalExitConfig: {

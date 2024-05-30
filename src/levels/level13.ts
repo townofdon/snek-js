@@ -43,7 +43,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
   `,
   colors: getExtendedPalette(PALETTE.scienceLab),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   showQuoteOnLevelWin: true,
   portalExitConfig: {
     1: PortalExitMode.SameDirection,

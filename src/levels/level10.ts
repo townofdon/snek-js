@@ -43,7 +43,7 @@ X~~~~~~~~~~~XXDDXX~~~~~~~~~~~X
 XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.burningCity),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   showQuoteOnLevelWin: true,
   extraLoseMessages: [
     ["X marks the frustration."],

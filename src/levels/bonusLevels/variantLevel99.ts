@@ -45,7 +45,7 @@ XXxx  __~~~~XXddXX~~~~__     X
 XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.darkStar),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   extraLoseMessages: [
     ["The bold. The courageous. The Snek."],
     ["Too much for you, eh?"],

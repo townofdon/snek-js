@@ -27,8 +27,8 @@ export class WinLevelScene extends BaseScene {
   private unlockedMusicStore: UnlockedMusicStore;
   private levelMusicTrack: MusicTrack | null = null;
 
-  constructor(p5: P5, sfx: SFXInstance, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, callbacks: SceneCallbacks = {}) {
-    super(p5, fonts, callbacks)
+  constructor(p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, callbacks: SceneCallbacks = {}) {
+    super(p5, gfx, fonts, callbacks)
     this.sfx = sfx;
     this.unlockedMusicStore = unlockedMusicStore;
   }
@@ -218,19 +218,19 @@ export class WinLevelScene extends BaseScene {
   keyPressed = () => { };
 
   draw = () => {
-    const { p5, fonts } = this.props;
+    const { p5, gfx, fonts } = this.props;
     const title = this.titleText;
     this.drawBackground(p5.lerpColor(p5.color("#00000000"), p5.color("#00000066"), this.bgOpacity).toString());
-    p5.textAlign(p5.CENTER, p5.CENTER);
-    p5.textFont(fonts.variants.miniMood);
-    p5.stroke("#000")
-    p5.strokeWeight(4);
-    p5.textSize(32.5);
-    p5.fill('#000');
-    p5.text(title, ...this.getPosition(0.5, this.stageClearY + 0.01));
-    p5.textSize(32);
-    p5.fill('#fff');
-    p5.text(title, ...this.getPosition(0.5, this.stageClearY + 0.0));
+    gfx.textAlign(p5.CENTER, p5.CENTER);
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.stroke("#000")
+    gfx.strokeWeight(4);
+    gfx.textSize(32.5);
+    gfx.fill('#000');
+    gfx.text(title, ...this.getPosition(0.5, this.stageClearY + 0.01));
+    gfx.textSize(32);
+    gfx.fill('#fff');
+    gfx.text(title, ...this.getPosition(0.5, this.stageClearY + 0.0));
 
     this.tick();
   };
@@ -241,98 +241,98 @@ export class WinLevelScene extends BaseScene {
 
   drawPerfectBonus = (bonus: number, hasBonus: boolean) => {
     if (!hasBonus) return;
-    const { p5, fonts } = this.props;
+    const { p5, gfx, fonts } = this.props;
     const accentColor = this.accentColor;
     const accentColorBg = this.accentColorBg;
-    p5.textFont(fonts.variants.miniMood);
-    p5.fill(accentColor);
-    p5.stroke(accentColorBg)
-    p5.strokeWeight(2);
-    p5.textSize(16);
-    p5.textAlign(p5.CENTER, p5.TOP);
-    p5.text('PERFECT!', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
-    p5.textAlign(p5.CENTER, p5.TOP);
-    p5.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.fill(accentColor);
+    gfx.stroke(accentColorBg)
+    gfx.strokeWeight(2);
+    gfx.textSize(16);
+    gfx.textAlign(p5.CENTER, p5.TOP);
+    gfx.text('PERFECT!', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
+    gfx.textAlign(p5.CENTER, p5.TOP);
+    gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
   }
 
   drawAllApplesBonus = (bonus: number, hasBonus: boolean) => {
     if (!hasBonus) return;
-    const { p5, fonts } = this.props;
+    const { p5, gfx, fonts } = this.props;
     const accentColor = "#15C2CB";
     const accentColorBg = Color("#119DA4").darken(0.4).hex();
-    p5.textFont(fonts.variants.miniMood);
-    p5.fill(accentColor);
-    p5.stroke(accentColorBg);
-    p5.strokeWeight(2);
-    p5.textSize(16);
-    p5.textAlign(p5.CENTER, p5.TOP);
-    p5.text('100% Apples', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
-    p5.textAlign(p5.CENTER, p5.TOP);
-    p5.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.fill(accentColor);
+    gfx.stroke(accentColorBg);
+    gfx.strokeWeight(2);
+    gfx.textSize(16);
+    gfx.textAlign(p5.CENTER, p5.TOP);
+    gfx.text('100% Apples', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
+    gfx.textAlign(p5.CENTER, p5.TOP);
+    gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
   }
 
   drawLevelClearBonus = (bonus: number) => {
-    const { p5, fonts } = this.props;
-    p5.textFont(fonts.variants.miniMood);
-    p5.fill('#fff');
-    p5.stroke("#000")
-    p5.strokeWeight(2);
-    p5.textSize(14);
-    p5.textAlign(p5.LEFT, p5.TOP);
-    p5.text('Level Clear Bonus', ...this.getPosition(0.15, 0.4 + this.statOffsetY));
-    p5.textAlign(p5.LEFT, p5.TOP);
-    p5.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.15, 0.45 + this.statOffsetY));
+    const { p5, gfx, fonts } = this.props;
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.fill('#fff');
+    gfx.stroke("#000")
+    gfx.strokeWeight(2);
+    gfx.textSize(14);
+    gfx.textAlign(p5.LEFT, p5.TOP);
+    gfx.text('Level Clear Bonus', ...this.getPosition(0.15, 0.4 + this.statOffsetY));
+    gfx.textAlign(p5.LEFT, p5.TOP);
+    gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.15, 0.45 + this.statOffsetY));
   }
 
   drawLivesLeftBonus = (bonus: number, lives: number, calcBonus: number) => {
-    const { p5, fonts } = this.props;
-    p5.textFont(fonts.variants.miniMood);
-    p5.stroke("#000")
-    p5.strokeWeight(2);
-    p5.noStroke();
-    p5.textSize(14);
-    p5.textAlign(p5.LEFT, p5.TOP);
-    p5.text('Lives Bonus', ...this.getPosition(0.6, 0.4 + this.statOffsetY));
-    p5.text(`${lives} x ${bonus.toFixed(0)}`, ...this.getPosition(0.6, 0.45 + this.statOffsetY));
-    p5.text(calcBonus.toFixed(0).padStart(5, '0'), ...this.getPosition(0.6, 0.5 + this.statOffsetY));
+    const { p5, gfx, fonts } = this.props;
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.stroke("#000")
+    gfx.strokeWeight(2);
+    gfx.noStroke();
+    gfx.textSize(14);
+    gfx.textAlign(p5.LEFT, p5.TOP);
+    gfx.text('Lives Bonus', ...this.getPosition(0.6, 0.4 + this.statOffsetY));
+    gfx.text(`${lives} x ${bonus.toFixed(0)}`, ...this.getPosition(0.6, 0.45 + this.statOffsetY));
+    gfx.text(calcBonus.toFixed(0).padStart(5, '0'), ...this.getPosition(0.6, 0.5 + this.statOffsetY));
   }
 
   drawScore = (score: number) => {
-    const { p5, fonts } = this.props;
-    p5.textAlign(p5.CENTER, p5.CENTER);
-    p5.textFont(fonts.variants.miniMood);
-    p5.stroke("#000")
-    p5.strokeWeight(2);
-    p5.textSize(24.5);
-    p5.fill('#000');
-    p5.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.61));
-    p5.textSize(24);
-    p5.fill('#fff');
-    p5.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.6));
+    const { p5, gfx, fonts } = this.props;
+    gfx.textAlign(p5.CENTER, p5.CENTER);
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.stroke("#000")
+    gfx.strokeWeight(2);
+    gfx.textSize(24.5);
+    gfx.fill('#000');
+    gfx.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.61));
+    gfx.textSize(24);
+    gfx.fill('#fff');
+    gfx.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.6));
   }
 
   drawMusicTrackUnlocked = (track: MusicTrack) => {
-    const { p5, fonts } = this.props;
+    const { p5, gfx, fonts } = this.props;
     const accentColor = "#15C2CB";
     const accentColorBg = Color("#119DA4").darken(0.4).hex();
     const shadowOffset = 0.01;
-    p5.textFont(fonts.variants.miniMood);
-    p5.textSize(16);
-    p5.textAlign(p5.CENTER, p5.TOP);
-    p5.fill('#000');
-    p5.noStroke();
-    p5.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY + shadowOffset));
-    p5.fill(accentColor);
-    p5.stroke(accentColorBg);
-    p5.strokeWeight(4);
-    p5.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY));
-    p5.textSize(28);
-    p5.fill('#000');
-    p5.noStroke();
-    p5.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY + shadowOffset));
-    p5.fill(accentColor);
-    p5.stroke(accentColorBg);
-    p5.strokeWeight(4);
-    p5.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY));
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.textSize(16);
+    gfx.textAlign(p5.CENTER, p5.TOP);
+    gfx.fill('#000');
+    gfx.noStroke();
+    gfx.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY + shadowOffset));
+    gfx.fill(accentColor);
+    gfx.stroke(accentColorBg);
+    gfx.strokeWeight(4);
+    gfx.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY));
+    gfx.textSize(28);
+    gfx.fill('#000');
+    gfx.noStroke();
+    gfx.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY + shadowOffset));
+    gfx.fill(accentColor);
+    gfx.stroke(accentColorBg);
+    gfx.strokeWeight(4);
+    gfx.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY));
   }
 }

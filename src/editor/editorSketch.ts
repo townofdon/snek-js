@@ -266,7 +266,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       nextLevel: undefined,
     }
 
-    const staticGraphics: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+    const gfx: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
     const graphicalComponents: EditorGraphicalComponents = {
       deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
       deco2: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -286,8 +286,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     const portalParticleSystem = new PortalParticleSystem2(p5, emitters10, gradients);
     const portalVortexParticleSystem = new PortalVortexParticleSystem2(p5, emitters, gradients);
     const fonts = new Fonts(p5);
-    const spriteRenderer = new SpriteRenderer({ p5, staticGraphics, screenShake });
-    const renderer = new Renderer({ p5, staticGraphics, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
+    const spriteRenderer = new SpriteRenderer({ p5, screenShake });
+    const renderer = new Renderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
     const lightMap = createLightmap();
 
     const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true }
@@ -381,82 +381,82 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     }
 
     function renderElements() {
-      renderer.drawBackground(state.extendedPalette.background);
+      p5.background(state.extendedPalette.background);
 
       for (let y = 0; y < GRIDCOUNT.y; y++) {
         for (let x = 0; x < GRIDCOUNT.x; x++) {
           const coord = getCoordIndex2(x, y);
 
           if (data.decoratives1Map[coord]) {
-            renderer.drawGraphicalComponentStatic(graphicalComponents.deco1, x, y);
+            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.deco1, x, y);
           }
 
           if (data.decoratives2Map[coord]) {
-            renderer.drawGraphicalComponentStatic(graphicalComponents.deco2, x, y);
+            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.deco2, x, y);
           }
 
           if (data.nospawnsMap[coord]) {
             const alpha = data.decoratives2Map[coord] ? 0.6 : data.decoratives1Map[coord] ? 0.4 : 0.25;
-            renderer.drawGraphicalComponentStatic(graphicalComponents.nospawn, x, y, alpha);
+            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.nospawn, x, y, alpha);
           }
 
           if (data.doorsMap[coord]) {
-            renderer.drawGraphicalComponentStatic(graphicalComponents.door, x, y);
+            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.door, x, y);
           }
 
           if (data.barriersMap[coord] && !data.passablesMap[coord]) {
-            renderer.drawGraphicalComponentStatic(graphicalComponents.barrier, x, y);
+            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);
           }
 
           if (isValidKeyChannel(data.locksMap[coord])) {
             const channel = data.locksMap[coord];
             if (channel === KeyChannel.Yellow) {
-              spriteRenderer.drawImage3x3Static(Image.LockYellow, x, y);
+              spriteRenderer.drawImage3x3Static(gfx, Image.LockYellow, x, y);
             } else if (channel === KeyChannel.Red) {
-              spriteRenderer.drawImage3x3Static(Image.LockRed, x, y);
+              spriteRenderer.drawImage3x3Static(gfx, Image.LockRed, x, y);
             } else if (channel === KeyChannel.Blue) {
-              spriteRenderer.drawImage3x3Static(Image.LockBlue, x, y);
+              spriteRenderer.drawImage3x3Static(gfx, Image.LockBlue, x, y);
             }
           }
 
           if (isValidKeyChannel(data.keysMap[coord])) {
             const channel = data.keysMap[coord];
             if (channel === KeyChannel.Yellow) {
-              spriteRenderer.drawImage3x3Static(Image.KeyYellow, x, y);
+              spriteRenderer.drawImage3x3Static(gfx, Image.KeyYellow, x, y);
             } else if (channel === KeyChannel.Red) {
-              spriteRenderer.drawImage3x3Static(Image.KeyRed, x, y);
+              spriteRenderer.drawImage3x3Static(gfx, Image.KeyRed, x, y);
             } else if (channel === KeyChannel.Blue) {
-              spriteRenderer.drawImage3x3Static(Image.KeyBlue, x, y);
+              spriteRenderer.drawImage3x3Static(gfx, Image.KeyBlue, x, y);
             }
           }
 
           if (data.applesMap[coord]) {
-            renderer.drawGraphicalComponentStatic(graphicalComponents.apple, x, y);
+            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.apple, x, y);
           }
 
           const snakeAlpha = 0.75;
           if (hasSegmentAt(x, y)) {
-            renderer.drawGraphicalComponentStatic(graphicalComponents.snakeSegment, x, y, snakeAlpha);
+            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.snakeSegment, x, y, snakeAlpha);
           }
 
           if (data.playerSpawnPosition.equals(x, y)) {
-            renderer.drawGraphicalComponentStatic(graphicalComponents.snakeHead, x, y, snakeAlpha);
-            spriteRenderer.drawImage3x3Static(Image.SnekHead, x, y, getRotationFromDirection(data.startDirection), snakeAlpha);
+            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.snakeHead, x, y, snakeAlpha);
+            spriteRenderer.drawImage3x3Static(gfx, Image.SnekHead, x, y, getRotationFromDirection(data.startDirection), snakeAlpha);
           }
 
           if (data.barriersMap[coord] && data.passablesMap[coord]) {
-            renderer.drawGraphicalComponentStatic(graphicalComponents.barrierPassable, x, y);
+            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrierPassable, x, y);
           }
         }
       }
 
       drawParticles(0);
-      renderer.drawStaticGraphics();
+      renderer.drawStaticGraphics(gfx);
       drawPortals();
       drawParticles(10);
 
       if (options.globalLight < 1) {
-        drawLighting(lightMap, renderer);
+        drawLighting(lightMap, renderer, p5);
       }
 
       renderer.tick();

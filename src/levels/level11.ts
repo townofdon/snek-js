@@ -48,7 +48,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   // colors: PALETTE.hospital,
   // colors: PALETTE.atomic,
   colors: getExtendedPalette(PALETTE.stonelair),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.stonemaze,
   globalLight: 0.4,

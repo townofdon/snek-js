@@ -13,8 +13,8 @@ import { FontsInstance, GameState, SFXInstance, Scene, SceneCallbacks } from "..
  * buildSceneAction(level.storyScene)().then(buildSceneAction(level.titleScene))
  * ```
  */
-export const buildSceneActionFactory = (p5: P5, sfx: SFXInstance, fonts: FontsInstance, state: GameState) =>
-  (onScene?: (p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene) => {
+export const buildSceneActionFactory = (p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, state: GameState) =>
+  (onScene?: (p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene) => {
     return () => new Promise<void>((resolve, reject) => {
       if (!onScene) {
         resolve();
@@ -24,7 +24,7 @@ export const buildSceneActionFactory = (p5: P5, sfx: SFXInstance, fonts: FontsIn
         const onSceneEnded = () => {
           resolve()
         }
-        onScene(p5, sfx, fonts, { onSceneEnded });
+        onScene(p5, gfx, sfx, fonts, { onSceneEnded });
       } catch (err) {
         reject(err)
       }

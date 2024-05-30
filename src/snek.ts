@@ -156,6 +156,7 @@ import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParti
 import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
 import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
 import { SaveDataStore } from './stores/SaveDataStore';
+import { TitleScene } from './scenes/TitleScene';
 
 let level: Level = MAIN_TITLE_SCREEN_LEVEL;
 let difficulty: Difficulty = { ...DIFFICULTY_EASY };
@@ -340,8 +341,15 @@ export const sketch = (p5: P5) => {
     actionIds[actionKey] = null;
   }
 
-  // offscreen canvas for caching static game elements - see: https://p5js.org/reference/#/p5/createGraphics
-  const staticGraphics: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  // hack P5's "offscreen canvas" to layer multiple canvases for MAX PERF - see: https://p5js.org/reference/#/p5/createGraphics
+  const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  const gfxPresentation: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  gfxBG.addClass('static-gfx-canvas').addClass('bg').parent('game');
+  gfxFG.addClass('static-gfx-canvas').addClass('fg1').parent('game');
+  gfxLighting.addClass('static-gfx-canvas').addClass('fg2').parent('game');
+  gfxPresentation.addClass('static-gfx-canvas').addClass('fg3').parent('game');
   const graphicalComponents: GraphicalComponents = {
     deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     deco2: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -369,17 +377,17 @@ export const sketch = (p5: P5) => {
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer(settings);
   const mainTitleFader = new MainTitleFader(p5);
-  const winLevelScene = new WinLevelScene(p5, sfx, fonts, unlockedMusicStore, { onSceneEnded: gotoNextLevel });
+  const winLevelScene = new WinLevelScene(p5, gfxPresentation, sfx, fonts, unlockedMusicStore, { onSceneEnded: gotoNextLevel });
   const onChangePlayerDirection: (direction: DIR) => void = (dir) => {
     if (validateMove(player.direction, dir)) {
       player.direction = dir;
       player.directionToFirstSegment = invertDirection(dir);
     }
   };
-  const winGameScene = new WinGameScene({ p5, gameState: state, stats, sfx, fonts, onChangePlayerDirection, callbacks: { onSceneEnded: gotoNextLevel } })
-  const leaderboardScene = new LeaderboardScene({ p5, sfx, fonts, callbacks: { onSceneEnded: hideLeaderboard } });
-  const spriteRenderer = new SpriteRenderer({ p5, staticGraphics, screenShake });
-  const renderer = new Renderer({ p5, staticGraphics, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
+  const winGameScene = new WinGameScene({ p5, gfx: gfxPresentation, gameState: state, stats, sfx, fonts, onChangePlayerDirection, callbacks: { onSceneEnded: gotoNextLevel } })
+  const leaderboardScene = new LeaderboardScene({ p5, gfx: gfxPresentation, sfx, fonts, callbacks: { onSceneEnded: hideLeaderboard } });
+  const spriteRenderer = new SpriteRenderer({ p5, screenShake });
+  const renderer = new Renderer({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
   const modal = new Modal();
 
   const uiBindings = new UIBindings(p5, sfx, state, settings, {
@@ -993,17 +1001,26 @@ export const sketch = (p5: P5) => {
     startAction(fadeMusic(1, 100), Action.FadeMusic);
     sfx.setGlobalVolume(settings.sfxVolume);
 
+    gfxBG.clear(0, 0, 0, 0);
+    gfxFG.clear(0, 0, 0, 0);
+    gfxLighting.clear(0, 0, 0, 0);
+    gfxPresentation.clear(0, 0, 0, 0);
+
     if (shouldShowTransitions) {
+      UI.hideGfxCanvas();
       stopLogicLoop();
       actions.stopAll();
       musicPlayer.load(level.musicTrack);
       musicPlayer.setVolume(1);
-      const buildSceneAction = buildSceneActionFactory(p5, sfx, fonts, state);
-      const maybeTitleScene = buildSceneAction(level.titleScene);
+      const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts, state);
+      const maybeTitleScene = level.showTitle
+        ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(level.name, p5, gfx, sfx, fonts, callbacks))
+        : () => Promise.resolve();
       maybeTitleScene()
         .catch(err => {
           console.error(err);
-        }).finally(() => {
+        })
+        .finally(() => {
           if (level.isWinGame) {
             state.isGameWon = true;
             state.isMoving = true;
@@ -1015,6 +1032,7 @@ export const sketch = (p5: P5) => {
           renderHeartsUI();
           renderScoreUI();
           renderLevelName();
+          UI.showGfxCanvas();
           musicPlayer.stopAllTracks();
           musicPlayer.play(level.musicTrack);
           startLogicLoop();
@@ -1029,6 +1047,7 @@ export const sketch = (p5: P5) => {
       renderHeartsUI();
       renderScoreUI();
       renderLevelName();
+      UI.showGfxCanvas();
     }
 
     if (!state.isGameStarted && replay.mode === ReplayMode.Playback) {
@@ -1258,7 +1277,7 @@ export const sketch = (p5: P5) => {
       drawLock(locks[i])
     }
 
-    renderer.drawStaticGraphics();
+    renderer.setStaticCacheFlags();
     drawPortals();
 
     renderer.drawCaptureMode();
@@ -1271,7 +1290,7 @@ export const sketch = (p5: P5) => {
       }
     }
 
-    renderer.drawPlayerMoveArrows(player.position, moves.length > 0 ? moves[0] : player.direction);
+    renderer.drawPlayerMoveArrows(gfxPresentation, player.position, moves.length > 0 ? moves[0] : player.direction);
 
     for (let i = 0; i < segments.length; i++) {
       drawPlayerSegment(segments.get(i), i);
@@ -1291,15 +1310,15 @@ export const sketch = (p5: P5) => {
       state.timeSinceInvincibleStart >= difficulty.invincibilityTime
     ) {
       updateLighting(lightMap, globalLight, player.position, portals);
-      drawLighting(lightMap, renderer);
+      drawLighting(lightMap, renderer, gfxLighting);
     }
 
     if (level.renderInstructions) {
-      level.renderInstructions(renderer, state, level.colors);
+      level.renderInstructions(gfxPresentation, renderer, state, level.colors);
     }
-    renderer.drawUIKeys();
-    renderer.drawTutorialMoveControls();
-    renderer.drawTutorialRewindControls(player.position, canRewind);
+    renderer.drawUIKeys(gfxPresentation);
+    renderer.drawTutorialMoveControls(gfxPresentation);
+    renderer.drawTutorialRewindControls(gfxPresentation, player.position, canRewind);
     renderer.drawFps(queryParams.showFps, metrics.gameLoopProcessingTime);
     if (!state.isGameStarted) leaderboardScene.draw();
 
@@ -2187,7 +2206,10 @@ export const sketch = (p5: P5) => {
   }
 
   function drawBackground() {
-    renderer.drawBackground(state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background);
+    const backgroundColor = state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
+    renderer.drawBackground(backgroundColor, gfxBG, gfxFG);
+    gfxLighting.clear(0, 0, 0, 0);
+    gfxPresentation.clear(0, 0, 0, 0);
   }
 
   function drawPlayerHead(vec: Vector) {
@@ -2258,26 +2280,26 @@ export const sketch = (p5: P5) => {
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < barriers.length; i++) {
         if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-        renderer.drawGraphicalComponentStatic(graphicalComponents.barrier, barriers[i].x, barriers[i].y);
+        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrier, barriers[i].x, barriers[i].y);
       }
       return;
     }
 
     for (let i = 0; i < barriers.length; i++) {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareStatic(barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptions);
+      renderer.drawSquareStatic(gfxFG, barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptions);
     }
     for (let i = 0; i < barriers.length; i++) {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareBorderStatic(barriers[i].x, barriers[i].y, 'light', PALETTE.deathInvert.barrierStroke, false);
+      renderer.drawSquareBorderStatic(gfxFG, barriers[i].x, barriers[i].y, 'light', PALETTE.deathInvert.barrierStroke, false);
     }
     for (let i = 0; i < barriers.length; i++) {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareBorderStatic(barriers[i].x, barriers[i].y, 'dark', PALETTE.deathInvert.barrierStroke, false);
+      renderer.drawSquareBorderStatic(gfxFG, barriers[i].x, barriers[i].y, 'dark', PALETTE.deathInvert.barrierStroke, false);
     }
     for (let i = 0; i < barriers.length; i++) {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawXStatic(barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrierStroke);
+      renderer.drawXStatic(gfxFG, barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrierStroke);
     }
   }
 
@@ -2327,11 +2349,11 @@ export const sketch = (p5: P5) => {
     if (state.isShowingDeathColours) {
       spriteRenderer.drawImage3x3(Image.KeyGrey, key.position.x, key.position.y);
     } else if (key.channel === KeyChannel.Yellow) {
-      spriteRenderer.drawImage3x3Static(Image.KeyYellow, key.position.x, key.position.y);
+      spriteRenderer.drawImage3x3Static(gfxFG, Image.KeyYellow, key.position.x, key.position.y);
     } else if (key.channel === KeyChannel.Red) {
-      spriteRenderer.drawImage3x3Static(Image.KeyRed, key.position.x, key.position.y);
+      spriteRenderer.drawImage3x3Static(gfxFG, Image.KeyRed, key.position.x, key.position.y);
     } else if (key.channel === KeyChannel.Blue) {
-      spriteRenderer.drawImage3x3Static(Image.KeyBlue, key.position.x, key.position.y);
+      spriteRenderer.drawImage3x3Static(gfxFG, Image.KeyBlue, key.position.x, key.position.y);
     }
   }
 
@@ -2339,31 +2361,27 @@ export const sketch = (p5: P5) => {
     if (state.isShowingDeathColours) {
       spriteRenderer.drawImage3x3(Image.LockGrey, lock.position.x, lock.position.y);
     } else if (lock.channel === KeyChannel.Yellow) {
-      spriteRenderer.drawImage3x3Static(Image.LockYellow, lock.position.x, lock.position.y);
+      spriteRenderer.drawImage3x3Static(gfxFG, Image.LockYellow, lock.position.x, lock.position.y);
     } else if (lock.channel === KeyChannel.Red) {
-      spriteRenderer.drawImage3x3Static(Image.LockRed, lock.position.x, lock.position.y);
+      spriteRenderer.drawImage3x3Static(gfxFG, Image.LockRed, lock.position.x, lock.position.y);
     } else if (lock.channel === KeyChannel.Blue) {
-      spriteRenderer.drawImage3x3Static(Image.LockBlue, lock.position.x, lock.position.y);
+      spriteRenderer.drawImage3x3Static(gfxFG, Image.LockBlue, lock.position.x, lock.position.y);
     }
   }
 
   function drawDecorative1(vec: Vector) {
-    if (vec.equals(player.position)) return;
-    if (doorsMap[getCoordIndex(vec)]) return;
-    if (segments.containsCoord(getCoordIndex(vec))) return;
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
-      renderer.drawGraphicalComponent(graphicalComponents.deco1, vec.x, vec.y);
+      // renderer.drawGraphicalComponent(graphicalComponents.deco1, vec.x, vec.y);
+      renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptions);
     } else {
       renderer.drawSquare(vec.x, vec.y, PALETTE.deathInvert.deco1, PALETTE.deathInvert.deco1Stroke, drawBasicOptions);
     }
   }
 
   function drawDecorative2(vec: Vector) {
-    if (vec.equals(player.position)) return;
-    if (doorsMap[getCoordIndex(vec)]) return;
-    if (segments.containsCoord(getCoordIndex(vec))) return;
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
-      renderer.drawGraphicalComponent(graphicalComponents.deco2, vec.x, vec.y);
+      renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptions);
+      // renderer.drawGraphicalComponent(graphicalComponents.deco2, vec.x, vec.y);
     } else {
       renderer.drawSquare(vec.x, vec.y, PALETTE.deathInvert.deco2, PALETTE.deathInvert.deco2Stroke, drawBasicOptions);
     }
@@ -2588,9 +2606,10 @@ export const sketch = (p5: P5) => {
         initLevel();
       }
       UI.clearLabels();
+      UI.hideGfxCanvas();
       stopAllCoroutines();
       actions.stopAll();
-      new QuoteScene(quote, p5, sfx, fonts, { onSceneEnded });
+      new QuoteScene(quote, p5, gfxPresentation, sfx, fonts, { onSceneEnded });
     } else {
       initLevel();
     }
@@ -2652,6 +2671,7 @@ export const sketch = (p5: P5) => {
     musicPlayer.play(MusicTrack.lordy);
     sfx.play(Sound.doorOpen);
     clearUI(true);
+    UI.hideGfxCanvas();
     stopReplay();
     stopAllCoroutines();
     actions.stopAll();
@@ -2670,7 +2690,7 @@ export const sketch = (p5: P5) => {
     while (state.appMode === AppMode.Quote) {
       yield null;
       const quote = getNextQuote();
-      new QuoteScene(quote, p5, sfx, fonts, { onEscapePress });
+      new QuoteScene(quote, p5, gfxPresentation, sfx, fonts, { onEscapePress });
       yield null;
     }
   }
@@ -2678,6 +2698,7 @@ export const sketch = (p5: P5) => {
   function enterOstMode() {
     state.appMode = AppMode.OST;
     clearUI(true);
+    UI.hideGfxCanvas();
     stopReplay();
     stopAllCoroutines();
     actions.stopAll();
@@ -2691,7 +2712,7 @@ export const sketch = (p5: P5) => {
       showMainMenu();
     }
     musicPlayer.setVolume(1.3);
-    new OSTScene(p5, sfx, musicPlayer, fonts, unlockedMusicStore, spriteRenderer, { onEscapePress })
+    new OSTScene(p5, gfxPresentation, sfx, musicPlayer, fonts, unlockedMusicStore, spriteRenderer, { onEscapePress })
   }
 
   function setLevelIndexFromCurrentLevel() {

@@ -47,7 +47,7 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
   `,
   // colors: PALETTE.mintJulip,
   colors: getExtendedPalette(PALETTE.cornflower),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   musicTrack: MusicTrack.aqueduct,
   globalLight: 0.6,
 };

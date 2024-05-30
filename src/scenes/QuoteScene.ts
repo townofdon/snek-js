@@ -9,8 +9,8 @@ export class QuoteScene extends BaseScene {
   _author: string;
   _sfx: SFXInstance;
 
-  constructor(quote: Quote, p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
-    super(p5, fonts, callbacks)
+  constructor(quote: Quote, p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+    super(p5, gfx, fonts, callbacks)
     this._sfx = sfx;
     this._quotes = quote.message;
     this._author = quote.author || 'Unknown';

@@ -44,7 +44,7 @@ X~~~~~__~~~~XXddXX~~~~__~~~~~X
 XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.darkStar),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   extraLoseMessages: [
     ["What? Not enough apples for ya?"],
     ["Don't quit now, this is the final level!"],

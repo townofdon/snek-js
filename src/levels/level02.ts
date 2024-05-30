@@ -44,7 +44,7 @@ XXX++-       -=-        -++XXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.plumsea),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   musicTrack: MusicTrack.simpleTime,
   titleVariant: TitleVariant.Green,
   nextLevelMap: {

@@ -45,7 +45,7 @@ XxXXXXXXXXXXXXXXXXXXXXXXXXXXxX
 XxXXXXXXXXXXXXXXXXXXXXXXXXXXxX
   `,
   colors: getExtendedPalette(PALETTE.cornflower),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.lordy,
   portalExitConfig: {

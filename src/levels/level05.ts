@@ -41,7 +41,7 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
 XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
 `,
   colors: getExtendedPalette(PALETTE.panopticon),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   musicTrack: MusicTrack.observer,
   titleVariant: TitleVariant.GrayBlue,
   pickupDrops: {},

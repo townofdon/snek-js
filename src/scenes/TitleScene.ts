@@ -6,8 +6,8 @@ export class TitleScene extends BaseScene {
   private _title: string = 'UNTITLED'
   private _sfx: SFXInstance;
 
-  constructor(title: string, p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
-    super(p5, fonts, callbacks)
+  constructor(title: string, p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+    super(p5, gfx, fonts, callbacks)
     this._title = title;
     this._sfx = sfx;
     this.bindActions();

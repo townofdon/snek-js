@@ -51,7 +51,7 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
     // deco2: Color("#595959").mix(Color("#2F4858"), 0.2).darken(0.1).mix(Color('#008080'), 0.04).hex(),
     // deco2Stroke: Color("#555555").mix(Color("#2F4858"), 0.2).darken(0.17).mix(Color('#008080'), 0.04).hex(),
   }),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   showQuoteOnLevelWin: true,
   extraLoseMessages: [
     ["How did you mess this one up?", (state, stats, difficulty) => difficulty.index >= 3],

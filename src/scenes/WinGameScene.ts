@@ -69,6 +69,7 @@ interface WinGameState {
 
 export interface WinGameSceneConstructorArgs {
   p5: P5,
+  gfx: P5.Graphics,
   gameState: GameState,
   stats: Stats,
   sfx: SFXInstance,
@@ -100,8 +101,8 @@ export class WinGameScene extends BaseScene {
   private modalHighScoreEntry = new HighscoreEntryModal();
   private modalConfirm = new Modal();
 
-  constructor({ p5, gameState, stats, sfx, fonts, onChangePlayerDirection, callbacks = {} }: WinGameSceneConstructorArgs) {
-    super(p5, fonts, callbacks)
+  constructor({ p5, gfx, gameState, stats, sfx, fonts, onChangePlayerDirection, callbacks = {} }: WinGameSceneConstructorArgs) {
+    super(p5, gfx, fonts, callbacks)
     this.sfx = sfx;
     this.gameState = gameState;
     this.stats = stats;
@@ -479,28 +480,28 @@ export class WinGameScene extends BaseScene {
   private drawTitle = (title: string, type: 'primary' | 'secondary' = 'primary') => {
     const color = type === "primary" ? ACCENT_COLOR : SECONDARY_ACCENT_COLOR;
     const bgColor = type === "primary" ? "#000" : SECONDARY_ACCENT_COLOR_BG;
-    const { p5, fonts } = this.props;
-    p5.textAlign(p5.CENTER, p5.CENTER);
-    p5.textFont(fonts.variants.miniMood);
-    p5.stroke(bgColor)
-    p5.strokeWeight(4);
-    p5.textSize(32.5);
-    p5.fill(bgColor);
-    p5.text(title, ...this.getPosition(0.5, 0.21 + this.state.stageClearY));
-    p5.textSize(32);
-    p5.fill(color);
-    p5.text(title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
+    const { p5, gfx, fonts } = this.props;
+    gfx.textAlign(p5.CENTER, p5.CENTER);
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.stroke(bgColor)
+    gfx.strokeWeight(4);
+    gfx.textSize(32.5);
+    gfx.fill(bgColor);
+    gfx.text(title, ...this.getPosition(0.5, 0.21 + this.state.stageClearY));
+    gfx.textSize(32);
+    gfx.fill(color);
+    gfx.text(title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
   }
 
   private drawParagraph = (message: string, yPos: number, color: string = "#fff") => {
-    const { p5, fonts } = this.props;
-    p5.textFont(fonts.variants.miniMood);
-    p5.fill(color);
-    p5.stroke("#000");
-    p5.strokeWeight(2);
-    p5.textSize(14);
-    p5.textAlign(p5.CENTER, p5.TOP);
-    p5.text(message, ...this.getPosition(0.5, yPos + this.state.stageClearY));
+    const { p5, gfx, fonts } = this.props;
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.fill(color);
+    gfx.stroke("#000");
+    gfx.strokeWeight(2);
+    gfx.textSize(14);
+    gfx.textAlign(p5.CENTER, p5.TOP);
+    gfx.text(message, ...this.getPosition(0.5, yPos + this.state.stageClearY));
     // p5.text(message, ...this.getRect(0.5, yPos + this.state.stageClearY, DIMENSIONS.x - 50, 250));
   }
 
@@ -529,67 +530,67 @@ export class WinGameScene extends BaseScene {
     colRight?: number,
     measureWidths?: boolean,
   } = {}) => {
-    const { p5, fonts } = this.props;
+    const { p5, gfx, fonts } = this.props;
     const valueDisplay = formatValue ? formatValue(value) : formatNumber(value, {}).trim();
-    p5.textFont(fonts.variants.miniMood);
-    p5.textSize(14);
-    p5.strokeCap(p5.PROJECT);
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.textSize(14);
+    gfx.strokeCap(p5.PROJECT);
 
     if (bgStrokeSize !== strokeSize) {
-      p5.fill(bgStrokeColor);
-      p5.stroke(bgStrokeColor);
-      p5.strokeWeight(bgStrokeSize);
-      p5.textAlign(p5.RIGHT, p5.TOP);
-      p5.text(label, ...this.getPosition(colLeft, yPos + this.state.stageClearY));
-      p5.textAlign(p5.LEFT, p5.TOP);
-      p5.text(valueDisplay, ...this.getPosition(colRight, yPos + this.state.stageClearY));
+      gfx.fill(bgStrokeColor);
+      gfx.stroke(bgStrokeColor);
+      gfx.strokeWeight(bgStrokeSize);
+      gfx.textAlign(p5.RIGHT, p5.TOP);
+      gfx.text(label, ...this.getPosition(colLeft, yPos + this.state.stageClearY));
+      gfx.textAlign(p5.LEFT, p5.TOP);
+      gfx.text(valueDisplay, ...this.getPosition(colRight, yPos + this.state.stageClearY));
     }
 
     const widths = [0, 0];
-    p5.fill(color0);
-    p5.stroke(bgColor0);
-    p5.strokeWeight(strokeSize);
-    p5.textAlign(p5.RIGHT, p5.TOP);
-    p5.text(label, ...this.getPosition(colLeft, yPos + this.state.stageClearY));
-    if (measureWidths) widths[0] = p5.textWidth(label);
+    gfx.fill(color0);
+    gfx.stroke(bgColor0);
+    gfx.strokeWeight(strokeSize);
+    gfx.textAlign(p5.RIGHT, p5.TOP);
+    gfx.text(label, ...this.getPosition(colLeft, yPos + this.state.stageClearY));
+    if (measureWidths) widths[0] = gfx.textWidth(label);
 
-    p5.fill(color1);
-    p5.stroke(bgColor1);
-    p5.strokeWeight(strokeSize);
-    p5.textAlign(p5.LEFT, p5.TOP);
-    p5.text(valueDisplay, ...this.getPosition(colRight, yPos + this.state.stageClearY));
-    if (measureWidths) widths[1] = p5.textWidth(valueDisplay);
+    gfx.fill(color1);
+    gfx.stroke(bgColor1);
+    gfx.strokeWeight(strokeSize);
+    gfx.textAlign(p5.LEFT, p5.TOP);
+    gfx.text(valueDisplay, ...this.getPosition(colRight, yPos + this.state.stageClearY));
+    if (measureWidths) widths[1] = gfx.textWidth(valueDisplay);
     return widths;
   }
 
   private drawHasHighscore = (yPos: number) => {
-    const { p5, fonts } = this.props;
+    const { p5, gfx, fonts } = this.props;
     const { timeElapsed } = this.gameState;
     const t = (timeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
     const color = this.getColor(t, NEW_HIGHSCORE_COLORS);
-    p5.fill(color);
-    p5.stroke(Color(color).darken(0.4).hex());
-    p5.strokeWeight(2);
-    p5.textFont(fonts.variants.miniMood);
-    p5.textSize(14);
-    p5.textAlign(p5.LEFT, p5.TOP);
-    p5.text("NEW HIGHSCORE", ...this.getPosition(COL_RIGHT, yPos + this.state.stageClearY - 0.05));
+    gfx.fill(color);
+    gfx.stroke(Color(color).darken(0.4).hex());
+    gfx.strokeWeight(2);
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.textSize(14);
+    gfx.textAlign(p5.LEFT, p5.TOP);
+    gfx.text("NEW HIGHSCORE", ...this.getPosition(COL_RIGHT, yPos + this.state.stageClearY - 0.05));
   }
 
   private drawNewLabel = (x: number, y: number, align: P5.HORIZ_ALIGN = 'left') => {
-    const { p5, fonts } = this.props;
+    const { p5, gfx, fonts } = this.props;
     const { timeElapsed } = this.gameState;
     const t = (timeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
     const color = this.getColor(t, NEW_HIGHSCORE_COLORS);
-    // p5.fill("#fff");
-    p5.fill(color);
-    p5.stroke(Color(color).darken(0.4).hex());
-    p5.strokeWeight(2);
-    p5.textFont(fonts.variants.miniMood);
-    p5.textSize(12);
-    p5.textAlign(align, p5.TOP);
-    // p5.text(align === p5.RIGHT ? ">>>" : "<<<", ...this.getPosition(x, y));
-    p5.text("NEW!", ...this.getPosition(x, y));
+    // gfx.fill("#fff");
+    gfx.fill(color);
+    gfx.stroke(Color(color).darken(0.4).hex());
+    gfx.strokeWeight(2);
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.textSize(12);
+    gfx.textAlign(align, p5.TOP);
+    // gfx.text(align === p5.RIGHT ? ">>>" : "<<<", ...this.getPosition(x, y));
+    gfx.text("NEW!", ...this.getPosition(x, y));
   }
 
   /**
@@ -668,7 +669,7 @@ export class WinGameScene extends BaseScene {
   }
 
   private drawNonQualifyingScore = () => {
-    const { p5 } = this.props;
+    const { p5, gfx } = this.props;
     const { score } = this.stats;
     const { timeElapsed } = this.gameState;
     const name = "YOUR SCORE"
@@ -692,9 +693,9 @@ export class WinGameScene extends BaseScene {
     });
     const drawLine = (yPos: number, color: string, strokeWeight = 2) => {
       const [x0, y0, x1, y1] = this.getRect(0.5, yPos, 300, 0);
-      p5.stroke(color);
-      p5.strokeWeight(strokeWeight);
-      p5.line(x0, y0, x1, y1);
+      gfx.stroke(color);
+      gfx.strokeWeight(strokeWeight);
+      gfx.line(x0, y0, x1, y1);
     }
     drawLine(0.8265, "black", 4);
     drawLine(0.8235, "#ffffffee");
@@ -709,32 +710,32 @@ export class WinGameScene extends BaseScene {
   }
 
   private drawHeckYeah = () => {
-    const { p5, fonts } = this.props;
-    p5.push();
-    p5.translate(...this.getPosition(0.8, 0.25 + this.state.stageClearY));
-    p5.rotate(-0.05 * Math.PI);
-    p5.fill(ACCENT_COLOR);
-    p5.stroke(Color(ACCENT_COLOR).darken(0.8).hex());
-    p5.strokeWeight(5);
-    p5.textFont(fonts.variants.miniMood);
-    p5.textSize(12);
-    p5.textAlign(p5.CENTER, p5.TOP);
-    p5.textStyle(p5.BOLD);
-    p5.text("S N E K   Y E A H !", 0, 0);
-    p5.textStyle(p5.NORMAL);
-    p5.pop();
+    const { p5, gfx, fonts } = this.props;
+    gfx.push();
+    gfx.translate(...this.getPosition(0.8, 0.25 + this.state.stageClearY));
+    gfx.rotate(-0.05 * Math.PI);
+    gfx.fill(ACCENT_COLOR);
+    gfx.stroke(Color(ACCENT_COLOR).darken(0.8).hex());
+    gfx.strokeWeight(5);
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.textSize(12);
+    gfx.textAlign(p5.CENTER, p5.TOP);
+    gfx.textStyle(p5.BOLD);
+    gfx.text("S N E K   Y E A H !", 0, 0);
+    gfx.textStyle(p5.NORMAL);
+    gfx.pop();
   }
 
   private drawPressEnter = (addY = 0) => {
-    const { p5, fonts } = this.props;
-    p5.fill('#fff');
-    p5.stroke("#000");
-    p5.strokeWeight(5);
-    p5.textFont(fonts.variants.miniMood);
-    p5.textSize(14);
-    p5.textAlign(p5.CENTER, p5.TOP);
-    p5.fill('#fff');
-    p5.text('[PRESS ENTER TO CONTINUE]', ...this.getPosition(0.5, 0.8 + addY));
+    const { p5, gfx, fonts } = this.props;
+    gfx.fill('#fff');
+    gfx.stroke("#000");
+    gfx.strokeWeight(5);
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.textSize(14);
+    gfx.textAlign(p5.CENTER, p5.TOP);
+    gfx.fill('#fff');
+    gfx.text('[PRESS ENTER TO CONTINUE]', ...this.getPosition(0.5, 0.8 + addY));
   }
 
   private getTimeDisplay = (valueMs: number): string => {

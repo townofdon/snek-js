@@ -49,11 +49,11 @@ XXXXXXXXXXXXXD DXXXXXXXXXXXXXX
 XXXXXXXXXXXXXD4DXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.gravChamber),
-  renderInstructions: (renderer, state, palette) => {
-    renderer.drawDifficultySelectCobra(state.isShowingDeathColours ? PALETTE.deathInvert.background : palette.background);
+  renderInstructions: (gfx, renderer, state, palette) => {
+    renderer.drawDifficultySelectCobra(gfx, state.isShowingDeathColours ? PALETTE.deathInvert.background : palette.background);
   },
   showQuoteOnLevelWin: false,
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   portalExitConfig: {
     1: PortalExitMode.SameDirection,
     2: PortalExitMode.SameDirection,

@@ -67,7 +67,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     9: PortalExitMode.SameDirection,
     0: PortalExitMode.SameDirection,
   },
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   titleVariant: TitleVariant.GrayBlue,
   musicTrack: MusicTrack.slyguy,
   pickupDrops: {},

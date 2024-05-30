@@ -48,8 +48,8 @@ export class OSTScene extends BaseScene {
     [VisualizerMode.FrequencySpectrum]: null,
   }
 
-  constructor(p5: P5, sfx: SFXInstance, musicPlayer: MusicPlayer, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, spriteRenderer: SpriteRenderer, callbacks: SceneCallbacks = {}) {
-    super(p5, fonts, callbacks)
+  constructor(p5: P5, gfx: P5.Graphics, sfx: SFXInstance, musicPlayer: MusicPlayer, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, spriteRenderer: SpriteRenderer, callbacks: SceneCallbacks = {}) {
+    super(p5, gfx, fonts, callbacks)
     this.sfx = sfx;
     this.musicPlayer = musicPlayer;
     this.unlockedMusicStore = unlockedMusicStore;

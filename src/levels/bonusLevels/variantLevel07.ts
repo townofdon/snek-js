@@ -46,7 +46,7 @@ XXXXXXX~~~~XXDDDDXX~~~~XXXXXXX
 XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.stonelair),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   showQuoteOnLevelWin: true,
   extraLoseMessages: [
     ["There are older and fouler things than Snek in the deep places of the world."],

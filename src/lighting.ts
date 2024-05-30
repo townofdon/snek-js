@@ -47,7 +47,7 @@ export function updateLighting(lightMap: number[], globalLight: number, playerPo
   }
 }
 
-export function drawLighting(lightMap: number[], renderer: Renderer) {
+export function drawLighting(lightMap: number[], renderer: Renderer, graphics: P5 | P5.Graphics) {
   for (let i = 0; i < lightMap.length; i++) {
     const x = i % (GRIDCOUNT.x * LIGHTMAP_RESOLUTION);
     const y = Math.floor(i / (GRIDCOUNT.x * LIGHTMAP_RESOLUTION));
@@ -55,7 +55,7 @@ export function drawLighting(lightMap: number[], renderer: Renderer) {
     const color = lightColorLookup[Math.floor(a * numUniqLightColors + Number.EPSILON)];
     if (!color) continue;
     const coefficient = 1 / LIGHTMAP_RESOLUTION;
-    renderer.drawBasicSquare(x * coefficient, y * coefficient, color, coefficient);
+    renderer.drawBasicSquareCustom(graphics, x * coefficient, y * coefficient, color, coefficient);
   }
 }
 

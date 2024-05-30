@@ -45,7 +45,7 @@ xxxxxxxxxxx++_---   ~~~XXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 `,
   colors: getExtendedPalette(PALETTE.hospital),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   extraLoseMessages: [
     ["I've heard this level makes people irrationally angry."],
   ],

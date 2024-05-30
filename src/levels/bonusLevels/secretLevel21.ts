@@ -50,7 +50,7 @@ XDDD   XXXX11111111XXXXKKK==xx
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.panopticon),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   showQuoteOnLevelWin: false,
   portalExitConfig: {
     1: PortalExitMode.InvertDirection,

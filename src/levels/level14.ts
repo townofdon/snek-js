@@ -45,7 +45,7 @@ XXXXXXXXXDDDX4444XDDDXXXXXXXXX
 XXXXXXXXX_+_XX++XX_+_XXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.gravChamber),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   showQuoteOnLevelWin: true,
   portalExitConfig: {
     1: PortalExitMode.InvertDirection,

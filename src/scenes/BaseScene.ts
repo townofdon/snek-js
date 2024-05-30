@@ -7,6 +7,7 @@ import { DIMENSIONS } from "../constants";
 
 export interface BaseSceneProps {
   p5: P5
+  gfx: P5.Graphics
   cachedCallbacks: SceneCachedCallbacks
   callbacks: SceneCallbacks
   coroutines: Coroutines
@@ -16,6 +17,7 @@ export interface BaseSceneProps {
 export abstract class BaseScene implements Scene {
   protected props: BaseSceneProps = {
     p5: null,
+    gfx: null,
     cachedCallbacks: {
       draw: () => { },
       keyPressed: () => { },
@@ -31,8 +33,9 @@ export abstract class BaseScene implements Scene {
     isCleaningUp: false,
   }
 
-  constructor(p5: P5, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+  constructor(p5: P5, gfx: P5.Graphics, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     this.props.p5 = p5;
+    this.props.gfx = gfx;
     this.props.fonts = fonts;
     this.props.callbacks = callbacks;
     this.props.cachedCallbacks.draw = p5.draw;
@@ -93,12 +96,12 @@ export abstract class BaseScene implements Scene {
     this.tickCoroutines();
   }
 
-  protected drawBackground = (color = '#000') => {
-    const { p5 } = this.props;
-    p5.fill(color);
-    p5.stroke(color);
-    p5.strokeWeight(1);
-    p5.square(-1, -1, Math.max(DIMENSIONS.x, DIMENSIONS.y) + 2);
+  protected drawBackground = (color = '#000', gfx: P5 | P5.Graphics = this.props.p5) => {
+    this.props.gfx.clear(0, 0, 0, 0);
+    gfx.fill(color);
+    gfx.stroke(color);
+    gfx.strokeWeight(1);
+    gfx.square(-1, -1, Math.max(DIMENSIONS.x, DIMENSIONS.y) + 2);
   }
 
   protected getPosition = (x: number, y: number): [number, number] => {

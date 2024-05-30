@@ -36,7 +36,6 @@ import { SpriteRenderer } from "./spriteRenderer";
 
 interface RendererConstructorProps {
   p5: P5
-  staticGraphics: P5.Graphics
   fonts: FontsInstance
   replay: Replay
   gameState: GameState
@@ -47,7 +46,6 @@ interface RendererConstructorProps {
 
 export class Renderer implements IRenderer {
   private p5: P5 = null;
-  private staticGraphics: P5.Graphics = null;
   private fonts: FontsInstance = null;
   private replay: Replay = null;
   private gameState: GameState = null;
@@ -67,7 +65,6 @@ export class Renderer implements IRenderer {
 
   constructor(props: RendererConstructorProps) {
     this.p5 = props.p5;
-    this.staticGraphics = props.staticGraphics;
     this.fonts = props.fonts;
     this.replay = props.replay;
     this.gameState = props.gameState;
@@ -86,10 +83,15 @@ export class Renderer implements IRenderer {
     this.elapsed += this.p5.deltaTime;
   }
 
-  // Static graphics (e.g. barriers) are cached in an OffscreenCanvas and re-drawn if things change (e.g. due to screen shake)
+  // Static gfx (e.g. barriers) are cached in an OffscreenCanvas and re-drawn if things change (e.g. due to screen shake)
   // See: P5.createGraphics - see: https://p5js.org/reference/#/p5/createGraphics
-  drawStaticGraphics = () => {
-    this.p5.image(this.staticGraphics, 0, 0, DIMENSIONS.x, DIMENSIONS.y);
+  drawStaticGraphics = (gfx: P5.Graphics) => {
+    this.p5.image(gfx, 0, 0, DIMENSIONS.x, DIMENSIONS.y);
+    this.isStaticCached = true;
+    this.spriteRenderer.setIsStaticCached(true);
+  }
+
+  setStaticCacheFlags = () => {
     this.isStaticCached = true;
     this.spriteRenderer.setIsStaticCached(true);
   }
@@ -99,10 +101,11 @@ export class Renderer implements IRenderer {
     this.spriteRenderer.setIsStaticCached(false);
   }
 
-  drawBackground = (color: string) => {
-    this.p5.background(color);
+  drawBackground = (color: string, graphicsBG: P5.Graphics, graphicsFG: P5.Graphics) => {
+    this.p5.clear(0, 0, 0, 0);
     if (!this.isStaticCached) {
-      this.staticGraphics.clear(0, 0, 0, 0);
+      graphicsBG.background(color);
+      graphicsFG.clear(0, 0, 0, 0);
     }
   }
 
@@ -114,12 +117,12 @@ export class Renderer implements IRenderer {
     this.drawGraphicalComponentImpl(this.p5, component, x, y, alpha);
   }
 
-  drawGraphicalComponentStatic = (component: P5.Graphics, x: number, y: number, alpha = 1) => {
+  drawGraphicalComponentStatic = (gfx: P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1) => {
     if (this.isStaticCached) return;
-    this.drawGraphicalComponentImpl(this.staticGraphics, component, x, y, alpha);
+    this.drawGraphicalComponentImpl(gfx, component, x, y, alpha);
   }
 
-  private drawGraphicalComponentImpl = (graphics: P5 | P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1) => {
+  private drawGraphicalComponentImpl = (gfx: P5 | P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1) => {
     const offset = -STROKE_SIZE * 0.5;
     const sizeOffset = STROKE_SIZE;
     // destination
@@ -128,8 +131,8 @@ export class Renderer implements IRenderer {
     // source
     const sx = 1 * BLOCK_SIZE.x + offset;
     const sy = 1 * BLOCK_SIZE.y + offset;
-    graphics.tint(255, 255, 255, lerp(0, 255, alpha));
-    graphics.image(
+    gfx.tint(255, 255, 255, lerp(0, 255, alpha));
+    gfx.image(
       component,
       dx,
       dy,
@@ -143,7 +146,7 @@ export class Renderer implements IRenderer {
       this.p5.LEFT,
       this.p5.TOP
     );
-    graphics.tint(255, 255, 255, 255);
+    gfx.tint(255, 255, 255, 255);
   }
 
   /**
@@ -153,31 +156,31 @@ export class Renderer implements IRenderer {
     this.drawSquareImpl(this.p5, x, y, background, lineColor, options);
   }
 
-  drawSquareStatic = (x: number, y: number, background = "pink", lineColor = "fff", options: DrawSquareOptions) => {
+  drawSquareStatic = (gfx: P5.Graphics, x: number, y: number, background = "pink", lineColor = "fff", options: DrawSquareOptions) => {
     if (this.isStaticCached) return;
-    this.drawSquareImpl(this.staticGraphics, x, y, background, lineColor, options);
+    this.drawSquareImpl(gfx, x, y, background, lineColor, options);
   }
 
   drawSquareCustom = (component: P5 | P5.Graphics, x: number, y: number, background = "pink", lineColor = "fff", options: DrawSquareOptions) => {
     this.drawSquareImpl(component, x, y, background, lineColor, options);
   }
 
-  private drawSquareImpl = (graphics: P5 | P5.Graphics, x: number, y: number, background = "pink", lineColor = "fff", {
+  private drawSquareImpl = (gfx: P5 | P5.Graphics, x: number, y: number, background = "pink", lineColor = "fff", {
     is3d = false,
     size = 1,
     strokeSize = STROKE_SIZE,
     optimize = false,
   }: DrawSquareOptions) => {
-    this.p5CachedFill(graphics, background, optimize);
-    this.p5CachedStroke(graphics, lineColor, optimize);
-    graphics.strokeWeight(strokeSize);
+    this.p5CachedFill(gfx, background, optimize);
+    this.p5CachedStroke(gfx, lineColor, optimize);
+    gfx.strokeWeight(strokeSize);
     const strokeOffset = STROKE_SIZE - strokeSize;
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
     const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
     const px = (x * BLOCK_SIZE.x + this.screenShake.offset.x + strokeOffset) + sizeOffsetX;
     const py = (y * BLOCK_SIZE.y + this.screenShake.offset.y + strokeOffset) + sizeOffsetY;
     const squareSize = (BLOCK_SIZE.x - strokeSize - strokeOffset * 2) * size;
-    graphics.square(px, py, squareSize);
+    gfx.square(px, py, squareSize);
     if (is3d) {
       const borderSize = STROKE_SIZE * 0.5;
       const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x + strokeOffset + sizeOffsetX;
@@ -188,17 +191,17 @@ export class Renderer implements IRenderer {
       const y0i = y0 + borderSize;
       const x1i = x1 - borderSize;
       const y1i = y1 - borderSize;
-      graphics.noStroke();
-      this.p5CachedFill(graphics, this.getBorderColor(lineColor, 'light'), optimize);
+      gfx.noStroke();
+      this.p5CachedFill(gfx, this.getBorderColor(lineColor, 'light'), optimize);
       // TOP
-      graphics.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
+      gfx.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
       // RIGHT
-      graphics.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
-      this.p5CachedFill(graphics, this.getBorderColor(lineColor, 'dark'), optimize);
+      gfx.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
+      this.p5CachedFill(gfx, this.getBorderColor(lineColor, 'dark'), optimize);
       // BOTTOM
-      graphics.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
+      gfx.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
       // LEFT
-      graphics.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
+      gfx.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
     }
   }
 
@@ -206,16 +209,16 @@ export class Renderer implements IRenderer {
     this.drawSquareBorderImpl(this.p5, x, y, mode, strokeColor, overrideColor);
   }
 
-  drawSquareBorderStatic = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
+  drawSquareBorderStatic = (gfx: P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
     if (this.isStaticCached) return;
-    this.drawSquareBorderImpl(this.staticGraphics, x, y, mode, strokeColor, overrideColor);
+    this.drawSquareBorderImpl(gfx, x, y, mode, strokeColor, overrideColor);
   }
 
   drawSquareBorderCustom = (component: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
     this.drawSquareBorderImpl(component, x, y, mode, strokeColor, overrideColor);
   }
 
-  private drawSquareBorderImpl = (graphics: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
+  private drawSquareBorderImpl = (gfx: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
     const size = 1;
     const strokeSize = STROKE_SIZE;
     const borderSize = STROKE_SIZE * 0.5;
@@ -230,22 +233,22 @@ export class Renderer implements IRenderer {
     const y0i = y0 + borderSize;
     const x1i = x1 - borderSize;
     const y1i = y1 - borderSize;
-    graphics.noStroke();
+    gfx.noStroke();
     if (overrideColor) {
-      this.p5CachedFill(graphics, strokeColor);
+      this.p5CachedFill(gfx, strokeColor);
     } else {
-      this.p5CachedFill(graphics, this.getBorderColor(strokeColor, mode));
+      this.p5CachedFill(gfx, this.getBorderColor(strokeColor, mode));
     }
     if (mode === 'light') {
       // TOP
-      graphics.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
+      gfx.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
       // RIGHT
-      graphics.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
+      gfx.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
     } else if (mode === 'dark') {
       // BOTTOM
-      graphics.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
+      gfx.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
       // LEFT
-      graphics.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
+      gfx.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
     }
   }
 
@@ -253,33 +256,41 @@ export class Renderer implements IRenderer {
     this.drawXImpl(this.p5, x, y, color, blockDivisions);
   }
 
-  drawXStatic = (x: number, y: number, color = "#fff", blockDivisions = 5) => {
+  drawXStatic = (gfx: P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5) => {
     if (this.isStaticCached) return;
-    this.drawXImpl(this.staticGraphics, x, y, color, blockDivisions);
+    this.drawXImpl(gfx, x, y, color, blockDivisions);
   }
 
   drawXCustom = (component: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5) => {
     this.drawXImpl(component, x, y, color, blockDivisions);
   }
 
-  private drawXImpl = (graphics: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5) => {
+  private drawXImpl = (gfx: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5) => {
     const sizeX = (BLOCK_SIZE.x - STROKE_SIZE) / blockDivisions;
     const sizeY = (BLOCK_SIZE.y - STROKE_SIZE) / blockDivisions;
-    this.p5CachedFill(graphics, color);
+    this.p5CachedFill(gfx, color);
     // p5.randomSeed(x + y * 500000);
     // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
-    graphics.noStroke();
+    gfx.noStroke();
     for (let i = 0; i < blockDivisions; i++) {
       const px0 = x * BLOCK_SIZE.x + this.screenShake.offset.x + i * sizeX;
       const py0 = y * BLOCK_SIZE.y + this.screenShake.offset.y + i * sizeY;
       const px1 = x * BLOCK_SIZE.x + this.screenShake.offset.x + i * sizeX;
       const py1 = y * BLOCK_SIZE.y + this.screenShake.offset.y + (blockDivisions - 1 - i) * sizeY;
-      graphics.square(px0, py0, Math.max(sizeX, sizeY));
-      graphics.square(px1, py1, Math.max(sizeX, sizeY));
+      gfx.square(px0, py0, Math.max(sizeX, sizeY));
+      gfx.square(px1, py1, Math.max(sizeX, sizeY));
     }
   }
 
   drawBasicSquare(x: number, y: number, color: P5.Color, size = 1) {
+    this.drawBasicSquareImpl(this.p5, x, y, color, size);
+  }
+
+  drawBasicSquareCustom(component: P5 | P5.Graphics, x: number, y: number, color: P5.Color, size = 1) {
+    this.drawBasicSquareImpl(component, x, y, color, size);
+  }
+
+  private drawBasicSquareImpl(gfx: P5 | P5.Graphics, x: number, y: number, color: P5.Color, size = 1) {
     const borderSize = STROKE_SIZE * 0.5;
     const width = BLOCK_SIZE.x;
     const height = BLOCK_SIZE.y;
@@ -287,11 +298,11 @@ export class Renderer implements IRenderer {
     const y0 = y * BLOCK_SIZE.y + this.screenShake.offset.x + (1 - size) * height - borderSize;
     const x1 = x0 + width * size;
     const y1 = y0 + height * size;
-    this.p5.fill(color);
-    // this.p5.randomSeed(x + y * 500000);
-    // this.p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
-    this.p5.noStroke();
-    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    gfx.fill(color);
+    // gfx.randomSeed(x + y * 500000);
+    // gfx.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
+    gfx.noStroke();
+    gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
   }
 
   /**
@@ -323,7 +334,7 @@ export class Renderer implements IRenderer {
   /**
    * Draw move arrows when player is not moving, or when player is hurt
    */
-  drawPlayerMoveArrows = (vec: Vector, currentMove: DIR) => {
+  drawPlayerMoveArrows = (gfx: P5 | P5.Graphics, vec: Vector, currentMove: DIR) => {
     if (this.replay.mode === ReplayMode.Playback) return;
 
     const isWaitingToStartMoving = this.gameState.isGameStarted && !this.gameState.isMoving;
@@ -353,17 +364,17 @@ export class Renderer implements IRenderer {
         x: arrow.x * BLOCK_SIZE.x + BLOCK_SIZE.x * 0.4 + this.screenShake.offset.x,
         y: arrow.y * BLOCK_SIZE.y + BLOCK_SIZE.y * 0.35 + this.screenShake.offset.y,
       }
-      this.p5.fill("#fff");
-      this.p5.stroke("#000");
-      this.p5.strokeWeight(4);
-      this.p5.textSize(12);
-      this.p5.textAlign(this.p5.CENTER, this.p5.CENTER);
-      this.p5.textFont(this.fonts.variants.zicons);
-      this.p5.text(arrow.text, position.x, position.y);
+      gfx.fill("#fff");
+      gfx.stroke("#000");
+      gfx.strokeWeight(4);
+      gfx.textSize(12);
+      gfx.textAlign(this.p5.CENTER, this.p5.CENTER);
+      gfx.textFont(this.fonts.variants.zicons);
+      gfx.text(arrow.text, position.x, position.y);
     }
   }
 
-  drawTutorialMoveControls = () => {
+  drawTutorialMoveControls = (gfx: P5 | P5.Graphics) => {
     if (!this.tutorial.needsMoveControls) return;
     if (this.replay.mode === ReplayMode.Playback) return;
 
@@ -382,27 +393,27 @@ export class Renderer implements IRenderer {
     const x1 = x0 + bannerWidth * BLOCK_SIZE.x - STROKE_SIZE;
     const y0 = BLOCK_SIZE.y * (bannerPosition.y);
     const y1 = y0 + bannerHeight * BLOCK_SIZE.y - STROKE_SIZE;
-    this.p5.fill('#000000aa');
-    this.p5.stroke("#000");
-    this.p5.strokeWeight(STROKE_SIZE);
-    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    gfx.fill('#000000aa');
+    gfx.stroke("#000");
+    gfx.strokeWeight(STROKE_SIZE);
+    gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // // text
     const textX = x0 + BLOCK_SIZE.x * 1.7;
     const textY = y0 + BLOCK_SIZE.y * 3.7;
-    this.p5.fill(ACCENT_COLOR);
-    this.p5.stroke("#111");
-    this.p5.strokeWeight(4);
-    this.p5.textSize(12);
-    this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
-    this.p5.textFont(this.fonts.variants.miniMood);
-    this.p5.text("MOVE", textX, textY);
+    gfx.fill(ACCENT_COLOR);
+    gfx.stroke("#111");
+    gfx.strokeWeight(4);
+    gfx.textSize(12);
+    gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
+    gfx.textFont(this.fonts.variants.miniMood);
+    gfx.text("MOVE", textX, textY);
     // image
     const imgX = x0 + BLOCK_SIZE.x * 0.5;
     const imgY = y0 + BLOCK_SIZE.y * 0.1;
-    this.spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY);
+    this.spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY, gfx);
   }
 
-  drawTutorialRewindControls = (playerPosition: Vector, canRewind: () => boolean) => {
+  drawTutorialRewindControls = (gfx: P5 | P5.Graphics, playerPosition: Vector, canRewind: () => boolean) => {
     const hasNeverBeenHurt = this.gameState.lastHurtBy === HitType.Unknown;
     if (hasNeverBeenHurt) return;
     if (this.tutorial.needsMoveControls) return;
@@ -439,27 +450,27 @@ export class Renderer implements IRenderer {
     const x1 = BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
     const y0 = BLOCK_SIZE.y * (bannerPosition.y);
     const y1 = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
-    this.p5.fill('#000000aa');
-    this.p5.stroke("#000");
-    this.p5.strokeWeight(STROKE_SIZE);
-    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    gfx.fill('#000000aa');
+    gfx.stroke("#000");
+    gfx.strokeWeight(STROKE_SIZE);
+    gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
     const textX = BLOCK_SIZE.x * (bannerPosition.x + 3);
     const textY = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
-    this.p5.fill("#fff");
-    this.p5.stroke("#111");
-    this.p5.strokeWeight(4);
-    this.p5.textSize(12);
-    this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
-    this.p5.textFont(this.fonts.variants.miniMood);
-    this.p5.text("REWIND", textX, textY);
+    gfx.fill("#fff");
+    gfx.stroke("#111");
+    gfx.strokeWeight(4);
+    gfx.textSize(12);
+    gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
+    gfx.textFont(this.fonts.variants.miniMood);
+    gfx.text("REWIND", textX, textY);
     // image
     const imgX = BLOCK_SIZE.x * (bannerPosition.x + 0.6);
     const imgY = BLOCK_SIZE.y * (bannerPosition.y + 0.6);
-    this.spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY);
+    this.spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY, gfx);
   }
 
-  drawSprintControls = (x: number, y: number) => {
+  drawSprintControls = (gfx: P5 | P5.Graphics, x: number, y: number) => {
     // banner background
     const bannerWidth = 7.8;
     const bannerHeight = 2.8;
@@ -468,51 +479,51 @@ export class Renderer implements IRenderer {
     const x1 = BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
     const y0 = BLOCK_SIZE.y * (bannerPosition.y);
     const y1 = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
-    this.p5.fill('#000000aa');
-    this.p5.stroke("#000");
-    this.p5.strokeWeight(STROKE_SIZE);
-    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    gfx.fill('#000000aa');
+    gfx.stroke("#000");
+    gfx.strokeWeight(STROKE_SIZE);
+    gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
     const textX = BLOCK_SIZE.x * (bannerPosition.x + 3.5);
     const textY = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
-    this.p5.fill(ACCENT_COLOR);
-    this.p5.stroke("#111");
-    this.p5.strokeWeight(4);
-    this.p5.textSize(12);
-    this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
-    this.p5.textFont(this.fonts.variants.miniMood);
-    this.p5.text("SPRINT", textX, textY);
+    gfx.fill(ACCENT_COLOR);
+    gfx.stroke("#111");
+    gfx.strokeWeight(4);
+    gfx.textSize(12);
+    gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
+    gfx.textFont(this.fonts.variants.miniMood);
+    gfx.text("SPRINT", textX, textY);
     // image
     const imgX = BLOCK_SIZE.x * (bannerPosition.x + 0.6);
     const imgY = BLOCK_SIZE.y * (bannerPosition.y + 0.6);
-    this.spriteRenderer.drawImage(Image.ControlsKeyboardSprint, imgX, imgY);
+    this.spriteRenderer.drawImage(Image.ControlsKeyboardSprint, imgX, imgY, gfx);
   }
 
-  drawDifficultySelect = (backgroundColor: string) => {
+  drawDifficultySelect = (gfx: P5 | P5.Graphics, backgroundColor: string) => {
     const colorEas = '#43C59E';
     const colorMed = '#fa0'
     const colorHar = '#E76F51'
     const colorUlt = '#F21F5E'
     // const colorUlt = '#8F3985'
-    this.drawDifficultySelectBanner(3, 0, 5, 1.1, 'choose', { backgroundColor, textXOffset: .1 });
-    this.drawDifficultySelectBanner(3, 1, 6, 1, 'difficulty', { backgroundColor, textXOffset: .1 });
-    this.drawDifficultySelectBanner(12.9, 0, 3.1, 1, 'easy', { backgroundColor, textColor: colorEas });
-    this.drawDifficultySelectBanner(26, 14, 4, 1, 'medium', { backgroundColor, textColor: colorMed });
-    this.drawDifficultySelectBanner(12.9, 29, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
-    this.drawDifficultySelectBanner(24, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
+    this.drawDifficultySelectBanner(gfx, 3, 0, 5, 1.1, 'choose', { backgroundColor, textXOffset: .1 });
+    this.drawDifficultySelectBanner(gfx, 3, 1, 6, 1, 'difficulty', { backgroundColor, textXOffset: .1 });
+    this.drawDifficultySelectBanner(gfx, 12.9, 0, 3.1, 1, 'easy', { backgroundColor, textColor: colorEas });
+    this.drawDifficultySelectBanner(gfx, 26, 14, 4, 1, 'medium', { backgroundColor, textColor: colorMed });
+    this.drawDifficultySelectBanner(gfx, 12.9, 29, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
+    this.drawDifficultySelectBanner(gfx, 24, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
   }
 
-  drawDifficultySelectCobra = (backgroundColor: string) => {
+  drawDifficultySelectCobra = (gfx: P5 | P5.Graphics, backgroundColor: string) => {
     const colorHar = '#E76F51'
     const colorUlt = '#F21F5E'
-    this.drawDifficultySelectBanner(3, 0, 5, 1.1, 'choose', { backgroundColor, textXOffset: .1 });
-    this.drawDifficultySelectBanner(3, 1, 6, 1, 'difficulty', { backgroundColor, textXOffset: .1 });
-    this.drawDifficultySelectBanner(19, 0, 7, 1, 'COBRA MODE', { backgroundColor, textXOffset: .35 });
-    this.drawDifficultySelectBanner(27, 14, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
-    this.drawDifficultySelectBanner(12.5, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
+    this.drawDifficultySelectBanner(gfx, 3, 0, 5, 1.1, 'choose', { backgroundColor, textXOffset: .1 });
+    this.drawDifficultySelectBanner(gfx, 3, 1, 6, 1, 'difficulty', { backgroundColor, textXOffset: .1 });
+    this.drawDifficultySelectBanner(gfx, 19, 0, 7, 1, 'COBRA MODE', { backgroundColor, textXOffset: .35 });
+    this.drawDifficultySelectBanner(gfx, 27, 14, 3.1, 1, 'hard', { backgroundColor, textColor: colorHar });
+    this.drawDifficultySelectBanner(gfx, 12.5, 29, 4, 1, 'ultra', { backgroundColor, textColor: colorUlt, textXOffset: .2 });
   }
 
-  private drawDifficultySelectBanner = (x: number, y: number, bannerWidth: number, bannerHeight: number, text: string, {
+  private drawDifficultySelectBanner = (gfx: P5 | P5.Graphics, x: number, y: number, bannerWidth: number, bannerHeight: number, text: string, {
     textXOffset = 0,
     textColor = "#fff",
     backgroundColor = "#000000aa",
@@ -521,24 +532,24 @@ export class Renderer implements IRenderer {
     const x1 = BLOCK_SIZE.x * (x + bannerWidth) - STROKE_SIZE * 0.5;
     const y0 = BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
     const y1 = BLOCK_SIZE.y * (y + bannerHeight) - STROKE_SIZE;
-    this.p5.fill(backgroundColor);
-    this.p5.noStroke();
-    // this.p5.stroke("#000");
-    this.p5.strokeWeight(STROKE_SIZE);
-    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    gfx.fill(backgroundColor);
+    gfx.noStroke();
+    // gfx.stroke("#000");
+    gfx.strokeWeight(STROKE_SIZE);
+    gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
     const textX = BLOCK_SIZE.x * x + 5 + BLOCK_SIZE.x * textXOffset;
     const textY = BLOCK_SIZE.y * y + 7;
-    this.p5.fill(textColor);
-    // this.p5.stroke("#111");
-    this.p5.strokeWeight(4);
-    this.p5.textSize(12);
-    this.p5.textAlign(this.p5.LEFT, this.p5.CENTER);
-    this.p5.textFont(this.fonts.variants.miniMood);
-    this.p5.text(text, textX, textY);
+    gfx.fill(textColor);
+    // gfx.stroke("#111");
+    gfx.strokeWeight(4);
+    gfx.textSize(12);
+    gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
+    gfx.textFont(this.fonts.variants.miniMood);
+    gfx.text(text, textX, textY);
   }
 
-  drawUIKeys = () => {
+  drawUIKeys = (gfx: P5 | P5.Graphics) => {
     if (this.replay.mode === ReplayMode.Playback) return;
     if (this.gameState.isGameWon) return;
     if (!this.gameState.isGameStarted) return;
@@ -548,23 +559,23 @@ export class Renderer implements IRenderer {
     const y0 = BLOCK_SIZE.y * 1 - STROKE_SIZE * 0.5;
     const x1 = x0 + BLOCK_SIZE.x * 1 + STROKE_SIZE * 0.5;
     const y1 = y0 + BLOCK_SIZE.y * 3 + STROKE_SIZE * 0.5;
-    this.p5.fill("#00000099");
-    this.p5.noStroke();
-    this.p5.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    gfx.fill("#00000099");
+    gfx.noStroke();
+    gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
 
     const imgX = BLOCK_SIZE.x * 29 + 1;
     const imgY = BLOCK_SIZE.y * 1 + 1;
 
     if (this.gameState.hasKeyYellow) {
-      this.spriteRenderer.drawImage(Image.UIKeyYellow, imgX, imgY);
+      this.spriteRenderer.drawImage(Image.UIKeyYellow, imgX, imgY, gfx);
     }
 
     if (this.gameState.hasKeyRed) {
-      this.spriteRenderer.drawImage(Image.UIKeyRed, imgX, imgY + BLOCK_SIZE.y);
+      this.spriteRenderer.drawImage(Image.UIKeyRed, imgX, imgY + BLOCK_SIZE.y, gfx);
     }
 
     if (this.gameState.hasKeyBlue) {
-      this.spriteRenderer.drawImage(Image.UIKeyBlue, imgX, imgY + BLOCK_SIZE.y * 2);
+      this.spriteRenderer.drawImage(Image.UIKeyBlue, imgX, imgY + BLOCK_SIZE.y * 2, gfx);
     }
   }
 
@@ -693,19 +704,19 @@ export class Renderer implements IRenderer {
     return color;
   }
 
-  private p5CachedFill = (graphics: P5 | P5.Graphics, background: string, optimize = true) => {
+  private p5CachedFill = (gfx: P5 | P5.Graphics, background: string, optimize = true) => {
     if (optimize) {
-      graphics.fill(this.lookupP5CachedColor(background));
+      gfx.fill(this.lookupP5CachedColor(background));
     } else {
-      graphics.fill(background);
+      gfx.fill(background);
     }
   }
 
-  private p5CachedStroke = (graphics: P5 | P5.Graphics, lineColor: string, optimize = true) => {
+  private p5CachedStroke = (gfx: P5 | P5.Graphics, lineColor: string, optimize = true) => {
     if (optimize) {
-      graphics.stroke(this.lookupP5CachedColor(lineColor));
+      gfx.stroke(this.lookupP5CachedColor(lineColor));
     } else {
-      graphics.stroke(lineColor);
+      gfx.stroke(lineColor);
     }
   }
 }

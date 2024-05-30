@@ -45,7 +45,7 @@ X~~~~   ~~~~XXl_XX~~~~~   ~~~X
 XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.darkStar),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   showQuoteOnLevelWin: true,
   extraLoseMessages: [
     ["Death is not the end. It is merely a beginning."],

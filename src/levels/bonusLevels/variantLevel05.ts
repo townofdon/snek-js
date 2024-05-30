@@ -50,7 +50,7 @@ XXXXXXXXXXXXXXxXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXxdxXXXXXXXXXXXXXX
 `,
   colors: getExtendedPalette(PALETTE.darkStar),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   musicTrack: MusicTrack.lostcolony,
   titleVariant: TitleVariant.GrayBlue,
   nextLevel: LEVEL_06,

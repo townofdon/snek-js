@@ -76,6 +76,31 @@ html, body {
   background: #181A1B
 }
 
+p, button {
+  z-index: 5;
+}
+
+.static-gfx-canvas {
+  display: block!important;
+  position: absolute;
+  top: 0;
+}
+.static-gfx-canvas.bg {
+  z-index: -1;
+}
+.static-gfx-canvas.fg1 {
+  z-index: 1;
+}
+.static-gfx-canvas.fg2 {
+  z-index: 2;
+}
+.static-gfx-canvas.fg3 {
+  z-index: 3;
+}
+.game.hide-gfx-canvas > .static-gfx-canvas {
+  display: none!important;
+}
+
 .start-screen {
   z-index: 100;
   position: absolute;
@@ -319,7 +344,7 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px
 
 .main-ui-buttons .button-start-game {
   position: relative;
-  z-index: 1;
+  z-index: 10;
   transform: translateY(-145px);
 }
 .main-ui-buttons .button-start-game:focus,

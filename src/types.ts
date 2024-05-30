@@ -235,12 +235,13 @@ export interface Level {
   disableAppleSpawn?: boolean,
   disableNormalLoseMessages?: boolean,
   disableWallCollision?: boolean,
+  showTitle?: boolean,
   showQuoteOnLevelWin?: boolean,
   isWinGame?: boolean,
   extraLoseMessages?: LoseMessage[],
   portalExitConfig?: Partial<Record<PortalChannel, PortalExitMode>>,
-  titleScene?: (p5: P5, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene,
-  renderInstructions?: (renderer: IRenderer, state: GameState, palette: Palette) => void
+  // titleScene?: (p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene,
+  renderInstructions?: (gfx: P5 | P5.Graphics, renderer: IRenderer, state: GameState, palette: Palette) => void
   musicTrack?: MusicTrack,
   titleVariant?: TitleVariant,
   globalLight?: number,
@@ -255,30 +256,30 @@ export interface Level {
 export interface IRenderer {
   reset: () => void
   tick: () => void
-  drawBackground: (color: string) => void
-  drawStaticGraphics: () => void
+  drawBackground: (color: string, gfxBG: P5.Graphics, gfxFG: P5.Graphics) => void
+  drawStaticGraphics: (gfx: P5.Graphics) => void
   invalidateStaticCache: () => void
   clearGraphicalComponent: (component: P5.Graphics) => void
   drawGraphicalComponent: (component: P5.Graphics, x: number, y: number) => void
-  drawGraphicalComponentStatic: (component: P5.Graphics, x: number, y: number) => void
+  drawGraphicalComponentStatic: (gfx: P5.Graphics, component: P5.Graphics, x: number, y: number) => void
   drawSquare: (x: number, y: number, background: string, lineColor: string, options: DrawSquareOptions) => void
-  drawSquareStatic: (x: number, y: number, background: string, lineColor: string, options: DrawSquareOptions) => void
+  drawSquareStatic: (gfx: P5.Graphics, x: number, y: number, background: string, lineColor: string, options: DrawSquareOptions) => void
   drawSquareCustom: (component: P5 | P5.Graphics, x: number, y: number, background: string, lineColor: string, options: DrawSquareOptions) => void
   drawSquareBorder: (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor: boolean) => void
-  drawSquareBorderStatic: (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor: boolean) => void
+  drawSquareBorderStatic: (gfx: P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor: boolean) => void
   drawSquareBorderCustom: (component: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor: boolean) => void
   drawX: (x: number, y: number, color: string, blockDivisions: number) => void
-  drawXStatic: (x: number, y: number, color: string, blockDivisions: number) => void
+  drawXStatic: (gfx: P5.Graphics, x: number, y: number, color: string, blockDivisions: number) => void
   drawXCustom: (component: P5 | P5.Graphics, x: number, y: number, color: string, blockDivisions: number) => void
   drawBasicSquare: (x: number, y: number, color: P5.Color, size: number) => void
   drawCaptureMode: () => void
-  drawPlayerMoveArrows: (vec: Vector, currentMove: DIR) => void
-  drawTutorialMoveControls: () => void
-  drawTutorialRewindControls: (playerPosition: Vector, canRewind: () => boolean) => void
-  drawSprintControls: (x: number, y: number) => void
-  drawDifficultySelect: (backgroundColor: string) => void
-  drawDifficultySelectCobra: (backgroundColor: string) => void
-  drawUIKeys: () => void
+  drawPlayerMoveArrows: (gfx: P5 | P5.Graphics, vec: Vector, currentMove: DIR) => void
+  drawTutorialMoveControls: (gfx: P5 | P5.Graphics) => void
+  drawTutorialRewindControls: (gfx: P5 | P5.Graphics, playerPosition: Vector, canRewind: () => boolean) => void
+  drawSprintControls: (gfx: P5 | P5.Graphics, x: number, y: number) => void
+  drawDifficultySelect: (gfx: P5 | P5.Graphics, backgroundColor: string) => void
+  drawDifficultySelectCobra: (gfx: P5 | P5.Graphics, backgroundColor: string) => void
+  drawUIKeys: (gfx: P5 | P5.Graphics) => void
   drawPortal: (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions) => void
 }
 

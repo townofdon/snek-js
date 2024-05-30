@@ -42,7 +42,7 @@ XXXXXXX~~    ----    ~~XXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.plumsea),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   musicTrack: MusicTrack.shopkeeper,
   pickupDrops: {
     30: { likelihood: .2, type: PickupType.Invincibility },

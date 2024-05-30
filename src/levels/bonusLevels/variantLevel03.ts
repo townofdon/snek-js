@@ -47,7 +47,7 @@ XXX~~=-=     =-=     =-= ~~XXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 `,
   colors: getExtendedPalette(PALETTE.gravChamber),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.woorb,
   titleVariant: TitleVariant.GrayBlue,

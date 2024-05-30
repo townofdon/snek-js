@@ -66,7 +66,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     9: PortalExitMode.InvertDirection,
     0: PortalExitMode.InvertDirection,
   },
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   titleVariant: TitleVariant.GrayBlue,
   musicTrack: MusicTrack.reconstitute,
 };

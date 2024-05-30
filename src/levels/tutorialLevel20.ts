@@ -53,7 +53,7 @@ XXXXXXXXXXaX-X--X-X XXXddXXX X
     playerTail: PALETTE.plumsea.playerTail,
     playerTailStroke: PALETTE.plumsea.playerTailStroke,
   }),
-  titleScene: (p5, sfx, fonts, callbacks) => new TitleScene(name, p5, sfx, fonts, callbacks),
+  showTitle: true,
   musicTrack: MusicTrack.aqueduct,
   titleVariant: TitleVariant.GrayBlue,
   globalLight: 0.85,
