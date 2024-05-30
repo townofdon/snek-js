@@ -327,6 +327,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
      */
     p5.draw = draw;
     function draw() {
+      // prevent freezing due to animation frame build up if tab loses focus
+      if (p5.deltaTime > 3000) return;
+
       if (state.colorsDirty) {
         state.colorsDirty = false;
         state.extendedPalette = getExtendedPalette(options.palette);
@@ -382,6 +385,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
     function renderElements() {
       p5.background(state.extendedPalette.background);
+      if (!renderer.getIsStaticCached()) {
+        gfx.clear(0, 0, 0, 0);
+      }
 
       for (let y = 0; y < GRIDCOUNT.y; y++) {
         for (let x = 0; x < GRIDCOUNT.x; x++) {

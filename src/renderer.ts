@@ -101,6 +101,8 @@ export class Renderer implements IRenderer {
     this.spriteRenderer.setIsStaticCached(false);
   }
 
+  getIsStaticCached = () => this.isStaticCached;
+
   drawBackground = (color: string, graphicsBG: P5.Graphics, graphicsFG: P5.Graphics) => {
     this.p5.clear(0, 0, 0, 0);
     if (!this.isStaticCached) {
