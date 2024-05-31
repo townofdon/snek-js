@@ -158,6 +158,7 @@ export interface GameState {
 
 export interface DrawState {
   shouldDrawApples: boolean,
+  shouldDrawKeysLocks: boolean,
 }
 
 export interface LoopState {
@@ -292,6 +293,7 @@ export interface DrawSquareOptions {
   size?: number,
   strokeSize?: number,
   optimize?: boolean,
+  screenshakeMul?: number,
 }
 
 export enum KeyChannel {
@@ -494,6 +496,7 @@ export enum Image {
   UIKeyRed = 'snek-smkey2-red.png',
   UIKeyBlue = 'snek-smkey2-blue.png',
   UILocked = 'ui-locked.png',
+  Darken = 'darken.png',
 }
 
 export interface Scene {

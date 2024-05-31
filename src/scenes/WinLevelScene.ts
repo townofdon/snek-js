@@ -1,5 +1,5 @@
 import P5 from "p5";
-import { FontsInstance, GameState, MusicTrack, SFXInstance, SceneCallbacks, Sound } from "../types";
+import { FontsInstance, MusicTrack, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import Color from "color";
@@ -220,7 +220,11 @@ export class WinLevelScene extends BaseScene {
   draw = () => {
     const { p5, gfx, fonts } = this.props;
     const title = this.titleText;
-    this.drawBackground(p5.lerpColor(p5.color("#00000000"), p5.color("#00000066"), this.bgOpacity).toString());
+    const bgColor = (amount = 1) => {
+      return p5.lerpColor(p5.color("#00000000"), p5.color("#00000066"), this.bgOpacity * amount).toString()
+    }
+    this.drawBackground(bgColor(0.8));
+    this.drawBackground(bgColor(1), gfx);
     gfx.textAlign(p5.CENTER, p5.CENTER);
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
@@ -247,7 +251,7 @@ export class WinLevelScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg)
-    gfx.strokeWeight(2);
+    gfx.strokeWeight(3);
     gfx.textSize(16);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.text('PERFECT!', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
@@ -263,7 +267,7 @@ export class WinLevelScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg);
-    gfx.strokeWeight(2);
+    gfx.strokeWeight(3);
     gfx.textSize(16);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.text('100% Apples', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
@@ -273,25 +277,35 @@ export class WinLevelScene extends BaseScene {
 
   drawLevelClearBonus = (bonus: number) => {
     const { p5, gfx, fonts } = this.props;
+    const shadowOffset = 0.004;
     gfx.textFont(fonts.variants.miniMood);
-    gfx.fill('#fff');
     gfx.stroke("#000")
-    gfx.strokeWeight(2);
     gfx.textSize(14);
     gfx.textAlign(p5.LEFT, p5.TOP);
+    gfx.fill('#000');
+    gfx.strokeWeight(3);
+    gfx.text('Level Clear Bonus', ...this.getPosition(0.15, 0.4 + this.statOffsetY + shadowOffset));
+    gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.15, 0.45 + this.statOffsetY + shadowOffset));
+    gfx.fill('#fff');
+    gfx.strokeWeight(2);
     gfx.text('Level Clear Bonus', ...this.getPosition(0.15, 0.4 + this.statOffsetY));
-    gfx.textAlign(p5.LEFT, p5.TOP);
     gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.15, 0.45 + this.statOffsetY));
   }
 
   drawLivesLeftBonus = (bonus: number, lives: number, calcBonus: number) => {
     const { p5, gfx, fonts } = this.props;
+    const shadowOffset = 0.004;
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
-    gfx.strokeWeight(2);
-    gfx.noStroke();
     gfx.textSize(14);
     gfx.textAlign(p5.LEFT, p5.TOP);
+    gfx.strokeWeight(3);
+    gfx.fill('#000');
+    gfx.text('Lives Bonus', ...this.getPosition(0.6, 0.4 + this.statOffsetY + shadowOffset));
+    gfx.text(`${lives} x ${bonus.toFixed(0)}`, ...this.getPosition(0.6, 0.45 + this.statOffsetY + shadowOffset));
+    gfx.text(calcBonus.toFixed(0).padStart(5, '0'), ...this.getPosition(0.6, 0.5 + this.statOffsetY + shadowOffset));
+    gfx.strokeWeight(2);
+    gfx.fill('#fff');
     gfx.text('Lives Bonus', ...this.getPosition(0.6, 0.4 + this.statOffsetY));
     gfx.text(`${lives} x ${bonus.toFixed(0)}`, ...this.getPosition(0.6, 0.45 + this.statOffsetY));
     gfx.text(calcBonus.toFixed(0).padStart(5, '0'), ...this.getPosition(0.6, 0.5 + this.statOffsetY));
@@ -302,11 +316,12 @@ export class WinLevelScene extends BaseScene {
     gfx.textAlign(p5.CENTER, p5.CENTER);
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
-    gfx.strokeWeight(2);
     gfx.textSize(24.5);
+    gfx.strokeWeight(4);
     gfx.fill('#000');
-    gfx.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.61));
+    gfx.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.611));
     gfx.textSize(24);
+    gfx.strokeWeight(2);
     gfx.fill('#fff');
     gfx.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.6));
   }
@@ -315,20 +330,22 @@ export class WinLevelScene extends BaseScene {
     const { p5, gfx, fonts } = this.props;
     const accentColor = "#15C2CB";
     const accentColorBg = Color("#119DA4").darken(0.4).hex();
-    const shadowOffset = 0.01;
+    const shadowOffset = 0.011;
     gfx.textFont(fonts.variants.miniMood);
     gfx.textSize(16);
     gfx.textAlign(p5.CENTER, p5.TOP);
-    gfx.fill('#000');
-    gfx.noStroke();
-    gfx.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY + shadowOffset));
+    gfx.fill('#111');
+    gfx.stroke('#000');
+    gfx.strokeWeight(4);
+    gfx.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY + shadowOffset * 0.5));
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg);
     gfx.strokeWeight(4);
     gfx.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY));
     gfx.textSize(28);
-    gfx.fill('#000');
-    gfx.noStroke();
+    gfx.fill('#111');
+    gfx.stroke('#000');
+    gfx.strokeWeight(6);
     gfx.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY + shadowOffset));
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg);

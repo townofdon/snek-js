@@ -218,6 +218,7 @@ const state: GameState = {
 };
 const drawState: DrawState = {
   shouldDrawApples: true,
+  shouldDrawKeysLocks: true,
 };
 const stats: Stats = {
   numDeaths: 0,
@@ -264,14 +265,16 @@ const clickState: ClickState = {
   y: 0,
   didReceiveInput: false,
   directionToPoint: DIR.RIGHT,
-}
-const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true }
-const drawAppleOptions: DrawSquareOptions = { size: 0.8, is3d: true, optimize: true }
-const drawInvincibilityPickupOptions: DrawSquareOptions = { size: 0.5, is3d: true, optimize: true }
-const drawBasicOptions: DrawSquareOptions = { optimize: true }
-const drawPortalOptions: DrawSquareOptions = {}
+};
+const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true };
+const drawPlayerOptionsDeath: DrawSquareOptions = { is3d: true, optimize: true, screenshakeMul: -1 };
+const drawAppleOptions: DrawSquareOptions = { size: 0.8, is3d: true, optimize: true, screenshakeMul: 0 };
+const drawInvincibilityPickupOptions: DrawSquareOptions = { size: 0.5, is3d: true, optimize: true };
+const drawBasicOptions: DrawSquareOptions = { optimize: true };
+const drawBasicOptionsNoShake: DrawSquareOptions = { optimize: true, screenshakeMul: 0 };
+const drawPortalOptions: DrawSquareOptions = {};
 
-const loseMessages: Record<number, LoseMessage[]> = {}
+const loseMessages: Record<number, LoseMessage[]> = {};
 
 let moves: DIR[] = []; // moves that the player has queued up
 let recentMoves: RecentMoves = [null, null, null, null]; // most recent moves that the snake has performed
@@ -347,13 +350,15 @@ export const sketch = (p5: P5) => {
 
   // hack P5's "offscreen canvas" to layer multiple canvases for MAX PERF - see: https://p5js.org/reference/#/p5/createGraphics
   const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  const gfxKeysLocks: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxApples: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxPresentation: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   gfxBG.addClass('static-gfx-canvas').addClass('bg').parent('game').addClass('gfx-bg');
-  gfxFG.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-fg');
-  gfxApples.addClass('static-gfx-canvas').addClass('fg2').parent('game').addClass('gfx-apples');
+  gfxKeysLocks.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-keys-locks');
+  gfxApples.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-apples');
+  gfxFG.addClass('static-gfx-canvas').addClass('fg2').parent('game').addClass('gfx-fg');
   gfxLighting.addClass('static-gfx-canvas').addClass('fg3').parent('game').addClass('gfx-lighting');
   gfxPresentation.addClass('static-gfx-canvas').addClass('fg4').parent('game').addClass('gfx-presentation');
   const graphicalComponents: GraphicalComponents = {
@@ -383,6 +388,7 @@ export const sketch = (p5: P5) => {
   const sfx = new SFX();
   const musicPlayer = new MusicPlayer(settings);
   const mainTitleFader = new MainTitleFader(p5);
+  const spriteRenderer = new SpriteRenderer({ p5, screenShake });
   const winLevelScene = new WinLevelScene(p5, gfxPresentation, sfx, fonts, unlockedMusicStore, { onSceneEnded: gotoNextLevel });
   const onChangePlayerDirection: (direction: DIR) => void = (dir) => {
     if (validateMove(player.direction, dir)) {
@@ -392,7 +398,6 @@ export const sketch = (p5: P5) => {
   };
   const winGameScene = new WinGameScene({ p5, gfx: gfxPresentation, gameState: state, stats, sfx, fonts, onChangePlayerDirection, callbacks: { onSceneEnded: gotoNextLevel } })
   const leaderboardScene = new LeaderboardScene({ p5, gfx: gfxPresentation, sfx, fonts, callbacks: { onSceneEnded: hideLeaderboard } });
-  const spriteRenderer = new SpriteRenderer({ p5, screenShake });
   const renderer = new Renderer({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
   const modal = new Modal();
 
@@ -645,6 +650,16 @@ export const sketch = (p5: P5) => {
     stats.totalTimeElapsed = 0;
   }
 
+  function resetGraphics() {
+    renderer.invalidateStaticCache();
+    gfxBG.clear(0, 0, 0, 0);
+    gfxFG.clear(0, 0, 0, 0);
+    gfxApples.clear(0, 0, 0, 0);
+    gfxKeysLocks.clear(0, 0, 0, 0);
+    gfxLighting.clear(0, 0, 0, 0);
+    gfxPresentation.clear(0, 0, 0, 0);
+  }
+
   function hideStartScreen() {
     if (!state.isPreloaded) return;
     showMainMenu();
@@ -889,12 +904,14 @@ export const sketch = (p5: P5) => {
     state.timeSinceInvincibleStart = 0;
     state.isShowingDeathColours = true;
     drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
     loopState.timeScale = 0;
     startScreenShake(2, 0, 0.8);
     renderer.invalidateStaticCache();
     yield* waitForTime(INVINCIBILITY_PICKUP_FREEZE_MS);
     state.isShowingDeathColours = false;
     drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
     loopState.timeScale = 1;
     startScreenShake(0, 1);
     renderer.invalidateStaticCache();
@@ -934,6 +951,7 @@ export const sketch = (p5: P5) => {
 
     // init state for new level
     drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
     player.position = p5.createVector(15, 15);
     player.direction = DIR.RIGHT;
     player.directionToFirstSegment = DIR.LEFT;
@@ -1013,10 +1031,7 @@ export const sketch = (p5: P5) => {
     resetScreenShake();
     applyScreenShakeGfx(0, 0);
 
-    gfxBG.clear(0, 0, 0, 0);
-    gfxFG.clear(0, 0, 0, 0);
-    gfxLighting.clear(0, 0, 0, 0);
-    gfxPresentation.clear(0, 0, 0, 0);
+    resetGraphics();
 
     if (shouldShowTransitions) {
       UI.hideGfxCanvas();
@@ -1306,6 +1321,7 @@ export const sketch = (p5: P5) => {
     renderer.drawCaptureMode();
     renderer.setStaticCacheFlags();
     drawState.shouldDrawApples = false;
+    drawState.shouldDrawKeysLocks = false;
 
     if (
       state.isGameStarted &&
@@ -1412,26 +1428,33 @@ export const sketch = (p5: P5) => {
   }
 
   function updateScreenShake() {
+    if (screenShake.offset == null) screenShake.offset = p5.createVector(0, 0);
     if (settings.isScreenShakeDisabled) {
       resetScreenShake();
       return;
     }
     screenShake.timeSinceStarted += p5.deltaTime;
     screenShake.timeSinceLastStep += p5.deltaTime * screenShake.timeScale;
-    if (screenShake.offset == null) screenShake.offset = p5.createVector(0, 0);
     if (screenShake.timeSinceStarted < SCREEN_SHAKE_DURATION_MS) {
       if (screenShake.timeSinceLastStep >= 25) {
         screenShake.offset.x = (p5.random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
         screenShake.offset.y = (p5.random(2) - 1) * SCREEN_SHAKE_MAGNITUDE_PX * screenShake.magnitude;
         screenShake.timeSinceLastStep = 0;
-        if (state.isLost) renderer.invalidateStaticCache();
+        if (state.isLost) {
+          renderer.invalidateStaticCache();
+          drawState.shouldDrawApples = true;
+          drawState.shouldDrawKeysLocks = true;
+        }
         applyScreenShakeGfx(screenShake.offset.x, screenShake.offset.y);
       }
     } else {
       if (screenShake.offset.x !== 0 || screenShake.offset.y !== 0) {
-        renderer.invalidateStaticCache();
+        if (state.isLost) {
+          renderer.invalidateStaticCache();
+          drawState.shouldDrawApples = true;
+          drawState.shouldDrawKeysLocks = true;
+        }
         applyScreenShakeGfx(0, 0);
-        drawState.shouldDrawApples = true;
       }
       resetScreenShake();
     }
@@ -1441,6 +1464,7 @@ export const sketch = (p5: P5) => {
     const shake = (g: P5.Graphics, mul = 1) => { g.style('transform', `translate(${x * mul}px, ${y * mul}px)`); }
     shake(gfxBG, 0);
     shake(gfxFG, 2);
+    shake(gfxKeysLocks, 2);
     shake(gfxApples, 1);
   }
 
@@ -1564,8 +1588,9 @@ export const sketch = (p5: P5) => {
     }
     keysMap[index] = null;
     playSound(Sound.pickup, 0.35);
-    renderer.invalidateStaticCache();
-    drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
+    // renderer.invalidateStaticCache();
+    // drawState.shouldDrawApples = true;
   }
 
   function handleUnlock() {
@@ -1617,8 +1642,9 @@ export const sketch = (p5: P5) => {
       }
       return true;
     });
-    renderer.invalidateStaticCache();
-    drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
+    // renderer.invalidateStaticCache();
+    // drawState.shouldDrawApples = true;
   }
 
   function handleDifficultySelect() {
@@ -1809,10 +1835,6 @@ export const sketch = (p5: P5) => {
     if (state.isGameWon) return;
     if (!segments.every(segment => getHasSegmentExited(segment))) return;
 
-    drawState.shouldDrawApples = true;
-    renderer.invalidateStaticCache();
-    drawBackground();
-
     state.isExited = true;
     if (replay.mode === ReplayMode.Playback) {
       proceedToNextReplayClip();
@@ -1937,6 +1959,7 @@ export const sketch = (p5: P5) => {
     playSound(Sound.hurtSave);
     renderHeartsUI();
     stopAction(Action.GameOver);
+    renderer.invalidateStaticCache();
   }
 
   function handleSnakeDamage(didReceiveDamage: boolean) {
@@ -2194,18 +2217,18 @@ export const sketch = (p5: P5) => {
 
   function cacheGraphicalComponents() {
     renderer.clearGraphicalComponent(graphicalComponents.barrier);
-    renderer.drawSquareCustom(graphicalComponents.barrier, 1, 1, level.colors.barrier, level.colors.barrierStroke, drawBasicOptions);
+    renderer.drawSquareCustom(graphicalComponents.barrier, 1, 1, level.colors.barrier, level.colors.barrierStroke, drawBasicOptionsNoShake);
     renderer.drawSquareBorderCustom(graphicalComponents.barrier, 1, 1, 'light', level.colors.barrierBorderLight, true);
     renderer.drawSquareBorderCustom(graphicalComponents.barrier, 1, 1, 'dark', level.colors.barrierBorderDark, true);
     renderer.drawXCustom(graphicalComponents.barrier, 1, 1, level.colors.barrierStroke);
 
     renderer.clearGraphicalComponent(graphicalComponents.barrierPassable);
-    renderer.drawSquareCustom(graphicalComponents.barrierPassable, 1, 1, level.colors.passableStroke, level.colors.passableStroke, drawBasicOptions);
+    renderer.drawSquareCustom(graphicalComponents.barrierPassable, 1, 1, level.colors.passableStroke, level.colors.passableStroke, drawBasicOptionsNoShake);
     renderer.drawSquareBorderCustom(graphicalComponents.barrierPassable, 1, 1, 'light', level.colors.passableBorderLight, true);
     renderer.drawSquareBorderCustom(graphicalComponents.barrierPassable, 1, 1, 'dark', level.colors.passableBorderDark, true);
 
     renderer.clearGraphicalComponent(graphicalComponents.door);
-    renderer.drawSquareCustom(graphicalComponents.door, 1, 1, level.colors.door, level.colors.doorStroke, drawBasicOptions);
+    renderer.drawSquareCustom(graphicalComponents.door, 1, 1, level.colors.door, level.colors.doorStroke, drawBasicOptionsNoShake);
     renderer.drawSquareBorderCustom(graphicalComponents.door, 1, 1, 'light', level.colors.doorStroke, false);
     renderer.drawSquareBorderCustom(graphicalComponents.door, 1, 1, 'dark', level.colors.doorStroke, false);
 
@@ -2227,10 +2250,10 @@ export const sketch = (p5: P5) => {
     renderer.drawSquareCustom(graphicalComponents.apple, 1, 1, level.colors.apple, level.colors.appleStroke, drawAppleOptions);
 
     renderer.clearGraphicalComponent(graphicalComponents.deco1);
-    renderer.drawSquareCustom(graphicalComponents.deco1, 1, 1, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptions);
+    renderer.drawSquareCustom(graphicalComponents.deco1, 1, 1, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptionsNoShake);
 
     renderer.clearGraphicalComponent(graphicalComponents.deco2);
-    renderer.drawSquareCustom(graphicalComponents.deco2, 1, 1, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptions);
+    renderer.drawSquareCustom(graphicalComponents.deco2, 1, 1, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptionsNoShake);
   }
 
   function drawBackground() {
@@ -2241,22 +2264,29 @@ export const sketch = (p5: P5) => {
     if (drawState.shouldDrawApples) {
       gfxApples.clear(0, 0, 0, 0);
     }
+    if (drawState.shouldDrawKeysLocks) {
+      gfxKeysLocks.clear(0, 0, 0, 0);
+    }
   }
 
   function drawPlayerHead(vec: Vector) {
     if (state.isShowingDeathColours) {
-      renderer.drawSquare(vec.x, vec.y,
+      renderer.drawSquareStatic(gfxFG, vec.x, vec.y,
         PALETTE.deathInvert.playerHead,
         PALETTE.deathInvert.playerHead,
-        drawPlayerOptions);
+        drawPlayerOptionsDeath);
     } else if (!state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
       renderer.drawSquare(vec.x, vec.y, PALETTE.cobra.playerHead, PALETTE.cobra.playerHead, drawPlayerOptions);
+    } else if (state.isLost) {
+      renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.snakeHead, vec.x, vec.y, 0.5, -1);
     } else {
       renderer.drawGraphicalComponent(graphicalComponents.snakeHead, vec.x, vec.y);
     }
     const direction = (!state.isLost && moves.length > 0) ? moves[0] : player.direction;
     if (state.isLost) {
-      spriteRenderer.drawImage3x3Custom(gfxFG, Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction));
+      spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction), 1, -1);
+    } else if (state.isShowingDeathColours) {
+      spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHead, vec.x, vec.y, getRotationFromDirection(direction), 1, -1);
     } else {
       spriteRenderer.drawImage3x3(Image.SnekHead, vec.x, vec.y, getRotationFromDirection(direction));
     }
@@ -2280,10 +2310,10 @@ export const sketch = (p5: P5) => {
         renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
       }
     } else if (state.isShowingDeathColours) {
-      renderer.drawSquare(vec.x, vec.y,
+      renderer.drawSquareStatic(gfxFG, vec.x, vec.y,
         PALETTE.deathInvert.playerTail,
         PALETTE.deathInvert.playerTailStroke,
-        drawPlayerOptions);
+        drawPlayerOptionsDeath);
     } else {
       if (state.gameMode === GameMode.Cobra) {
         renderer.drawSquare(vec.x, vec.y, PALETTE.cobra.playerTail, PALETTE.cobra.playerTailStroke, drawPlayerOptions);
@@ -2310,7 +2340,7 @@ export const sketch = (p5: P5) => {
       renderer.drawSquare(x, y, color.toString(), color.toString(), drawInvincibilityPickupOptions);
       spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
     } else if (drawState.shouldDrawApples) {
-      renderer.drawGraphicalComponentCustom(gfxApples, graphicalComponents.apple, x, y);
+      renderer.drawGraphicalComponentCustom(gfxApples, graphicalComponents.apple, x, y, 1, 0);
     }
   }
 
@@ -2318,26 +2348,26 @@ export const sketch = (p5: P5) => {
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < barriers.length; i++) {
         if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrier, barriers[i].x, barriers[i].y);
+        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrier, barriers[i].x, barriers[i].y, 1, 0);
       }
       return;
     }
 
     for (let i = 0; i < barriers.length; i++) {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareStatic(gfxFG, barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptions);
+      renderer.drawSquareStatic(gfxFG, barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptionsNoShake);
     }
     for (let i = 0; i < barriers.length; i++) {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareBorderStatic(gfxFG, barriers[i].x, barriers[i].y, 'light', PALETTE.deathInvert.barrierStroke, false);
+      renderer.drawSquareBorderStatic(gfxFG, barriers[i].x, barriers[i].y, 'light', PALETTE.deathInvert.barrierStroke, false, 0);
     }
     for (let i = 0; i < barriers.length; i++) {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareBorderStatic(gfxFG, barriers[i].x, barriers[i].y, 'dark', PALETTE.deathInvert.barrierStroke, false);
+      renderer.drawSquareBorderStatic(gfxFG, barriers[i].x, barriers[i].y, 'dark', PALETTE.deathInvert.barrierStroke, false, 0);
     }
     for (let i = 0; i < barriers.length; i++) {
       if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawXStatic(gfxFG, barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrierStroke);
+      renderer.drawXStatic(gfxFG, barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrierStroke, 5, 0);
     }
   }
 
@@ -2346,7 +2376,7 @@ export const sketch = (p5: P5) => {
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < barriers.length; i++) {
         if (!passablesMap[getCoordIndex(barriers[i])]) continue;
-        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrierPassable, barriers[i].x, barriers[i].y);
+        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrierPassable, barriers[i].x, barriers[i].y, 1, 0);
       }
       return;
     }
@@ -2367,7 +2397,7 @@ export const sketch = (p5: P5) => {
   function drawDoors() {
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < doors.length; i++) {
-        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.door, doors[i].x, doors[i].y);
+        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.door, doors[i].x, doors[i].y, 1, 0);
       }
       return;
     }
@@ -2384,33 +2414,35 @@ export const sketch = (p5: P5) => {
 
   function drawKey(key: Key) {
     if (!state.isDoorsOpen && passablesMap[getCoordIndex(key.position)]) return;
+    if (!drawState.shouldDrawKeysLocks && !state.isShowingDeathColours) return;
     if (state.isShowingDeathColours) {
       spriteRenderer.drawImage3x3(Image.KeyGrey, key.position.x, key.position.y);
     } else if (key.channel === KeyChannel.Yellow) {
-      spriteRenderer.drawImage3x3Static(gfxFG, Image.KeyYellow, key.position.x, key.position.y);
+      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.KeyYellow, key.position.x, key.position.y, 0, 1, 0);
     } else if (key.channel === KeyChannel.Red) {
-      spriteRenderer.drawImage3x3Static(gfxFG, Image.KeyRed, key.position.x, key.position.y);
+      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.KeyRed, key.position.x, key.position.y, 0, 1, 0);
     } else if (key.channel === KeyChannel.Blue) {
-      spriteRenderer.drawImage3x3Static(gfxFG, Image.KeyBlue, key.position.x, key.position.y);
+      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.KeyBlue, key.position.x, key.position.y, 0, 1, 0);
     }
   }
 
   function drawLock(lock: Lock) {
+    if (!drawState.shouldDrawKeysLocks && !state.isShowingDeathColours) return;
     if (state.isShowingDeathColours) {
       spriteRenderer.drawImage3x3(Image.LockGrey, lock.position.x, lock.position.y);
     } else if (lock.channel === KeyChannel.Yellow) {
-      spriteRenderer.drawImage3x3Static(gfxFG, Image.LockYellow, lock.position.x, lock.position.y);
+      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.LockYellow, lock.position.x, lock.position.y, 0, 1, 0);
     } else if (lock.channel === KeyChannel.Red) {
-      spriteRenderer.drawImage3x3Static(gfxFG, Image.LockRed, lock.position.x, lock.position.y);
+      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.LockRed, lock.position.x, lock.position.y, 0, 1, 0);
     } else if (lock.channel === KeyChannel.Blue) {
-      spriteRenderer.drawImage3x3Static(gfxFG, Image.LockBlue, lock.position.x, lock.position.y);
+      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.LockBlue, lock.position.x, lock.position.y, 0, 1, 0);
     }
   }
 
   function drawDecorative1(vec: Vector) {
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
-      // renderer.drawGraphicalComponent(graphicalComponents.deco1, vec.x, vec.y);
-      renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptions);
+      renderer.drawGraphicalComponentStatic(gfxBG, graphicalComponents.deco1, vec.x, vec.y, 1, 0);
+      // renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptionsNoShake);
     } else {
       renderer.drawSquare(vec.x, vec.y, PALETTE.deathInvert.deco1, PALETTE.deathInvert.deco1Stroke, drawBasicOptions);
     }
@@ -2418,8 +2450,8 @@ export const sketch = (p5: P5) => {
 
   function drawDecorative2(vec: Vector) {
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
-      renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptions);
-      // renderer.drawGraphicalComponent(graphicalComponents.deco2, vec.x, vec.y);
+      renderer.drawGraphicalComponentStatic(gfxBG, graphicalComponents.deco2, vec.x, vec.y, 1, 0);
+      // renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptionsNoShake);
     } else {
       renderer.drawSquare(vec.x, vec.y, PALETTE.deathInvert.deco2, PALETTE.deathInvert.deco2Stroke, drawBasicOptions);
     }
@@ -2502,10 +2534,12 @@ export const sketch = (p5: P5) => {
     startScreenShake(3, -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, 0.1);
     state.isShowingDeathColours = true;
     drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
     renderer.invalidateStaticCache();
     yield* waitForTime(HURT_STUN_TIME * 2.5);
     state.isShowingDeathColours = false;
     drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
     renderer.invalidateStaticCache();
     startScreenShake();
     if (replay.mode === ReplayMode.Playback) {
@@ -2529,6 +2563,10 @@ export const sketch = (p5: P5) => {
 
   function warpToLevel(levelNum = 1) {
     if (getIsStartLevel() || state.gameMode === GameMode.Cobra) return;
+    drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
+    renderer.invalidateStaticCache();
+    drawBackground();
     stats.numLevelsCleared = 0;
     musicPlayer.stopAllTracks();
     level = getWarpLevelFromNum(levelNum);
@@ -2600,13 +2638,17 @@ export const sketch = (p5: P5) => {
     doorsMap = {};
     state.isDoorsOpen = true;
     renderer.invalidateStaticCache();
-    drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
   }
 
   function gotoNextLevel() {
     if (replay.mode === ReplayMode.Playback) return;
 
     musicPlayer.stopAllTracks();
+    drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
+    renderer.invalidateStaticCache();
+    drawBackground();
 
     if (state.isGameWon) {
       resetStats();

@@ -39,6 +39,7 @@ export class SpriteRenderer {
     [Image.UIKeyRed]: null,
     [Image.UIKeyBlue]: null,
     [Image.UILocked]: null,
+    [Image.Darken]: null,
   }
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -83,32 +84,33 @@ export class SpriteRenderer {
       this.loadImage(Image.UIKeyRed);
       this.loadImage(Image.UIKeyBlue);
       this.loadImage(Image.UILocked);
+      // this.loadImage(Image.Darken);
     } catch (err) {
       console.error(err)
     }
   }
 
-  drawImage3x3 = (image: Image, x: number, y: number, rotation: number = 0, alpha = 1) => {
-    this.drawImage3x3Impl(this.p5, image, x, y, rotation, alpha);
+  drawImage3x3 = (image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 1) => {
+    this.drawImage3x3Impl(this.p5, image, x, y, rotation, alpha, screenshakeMul);
   }
 
-  drawImage3x3Custom = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1) => {
-    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha);
+  drawImage3x3Custom = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 0) => {
+    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, screenshakeMul);
   }
 
-  drawImage3x3Static = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1) => {
+  drawImage3x3Static = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 0) => {
     if (this.isStaticCached) return;
-    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha);
+    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, screenshakeMul);
   }
 
-  private drawImage3x3Impl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1) => {
+  private drawImage3x3Impl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 1) => {
     const loaded = this.images[image];
     if (!loaded) return;
     const widthX = BLOCK_SIZE.x;
     const widthY = BLOCK_SIZE.y;
     const position = {
-      x: x * BLOCK_SIZE.x + this.screenShake.offset.x - BLOCK_SIZE.x * IMAGE_SCALE,
-      y: y * BLOCK_SIZE.y + this.screenShake.offset.y - BLOCK_SIZE.y * IMAGE_SCALE,
+      x: x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE.x * IMAGE_SCALE,
+      y: y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE.y * IMAGE_SCALE,
     }
 
     const offset = -STROKE_SIZE * 0.5;
@@ -145,13 +147,13 @@ export class SpriteRenderer {
     gfx.pop();
   }
 
-  drawImage = (image: Image, x: number, y: number, gfx: P5 | P5.Graphics = this.p5) => {
-    this.drawImageImpl(gfx, image, x, y);
+  drawImage = (image: Image, x: number, y: number, gfx: P5 | P5.Graphics = this.p5, alpha = 1) => {
+    this.drawImageImpl(gfx, image, x, y, alpha);
   }
 
-  drawImageStatic = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number) => {
+  drawImageStatic = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha = 1) => {
     if (this.isStaticCached) return;
-    this.drawImageImpl(gfx, image, x, y);
+    this.drawImageImpl(gfx, image, x, y, alpha);
   }
 
   getImageWidth = (image: Image): number => {
@@ -166,9 +168,11 @@ export class SpriteRenderer {
     return loaded.height;
   }
 
-  private drawImageImpl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number) => {
+  private drawImageImpl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha = 1) => {
     const loaded = this.images[image];
     if (!loaded) return;
+    gfx.push();
+    gfx.tint(255, 255, 255, lerp(0, 255, alpha));
     gfx.image(
       loaded,
       x,
@@ -183,5 +187,6 @@ export class SpriteRenderer {
       this.p5.LEFT,
       this.p5.TOP
     );
+    gfx.pop();
   }
 }

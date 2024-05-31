@@ -115,25 +115,25 @@ export class Renderer implements IRenderer {
     component.clear(0, 0, 0, 0);
   }
 
-  drawGraphicalComponent = (component: P5.Graphics, x: number, y: number, alpha = 1) => {
-    this.drawGraphicalComponentImpl(this.p5, component, x, y, alpha);
+  drawGraphicalComponent = (component: P5.Graphics, x: number, y: number, alpha = 1, screenshakeMul = 1) => {
+    this.drawGraphicalComponentImpl(this.p5, component, x, y, alpha, screenshakeMul);
   }
 
-  drawGraphicalComponentCustom = (gfx: P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1) => {
-    this.drawGraphicalComponentImpl(gfx, component, x, y, alpha);
+  drawGraphicalComponentCustom = (gfx: P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1, screenshakeMul = 0) => {
+    this.drawGraphicalComponentImpl(gfx, component, x, y, alpha, screenshakeMul);
   }
 
-  drawGraphicalComponentStatic = (gfx: P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1) => {
+  drawGraphicalComponentStatic = (gfx: P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1, screenshakeMul = 0) => {
     if (this.isStaticCached) return;
-    this.drawGraphicalComponentImpl(gfx, component, x, y, alpha);
+    this.drawGraphicalComponentImpl(gfx, component, x, y, alpha, screenshakeMul);
   }
 
-  private drawGraphicalComponentImpl = (gfx: P5 | P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1) => {
+  private drawGraphicalComponentImpl = (gfx: P5 | P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1, screenshakeMul = 1) => {
     const offset = -STROKE_SIZE * 0.5;
     const sizeOffset = STROKE_SIZE;
     // destination
-    const dx = x * BLOCK_SIZE.x + this.screenShake.offset.x + offset;
-    const dy = y * BLOCK_SIZE.y + this.screenShake.offset.y + offset;
+    const dx = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + offset;
+    const dy = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + offset;
     // source
     const sx = 1 * BLOCK_SIZE.x + offset;
     const sy = 1 * BLOCK_SIZE.y + offset;
@@ -176,6 +176,7 @@ export class Renderer implements IRenderer {
     size = 1,
     strokeSize = STROKE_SIZE,
     optimize = false,
+    screenshakeMul = 1,
   }: DrawSquareOptions) => {
     this.p5CachedFill(gfx, background, optimize);
     this.p5CachedStroke(gfx, lineColor, optimize);
@@ -183,14 +184,14 @@ export class Renderer implements IRenderer {
     const strokeOffset = STROKE_SIZE - strokeSize;
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
     const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
-    const px = (x * BLOCK_SIZE.x + this.screenShake.offset.x + strokeOffset) + sizeOffsetX;
-    const py = (y * BLOCK_SIZE.y + this.screenShake.offset.y + strokeOffset) + sizeOffsetY;
+    const px = (x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + strokeOffset) + sizeOffsetX;
+    const py = (y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + strokeOffset) + sizeOffsetY;
     const squareSize = (BLOCK_SIZE.x - strokeSize - strokeOffset * 2) * size;
     gfx.square(px, py, squareSize);
     if (is3d) {
       const borderSize = STROKE_SIZE * 0.5;
-      const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x + strokeOffset + sizeOffsetX;
-      const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y + strokeOffset + sizeOffsetY;
+      const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX;
+      const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY;
       const x1 = x0 + (BLOCK_SIZE.x * size) - strokeOffset;
       const y1 = y0 + (BLOCK_SIZE.y * size) - strokeOffset;
       const x0i = x0 + borderSize;
@@ -211,28 +212,28 @@ export class Renderer implements IRenderer {
     }
   }
 
-  drawSquareBorder = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
-    this.drawSquareBorderImpl(this.p5, x, y, mode, strokeColor, overrideColor);
+  drawSquareBorder = (x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false, screenshakeMul = 1) => {
+    this.drawSquareBorderImpl(this.p5, x, y, mode, strokeColor, overrideColor, screenshakeMul);
   }
 
-  drawSquareBorderStatic = (gfx: P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
+  drawSquareBorderStatic = (gfx: P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false, screenshakeMul = 0) => {
     if (this.isStaticCached) return;
-    this.drawSquareBorderImpl(gfx, x, y, mode, strokeColor, overrideColor);
+    this.drawSquareBorderImpl(gfx, x, y, mode, strokeColor, overrideColor, screenshakeMul);
   }
 
-  drawSquareBorderCustom = (component: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
-    this.drawSquareBorderImpl(component, x, y, mode, strokeColor, overrideColor);
+  drawSquareBorderCustom = (component: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false, screenshakeMul = 0) => {
+    this.drawSquareBorderImpl(component, x, y, mode, strokeColor, overrideColor, screenshakeMul);
   }
 
-  private drawSquareBorderImpl = (gfx: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false) => {
+  private drawSquareBorderImpl = (gfx: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false, screenshakeMul = 1) => {
     const size = 1;
     const strokeSize = STROKE_SIZE;
     const borderSize = STROKE_SIZE * 0.5;
     const strokeOffset = STROKE_SIZE - strokeSize;
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
     const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
-    const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x + strokeOffset + sizeOffsetX;
-    const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y + strokeOffset + sizeOffsetY;
+    const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX;
+    const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY;
     const x1 = x0 + (BLOCK_SIZE.x * size) - strokeOffset;
     const y1 = y0 + (BLOCK_SIZE.y * size) - strokeOffset;
     const x0i = x0 + borderSize;
@@ -258,20 +259,20 @@ export class Renderer implements IRenderer {
     }
   }
 
-  drawX = (x: number, y: number, color = "#fff", blockDivisions = 5) => {
-    this.drawXImpl(this.p5, x, y, color, blockDivisions);
+  drawX = (x: number, y: number, color = "#fff", blockDivisions = 5, screenshakeMul = 1) => {
+    this.drawXImpl(this.p5, x, y, color, blockDivisions, screenshakeMul);
   }
 
-  drawXStatic = (gfx: P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5) => {
+  drawXStatic = (gfx: P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5, screenshakeMul = 1) => {
     if (this.isStaticCached) return;
-    this.drawXImpl(gfx, x, y, color, blockDivisions);
+    this.drawXImpl(gfx, x, y, color, blockDivisions, screenshakeMul);
   }
 
-  drawXCustom = (component: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5) => {
-    this.drawXImpl(component, x, y, color, blockDivisions);
+  drawXCustom = (component: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5, screenshakeMul = 1) => {
+    this.drawXImpl(component, x, y, color, blockDivisions, screenshakeMul);
   }
 
-  private drawXImpl = (gfx: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5) => {
+  private drawXImpl = (gfx: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5, screenshakeMul = 1) => {
     const sizeX = (BLOCK_SIZE.x - STROKE_SIZE) / blockDivisions;
     const sizeY = (BLOCK_SIZE.y - STROKE_SIZE) / blockDivisions;
     this.p5CachedFill(gfx, color);
@@ -279,10 +280,10 @@ export class Renderer implements IRenderer {
     // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
     gfx.noStroke();
     for (let i = 0; i < blockDivisions; i++) {
-      const px0 = x * BLOCK_SIZE.x + this.screenShake.offset.x + i * sizeX;
-      const py0 = y * BLOCK_SIZE.y + this.screenShake.offset.y + i * sizeY;
-      const px1 = x * BLOCK_SIZE.x + this.screenShake.offset.x + i * sizeX;
-      const py1 = y * BLOCK_SIZE.y + this.screenShake.offset.y + (blockDivisions - 1 - i) * sizeY;
+      const px0 = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + i * sizeX;
+      const py0 = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + i * sizeY;
+      const px1 = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + i * sizeX;
+      const py1 = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + (blockDivisions - 1 - i) * sizeY;
       gfx.square(px0, py0, Math.max(sizeX, sizeY));
       gfx.square(px1, py1, Math.max(sizeX, sizeY));
     }
