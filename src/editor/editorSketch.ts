@@ -37,14 +37,15 @@ import { createLightmap, drawLighting, initLighting, updateLighting } from '../l
 
 export enum EditorTool {
   Pencil,
+  Eraser,
   Rectangle,
   Bucket,
 }
 
 export enum Operation {
   None,
+  Write,
   Add,
-  Remove,
 }
 
 export interface EditorState {

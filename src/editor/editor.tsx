@@ -2,8 +2,8 @@ import React, { useEffect, useRef } from "react";
 import { useEditorData } from "./hooks/useEditorData";
 import { EditorCanvas } from "./editorCanvas";
 
-import { Operation, EditorState, EditorTool } from "./editorSketch";
-import { clamp, getCoordIndex2 } from "../utils";
+import { Operation, EditorTool } from "./editorSketch";
+import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
 import { KeyChannel, PortalChannel } from "../types";
 
@@ -25,6 +25,7 @@ import {
   SetPlayerSpawnCommand,
   SetPortalCommand,
 } from "./commands";
+import { SpecialKey, findNumberPressed, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -65,7 +66,7 @@ export const Editor = () => {
   const [operation, operationRef, setOperation] = useRefState(Operation.None);
   const [tile, tileRef, setTile] = useRefState(Tile.Barrier);
   const [keyChannel, keyChannelRef, setKeyChannel] = useRefState(KeyChannel.Yellow);
-  const [portalChannel, portalChannelRef, setPortalChannel] = useRefState(KeyChannel.Yellow);
+  const [portalChannel, portalChannelRef, setPortalChannel] = useRefState<PortalChannel>(0);
 
   const state = useRef<LocalState>({
     isMouseInsideMap: false,
@@ -73,11 +74,8 @@ export const Editor = () => {
 
   const getCommand = () => {
     if (operationRef.current === Operation.None) return new NoOpCommand();
-    if (toolRef.current === EditorTool.Pencil) {
+    if (toolRef.current === EditorTool.Pencil && operationRef.current === Operation.Write) {
       const coord = mouseAtRef.current;
-      if (operationRef.current === Operation.Remove) {
-        return new DeleteElementCommand(coord, dataRef.current, setData);
-      }
       switch (tileRef.current) {
         case Tile.Apple:
           return new SetAppleCommand(coord, dataRef.current, setData);
@@ -102,6 +100,9 @@ export const Editor = () => {
         case Tile.Passable:
           return new SetPassableCommand(coord, dataRef.current, setData);
       }
+    } else if (toolRef.current === EditorTool.Eraser && operationRef.current === Operation.Write) {
+      const coord = mouseAtRef.current;
+      return new DeleteElementCommand(coord, dataRef.current, setData);
     }
     throw Error('not implemented');
   }
@@ -124,6 +125,7 @@ export const Editor = () => {
     const command = pastCommands[pastCommands.length - 1];
     if (!command) return;
     command.rollback();
+    clearSelection();
     setPastCommands(prev => prev.filter(c => c !== command));
     setFutureCommands(prev => [...prev, command]);
   }
@@ -134,14 +136,15 @@ export const Editor = () => {
     if (!command) return;
     const success = command.execute();
     if (success) {
+      clearSelection();
       setPastCommands(prev => [...prev, command]);
       setFutureCommands(prev => prev.filter(c => c !== command));
     }
   }
 
   const getOperationFromMouseEvent = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (ev.nativeEvent.button === MouseButton.Left && ev.shiftKey) return Operation.Remove;
-    if (ev.nativeEvent.button === MouseButton.Left) return Operation.Add;
+    if (ev.nativeEvent.button === MouseButton.Left && ev.shiftKey) return Operation.Add;
+    if (ev.nativeEvent.button === MouseButton.Left) return Operation.Write;
     return Operation.None;
   }
 
@@ -150,8 +153,7 @@ export const Editor = () => {
     const y = Math.floor(clamp(ev.nativeEvent.offsetY, 0, DIMENSIONS.y - 1) / DIMENSIONS.y * GRIDCOUNT.y);
     const coord = getCoordIndex2(x, y);
     setMouseAt(coord);
-    if (toolRef.current === EditorTool.Pencil && mousePressedRef.current) {
-      setOperation(getOperationFromMouseEvent(ev));
+    if (mousePressedRef.current && [EditorTool.Pencil, EditorTool.Eraser].includes(toolRef.current)) {
       updateMap();
     }
     state.current.isMouseInsideMap = true;
@@ -185,6 +187,12 @@ export const Editor = () => {
     clearSelection();
   };
 
+  const handleWindowMouseUp = (ev: MouseEvent) => {
+    setTimeout(() => {
+      clearSelection();
+    }, 0);
+  }
+
   const clearSelection = () => {
     setMousePressed(false);
     setTriggerOnRelease(false);
@@ -192,98 +200,153 @@ export const Editor = () => {
     setLastCoordUpdated(-1);
   }
 
-  const handleKeyDown = (ev: KeyboardEvent) => {
-    const isControlPressed = ev.metaKey || ev.ctrlKey;
-    const isEscape = ev.key === 'Escape' || ev.code === 'Escape' || ev.keyCode === 27;
-    const isTab = ev.key === 'Tab' || ev.code === 'Tab' || ev.keyCode === 9;
-    const isAlphaY = ev.key === 'y' || ev.code === 'KeyY' || ev.keyCode === 89;
-    const isAlphaZ = ev.key === 'z' || ev.code === 'KeyZ' || ev.keyCode === 90;
-    const isNumber1 = ev.key === '1' || ev.code === 'Digit1' || ev.code === 'Numpad1' || ev.keyCode === 49 || ev.keyCode === 97;
-    const isNumber2 = ev.key === '2' || ev.code === 'Digit2' || ev.code === 'Numpad2' || ev.keyCode === 50 || ev.keyCode === 98;
-    const isNumber3 = ev.key === '3' || ev.code === 'Digit3' || ev.code === 'Numpad3' || ev.keyCode === 51 || ev.keyCode === 99;
-    const isNumber4 = ev.key === '4' || ev.code === 'Digit4' || ev.code === 'Numpad4' || ev.keyCode === 52 || ev.keyCode === 100;
-    const isNumber5 = ev.key === '5' || ev.code === 'Digit5' || ev.code === 'Numpad5' || ev.keyCode === 53 || ev.keyCode === 101;
-    const isNumber6 = ev.key === '6' || ev.code === 'Digit6' || ev.code === 'Numpad6' || ev.keyCode === 54 || ev.keyCode === 102;
-    const isNumber7 = ev.key === '7' || ev.code === 'Digit7' || ev.code === 'Numpad7' || ev.keyCode === 55 || ev.keyCode === 103;
-    const isNumber8 = ev.key === '8' || ev.code === 'Digit8' || ev.code === 'Numpad8' || ev.keyCode === 56 || ev.keyCode === 104;
-    const isNumber9 = ev.key === '9' || ev.code === 'Digit9' || ev.code === 'Numpad9' || ev.keyCode === 57 || ev.keyCode === 105;
-    if (isEscape && mousePressedRef.current) {
-      clearSelection();
-      ev.preventDefault();
-      ev.stopPropagation();
-    } else if (isAlphaZ && isControlPressed) {
-      clearSelection();
-      undo();
-      ev.preventDefault();
-      ev.stopPropagation();
-    } else if (isAlphaY && isControlPressed) {
-      clearSelection();
-      redo();
-      ev.preventDefault();
-      ev.stopPropagation();
-    } else if (isNumber1) {
-      if (tileRef.current === Tile.Barrier) {
-        setTile(Tile.Door);
-      } else {
-        setTile(Tile.Barrier);
+  const setChannel = (num: number) => {
+    if (tileRef.current === Tile.Key || tileRef.current === Tile.Lock) {
+      if (num >= 1 && num <= 3) {
+        setKeyChannel({
+          [0]: KeyChannel.Yellow,
+          [1]: KeyChannel.Red,
+          [2]: KeyChannel.Blue,
+        }[keyChannelRef.current] || KeyChannel.Yellow);
       }
-    } else if (isNumber2) {
-      if (tileRef.current === Tile.Deco1) {
-        setTile(Tile.Deco2);
-      } else {
-        setTile(Tile.Deco1);
-      }
-    } else if (isNumber3) {
-      setTile(Tile.Apple);
-    } else if (isNumber4) {
-      setTile(Tile.Portal);
-    } else if (isNumber5) {
-      if (tileRef.current === Tile.Key) {
-        setTile(Tile.Lock);
-      } else {
-        setTile(Tile.Key);
-      }
-    } else if (isNumber6) {
-      setTile(Tile.Nospawn);
-    } else if (isNumber7) {
-      setTile(Tile.Passable);
-    } else if (isNumber8) {
-      setTile(Tile.Spawn);
-    } else if (isTab) {
-      if (tileRef.current === Tile.Key || tileRef.current === Tile.Lock) {
-        switch (keyChannelRef.current) {
-          case KeyChannel.Yellow:
-            setKeyChannel(KeyChannel.Red);
-            break;
-          case KeyChannel.Red:
-            setKeyChannel(KeyChannel.Blue);
-            break;
-          case KeyChannel.Blue:
-            setKeyChannel(KeyChannel.Yellow);
-            break;
-        }
-      } else if (tileRef.current === Tile.Portal) {
-        setPortalChannel((portalChannelRef.current + 1) % 10);
-      }
+    } else if (tileRef.current === Tile.Portal) {
+      const channel = isValidPortalChannel(num) ? num : 0;
+      setPortalChannel(channel);
     }
   }
 
-  const handleKeyUp = (ev: KeyboardEvent) => {
-    if (operationRef.current === Operation.Remove) {
-      if (mousePressedRef.current) {
-        setOperation(Operation.Add);
+  const cycleChannel = (direction: number) => {
+    if (tileRef.current === Tile.Key || tileRef.current === Tile.Lock) {
+      if (direction < 0) {
+        setKeyChannel({
+          [KeyChannel.Yellow]: KeyChannel.Blue,
+          [KeyChannel.Red]: KeyChannel.Yellow,
+          [KeyChannel.Blue]: KeyChannel.Red,
+        }[keyChannelRef.current]);
       } else {
-        setOperation(Operation.None);
+        setKeyChannel({
+          [KeyChannel.Yellow]: KeyChannel.Red,
+          [KeyChannel.Red]: KeyChannel.Blue,
+          [KeyChannel.Blue]: KeyChannel.Yellow,
+        }[keyChannelRef.current]);
       }
+    } else if (tileRef.current === Tile.Portal) {
+      const channel: PortalChannel = ((portalChannelRef.current + 10 + direction) % 10) as PortalChannel;
+      setPortalChannel(channel);
+    }
+  }
+
+  const cycleTile = (direction: number) => {
+    clearSelection();
+    if (direction < 0) {
+      setTile({
+        [Tile.None]: Tile.Barrier,
+        [Tile.Barrier]: Tile.Passable,
+        [Tile.Door]: Tile.Barrier,
+        [Tile.Deco1]: Tile.Door,
+        [Tile.Deco2]: Tile.Deco1,
+        [Tile.Apple]: Tile.Deco2,
+        [Tile.Portal]: Tile.Apple,
+        [Tile.Key]: Tile.Portal,
+        [Tile.Lock]: Tile.Key,
+        [Tile.Spawn]: Tile.Lock,
+        [Tile.Nospawn]: Tile.Spawn,
+        [Tile.Passable]: Tile.Nospawn,
+      }[tileRef.current]);
+    } else {
+      setTile({
+        [Tile.None]: Tile.Barrier,
+        [Tile.Barrier]: Tile.Door,
+        [Tile.Door]: Tile.Deco1,
+        [Tile.Deco1]: Tile.Deco2,
+        [Tile.Deco2]: Tile.Apple,
+        [Tile.Apple]: Tile.Portal,
+        [Tile.Portal]: Tile.Key,
+        [Tile.Key]: Tile.Lock,
+        [Tile.Lock]: Tile.Spawn,
+        [Tile.Spawn]: Tile.Nospawn,
+        [Tile.Nospawn]: Tile.Passable,
+        [Tile.Passable]: Tile.Barrier,
+      }[tileRef.current]);
+    }
+  }
+
+  const handleKeyDown = (ev: KeyboardEvent) => {
+    const cancelOperation = isCharPressed(ev, SpecialKey.Escape) || isCharPressed(ev, SpecialKey.Backspace) || isCharPressed(ev, SpecialKey.Delete)
+    if (mousePressedRef.current && cancelOperation) {
+      clearSelection();
+    } else if (isCharPressed(ev, 'z', { ctrlKey: true, shiftKey: true }) || isCharPressed(ev, 'y', { ctrlKey: true })) {
+      redo();
+    } else if (isCharPressed(ev, 'z', { ctrlKey: true })) {
+      undo();
+    } else if (
+      isNumberPressed(ev, 0, { shiftKey: true }) || 
+      isNumberPressed(ev, 1, { shiftKey: true }) || 
+      isNumberPressed(ev, 2, { shiftKey: true }) || 
+      isNumberPressed(ev, 3, { shiftKey: true }) || 
+      isNumberPressed(ev, 4, { shiftKey: true }) || 
+      isNumberPressed(ev, 5, { shiftKey: true }) || 
+      isNumberPressed(ev, 6, { shiftKey: true }) || 
+      isNumberPressed(ev, 7, { shiftKey: true }) || 
+      isNumberPressed(ev, 8, { shiftKey: true }) || 
+      isNumberPressed(ev, 9, { shiftKey: true })
+    ) {
+      setChannel(findNumberPressed(ev));
+    } else if (isNumberPressed(ev, 0)) {
+      setTile(Tile.Spawn);
+    } else if (isNumberPressed(ev, 1)) {
+      setTile(Tile.Barrier);
+    } else if (isNumberPressed(ev, 2)) {
+      setTile(Tile.Door);
+    } else if (isNumberPressed(ev, 3)) {
+      setTile(Tile.Deco2);
+    } else if (isNumberPressed(ev, 4)) {
+      setTile(Tile.Deco1);
+    } else if (isNumberPressed(ev, 5)) {
+      setTile(Tile.Apple);
+    } else if (isNumberPressed(ev, 6)) {
+      setTile(Tile.Lock);
+      if (keyChannelRef.current > 3) {
+        setChannel(3);
+      }
+    } else if (isNumberPressed(ev, 7)) {
+      setTile(Tile.Key);
+      if (keyChannelRef.current > 3) {
+        setChannel(3);
+      }
+    } else if (isNumberPressed(ev, 8)) {
+      setTile(Tile.Portal);
+    } else if (isNumberPressed(ev, 9)) {
+      if (tileRef.current !== Tile.Nospawn) {
+        setTile(Tile.Nospawn);
+      } else {
+        setTile(Tile.Passable);
+      }
+    } else if (isCharPressed(ev, '-')) {
+      cycleTile(-1);
+    } else if (isCharPressed(ev, '=')) {
+      cycleTile(1);
+    } else if (isCharPressed(ev, '[')) {
+      cycleChannel(-1);
+    } else if (isCharPressed(ev, ']')) {
+      cycleChannel(1);
+    } else if (isCharPressed(ev, 'b')) {
+      setTool(EditorTool.Pencil);
+    } else if (isCharPressed(ev, 'e')) {
+      setTool(EditorTool.Eraser);
+    } else if (isCharPressed(ev, 'g')) {
+      setTool(EditorTool.Bucket);
+    } else if (isCharPressed(ev, 'u')) {
+      setTool(EditorTool.Rectangle);
     }
   }
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
+    window.addEventListener("mouseup", handleWindowMouseUp);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
+      window.removeEventListener("mouseup", handleWindowMouseUp);
     }
   }, [])
 
