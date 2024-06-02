@@ -301,18 +301,33 @@ export function printLayout(layout: string) {
   console.log(layout.replace(/ /g, '.'));
 }
 
+export function getMapSliceWithDefaults<T>(mapSlice: Record<number, T>, defaultVal: T | undefined = undefined) {
+  const newSlice: Record<number, T> = {};
+  for (let y = 0; y < GRIDCOUNT.y; y++) {
+    for (let x = 0; x < GRIDCOUNT.x; x++) {
+      const coord = getCoordIndex2(x, y);
+      if (mapSlice[coord] === null || mapSlice[coord] === undefined) {
+        newSlice[coord] = defaultVal;
+      } else {
+        newSlice[coord] = mapSlice[coord];
+      }
+    }
+  }
+  return newSlice;
+}
+
 export function deepCloneData(data: EditorData): EditorData {
   return {
-    barriersMap: { ...data.barriersMap },
-    passablesMap: { ...data.passablesMap },
-    doorsMap: { ...data.doorsMap },
-    decoratives1Map: { ...data.decoratives1Map },
-    decoratives2Map: { ...data.decoratives2Map },
-    nospawnsMap: { ...data.nospawnsMap },
-    applesMap: { ...data.applesMap },
-    keysMap: { ...data.keysMap },
-    locksMap: { ...data.locksMap },
-    portalsMap: { ...data.portalsMap },
+    barriersMap: getMapSliceWithDefaults(data.barriersMap),
+    passablesMap: getMapSliceWithDefaults(data.passablesMap),
+    doorsMap: getMapSliceWithDefaults(data.doorsMap),
+    decoratives1Map: getMapSliceWithDefaults(data.decoratives1Map),
+    decoratives2Map: getMapSliceWithDefaults(data.decoratives2Map),
+    nospawnsMap: getMapSliceWithDefaults(data.nospawnsMap),
+    applesMap: getMapSliceWithDefaults(data.applesMap),
+    keysMap: getMapSliceWithDefaults(data.keysMap),
+    locksMap: getMapSliceWithDefaults(data.locksMap),
+    portalsMap: getMapSliceWithDefaults(data.portalsMap),
     playerSpawnPosition: data.playerSpawnPosition.copy(),
     startDirection: data.startDirection,
   };
@@ -335,18 +350,18 @@ export function mergeData(data: EditorData, incoming: Partial<EditorData>): Edit
   };
 }
 
-export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice): EditorData {
+export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coord?: number): EditorData {
   const newData: EditorData = {
-    applesMap: { [incoming.coord]: incoming.apple },
-    barriersMap: { [incoming.coord]: incoming.barrier },
-    decoratives1Map: { [incoming.coord]: incoming.deco1 },
-    decoratives2Map: { [incoming.coord]: incoming.deco2 },
-    doorsMap: { [incoming.coord]: incoming.door },
-    keysMap: { [incoming.coord]: incoming.key },
-    locksMap: { [incoming.coord]: incoming.lock },
-    nospawnsMap: { [incoming.coord]: incoming.nospawn },
-    passablesMap: { [incoming.coord]: incoming.passable },
-    portalsMap: { [incoming.coord]: incoming.portal },
+    applesMap: { [coord ?? incoming.coord]: incoming.apple },
+    barriersMap: { [coord ?? incoming.coord]: incoming.barrier },
+    decoratives1Map: { [coord ?? incoming.coord]: incoming.deco1 },
+    decoratives2Map: { [coord ?? incoming.coord]: incoming.deco2 },
+    doorsMap: { [coord ?? incoming.coord]: incoming.door },
+    keysMap: { [coord ?? incoming.coord]: incoming.key },
+    locksMap: { [coord ?? incoming.coord]: incoming.lock },
+    nospawnsMap: { [coord ?? incoming.coord]: incoming.nospawn },
+    passablesMap: { [coord ?? incoming.coord]: incoming.passable },
+    portalsMap: { [coord ?? incoming.coord]: incoming.portal },
     playerSpawnPosition: incoming.playerSpawnPosition,
     startDirection: incoming.startDirection,
   }
