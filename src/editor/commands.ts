@@ -1,7 +1,7 @@
 
 import { Vector } from "p5";
 import { DIR, EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../types";
-import { coordToVec, getCoordIndex, getCoordIndex2, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
+import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
 import { deepCloneData, mergeData, mergeDataSlice } from "./utils/editorUtils";
 import { SetStateValue } from "./editorTypes";
 
@@ -298,26 +298,63 @@ abstract class SetBatchElementsCommand implements Command {
   protected abstract test: (coord: number) => boolean;
 }
 
+interface SetLineOptions {
+  thickLine?: false,
+}
+
 abstract class SetLineCommand extends SetBatchElementsCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    const coords: number[] = [];
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated, opts: SetLineOptions = {}) {
     const vec = {
       from: coordToVec(from),
       to: coordToVec(to),
-    }
-    const numSteps = Math.max(Math.abs(vec.from.x - vec.to.x), Math.abs(vec.from.y - vec.to.y)) * 2;
-    if (numSteps <= 1) {
-      coords.push(getCoordIndex(vec.to));
-    } else {
-      for (let i = 0; i < numSteps; i++) {
-        const x = Math.round(lerp(vec.from.x, vec.to.x, i / (numSteps - 1)));
-        const y = Math.round(lerp(vec.from.y, vec.to.y, i / (numSteps - 1)));
-        const coord = getCoordIndex2(x, y);
-        if (!coords.includes(coord)) {
-          coords.push(coord);
+    };
+    const getCoordsThick = () => {
+      const coords: number[] = [];
+      const numSteps = Math.max(Math.abs(vec.from.x - vec.to.x), Math.abs(vec.from.y - vec.to.y)) * 2;
+      if (numSteps <= 0) {
+        return [];
+      } else if (numSteps <= 1) {
+        coords.push(getCoordIndex(vec.to));
+      } else {
+        for (let i = 0; i < numSteps; i++) {
+          const x = Math.round(lerp(vec.from.x, vec.to.x, i / (numSteps - 1)));
+          const y = Math.round(lerp(vec.from.y, vec.to.y, i / (numSteps - 1)));
+          const coord = getCoordIndex2(x, y);
+          if (!coords.includes(coord)) {
+            coords.push(coord);
+          }
         }
       }
+      return coords;
     }
+    const getCoords = () => {
+      const coords: number[] = [];
+      const numStepsX = Math.abs(vec.from.x - vec.to.x);
+      const numStepsY = Math.abs(vec.from.y - vec.to.y);
+      if (numStepsX >= numStepsY) {
+        const xMin = Math.min(vec.from.x, vec.to.x);
+        const xMax = Math.max(vec.from.x, vec.to.x);
+        for (let x = xMin; x <= xMax; x++) {
+          const y = Math.round(lerp(vec.from.y, vec.to.y, inverseLerp(vec.from.x, vec.to.x, x)));
+          const coord = getCoordIndex2(x, y);
+          if (!coords.includes(coord)) {
+            coords.push(coord);
+          }
+        }
+      } else {
+        const yMin = Math.min(vec.from.y, vec.to.y);
+        const yMax = Math.max(vec.from.y, vec.to.y);
+        for (let y = yMin; y <= yMax; y++) {
+          const x = Math.round(lerp(vec.from.x, vec.to.x, inverseLerp(vec.from.y, vec.to.y, y)));
+          const coord = getCoordIndex2(x, y);
+          if (!coords.includes(coord)) {
+            coords.push(coord);
+          }
+        }
+      }
+      return coords;
+    }
+    const coords = opts.thickLine ? getCoordsThick() : getCoords();
     super(coords, data, setData, setLastCoordUpdated);
   }
 }
