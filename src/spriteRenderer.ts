@@ -84,7 +84,7 @@ export class SpriteRenderer {
       this.loadImage(Image.UIKeyRed);
       this.loadImage(Image.UIKeyBlue);
       this.loadImage(Image.UILocked);
-      // this.loadImage(Image.Darken);
+      this.loadImage(Image.Darken);
     } catch (err) {
       console.error(err)
     }

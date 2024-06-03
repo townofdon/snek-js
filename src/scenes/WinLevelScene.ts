@@ -1,11 +1,12 @@
 import P5 from "p5";
-import { FontsInstance, MusicTrack, SFXInstance, SceneCallbacks, Sound } from "../types";
+import { FontsInstance, Image, MusicTrack, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import Color from "color";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { OST_MODE_TRACKS } from "../constants";
 import { getTrackName } from "../utils";
+import { SpriteRenderer } from "../spriteRenderer";
 
 interface TriggerLevelExitParams {
   score: number,
@@ -23,13 +24,15 @@ interface TriggerLevelExitParams {
 
 export class WinLevelScene extends BaseScene {
   private sfx: SFXInstance;
+  private spriteRenderer: SpriteRenderer;
   private titleText: string = 'SNEK CLEAR!';
   private unlockedMusicStore: UnlockedMusicStore;
   private levelMusicTrack: MusicTrack | null = null;
 
-  constructor(p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, callbacks: SceneCallbacks = {}) {
+  constructor(p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, spriteRenderer: SpriteRenderer, callbacks: SceneCallbacks = {}) {
     super(p5, gfx, fonts, callbacks)
     this.sfx = sfx;
+    this.spriteRenderer = spriteRenderer;
     this.unlockedMusicStore = unlockedMusicStore;
   }
 
@@ -225,6 +228,7 @@ export class WinLevelScene extends BaseScene {
     }
     this.drawBackground(bgColor(0.8));
     this.drawBackground(bgColor(1), gfx);
+    this.spriteRenderer.drawImage(Image.Darken, 0, 0, gfx, this.bgOpacity * 0.3);
     gfx.textAlign(p5.CENTER, p5.CENTER);
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")

@@ -389,7 +389,7 @@ export const sketch = (p5: P5) => {
   const musicPlayer = new MusicPlayer(settings);
   const mainTitleFader = new MainTitleFader(p5);
   const spriteRenderer = new SpriteRenderer({ p5, screenShake });
-  const winLevelScene = new WinLevelScene(p5, gfxPresentation, sfx, fonts, unlockedMusicStore, { onSceneEnded: gotoNextLevel });
+  const winLevelScene = new WinLevelScene(p5, gfxPresentation, sfx, fonts, unlockedMusicStore, spriteRenderer, { onSceneEnded: gotoNextLevel });
   const onChangePlayerDirection: (direction: DIR) => void = (dir) => {
     if (validateMove(player.direction, dir)) {
       player.direction = dir;
