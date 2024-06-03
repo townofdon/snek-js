@@ -1,11 +1,10 @@
 import React, { useEffect, useRef } from "react";
-import { useEditorData } from "./hooks/useEditorData";
 import { EditorCanvas } from "./editorCanvas";
 
 import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
-import { KeyChannel, PortalChannel } from "../types";
+import { EditorData, KeyChannel, PortalChannel } from "../types";
 
 import * as styles from "./editor.css";
 import { useRefState } from "./hooks/useRefState";
@@ -37,6 +36,7 @@ import {
   SetPortalCommand,
 } from "./commands";
 import { SpecialKey, findNumberPressed, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
+import { EDITOR_DEFAULTS } from "./editorConstants";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -65,7 +65,7 @@ enum MouseButton {
 
 export const Editor = () => {
   const canvas = useRef<HTMLCanvasElement>();
-  const [data, dataRef, setData] = useEditorData();
+  const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
   const [_pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
   const [_futureCommands, futureCommandsRef, setFutureCommands] = useRefState<Command[]>([]);
   const [lastCoordUpdated, lastCoordUpdatedRef, setLastCoordUpdated] = useRefState(-1);
@@ -161,6 +161,7 @@ export const Editor = () => {
 
   const getCommand = () => {
     if (operationRef.current === Operation.None) return new NoOpCommand();
+    const previousCoord = lastCoordUpdatedRef.current === -1 ? mouseAtRef.current : lastCoordUpdatedRef.current;
     if (toolRef.current === EditorTool.Pencil && operationRef.current === Operation.Write) {
       const coord = mouseAtRef.current;
       switch (tileRef.current) {
@@ -188,31 +189,31 @@ export const Editor = () => {
           return new SetPassableCommand(coord, dataRef.current, setData);
       }
     } else if (toolRef.current === EditorTool.Pencil && operationRef.current === Operation.Add) {
-      const from = lastCoordUpdatedRef.current;
+      const from = previousCoord;
       const to = mouseAtRef.current;
       switch (tileRef.current) {
         case Tile.Apple:
-          return new SetLineAppleCommand(from, to, dataRef.current, setData, setLastCoordUpdated);
+          return new SetLineAppleCommand(from, to, dataRef, setData, setLastCoordUpdated);
         case Tile.Barrier:
-          return new SetLineBarrierCommand(from, to, dataRef.current, setData, setLastCoordUpdated);
+          return new SetLineBarrierCommand(from, to, dataRef, setData, setLastCoordUpdated);
         case Tile.Door:
-          return new SetLineDoorCommand(from, to, dataRef.current, setData, setLastCoordUpdated);
+          return new SetLineDoorCommand(from, to, dataRef, setData, setLastCoordUpdated);
         case Tile.Deco1:
-          return new SetLineDeco1Command(from, to, dataRef.current, setData, setLastCoordUpdated);
+          return new SetLineDeco1Command(from, to, dataRef, setData, setLastCoordUpdated);
         case Tile.Deco2:
-          return new SetLineDeco2Command(from, to, dataRef.current, setData, setLastCoordUpdated);
+          return new SetLineDeco2Command(from, to, dataRef, setData, setLastCoordUpdated);
         case Tile.Portal:
-          return new SetLinePortalCommand(from, to, portalChannelRef.current, dataRef.current, setData, setLastCoordUpdated);
+          return new SetLinePortalCommand(from, to, portalChannelRef.current, dataRef, setData, setLastCoordUpdated);
         case Tile.Key:
-          return new SetLineKeyCommand(from, to, keyChannelRef.current, dataRef.current, setData, setLastCoordUpdated);
+          return new SetLineKeyCommand(from, to, keyChannelRef.current, dataRef, setData, setLastCoordUpdated);
         case Tile.Lock:
-          return new SetLineLockCommand(from, to, keyChannelRef.current, dataRef.current, setData, setLastCoordUpdated);
+          return new SetLineLockCommand(from, to, keyChannelRef.current, dataRef, setData, setLastCoordUpdated);
         case Tile.Spawn:
           return new SetPlayerSpawnCommand(to, dataRef.current, setData);
         case Tile.Nospawn:
-          return new SetLineNospawnCommand(from, to, dataRef.current, setData, setLastCoordUpdated);
+          return new SetLineNospawnCommand(from, to, dataRef, setData, setLastCoordUpdated);
         case Tile.Passable:
-          return new SetLinePassableCommand(from, to, dataRef.current, setData, setLastCoordUpdated);
+          return new SetLinePassableCommand(from, to, dataRef, setData, setLastCoordUpdated);
       }
     } else if (
       toolRef.current === EditorTool.Eraser && operationRef.current === Operation.Write ||
@@ -221,9 +222,9 @@ export const Editor = () => {
       const coord = mouseAtRef.current;
       return new DeleteElementCommand(coord, dataRef.current, setData);
     } else if (toolRef.current === EditorTool.Eraser && operationRef.current === Operation.Add) {
-      const from = lastCoordUpdatedRef.current;
+      const from = previousCoord;
       const to = mouseAtRef.current;
-      return new DeleteLineCommand(from, to, dataRef.current, setData, setLastCoordUpdated);
+      return new DeleteLineCommand(from, to, dataRef, setData, setLastCoordUpdated);
     }
     throw Error('not implemented');
   }

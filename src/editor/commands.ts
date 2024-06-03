@@ -3,6 +3,7 @@ import { Vector } from "p5";
 import { DIR, EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../types";
 import { coordToVec, getCoordIndex, getCoordIndex2, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
 import { deepCloneData, mergeData, mergeDataSlice } from "./utils/editorUtils";
+import { SetStateValue } from "./editorTypes";
 
 //  THE COMMAND PATTERN
 export interface Command {
@@ -15,7 +16,8 @@ export class NoOpCommand implements Command {
   rollback = () => { };
 }
 
-export type SetData = (setter: (prevData: EditorData) => EditorData) => void
+// export type SetData = (setter: (prevData: EditorData) => EditorData) => void
+export type SetData = (setter: SetStateValue<EditorData>) => void
 export type SetLastCoordUpdated = (coord: number) => void
 
 abstract class SetElementCommand implements Command {
@@ -241,16 +243,17 @@ export class SetPortalCommand extends SetElementCommand {
 
 // TODO: GET BATCH UPDATE WORKING FOR RECTANGLE FILL
 abstract class SetBatchElementsCommand implements Command {
-  protected readonly initial: EditorData;
+  protected readonly dataRef: React.MutableRefObject<EditorData>;
+  protected prevData: EditorData | undefined;
   protected newData: EditorDataSlice | null;
   protected readonly coords: number[];
   protected readonly setData: SetData;
   protected readonly setLastCoordUpdated: SetLastCoordUpdated | undefined;
-  public constructor(coords: number[], data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(coords: number[], dataRef: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     this.setData = setData;
     this.setLastCoordUpdated = setLastCoordUpdated;
     this.coords = coords;
-    this.initial = deepCloneData(data);
+    this.dataRef = dataRef;
     this.newData = {
       coord: -1,
       apple: false,
@@ -263,36 +266,40 @@ abstract class SetBatchElementsCommand implements Command {
       nospawn: false,
       passable: false,
       portal: null,
-      playerSpawnPosition: data.playerSpawnPosition.copy(),
-      startDirection: data.startDirection,
+      playerSpawnPosition: dataRef.current.playerSpawnPosition.copy(),
+      startDirection: dataRef.current.startDirection,
     }
   }
   execute = () => {
     if (!this.newData) {
       return false;
     }
+    this.prevData = deepCloneData(this.dataRef.current);
     let shouldUpdate = false;
-    let updates: EditorData = deepCloneData(this.initial);
+    let updates: EditorData = deepCloneData(this.dataRef.current);
     for (let i = 0; i < this.coords.length; i++) {
       if (!this.test(this.coords[i])) continue;
       updates = mergeDataSlice(updates, this.newData, this.coords[i]);
       shouldUpdate = true;
     }
-    if (!shouldUpdate) return false;
-    this.setData(prev => mergeData(prev, updates));
+    if (!shouldUpdate) {
+      return false;
+    }
+    this.setData(mergeData(this.dataRef.current, updates));
     return true;
   };
   rollback = () => {
+    if (!this.prevData) return;
     if (this.setLastCoordUpdated && this.coords.length) {
       this.setLastCoordUpdated(this.coords[0]);
     }
-    this.setData(prev => mergeData(prev, this.initial));
+    this.setData(mergeData(this.dataRef.current, this.prevData));
   };
   protected abstract test: (coord: number) => boolean;
 }
 
 abstract class SetLineCommand extends SetBatchElementsCommand {
-  public constructor(from: number, to: number, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     const coords: number[] = [];
     const vec = {
       from: coordToVec(from),
@@ -316,7 +323,7 @@ abstract class SetLineCommand extends SetBatchElementsCommand {
 }
 
 abstract class SetRectangleCommand extends SetBatchElementsCommand {
-  public constructor(from: number, to: number, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     const coords: number[] = [];
     const vec = {
       from: coordToVec(from),
@@ -332,135 +339,135 @@ abstract class SetRectangleCommand extends SetBatchElementsCommand {
 }
 
 export class DeleteLineCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
   }
   protected test = (coord: number) => {
     return (
-      this.initial.applesMap[coord] ||
-      this.initial.barriersMap[coord] ||
-      this.initial.decoratives1Map[coord] ||
-      this.initial.decoratives2Map[coord] ||
-      this.initial.doorsMap[coord] ||
-      isValidKeyChannel(this.initial.keysMap[coord]) ||
-      isValidKeyChannel(this.initial.locksMap[coord]) ||
-      this.initial.nospawnsMap[coord] ||
-      this.initial.passablesMap[coord] ||
-      isValidPortalChannel(this.initial.portalsMap[coord])
+      this.dataRef.current.applesMap[coord] ||
+      this.dataRef.current.barriersMap[coord] ||
+      this.dataRef.current.decoratives1Map[coord] ||
+      this.dataRef.current.decoratives2Map[coord] ||
+      this.dataRef.current.doorsMap[coord] ||
+      isValidKeyChannel(this.dataRef.current.keysMap[coord]) ||
+      isValidKeyChannel(this.dataRef.current.locksMap[coord]) ||
+      this.dataRef.current.nospawnsMap[coord] ||
+      this.dataRef.current.passablesMap[coord] ||
+      isValidPortalChannel(this.dataRef.current.portalsMap[coord])
     );
   };
 }
 
 export class SetLineAppleCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
     this.newData.apple = true;
   }
   protected test = (coord: number) => {
-    return !this.initial.applesMap[coord];
+    return !this.dataRef.current.applesMap[coord];
   };
 }
 
 export class SetLineBarrierCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
     this.newData.barrier = true;
   }
   protected test = (coord: number) => {
-    return !this.initial.barriersMap[coord];
+    return !this.dataRef.current.barriersMap[coord];
   };
 }
 
 export class SetLineDeco1Command extends SetLineCommand {
-  public constructor(from: number, to: number, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
     this.newData.deco1 = true;
   }
   protected test = (coord: number) => {
-    return !this.initial.decoratives1Map[coord];
+    return !this.dataRef.current.decoratives1Map[coord];
   };
 }
 
 export class SetLineDeco2Command extends SetLineCommand {
-  public constructor(from: number, to: number, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
     this.newData.deco2 = true;
   }
   protected test = (coord: number) => {
-    return !this.initial.decoratives2Map[coord];
+    return !this.dataRef.current.decoratives2Map[coord];
   };
 }
 
 export class SetLineDoorCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
     this.newData.door = true;
   }
   protected test = (coord: number) => {
-    return !this.initial.doorsMap[coord];
+    return !this.dataRef.current.doorsMap[coord];
   };
 }
 
 export class SetLineKeyCommand extends SetLineCommand {
   private channel: KeyChannel;
-  public constructor(from: number, to: number, channel: KeyChannel, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, channel: KeyChannel, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
     this.channel = channel;
     this.newData.key = channel;
   }
   protected test = (coord: number) => {
-    return this.initial.keysMap[coord] !== this.channel;
+    return this.dataRef.current.keysMap[coord] !== this.channel;
   };
 }
 
 export class SetLineLockCommand extends SetLineCommand {
   private channel: KeyChannel;
-  public constructor(from: number, to: number, channel: KeyChannel, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, channel: KeyChannel, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
     this.channel = channel;
     this.newData.lock = channel;
   }
   protected test = (coord: number) => {
-    return this.initial.keysMap[coord] !== this.channel;
+    return this.dataRef.current.keysMap[coord] !== this.channel;
   };
 }
 
 export class SetLineNospawnCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
     this.newData.nospawn = true;
   }
   protected test = (coord: number) => {
     const shouldIgnore = (
-      this.initial.applesMap[coord] ||
-      this.initial.barriersMap[coord] ||
-      this.initial.doorsMap[coord] ||
-      isValidKeyChannel(this.initial.keysMap[coord]) ||
-      isValidKeyChannel(this.initial.locksMap[coord]) ||
-      isValidPortalChannel(this.initial.portalsMap[coord])
+      this.dataRef.current.applesMap[coord] ||
+      this.dataRef.current.barriersMap[coord] ||
+      this.dataRef.current.doorsMap[coord] ||
+      isValidKeyChannel(this.dataRef.current.keysMap[coord]) ||
+      isValidKeyChannel(this.dataRef.current.locksMap[coord]) ||
+      isValidPortalChannel(this.dataRef.current.portalsMap[coord])
     );
     return !shouldIgnore;
   };
 }
 
 export class SetLinePassableCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
     this.newData.passable = true;
   }
   protected test = (coord: number) => {
-    return !this.initial.passablesMap[coord] && this.initial.barriersMap[coord];
+    return !this.dataRef.current.passablesMap[coord] && this.dataRef.current.barriersMap[coord];
   };
 }
 
 export class SetLinePortalCommand extends SetLineCommand {
   private channel: PortalChannel;
-  public constructor(from: number, to: number, channel: PortalChannel, data: EditorData, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, channel: PortalChannel, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
     super(from, to, data, setData, setLastCoordUpdated);
     this.channel = channel;
     this.newData.portal = channel;
   }
   protected test = (coord: number) => {
-    return this.initial.keysMap[coord] !== this.channel;
+    return this.dataRef.current.keysMap[coord] !== this.channel;
   };
 }
