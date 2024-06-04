@@ -18,15 +18,17 @@ export class NoOpCommand implements Command {
 
 // export type SetData = (setter: (prevData: EditorData) => EditorData) => void
 export type SetData = (setter: SetStateValue<EditorData>) => void
-export type SetLastCoordUpdated = (coord: number) => void
+export type RollbackLastCoordUpdated = () => void
 
 abstract class SetElementCommand implements Command {
   protected readonly initial: EditorDataSlice;
   protected newData: EditorDataSlice | null;
   protected readonly coord: number;
   protected readonly setData: SetData;
-  public constructor(coord: number, data: EditorData, setData: SetData) {
+  protected readonly rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined;
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     this.setData = setData;
+    this.rollbackLastCoordUpdated = rollbackLastCoordUpdated;
     this.coord = coord;
     this.initial = {
       coord: this.coord,
@@ -67,13 +69,16 @@ abstract class SetElementCommand implements Command {
     return true;
   };
   rollback = () => {
+    if (this.rollbackLastCoordUpdated) {
+      this.rollbackLastCoordUpdated();
+    }
     this.setData(prevData => mergeDataSlice(prevData, this.initial));
   };
 }
 
 export class SetPlayerSpawnCommand extends SetElementCommand {
-  public constructor(coord: number, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (getCoordIndex(data.playerSpawnPosition) === coord) {
       this.newData = null;
     } else {
@@ -93,8 +98,8 @@ export class SetPlayerSpawnCommand extends SetElementCommand {
 }
 
 export class DeleteElementCommand extends SetElementCommand {
-  public constructor(coord: number, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (
       !data.applesMap[this.coord] &&
       !data.barriersMap[this.coord] &&
@@ -113,8 +118,8 @@ export class DeleteElementCommand extends SetElementCommand {
 }
 
 export class SetAppleCommand extends SetElementCommand {
-  public constructor(coord: number, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.applesMap[this.coord]) {
       this.newData = null;
     } else {
@@ -124,8 +129,8 @@ export class SetAppleCommand extends SetElementCommand {
 }
 
 export class SetBarrierCommand extends SetElementCommand {
-  public constructor(coord: number, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.barriersMap[this.coord] && !data.passablesMap[this.coord]) {
       this.newData = null;
     } else {
@@ -135,8 +140,8 @@ export class SetBarrierCommand extends SetElementCommand {
 }
 
 export class SetDecorative1Command extends SetElementCommand {
-  public constructor(coord: number, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.decoratives1Map[this.coord] && !data.nospawnsMap[this.coord]) {
       this.newData = null;
     } else {
@@ -146,8 +151,8 @@ export class SetDecorative1Command extends SetElementCommand {
 }
 
 export class SetDecorative2Command extends SetElementCommand {
-  public constructor(coord: number, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.decoratives2Map[this.coord] && !data.nospawnsMap[this.coord]) {
       this.newData = null;
     } else {
@@ -157,8 +162,8 @@ export class SetDecorative2Command extends SetElementCommand {
 }
 
 export class SetDoorCommand extends SetElementCommand {
-  public constructor(coord: number, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.doorsMap[this.coord]) {
       this.newData = null;
     } else {
@@ -168,8 +173,8 @@ export class SetDoorCommand extends SetElementCommand {
 }
 
 export class SetKeyCommand extends SetElementCommand {
-  public constructor(coord: number, channel: KeyChannel, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, channel: KeyChannel, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (isValidKeyChannel(data.keysMap[this.coord]) && data.keysMap[this.coord] === channel) {
       this.newData = null;
     } else {
@@ -183,8 +188,8 @@ export class SetKeyCommand extends SetElementCommand {
 }
 
 export class SetLockCommand extends SetElementCommand {
-  public constructor(coord: number, channel: KeyChannel, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, channel: KeyChannel, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (isValidKeyChannel(data.locksMap[this.coord]) && data.locksMap[this.coord] === channel) {
       this.newData = null;
     } else {
@@ -194,8 +199,8 @@ export class SetLockCommand extends SetElementCommand {
 }
 
 export class SetNospawnCommand extends SetElementCommand {
-  public constructor(coord: number, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     const shouldIgnore = (
       data.applesMap[this.coord] ||
       data.barriersMap[this.coord] ||
@@ -219,8 +224,8 @@ export class SetNospawnCommand extends SetElementCommand {
 }
 
 export class SetPassableCommand extends SetElementCommand {
-  public constructor(coord: number, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.passablesMap[this.coord] || !data.barriersMap[this.coord]) {
       this.newData = null;
     } else {
@@ -231,8 +236,8 @@ export class SetPassableCommand extends SetElementCommand {
 }
 
 export class SetPortalCommand extends SetElementCommand {
-  public constructor(coord: number, channel: PortalChannel, data: EditorData, setData: SetData) {
-    super(coord, data, setData);
+  public constructor(coord: number, channel: PortalChannel, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
     if (isValidPortalChannel(data.portalsMap[this.coord]) && data.portalsMap[this.coord] === channel) {
       this.newData = null;
     } else {
@@ -246,12 +251,14 @@ abstract class SetBatchElementsCommand implements Command {
   protected readonly dataRef: React.MutableRefObject<EditorData>;
   protected prevData: EditorData | undefined;
   protected newData: EditorDataSlice | null;
+  protected resolveNewData: (coord: number) => (Partial<EditorDataSlice> | null);
   protected readonly coords: number[];
   protected readonly setData: SetData;
-  protected readonly setLastCoordUpdated: SetLastCoordUpdated | undefined;
-  public constructor(coords: number[], dataRef: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
+  protected readonly rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined;
+  protected test2: (() => boolean) | undefined;
+  public constructor(coords: number[], dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     this.setData = setData;
-    this.setLastCoordUpdated = setLastCoordUpdated;
+    this.rollbackLastCoordUpdated = rollbackLastCoordUpdated;
     this.coords = coords;
     this.dataRef = dataRef;
     this.newData = {
@@ -268,7 +275,8 @@ abstract class SetBatchElementsCommand implements Command {
       portal: null,
       playerSpawnPosition: dataRef.current.playerSpawnPosition.copy(),
       startDirection: dataRef.current.startDirection,
-    }
+    };
+    this.resolveNewData = () => null;
   }
   execute = () => {
     if (!this.newData) {
@@ -279,19 +287,16 @@ abstract class SetBatchElementsCommand implements Command {
     let updates: EditorData = deepCloneData(this.dataRef.current);
     for (let i = 0; i < this.coords.length; i++) {
       if (!this.test(this.coords[i])) continue;
-      updates = mergeDataSlice(updates, this.newData, this.coords[i]);
+      updates = mergeDataSlice(updates, { ...this.newData, ...this.resolveNewData(this.coords[i]) }, this.coords[i]);
       shouldUpdate = true;
-    }
-    if (!shouldUpdate) {
-      return false;
     }
     this.setData(mergeData(this.dataRef.current, updates));
     return true;
   };
   rollback = () => {
     if (!this.prevData) return;
-    if (this.setLastCoordUpdated && this.coords.length) {
-      this.setLastCoordUpdated(this.coords[0]);
+    if (this.rollbackLastCoordUpdated) {
+      this.rollbackLastCoordUpdated();
     }
     this.setData(mergeData(this.dataRef.current, this.prevData));
   };
@@ -303,7 +308,7 @@ interface SetLineOptions {
 }
 
 abstract class SetLineCommand extends SetBatchElementsCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated, opts: SetLineOptions = {}) {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, opts: SetLineOptions = {}) {
     const vec = {
       from: coordToVec(from),
       to: coordToVec(to),
@@ -355,29 +360,13 @@ abstract class SetLineCommand extends SetBatchElementsCommand {
       return coords;
     }
     const coords = opts.thickLine ? getCoordsThick() : getCoords();
-    super(coords, data, setData, setLastCoordUpdated);
-  }
-}
-
-abstract class SetRectangleCommand extends SetBatchElementsCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    const coords: number[] = [];
-    const vec = {
-      from: coordToVec(from),
-      to: coordToVec(to),
-    }
-    for (let y = Math.min(vec.from.y, vec.to.y); y <= Math.max(vec.from.y, vec.to.y); y++) {
-      for (let x = Math.min(vec.from.x, vec.to.x); x <= Math.max(vec.from.x, vec.to.x); x++) {
-        coords.push(getCoordIndex2(x, y));
-      }
-    }
-    super(coords, data, setData, setLastCoordUpdated);
+    super(coords, data, setData, rollbackLastCoordUpdated);
   }
 }
 
 export class DeleteLineCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
   }
   protected test = (coord: number) => {
     return (
@@ -396,8 +385,8 @@ export class DeleteLineCommand extends SetLineCommand {
 }
 
 export class SetLineAppleCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.apple = true;
   }
   protected test = (coord: number) => {
@@ -406,8 +395,8 @@ export class SetLineAppleCommand extends SetLineCommand {
 }
 
 export class SetLineBarrierCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.barrier = true;
   }
   protected test = (coord: number) => {
@@ -416,8 +405,8 @@ export class SetLineBarrierCommand extends SetLineCommand {
 }
 
 export class SetLineDeco1Command extends SetLineCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.deco1 = true;
   }
   protected test = (coord: number) => {
@@ -426,8 +415,8 @@ export class SetLineDeco1Command extends SetLineCommand {
 }
 
 export class SetLineDeco2Command extends SetLineCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.deco2 = true;
   }
   protected test = (coord: number) => {
@@ -436,8 +425,8 @@ export class SetLineDeco2Command extends SetLineCommand {
 }
 
 export class SetLineDoorCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.door = true;
   }
   protected test = (coord: number) => {
@@ -447,10 +436,18 @@ export class SetLineDoorCommand extends SetLineCommand {
 
 export class SetLineKeyCommand extends SetLineCommand {
   private channel: KeyChannel;
-  public constructor(from: number, to: number, channel: KeyChannel, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, channel: KeyChannel, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
     this.channel = channel;
     this.newData.key = channel;
+    this.resolveNewData = (coord: number) => {
+      const newData: Partial<EditorDataSlice> = {};
+      if (data.current.barriersMap[coord]) {
+        newData.barrier = true;
+        newData.passable = true;
+      }
+      return newData;
+    };
   }
   protected test = (coord: number) => {
     return this.dataRef.current.keysMap[coord] !== this.channel;
@@ -459,8 +456,8 @@ export class SetLineKeyCommand extends SetLineCommand {
 
 export class SetLineLockCommand extends SetLineCommand {
   private channel: KeyChannel;
-  public constructor(from: number, to: number, channel: KeyChannel, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, channel: KeyChannel, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
     this.channel = channel;
     this.newData.lock = channel;
   }
@@ -470,9 +467,19 @@ export class SetLineLockCommand extends SetLineCommand {
 }
 
 export class SetLineNospawnCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.nospawn = true;
+    this.resolveNewData = (coord: number) => {
+      const newData: Partial<EditorDataSlice> = {};
+      if (data.current.decoratives1Map[coord]) {
+        newData.deco1 = true;
+      }
+      if (data.current.decoratives2Map[coord]) {
+        newData.deco2 = true;
+      }
+      return newData;
+    };
   }
   protected test = (coord: number) => {
     const shouldIgnore = (
@@ -488,9 +495,10 @@ export class SetLineNospawnCommand extends SetLineCommand {
 }
 
 export class SetLinePassableCommand extends SetLineCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.passable = true;
+    this.newData.barrier = true;
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.passablesMap[coord] && this.dataRef.current.barriersMap[coord];
@@ -499,12 +507,28 @@ export class SetLinePassableCommand extends SetLineCommand {
 
 export class SetLinePortalCommand extends SetLineCommand {
   private channel: PortalChannel;
-  public constructor(from: number, to: number, channel: PortalChannel, data: React.MutableRefObject<EditorData>, setData: SetData, setLastCoordUpdated: SetLastCoordUpdated | undefined) {
-    super(from, to, data, setData, setLastCoordUpdated);
+  public constructor(from: number, to: number, channel: PortalChannel, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
     this.channel = channel;
     this.newData.portal = channel;
   }
   protected test = (coord: number) => {
     return this.dataRef.current.keysMap[coord] !== this.channel;
   };
+}
+
+abstract class SetRectangleCommand extends SetBatchElementsCommand {
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    const coords: number[] = [];
+    const vec = {
+      from: coordToVec(from),
+      to: coordToVec(to),
+    }
+    for (let y = Math.min(vec.from.y, vec.to.y); y <= Math.max(vec.from.y, vec.to.y); y++) {
+      for (let x = Math.min(vec.from.x, vec.to.x); x <= Math.max(vec.from.x, vec.to.x); x++) {
+        coords.push(getCoordIndex2(x, y));
+      }
+    }
+    super(coords, data, setData, rollbackLastCoordUpdated);
+  }
 }

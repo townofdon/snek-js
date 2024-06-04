@@ -159,59 +159,65 @@ export const Editor = () => {
     isMouseInsideMap: false,
   })
 
-  const getCommandDrawTile = (coord: number) => {
+  const getCommandDrawTile = (coord: number, prevCoord: number) => {
+    const rollbackLastCoordUpdated = () => {
+      setLastCoordUpdated(prevCoord);
+    }
     switch (tileRef.current) {
       case Tile.Apple:
-        return new SetAppleCommand(coord, dataRef.current, setData);
+        return new SetAppleCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
-        return new SetBarrierCommand(coord, dataRef.current, setData);
+        return new SetBarrierCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Door:
-        return new SetDoorCommand(coord, dataRef.current, setData);
+        return new SetDoorCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Deco1:
-        return new SetDecorative1Command(coord, dataRef.current, setData);
+        return new SetDecorative1Command(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Deco2:
-        return new SetDecorative2Command(coord, dataRef.current, setData);
+        return new SetDecorative2Command(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Portal:
-        return new SetPortalCommand(coord, portalChannelRef.current, dataRef.current, setData);
+        return new SetPortalCommand(coord, portalChannelRef.current, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Key:
-        return new SetKeyCommand(coord, keyChannelRef.current, dataRef.current, setData);
+        return new SetKeyCommand(coord, keyChannelRef.current, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Lock:
-        return new SetLockCommand(coord, keyChannelRef.current, dataRef.current, setData);
+        return new SetLockCommand(coord, keyChannelRef.current, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Spawn:
-        return new SetPlayerSpawnCommand(coord, dataRef.current, setData);
+        return new SetPlayerSpawnCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Nospawn:
-        return new SetNospawnCommand(coord, dataRef.current, setData);
+        return new SetNospawnCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Passable:
-        return new SetPassableCommand(coord, dataRef.current, setData);
+        return new SetPassableCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       default:
         throw new Error(`unhandled tile: ${tileRef.current}`);
     }
   }
 
   const getCommandDrawLine = (from: number, to: number) => {
+    const rollbackLastCoordUpdated = () => {
+      setLastCoordUpdated(from);
+    }
     switch (tileRef.current) {
       case Tile.Apple:
-        return new SetLineAppleCommand(from, to, dataRef, setData, setLastCoordUpdated);
+        return new SetLineAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
-        return new SetLineBarrierCommand(from, to, dataRef, setData, setLastCoordUpdated);
+        return new SetLineBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Door:
-        return new SetLineDoorCommand(from, to, dataRef, setData, setLastCoordUpdated);
+        return new SetLineDoorCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Deco1:
-        return new SetLineDeco1Command(from, to, dataRef, setData, setLastCoordUpdated);
+        return new SetLineDeco1Command(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Deco2:
-        return new SetLineDeco2Command(from, to, dataRef, setData, setLastCoordUpdated);
+        return new SetLineDeco2Command(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Portal:
-        return new SetLinePortalCommand(from, to, portalChannelRef.current, dataRef, setData, setLastCoordUpdated);
+        return new SetLinePortalCommand(from, to, portalChannelRef.current, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Key:
-        return new SetLineKeyCommand(from, to, keyChannelRef.current, dataRef, setData, setLastCoordUpdated);
+        return new SetLineKeyCommand(from, to, keyChannelRef.current, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Lock:
-        return new SetLineLockCommand(from, to, keyChannelRef.current, dataRef, setData, setLastCoordUpdated);
+        return new SetLineLockCommand(from, to, keyChannelRef.current, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Spawn:
-        return new SetPlayerSpawnCommand(to, dataRef.current, setData);
+        return new SetPlayerSpawnCommand(to, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Nospawn:
-        return new SetLineNospawnCommand(from, to, dataRef, setData, setLastCoordUpdated);
+        return new SetLineNospawnCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Passable:
-        return new SetLinePassableCommand(from, to, dataRef, setData, setLastCoordUpdated);
+        return new SetLinePassableCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       default:
         throw new Error(`unhandled tile: ${tileRef.current}`);
     }
@@ -219,12 +225,12 @@ export const Editor = () => {
 
   const getCommand = () => {
     if (operationRef.current === Operation.None) return new NoOpCommand();
-    const previousCoord = lastCoordUpdatedRef.current === -1 ? mouseAtRef.current : lastCoordUpdatedRef.current;
+    const prevCoord = lastCoordUpdatedRef.current === -1 ? mouseAtRef.current : lastCoordUpdatedRef.current;
     if (toolRef.current === EditorTool.Pencil && operationRef.current === Operation.Write) {
       const coord = mouseAtRef.current;
-      return getCommandDrawTile(coord);
+      return getCommandDrawTile(coord, prevCoord);
     } else if (toolRef.current === EditorTool.Pencil && operationRef.current === Operation.Add) {
-      const from = previousCoord;
+      const from = prevCoord;
       const to = mouseAtRef.current;
       return getCommandDrawLine(from, to);
     } else if (toolRef.current === EditorTool.Line && [Operation.Add, Operation.Write].includes(operationRef.current)) {
@@ -236,11 +242,11 @@ export const Editor = () => {
       toolRef.current === EditorTool.Pencil && operationRef.current === Operation.Remove
     ) {
       const coord = mouseAtRef.current;
-      return new DeleteElementCommand(coord, dataRef.current, setData);
+      return new DeleteElementCommand(coord, dataRef.current, setData, () => setLastCoordUpdated(prevCoord));
     } else if (toolRef.current === EditorTool.Eraser && operationRef.current === Operation.Add) {
-      const from = previousCoord;
+      const from = prevCoord;
       const to = mouseAtRef.current;
-      return new DeleteLineCommand(from, to, dataRef, setData, setLastCoordUpdated);
+      return new DeleteLineCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
     }
     throw Error('not implemented');
   }
@@ -250,8 +256,8 @@ export const Editor = () => {
     if (operationRef.current === Operation.None) return;
     const command = getCommand();
     const success = command.execute();
+    setLastCoordUpdated(mouseAtRef.current);
     if (success) {
-      setLastCoordUpdated(mouseAtRef.current);
       setPastCommands(prev => [...prev, command]);
       setFutureCommands([]);
     }
