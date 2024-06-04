@@ -518,7 +518,7 @@ export class SetLinePortalCommand extends SetLineCommand {
 }
 
 abstract class SetRectangleCommand extends SetBatchElementsCommand {
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     const coords: number[] = [];
     const vec = {
       from: coordToVec(from),
@@ -529,6 +529,142 @@ abstract class SetRectangleCommand extends SetBatchElementsCommand {
         coords.push(getCoordIndex2(x, y));
       }
     }
-    super(coords, data, setData, rollbackLastCoordUpdated);
+    super(coords, dataRef, setData, rollbackLastCoordUpdated);
   }
+}
+
+export class DeleteRectangleCommand extends SetRectangleCommand {
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+  }
+  protected test = (coord: number) => {
+    return (
+      this.dataRef.current.applesMap[coord] ||
+      this.dataRef.current.barriersMap[coord] ||
+      this.dataRef.current.decoratives1Map[coord] ||
+      this.dataRef.current.decoratives2Map[coord] ||
+      this.dataRef.current.doorsMap[coord] ||
+      isValidKeyChannel(this.dataRef.current.keysMap[coord]) ||
+      isValidKeyChannel(this.dataRef.current.locksMap[coord]) ||
+      this.dataRef.current.nospawnsMap[coord] ||
+      this.dataRef.current.passablesMap[coord] ||
+      isValidPortalChannel(this.dataRef.current.portalsMap[coord])
+    );
+  };
+}
+
+export class SetRectangleAppleCommand extends SetRectangleCommand {
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.apple = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.applesMap[coord];
+  };
+}
+
+export class SetRectangleBarrierCommand extends SetRectangleCommand {
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.barrier = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.barriersMap[coord];
+  };
+}
+
+export class SetRectangleDeco1Command extends SetRectangleCommand {
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.deco1 = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.decoratives1Map[coord];
+  };
+}
+
+export class SetRectangleDeco2Command extends SetRectangleCommand {
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.deco2 = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.decoratives2Map[coord];
+  };
+}
+
+export class SetRectangleDoorCommand extends SetRectangleCommand {
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.door = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.doorsMap[coord];
+  };
+}
+
+export class SetRectangleKeyCommand extends SetRectangleCommand {
+  public constructor(from: number, to: number, channel: KeyChannel, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.key = channel;
+    this.resolveNewData = (coord: number) => {
+      const newData: Partial<EditorDataSlice> = {};
+      if (this.dataRef.current.barriersMap[coord]) {
+        newData.barrier = true;
+        newData.passable = true;
+      }
+      return newData;
+    };
+  }
+  protected test = (coord: number) => {
+    return !isValidKeyChannel(this.dataRef.current.locksMap[coord]);
+  };
+}
+
+export class SetRectangleLockCommand extends SetRectangleCommand {
+  public constructor(from: number, to: number, channel: KeyChannel, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.lock = channel;
+  }
+  protected test = (coord: number) => {
+    return !isValidKeyChannel(this.dataRef.current.locksMap[coord]);
+  };
+}
+
+export class SetRectangleNospawnCommand extends SetRectangleCommand {
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.nospawn = true;
+  }
+  protected test = (coord: number) => {
+    const shouldIgnore = (
+      this.dataRef.current.applesMap[coord] ||
+      this.dataRef.current.barriersMap[coord] ||
+      this.dataRef.current.doorsMap[coord] ||
+      isValidKeyChannel(this.dataRef.current.keysMap[coord]) ||
+      isValidKeyChannel(this.dataRef.current.locksMap[coord]) ||
+      isValidPortalChannel(this.dataRef.current.portalsMap[coord])
+    );
+    return !shouldIgnore;
+  };
+}
+
+export class SetRectanglePassableCommand extends SetRectangleCommand {
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.passable = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.passablesMap[coord] && this.dataRef.current.barriersMap[coord];
+  };
+}
+
+export class SetRectanglePortalCommand extends SetRectangleCommand {
+  public constructor(from: number, to: number, channel: PortalChannel, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.portal = channel;
+  }
+  protected test = (coord: number) => {
+    return !isValidPortalChannel(this.dataRef.current.portalsMap[coord]);
+  };
 }

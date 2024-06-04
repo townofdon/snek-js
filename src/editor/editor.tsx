@@ -12,6 +12,7 @@ import {
   Command,
   DeleteElementCommand,
   DeleteLineCommand,
+  DeleteRectangleCommand,
   NoOpCommand,
   SetAppleCommand,
   SetBarrierCommand,
@@ -34,6 +35,16 @@ import {
   SetPassableCommand,
   SetPlayerSpawnCommand,
   SetPortalCommand,
+  SetRectangleAppleCommand,
+  SetRectangleBarrierCommand,
+  SetRectangleDeco1Command,
+  SetRectangleDeco2Command,
+  SetRectangleDoorCommand,
+  SetRectangleKeyCommand,
+  SetRectangleLockCommand,
+  SetRectangleNospawnCommand,
+  SetRectanglePassableCommand,
+  SetRectanglePortalCommand,
 } from "./commands";
 import { SpecialKey, findNumberPressed, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
 import { EDITOR_DEFAULTS } from "./editorConstants";
@@ -223,6 +234,38 @@ export const Editor = () => {
     }
   }
 
+  const getCommandDrawRectangle = (from: number, to: number) => {
+    const rollbackLastCoordUpdated = () => {
+      setLastCoordUpdated(from);
+    }
+    switch (tileRef.current) {
+      case Tile.Apple:
+        return new SetRectangleAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Barrier:
+        return new SetRectangleBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Door:
+        return new SetRectangleDoorCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Deco1:
+        return new SetRectangleDeco1Command(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Deco2:
+        return new SetRectangleDeco2Command(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Portal:
+        return new SetRectanglePortalCommand(from, to, portalChannelRef.current, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Key:
+        return new SetRectangleKeyCommand(from, to, keyChannelRef.current, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Lock:
+        return new SetRectangleLockCommand(from, to, keyChannelRef.current, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Spawn:
+        return new SetPlayerSpawnCommand(to, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.Nospawn:
+        return new SetRectangleNospawnCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Passable:
+        return new SetRectanglePassableCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      default:
+        throw new Error(`unhandled tile: ${tileRef.current}`);
+    }
+  }
+
   const getCommand = () => {
     if (operationRef.current === Operation.None) return new NoOpCommand();
     const prevCoord = lastCoordUpdatedRef.current === -1 ? mouseAtRef.current : lastCoordUpdatedRef.current;
@@ -237,6 +280,14 @@ export const Editor = () => {
       const from = mouseFromRef.current;
       const to = mouseAtRef.current;
       return getCommandDrawLine(from, to);
+    } else if (toolRef.current === EditorTool.Rectangle && [Operation.Add, Operation.Write].includes(operationRef.current)) {
+      const from = mouseFromRef.current;
+      const to = mouseAtRef.current;
+      return getCommandDrawRectangle(from, to);
+    } else if (toolRef.current === EditorTool.Rectangle && operationRef.current === Operation.Remove) {
+      const from = mouseFromRef.current;
+      const to = mouseAtRef.current;
+      return new DeleteRectangleCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
     } else if (
       toolRef.current === EditorTool.Eraser && operationRef.current === Operation.Write ||
       toolRef.current === EditorTool.Pencil && operationRef.current === Operation.Remove
