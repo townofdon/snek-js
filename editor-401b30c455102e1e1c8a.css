@@ -25,6 +25,10 @@ button:focus:before {
   display: none;
 }
 
+button {
+  border-width: 0px;
+}
+
 .ReHCig7x4aYPRidKBVro {
   display: flex;
   flex-direction: column;
@@ -170,9 +174,9 @@ button:focus:before {
   filter: brightness(0.5) grayscale(0.5);
 }
 .rrVuT_GoHCoa28eSjhhT.Rx0uKlzWxhXt775otXDz {
-  filter: brightness(0.8) grayscale(0.1);
+  filter: none;
 }
-.rrVuT_GoHCoa28eSjhhT:hover, .rrVuT_GoHCoa28eSjhhT.Rx0uKlzWxhXt775otXDz:hover {
+.rrVuT_GoHCoa28eSjhhT:hover {
   filter: none;
 }
 .rrVuT_GoHCoa28eSjhhT.q_wv12mnGW9ldaRJ2HtS.Rx0uKlzWxhXt775otXDz {
