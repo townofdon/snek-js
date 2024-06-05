@@ -50,6 +50,7 @@ import { EDITOR_DEFAULTS } from "./editorConstants";
 
 import * as styles from "./Editor.css";
 import { EditorTiles } from "./EditorTiles";
+import { EditorTools } from "./EditorTools";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -488,6 +489,7 @@ export const Editor = () => {
     <div className={styles.layout}>
       <div className={styles.container}>
         <h1 className={styles.mainTitle}>SNEK EDITOR</h1>
+        <EditorTools />
       </div>
       <div className={styles.editorContainer}>
         <EditorTiles />

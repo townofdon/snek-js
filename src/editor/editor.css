@@ -5,9 +5,9 @@
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url('assets/graphics/editor-tools-200.png');
-  --editor-tool-sprite-background-size: 640px 64px;
-  --editor-tool-sprite-width: 64px;
-  --editor-tool-sprite-height: 64px;
+  --editor-tool-sprite-background-size: 480px 48px;
+  --editor-tool-sprite-width: 48px;
+  --editor-tool-sprite-height: 48px;
 }
 
 body, html {
@@ -102,6 +102,59 @@ canvas {
   }
   &.spawn {
     background-position-x: calc(-10 * var(--editor-tile-sprite-width));
+  }
+}
+
+
+.editorTools {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin: 3px;
+}
+.editorToolSprite {
+  display: inline-block;
+  background-color: inherit;
+  background-image: var(--editor-tool-sprite-img);
+  background-size: var(--editor-tool-sprite-background-size);
+  width: var(--editor-tool-sprite-width);
+  height: var(--editor-tool-sprite-height);
+  padding: 0px;
+  margin: 3px;
+  border-radius: 0px;
+  border: none;
+  background-position: 0px 0px;
+  filter: brightness(0.5) grayscale(0.5);
+  &.active {
+    filter: brightness(0.8) grayscale(0.1);
+  }
+  &:hover, &.active:hover {
+    filter: none;
+  }
+  &.pencil.active {
+    background-position-x: calc(0 * var(--editor-tool-sprite-width));
+  }
+  &.pencil {
+    background-position-x: calc(-1 * var(--editor-tool-sprite-width));
+  }
+  &.eraser.active {
+    background-position-x: calc(-2 * var(--editor-tool-sprite-width));
+  }
+  &.eraser {
+    background-position-x: calc(-3 * var(--editor-tool-sprite-width));
+  }
+  &.rectangle.active {
+    background-position-x: calc(-4 * var(--editor-tool-sprite-width));
+  }
+  &.rectangle {
+    background-position-x: calc(-5 * var(--editor-tool-sprite-width));
+  }
+  &.line.active {
+    background-position-x: calc(-6 * var(--editor-tool-sprite-width));
+  }
+  &.line {
+    background-position-x: calc(-7 * var(--editor-tool-sprite-width));
   }
 }
 
