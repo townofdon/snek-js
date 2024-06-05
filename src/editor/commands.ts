@@ -226,7 +226,7 @@ export class SetNospawnCommand extends SetElementCommand {
 export class SetPassableCommand extends SetElementCommand {
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.passablesMap[this.coord] || !data.barriersMap[this.coord]) {
+    if (data.passablesMap[this.coord] && data.barriersMap[this.coord]) {
       this.newData = null;
     } else {
       this.newData.barrier = true;
@@ -400,7 +400,7 @@ export class SetLineBarrierCommand extends SetLineCommand {
     this.newData.barrier = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.barriersMap[coord];
+    return !this.dataRef.current.barriersMap[coord] || this.dataRef.current.passablesMap[coord];
   };
 }
 
@@ -501,7 +501,7 @@ export class SetLinePassableCommand extends SetLineCommand {
     this.newData.barrier = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.passablesMap[coord] && this.dataRef.current.barriersMap[coord];
+    return !this.dataRef.current.passablesMap[coord] || !this.dataRef.current.barriersMap[coord];
   };
 }
 
@@ -569,7 +569,7 @@ export class SetRectangleBarrierCommand extends SetRectangleCommand {
     this.newData.barrier = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.barriersMap[coord];
+    return !this.dataRef.current.barriersMap[coord] || this.dataRef.current.passablesMap[coord];
   };
 }
 
@@ -652,10 +652,11 @@ export class SetRectangleNospawnCommand extends SetRectangleCommand {
 export class SetRectanglePassableCommand extends SetRectangleCommand {
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.barrier = true;
     this.newData.passable = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.passablesMap[coord] && this.dataRef.current.barriersMap[coord];
+    return !this.dataRef.current.passablesMap[coord] || !this.dataRef.current.barriersMap[coord];
   };
 }
 

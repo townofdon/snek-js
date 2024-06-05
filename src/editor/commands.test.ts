@@ -33,7 +33,7 @@ describe('commands', () => {
       const setData = (setter: (prevData: EditorData) => EditorData): void => {
         data = setter(data);
       };
-      const command = new SetAppleCommand(getCoordIndex2(10, 10), data, setData);
+      const command = new SetAppleCommand(getCoordIndex2(10, 10), data, setData, () => { });
       const res = command.execute();
       expect(res).toEqual(true);
       expect(data.applesMap).toEqual({ [getCoordIndex2(10, 10)]: true });
@@ -51,7 +51,7 @@ describe('commands', () => {
       const setData = (setter: (prevData: EditorData) => EditorData): void => {
         data = setter(data);
       };
-      const command = new SetAppleCommand(getCoordIndex2(11, 11), data, setData);
+      const command = new SetAppleCommand(getCoordIndex2(11, 11), data, setData, () => { });
       const res = command.execute();
       expect(res).toEqual(true);
       expect(data.applesMap).toEqual({ [getCoordIndex2(11, 11)]: true });
@@ -66,18 +66,18 @@ describe('commands', () => {
         data = setter(data);
       };
       const commands = [
-        new SetBarrierCommand(getCoordIndex2(1, 1), data, setData),
-        new SetBarrierCommand(getCoordIndex2(2, 2), data, setData),
-        new SetBarrierCommand(getCoordIndex2(3, 3), data, setData),
-        new SetBarrierCommand(getCoordIndex2(4, 4), data, setData),
-        new SetAppleCommand(getCoordIndex2(5, 5), data, setData),
-        new SetAppleCommand(getCoordIndex2(6, 6), data, setData),
-        new SetAppleCommand(getCoordIndex2(7, 7), data, setData),
-        new SetAppleCommand(getCoordIndex2(8, 8), data, setData),
-        new SetDecorative1Command(getCoordIndex2(9, 9), data, setData),
-        new SetDecorative1Command(getCoordIndex2(10, 10), data, setData),
-        new SetDecorative1Command(getCoordIndex2(11, 11), data, setData),
-        new SetDecorative1Command(getCoordIndex2(12, 12), data, setData),
+        new SetBarrierCommand(getCoordIndex2(1, 1), data, setData, () => { }),
+        new SetBarrierCommand(getCoordIndex2(2, 2), data, setData, () => { }),
+        new SetBarrierCommand(getCoordIndex2(3, 3), data, setData, () => { }),
+        new SetBarrierCommand(getCoordIndex2(4, 4), data, setData, () => { }),
+        new SetAppleCommand(getCoordIndex2(5, 5), data, setData, () => { }),
+        new SetAppleCommand(getCoordIndex2(6, 6), data, setData, () => { }),
+        new SetAppleCommand(getCoordIndex2(7, 7), data, setData, () => { }),
+        new SetAppleCommand(getCoordIndex2(8, 8), data, setData, () => { }),
+        new SetDecorative1Command(getCoordIndex2(9, 9), data, setData, () => { }),
+        new SetDecorative1Command(getCoordIndex2(10, 10), data, setData, () => { }),
+        new SetDecorative1Command(getCoordIndex2(11, 11), data, setData, () => { }),
+        new SetDecorative1Command(getCoordIndex2(12, 12), data, setData, () => { }),
       ];
       const results = commands.map(command => command.execute());
       expect(results).toEqual(Array.from({ length: commands.length }, () => true));
@@ -178,7 +178,7 @@ describe('commands', () => {
       const setData = (setter: (prevData: EditorData) => EditorData): void => {
         data = setter(data);
       };
-      const command = new SetBarrierCommand(getCoordIndex2(25, 25), data, setData);
+      const command = new SetBarrierCommand(getCoordIndex2(25, 25), data, setData, () => { });
       const res = command.execute();
       expect(res).toEqual(true);
       expect(data.barriersMap).toEqual({ [getCoordIndex2(25, 25)]: true });
@@ -194,7 +194,7 @@ describe('commands', () => {
       const setData = (setter: (prevData: EditorData) => EditorData): void => {
         editorData = setter(editorData);
       };
-      const command = new SetNospawnCommand(getCoordIndex2(55, 55), editorData, setData);
+      const command = new SetNospawnCommand(getCoordIndex2(55, 55), editorData, setData, () => { });
       const res = command.execute();
       expect(res).toEqual(true);
       expect(editorData.nospawnsMap).toEqual({ [getCoordIndex2(55, 55)]: true });
@@ -214,12 +214,12 @@ describe('commands', () => {
         data = setter(data);
       };
       const commands = [
-        new SetNospawnCommand(getCoordIndex2(1, 1), data, setData),
-        new SetNospawnCommand(getCoordIndex2(2, 2), data, setData),
-        new SetNospawnCommand(getCoordIndex2(3, 3), data, setData),
-        new SetNospawnCommand(getCoordIndex2(4, 4), data, setData),
-        new SetNospawnCommand(getCoordIndex2(5, 5), data, setData),
-        new SetNospawnCommand(getCoordIndex2(6, 6), data, setData),
+        new SetNospawnCommand(getCoordIndex2(1, 1), data, setData, () => { }),
+        new SetNospawnCommand(getCoordIndex2(2, 2), data, setData, () => { }),
+        new SetNospawnCommand(getCoordIndex2(3, 3), data, setData, () => { }),
+        new SetNospawnCommand(getCoordIndex2(4, 4), data, setData, () => { }),
+        new SetNospawnCommand(getCoordIndex2(5, 5), data, setData, () => { }),
+        new SetNospawnCommand(getCoordIndex2(6, 6), data, setData, () => { }),
       ];
       const results = commands.map(command => command.execute());
       expect(results).toEqual([false, false, false, false, false, false]);
@@ -240,7 +240,7 @@ describe('commands', () => {
       const setData = (setter: (prevData: EditorData) => EditorData): void => {
         data = setter(data);
       };
-      const command = new SetPassableCommand(getCoordIndex2(5, 5), data, setData);
+      const command = new SetPassableCommand(getCoordIndex2(5, 5), data, setData, () => { });
       const res = command.execute();
       expect(res).toEqual(true);
       expect(data.barriersMap).toEqual({ [getCoordIndex2(5, 5)]: true });
@@ -249,16 +249,16 @@ describe('commands', () => {
       expect(data.barriersMap).toEqual({ [getCoordIndex2(5, 5)]: true });
       expect(data.passablesMap).toEqual({ [getCoordIndex2(5, 5)]: undefined });
     });
-    it('should not set passable if no barrier exists at location', () => {
+    it('should not passable if no barrier exists at location', () => {
       let data: EditorData = getTestData();
       const setData = (setter: (prevData: EditorData) => EditorData): void => {
         data = setter(data);
       };
-      const command = new SetPassableCommand(getCoordIndex2(5, 5), data, setData);
+      const command = new SetPassableCommand(getCoordIndex2(5, 5), data, setData, () => { });
       const res = command.execute();
-      expect(res).toEqual(false);
-      expect(data.barriersMap).toEqual({});
-      expect(data.passablesMap).toEqual({});
+      expect(res).toEqual(true);
+      expect(data.barriersMap).toEqual({ [getCoordIndex2(5, 5)]: true });
+      expect(data.passablesMap).toEqual({ [getCoordIndex2(5, 5)]: true });
     });
     it('should set multiple cells', () => {
       let data: EditorData = getTestData({
@@ -271,27 +271,31 @@ describe('commands', () => {
         data = setter(data);
       };
       const commands = [
-        new SetPassableCommand(getCoordIndex2(5, 5), data, setData),
-        new SetPassableCommand(getCoordIndex2(10, 10), data, setData),
-        new SetPassableCommand(getCoordIndex2(15, 15), data, setData),
+        new SetPassableCommand(getCoordIndex2(5, 5), data, setData, () => { }),
+        new SetPassableCommand(getCoordIndex2(10, 10), data, setData, () => { }),
+        new SetPassableCommand(getCoordIndex2(15, 15), data, setData, () => { }),
       ];
       const results = commands.map(command => command.execute());
-      expect(results).toEqual([true, false, true]);
+      expect(results).toEqual([true, true, true]);
       expect(data.barriersMap).toEqual({
         [getCoordIndex2(5, 5)]: true,
+        [getCoordIndex2(10, 10)]: true,
         [getCoordIndex2(15, 15)]: true,
       });
       expect(data.passablesMap).toEqual({
         [getCoordIndex2(5, 5)]: true,
+        [getCoordIndex2(10, 10)]: true,
         [getCoordIndex2(15, 15)]: true,
       });
       commands.forEach(command => command.rollback());
       expect(data.barriersMap).toEqual({
         [getCoordIndex2(5, 5)]: true,
+        [getCoordIndex2(10, 10)]: undefined,
         [getCoordIndex2(15, 15)]: true,
       });
       expect(data.passablesMap).toEqual({
         [getCoordIndex2(5, 5)]: undefined,
+        [getCoordIndex2(10, 10)]: undefined,
         [getCoordIndex2(15, 15)]: undefined,
       });
     });
@@ -302,7 +306,7 @@ describe('commands', () => {
       const setData = (setter: (prevData: EditorData) => EditorData): void => {
         data = setter(data);
       };
-      const command = new SetKeyCommand(getCoordIndex2(5, 5), KeyChannel.Blue, data, setData);
+      const command = new SetKeyCommand(getCoordIndex2(5, 5), KeyChannel.Blue, data, setData, () => { });
       const res = command.execute();
       expect(res).toEqual(true);
       expect(data.keysMap).toEqual({ [getCoordIndex2(5, 5)]: KeyChannel.Blue });
@@ -316,7 +320,7 @@ describe('commands', () => {
       const setData = (setter: (prevData: EditorData) => EditorData): void => {
         data = setter(data);
       };
-      const command = new SetKeyCommand(getCoordIndex2(5, 5), KeyChannel.Red, data, setData);
+      const command = new SetKeyCommand(getCoordIndex2(5, 5), KeyChannel.Red, data, setData, () => { });
       const res = command.execute();
       expect(res).toEqual(false);
       expect(data.keysMap).toEqual({ [getCoordIndex2(5, 5)]: KeyChannel.Red });
@@ -328,7 +332,7 @@ describe('commands', () => {
       const setData = (setter: (prevData: EditorData) => EditorData): void => {
         data = setter(data);
       };
-      const command = new SetKeyCommand(getCoordIndex2(5, 5), KeyChannel.Blue, data, setData);
+      const command = new SetKeyCommand(getCoordIndex2(5, 5), KeyChannel.Blue, data, setData, () => { });
       const res = command.execute();
       expect(res).toEqual(true);
       expect(data.keysMap).toEqual({ [getCoordIndex2(5, 5)]: KeyChannel.Blue });
@@ -342,7 +346,7 @@ describe('commands', () => {
       const setData = (setter: (prevData: EditorData) => EditorData): void => {
         data = setter(data);
       };
-      const command = new SetKeyCommand(getCoordIndex2(5, 5), KeyChannel.Blue, data, setData);
+      const command = new SetKeyCommand(getCoordIndex2(5, 5), KeyChannel.Blue, data, setData, () => { });
       expect(data.passablesMap).toEqual({});
       const res = command.execute();
       expect(res).toEqual(true);

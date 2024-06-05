@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useLayoutEffect, useRef } from "react";
 import { EditorSketchReturn, editorSketch } from "./editorSketch";
 import { EditorData } from "../types";
 
@@ -22,13 +22,13 @@ export const EditorCanvas = ({
   const container = useRef<HTMLDivElement>();
   const sketch = useRef<EditorSketchReturn | null>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (container.current && !sketch.current) {
       sketch.current = editorSketch(container.current, canvas);
     }
   }, [container.current]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (sketch.current) {
       sketch.current.setData(data);
     }
