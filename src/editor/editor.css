@@ -1,6 +1,21 @@
 
+:root {
+  --editor-tile-sprite-img: url('assets/graphics/editor-tiles.png');
+  --editor-tile-sprite-background-size: 800px 32px;
+  --editor-tile-sprite-width: 32px;
+  --editor-tile-sprite-height: 32px;
+  --editor-tool-sprite-img: url('assets/graphics/editor-tools-200.png');
+  --editor-tool-sprite-background-size: 640px 64px;
+  --editor-tool-sprite-width: 64px;
+  --editor-tool-sprite-height: 64px;
+}
+
 body, html {
   color: #fafafa;
+}
+
+canvas {
+  font-family: 'MiniMOOD', 'VT323', monospace;
 }
 
 .layout {
@@ -25,5 +40,93 @@ body, html {
 
 .editorContainer {
   position: relative;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.editorTiles {
+  display: flex;
+  flex-direction: column;
+  margin-right: 5px;
+}
+.editorTileSprite {
   display: inline-block;
+  background-color: inherit;
+  background-image: var(--editor-tile-sprite-img);
+  background-size: var(--editor-tile-sprite-background-size);
+  width: var(--editor-tile-sprite-width);
+  height: var(--editor-tile-sprite-height);
+  padding: 0px;
+  margin: 1px;
+  border-radius: 0px;
+  border: none;
+  background-position: 0px 0px;
+  filter: brightness(0.25) grayscale(0.5);
+  &:hover {
+    filter: brightness(0.5) grayscale(0.75);
+  }
+  &.active {
+    filter: none;
+  }
+  &.barrier {
+    background-position-x: calc(0 * var(--editor-tile-sprite-width));
+  }
+  &.passable {
+    background-position-x: calc(-1 * var(--editor-tile-sprite-width));
+  }
+  &.door {
+    background-position-x: calc(-2 * var(--editor-tile-sprite-width));
+  }
+  &.deco1 {
+    background-position-x: calc(-3 * var(--editor-tile-sprite-width));
+  }
+  &.deco2 {
+    background-position-x: calc(-4 * var(--editor-tile-sprite-width));
+  }
+  &.apple {
+    background-position-x: calc(-5 * var(--editor-tile-sprite-width));
+  }
+  &.nospawn {
+    background-position-x: calc(-6 * var(--editor-tile-sprite-width));
+  }
+  &.lock {
+    background-position-x: calc(-7 * var(--editor-tile-sprite-width));
+  }
+  &.key {
+    background-position-x: calc(-8 * var(--editor-tile-sprite-width));
+  }
+  &.portal {
+    background-position-x: calc(-9 * var(--editor-tile-sprite-width));
+  }
+  &.spawn {
+    background-position-x: calc(-10 * var(--editor-tile-sprite-width));
+  }
+}
+
+
+.loader {
+  position: relative;
+  width: 55px;
+  height: 55px;
+  background-repeat: no-repeat;
+  background-image: linear-gradient(#FFF 50px, transparent 0),
+                    linear-gradient(#FFF 50px, transparent 0),
+                    linear-gradient(#FFF 50px, transparent 0),
+                    linear-gradient(#FFF 50px, transparent 0),
+                    linear-gradient(#FFF 50px, transparent 0),
+                    linear-gradient(#FFF 50px, transparent 0);
+  background-size: 5px 40px;
+  background-position: 0px center, 10px center, 20px center, 30px center, 40px center, 50px center;
+  animation: loaderSpikeUp 1s linear infinite alternate;
+}
+@keyframes loaderSpikeUp {
+0% { background-size: 5px 40px}
+16% { background-size: 5px 55px, 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 40px}
+33% { background-size: 5px 40px, 5px 55px, 5px 40px, 5px 40px, 5px 40px, 5px 40px}
+50% { background-size: 5px 40px, 5px 40px, 5px 55px, 5px 40px, 5px 40px, 5px 40px}
+66% { background-size: 5px 40px, 5px 40px, 5px 40px, 5px 55px, 5px 40px, 5px 40px}
+83% { background-size: 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 55px, 5px 40px}
+100% { background-size: 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 55px}
 }
