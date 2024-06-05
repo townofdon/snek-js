@@ -10,6 +10,7 @@
   --editor-tool-sprite-background-size: 480px 48px;
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
+  --tool-bg-color: rgb(0 0 0 / 50%);
 }
 
 body, html {
@@ -33,6 +34,33 @@ canvas {
   padding-right: 30px;
 }
 
+.sqCHei1yJAB5gLTj0ENn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sqCHei1yJAB5gLTj0ENn.wG1FBW6c3fMwyGvmkKIQ {
+  flex-direction: row;
+}
+.sqCHei1yJAB5gLTj0ENn.wbz6j9MXY9pa6FWv5UXy {
+  flex-direction: column;
+}
+.sqCHei1yJAB5gLTj0ENn.ChccoCPjA3_qRFMQH9NC {
+  align-items: flex-start;
+}
+.sqCHei1yJAB5gLTj0ENn.OWCiHGqZE6Y557xxKOl1 {
+  align-items: flex-end;
+}
+.sqCHei1yJAB5gLTj0ENn.LWwqQCIehZXx3KrkLXSL {
+  align-items: stretch;
+}
+.sqCHei1yJAB5gLTj0ENn.g21Les1ld_iJdtzqFHnV {
+  justify-content: flex-start;
+}
+.sqCHei1yJAB5gLTj0ENn.crhpgt2E4uu3RS51Zy8u {
+  justify-content: flex-end;
+}
+
 .Xm5Atp68KKskUT1M9H55 {
   font-family: "MiniMOOD", "VT323", monospace;
   font-size: 2em;
@@ -51,7 +79,8 @@ canvas {
 .Hq5BSL0pyHt1BykrWiEo {
   display: flex;
   flex-direction: column;
-  margin-right: 5px;
+  padding-right: 5px;
+  background: var(--tool-bg-color);
 }
 
 .BOwAf1aHSgWsPsNAsMH5 {
@@ -113,7 +142,13 @@ canvas {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  margin: 3px;
+  padding-bottom: 3px;
+  width: 100%;
+  background: var(--tool-bg-color);
+}
+
+.qlJ88ChmC6PumZ5xu9nC {
+  margin-left: 39px;
 }
 
 .rrVuT_GoHCoa28eSjhhT {
