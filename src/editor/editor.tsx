@@ -483,7 +483,7 @@ export const Editor = () => {
           handleMouseDown={handleMouseDown}
           handleMouseUp={handleMouseUp}
           editorTiles={<EditorTiles activeTile={tile} setTile={setTile} />}
-          editorTools={<EditorTools />}
+          editorTools={<EditorTools activeTool={tool} setTool={setTool} />}
         />
       </div>
     </div>

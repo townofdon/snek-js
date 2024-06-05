@@ -22,6 +22,9 @@ canvas {
 button:focus:before {
   display: none;
 }
+button {
+  border-width: 0px;
+}
 
 .layout {
   display: flex;
@@ -165,9 +168,9 @@ button:focus:before {
   background-position: 0px 0px;
   filter: brightness(0.5) grayscale(0.5);
   &.active {
-    filter: brightness(0.8) grayscale(0.1);
+    filter: none;
   }
-  &:hover, &.active:hover {
+  &:hover {
     filter: none;
   }
   &.pencil.active {
