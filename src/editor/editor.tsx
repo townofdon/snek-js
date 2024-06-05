@@ -1,12 +1,11 @@
 import React, { useEffect, useRef } from "react";
-import { EditorCanvas } from "./editorCanvas";
+import { EditorCanvas } from "./EditorCanvas";
 
 import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
 import { EditorData, KeyChannel, PortalChannel } from "../types";
 
-import * as styles from "./editor.css";
 import { useRefState } from "./hooks/useRefState";
 import {
   Command,
@@ -48,6 +47,8 @@ import {
 } from "./commands";
 import { SpecialKey, findNumberPressed, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
 import { EDITOR_DEFAULTS } from "./editorConstants";
+
+import * as styles from "./Editor.css";
 
 interface LocalState {
   isMouseInsideMap: boolean,
