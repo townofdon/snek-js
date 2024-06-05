@@ -8,6 +8,7 @@
   --editor-tool-sprite-background-size: 480px 48px;
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
+  --tool-bg-color: rgb(0 0 0 / 50%);
 }
 
 body, html {
@@ -31,6 +32,33 @@ canvas {
   padding-right: 30px;
 }
 
+.stack {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &.row {
+    flex-direction: row;
+  }
+  &.col {
+    flex-direction: column;
+  }
+  &.alignStart {
+    align-items: flex-start;
+  }
+  &.alignEnd {
+    align-items: flex-end;
+  }
+  &.alignStretch {
+    align-items: stretch;
+  }
+  &.justifyStart {
+    justify-content: flex-start;
+  }
+  &.justifyEnd {
+    justify-content: flex-end;
+  }
+}
+
 .mainTitle {
   font-family: 'MiniMOOD', 'VT323', monospace;
   font-size: 2em;
@@ -49,7 +77,8 @@ canvas {
 .editorTiles {
   display: flex;
   flex-direction: column;
-  margin-right: 5px;
+  padding-right: 5px;
+  background: var(--tool-bg-color);
 }
 .editorTileSprite {
   display: inline-block;
@@ -111,7 +140,12 @@ canvas {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  margin: 3px;
+  padding-bottom: 3px;
+  width: 100%;
+  background: var(--tool-bg-color);
+}
+.editorToolsOffset {
+  margin-left: 39px;
 }
 .editorToolSprite {
   display: inline-block;

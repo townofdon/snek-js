@@ -47,10 +47,10 @@ import {
 } from "./commands";
 import { SpecialKey, findNumberPressed, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
 import { EDITOR_DEFAULTS } from "./editorConstants";
-
-import * as styles from "./Editor.css";
 import { EditorTiles } from "./EditorTiles";
 import { EditorTools } from "./EditorTools";
+
+import * as styles from "./Editor.css";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -489,10 +489,8 @@ export const Editor = () => {
     <div className={styles.layout}>
       <div className={styles.container}>
         <h1 className={styles.mainTitle}>SNEK EDITOR</h1>
-        <EditorTools />
       </div>
       <div className={styles.editorContainer}>
-        <EditorTiles />
         <EditorCanvas
           data={data}
           canvas={canvas}
@@ -500,6 +498,8 @@ export const Editor = () => {
           handleMouseLeave={handleMouseLeave}
           handleMouseDown={handleMouseDown}
           handleMouseUp={handleMouseUp}
+          editorTiles={<EditorTiles />}
+          editorTools={<EditorTools />}
         />
       </div>
     </div>
