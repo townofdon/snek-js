@@ -46,6 +46,7 @@ import {
   SetRectanglePortalCommand,
 } from "./commands";
 import { SpecialKey, findNumberPressed, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
+import { Tile } from "./editorTypes";
 import { EDITOR_DEFAULTS } from "./editorConstants";
 import { EditorTiles } from "./EditorTiles";
 import { EditorTools } from "./EditorTools";
@@ -54,21 +55,6 @@ import * as styles from "./Editor.css";
 
 interface LocalState {
   isMouseInsideMap: boolean,
-}
-
-enum Tile {
-  None,
-  Barrier,
-  Door,
-  Deco1,
-  Deco2,
-  Apple,
-  Portal,
-  Key,
-  Lock,
-  Spawn,
-  Nospawn,
-  Passable,
 }
 
 enum MouseButton {
@@ -425,36 +411,34 @@ export const Editor = () => {
       isNumberPressed(ev, 9, { shiftKey: true })
     ) {
       setChannelTo(findNumberPressed(ev));
-    } else if (isNumberPressed(ev, 0)) {
+    } else if (isCharPressed(ev, '`')) {
       setTile(Tile.Spawn);
     } else if (isNumberPressed(ev, 1)) {
       setTile(Tile.Barrier);
     } else if (isNumberPressed(ev, 2)) {
-      setTile(Tile.Door);
+      setTile(Tile.Passable);
     } else if (isNumberPressed(ev, 3)) {
-      setTile(Tile.Deco2);
+      setTile(Tile.Door);
     } else if (isNumberPressed(ev, 4)) {
       setTile(Tile.Deco1);
     } else if (isNumberPressed(ev, 5)) {
-      setTile(Tile.Apple);
+      setTile(Tile.Deco2);
     } else if (isNumberPressed(ev, 6)) {
+      setTile(Tile.Apple);
+    } else if (isNumberPressed(ev, 7)) {
+      setTile(Tile.Nospawn);
+    } else if (isNumberPressed(ev, 8)) {
       setTile(Tile.Lock);
       if (keyChannelRef.current > 3) {
         setChannelTo(3);
       }
-    } else if (isNumberPressed(ev, 7)) {
+    } else if (isNumberPressed(ev, 9)) {
       setTile(Tile.Key);
       if (keyChannelRef.current > 3) {
         setChannelTo(3);
       }
-    } else if (isNumberPressed(ev, 8)) {
+    } else if (isNumberPressed(ev, 0)) {
       setTile(Tile.Portal);
-    } else if (isNumberPressed(ev, 9)) {
-      if (tileRef.current !== Tile.Nospawn) {
-        setTile(Tile.Nospawn);
-      } else {
-        setTile(Tile.Passable);
-      }
     } else if (isCharPressed(ev, '-')) {
       cycleTile(-1);
     } else if (isCharPressed(ev, '=')) {
@@ -498,7 +482,7 @@ export const Editor = () => {
           handleMouseLeave={handleMouseLeave}
           handleMouseDown={handleMouseDown}
           handleMouseUp={handleMouseUp}
-          editorTiles={<EditorTiles />}
+          editorTiles={<EditorTiles activeTile={tile} setTile={setTile} />}
           editorTools={<EditorTools />}
         />
       </div>

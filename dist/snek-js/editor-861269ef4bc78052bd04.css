@@ -21,6 +21,10 @@ canvas {
   font-family: "MiniMOOD", "VT323", monospace;
 }
 
+button:focus:before {
+  display: none;
+}
+
 .ReHCig7x4aYPRidKBVro {
   display: flex;
   flex-direction: column;
