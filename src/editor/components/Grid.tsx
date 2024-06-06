@@ -20,7 +20,7 @@ export const Grid = ({ mouseAt, children }: GridProps) => {
           [styles.active]: active,
         })}
       >
-        { (index >= 1 && index <= 30) ? index : ' ' }
+        { (index >= 1 && index <= 30) ? String(index).padStart(2, '0') : ' ' }
       </span>
     );
   }

@@ -73,8 +73,9 @@ export const Editor = () => {
   const [mouseFrom, mouseFromRef, setMouseFrom] = useRefState(-1);
   const [mousePressed, mousePressedRef, setMousePressed] = useRefState(false);
   const [triggerOnRelease, triggerOnReleaseRef, setTriggerOnRelease] = useRefState(false);
+  const [shiftPressed, shiftPressedRef, setShiftPressed] = useRefState(false);
+  const [altPressed, altPressedRef, setAltPressed] = useRefState(false);
   const [tool, toolRef, setTool] = useRefState(EditorTool.Pencil);
-  const [operation, operationRef, setOperation] = useRefState(Operation.None);
   const [tile, tileRef, _setTile] = useRefState(Tile.Barrier);
   const [keyChannel, keyChannelRef, setKeyChannel] = useRefState(KeyChannel.Yellow);
   const [portalChannel, portalChannelRef, setPortalChannel] = useRefState<PortalChannel>(0);
@@ -121,7 +122,8 @@ export const Editor = () => {
   }
 
   const cycleTile = (direction: number) => {
-    clearSelection();
+    setMousePressed(false);
+    setTriggerOnRelease(false);
     if (direction < 0) {
       setTile({
         [Tile.None]: Tile.Barrier,
@@ -162,6 +164,7 @@ export const Editor = () => {
   const getCommandDrawTile = (coord: number, prevCoord: number) => {
     const rollbackLastCoordUpdated = () => {
       setLastCoordUpdated(prevCoord);
+      setMouseFrom(prevCoord);
     }
     switch (tileRef.current) {
       case Tile.Apple:
@@ -194,6 +197,7 @@ export const Editor = () => {
   const getCommandDrawLine = (from: number, to: number) => {
     const rollbackLastCoordUpdated = () => {
       setLastCoordUpdated(from);
+      setMouseFrom(from);
     }
     switch (tileRef.current) {
       case Tile.Apple:
@@ -226,6 +230,7 @@ export const Editor = () => {
   const getCommandDrawRectangle = (from: number, to: number) => {
     const rollbackLastCoordUpdated = () => {
       setLastCoordUpdated(from);
+      setMouseFrom(from);
     }
     switch (tileRef.current) {
       case Tile.Apple:
@@ -256,34 +261,35 @@ export const Editor = () => {
   }
 
   const getCommand = () => {
-    if (operationRef.current === Operation.None) return new NoOpCommand();
+    const operation = getOperation();
+    if (operation === Operation.None) return new NoOpCommand();
     const prevCoord = lastCoordUpdatedRef.current === -1 ? mouseAtRef.current : lastCoordUpdatedRef.current;
-    if (toolRef.current === EditorTool.Pencil && operationRef.current === Operation.Write) {
+    if (toolRef.current === EditorTool.Pencil && operation === Operation.Write) {
       const coord = mouseAtRef.current;
       return getCommandDrawTile(coord, prevCoord);
-    } else if (toolRef.current === EditorTool.Pencil && operationRef.current === Operation.Add) {
+    } else if (toolRef.current === EditorTool.Pencil && operation === Operation.Add) {
       const from = prevCoord;
       const to = mouseAtRef.current;
       return getCommandDrawLine(from, to);
-    } else if (toolRef.current === EditorTool.Line && [Operation.Add, Operation.Write].includes(operationRef.current)) {
+    } else if (toolRef.current === EditorTool.Line && [Operation.Add, Operation.Write].includes(operation)) {
       const from = mouseFromRef.current;
       const to = mouseAtRef.current;
       return getCommandDrawLine(from, to);
-    } else if (toolRef.current === EditorTool.Rectangle && [Operation.Add, Operation.Write].includes(operationRef.current)) {
+    } else if (toolRef.current === EditorTool.Rectangle && [Operation.Add, Operation.Write].includes(operation)) {
       const from = mouseFromRef.current;
       const to = mouseAtRef.current;
       return getCommandDrawRectangle(from, to);
-    } else if (toolRef.current === EditorTool.Rectangle && operationRef.current === Operation.Remove) {
+    } else if (toolRef.current === EditorTool.Rectangle && operation === Operation.Remove) {
       const from = mouseFromRef.current;
       const to = mouseAtRef.current;
       return new DeleteRectangleCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
     } else if (
-      toolRef.current === EditorTool.Eraser && operationRef.current === Operation.Write ||
-      toolRef.current === EditorTool.Pencil && operationRef.current === Operation.Remove
+      toolRef.current === EditorTool.Eraser && operation === Operation.Write ||
+      toolRef.current === EditorTool.Pencil && operation === Operation.Remove
     ) {
       const coord = mouseAtRef.current;
       return new DeleteElementCommand(coord, dataRef.current, setData, () => setLastCoordUpdated(prevCoord));
-    } else if (toolRef.current === EditorTool.Eraser && operationRef.current === Operation.Add) {
+    } else if (toolRef.current === EditorTool.Eraser && operation === Operation.Add) {
       const from = prevCoord;
       const to = mouseAtRef.current;
       return new DeleteLineCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
@@ -293,7 +299,7 @@ export const Editor = () => {
 
   const updateMap = () => {
     if (mouseAtRef.current === -1) return;
-    if (operationRef.current === Operation.None) return;
+    if (getOperation() === Operation.None) return;
     const command = getCommand();
     const success = command.execute();
     setLastCoordUpdated(mouseAtRef.current);
@@ -308,7 +314,8 @@ export const Editor = () => {
     const command = pastCommands[pastCommands.length - 1];
     if (!command) return;
     command.rollback();
-    clearSelection();
+    setMousePressed(false);
+    setTriggerOnRelease(false);
     setPastCommands(prev => prev.filter(c => c !== command));
     setFutureCommands(prev => [...prev, command]);
   }
@@ -319,16 +326,17 @@ export const Editor = () => {
     if (!command) return;
     const success = command.execute();
     if (success) {
-      clearSelection();
+      setMousePressed(false);
+      setTriggerOnRelease(false);
       setPastCommands(prev => [...prev, command]);
       setFutureCommands(prev => prev.filter(c => c !== command));
     }
   }
 
-  const getOperationFromMouseEvent = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (ev.nativeEvent.button === MouseButton.Left && ev.altKey) return Operation.Remove;
-    if (ev.nativeEvent.button === MouseButton.Left && ev.shiftKey) return Operation.Add;
-    if (ev.nativeEvent.button === MouseButton.Left) return Operation.Write;
+  const getOperation = (): Operation => {
+    if (altPressedRef.current) return Operation.Remove;
+    if (shiftPressedRef.current) return Operation.Add;
+    if (mousePressedRef.current) return Operation.Write;
     return Operation.None;
   }
 
@@ -351,16 +359,13 @@ export const Editor = () => {
   };
 
   const handleMouseDown = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const op = getOperationFromMouseEvent(ev);
     // if already pressed, and different mouse button gets clicked, cancel the current operation
-    if (mousePressedRef.current && op !== operationRef.current) {
+    if (mousePressedRef.current && ev.nativeEvent.button !== 0) {
       setMousePressed(false);
-      setOperation(Operation.None);
       setTriggerOnRelease(false);
       return;
     }
     setMousePressed(ev.nativeEvent.button === MouseButton.Left);
-    setOperation(op);
     setMouseFrom(mouseAtRef.current);
     if ([EditorTool.Rectangle, EditorTool.Line].includes(toolRef.current)) {
       setTriggerOnRelease(true);
@@ -375,25 +380,22 @@ export const Editor = () => {
     if (isValidRelease && [EditorTool.Rectangle, EditorTool.Line].includes(toolRef.current)) {
       updateMap();
     }
-    clearSelection();
+    setMousePressed(false);
+    setTriggerOnRelease(false);
   };
 
   const handleWindowMouseUp = (ev: MouseEvent) => {
     setTimeout(() => {
-      clearSelection();
+      setMousePressed(false);
+      setTriggerOnRelease(false);
     }, 0);
-  }
-
-  const clearSelection = () => {
-    setMousePressed(false);
-    setTriggerOnRelease(false);
-    setOperation(Operation.None);
   }
 
   const handleKeyDown = (ev: KeyboardEvent) => {
     const cancelOperation = isCharPressed(ev, SpecialKey.Escape) || isCharPressed(ev, SpecialKey.Backspace) || isCharPressed(ev, SpecialKey.Delete)
     if (mousePressedRef.current && cancelOperation) {
-      clearSelection();
+      setMousePressed(false);
+    setTriggerOnRelease(false);
     } else if (isCharPressed(ev, 'z', { ctrlKey: true, shiftKey: true }) || isCharPressed(ev, 'y', { ctrlKey: true })) {
       redo();
     } else if (isCharPressed(ev, 'z', { ctrlKey: true })) {
@@ -458,13 +460,22 @@ export const Editor = () => {
     } else if (isCharPressed(ev, 'u')) {
       setTool(EditorTool.Rectangle);
     }
+    setShiftPressed(ev.shiftKey);
+    setAltPressed(ev.altKey);
+  }
+
+  const handleKeyUp = (ev: KeyboardEvent) => {
+    setShiftPressed(ev.shiftKey);
+    setAltPressed(ev.altKey);
   }
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
     window.addEventListener("mouseup", handleWindowMouseUp);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("mouseup", handleWindowMouseUp);
     }
   }, [])
@@ -477,8 +488,11 @@ export const Editor = () => {
       <div className={styles.editorContainer}>
         <EditorCanvas
           data={data}
-          mouseAt={mouseAt}
           canvas={canvas}
+          mouseAt={mouseAt}
+          mouseFrom={mouseFrom}
+          tool={tool}
+          operation={getOperation()}
           handleMouseMove={handleMouseMove}
           handleMouseLeave={handleMouseLeave}
           handleMouseDown={handleMouseDown}

@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef } from "react";
 import cx from 'classnames';
 
-import { EditorSketchReturn, editorSketch } from "./editorSketch";
+import { EditorSketchReturn, EditorTool, Operation, editorSketch } from "./editorSketch";
 import { EditorData } from "../types";
 
 import * as styles from "./Editor.css";
@@ -10,6 +10,9 @@ import { Grid } from "./components/Grid";
 interface EditorCanvasProps {
   data: EditorData;
   mouseAt: number;
+  mouseFrom: number;
+  tool: EditorTool;
+  operation: Operation;
   canvas: React.MutableRefObject<HTMLCanvasElement>;
   handleMouseMove: React.MouseEventHandler<HTMLDivElement>;
   handleMouseLeave: React.MouseEventHandler<HTMLDivElement>;
@@ -22,6 +25,9 @@ interface EditorCanvasProps {
 export const EditorCanvas = ({
   data,
   mouseAt,
+  mouseFrom,
+  tool,
+  operation,
   canvas,
   handleMouseMove,
   handleMouseLeave,
@@ -44,6 +50,15 @@ export const EditorCanvas = ({
       sketch.current.setData(data);
     }
   }, [data]);
+
+  useLayoutEffect(() => {
+    if (sketch.current) {
+      sketch.current.setMouseAt(mouseAt);
+      sketch.current.setMouseFrom(mouseFrom);
+      sketch.current.setTool(tool);
+      sketch.current.setOperation(operation);
+    }
+  }, [mouseAt, mouseFrom, tool, operation]);
 
   useEffect(() => {
     return () => {

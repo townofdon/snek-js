@@ -40,6 +40,9 @@ export class SpriteRenderer {
     [Image.UIKeyBlue]: null,
     [Image.UILocked]: null,
     [Image.Darken]: null,
+    [Image.EditorSelection]: null,
+    [Image.EditorSelectionBlue]: null,
+    [Image.EditorSelectionRed]: null,
   }
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -85,6 +88,16 @@ export class SpriteRenderer {
       this.loadImage(Image.UIKeyBlue);
       this.loadImage(Image.UILocked);
       this.loadImage(Image.Darken);
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  loadEditorImages() {
+    try {
+      this.loadImage(Image.EditorSelection);
+      this.loadImage(Image.EditorSelectionBlue);
+      this.loadImage(Image.EditorSelectionRed);
     } catch (err) {
       console.error(err)
     }

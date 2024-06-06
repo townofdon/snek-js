@@ -497,6 +497,9 @@ export enum Image {
   UIKeyBlue = 'snek-smkey2-blue.png',
   UILocked = 'ui-locked.png',
   Darken = 'darken2.png',
+  EditorSelection = 'editor-selection.png',
+  EditorSelectionBlue = 'editor-selection-blue.png',
+  EditorSelectionRed = 'editor-selection-red.png',
 }
 
 export interface Scene {

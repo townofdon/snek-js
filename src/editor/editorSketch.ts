@@ -31,7 +31,7 @@ import { SpriteRenderer } from '../spriteRenderer';
 import { Renderer } from '../renderer';
 import { Fonts } from '../fonts';
 import { PALETTE, getExtendedPalette } from '../palettes';
-import { getCoordIndex2, getRotationFromDirection, isValidKeyChannel, isValidPortalChannel } from '../utils';
+import { coordToVec, getCoordIndex2, getRotationFromDirection, isValidKeyChannel, isValidPortalChannel } from '../utils';
 import { EDITOR_DEFAULTS } from './editorConstants';
 import { createLightmap, drawLighting, initLighting, updateLighting } from '../lighting';
 
@@ -307,6 +307,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       // musicPlayer.load(level.musicTrack);
       fonts.load();
       spriteRenderer.loadImages();
+      spriteRenderer.loadEditorImages();
       initLighting(p5);
     }
 
@@ -468,6 +469,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         drawLighting(lightMap, renderer, p5);
       }
 
+      drawEditorSelection();
+
       renderer.tick();
     }
 
@@ -511,6 +514,24 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             renderer.drawPortal(portal, false, drawPortalOptions);
             channelCounts[portalChannel]++;
           }
+        }
+      }
+    }
+
+    function drawEditorSelection() {
+      if (state.mouseAt < 0) return;
+      if (state.tool === EditorTool.Pencil) {
+        const vecTo = coordToVec(state.mouseAt);
+        const vecFrom = coordToVec(state.mouseFrom);
+        if (state.operation === Operation.Add) {
+          spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, vecFrom.x, vecFrom.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelection, vecTo.x, vecTo.y, 0, 1, 0);
+        } else if (state.operation === Operation.Write) {
+          spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, vecTo.x, vecTo.y, 0, 1, 0);
+        } else if (state.operation === Operation.Remove) {
+          spriteRenderer.drawImage3x3(Image.EditorSelectionRed, vecTo.x, vecTo.y, 0, 1, 0);
+        } else {
+          spriteRenderer.drawImage3x3(Image.EditorSelection, vecTo.x, vecTo.y, 0, 1, 0);
         }
       }
     }
