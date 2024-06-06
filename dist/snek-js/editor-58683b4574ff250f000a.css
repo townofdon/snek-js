@@ -10,7 +10,9 @@
   --editor-tool-sprite-background-size: 480px 48px;
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
-  --tool-bg-color: rgb(0 0 0 / 50%);
+  --editor-bg-color: rgb(0 0 0 / 25%);
+  --grid-bg-color-1: #263646;
+  --grid-bg-color-2: #374757;
 }
 
 body, html {
@@ -76,19 +78,47 @@ button {
   text-shadow: -1px 4px #5a572e;
 }
 
+.cRySkMGzgmh1rzx9FP2T {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  font-family: "BIOSfontII", "VT323", monospace;
+  font-size: 0.6em;
+  vertical-align: bottom;
+  background: var(--grid-bg-color-1);
+  color: slategray;
+}
+.cRySkMGzgmh1rzx9FP2T:nth-child(2n) {
+  background: var(--grid-bg-color-2);
+}
+.cRySkMGzgmh1rzx9FP2T.MfbavQ0Y4lbWWqGyO7og {
+  background: var(--grid-bg-color-2);
+}
+.cRySkMGzgmh1rzx9FP2T.MfbavQ0Y4lbWWqGyO7og:nth-child(2n) {
+  background: var(--grid-bg-color-1);
+}
+.cRySkMGzgmh1rzx9FP2T.Rx0uKlzWxhXt775otXDz, .cRySkMGzgmh1rzx9FP2T.Rx0uKlzWxhXt775otXDz:nth-child(2n) {
+  background: #eee;
+  color: #333;
+}
+
 .ENTR6wcPTWMibftElOiG {
   position: relative;
   display: inline-flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
+  background: var(--editor-bg-color);
+  border-radius: 6px;
 }
 
 .Hq5BSL0pyHt1BykrWiEo {
   display: flex;
   flex-direction: column;
   padding-right: 5px;
-  background: var(--tool-bg-color);
 }
 
 .BOwAf1aHSgWsPsNAsMH5 {
@@ -152,7 +182,6 @@ button {
   justify-content: center;
   padding-bottom: 3px;
   width: 100%;
-  background: var(--tool-bg-color);
 }
 
 .qlJ88ChmC6PumZ5xu9nC {

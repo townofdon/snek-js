@@ -8,7 +8,9 @@
   --editor-tool-sprite-background-size: 480px 48px;
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
-  --tool-bg-color: rgb(0 0 0 / 50%);
+  --editor-bg-color: rgb(0 0 0 / 25%);
+  --grid-bg-color-1: #263646;
+  --grid-bg-color-2: #374757;
 }
 
 body, html {
@@ -73,19 +75,47 @@ button {
   text-shadow: -1px 4px #5a572e;
 }
 
+.gridCell {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  font-family: 'BIOSfontII', 'VT323', monospace;
+  font-size: 0.6em;
+  vertical-align: bottom;
+  background: var(--grid-bg-color-1);
+  color: slategray;
+  &:nth-child(2n) {
+    background: var(--grid-bg-color-2);
+  }
+  &.invert {
+    background: var(--grid-bg-color-2);
+  }
+  &.invert:nth-child(2n) {
+    background: var(--grid-bg-color-1);
+  }
+  &.active, &.active:nth-child(2n) {
+    background: #eee;
+    color: #333;
+  }
+}
+
 .editorContainer {
   position: relative;
   display: inline-flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: center;
+  background: var(--editor-bg-color);
+  border-radius: 6px;
 }
 
 .editorTiles {
   display: flex;
   flex-direction: column;
   padding-right: 5px;
-  background: var(--tool-bg-color);
 }
 .editorTileSprite {
   display: inline-block;
@@ -149,7 +179,6 @@ button {
   justify-content: center;
   padding-bottom: 3px;
   width: 100%;
-  background: var(--tool-bg-color);
 }
 .editorToolsOffset {
   margin-left: 39px;

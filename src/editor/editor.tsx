@@ -477,6 +477,7 @@ export const Editor = () => {
       <div className={styles.editorContainer}>
         <EditorCanvas
           data={data}
+          mouseAt={mouseAt}
           canvas={canvas}
           handleMouseMove={handleMouseMove}
           handleMouseLeave={handleMouseLeave}

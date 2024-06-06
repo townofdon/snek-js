@@ -5,9 +5,11 @@ import { EditorSketchReturn, editorSketch } from "./editorSketch";
 import { EditorData } from "../types";
 
 import * as styles from "./Editor.css";
+import { Grid } from "./components/Grid";
 
 interface EditorCanvasProps {
   data: EditorData;
+  mouseAt: number;
   canvas: React.MutableRefObject<HTMLCanvasElement>;
   handleMouseMove: React.MouseEventHandler<HTMLDivElement>;
   handleMouseLeave: React.MouseEventHandler<HTMLDivElement>;
@@ -19,6 +21,7 @@ interface EditorCanvasProps {
 
 export const EditorCanvas = ({
   data,
+  mouseAt,
   canvas,
   handleMouseMove,
   handleMouseLeave,
@@ -52,13 +55,15 @@ export const EditorCanvas = ({
       {editorTools}
       <div className={cx(styles.stack, styles.row, styles.alignStretch)}>
         {editorTiles}
-        <div
-          ref={container}
-          onMouseMove={handleMouseMove}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseLeave}
-        />
+        <Grid mouseAt={mouseAt}>
+          <div
+            ref={container}
+            onMouseMove={handleMouseMove}
+            onMouseDown={handleMouseDown}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseLeave}
+          />
+        </Grid>
       </div>
     </div>
   );
