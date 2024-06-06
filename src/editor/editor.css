@@ -116,7 +116,7 @@ button {
   position: relative;
   display: inline-flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: center;
   background: var(--editor-bg-color);
   border-radius: 6px;
@@ -136,6 +136,7 @@ button {
   height: var(--editor-tile-sprite-height);
   padding: 0px;
   margin: 1px;
+  margin-bottom: 3px;
   border-radius: 0px;
   border: none;
   background-position: 0px 0px;

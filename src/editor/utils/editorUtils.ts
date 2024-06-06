@@ -14,11 +14,11 @@ import { EDITOR_DEFAULTS } from '../editorConstants';
 const MASK_BASE_64 = true;
 
 export function encode(layout: string): string {
-  return Buffer.from(JSONCrush.crush(layout)).toString('base64url');
+  return Buffer.from(JSONCrush.crush(layout)).toString('base64');
 }
 
 export function decode(encoded: string): string {
-  return JSONCrush.uncrush(Buffer.from(encoded, 'base64url').toString())
+  return JSONCrush.uncrush(Buffer.from(encoded, 'base64').toString())
 }
 
 export function encodeMapData(data: EditorData, options: EditorOptions): string {

@@ -50,6 +50,7 @@ import { Tile } from "./editorTypes";
 import { EDITOR_DEFAULTS } from "./editorConstants";
 import { EditorTiles } from "./EditorTiles";
 import { EditorTools } from "./EditorTools";
+import { EditorOptions } from "./EditorOptions";
 
 import * as styles from "./Editor.css";
 
@@ -518,6 +519,7 @@ export const Editor = () => {
           editorTiles={<EditorTiles activeTile={tile} setTile={setTile} />}
           editorTools={<EditorTools activeTool={tool} setTool={setTool} />}
         />
+        <EditorOptions data={data} setData={setData} />
       </div>
     </div>
   );

@@ -1,0 +1,22 @@
+
+.editorOptionsContainer {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+}
+
+.form {
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.error {
+  color: #a40;
+}
+
+textarea {
+  background: #4c4c4c;
+  color: #eee;
+  font-family: "Courier New", monospace;
+}

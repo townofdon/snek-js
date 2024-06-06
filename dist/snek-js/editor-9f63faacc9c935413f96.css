@@ -119,7 +119,7 @@ button {
   position: relative;
   display: inline-flex;
   flex-direction: row;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: center;
   background: var(--editor-bg-color);
   border-radius: 6px;
@@ -140,6 +140,7 @@ button {
   height: var(--editor-tile-sprite-height);
   padding: 0px;
   margin: 1px;
+  margin-bottom: 3px;
   border-radius: 0px;
   border: none;
   background-position: 0px 0px;
@@ -276,4 +277,28 @@ button {
   100% {
     background-size: 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 55px;
   }
+}
+/*!*********************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/EditorOptions/EditorOptions.css ***!
+  \*********************************************************************************************************************************************************************************************/
+._SrdHgosycAqwymR2NjY {
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+}
+
+.EY1peu6zuvOdoxcc2WOu {
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.uJkDEcEJHzCyg5Bkk8yN {
+  color: #a40;
+}
+
+textarea {
+  background: #4c4c4c;
+  color: #eee;
+  font-family: "Courier New", monospace;
 }
