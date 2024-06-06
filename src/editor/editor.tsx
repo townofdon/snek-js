@@ -53,6 +53,9 @@ import { EditorTools } from "./EditorTools";
 import { EditorOptions } from "./EditorOptions";
 
 import * as styles from "./Editor.css";
+import { SidebarKeyChannels } from "./SidebarKeyChannels";
+import { EditorSidebar } from "./EditorSidebar";
+import { SidebarPortalChannels } from "./SidebarPortalChannels";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -478,6 +481,10 @@ export const Editor = () => {
       setData(prev => ({ ...prev, startDirection: DIR.LEFT }));
     } else if (isCharPressed(ev, SpecialKey.ArrowRight, { shiftKey: true })) {
       setData(prev => ({ ...prev, startDirection: DIR.RIGHT }));
+    } else if (isCharPressed(ev, SpecialKey.ArrowUp)) {
+      cycleChannel(-1);
+      } else if (isCharPressed(ev, SpecialKey.ArrowDown)) {
+      cycleChannel(1);
     }
     setShiftPressed(ev.shiftKey);
     setAltPressed(ev.altKey);
@@ -518,6 +525,13 @@ export const Editor = () => {
           handleMouseUp={handleMouseUp}
           editorTiles={<EditorTiles activeTile={tile} setTile={setTile} />}
           editorTools={<EditorTools activeTool={tool} setTool={setTool} />}
+          tileSidebar={
+            <EditorSidebar
+              tile={tile}
+              sidebarKeyChannels={<SidebarKeyChannels activeChannel={keyChannel} setChannel={setKeyChannel} />}
+              sidebarPortalChannels={<SidebarPortalChannels activeChannel={portalChannel} setChannel={setPortalChannel} />}
+            />
+          }
         />
         <EditorOptions data={data} setData={setData} />
       </div>

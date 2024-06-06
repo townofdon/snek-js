@@ -604,8 +604,10 @@ export class SetRectangleDoorCommand extends SetRectangleCommand {
 }
 
 export class SetRectangleKeyCommand extends SetRectangleCommand {
+  private channel: KeyChannel;
   public constructor(from: number, to: number, channel: KeyChannel, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.channel = channel;
     this.newData.key = channel;
     this.resolveNewData = (coord: number) => {
       const newData: Partial<EditorDataSlice> = {};
@@ -617,17 +619,19 @@ export class SetRectangleKeyCommand extends SetRectangleCommand {
     };
   }
   protected test = (coord: number) => {
-    return !isValidKeyChannel(this.dataRef.current.locksMap[coord]);
+    return this.dataRef.current.keysMap[coord] !== this.channel;
   };
 }
 
 export class SetRectangleLockCommand extends SetRectangleCommand {
+  private channel: KeyChannel;
   public constructor(from: number, to: number, channel: KeyChannel, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.channel = channel;
     this.newData.lock = channel;
   }
   protected test = (coord: number) => {
-    return !isValidKeyChannel(this.dataRef.current.locksMap[coord]);
+    return this.dataRef.current.locksMap[coord] !== this.channel;
   };
 }
 

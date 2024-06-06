@@ -8,7 +8,7 @@
   --editor-tool-sprite-background-size: 480px 48px;
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
-  --editor-bg-color: rgb(0 0 0 / 25%);
+  --editor-bg-color: #111;
   --grid-bg-color-1: #263646;
   --grid-bg-color-2: #374757;
 }
@@ -121,6 +121,7 @@ button {
   background: var(--editor-bg-color);
   border-radius: 6px;
 }
+
 
 .editorTiles {
   display: flex;
@@ -237,6 +238,45 @@ button {
   &.line {
     background-position-x: calc(-7 * var(--editor-tool-sprite-width));
   }
+}
+
+
+.editorTileSidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-left: 5px;
+  padding-right: 5px;
+  width: 70px;
+  text-align: center;
+
+  & > div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  & > div > label {
+    font-family: "BIOSfontII", "VT323", monospace;
+    font-size: 1em;
+    color: #fff;
+    color: #bcc2c2;
+  }
+
+  & > div > button {
+    font-family: 'MiniMOOD', 'VT323', monospace;
+    font-size: 1em;
+    display: inline-block;
+    margin: 3px;
+    padding-top: 6px;
+    padding-bottom: 0;
+    border: 2px solid transparent;
+    filter: brightness(0.5) grayscale(1);
+    &:hover { filter: brightness(0.8) grayscale(0.8); }
+    &.active { filter: none; border-color: #fff; }
+  }
+  & > div > button.keyChannelYellow { background-color: #c29b4e; }
+  & > div > button.keyChannelRed { background-color: #cd6543; }
+  & > div > button.keyChannelBlue { background-color: #559bd5; }
 }
 
 

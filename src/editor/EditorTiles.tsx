@@ -1,8 +1,9 @@
 import React, { act } from "react";
 import cx from 'classnames';
 
-import * as styles from "./Editor.css";
 import { Tile } from "./editorTypes";
+
+import * as styles from "./Editor.css";
 
 interface EditorTilesProps {
   activeTile: Tile,

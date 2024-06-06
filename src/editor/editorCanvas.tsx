@@ -20,6 +20,7 @@ interface EditorCanvasProps {
   handleMouseUp: React.MouseEventHandler<HTMLDivElement>;
   editorTiles: React.ReactNode;
   editorTools: React.ReactNode;
+  tileSidebar: React.ReactNode | null;
 }
 
 export const EditorCanvas = ({
@@ -35,6 +36,7 @@ export const EditorCanvas = ({
   handleMouseUp,
   editorTiles,
   editorTools,
+  tileSidebar,
 }: EditorCanvasProps) => {
   const container = useRef<HTMLDivElement>();
   const sketch = useRef<EditorSketchReturn | null>(null);
@@ -69,7 +71,10 @@ export const EditorCanvas = ({
     <div className={cx(styles.stack, styles.col)}>
       {editorTools}
       <div className={cx(styles.stack, styles.row, styles.alignStretch)}>
-        {editorTiles}
+        {/* <div className={cx(styles.stack, styles.row, styles.alignStretch)}> */}
+          {tileSidebar}
+          {editorTiles}
+        {/* </div> */}
         <Grid mouseAt={mouseAt}>
           <div
             className={styles.canvasContainer}
