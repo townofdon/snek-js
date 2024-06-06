@@ -23,12 +23,14 @@ export const SidebarKeyChannels = ({ activeChannel, setChannel }: SidebarKeyChan
       [KeyChannel.Blue]: styles.keyChannelBlue,
     }[channel]
     return (
-      <button
-        onClick={() => setChannel(channel)}
-        className={cx(className, { [styles.active]: channel === activeChannel })}
-      >
-        {text}
-      </button>
+      <div className={cx(className, styles.keyChannelSelect, { [styles.active]: channel === activeChannel })}>
+        <span className={styles.keyChannelColorPreview} />
+        <button
+          onClick={() => setChannel(channel)}
+        >
+          {text}
+        </button>
+      </div>
     );
   }
   return (

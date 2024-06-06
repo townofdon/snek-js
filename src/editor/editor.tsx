@@ -481,10 +481,6 @@ export const Editor = () => {
       setData(prev => ({ ...prev, startDirection: DIR.LEFT }));
     } else if (isCharPressed(ev, SpecialKey.ArrowRight, { shiftKey: true })) {
       setData(prev => ({ ...prev, startDirection: DIR.RIGHT }));
-    } else if (isCharPressed(ev, SpecialKey.ArrowUp)) {
-      cycleChannel(-1);
-      } else if (isCharPressed(ev, SpecialKey.ArrowDown)) {
-      cycleChannel(1);
     }
     setShiftPressed(ev.shiftKey);
     setAltPressed(ev.altKey);

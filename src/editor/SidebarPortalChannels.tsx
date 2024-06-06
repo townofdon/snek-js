@@ -14,15 +14,18 @@ interface SidebarPortalChannelsProps {
 export const SidebarPortalChannels = ({ activeChannel, setChannel }: SidebarPortalChannelsProps) => {
   const renderButton = (channel: PortalChannel) => {
     const color = channel === activeChannel ? PORTAL_CHANNEL_COLORS[channel] : '#444'
+    const colorPreview = channel === activeChannel ? 'rgb(17 17 17 / 10%)' : PORTAL_CHANNEL_COLORS[channel];
     return (
-      <button
-        key={channel}
-        onClick={() => setChannel(channel)}
-        className={cx(styles.portalChannel, { [styles.active]: channel === activeChannel })}
-        style={{ backgroundColor: color }}
-      >
-        {channel + 1}
-      </button>
+      <div key={channel} className={styles.portalChannelSelect}>
+        <span className={styles.portalChannelColorPreview} style={{ backgroundColor: colorPreview }} />
+        <button
+          onClick={() => setChannel(channel)}
+          className={cx(styles.portalChannel, { [styles.active]: channel === activeChannel })}
+          style={{ backgroundColor: color }}
+        >
+          {channel + 1}
+        </button>
+      </div>
     );
   }
   return (

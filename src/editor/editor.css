@@ -11,6 +11,9 @@
   --editor-bg-color: #111;
   --grid-bg-color-1: #263646;
   --grid-bg-color-2: #374757;
+  --channel-color-yellow: #c29b4e;
+  --channel-color-red: #cd6543;
+  --channel-color-blue: #559bd5;
 }
 
 body, html {
@@ -124,9 +127,28 @@ button {
 
 
 .editorTiles {
+  position: relative;
   display: flex;
   flex-direction: column;
   padding-right: 5px;
+  z-index: 10;
+
+  & .tooltip {
+    display: none!important;
+    right: 100%;
+    left: inherit;
+    top: 4px;
+    bottom: inherit;
+    margin-right: 4px;
+    filter: none;
+  }
+
+  & .shortcut {
+    font-family: "VT323", monospace;
+    font-size: 0.7em;
+    color: #5b5b5b;
+    margin-right: 3px;
+  }
 }
 .editorTileSprite {
   display: inline-block;
@@ -143,7 +165,11 @@ button {
   background-position: 0px 0px;
   filter: brightness(0.25) grayscale(0.5);
   &:hover {
-    filter: brightness(0.5) grayscale(0.75);
+    filter: brightness(0.75) grayscale(0.8);
+  }
+  &:hover .tooltip {
+    display: block!important;
+    filter: none;
   }
   &.active {
     filter: none;
@@ -255,14 +281,14 @@ button {
     flex-direction: column;
   }
 
-  & > div > label {
+  & label {
     font-family: "BIOSfontII", "VT323", monospace;
     font-size: 1em;
     color: #fff;
     color: #bcc2c2;
   }
 
-  & > div > button {
+  & button {
     font-family: 'MiniMOOD', 'VT323', monospace;
     font-size: 1em;
     display: inline-block;
@@ -274,9 +300,39 @@ button {
     &:hover { filter: brightness(0.8) grayscale(0.8); }
     &.active { filter: none; border-color: #fff; }
   }
-  & > div > button.keyChannelYellow { background-color: #c29b4e; }
-  & > div > button.keyChannelRed { background-color: #cd6543; }
-  & > div > button.keyChannelBlue { background-color: #559bd5; }
+  & .keyChannelSelect.active > button { filter: none; border-color: #fff; }
+  & .keyChannelYellow.active > button { background-color: var(--channel-color-yellow); }
+  & .keyChannelRed.active > button { background-color: var(--channel-color-red); }
+  & .keyChannelBlue.active > button { background-color: var(--channel-color-blue); }
+  & .keyChannelYellow .keyChannelColorPreview { background-color: var(--channel-color-yellow); }
+  & .keyChannelRed .keyChannelColorPreview { background-color: var(--channel-color-red); }
+  & .keyChannelBlue .keyChannelColorPreview { background-color: var(--channel-color-blue); }
+  & button.portalChannel,
+  & .keyChannelSelect > button {
+    color: #fff;
+    padding-left: 25px;
+    padding-right: 15px;
+  }
+  & button.portalChannel.active {
+    color: #111;
+  }
+  & .portalChannelSelect,
+  & .keyChannelSelect {
+    position: relative;
+  }
+  & .portalChannelColorPreview,
+  & .keyChannelColorPreview {
+    position: absolute;
+    width: 10px;
+    height: 20px;
+    top: 8px;
+    left: 15px;
+    z-index: 10;
+    border-radius: 2px;
+  }
+  & .keyChannelSelect.active .keyChannelColorPreview {
+    background-color: rgb(17 17 17 / 10%);
+  }
 }
 
 
