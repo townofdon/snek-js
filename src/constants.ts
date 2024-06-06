@@ -202,18 +202,18 @@ export const DEFAULT_PORTALS: () => Record<PortalChannel, P5.Vector[]> = () => (
 
 export const PORTAL_INDEX_DELAY = 100;
 export const PORTAL_FADE_DURATION = 500;
-export const filter = (color: string) => Color(color).desaturate(0.5).lighten(0.4).hex();
+const filter = (color: string, desaturate = 0.5, lighten = 0.4) => Color(color).desaturate(desaturate).lighten(lighten).hex();
 export const PORTAL_CHANNEL_COLORS: Record<PortalChannel, string> = {
   1: filter("#00ffec"),
   2: filter("#ffb000"),
-  3: filter("#ff5c00"),
+  3: filter("#ff5c00", 0.4, 0.3),
   4: filter("#8a00ff"),
   5: filter("#6dff00"),
-  6: filter("#efff00"),
+  6: filter("#efef00", 0.2, 0.85),
   7: filter("#004dff"),
-  8: filter("#ba00ff"),
-  9: filter("#aafbd6"),
-  0: filter("#fbecaa"),
+  8: filter("#ba00ff", 0.5, 0.7),
+  9: filter("#aafbd6", 0.1, 0.1),
+  0: filter("#fbecaa"), // #fff
 };
 export const NUM_PORTAL_GRADIENT_COLORS = 4;
 export const INVALID_PORTAL_COLOR = "#FFC0CB";
