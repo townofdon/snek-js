@@ -10,7 +10,7 @@
   --editor-tool-sprite-background-size: 480px 48px;
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
-  --editor-bg-color: rgb(0 0 0 / 25%);
+  --editor-bg-color: #111;
   --grid-bg-color-1: #263646;
   --grid-bg-color-2: #374757;
 }
@@ -242,6 +242,52 @@ button {
 }
 .rrVuT_GoHCoa28eSjhhT.vIXHkrBWfwTGXJFGHo_w {
   background-position-x: calc(-7 * var(--editor-tool-sprite-width));
+}
+
+.uuBQITMXZKkc6enfJglp {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding-left: 5px;
+  padding-right: 5px;
+  width: 70px;
+  text-align: center;
+}
+.uuBQITMXZKkc6enfJglp > div {
+  display: flex;
+  flex-direction: column;
+}
+.uuBQITMXZKkc6enfJglp > div > label {
+  font-family: "BIOSfontII", "VT323", monospace;
+  font-size: 1em;
+  color: #fff;
+  color: #bcc2c2;
+}
+.uuBQITMXZKkc6enfJglp > div > button {
+  font-family: "MiniMOOD", "VT323", monospace;
+  font-size: 1em;
+  display: inline-block;
+  margin: 3px;
+  padding-top: 6px;
+  padding-bottom: 0;
+  border: 2px solid transparent;
+  filter: brightness(0.5) grayscale(1);
+}
+.uuBQITMXZKkc6enfJglp > div > button:hover {
+  filter: brightness(0.8) grayscale(0.8);
+}
+.uuBQITMXZKkc6enfJglp > div > button.Rx0uKlzWxhXt775otXDz {
+  filter: none;
+  border-color: #fff;
+}
+.uuBQITMXZKkc6enfJglp > div > button.TERcbRspRQOJggSOl1qk {
+  background-color: #c29b4e;
+}
+.uuBQITMXZKkc6enfJglp > div > button.FHF3THUet6Rw4KdLc9yQ {
+  background-color: #cd6543;
+}
+.uuBQITMXZKkc6enfJglp > div > button.uwL_pnIjoG7wvAk_Mnjl {
+  background-color: #559bd5;
 }
 
 .awTK9275tWntLuG0HGxO {
