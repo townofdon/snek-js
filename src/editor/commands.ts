@@ -639,6 +639,16 @@ export class SetRectangleNospawnCommand extends SetRectangleCommand {
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
     this.newData.nospawn = true;
+    this.resolveNewData = (coord: number) => {
+      const newData: Partial<EditorDataSlice> = {};
+      if (dataRef.current.decoratives1Map[coord]) {
+        newData.deco1 = true;
+      }
+      if (dataRef.current.decoratives2Map[coord]) {
+        newData.deco2 = true;
+      }
+      return newData;
+    };
   }
   protected test = (coord: number) => {
     const shouldIgnore = (
