@@ -12,6 +12,10 @@ export enum SpecialKey {
   Space = 'space',
   Enter = 'enter',
   Delete = 'delete',
+  ArrowUp = 'ArrowUp',
+  ArrowDown = 'ArrowDown',
+  ArrowLeft = 'ArrowLeft',
+  ArrowRight = 'ArrowRight',
 }
 
 export function isNumberPressed(ev: KeyboardEvent, num: number, opts: KeyboardOptions = {}): boolean {
@@ -89,5 +93,9 @@ function findCharPressed(ev: KeyboardEvent): string {
   if (ev.key === ' ' || ev.code === 'Space' || ev.keyCode === 32) return SpecialKey.Space;
   if (ev.key === 'Enter' || ev.code === 'Enter' || ev.code === 'NumpadEnter' || ev.keyCode === 13) return SpecialKey.Enter;
   if (ev.key === 'Delete' || ev.code === 'Delete' || ev.keyCode === 46) return SpecialKey.Delete;
+  if (ev.key === 'ArrowUp' || ev.code === 'ArrowUp' || ev.keyCode === 38) return SpecialKey.ArrowUp;
+  if (ev.key === 'ArrowDown' || ev.code === 'ArrowDown' || ev.keyCode === 40) return SpecialKey.ArrowDown;
+  if (ev.key === 'ArrowLeft' || ev.code === 'ArrowLeft' || ev.keyCode === 37) return SpecialKey.ArrowLeft;
+  if (ev.key === 'ArrowRight' || ev.code === 'ArrowRight' || ev.keyCode === 39) return SpecialKey.ArrowRight;
   return ''
 }

@@ -312,6 +312,19 @@ export class Renderer implements IRenderer {
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
   }
 
+  drawLine(gfx: P5 | P5.Graphics, x0: number, y0: number, x1: number, y1: number, color: string) {
+    const width = BLOCK_SIZE.x;
+    const height = BLOCK_SIZE.y;
+    const px0 = x0 * BLOCK_SIZE.x + width * 0.5;
+    const py0 = y0 * BLOCK_SIZE.y + height * 0.5;
+    const px1 = x1 * BLOCK_SIZE.x + width * 0.5;
+    const py1 = y1 * BLOCK_SIZE.y + height * 0.5;
+    gfx.stroke(color);
+    gfx.strokeWeight(5);
+    gfx.strokeCap(this.p5.SQUARE);
+    gfx.line(px0, py0, px1, py1);
+  }
+
   /**
    * Draw red squares on level to indicate that we are in Record mode
    */

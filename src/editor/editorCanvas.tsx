@@ -72,6 +72,7 @@ export const EditorCanvas = ({
         {editorTiles}
         <Grid mouseAt={mouseAt}>
           <div
+            className={styles.canvasContainer}
             ref={container}
             onMouseMove={handleMouseMove}
             onMouseDown={handleMouseDown}

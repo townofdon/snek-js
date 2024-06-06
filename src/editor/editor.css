@@ -75,6 +75,16 @@ button {
   text-shadow: -1px 4px #5a572e;
 }
 
+.canvasContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 600px;
+  min-height: 600px;
+  font-family: 'MiniMOOD', 'VT323', monospace;
+  color: slategray;
+}
+
 .gridCell {
   display: inline-flex;
   align-items: center;

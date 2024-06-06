@@ -4,7 +4,7 @@ import { EditorCanvas } from "./EditorCanvas";
 import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
-import { EditorData, KeyChannel, PortalChannel } from "../types";
+import { DIR, EditorData, KeyChannel, PortalChannel } from "../types";
 
 import { useRefState } from "./hooks/useRefState";
 import {
@@ -127,32 +127,32 @@ export const Editor = () => {
     if (direction < 0) {
       setTile({
         [Tile.None]: Tile.Barrier,
-        [Tile.Barrier]: Tile.Passable,
-        [Tile.Door]: Tile.Barrier,
+        [Tile.Barrier]: Tile.Spawn,
+        [Tile.Passable]: Tile.Barrier,
+        [Tile.Door]: Tile.Passable,
         [Tile.Deco1]: Tile.Door,
         [Tile.Deco2]: Tile.Deco1,
         [Tile.Apple]: Tile.Deco2,
-        [Tile.Portal]: Tile.Apple,
-        [Tile.Key]: Tile.Portal,
-        [Tile.Lock]: Tile.Key,
-        [Tile.Spawn]: Tile.Lock,
-        [Tile.Nospawn]: Tile.Spawn,
-        [Tile.Passable]: Tile.Nospawn,
+        [Tile.Nospawn]: Tile.Apple,
+        [Tile.Lock]: Tile.Nospawn,
+        [Tile.Key]: Tile.Lock,
+        [Tile.Portal]: Tile.Key,
+        [Tile.Spawn]: Tile.Portal,
       }[tileRef.current]);
     } else {
       setTile({
         [Tile.None]: Tile.Barrier,
-        [Tile.Barrier]: Tile.Door,
+        [Tile.Barrier]: Tile.Passable,
+        [Tile.Passable]: Tile.Door,
         [Tile.Door]: Tile.Deco1,
         [Tile.Deco1]: Tile.Deco2,
         [Tile.Deco2]: Tile.Apple,
-        [Tile.Apple]: Tile.Portal,
-        [Tile.Portal]: Tile.Key,
-        [Tile.Key]: Tile.Lock,
-        [Tile.Lock]: Tile.Spawn,
-        [Tile.Spawn]: Tile.Nospawn,
-        [Tile.Nospawn]: Tile.Passable,
-        [Tile.Passable]: Tile.Barrier,
+        [Tile.Apple]: Tile.Nospawn,
+        [Tile.Nospawn]: Tile.Lock,
+        [Tile.Lock]: Tile.Key,
+        [Tile.Key]: Tile.Portal,
+        [Tile.Portal]: Tile.Spawn,
+        [Tile.Spawn]: Tile.Barrier,
       }[tileRef.current]);
     }
   }
@@ -279,6 +279,10 @@ export const Editor = () => {
       const from = mouseFromRef.current;
       const to = mouseAtRef.current;
       return getCommandDrawRectangle(from, to);
+    } else if (toolRef.current === EditorTool.Line && operation === Operation.Remove) {
+      const from = mouseFromRef.current;
+      const to = mouseAtRef.current;
+      return new DeleteLineCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
     } else if (toolRef.current === EditorTool.Rectangle && operation === Operation.Remove) {
       const from = mouseFromRef.current;
       const to = mouseAtRef.current;
@@ -303,6 +307,7 @@ export const Editor = () => {
     const command = getCommand();
     const success = command.execute();
     setLastCoordUpdated(mouseAtRef.current);
+    setMouseFrom(mouseAtRef.current);
     if (success) {
       setPastCommands(prev => [...prev, command]);
       setFutureCommands([]);
@@ -334,8 +339,13 @@ export const Editor = () => {
   }
 
   const getOperation = (): Operation => {
-    if (altPressedRef.current) return Operation.Remove;
-    if (shiftPressedRef.current) return Operation.Add;
+    if (tileRef.current === Tile.Spawn) {
+      if (mousePressedRef.current) return Operation.Write;
+      return Operation.None;
+    }
+    const isImmediateTool = [EditorTool.Pencil, EditorTool.Eraser].includes(toolRef.current)
+    if (altPressedRef.current && (isImmediateTool || mousePressedRef.current)) return Operation.Remove;
+    if (shiftPressedRef.current && isImmediateTool) return Operation.Add;
     if (mousePressedRef.current) return Operation.Write;
     return Operation.None;
   }
@@ -455,10 +465,18 @@ export const Editor = () => {
       setTool(EditorTool.Eraser);
     } else if (isCharPressed(ev, 'l')) {
       setTool(EditorTool.Line);
-    } else if (isCharPressed(ev, 'g')) {
-      setTool(EditorTool.Bucket);
-    } else if (isCharPressed(ev, 'u')) {
+    // } else if (isCharPressed(ev, 'g')) {
+    //   setTool(EditorTool.Bucket);
+    } else if (isCharPressed(ev, 'u') || isCharPressed(ev, 'r')) {
       setTool(EditorTool.Rectangle);
+    } else if (isCharPressed(ev, SpecialKey.ArrowUp, { shiftKey: true })) {
+      setData(prev => ({ ...prev, startDirection: DIR.UP }));
+    } else if (isCharPressed(ev, SpecialKey.ArrowDown, { shiftKey: true })) {
+      setData(prev => ({ ...prev, startDirection: DIR.DOWN }));
+    } else if (isCharPressed(ev, SpecialKey.ArrowLeft, { shiftKey: true })) {
+      setData(prev => ({ ...prev, startDirection: DIR.LEFT }));
+    } else if (isCharPressed(ev, SpecialKey.ArrowRight, { shiftKey: true })) {
+      setData(prev => ({ ...prev, startDirection: DIR.RIGHT }));
     }
     setShiftPressed(ev.shiftKey);
     setAltPressed(ev.altKey);

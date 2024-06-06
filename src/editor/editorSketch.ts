@@ -520,18 +520,54 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
     function drawEditorSelection() {
       if (state.mouseAt < 0) return;
+      const from = coordToVec(state.mouseFrom);
+      const to = coordToVec(state.mouseAt);
+      // selected cell
       if (state.tool === EditorTool.Pencil) {
-        const vecTo = coordToVec(state.mouseAt);
-        const vecFrom = coordToVec(state.mouseFrom);
         if (state.operation === Operation.Add) {
-          spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, vecFrom.x, vecFrom.y, 0, 1, 0);
-          spriteRenderer.drawImage3x3(Image.EditorSelection, vecTo.x, vecTo.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, from.x, from.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelection, to.x, to.y, 0, 1, 0);
         } else if (state.operation === Operation.Write) {
-          spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, vecTo.x, vecTo.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, to.x, to.y, 0, 1, 0);
         } else if (state.operation === Operation.Remove) {
-          spriteRenderer.drawImage3x3(Image.EditorSelectionRed, vecTo.x, vecTo.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelectionRed, to.x, to.y, 0, 1, 0);
         } else {
-          spriteRenderer.drawImage3x3(Image.EditorSelection, vecTo.x, vecTo.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelection, to.x, to.y, 0, 1, 0);
+        }
+      } else if (state.tool === EditorTool.Eraser) {
+        if (state.operation === Operation.Add) {
+          spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, from.x, from.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelectionRed, to.x, to.y, 0, 1, 0);
+        } else {
+          spriteRenderer.drawImage3x3(Image.EditorSelectionRed, to.x, to.y, 0, 1, 0);
+        }
+      } else if (state.tool === EditorTool.Line || state.tool === EditorTool.Rectangle) {
+        if (state.operation === Operation.Remove) {
+          spriteRenderer.drawImage3x3(Image.EditorSelectionRed, from.x, from.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelectionRed, to.x, to.y, 0, 1, 0);
+        } else if (state.operation !== Operation.None) {
+          spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, from.x, from.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelection, to.x, to.y, 0, 1, 0);
+        } else {
+          spriteRenderer.drawImage3x3(Image.EditorSelection, to.x, to.y, 0, 1, 0);
+        }
+      }
+      // preview line
+      if (state.mouseFrom > 0 && (
+        (state.tool === EditorTool.Line && state.operation !== Operation.None) ||
+        (state.tool === EditorTool.Pencil && state.operation === Operation.Add) ||
+        (state.tool === EditorTool.Eraser && state.operation === Operation.Add)
+      )) {
+        const color = (state.operation === Operation.Remove || state.tool === EditorTool.Eraser) ? '#ff330066' : '#bbeeff88';
+        renderer.drawLine(p5, from.x, from.y, to.x, to.y, color);
+      }
+      // preview fill
+      if (state.mouseFrom > 0 && state.tool === EditorTool.Rectangle && state.operation !== Operation.None) {
+        const color = state.operation === Operation.Remove ? '#ff330044' : '#00aaff44';
+        for (let y = Math.min(from.y, to.y); y <= Math.max(from.y, to.y); y++) {
+          for (let x = Math.min(from.x, to.x); x <= Math.max(from.x, to.x); x++) {
+            renderer.drawBasicSquareCustom(p5, x, y, p5.color(color), 1, 0)
+          }
         }
       }
     }
