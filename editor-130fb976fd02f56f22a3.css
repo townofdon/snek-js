@@ -499,3 +499,38 @@ textarea {
   background: var(--tab-panel-bg);
   box-shadow: -2px 3px 2px 2px #000;
 }
+/*!****************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Field/field.css ***!
+  \****************************************************************************************************************************************************************************************/
+.fieldContainer--wOiQ29ZJlVkIxoRZe6L8 {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.label--gKEPiCZOVVEAPymRnX1r {
+  display: block;
+  color: #cfcfcf;
+}
+
+.input--_oHfXLzBtCkuI50Iku60 {
+  width: auto;
+  border: none;
+  padding: 3px 6px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: "BIOSfontII", "VT323", monospace;
+  font-family: "Courier New", monospace;
+  background: #eee;
+  color: #333;
+}
+.input--_oHfXLzBtCkuI50Iku60.fullWidth--GZouWjhla_r1mpZGuUBR {
+  width: 100%;
+}
+
+input[type=range] {
+  width: auto;
+}
+
+.fullWidth--GZouWjhla_r1mpZGuUBR {
+  width: 100%;
+}
