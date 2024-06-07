@@ -20,6 +20,7 @@
 
 body, html {
   color: #fafafa;
+  font-family: "BIOSfontII", "VT323", monospace;
 }
 
 canvas {
@@ -411,6 +412,21 @@ button {
     background-size: 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 55px;
   }
 }
+.toastContainer--ru0uhfkCPOHBs8kSEcWt {
+  font-family: "BIOSfontII", "VT323", monospace;
+}
+
+.toast--K_UvZx9GagKEh0pOflE_ {
+  font-family: "BIOSfontII", "VT323", monospace;
+}
+
+.toastSuccess--bYrBfSKoLIGUWt4kjvwS {
+  background: #7ad9cd !important;
+}
+
+.toastError--MRAVNkq665eP5BnXd2AO {
+  background: #eba895 !important;
+}
 /*!*********************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/EditorOptions/EditorOptions.css ***!
   \*********************************************************************************************************************************************************************************************/
@@ -418,6 +434,7 @@ button {
   display: flex;
   flex-direction: column;
   margin-left: 20px;
+  padding-right: 20px;
 }
 
 .form--EY1peu6zuvOdoxcc2WOu {
@@ -434,4 +451,51 @@ textarea {
   background: #4c4c4c;
   color: #eee;
   font-family: "Courier New", monospace;
+}
+/*!**************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Tabs/tabs.css ***!
+  \**************************************************************************************************************************************************************************************/
+:root {
+  --tab-panel-bg: #232729;
+  --tab-inactive: #111;
+}
+
+.tab--RhQjnKCds0T1dm6pYFvS {
+  display: inline-block;
+  margin-left: 4px;
+  margin-right: 4px;
+  margin-bottom: 2px;
+  background: var(--tab-inactive);
+  color: #aaa;
+}
+.tab--RhQjnKCds0T1dm6pYFvS.active--QANdeuH0yzHa3iFcV3wU {
+  padding-top: 10px;
+  background: cyan;
+  background: var(--tab-panel-bg);
+  color: white;
+}
+.tab--RhQjnKCds0T1dm6pYFvS.active--QANdeuH0yzHa3iFcV3wU:after {
+  content: "";
+  display: block;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: var(--tab-panel-bg);
+}
+
+.tabList--_ybzOXpiihRgBla5aH4X {
+  display: block;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+
+.tabPanel--dY3exUrGTRVZCvKg6bz2 {
+  display: block;
+  padding: 20px;
+  background: var(--tab-panel-bg);
+  box-shadow: -2px 3px 2px 2px #000;
 }
