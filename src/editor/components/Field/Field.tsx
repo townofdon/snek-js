@@ -2,9 +2,9 @@ import React from "react";
 import cx from "classnames";
 
 import { FieldLabel } from "./FieldLabel";
+import { ColorField } from "./ColorField";
 
 import * as styles from './field.css';
-import { HexColorPicker } from "react-colorful";
 
 interface BaseFieldProps<T> {
   name: string;
@@ -54,9 +54,7 @@ export const Field = ({ type = 'text', min, max, fullWidth, ...otherProps }: Fie
       return <input name={props.name} type={props.type} onChange={handleChange} checked={props.value} {...restProps} />
     } else if (isColorProps(props)) {
       return (
-        <span>
-          <HexColorPicker color={props.value} onChange={color => props.onChange(color)} className={cx(restProps.className, styles.inputColor)} />
-        </span>
+        <ColorField name={props.name} value={props.value} onChange={color => props.onChange(color)} fullWidth={fullWidth} />
       );
     } else {
       return <input name={props.name} type={props.type || 'text'} onChange={handleChange} value={props.value} {...restProps} />

@@ -535,7 +535,145 @@ input[type=range] {
   width: 100%;
 }
 
-.inputColor--MAMOAdNWAJY2EgWYmlPA {
+.colorInputContainer--l8fuP6keuaqhxClY8yC5 {
+  position: relative;
+  display: inline-block;
+}
+
+.colorPicker--ufHniX94bJbhRDFmFDCp {
+  position: absolute !important;
+  left: 100%;
+  top: 0;
+  border: none;
+  padding: 3px 6px;
+  border-radius: 4px;
+  box-sizing: border-box;
   background: #545050;
   box-shadow: 0px 2px 2px 2px black;
+  z-index: 20;
+}
+
+.colorInput--iDZhutJaUnSgOR2VvZQa {
+  display: block;
+  padding-left: 20px;
+  width: 120px;
+}
+
+.colorInputHash--XwIcKxd0q0lFmJlVsrLQ {
+  display: inline-block;
+  position: absolute;
+  left: 0px;
+  height: 100%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 1px;
+  box-sizing: border-box;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  font-family: "VT323", monospace;
+  font-family: "Courier New", monospace;
+  font-size: 1.1em;
+  font-weight: 900;
+  color: #999;
+  background: #ddd;
+}
+
+.colorInputPreview--IYHwXqi2IZXsTPWRDnQl {
+  display: inline-block;
+  position: absolute;
+  right: 0px;
+  height: 100%;
+  width: 20px;
+  box-sizing: content-box;
+  background: #000;
+  border: none;
+}
+.colorInputPreview--IYHwXqi2IZXsTPWRDnQl:before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+  border: 2px solid #fff;
+  z-index: 5;
+}
+.colorInputPreview--IYHwXqi2IZXsTPWRDnQl:after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  background: transparent;
+  border: 2px solid #000;
+  z-index: 10;
+}
+/*!****************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Stack/stack.css ***!
+  \****************************************************************************************************************************************************************************************/
+:root {
+  --stack-margin: 10px;
+}
+
+.stack--upysNjv855vwZqYPVwor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd {
+  flex-direction: row;
+}
+.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd > * {
+  margin-left: var(--stack-margin);
+  margin-right: var(--stack-margin);
+}
+.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd > :first-child {
+  margin-left: 0;
+}
+.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd > :last-child {
+  margin-right: 0;
+}
+.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv {
+  flex-direction: column;
+}
+.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv > * {
+  margin-top: var(--stack-margin);
+  margin-bottom: var(--stack-margin);
+}
+.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv > :first-child {
+  margin-top: 0;
+}
+.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv > :last-child {
+  margin-bottom: 0;
+}
+.stack--upysNjv855vwZqYPVwor.alignStart--tbjRqmfXqQw2ISRBZB0K {
+  align-items: flex-start;
+}
+.stack--upysNjv855vwZqYPVwor.alignEnd--VSgGDwYN5u71unlE_ZDL {
+  align-items: flex-end;
+}
+.stack--upysNjv855vwZqYPVwor.alignStretch--YEt4TjYACA6LnMlLKihT {
+  align-items: stretch;
+}
+.stack--upysNjv855vwZqYPVwor.alignSpaceAround--sHzKqg0a2Y1auiiqAJqm {
+  align-items: space-around;
+}
+.stack--upysNjv855vwZqYPVwor.alignSpaceBetween--_FTFebYitty84KvmTEoq {
+  align-items: space-between;
+}
+.stack--upysNjv855vwZqYPVwor.justifyStart--tNalNLgV6crQx9htyTj2 {
+  justify-content: flex-start;
+}
+.stack--upysNjv855vwZqYPVwor.justifyEnd--HWerZZwJyZR8DGIAygIU {
+  justify-content: flex-end;
+}
+.stack--upysNjv855vwZqYPVwor.justifySpaceAround--qT245whCFMdSnrhrA3wb {
+  justify-content: space-around;
+}
+.stack--upysNjv855vwZqYPVwor.justifySpaceBetween--YXer3jP2pVPS1fHIfG0u {
+  justify-content: space-between;
 }

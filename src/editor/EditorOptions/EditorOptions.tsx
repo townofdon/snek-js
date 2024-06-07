@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 
 import { EditorData, EditorOptions as EditorOptionsType } from "../../types";
 
@@ -17,15 +17,12 @@ interface EditorOptionsProps {
   options: EditorOptionsType;
   setData: (data: EditorData) => void;
   setOptions: (options: EditorOptionsType) => void;
+  optionsContainerRef: React.MutableRefObject<HTMLDivElement>;
 }
 
-export const EditorOptions = ({ data, options, setData, setOptions }: EditorOptionsProps) => {
-  const handleKeyDown = (ev: React.KeyboardEvent) => {
-    ev.stopPropagation();
-  }
-
+export const EditorOptions = ({ data, options, setData, setOptions, optionsContainerRef }: EditorOptionsProps) => {
   return (
-    <div className={styles.editorOptionsContainer} onKeyDown={handleKeyDown}>
+    <div ref={optionsContainerRef} className={styles.editorOptionsContainer}>
       <Tabs>
         <TabList>
           <Tab id={OptionsTab.Stats}>Stats</Tab>

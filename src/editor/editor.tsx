@@ -45,7 +45,7 @@ import {
   SetRectanglePassableCommand,
   SetRectanglePortalCommand,
 } from "./commands";
-import { SpecialKey, findNumberPressed, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
+import { SpecialKey, findNumberPressed, getIsOutside, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
 import { Tile } from "./editorTypes";
 import { EDITOR_DEFAULTS } from "./editorConstants";
 import { EditorCanvas } from "./EditorCanvas";
@@ -70,7 +70,8 @@ enum MouseButton {
 }
 
 export const Editor = () => {
-  const canvas = useRef<HTMLCanvasElement>();
+  const canvas = useRef<HTMLCanvasElement>(null);
+  const optionsContainerRef = useRef<HTMLDivElement>(null);
   const [options, setOptions] = useState<EditorOptionsType>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
   const [_pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
@@ -411,6 +412,7 @@ export const Editor = () => {
   }
 
   const handleKeyDown = (ev: KeyboardEvent) => {
+    if (!getIsOutside(ev, optionsContainerRef)) return;
     const cancelOperation = isCharPressed(ev, SpecialKey.Escape) || isCharPressed(ev, SpecialKey.Backspace) || isCharPressed(ev, SpecialKey.Delete)
     if (mousePressedRef.current && cancelOperation) {
       setMousePressed(false);
@@ -510,7 +512,12 @@ export const Editor = () => {
   return (
     <div className={styles.layout}>
       <div className={styles.container}>
-        <h1 className={styles.mainTitle}>{options.name || '_'}</h1>
+        <h1
+          className={styles.mainTitle}
+          style={{ color: options.palette.playerHead }}
+        >
+          {options.name || '_'}
+        </h1>
       </div>
       <div className={styles.editorContainer}>
         <EditorCanvas
@@ -535,7 +542,7 @@ export const Editor = () => {
             />
           }
         />
-        <EditorOptions data={data} options={options} setData={setData} setOptions={setOptions} />
+        <EditorOptions data={data} options={options} setData={setData} setOptions={setOptions} optionsContainerRef={optionsContainerRef} />
       </div>
       <Toaster
         containerClassName={styles.toastContainer}

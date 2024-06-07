@@ -99,3 +99,14 @@ function findCharPressed(ev: KeyboardEvent): string {
   if (ev.key === 'ArrowRight' || ev.code === 'ArrowRight' || ev.keyCode === 39) return SpecialKey.ArrowRight;
   return ''
 }
+
+export function getIsOutside(ev: FocusEvent | MouseEvent | KeyboardEvent, ref: React.MutableRefObject<HTMLElement>) {
+  if (!ev.target) return true;
+  if (!ref.current) return true;
+  if (!ref.current.contains) return true;
+  try {
+    return ref.current !== ev.target && !ref.current.contains(ev.target as Node);
+  } catch (err) {
+    return true;
+  }
+}
