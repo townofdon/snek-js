@@ -1,0 +1,46 @@
+
+:root {
+  --tab-panel-bg: #232729;
+  --tab-inactive: #111;
+}
+
+.tab {
+  display: inline-block;
+  margin-left: 4px;
+  margin-right: 4px;
+  margin-bottom: 2px;
+  background: var(--tab-inactive);
+  color: #aaa;
+
+  &.active {
+    padding-top: 10px;
+    background: cyan;
+    background: var(--tab-panel-bg);
+    color: white;
+  }
+  &.active:after {
+    content: "";
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    height: 10px;
+    background: var(--tab-panel-bg);
+  }
+}
+
+.tabList {
+  display: block;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-top: 20px;
+  margin-bottom: 5px;
+}
+
+.tabPanel {
+  display: block;
+  padding: 20px;
+  background: var(--tab-panel-bg);
+  box-shadow: -2px 3px 2px 2px #000;
+}

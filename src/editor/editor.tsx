@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { EditorCanvas } from "./EditorCanvas";
+import { Toaster } from "react-hot-toast";
 
 import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
@@ -48,14 +48,16 @@ import {
 import { SpecialKey, findNumberPressed, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
 import { Tile } from "./editorTypes";
 import { EDITOR_DEFAULTS } from "./editorConstants";
+import { EditorCanvas } from "./EditorCanvas";
+import { EditorOptions } from "./EditorOptions";
 import { EditorTiles } from "./EditorTiles";
 import { EditorTools } from "./EditorTools";
-import { EditorOptions } from "./EditorOptions";
 
 import * as styles from "./Editor.css";
 import { SidebarKeyChannels } from "./SidebarKeyChannels";
 import { EditorSidebar } from "./EditorSidebar";
 import { SidebarPortalChannels } from "./SidebarPortalChannels";
+import { useLoadMapData } from "./hooks/useLoadMapData";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -84,6 +86,8 @@ export const Editor = () => {
   const [tile, tileRef, _setTile] = useRefState(Tile.Barrier);
   const [keyChannel, keyChannelRef, setKeyChannel] = useRefState(KeyChannel.Yellow);
   const [portalChannel, portalChannelRef, setPortalChannel] = useRefState<PortalChannel>(0);
+
+  useLoadMapData({ setData, setOptions });
 
   const setTile = (tile: Tile) => {
     if (toolRef.current === EditorTool.Eraser) setTool(EditorTool.Pencil);
@@ -532,6 +536,19 @@ export const Editor = () => {
         />
         <EditorOptions data={data} options={options} setData={setData} setOptions={setOptions} />
       </div>
+      <Toaster
+        containerClassName={styles.toastContainer}
+        toastOptions={{
+          className: styles.toast,
+          success: {
+            className: styles.toastSuccess,
+          },
+          error: {
+            className: styles.toastError,
+            duration: 10000,
+          },
+        }}
+      />
     </div>
   );
 };
