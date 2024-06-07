@@ -1,15 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { EditorOptions, Palette } from "../../types";
 import { Field } from "../components/Field";
 import { Stack } from "../components/Stack";
+import { SelectPalette } from "./SelectPalette";
 
+import * as styles from './EditorOptions.css';
 interface PanelColorsProps {
   options: EditorOptions;
   setOptions: (options: EditorOptions) => void;
 }
 
 export const PanelColors = ({ options, setOptions }: PanelColorsProps) => {
+  const [isSelectPaletteShowing, setSelectPaletteShowing] = useState(false);
 
   const renderField = (color: keyof Palette, fullWidth = false) => {
     return (
@@ -23,8 +26,15 @@ export const PanelColors = ({ options, setOptions }: PanelColorsProps) => {
     );
   }
 
+  if (isSelectPaletteShowing) {
+    return (
+      <SelectPalette options={options} setOptions={setOptions} onClose={() => setSelectPaletteShowing(false)} />
+    );
+  }
+
   return (
     <div>
+      <button className={styles.loadPaletteButton} onClick={() => setSelectPaletteShowing(true)}>Load Palette &gt;&gt;</button>
       <Stack row justify="start">
         {renderField('background')}
       </Stack>

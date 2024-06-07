@@ -1,2 +1,2 @@
 
-export * from './EditorOptions';
+export * from './EditorOptionsPanel';

@@ -4,7 +4,7 @@ import { Toaster } from "react-hot-toast";
 import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
-import { DIR, EditorData, EditorOptions as EditorOptionsType, KeyChannel, PortalChannel } from "../types";
+import { DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
 
 import { useRefState } from "./hooks/useRefState";
 import {
@@ -49,7 +49,7 @@ import { SpecialKey, findNumberPressed, getIsOutside, isCharPressed, isNumberPre
 import { Tile } from "./editorTypes";
 import { EDITOR_DEFAULTS } from "./editorConstants";
 import { EditorCanvas } from "./EditorCanvas";
-import { EditorOptions } from "./EditorOptions";
+import { EditorOptionsPanel } from "./EditorOptions";
 import { EditorTiles } from "./EditorTiles";
 import { EditorTools } from "./EditorTools";
 
@@ -72,7 +72,7 @@ enum MouseButton {
 export const Editor = () => {
   const canvas = useRef<HTMLCanvasElement>(null);
   const optionsContainerRef = useRef<HTMLDivElement>(null);
-  const [options, setOptions] = useState<EditorOptionsType>(EDITOR_DEFAULTS.options)
+  const [options, setOptions] = useState<EditorOptions>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
   const [_pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
   const [_futureCommands, futureCommandsRef, setFutureCommands] = useRefState<Command[]>([]);
@@ -542,7 +542,7 @@ export const Editor = () => {
             />
           }
         />
-        <EditorOptions data={data} options={options} setData={setData} setOptions={setOptions} optionsContainerRef={optionsContainerRef} />
+        <EditorOptionsPanel data={data} options={options} setData={setData} setOptions={setOptions} optionsContainerRef={optionsContainerRef} />
       </div>
       <Toaster
         containerClassName={styles.toastContainer}

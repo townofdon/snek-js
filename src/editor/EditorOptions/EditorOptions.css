@@ -21,3 +21,50 @@ textarea {
   color: #eee;
   font-family: "Courier New", monospace;
 }
+
+.loadPaletteButton {
+  margin-bottom: 20px;;
+}
+
+.selectPaletteContainer {
+  position: relative;
+}
+
+.selectPaletteTitle {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.closeButton {
+  position: absolute;
+  display: inline-block;
+  top: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  padding: 3px;
+  box-sizing: content-box;
+}
+
+.paletteButton {
+  display: flex;
+  margin-bottom: 10px;
+  width: 100%;
+}
+
+.paletteName {
+  display: inline-block;
+  min-width: 180px;
+  padding: 0;
+  margin: 0;
+  transform: translateY(5px);
+  font-family: 'MiniMOOD', 'VT323', monospace;
+  font-size: 0.8em;
+  text-align: left;
+}
+
+.paletteComponent {
+  display: inline-block;
+  width: 10px;
+  height: 20px;
+}

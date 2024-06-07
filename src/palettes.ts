@@ -1,7 +1,7 @@
 import { ExtendedPalette, Palette } from "./types";
 import Color from 'color';
 
-enum PaletteName {
+export enum PaletteName {
   default = 'default',
   deathInvert = 'deathInvert',
   blackWhite = 'blackWhite',

@@ -47,6 +47,7 @@ export const EditorCanvas = ({
   useLayoutEffect(() => {
     if (container.current && !sketch.current) {
       sketch.current = editorSketch(container.current, canvas);
+      sketch.current.setOptions(options);
     }
   }, [container.current]);
 
@@ -61,7 +62,7 @@ export const EditorCanvas = ({
     if (sketch.current) {
       syncOptionsTimeout.current = setTimeout(() => {
         sketch.current.setOptions(options);
-      }, 200);
+      }, 40);
     }
   }, [options]);
 
