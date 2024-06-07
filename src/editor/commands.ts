@@ -410,7 +410,7 @@ export class SetLineDeco1Command extends SetLineCommand {
     this.newData.deco1 = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.decoratives1Map[coord];
+    return !this.dataRef.current.decoratives1Map[coord] || this.dataRef.current.nospawnsMap[coord];
   };
 }
 
@@ -420,7 +420,7 @@ export class SetLineDeco2Command extends SetLineCommand {
     this.newData.deco2 = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.decoratives2Map[coord];
+    return !this.dataRef.current.decoratives2Map[coord] || this.dataRef.current.nospawnsMap[coord];
   };
 }
 
@@ -513,7 +513,7 @@ export class SetLinePortalCommand extends SetLineCommand {
     this.newData.portal = channel;
   }
   protected test = (coord: number) => {
-    return this.dataRef.current.keysMap[coord] !== this.channel;
+    return this.dataRef.current.portalsMap[coord] !== this.channel;
   };
 }
 
@@ -579,7 +579,7 @@ export class SetRectangleDeco1Command extends SetRectangleCommand {
     this.newData.deco1 = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.decoratives1Map[coord];
+    return !this.dataRef.current.decoratives1Map[coord] || this.dataRef.current.nospawnsMap[coord];
   };
 }
 
@@ -589,7 +589,7 @@ export class SetRectangleDeco2Command extends SetRectangleCommand {
     this.newData.deco2 = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.decoratives2Map[coord];
+    return !this.dataRef.current.decoratives2Map[coord] || this.dataRef.current.nospawnsMap[coord];
   };
 }
 
@@ -675,11 +675,13 @@ export class SetRectanglePassableCommand extends SetRectangleCommand {
 }
 
 export class SetRectanglePortalCommand extends SetRectangleCommand {
+  private channel: PortalChannel;
   public constructor(from: number, to: number, channel: PortalChannel, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.channel = channel;
     this.newData.portal = channel;
   }
   protected test = (coord: number) => {
-    return !isValidPortalChannel(this.dataRef.current.portalsMap[coord]);
+    return this.dataRef.current.portalsMap[coord] !== this.channel;
   };
 }
