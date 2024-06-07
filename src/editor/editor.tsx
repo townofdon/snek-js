@@ -1,10 +1,10 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { EditorCanvas } from "./EditorCanvas";
 
 import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
-import { DIR, EditorData, KeyChannel, PortalChannel } from "../types";
+import { DIR, EditorData, EditorOptions as EditorOptionsType, KeyChannel, PortalChannel } from "../types";
 
 import { useRefState } from "./hooks/useRefState";
 import {
@@ -69,6 +69,7 @@ enum MouseButton {
 
 export const Editor = () => {
   const canvas = useRef<HTMLCanvasElement>();
+  const [options, setOptions] = useState<EditorOptionsType>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
   const [_pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
   const [_futureCommands, futureCommandsRef, setFutureCommands] = useRefState<Command[]>([]);
@@ -505,7 +506,7 @@ export const Editor = () => {
   return (
     <div className={styles.layout}>
       <div className={styles.container}>
-        <h1 className={styles.mainTitle}>SNEK EDITOR</h1>
+        <h1 className={styles.mainTitle}>{options.name}</h1>
       </div>
       <div className={styles.editorContainer}>
         <EditorCanvas
@@ -529,7 +530,7 @@ export const Editor = () => {
             />
           }
         />
-        <EditorOptions data={data} setData={setData} />
+        <EditorOptions data={data} options={options} setData={setData} setOptions={setOptions} />
       </div>
     </div>
   );

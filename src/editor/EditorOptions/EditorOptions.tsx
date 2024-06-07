@@ -8,12 +8,14 @@ import { EDITOR_DEFAULTS } from "../editorConstants";
 
 interface EditorOptionsProps {
   data: EditorData;
+  options: EditorOptionsType;
   setData: (data: EditorData) => void;
+  setOptions: (options: EditorOptionsType) => void;
 }
 
-export const EditorOptions = ({ data, setData }: EditorOptionsProps) => {
+export const EditorOptions = ({ data, options, setData, setOptions }: EditorOptionsProps) => {
   // const [encodedData, setEncodedData] = useState('');
-  const [options, setOptions] = useState<EditorOptionsType>({ ...EDITOR_DEFAULTS.options });
+  // const [options, setOptions] = useState<EditorOptionsType>({ ...EDITOR_DEFAULTS.options });
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {

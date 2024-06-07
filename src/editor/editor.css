@@ -36,12 +36,26 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
+  @media (max-width: 1199px) {
+    & {
+      align-items: flex-start;
+    }
+  }
 }
 
 .container {
   max-width: 900px;
   padding-left: 30px;
   padding-right: 30px;
+  @media (max-width: 1199px) {
+    & {
+      min-width: calc(100vw - 60px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
 }
 
 .stack {
@@ -76,6 +90,19 @@ button {
   font-size: 2em;
   padding-top: 15px;
   text-shadow: -1px 4px #5a572e;
+  margin: 10px;
+  color: aqua;
+}
+
+.editorTitle {
+  font-family: 'MiniMOOD', 'VT323', monospace;
+  text-shadow: -1px 4px #5a572e;
+  font-size: 1.3em;
+  line-height: 1em;
+  padding: 0;
+  margin: 0;
+  transform: translateY(7px);
+  margin-left: 127px;
 }
 
 .canvasContainer {
@@ -123,6 +150,7 @@ button {
   justify-content: center;
   background: var(--editor-bg-color);
   border-radius: 6px;
+  /* margin-top: 20px; */
 }
 
 
@@ -209,12 +237,11 @@ button {
   }
 }
 
-
 .editorTools {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
   padding-bottom: 3px;
   width: 100%;
 }

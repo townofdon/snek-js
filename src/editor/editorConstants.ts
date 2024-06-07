@@ -23,7 +23,7 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
     startDirection: DIR.RIGHT,
   },
   options: {
-    name: 'SNEKBOSS',
+    name: 'Untitled Map',
     timeToClear: 60,
     applesToClear: 20,
     numApplesStart: 3,

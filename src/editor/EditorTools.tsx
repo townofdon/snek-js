@@ -1,8 +1,9 @@
 import React from "react";
 import cx from 'classnames';
 
-import * as styles from "./Editor.css";
 import { EditorTool } from "./editorSketch";
+
+import * as styles from "./Editor.css";
 
 interface EditorToolsProps {
   activeTool: EditorTool,
@@ -27,6 +28,7 @@ export const EditorTools = ({ activeTool, setTool }: EditorToolsProps) => {
   }
   return (
     <div className={styles.editorTools}>
+      <h1 className={styles.editorTitle}>SNEK<br/>EDITOR</h1>
       <div className={styles.editorToolsOffset}>
         {renderTool(EditorTool.Pencil)}
         {renderTool(EditorTool.Eraser)}
