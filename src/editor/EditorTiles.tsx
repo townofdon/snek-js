@@ -38,7 +38,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Lock]: 'lock',
       [Tile.Key]: 'key',
       [Tile.Portal]: 'portal',
-      [Tile.Spawn]: 'snek spawnpoint',
+      [Tile.Spawn]: 'snek spawn',
     }[tile]
     const tileShortcut = {
       [Tile.None]: null,

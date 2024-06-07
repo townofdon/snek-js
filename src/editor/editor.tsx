@@ -510,7 +510,7 @@ export const Editor = () => {
   return (
     <div className={styles.layout}>
       <div className={styles.container}>
-        <h1 className={styles.mainTitle}>{options.name}</h1>
+        <h1 className={styles.mainTitle}>{options.name || '_'}</h1>
       </div>
       <div className={styles.editorContainer}>
         <EditorCanvas

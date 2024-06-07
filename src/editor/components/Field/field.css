@@ -1,0 +1,34 @@
+
+.fieldContainer {
+  display: block;
+  margin-bottom: 20px;
+}
+
+.label {
+  display: block;
+  color: #cfcfcf;
+}
+
+.input {
+  width: auto;
+  border: none;
+  padding: 3px 6px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: 'BIOSfontII', 'VT323', monospace;
+  font-family: "Courier New", monospace;
+  background: #eee;
+  color: #333;
+
+  &.fullWidth {
+    width: 100%;
+  }
+}
+
+input[type="range"] {
+  width: auto;
+}
+
+.fullWidth {
+  width: 100%;
+}
