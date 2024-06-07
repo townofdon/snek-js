@@ -4,6 +4,7 @@ import cx from "classnames";
 import { FieldLabel } from "./FieldLabel";
 
 import * as styles from './field.css';
+import { HexColorPicker } from "react-colorful";
 
 interface BaseFieldProps<T> {
   name: string;
@@ -20,11 +21,13 @@ interface TextFieldProps extends BaseFieldProps<string> { type?: 'text' }
 interface NumberFieldProps extends BaseFieldProps<number> { type: 'number' }
 interface RangeFieldProps extends BaseFieldProps<number> { type: 'range' }
 interface CheckboxFieldProps extends BaseFieldProps<boolean> { type: 'checkbox' }
-type FieldProps = TextFieldProps | NumberFieldProps | CheckboxFieldProps | RangeFieldProps
+interface ColorFieldProps extends BaseFieldProps<string> { type: 'color' }
+type FieldProps = TextFieldProps | NumberFieldProps | CheckboxFieldProps | RangeFieldProps | ColorFieldProps
 function isTextProps(props: FieldProps): props is TextFieldProps { return !props.type || props.type === 'text'; }
 function isNumberProps(props: FieldProps): props is NumberFieldProps { return props.type === 'number'; }
 function isRangeProps(props: FieldProps): props is RangeFieldProps { return props.type === 'range'; }
 function isCheckboxProps(props: FieldProps): props is CheckboxFieldProps { return props.type === 'checkbox'; }
+function isColorProps(props: FieldProps): props is ColorFieldProps { return props.type === 'color'; }
 
 export const Field = ({ type = 'text', min, max, fullWidth, ...otherProps }: FieldProps) => {
   const props: FieldProps = { type, ...otherProps } as FieldProps;
@@ -49,6 +52,12 @@ export const Field = ({ type = 'text', min, max, fullWidth, ...otherProps }: Fie
     };
     if (isCheckboxProps(props)) {
       return <input name={props.name} type={props.type} onChange={handleChange} checked={props.value} {...restProps} />
+    } else if (isColorProps(props)) {
+      return (
+        <span>
+          <HexColorPicker color={props.value} onChange={color => props.onChange(color)} className={cx(restProps.className, styles.inputColor)} />
+        </span>
+      );
     } else {
       return <input name={props.name} type={props.type || 'text'} onChange={handleChange} value={props.value} {...restProps} />
     }

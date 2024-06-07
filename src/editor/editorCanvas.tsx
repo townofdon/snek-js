@@ -2,13 +2,14 @@ import React, { useEffect, useLayoutEffect, useRef } from "react";
 import cx from 'classnames';
 
 import { EditorSketchReturn, EditorTool, Operation, editorSketch } from "./editorSketch";
-import { EditorData } from "../types";
+import { EditorData, EditorOptions } from "../types";
 
 import * as styles from "./Editor.css";
 import { Grid } from "./components/Grid";
 
 interface EditorCanvasProps {
   data: EditorData;
+  options: EditorOptions;
   mouseAt: number;
   mouseFrom: number;
   tool: EditorTool;
@@ -25,6 +26,7 @@ interface EditorCanvasProps {
 
 export const EditorCanvas = ({
   data,
+  options,
   mouseAt,
   mouseFrom,
   tool,
@@ -40,6 +42,7 @@ export const EditorCanvas = ({
 }: EditorCanvasProps) => {
   const container = useRef<HTMLDivElement>();
   const sketch = useRef<EditorSketchReturn | null>(null);
+  const syncOptionsTimeout = useRef<NodeJS.Timeout>(null);
 
   useLayoutEffect(() => {
     if (container.current && !sketch.current) {
@@ -52,6 +55,15 @@ export const EditorCanvas = ({
       sketch.current.setData(data);
     }
   }, [data]);
+
+  useLayoutEffect(() => {
+    clearTimeout(syncOptionsTimeout.current);
+    if (sketch.current) {
+      syncOptionsTimeout.current = setTimeout(() => {
+        sketch.current.setOptions(options);
+      }, 200);
+    }
+  }, [options]);
 
   useLayoutEffect(() => {
     if (sketch.current) {

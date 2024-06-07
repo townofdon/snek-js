@@ -202,6 +202,15 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             state.dirty = true;
           }
           break;
+        case 'applesToClear':
+        case 'disableAppleSpawn':
+        case 'extraHurtGraceTime':
+        case 'name':
+        case 'timeToClear':
+        case 'numApplesStart':
+        case 'snakeStartSize':
+        case 'growthMod':
+          break;
         default:
           throw new Error(`no case for key "${key}"`)
       }

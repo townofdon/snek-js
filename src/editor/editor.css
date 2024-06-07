@@ -147,7 +147,7 @@ button {
   position: relative;
   display: inline-flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: flex-start;
   justify-content: center;
   background: var(--editor-bg-color);
   border-radius: 6px;

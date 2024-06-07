@@ -32,3 +32,8 @@ input[type="range"] {
 .fullWidth {
   width: 100%;
 }
+
+.inputColor {
+  background: #545050;
+  box-shadow: 0px 2px 2px 2px black;
+}

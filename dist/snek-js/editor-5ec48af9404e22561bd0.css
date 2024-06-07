@@ -149,7 +149,7 @@ button {
   position: relative;
   display: inline-flex;
   flex-direction: row;
-  align-items: stretch;
+  align-items: flex-start;
   justify-content: center;
   background: var(--editor-bg-color);
   border-radius: 6px;
@@ -533,4 +533,9 @@ input[type=range] {
 
 .fullWidth--GZouWjhla_r1mpZGuUBR {
   width: 100%;
+}
+
+.inputColor--MAMOAdNWAJY2EgWYmlPA {
+  background: #545050;
+  box-shadow: 0px 2px 2px 2px black;
 }
