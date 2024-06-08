@@ -16,7 +16,6 @@ export class NoOpCommand implements Command {
   rollback = () => { };
 }
 
-// export type SetData = (setter: (prevData: EditorData) => EditorData) => void
 export type SetData = (setter: SetStateValue<EditorData>) => void
 export type RollbackLastCoordUpdated = () => void
 

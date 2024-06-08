@@ -1,12 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
+import { EDITOR_DEFAULTS } from "./editorConstants";
 import { DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
-
+import { Tile } from "./editorTypes";
 import { useRefState } from "./hooks/useRefState";
+import { useLoadMapData } from "./hooks/useLoadMapData";
 import {
   Command,
   DeleteElementCommand,
@@ -46,18 +48,17 @@ import {
   SetRectanglePortalCommand,
 } from "./commands";
 import { SpecialKey, findNumberPressed, getIsOutside, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
-import { Tile } from "./editorTypes";
-import { EDITOR_DEFAULTS } from "./editorConstants";
 import { EditorCanvas } from "./EditorCanvas";
 import { EditorOptionsPanel } from "./EditorOptions";
 import { EditorTiles } from "./EditorTiles";
 import { EditorTools } from "./EditorTools";
-
-import * as styles from "./Editor.css";
+import { MapPreview } from "./MapPreview";
+import { Stack } from "./components/Stack";
 import { SidebarKeyChannels } from "./SidebarKeyChannels";
 import { EditorSidebar } from "./EditorSidebar";
 import { SidebarPortalChannels } from "./SidebarPortalChannels";
-import { useLoadMapData } from "./hooks/useLoadMapData";
+
+import * as styles from "./Editor.css";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -72,6 +73,7 @@ enum MouseButton {
 export const Editor = () => {
   const canvas = useRef<HTMLCanvasElement>(null);
   const optionsContainerRef = useRef<HTMLDivElement>(null);
+  const [isPreviewShowing, setPreviewShowing] = useState(false);
   const [options, optionsRef, setOptions] = useRefState<EditorOptions>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
   const [_pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
@@ -419,6 +421,7 @@ export const Editor = () => {
 
   const handleKeyDown = (ev: KeyboardEvent) => {
     if (!getIsOutside(ev, optionsContainerRef)) return;
+    if (isPreviewShowing) return;
     const cancelOperation = isCharPressed(ev, SpecialKey.Escape) || isCharPressed(ev, SpecialKey.Backspace) || isCharPressed(ev, SpecialKey.Delete)
     if (mousePressedRef.current && cancelOperation) {
       setMousePressed(false);
@@ -518,12 +521,15 @@ export const Editor = () => {
   return (
     <div className={styles.layout}>
       <div className={styles.container}>
-        <h1
-          className={styles.mainTitle}
-          style={{ color: options.palette.playerHead }}
-        >
-          {options.name || '_'}
-        </h1>
+        <Stack row>
+          <h1
+            className={styles.mainTitle}
+            style={{ color: options.palette.playerHead }}
+          >
+            {options.name || '_'}
+          </h1>
+          <button className={styles.previewMapButton} onClick={() => setPreviewShowing(true)}>▶️ Preview</button>
+        </Stack>
       </div>
       <div className={styles.editorContainer}>
         <EditorCanvas
@@ -560,6 +566,7 @@ export const Editor = () => {
           redo={redo}
         />
       </div>
+      <MapPreview data={data} options={options} isPreviewShowing={isPreviewShowing} setPreviewShowing={setPreviewShowing} />
       <Toaster
         containerClassName={styles.toastContainer}
         toastOptions={{

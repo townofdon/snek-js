@@ -380,6 +380,56 @@ button {
   background-color: rgba(17, 17, 17, 0.1);
 }
 
+.previewMapButton--eDzPwZzzY41wal5B7qCm {
+  margin-left: 40px;
+}
+
+.mapPreviewOverlay--ICT56LhL1wdePiwl03Po {
+  display: block;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.mapPreviewLayout--q8h24nLIAMGqLZDvoO2x {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+}
+
+.mapPreviewContainer--ZVFMtpo3D2szcNJrqgCK {
+  position: relative;
+  display: flex;
+  width: 600px;
+  height: 600px;
+  padding: 2px;
+  background: black;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  box-shadow: -2px 2px 4px 2px black;
+}
+.mapPreviewContainer--ZVFMtpo3D2szcNJrqgCK .closeButton--Mrw9b4gd4ci7rT9tw5dq {
+  position: absolute;
+  display: inline-block;
+  top: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  padding: 3px;
+  box-sizing: content-box;
+}
+
+.mapPreview--EaLOp2itWkRlQeb7rMmZ {
+  display: block;
+  border: none;
+}
+
 .loader--awTK9275tWntLuG0HGxO {
   position: relative;
   width: 55px;
