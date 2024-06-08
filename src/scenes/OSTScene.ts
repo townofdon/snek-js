@@ -1,12 +1,12 @@
 import P5 from "p5";
 import { FontsInstance, IEnumerator, Image, MusicTrack, Quote, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
-import { MusicPlayer } from "../musicPlayer";
+import { MusicPlayer } from "../engine/musicPlayer";
 import { clamp, getTrackName } from "../utils";
 import { DIMENSIONS, OST_MODE_TRACKS } from "../constants";
 import { UI } from "../ui/ui";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
-import { SpriteRenderer } from "../spriteRenderer";
+import { SpriteRenderer } from "../engine/spriteRenderer";
 
 const VISUALIZER = {
   width: 360,

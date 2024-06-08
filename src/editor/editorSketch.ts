@@ -25,15 +25,15 @@ import {
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
 import { Emitters } from '../collections/emitters';
-import { PortalParticleSystem2 } from '../particleSystems/PortalParticleSystem2';
-import { PortalVortexParticleSystem2 } from '../particleSystems/PortalVortexParticleSystem2';
-import { SpriteRenderer } from '../spriteRenderer';
-import { Renderer } from '../renderer';
+import { PortalParticleSystem2 } from '../engine/particleSystems/PortalParticleSystem2';
+import { PortalVortexParticleSystem2 } from '../engine/particleSystems/PortalVortexParticleSystem2';
+import { SpriteRenderer } from '../engine/spriteRenderer';
+import { Renderer } from '../engine/renderer';
 import { Fonts } from '../fonts';
 import { PALETTE, getExtendedPalette } from '../palettes';
 import { coordToVec, getCoordIndex2, getRotationFromDirection, isValidKeyChannel, isValidPortalChannel } from '../utils';
 import { EDITOR_DEFAULTS } from './editorConstants';
-import { createLightmap, drawLighting, initLighting, updateLighting } from '../lighting';
+import { createLightmap, drawLighting, initLighting, updateLighting } from '../engine/lighting';
 
 export enum EditorTool {
   Pencil,

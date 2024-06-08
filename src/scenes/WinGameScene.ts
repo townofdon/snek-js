@@ -10,7 +10,7 @@ import { indexToDir } from "../utils";
 import { HighScoreEntry, postLeaderboardResult, getLeaderboard, getToken } from "../api/leaderboard";
 // import { HighscoreEntryModal, Modal } from "../ui/ui";
 import { ApiOptions } from "../api/utils/apiUtils";
-import { handleUIEvents } from "../controls";
+import { handleUIEvents } from "../engine/controls";
 import { HighscoreEntryModal } from "../ui/highscoreEntryModal";
 import { Modal } from "../ui/modal";
 

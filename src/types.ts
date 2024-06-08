@@ -311,6 +311,27 @@ export interface Lock extends Key {
   coord: number,
 }
 
+export enum InputAction {
+  HideStartScreen,
+  ShowMainMenu,
+  ConfirmShowMainMenu,
+  ShowSettingsMenu,
+  HideSettingsMenu,
+  RetryLevel,
+  StartGame,
+  ToggleCasualMode,
+  ToggleCobraMode,
+  ToggleScreenshakeDisabled,
+  ShowLeaderboard,
+  EnterQuoteMode,
+  EnterOstMode,
+  ProceedToNextReplayClip,
+  Pause,
+  UnPause,
+  StartMoving,
+  StartRewinding,
+}
+
 export interface EditorOptions {
   name: string,
   timeToClear: number, // default: 60

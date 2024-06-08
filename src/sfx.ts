@@ -1,7 +1,7 @@
 import { Howl } from 'howler';
 
 import { SFXInstance, SoundVariants } from "./types";
-import { setSfxVolume } from './audio';
+import { setSfxVolume } from './engine/audio';
 import { getRelativeDir } from './utils';
 
 /**

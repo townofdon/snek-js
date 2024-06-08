@@ -6,7 +6,7 @@ import Color from "color";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { OST_MODE_TRACKS } from "../constants";
 import { getTrackName } from "../utils";
-import { SpriteRenderer } from "../spriteRenderer";
+import { SpriteRenderer } from "../engine/spriteRenderer";
 
 interface TriggerLevelExitParams {
   score: number,

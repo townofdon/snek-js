@@ -1,7 +1,7 @@
 import P5 from "p5";
 
 import { FontsInstance, IEnumerator, Scene, SceneCachedCallbacks, SceneCallbacks } from '../types';
-import { Coroutines } from "../coroutines";
+import { Coroutines } from "../engine/coroutines";
 import { DIMENSIONS } from "../constants";
 
 

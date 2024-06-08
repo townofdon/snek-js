@@ -118,6 +118,7 @@ import {
   GameMode,
   DrawSquareOptions,
   DrawState,
+  InputAction,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -125,10 +126,10 @@ import { UI } from './ui/ui';
 import { UIBindings } from './ui/uiBindings';
 import { showGameOverUI, showPauseUI } from './ui/uiComponents';
 import { PALETTE } from './palettes';
-import { Coroutines } from './coroutines';
+import { Coroutines } from './engine/coroutines';
 import { Fonts } from './fonts';
 import { quotes as allQuotes } from './quotes';
-import { InputAction, InputCallbacks, handleKeyPressed, handleUIEvents, validateMove } from './controls';
+import { InputCallbacks, handleKeyPressed, handleUIEvents, validateMove } from './engine/controls';
 import { buildSceneActionFactory } from './scenes/sceneUtils';
 import { buildLevel } from './levels/levelBuilder';
 import { QuoteScene } from './scenes/QuoteScene';
@@ -136,25 +137,25 @@ import { SFX } from './sfx';
 import { replayClips } from './replayClips/replayClips';
 import { WinLevelScene } from './scenes/WinLevelScene';
 import { LOSE_MESSAGES } from './messages';
-import { Renderer } from './renderer';
-import { MusicPlayer } from './musicPlayer';
-import { resumeAudioContext } from './audio';
+import { Renderer } from './engine/renderer';
+import { MusicPlayer } from './engine/musicPlayer';
+import { resumeAudioContext } from './engine/audio';
 import { Easing } from './easing';
 import { OSTScene } from './scenes/OSTScene';
-import { SpriteRenderer } from './spriteRenderer';
+import { SpriteRenderer } from './engine/spriteRenderer';
 import { WinGameScene } from './scenes/WinGameScene';
 import { LeaderboardScene } from './scenes/LeaderboardScene';
-import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './lighting';
+import { createLightmap, drawLighting, initLighting, resetLightmap, updateLighting } from './engine/lighting';
 import { Apples } from './collections/apples';
 import { VectorList } from './collections/vectorList';
 import { Particles } from './collections/particles';
 import { Emitters } from './collections/emitters';
 import { Gradients } from './collections/gradients';
-import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
-import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
-import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
-import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
-import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
+import { AppleParticleSystem2 } from './engine/particleSystems/AppleParticleSystem2';
+import { ImpactParticleSystem2 } from './engine/particleSystems/ImpactParticleSystem2';
+import { PortalParticleSystem2 } from './engine/particleSystems/PortalParticleSystem2';
+import { PortalVortexParticleSystem2 } from './engine/particleSystems/PortalVortexParticleSystem2';
+import { GateUnlockParticleSystem2 } from './engine/particleSystems/GateUnlockParticleSystem2';
 import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
 import { SaveDataStore } from './stores/SaveDataStore';
 import { TitleScene } from './scenes/TitleScene';

@@ -1,5 +1,5 @@
 import { IS_DEV } from "../constants";
-import { InputAction } from "../controls";
+import { InputAction } from "../types";
 import { DOM } from "./uiUtils";
 
 

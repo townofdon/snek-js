@@ -1,6 +1,6 @@
 
 import P5 from 'p5';
-import { setMusicVolume, setSfxVolume } from '../audio';
+import { setMusicVolume, setSfxVolume } from '../engine/audio';
 import {
   GameMode,
   GameSettings,
@@ -13,7 +13,7 @@ import {
   UINavDir,
   UINavEventHandler,
 } from '../types';
-import { InputAction } from '../controls';
+import { InputAction } from '../types';
 import {
   GameOverMenuElement,
   GameOverMenuNavMap,
