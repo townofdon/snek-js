@@ -407,3 +407,13 @@ button {
 .toastError {
   background: #eba895 !important;
 }
+
+.toastUndo {
+  background: #000!important;
+  color: #ddd!important
+}
+
+.toastRedo {
+  background: #000!important;
+  color: #7ad9cd!important;
+}

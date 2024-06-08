@@ -107,6 +107,11 @@ export const PALETTE: Record<PaletteName, Palette> = {
     deco1Stroke: Color("#515151").mix(Color("#2F4858"), 0.2).darken(0.1).hex(),
     deco2: Color("#595959").mix(Color("#2F4858"), 0.2).darken(0.1).hex(),
     deco2Stroke: Color("#555555").mix(Color("#2F4858"), 0.2).darken(0.1).hex(),
+    // background: "#161a1b",
+    // deco1: "#1e2123",
+    // deco1Stroke: "#161a1b",
+    // deco2: "#232b30",
+    // deco2Stroke: "#1c1e20",
   },
   hospital: {
     background: "#0D0D1C",

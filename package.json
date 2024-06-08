@@ -34,6 +34,7 @@
     "react-colorful": "^5.6.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.4.1",
+    "throttleit": "^2.0.0",
     "uuid": "^9.0.1"
   },
   "devDependencies": {
@@ -46,6 +47,7 @@
     "@types/mocha": "^10.0.6",
     "@types/node-sass": "^4.11.7",
     "@types/p5": "^1.7.0",
+    "@types/throttleit": "^1.0.2",
     "@types/uuid": "^9.0.7",
     "@webpack-cli/generators": "^3.0.7",
     "assert": "^2.1.0",

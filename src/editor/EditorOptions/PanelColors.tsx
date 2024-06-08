@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { EditorOptions, Palette } from "../../types";
+import { getIsOutside, isCharPressed } from "../utils/keyboardUtils";
 import { Field } from "../components/Field";
 import { Stack } from "../components/Stack";
 import { SelectPalette } from "./SelectPalette";
@@ -8,11 +9,29 @@ import { SelectPalette } from "./SelectPalette";
 import * as styles from './EditorOptions.css';
 interface PanelColorsProps {
   options: EditorOptions;
-  setOptions: (options: EditorOptions) => void;
+  setPalette: (palette: Palette) => void;
+  undo: () => void;
+  redo: () => void;
 }
 
-export const PanelColors = ({ options, setOptions }: PanelColorsProps) => {
+export const PanelColors = ({ options, setPalette, undo, redo }: PanelColorsProps) => {
   const [isSelectPaletteShowing, setSelectPaletteShowing] = useState(false);
+  const panelRef = useRef<HTMLDivElement>();
+
+  useEffect(() => {
+    const onKeyDown = (ev: KeyboardEvent) => {
+      if (getIsOutside(ev, panelRef)) return;
+      if (isCharPressed(ev, 'z', { ctrlKey: true, shiftKey: true }) || isCharPressed(ev, 'y', { ctrlKey: true })) {
+        redo();
+      } else if (isCharPressed(ev, 'z', { ctrlKey: true })) {
+        undo();
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    }
+  }, [])
 
   const renderField = (color: keyof Palette, fullWidth = false) => {
     return (
@@ -20,7 +39,7 @@ export const PanelColors = ({ options, setOptions }: PanelColorsProps) => {
         name={color}
         label={color}
         type="color" value={options.palette[color]}
-        onChange={val => setOptions({ ...options, palette: { ...options.palette, [color]: val } })}
+        onChange={val => setPalette({ ...options.palette, [color]: val })}
         fullWidth={fullWidth}
       />
     );
@@ -28,12 +47,12 @@ export const PanelColors = ({ options, setOptions }: PanelColorsProps) => {
 
   if (isSelectPaletteShowing) {
     return (
-      <SelectPalette options={options} setOptions={setOptions} onClose={() => setSelectPaletteShowing(false)} />
+      <SelectPalette setPalette={setPalette} onClose={() => setSelectPaletteShowing(false)} />
     );
   }
 
   return (
-    <div>
+    <div ref={panelRef}>
       <button className={styles.loadPaletteButton} onClick={() => setSelectPaletteShowing(true)}>Load Palette &gt;&gt;</button>
       <Stack row justify="start">
         {renderField('background')}

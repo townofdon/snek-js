@@ -1,17 +1,17 @@
-
-import { Vector } from "p5";
-import { DIR, EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../types";
+import { EditorData, EditorDataSlice, EditorOptions, KeyChannel, Palette, PortalChannel } from "../types";
 import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
 import { deepCloneData, mergeData, mergeDataSlice } from "./utils/editorUtils";
 import { SetStateValue } from "./editorTypes";
 
 //  THE COMMAND PATTERN
 export interface Command {
+  name: string,
   execute: () => boolean,
   rollback: () => void,
 }
 
 export class NoOpCommand implements Command {
+  public readonly name = 'NoOp';
   execute = () => false;
   rollback = () => { };
 }
@@ -21,6 +21,7 @@ export type SetData = (setter: SetStateValue<EditorData>) => void
 export type RollbackLastCoordUpdated = () => void
 
 abstract class SetElementCommand implements Command {
+  public abstract readonly name: string;
   protected readonly initial: EditorDataSlice;
   protected newData: EditorDataSlice | null;
   protected readonly coord: number;
@@ -77,6 +78,7 @@ abstract class SetElementCommand implements Command {
 }
 
 export class SetPlayerSpawnCommand extends SetElementCommand {
+  public readonly name = 'Set Player Spawn';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (getCoordIndex(data.playerSpawnPosition) === coord) {
@@ -98,6 +100,7 @@ export class SetPlayerSpawnCommand extends SetElementCommand {
 }
 
 export class DeleteElementCommand extends SetElementCommand {
+  public readonly name = 'Erase';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (
@@ -118,6 +121,7 @@ export class DeleteElementCommand extends SetElementCommand {
 }
 
 export class SetAppleCommand extends SetElementCommand {
+  public readonly name = 'Draw Apple';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.applesMap[this.coord]) {
@@ -129,6 +133,7 @@ export class SetAppleCommand extends SetElementCommand {
 }
 
 export class SetBarrierCommand extends SetElementCommand {
+  public readonly name = 'Draw Barrier';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.barriersMap[this.coord] && !data.passablesMap[this.coord]) {
@@ -140,6 +145,7 @@ export class SetBarrierCommand extends SetElementCommand {
 }
 
 export class SetDecorative1Command extends SetElementCommand {
+  public readonly name = 'Draw BG1';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.decoratives1Map[this.coord] && !data.nospawnsMap[this.coord]) {
@@ -151,6 +157,7 @@ export class SetDecorative1Command extends SetElementCommand {
 }
 
 export class SetDecorative2Command extends SetElementCommand {
+  public readonly name = 'Draw BG2';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.decoratives2Map[this.coord] && !data.nospawnsMap[this.coord]) {
@@ -162,6 +169,7 @@ export class SetDecorative2Command extends SetElementCommand {
 }
 
 export class SetDoorCommand extends SetElementCommand {
+  public readonly name = 'Draw Door';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.doorsMap[this.coord]) {
@@ -173,6 +181,7 @@ export class SetDoorCommand extends SetElementCommand {
 }
 
 export class SetKeyCommand extends SetElementCommand {
+  public readonly name = 'Draw Key';
   public constructor(coord: number, channel: KeyChannel, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (isValidKeyChannel(data.keysMap[this.coord]) && data.keysMap[this.coord] === channel) {
@@ -188,6 +197,7 @@ export class SetKeyCommand extends SetElementCommand {
 }
 
 export class SetLockCommand extends SetElementCommand {
+  public readonly name = 'Draw Lock';
   public constructor(coord: number, channel: KeyChannel, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (isValidKeyChannel(data.locksMap[this.coord]) && data.locksMap[this.coord] === channel) {
@@ -199,6 +209,7 @@ export class SetLockCommand extends SetElementCommand {
 }
 
 export class SetNospawnCommand extends SetElementCommand {
+  public readonly name = 'Draw Nospawn';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     const shouldIgnore = (
@@ -224,6 +235,7 @@ export class SetNospawnCommand extends SetElementCommand {
 }
 
 export class SetPassableCommand extends SetElementCommand {
+  public readonly name = 'Draw Passable';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (data.passablesMap[this.coord] && data.barriersMap[this.coord]) {
@@ -236,6 +248,7 @@ export class SetPassableCommand extends SetElementCommand {
 }
 
 export class SetPortalCommand extends SetElementCommand {
+  public readonly name = 'Draw Portal';
   public constructor(coord: number, channel: PortalChannel, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (isValidPortalChannel(data.portalsMap[this.coord]) && data.portalsMap[this.coord] === channel) {
@@ -248,6 +261,7 @@ export class SetPortalCommand extends SetElementCommand {
 
 // TODO: GET BATCH UPDATE WORKING FOR RECTANGLE FILL
 abstract class SetBatchElementsCommand implements Command {
+  public abstract readonly name: string;
   protected readonly dataRef: React.MutableRefObject<EditorData>;
   protected prevData: EditorData | undefined;
   protected newData: EditorDataSlice | null;
@@ -365,6 +379,7 @@ abstract class SetLineCommand extends SetBatchElementsCommand {
 }
 
 export class DeleteLineCommand extends SetLineCommand {
+  public readonly name = 'Erase';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
   }
@@ -385,6 +400,7 @@ export class DeleteLineCommand extends SetLineCommand {
 }
 
 export class SetLineAppleCommand extends SetLineCommand {
+  public readonly name = 'Draw Apple';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.apple = true;
@@ -395,6 +411,7 @@ export class SetLineAppleCommand extends SetLineCommand {
 }
 
 export class SetLineBarrierCommand extends SetLineCommand {
+  public readonly name = 'Draw Barrier';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.barrier = true;
@@ -405,6 +422,7 @@ export class SetLineBarrierCommand extends SetLineCommand {
 }
 
 export class SetLineDeco1Command extends SetLineCommand {
+  public readonly name = 'Draw BG1';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.deco1 = true;
@@ -415,6 +433,7 @@ export class SetLineDeco1Command extends SetLineCommand {
 }
 
 export class SetLineDeco2Command extends SetLineCommand {
+  public readonly name = 'Draw BG2';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.deco2 = true;
@@ -425,6 +444,7 @@ export class SetLineDeco2Command extends SetLineCommand {
 }
 
 export class SetLineDoorCommand extends SetLineCommand {
+  public readonly name = 'Draw Door';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.door = true;
@@ -435,6 +455,7 @@ export class SetLineDoorCommand extends SetLineCommand {
 }
 
 export class SetLineKeyCommand extends SetLineCommand {
+  public readonly name = 'Draw Key';
   private channel: KeyChannel;
   public constructor(from: number, to: number, channel: KeyChannel, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
@@ -455,6 +476,7 @@ export class SetLineKeyCommand extends SetLineCommand {
 }
 
 export class SetLineLockCommand extends SetLineCommand {
+  public readonly name = 'Draw Lock';
   private channel: KeyChannel;
   public constructor(from: number, to: number, channel: KeyChannel, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
@@ -467,6 +489,7 @@ export class SetLineLockCommand extends SetLineCommand {
 }
 
 export class SetLineNospawnCommand extends SetLineCommand {
+  public readonly name = 'Draw Nospawn';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.nospawn = true;
@@ -495,6 +518,7 @@ export class SetLineNospawnCommand extends SetLineCommand {
 }
 
 export class SetLinePassableCommand extends SetLineCommand {
+  public readonly name = 'Draw Passable';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.passable = true;
@@ -506,6 +530,7 @@ export class SetLinePassableCommand extends SetLineCommand {
 }
 
 export class SetLinePortalCommand extends SetLineCommand {
+  public readonly name = 'Draw Portal';
   private channel: PortalChannel;
   public constructor(from: number, to: number, channel: PortalChannel, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
@@ -534,6 +559,7 @@ abstract class SetRectangleCommand extends SetBatchElementsCommand {
 }
 
 export class DeleteRectangleCommand extends SetRectangleCommand {
+  public readonly name = 'Erase';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
   }
@@ -554,6 +580,7 @@ export class DeleteRectangleCommand extends SetRectangleCommand {
 }
 
 export class SetRectangleAppleCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Apple';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
     this.newData.apple = true;
@@ -564,6 +591,7 @@ export class SetRectangleAppleCommand extends SetRectangleCommand {
 }
 
 export class SetRectangleBarrierCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Barrier';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
     this.newData.barrier = true;
@@ -574,6 +602,7 @@ export class SetRectangleBarrierCommand extends SetRectangleCommand {
 }
 
 export class SetRectangleDeco1Command extends SetRectangleCommand {
+  public readonly name = 'Draw BG1';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
     this.newData.deco1 = true;
@@ -584,6 +613,7 @@ export class SetRectangleDeco1Command extends SetRectangleCommand {
 }
 
 export class SetRectangleDeco2Command extends SetRectangleCommand {
+  public readonly name = 'Draw BG2';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
     this.newData.deco2 = true;
@@ -594,6 +624,7 @@ export class SetRectangleDeco2Command extends SetRectangleCommand {
 }
 
 export class SetRectangleDoorCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Door';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
     this.newData.door = true;
@@ -604,6 +635,7 @@ export class SetRectangleDoorCommand extends SetRectangleCommand {
 }
 
 export class SetRectangleKeyCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Key';
   private channel: KeyChannel;
   public constructor(from: number, to: number, channel: KeyChannel, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
@@ -624,6 +656,7 @@ export class SetRectangleKeyCommand extends SetRectangleCommand {
 }
 
 export class SetRectangleLockCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Lock';
   private channel: KeyChannel;
   public constructor(from: number, to: number, channel: KeyChannel, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
@@ -636,6 +669,7 @@ export class SetRectangleLockCommand extends SetRectangleCommand {
 }
 
 export class SetRectangleNospawnCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Nospawn';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
     this.newData.nospawn = true;
@@ -664,6 +698,7 @@ export class SetRectangleNospawnCommand extends SetRectangleCommand {
 }
 
 export class SetRectanglePassableCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Passable';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
     this.newData.barrier = true;
@@ -675,6 +710,7 @@ export class SetRectanglePassableCommand extends SetRectangleCommand {
 }
 
 export class SetRectanglePortalCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Portal';
   private channel: PortalChannel;
   public constructor(from: number, to: number, channel: PortalChannel, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
@@ -683,5 +719,26 @@ export class SetRectanglePortalCommand extends SetRectangleCommand {
   }
   protected test = (coord: number) => {
     return this.dataRef.current.portalsMap[coord] !== this.channel;
+  };
+}
+
+export class SetPaletteCommand implements Command {
+  public readonly name = 'Set Palette';
+  private newPalette: Palette;
+  private initial: Palette;
+  private optionsRef: React.MutableRefObject<EditorOptions>;
+  private setOptions: (val: EditorOptions) => void;
+  public constructor(newPalette: Palette, optionsRef: React.MutableRefObject<EditorOptions>, setOptions: (val: EditorOptions) => void) {
+    this.newPalette = newPalette;
+    this.optionsRef = optionsRef;
+    this.setOptions = setOptions;
+    this.initial = { ...optionsRef.current.palette };
+  }
+  execute = () => {
+    this.setOptions({ ...this.optionsRef.current, palette: { ...this.newPalette } });
+    return true;
+  };
+  rollback = () => {
+    this.setOptions({ ...this.optionsRef.current, palette: { ...this.initial } });
   };
 }

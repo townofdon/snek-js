@@ -1,9 +1,10 @@
 import { Vector } from "p5";
 import { expect } from "expect";
 
-import { DIR, EditorData, KeyChannel } from "../types";
-import { SetAppleCommand, SetBarrierCommand, SetDecorative1Command, SetKeyCommand, SetNospawnCommand, SetPassableCommand } from "./commands";
+import { DIR, EditorData, EditorOptions, KeyChannel, Palette } from "../types";
+import { SetAppleCommand, SetBarrierCommand, SetDecorative1Command, SetKeyCommand, SetNospawnCommand, SetPaletteCommand, SetPassableCommand } from "./commands";
 import { getCoordIndex2 } from "../utils";
+import { EDITOR_DEFAULTS } from "./editorConstants";
 
 describe('commands', () => {
   const getTestData = (overrides: Partial<EditorData> = {}): EditorData => {
@@ -357,6 +358,43 @@ describe('commands', () => {
       expect(data.barriersMap).toEqual({ [getCoordIndex2(5, 5)]: true });
       expect(data.passablesMap).toEqual({ [getCoordIndex2(5, 5)]: undefined });
       expect(data.keysMap).toEqual({ [getCoordIndex2(5, 5)]: undefined });
+    });
+  });
+  describe('SetPaletteCommand', () => {
+    it('should set and undo setting a palette', () => {
+      const optionsRef: React.MutableRefObject<EditorOptions> = {
+        current: {
+          ...EDITOR_DEFAULTS.options,
+          palette: { ...EDITOR_DEFAULTS.options.palette },
+          portalExitConfig: { ...EDITOR_DEFAULTS.options.portalExitConfig },
+        }
+      };
+      const setOptions = (incoming: EditorOptions) => {
+        optionsRef.current = incoming;
+      }
+      const newPalette: Palette = {
+        background: "#111",
+        playerHead: "#222",
+        playerTail: "#333",
+        playerTailStroke: "#444",
+        barrier: "#555",
+        barrierStroke: "#666",
+        apple: "#777",
+        appleStroke: "#888",
+        door: "#999",
+        doorStroke: "#aaa",
+        deco1: "#bbb",
+        deco1Stroke: "#ccc",
+        deco2: "#ddd",
+        deco2Stroke: "#eee"
+      };
+      const command = new SetPaletteCommand(newPalette, optionsRef, setOptions);
+      command.execute();
+      expect(optionsRef.current.palette).toEqual(newPalette);
+      expect(optionsRef.current.palette.door).toEqual('#999');
+      command.rollback();
+      expect(optionsRef.current.palette).toEqual(EDITOR_DEFAULTS.options.palette);
+      expect(optionsRef.current.palette.apple).toEqual('#15C2CB');
     });
   });
 });

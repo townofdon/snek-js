@@ -1,20 +1,19 @@
 import React, { useEffect } from "react";
 
-import { EditorOptions, Palette } from "../../types";
+import { Palette } from "../../types";
 import { PALETTE, PaletteName } from "../../palettes";
-
-import * as styles from './EditorOptions.css';
 import { SpecialKey, isCharPressed } from "../utils/keyboardUtils";
 
+import * as styles from './EditorOptions.css';
+
 interface SelectPaletteProps {
-  options: EditorOptions;
-  setOptions: (opts: EditorOptions) => void;
+  setPalette: (palette: Palette) => void;
   onClose: () => void;
 }
 
-export const SelectPalette = ({ options, setOptions, onClose }: SelectPaletteProps) => {
+export const SelectPalette = ({ setPalette, onClose }: SelectPaletteProps) => {
   const onSelectPalette = (palette: Palette) => {
-    setOptions({ ...options, palette: { ...palette } })
+    setPalette({ ...palette })
     onClose();
   }
 
@@ -45,12 +44,6 @@ export const SelectPalette = ({ options, setOptions, onClose }: SelectPalettePro
         {renderColorBlock(palette, 'appleStroke')}
       </button>
     );
-  }
-
-  const handleKeyDown = (ev: KeyboardEvent) => {
-    if (isCharPressed(ev, SpecialKey.Escape)) {
-      onClose();
-    }
   }
 
   useEffect(() => {

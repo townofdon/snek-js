@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import React, { useEffect, useRef } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
@@ -72,7 +72,7 @@ enum MouseButton {
 export const Editor = () => {
   const canvas = useRef<HTMLCanvasElement>(null);
   const optionsContainerRef = useRef<HTMLDivElement>(null);
-  const [options, setOptions] = useState<EditorOptions>(EDITOR_DEFAULTS.options)
+  const [options, optionsRef, setOptions] = useRefState<EditorOptions>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
   const [_pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
   const [_futureCommands, futureCommandsRef, setFutureCommands] = useRefState<Command[]>([]);
@@ -311,23 +311,28 @@ export const Editor = () => {
     throw Error('not implemented');
   }
 
-  const updateMap = () => {
-    if (mouseAtRef.current === -1) return;
-    if (getOperation() === Operation.None) return;
-    const command = getCommand();
+  const executeCommand = (command: Command) => {
     const success = command.execute();
-    setLastCoordUpdated(mouseAtRef.current);
-    setMouseFrom(mouseAtRef.current);
     if (success) {
       setPastCommands(prev => [...prev, command]);
       setFutureCommands([]);
     }
   }
 
+  const updateMap = () => {
+    if (mouseAtRef.current === -1) return;
+    if (getOperation() === Operation.None) return;
+    const command = getCommand();
+    executeCommand(command);
+    setLastCoordUpdated(mouseAtRef.current);
+    setMouseFrom(mouseAtRef.current);
+  }
+
   const undo = () => {
     const pastCommands = pastCommandsRef.current;
     const command = pastCommands[pastCommands.length - 1];
     if (!command) return;
+    toast(`Undo ${command.name.toLowerCase()}`, { icon: '⏪', duration: 1500, position: 'bottom-right', className: styles.toastUndo });
     command.rollback();
     setMousePressed(false);
     setTriggerOnRelease(false);
@@ -340,6 +345,7 @@ export const Editor = () => {
     const command = futureCommands[futureCommands.length - 1];
     if (!command) return;
     const success = command.execute();
+    toast(`Redo ${command.name.toLowerCase()}`, { icon: '⏩', duration: 1500, position: 'bottom-right', className: styles.toastRedo });
     if (success) {
       setMousePressed(false);
       setTriggerOnRelease(false);
@@ -542,7 +548,17 @@ export const Editor = () => {
             />
           }
         />
-        <EditorOptionsPanel data={data} options={options} setData={setData} setOptions={setOptions} optionsContainerRef={optionsContainerRef} />
+        <EditorOptionsPanel
+          data={data}
+          options={options}
+          optionsRef={optionsRef}
+          optionsContainerRef={optionsContainerRef}
+          setData={setData}
+          setOptions={setOptions}
+          executeCommand={executeCommand}
+          undo={undo}
+          redo={redo}
+        />
       </div>
       <Toaster
         containerClassName={styles.toastContainer}
