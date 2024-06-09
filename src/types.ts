@@ -15,6 +15,16 @@ import { Howl } from 'howler';
  */
 export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, null | undefined>
 
+export enum Action {
+  FadeMusic = 'FadeMusic',
+  ExecuteQuotesMode = 'ExecuteQuotesMode',
+  SetTitleVariant = 'SetTitleVariant',
+  ChangeMusicLowpass = 'ChangeMusicLowpass',
+  GameOver = 'GameOver',
+  Invincibility = 'Invincibility',
+}
+
+export type ActionKey = keyof typeof Action
 export interface QueryParams {
   enableWarp: boolean,
   enableQuoteMode: boolean,
@@ -429,6 +439,7 @@ export interface FontVariants {
 export interface SFXInstance {
   setGlobalVolume: (volume: number) => void
   play: (sound: keyof SoundVariants, volume?: number) => void
+  playLoop: (sound: keyof SoundVariants, volume?: number) => void
   stop: (sound: keyof SoundVariants) => void
   load: () => void
 }

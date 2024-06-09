@@ -87,6 +87,17 @@ export function rotateDirection(dir: DIR) {
   return dir;
 }
 
+export function getDirectionBetween(from: Vector, to: Vector) {
+  if (!from || !to) return DIR.RIGHT;
+  const diffX = clamp(from.x - to.x, -1, 1);
+  const diffY = clamp(from.y - to.y, -1, 1);
+  if (diffX === -1) return DIR.LEFT;
+  if (diffX === 1) return DIR.RIGHT;
+  if (diffY === -1) return DIR.UP;
+  if (diffY === 1) return DIR.DOWN;
+  return DIR.RIGHT;
+}
+
 export function getRotationFromDirection(direction: DIR) {
   switch (direction) {
     case DIR.UP:

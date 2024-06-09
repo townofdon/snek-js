@@ -44,11 +44,10 @@ export class ImpactParticleSystem2 implements ParticleSystem2 {
     scaleVariance: DEFAULT_EMITTER_OPTIONS.scaleVariance * SCALE_MOD,
   }
 
-  constructor(p5: P5, level: Level, emitters: Emitters, gradients: Gradients) {
+  constructor(p5: P5, emitters: Emitters, gradients: Gradients) {
     this.p5 = p5;
     this.emitters = emitters;
     this.gradients = gradients;
-    this.setColorsFromLevel(level);
   }
 
   public setColorsFromLevel = (level: Level) => {

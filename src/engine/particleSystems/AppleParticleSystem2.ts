@@ -42,11 +42,10 @@ export class AppleParticleSystem2 implements ParticleSystem2 {
     easingFnc: Easing.outCubic,
   }
 
-  constructor(p5: P5, level: Level, emitters: Emitters, gradients: Gradients) {
+  constructor(p5: P5, emitters: Emitters, gradients: Gradients) {
     this.p5 = p5;
     this.emitters = emitters;
     this.gradients = gradients;
-    this.setColorsFromLevel(level);
   }
 
   public setColorsFromLevel = (level: Level) => {

@@ -1,8 +1,9 @@
 import P5 from "p5";
+import Color from "color";
+
 import { FontsInstance, Image, MusicTrack, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
-import Color from "color";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { OST_MODE_TRACKS } from "../constants";
 import { getTrackName } from "../utils";

@@ -1,4 +1,4 @@
-import P5 from "p5";
+import P5, { Vector } from "p5";
 
 import { ScreenShakeState, Image } from "../types";
 import { BLOCK_SIZE, STROKE_SIZE } from "../constants";
@@ -8,7 +8,7 @@ const IMAGE_SCALE = 1.01;
 
 interface SpriteRendererConstructorProps {
   p5: P5
-  screenShake: ScreenShakeState
+  screenShake?: ScreenShakeState
 }
 
 export class SpriteRenderer {
@@ -47,7 +47,13 @@ export class SpriteRenderer {
 
   constructor(props: SpriteRendererConstructorProps) {
     this.p5 = props.p5;
-    this.screenShake = props.screenShake;
+    this.screenShake = props.screenShake || {
+      offset: new Vector(0, 0),
+      timeSinceStarted: 0,
+      timeSinceLastStep: 0,
+      magnitude: 0,
+      timeScale: 0
+    };
   }
 
   private fullPath(image: Image): string {
@@ -58,6 +64,10 @@ export class SpriteRenderer {
     this.p5.loadImage(this.fullPath(image), (loadedImage) => {
       this.images[image] = loadedImage;
     })
+  }
+
+  setScreenShake = (value: ScreenShakeState) => {
+    this.screenShake = value;
   }
 
   setIsStaticCached = (value: boolean) => {
