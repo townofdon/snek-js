@@ -566,6 +566,7 @@ export interface Replay {
   positions: Record<number, [number, number]>
   timeCaptureStarted: string,
   shouldProceedToNextClip: boolean,
+  lastFrame: number,
 }
 
 export enum PortalExitMode {

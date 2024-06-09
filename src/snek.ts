@@ -137,6 +137,7 @@ const replay: Replay = {
   positions: {},
   timeCaptureStarted: 'no-date',
   shouldProceedToNextClip: false,
+  lastFrame: 0,
 }
 const tutorial: Tutorial = {
   needsMoveControls: false,
@@ -914,13 +915,14 @@ export const sketch = (p5: P5) => {
         console.warn(`clip at index ${clipIndex} was null - clips.length=${clips.length}`);
         break;
       }
-
+      const frames = Object.keys(clip.positions);
+      const lastFrame = frames.length > 0 ? Number(frames[frames.length - 1]) : 0;
       replay.shouldProceedToNextClip = false;
       replay.applesToSpawn = clip.applesToSpawn.slice();
       replay.difficulty = { ...clip.difficulty };
       replay.levelIndex = clip.levelIndex;
       replay.positions = clip.positions;
-
+      replay.lastFrame = lastFrame;
       setLevel(getWarpLevelFromNum(clip.levelIndex));
       setLevelIndexFromCurrentLevel();
       setDifficulty(clip.difficulty);

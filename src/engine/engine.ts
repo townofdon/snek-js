@@ -1347,6 +1347,9 @@ export function engine({
       player.direction = getDirectionSnakeForward();
       player.directionToFirstSegment = invertDirection(player.direction);
     }
+    if (state.frameCount > replay.lastFrame) {
+      proceedToNextReplayClip();
+    }
   }
 
   function handleCaptureReplayInfo(didMove: boolean, didHit: boolean) {
