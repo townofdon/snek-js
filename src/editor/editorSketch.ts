@@ -234,6 +234,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       positions: undefined,
       timeCaptureStarted: "",
       shouldProceedToNextClip: false,
+      lastFrame: 0,
     }
     const tutorial: Tutorial = {
       needsMoveControls: false,

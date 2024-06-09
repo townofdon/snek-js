@@ -1,5 +1,6 @@
 import { getAnalyser, getMusicLowpassFrequency, getMusicVolume, getTimeElapsed, loadAudioToBuffer, playMusic, setMusicLowpassFrequency, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
 import { GameSettings, MusicTrack } from "../types";
+import { getRelativeDir } from "../utils";
 
 const DEBUG_MUSIC = false;
 const USE_MP3 = true;
@@ -58,9 +59,8 @@ export class MusicPlayer {
   private settings: GameSettings;
 
   private fullPath(track: MusicTrack): string {
-    const relativeDir = process.env.NODE_ENV === 'production' ? '' : window.location.pathname;
     const trackPath = USE_MP3 ? `mp3/${track.replace('.wav', '.mp3')}` : track;
-    return `${relativeDir}assets/music/${trackPath}`;
+    return `${getRelativeDir()}assets/music/${trackPath}`;
   }
 
   constructor(settings: GameSettings) {

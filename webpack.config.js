@@ -16,6 +16,7 @@ const config = {
   entry: {
     main: './src/index.ts',
     editor: './src/editor/index',
+    preview: './src/preview/index',
   },
   output: {
     filename: '[name].bundle-[contenthash].js',
@@ -48,9 +49,9 @@ const config = {
       inject: false,
     }),
     new HtmlWebpackPlugin({
-      title: 'SNEK LEVEL PLAYER',
-      filename: 'player/index.html',
-      template: './public/pages/player/index.ejs',
+      title: 'SNEK LEVEL PREVIEW',
+      filename: 'preview/index.html',
+      template: './public/pages/preview/index.ejs',
       inject: false,
     }),
     new MiniCssExtractPlugin({

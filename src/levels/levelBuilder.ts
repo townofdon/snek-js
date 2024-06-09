@@ -1,7 +1,7 @@
 import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
 import { KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
-import { getCoordIndex } from "../utils";
+import { coordToVec, getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./level01";
 
 export function buildLevel(level: Level): LevelData {
@@ -196,6 +196,10 @@ export function buildLevel(level: Level): LevelData {
   data.locks.forEach(lock => { data.locksMap[getCoordIndex(lock.position)] = lock; });
 
   linkPortals(data);
+
+  if (level.snakeSpawnPointOverride) {
+    data.playerSpawnPosition = coordToVec(level.snakeSpawnPointOverride);
+  }
 
   return data;
 }

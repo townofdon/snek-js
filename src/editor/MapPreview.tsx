@@ -18,7 +18,7 @@ export const MapPreview = ({ data, options, isPreviewShowing, setPreviewShowing 
   const url = useMemo(() => {
     if (!isPreviewShowing) return '';
     const encoded = encodeMapData(data, options);
-    return `/snek-js/?data=${encoded}`;
+    return `/snek-js/preview/?data=${encoded}`;
   }, [data, options, isPreviewShowing]);
 
   useEffect(() => {

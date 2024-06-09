@@ -8,6 +8,7 @@ import {
   DEBUG_EASY_LEVEL_EXIT,
   DEFAULT_PORTALS,
   DIFFICULTY_EASY,
+  DIFFICULTY_MEDIUM,
   DIMENSIONS,
   DISABLE_TRANSITIONS,
   FRAMERATE,
@@ -136,7 +137,7 @@ interface EngineParams {
   state: GameState,
   stats: Stats,
   settings: GameSettings,
-  replay: Replay,
+  replay?: Replay,
   tutorial: Tutorial,
   fonts: FontsInstance,
   sfx: SFXInstance,
@@ -223,6 +224,19 @@ export function engine({
     magnitude: 1,
     timeScale: 1,
   };
+  if (!replay) {
+    replay = {
+      mode: ReplayMode.Disabled,
+      levelIndex: -1,
+      levelName: 'no-level',
+      difficulty: { ...DIFFICULTY_MEDIUM },
+      applesToSpawn: [],
+      positions: {},
+      timeCaptureStarted: 'no-date',
+      shouldProceedToNextClip: false,
+      lastFrame: 0,
+    }
+  }
 
   const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true };
   const drawPlayerOptionsDeath: DrawSquareOptions = { is3d: true, optimize: true, screenshakeMul: -1 };

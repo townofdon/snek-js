@@ -49,3 +49,18 @@ export class UnlockedMusicStore extends BaseStore<UnlockedMusicTracks> {
     this.state = { ...this.defaultValue };
   }
 }
+
+class NoOpUnlockedMusicStoreImpl extends UnlockedMusicStore {
+  public get key(): string {
+    return "no-op-unlocked-tracks"
+  }
+  public getIsUnlocked = (track: MusicTrack): boolean => {
+    return false;
+  }
+
+  public unlockTrack = (track: MusicTrack): void => {}
+
+  public reset = () => {}
+}
+
+export const NoOpUnlockedMusicStore = new NoOpUnlockedMusicStoreImpl();

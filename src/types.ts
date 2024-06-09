@@ -247,6 +247,7 @@ export interface Level {
   growthMod?: number,
   extraHurtGraceTime?: number,
   snakeStartSizeOverride?: number,
+  snakeSpawnPointOverride?: number,
   disableAppleSpawn?: boolean,
   disableNormalLoseMessages?: boolean,
   disableWallCollision?: boolean,
