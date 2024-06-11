@@ -18,6 +18,7 @@
   font-family: 'BIOSfontII', 'VT323', monospace;
   font-family: "Courier New", monospace;
   background: #eee;
+  background: #c0cdd3;
   color: #333;
 
   &.fullWidth {
@@ -52,7 +53,8 @@ input[type="range"] {
 
 .colorInput {
   display: block;
-  padding-left: 20px;
+  padding-left: 22px;
+  padding-top: 4px;
   width: 120px;
 }
 
@@ -71,8 +73,8 @@ input[type="range"] {
   font-family: "Courier New", monospace;
   font-size: 1.1em;
   font-weight: 900;
-  color: #999;
-  background: #ddd;
+  color: #79868f;
+  background: #a6b7c3;
 }
 
 .colorInputPreview {

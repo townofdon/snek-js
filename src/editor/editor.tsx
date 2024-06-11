@@ -388,6 +388,11 @@ export const Editor = () => {
   };
 
   const handleMouseDown = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    if (isPreviewShowing) {
+      setMousePressed(false);
+      setTriggerOnRelease(false);
+      return;
+    }
     // if already pressed, and different mouse button gets clicked, cancel the current operation
     if (mousePressedRef.current && ev.nativeEvent.button !== 0) {
       setMousePressed(false);

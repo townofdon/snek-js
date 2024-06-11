@@ -562,6 +562,7 @@ button {
   font-family: "BIOSfontII", "VT323", monospace;
   font-family: "Courier New", monospace;
   background: #eee;
+  background: #c0cdd3;
   color: #333;
 }
 .input--_oHfXLzBtCkuI50Iku60.fullWidth--GZouWjhla_r1mpZGuUBR {
@@ -595,7 +596,8 @@ input[type=range] {
 
 .colorInput--iDZhutJaUnSgOR2VvZQa {
   display: block;
-  padding-left: 20px;
+  padding-left: 22px;
+  padding-top: 4px;
   width: 120px;
 }
 
@@ -614,8 +616,8 @@ input[type=range] {
   font-family: "Courier New", monospace;
   font-size: 1.1em;
   font-weight: 900;
-  color: #999;
-  background: #ddd;
+  color: #79868f;
+  background: #a6b7c3;
 }
 
 .colorInputPreview--IYHwXqi2IZXsTPWRDnQl {
@@ -731,7 +733,7 @@ input[type=range].range--RAtUGcOxDnbVq8ni3AS1:active::-webkit-slider-thumb {
   width: 55px;
   height: 20px;
   padding: 0;
-  border-radius: 2px;
+  border-radius: 4px;
   background-color: #4D4D4D;
   -webkit-transition: all 0.2s ease;
   -moz-transition: all 0.2s ease;

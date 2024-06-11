@@ -185,7 +185,7 @@ export const sketch = (p5: P5) => {
     handleInputAction,
     onUINavigate,
     onGameOver,
-    onGameOverCobra,
+    onGameOverCobra: onGameOver,
     onRecordLevelProgress: () => {},
   });
 
@@ -410,11 +410,9 @@ export const sketch = (p5: P5) => {
     resetLevel({ shouldShowTransitions, transition: titleScene });
   }
 
-  function onGameOverCobra() {
-    initLevel(false);
-  }
-
   function onGameOver() {
+    stats.score = 0;
+    stats.numLevelsCleared = 0;
     initLevel(false);
   }
 
