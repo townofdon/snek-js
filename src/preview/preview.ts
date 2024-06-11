@@ -518,6 +518,7 @@ function loadLevel(): Level {
       timeToClear: options.timeToClear,
       applesToClear: options.applesToClear,
       numApplesStart: options.numApplesStart,
+      applesModOverride: 1,
       snakeStartSizeOverride: Math.max(options.snakeStartSize, 3),
       disableAppleSpawn: options.disableAppleSpawn,
       globalLight: options.globalLight,
@@ -536,3 +537,4 @@ function loadLevel(): Level {
     return LEVEL_01;
   }
 }
+

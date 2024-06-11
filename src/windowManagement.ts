@@ -1,8 +1,7 @@
 import { DIMENSIONS } from "./constants";
+import { lerp } from "./utils";
 
 window.addEventListener('resize', handleWindowResize)
-
-const SCALE_STEP_SIZE = 0.05;
 
 interface WindowState {
   isResizing: boolean,
@@ -32,12 +31,10 @@ function incrementallyScaleWindow() {
     state.isResizing = false;
     return;
   }
-  if (state.currentScale < state.targetScale) {
-    state.currentScale = Math.min(state.currentScale + SCALE_STEP_SIZE, state.targetScale);
-  } else {
-    state.currentScale = Math.max(state.currentScale - SCALE_STEP_SIZE, state.targetScale);
-  }
+  state.currentScale = lerp(state.currentScale, state.targetScale, 0.1);
   const main = document.getElementById('main');
+  main.style.width = `${DIMENSIONS.x}px`;
+  main.style.height = `${DIMENSIONS.y}px`;
   main.style.transform = `scale(${state.currentScale})`;
   requestAnimationFrame(incrementallyScaleWindow);
 }

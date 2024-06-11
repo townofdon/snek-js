@@ -339,7 +339,7 @@ export const sketch = (p5: P5) => {
     state.isGameStarting = false;
     setLevel(MAIN_TITLE_SCREEN_LEVEL);
     UI.setP5Instance(p5);
-    const canvas = document.getElementById("game-canvas");
+    const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
     if (!canvas) throw new Error('could not find canvas with id="game-canvas"');
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
     p5.frameRate(FRAMERATE);

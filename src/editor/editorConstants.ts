@@ -24,7 +24,7 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
   },
   options: {
     name: 'Untitled Map',
-    timeToClear: 60,
+    timeToClear: 60000,
     applesToClear: 20,
     numApplesStart: 3,
     disableAppleSpawn: false,
