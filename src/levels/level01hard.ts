@@ -1,5 +1,4 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 import { LEVEL_01 } from "./level01";
 import { LEVEL_02 } from "./level02";

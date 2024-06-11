@@ -1,6 +1,5 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 
 const name = 'bait&switch'

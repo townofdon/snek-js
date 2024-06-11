@@ -1,5 +1,4 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PickupType, PortalExitMode } from "../types";
 import { getCoordIndex2 } from "../utils";
 import { VARIANT_LEVEL_99 } from "./bonusLevels/variantLevel99";

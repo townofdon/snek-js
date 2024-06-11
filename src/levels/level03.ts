@@ -1,5 +1,4 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 import { getCoordIndex2 } from "../utils";
 import { SECRET_LEVEL_10 } from "./bonusLevels/secretLevel10";

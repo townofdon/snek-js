@@ -91,8 +91,10 @@ import {
   UINavEventHandler,
 } from "../types";
 import {
+  checkHasPortalAtLocation,
   clamp,
   dirToUnitVector,
+  getBestPortalExitDirection,
   getCoordIndex,
   getCoordIndex2,
   getDifficultyFromIndex,
@@ -116,7 +118,16 @@ import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
 import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
 import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
 import { buildLevel } from '../levels/levelBuilder';
-import { LEVELS, LEVEL_99, LEVEL_WIN_GAME, MAIN_TITLE_SCREEN_LEVEL, START_LEVEL, START_LEVEL_COBRA, VARIANT_LEVEL_99 } from '../levels';
+import {
+  LEVELS,
+  LEVEL_14,
+  LEVEL_99,
+  LEVEL_WIN_GAME,
+  MAIN_TITLE_SCREEN_LEVEL,
+  START_LEVEL,
+  START_LEVEL_COBRA,
+  VARIANT_LEVEL_99,
+} from "../levels";
 import { WinLevelScene } from '../scenes/WinLevelScene';
 import { findLevelWarpIndex } from '../levels/levelUtils';
 import { SpriteRenderer } from './spriteRenderer';
@@ -1117,7 +1128,7 @@ export function engine({
 
   function checkPlayerWillHit(dir: DIR, numMoves = 1): boolean {
     const pos = player.position.copy();
-    const currentMove = dirToUnitVector(p5, dir);
+    const currentMove = dirToUnitVector(dir);
     for (let i = 0; i < numMoves; i++) {
       const futurePosition = pos.add(currentMove);
       const willHit = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, dir);
@@ -1131,10 +1142,15 @@ export function engine({
     const portal = portalsMap[getCoordIndex(position)];
     if (!portal) return false;
     if (!portal.link) return false;
-    const newDir = (level.portalExitConfig?.[portal.channel] || portal.exitMode) === PortalExitMode.InvertDirection
-      ? invertDirection(dir)
-      : dir;
-    return checkHasHit(portal.link.copy().add(dirToUnitVector(p5, newDir)));
+    const newDir = getBestPortalExitDirection({
+      portalLink: portal.link,
+      playerDirection: player.direction,
+      portalExitMode: level.portalExitConfig?.[portal.channel] || portal.exitMode,
+      checkHasHit,
+      hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, portalsMap),
+      ignoreBestCheck: level === LEVEL_14,
+    });
+    return checkHasHit(portal.link.copy().add(dirToUnitVector(newDir)));
   }
 
   function handlePortalTravel() {
@@ -1146,18 +1162,20 @@ export function engine({
       return;
     }
     playSound(Sound.warp);
-    switch (level.portalExitConfig?.[portal.channel] || portal.exitMode) {
-      case PortalExitMode.InvertDirection:
-        player.direction = invertDirection(player.direction);
-        player.directionToFirstSegment = invertDirection(player.direction);
-        break;
-      case PortalExitMode.SameDirection:
-        break;
-    }
+    const newDir = getBestPortalExitDirection({
+      portalLink: portal.link,
+      playerDirection: player.direction,
+      portalExitMode: level.portalExitConfig?.[portal.channel] || portal.exitMode,
+      checkHasHit,
+      hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, portalsMap),
+      ignoreBestCheck: level === LEVEL_14,
+    });
+    player.direction = newDir;
+    player.directionToFirstSegment = invertDirection(player.direction);
     state.timeSinceLastMove = 0;
     state.timeSinceLastTeleport = 0;
     player.position.set(portal.link);
-    player.position.add(dirToUnitVector(p5, player.direction));
+    player.position.add(dirToUnitVector(player.direction));
   }
 
   function handleKeyPickup() {
@@ -1207,10 +1225,10 @@ export function engine({
     startScreenShake(0.7, 0.5);
     const group: Record<number, boolean> = {}
     const directionsToCheck: Vector[] = [
-      dirToUnitVector(p5, DIR.LEFT),
-      dirToUnitVector(p5, DIR.RIGHT),
-      dirToUnitVector(p5, DIR.UP),
-      dirToUnitVector(p5, DIR.DOWN),
+      dirToUnitVector(DIR.LEFT),
+      dirToUnitVector(DIR.RIGHT),
+      dirToUnitVector(DIR.UP),
+      dirToUnitVector(DIR.DOWN),
     ]
     const addTouchingLocksToGroup = (lock: Lock) => {
       group[lock.coord] = true;
@@ -1279,7 +1297,7 @@ export function engine({
       const move = moves.shift();
       if (move && move !== player.directionToFirstSegment) player.direction = move;
     }
-    const currentMove = dirToUnitVector(p5, player.direction);
+    const currentMove = dirToUnitVector(player.direction);
     const futurePosition = player.position.copy().add(currentMove);
 
     // disallow snake moving backwards into itself
@@ -1519,7 +1537,7 @@ export function engine({
       return;
     }
 
-    const currentMove = dirToUnitVector(p5, move);
+    const currentMove = dirToUnitVector(move);
     const futurePosition = isGameOver
       ? segments.get(0).copy().add(currentMove)
       : player.position.copy().add(currentMove);

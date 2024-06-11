@@ -1,5 +1,4 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, TitleVariant } from "../types";
 import { getCoordIndex2 } from "../utils";
 import { WARP_ZONE_01 } from "./bonusLevels/warpZone01";

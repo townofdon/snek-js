@@ -1,4 +1,5 @@
-import P5, { Vector } from "p5";
+import { Vector } from "p5";
+
 import {
   DIFFICULTY_EASY,
   DIFFICULTY_HARD,
@@ -6,8 +7,18 @@ import {
   DIFFICULTY_ULTRA,
   GRIDCOUNT,
 } from "./constants";
-
-import { DIR, Difficulty, KeyChannel, Level, MusicTrack, PortalChannel, QueryParams, Stats } from "./types";
+import {
+  DIR,
+  Difficulty,
+  KeyChannel,
+  Level,
+  MusicTrack,
+  Portal,
+  PortalChannel,
+  PortalExitMode,
+  QueryParams,
+  Stats,
+} from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
   const clamped = Math.max(Math.min(val, maxVal), minVal);
@@ -111,18 +122,18 @@ export function getRotationFromDirection(direction: DIR) {
   }
 }
 
-export function dirToUnitVector(p5: P5, dir: DIR): Vector {
+export function dirToUnitVector(dir: DIR): Vector {
   switch (dir) {
     case DIR.LEFT:
-      return p5.createVector(-1, 0);
+      return new Vector(-1, 0);
     case DIR.RIGHT:
-      return p5.createVector(1, 0);
+      return new Vector(1, 0);
     case DIR.UP:
-      return p5.createVector(0, -1);
+      return new Vector(0, -1);
     case DIR.DOWN:
-      return p5.createVector(0, 1);
+      return new Vector(0, 1);
     default:
-      return p5.createVector(0, 0);
+      return new Vector(0, 0);
   }
 }
 
@@ -311,5 +322,100 @@ export const toDIR = (dir: string): DIR => {
     case DIR.RIGHT:
     default:
       return DIR.RIGHT;
+  }
+}
+
+export function isOutsideMap(location: Vector) {
+  return location.x < 0 || location.x >= GRIDCOUNT.x || location.y < 0 || location.y >= GRIDCOUNT.y;
+}
+
+export function checkHasPortalAtLocation(location: Vector, portalsMap: Record<number, Portal>) {
+  return !!portalsMap[getCoordIndex(location)];
+}
+
+interface GetBestPortalExitDirectionArgs {
+  portalLink: Vector | undefined,
+  playerDirection: DIR,
+  portalExitMode: PortalExitMode,
+  checkHasHit: (location: Vector) => boolean,
+  hasPortalAtLocation: (location: Vector) => boolean,
+  ignoreBestCheck?: boolean,
+}
+export function getBestPortalExitDirection({
+  portalLink,
+  playerDirection,
+  portalExitMode,
+  checkHasHit,
+  hasPortalAtLocation,
+  ignoreBestCheck,
+}: GetBestPortalExitDirectionArgs) {
+  if (!portalLink) return playerDirection;
+  const newDir = portalExitMode === PortalExitMode.InvertDirection
+    ? invertDirection(playerDirection)
+    : playerDirection;
+  if (ignoreBestCheck) {
+    return newDir;
+  }
+  let scoreLeft = 0, scoreRight = 0, scoreUp = 0, scoreDown = 0;
+  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.LEFT)))) {
+    scoreLeft += 1000;
+  }
+  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.RIGHT)))) {
+    scoreRight += 1000;
+  }
+  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.UP)))) {
+    scoreUp += 1000;
+  }
+  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.DOWN)))) {
+    scoreDown += 1000;
+  }
+  if (isOutsideMap(portalLink.copy().add(dirToUnitVector(DIR.LEFT)))) {
+    scoreLeft += 100;
+  }
+  if (isOutsideMap(portalLink.copy().add(dirToUnitVector(DIR.RIGHT)))) {
+    scoreRight += 100;
+  }
+  if (isOutsideMap(portalLink.copy().add(dirToUnitVector(DIR.UP)))) {
+    scoreUp += 100;
+  }
+  if (isOutsideMap(portalLink.copy().add(dirToUnitVector(DIR.DOWN)))) {
+    scoreDown += 100;
+  }
+  if (hasPortalAtLocation(portalLink.copy().add(dirToUnitVector(DIR.LEFT)))) {
+    scoreLeft += 10;
+  }
+  if (hasPortalAtLocation(portalLink.copy().add(dirToUnitVector(DIR.RIGHT)))) {
+    scoreRight += 10;
+  }
+  if (hasPortalAtLocation(portalLink.copy().add(dirToUnitVector(DIR.UP)))) {
+    scoreUp += 10;
+  }
+  if (hasPortalAtLocation(portalLink.copy().add(dirToUnitVector(DIR.DOWN)))) {
+    scoreDown += 10;
+  }
+  if (newDir !== DIR.LEFT) {
+    scoreLeft += 1;
+  }
+  if (newDir !== DIR.RIGHT) {
+    scoreRight += 1;
+  }
+  if (newDir !== DIR.UP) {
+    scoreUp += 1;
+  }
+  if (newDir !== DIR.DOWN) {
+    scoreDown += 1;
+  }
+  const lowestScore = Math.min(scoreLeft, scoreRight, scoreUp, scoreDown);
+  switch (lowestScore) {
+    case scoreLeft:
+      return DIR.LEFT;
+    case scoreRight:
+      return DIR.RIGHT;
+    case scoreUp:
+      return DIR.UP;
+    case scoreDown:
+      return DIR.DOWN;
+    default:
+      return newDir;
   }
 }

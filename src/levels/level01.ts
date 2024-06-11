@@ -1,6 +1,4 @@
-import Color from "color";
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { TitleScene } from "../scenes/TitleScene";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 
 const name = 'snekadia'
