@@ -12,9 +12,10 @@ import { PanelColors } from "./PanelColors";
 import { PanelSave } from "./PanelSave";
 import throttle from "throttleit";
 
-import * as styles from './EditorOptions.css';
 import { Command, SetPaletteCommand } from "../commands";
 import { SetStateValue } from "../editorTypes";
+
+import * as styles from './EditorOptions.css';
 
 interface EditorOptionsPanelProps {
   data: EditorData;
@@ -59,7 +60,7 @@ export const EditorOptionsPanel = ({
           <PanelColors options={options} setPalette={setPalette} undo={undo} redo={redo} />
         </TabPanel>
         <TabPanel id={OptionsTab.Save}>
-          <PanelSave data={data} options={options} setOptions={setOptions} />
+          <PanelSave data={data} options={options} setData={setData} setOptions={setOptions} />
         </TabPanel>
       </Tabs>
     </div>

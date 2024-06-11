@@ -5,7 +5,7 @@ import JSONCrush from './JSONCrush/JSONCrush';
 
 import { DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PortalChannel, PortalExitMode } from '../../types'
 import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../../utils';
-import { GRIDCOUNT } from '../../constants';
+import { GRIDCOUNT, START_SNAKE_SIZE } from '../../constants';
 import { bton, ntob } from './Base64';
 import { buildLevel } from '../../levels/levelBuilder';
 import { LEVEL_01 } from '../../levels';
@@ -136,7 +136,7 @@ export function decodeMapData(encoded: string): [EditorData, EditorOptions] {
   return [data, options];
 }
 
-export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vector, startDirection: DIR): EditorData {
+export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vector | undefined, startDirection: DIR): EditorData {
   const level: Level = {
     name: undefined,
     layout,
@@ -156,7 +156,7 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     keysMap: {},
     locksMap: {},
     portalsMap: {},
-    playerSpawnPosition,
+    playerSpawnPosition: playerSpawnPosition ?? levelData.playerSpawnPosition,
     startDirection,
   }
   for (let y = 0; y < GRIDCOUNT.y; y++) {
@@ -195,6 +195,24 @@ export function vectorsToBitmask(vectors: Vector[]): string {
     }
   }
   return parts.join('-');
+}
+
+export function getEditorDataFromLevel(level: Level): [EditorData, EditorOptions] {
+  const data = getEditorDataFromLayout(level.layout, undefined, DIR.RIGHT);
+  const options: EditorOptions = {
+    name: level.name,
+    timeToClear: level.timeToClear,
+    applesToClear: level.applesToClear,
+    numApplesStart: level.numApplesStart || 3,
+    disableAppleSpawn: level.disableAppleSpawn || false,
+    snakeStartSize: level.snakeStartSizeOverride ?? START_SNAKE_SIZE,
+    growthMod: level.growthMod ?? 1,
+    extraHurtGraceTime: level.extraHurtGraceTime ?? 0,
+    globalLight: level.globalLight ?? 1,
+    palette: level.colors,
+    portalExitConfig: level.portalExitConfig,
+  };
+  return [data, options];
 }
 
 export function bitmaskToVectors(encoded: string): Vector[] {

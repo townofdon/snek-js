@@ -172,6 +172,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       return false;
     }
     const getIsDiffPortalExitConfig = () => {
+      if (!options.portalExitConfig && !incoming.portalExitConfig) return false;
+      if (!options.portalExitConfig || !incoming.portalExitConfig) return true;
       for (let i = 0; i < 10; i++) {
         if (isValidPortalChannel(i)) {
           if (options.portalExitConfig[i] !== incoming.portalExitConfig[i]) {

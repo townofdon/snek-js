@@ -27,12 +27,13 @@ interface StackProps {
   justify?: keyof typeof Justify;
   row?: boolean
   col?: boolean
+  marginBottom?: boolean
 }
 
-export const Stack = ({ row, col, align, justify, children }: StackProps) => {
+export const Stack = ({ row, col, align = 'start', justify = 'start', marginBottom, children }: StackProps) => {
   return (
     <div className={cx(styles.stack, {
-      [styles.row]: row,
+      [styles.row]: row || (!row && !col),
       [styles.col]: col,
       [styles.alignStart]: align === Align.start,
       [styles.alignEnd]: align === Align.end,
@@ -43,6 +44,7 @@ export const Stack = ({ row, col, align, justify, children }: StackProps) => {
       [styles.justifyEnd]: justify === Justify.end,
       [styles.justifySpaceAround]: justify === Justify.spaceAround,
       [styles.justifySpaceBetween]: justify === Justify.spaceBetween,
+      [styles.marginBottom]: marginBottom,
     })}>
       {children}
     </div>

@@ -457,6 +457,7 @@ function loadLevel(): Level {
       return LEVEL_01;
     }
     const [data, options] = decodeMapData(queryData);
+    const layout = buildMapLayout(data);
     const level: Level = {
       name: options.name,
       timeToClear: options.timeToClear,
@@ -470,7 +471,7 @@ function loadLevel(): Level {
       showTitle: false,
       showQuoteOnLevelWin: false,
       musicTrack: MusicTrack.None,
-      layout: buildMapLayout(data),
+      layout,
       colors: getExtendedPalette(options.palette),
       playWinSound: true,
     };
