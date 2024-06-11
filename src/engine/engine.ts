@@ -141,6 +141,7 @@ import { Coroutines } from './coroutines';
 import { UI } from '../ui/ui';
 import { buildSceneActionFactory } from '../scenes/sceneUtils';
 import { TitleScene } from '../scenes/TitleScene';
+import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 
 interface EngineParams {
   p5: P5,
@@ -520,6 +521,20 @@ export function engine({
       renderScoreUI();
       renderLevelName();
       UI.showGfxCanvas();
+    }
+
+    if (level.layoutV2?.length) {
+      try {
+        // const query = new URLSearchParams(`?data=${level.layoutV2}`);
+        // const queryData = query.get('data');
+        // const [data] = decodeMapData(queryData);
+        const [data] = decodeMapData(level.layoutV2);
+        level.layout = buildMapLayout(data);
+        level.snakeSpawnPointOverride = getCoordIndex(data.playerSpawnPosition);
+      } catch (err) {
+        console.error(err);
+        console.error(`Unable to parse layoutV2 data for level "${level.name}"`);
+      }
     }
 
     const levelData = buildLevel(level);
@@ -1148,7 +1163,7 @@ export function engine({
       portalExitMode: level.portalExitConfig?.[portal.channel] || portal.exitMode,
       checkHasHit,
       hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, portalsMap),
-      ignoreBestCheck: level === LEVEL_14,
+      // ignoreBestCheck: level === LEVEL_14,
     });
     return checkHasHit(portal.link.copy().add(dirToUnitVector(newDir)));
   }
@@ -1168,7 +1183,7 @@ export function engine({
       portalExitMode: level.portalExitConfig?.[portal.channel] || portal.exitMode,
       checkHasHit,
       hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, portalsMap),
-      ignoreBestCheck: level === LEVEL_14,
+      // ignoreBestCheck: level === LEVEL_14,
     });
     player.direction = newDir;
     player.directionToFirstSegment = invertDirection(player.direction);

@@ -312,7 +312,7 @@ export const isValidKeyChannel = (channel: number): channel is KeyChannel => {
 }
 
 export const toDIR = (dir: string): DIR => {
-  switch (dir.toUpperCase()) {
+  switch (String(dir).toUpperCase()) {
     case DIR.DOWN:
       return DIR.DOWN;
     case DIR.UP:

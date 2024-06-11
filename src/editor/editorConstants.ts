@@ -1,5 +1,3 @@
-import { Vector } from 'p5';
-
 import { DIR, EditorData, EditorOptions, PortalExitMode } from '../types'
 import { PALETTE } from '../palettes';
 import { buildLevel } from '../levels/levelBuilder';

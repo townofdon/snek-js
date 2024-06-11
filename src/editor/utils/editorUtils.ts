@@ -18,7 +18,7 @@ export function encode(layout: string): string {
 }
 
 export function decode(encoded: string): string {
-  return JSONCrush.uncrush(Buffer.from(decodeURIComponent(encoded), 'base64').toString())
+  return JSONCrush.uncrush(Buffer.from(decodeURIComponent(decodeURI(encoded)), 'base64').toString())
 }
 
 export function encodeMapData(data: EditorData, options: EditorOptions): string {
@@ -87,8 +87,8 @@ export function decodeMapData(encoded: string): [EditorData, EditorOptions] {
     growthMod,
     extraHurtGraceTime,
     globalLight,
-    paletteStr,
-    portalExitConfigStr,
+    paletteStr = '',
+    portalExitConfigStr = '',
   ] = parts;
 
   const playerSpawnPosition = coordToVec(NumberOrDefault(playerSpawnPositionStr, 15 + 15 * 30));

@@ -242,6 +242,7 @@ export interface Level {
   timeToClear: number,
   applesToClear: number,
   layout: string,
+  layoutV2?: string,
   colors: ExtendedPalette,
   numApplesStart?: number,
   growthMod?: number,
