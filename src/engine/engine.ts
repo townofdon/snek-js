@@ -1395,7 +1395,7 @@ export function engine({
       startAction(fadeMusic(0, 1000), Action.FadeMusic);
       if (isStartLevel) {
         playSound(Sound.doorOpenHuge);
-      } else if (level === LEVEL_99 || level === VARIANT_LEVEL_99) {
+      } else if (level === LEVEL_99 || level === VARIANT_LEVEL_99 || level.playWinSound) {
         playSound(Sound.winGame);
       } else {
         playSound(Sound.winLevel);

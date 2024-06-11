@@ -258,7 +258,6 @@ export class SetPortalCommand extends SetElementCommand {
   }
 }
 
-// TODO: GET BATCH UPDATE WORKING FOR RECTANGLE FILL
 abstract class SetBatchElementsCommand implements Command {
   public abstract readonly name: string;
   protected readonly dataRef: React.MutableRefObject<EditorData>;

@@ -50,7 +50,7 @@ export const EditorOptionsPanel = ({
         <TabList>
           <Tab id={OptionsTab.Stats}>Stats</Tab>
           <Tab id={OptionsTab.Colors}>Colors</Tab>
-          <Tab id={OptionsTab.Save}>Import / Export</Tab>
+          <Tab id={OptionsTab.Save}>Save / Load</Tab>
         </TabList>
         <TabPanel id={OptionsTab.Stats}>
           <PanelStats options={options} setOptions={setOptions} />

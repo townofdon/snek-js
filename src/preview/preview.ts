@@ -208,7 +208,6 @@ export const sketch = (p5: P5) => {
         if (!state.isGameStarted) UI.showMainMenu();
         break;
       case InputAction.ConfirmShowMainMenu:
-        confirmShowMainMenu();
         break;
       case InputAction.RetryLevel:
         retryLevel();
@@ -272,7 +271,6 @@ export const sketch = (p5: P5) => {
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
     p5.frameRate(FRAMERATE);
     setLevel(level);
-    initLevel();
     state.isPreloaded = true;
   }
 
@@ -381,15 +379,8 @@ export const sketch = (p5: P5) => {
     resetStats();
     UI.disableScreenScroll();
     setTimeout(() => {
-      musicPlayer.stopAllTracks();
       sfx.stop(Sound.invincibleLoop);
     }, 0)
-    coroutines.start(startGameRoutine());
-  }
-
-  function* startGameRoutine(): IEnumerator {
-    setDifficulty(DIFFICULTY_MEDIUM);
-    playSound(Sound.unlock);
     state.isGameStarting = false;
     state.isGameStarted = true;
   }
@@ -407,24 +398,24 @@ export const sketch = (p5: P5) => {
   }
 
   function retryLevel() {
-    initLevel();
+    initLevel(false);
   }
 
-  function initLevel() {
+  function initLevel(shouldShowTransitions = true) {
     coroutines.stopAll();
     modal.hide();
     winLevelScene.reset();
-
+    playSound(Sound.unlock);
     const titleScene = getMaybeTitleScene();
-    resetLevel({ shouldShowTransitions: true, transition: titleScene });
+    resetLevel({ shouldShowTransitions, transition: titleScene });
   }
 
   function onGameOverCobra() {
-    initLevel();
+    initLevel(false);
   }
 
   function onGameOver() {
-    initLevel();
+    initLevel(false);
   }
 
   function pause() {
@@ -449,30 +440,6 @@ export const sketch = (p5: P5) => {
     startAction(changeMusicLowpass(1, 1500), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(1, 1000), Action.FadeMusic, true);
     modal.hide();
-  }
-
-  function confirmShowMainMenu() {
-    const handleYes = () => {
-      modal.hide();
-      startGame();
-      sfx.play(Sound.doorOpen);
-    }
-    const handleNo = () => {
-      modal.hide();
-      sfx.play(Sound.uiBlip);
-      if (state.isLost) {
-        // uiBindings.onGameOverCancelModal();
-      } else if (state.isPaused) {
-        // uiBindings.onPauseCancelModal();
-      }
-    }
-    modal.show('Goto Main Menu?', 'Progress will be saved.', handleYes, handleNo);
-    sfx.play(Sound.unlock);
-  }
-
-  function showInGameSettingsMenu() {
-    sfx.play(Sound.unlock);
-    UI.showSettingsMenu({ isInGameMenu: true, isCobraModeUnlocked: false });
   }
 
   function gotoNextLevel() {
@@ -507,6 +474,7 @@ function loadLevel(): Level {
       musicTrack: MusicTrack.None,
       layout: buildMapLayout(data),
       colors: getExtendedPalette(options.palette),
+      playWinSound: true,
     };
     return level;
   } catch (err) {

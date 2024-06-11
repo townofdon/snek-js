@@ -55,7 +55,7 @@ class NoOpUnlockedMusicStoreImpl extends UnlockedMusicStore {
     return "no-op-unlocked-tracks"
   }
   public getIsUnlocked = (track: MusicTrack): boolean => {
-    return false;
+    return true;
   }
 
   public unlockTrack = (track: MusicTrack): void => {}

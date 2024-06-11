@@ -98,6 +98,10 @@ export class WinLevelScene extends BaseScene {
     const { p5, coroutines } = this.props;
     const sfx = this.sfx;
 
+    while(sfx.isPlaying(Sound.winGame)) {
+      yield;
+    }
+
     yield* coroutines.waitForTime(600, (t) => {
       this.bgOpacity = t;
       this.stageClearY = p5.lerp(0.5, 0.2, Easing.inOutCubic(t));

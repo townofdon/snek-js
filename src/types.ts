@@ -254,6 +254,7 @@ export interface Level {
   showTitle?: boolean,
   showQuoteOnLevelWin?: boolean,
   isWinGame?: boolean,
+  playWinSound?: boolean,
   extraLoseMessages?: LoseMessage[],
   portalExitConfig?: Partial<Record<PortalChannel, PortalExitMode>>,
   // titleScene?: (p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene,
@@ -443,6 +444,7 @@ export interface SFXInstance {
   playLoop: (sound: keyof SoundVariants, volume?: number) => void
   stop: (sound: keyof SoundVariants) => void
   load: () => void
+  isPlaying: (sound: keyof SoundVariants) => boolean
 }
 
 export enum Sound {

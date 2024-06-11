@@ -146,9 +146,7 @@ const tutorial: Tutorial = {
 
 const loseMessages: Record<number, LoseMessage[]> = {};
 
-// TODO: MOVE TO ENGINE?
 let uiElements: P5.Element[] = [];
-
 let quotes = allQuotes.slice();
 
 export const sketch = (p5: P5) => {
