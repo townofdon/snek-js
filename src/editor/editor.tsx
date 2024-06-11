@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import cx from "classnames";
 
 import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
@@ -508,6 +509,14 @@ export const Editor = () => {
   }
 
   useEffect(() => {
+    if (isPreviewShowing) {
+      document.body.classList.add(styles.disableScroll);
+    } else {
+      document.body.classList.remove(styles.disableScroll);
+    }
+  }, [isPreviewShowing])
+
+  useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
     window.addEventListener("mouseup", handleWindowMouseUp);
@@ -519,7 +528,7 @@ export const Editor = () => {
   }, [])
 
   return (
-    <div className={styles.layout}>
+    <div className={cx(styles.layout)}>
       <div className={styles.container}>
         <Stack row>
           <h1

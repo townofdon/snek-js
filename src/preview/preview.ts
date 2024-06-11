@@ -31,7 +31,7 @@ import {
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI } from '../ui/ui';
-import { showPauseUI } from '../ui/uiComponents';
+import { showPauseUI, showPauseUIPreviewMode } from '../ui/uiComponents';
 import { engine } from '../engine/engine';
 import { resumeAudioContext } from '../engine/audio';
 import { Coroutines } from '../engine/coroutines';
@@ -57,7 +57,7 @@ const settings: GameSettings = {
 }
 const state: GameState = {
   appMode: AppMode.StartScreen,
-  gameMode: GameMode.Casual,
+  gameMode: GameMode.Normal,
   isPreloaded: false,
   isGameStarted: false,
   isGameStarting: false,
@@ -352,9 +352,10 @@ export const sketch = (p5: P5) => {
     if (state.isGameStarting) return;
 
     state.appMode = AppMode.Game;
-    state.gameMode = GameMode.Casual;
+    state.gameMode = GameMode.Normal;
     state.isGameStarted = false;
     state.isGameStarting = false;
+    setDifficulty(DIFFICULTY_MEDIUM);
 
     musicPlayer.stopAllTracks();
     musicPlayer.setVolume(1);
@@ -366,8 +367,8 @@ export const sketch = (p5: P5) => {
     winLevelScene.reset();
 
     resetStats();
-    tutorial.needsMoveControls = true;
-    tutorial.needsRewindControls = true;
+    tutorial.needsMoveControls = false;
+    tutorial.needsRewindControls = false;
 
     const query = new URLSearchParams(window.location.search);
     const fullscreen = query.get('fullscreen');
@@ -383,23 +384,21 @@ export const sketch = (p5: P5) => {
       musicPlayer.stopAllTracks();
       sfx.stop(Sound.invincibleLoop);
     }, 0)
-    playSound(Sound.uiConfirm, 1, true);
     coroutines.start(startGameRoutine());
   }
 
   function* startGameRoutine(): IEnumerator {
-    if (!DISABLE_TRANSITIONS) {
-      yield* coroutines.waitForTime(500, (t) => {
-        const freq = .2;
-        const shouldShow = t % freq > freq * 0.5;
-        // uiBindings.setStartButtonVisibility(shouldShow);
-      });
-    } else {
-      yield null;
-    }
+    // playSound(Sound.uiConfirm, 1, true);
+    // if (!DISABLE_TRANSITIONS) {
+    //   yield* coroutines.waitForTime(500, (t) => {
+    //     const freq = .2;
+    //     const shouldShow = t % freq > freq * 0.5;
+    //     // uiBindings.setStartButtonVisibility(shouldShow);
+    //   });
+    // } else {
+    //   yield null;
+    // }
     setDifficulty(DIFFICULTY_MEDIUM);
-
-    initLevel()
     playSound(Sound.unlock);
     state.isGameStarting = false;
     state.isGameStarted = true;
@@ -445,17 +444,7 @@ export const sketch = (p5: P5) => {
     if (state.isPaused) return;
     if (state.isExitingLevel || state.isExited) return;
     state.isPaused = true;
-    showPauseUI(uiElements, {
-      isWarpDisabled: getIsStartLevel() || state.gameMode === GameMode.Cobra,
-      hasWarpEnabledParam: queryParams.enableWarp,
-      levelProgress: -1,
-    }, {
-      unpause,
-      confirmShowMainMenu,
-      showInGameSettingsMenu,
-      warpToLevel: () => {},
-    });
-    // uiBindings.onPause();
+    showPauseUIPreviewMode(uiElements, { unpause });
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(0.07, 1500, 0.2), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(0.6, 2000), Action.FadeMusic, true);

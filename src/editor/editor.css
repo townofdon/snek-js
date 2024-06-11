@@ -34,6 +34,10 @@ button {
   background: var(--button-bg);
 }
 
+.disableScroll {
+  overflow: hidden;
+}
+
 .layout {
   display: flex;
   flex-direction: column;

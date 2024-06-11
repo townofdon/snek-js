@@ -45,6 +45,14 @@ interface ShowPauseMenuCallbacks {
   warpToLevel: (levelNum?: number) => void
 }
 
+export function showPauseUIPreviewMode(uiElements: Element[], callbacks: Pick<ShowPauseMenuCallbacks, 'unpause'>) {
+  const { unpause } = callbacks;
+  UI.drawDarkOverlay(uiElements);
+  UI.drawText("PAUSED", '30px', 246, uiElements, { color: ACCENT_COLOR });
+  UI.drawButton("RESUME", 241, 350, unpause, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonResume');
+  document.getElementById('pauseButtonResume').focus();
+}
+
 export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions, callbacks: ShowPauseMenuCallbacks) {
   const { levelProgress, hasWarpEnabledParam, isWarpDisabled } = options;
   const { unpause, confirmShowMainMenu, showInGameSettingsMenu, warpToLevel } = callbacks;

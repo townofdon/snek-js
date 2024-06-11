@@ -77,7 +77,7 @@ export function handleKeyPressed(
   }
 
   if (!state.isLost && !state.isGameWon && [ENTER, ESCAPE, KEYCODE_ALPHA_P].includes(keyCode)) {
-    if (state.isPaused && keyCode !== ENTER) {
+    if (state.isPaused) {
       callAction(InputAction.UnPause);
     } else {
       callAction(InputAction.Pause);
