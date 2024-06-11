@@ -3,6 +3,7 @@ import React from "react";
 import { EditorOptions } from "../../types";
 import { Field, FieldLabel } from "../components/Field";
 import { SliderWithInput } from "../components/Field/SliderWithInput";
+import { ToggleField } from "../components/Field/ToggleField";
 
 interface PanelStatsProps {
   options: EditorOptions;
@@ -20,11 +21,10 @@ export const PanelStats = ({ options, setOptions }: PanelStatsProps) => {
         onChange={val => setOptions(({ ...options, name: val }))}
         fullWidth
       />
-      <Field
+      <ToggleField
         label="Disable apple spawn"
         name="disableAppleSpawn"
-        type="checkbox"
-        value={options.disableAppleSpawn}
+        checked={options.disableAppleSpawn}
         onChange={val => setOptions({ ...options, disableAppleSpawn: val })}
       />
       {!options.disableAppleSpawn && (

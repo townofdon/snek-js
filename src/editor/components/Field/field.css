@@ -117,6 +117,16 @@ input[type="range"] {
   width: 100px;
 }
 
+.toggleLabel {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  color: #cfcfcf;
+}
+
+.toggleLabelText {
+  margin-left: 10px;
+}
 
 
 

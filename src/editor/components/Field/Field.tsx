@@ -3,6 +3,7 @@ import cx from "classnames";
 
 import { FieldLabel } from "./FieldLabel";
 import { ColorField } from "./ColorField";
+import { ToggleField } from "./ToggleField";
 
 import * as styles from './field.css';
 
@@ -52,15 +53,13 @@ export const Field = ({ type = 'text', min, max, step, fullWidth, className: cla
       [styles.fullWidth]: fullWidth,
     });
     if (isCheckboxProps(props)) {
-      return (
-        <input
-          name={props.name}
-          type={props.type}
-          onChange={handleChange}
-          checked={props.value}
-          className={className}
-        />
-      );
+      return <ToggleField
+        label={props.value ? 'Yes' : 'No'}
+        name={props.name}
+        onChange={props.onChange}
+        checked={props.value}
+        className={className}
+      />
     } else if (isColorProps(props)) {
       return (
         <ColorField
