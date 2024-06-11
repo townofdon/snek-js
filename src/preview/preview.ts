@@ -474,6 +474,7 @@ function loadLevel(): Level {
       layout,
       colors: getExtendedPalette(options.palette),
       playWinSound: true,
+      portalExitConfig: options.portalExitConfig,
     };
     return level;
   } catch (err) {

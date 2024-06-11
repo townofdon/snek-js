@@ -30,7 +30,7 @@ interface StackProps {
   marginBottom?: boolean
 }
 
-export const Stack = ({ row, col, align = 'start', justify = 'start', marginBottom, children }: StackProps) => {
+export const Stack = ({ row, col, align = 'center', justify = 'start', marginBottom, children }: StackProps) => {
   return (
     <div className={cx(styles.stack, {
       [styles.row]: row || (!row && !col),

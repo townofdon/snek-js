@@ -355,7 +355,7 @@ export interface EditorOptions {
   extraHurtGraceTime: number, // default: 0
   globalLight: number, // default: 1
   palette: Palette,
-  portalExitConfig: Partial<Record<PortalChannel, PortalExitMode>>,
+  portalExitConfig: Record<PortalChannel, PortalExitMode>,
 }
 
 export type Maybe<T> = T | null | undefined;

@@ -2066,6 +2066,7 @@ export function engine({
   }
 
   function drawParticles(zIndexPass = 0) {
+    if (state.isShowingDeathColours) return;
     if (zIndexPass < 10) {
       emitters.tick(p5.deltaTime);
       particles.tick(p5.deltaTime);

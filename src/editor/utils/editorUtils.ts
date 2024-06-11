@@ -210,7 +210,10 @@ export function getEditorDataFromLevel(level: Level): [EditorData, EditorOptions
     extraHurtGraceTime: level.extraHurtGraceTime ?? 0,
     globalLight: level.globalLight ?? 1,
     palette: level.colors,
-    portalExitConfig: level.portalExitConfig,
+    portalExitConfig: {
+      ...EDITOR_DEFAULTS.options.portalExitConfig,
+      ...level.portalExitConfig,
+    },
   };
   return [data, options];
 }
