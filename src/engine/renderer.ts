@@ -29,6 +29,7 @@ import {
   PORTAL_FADE_DURATION,
   PORTAL_INDEX_DELAY,
   SHOW_FPS,
+  STRANGELY_NEEDED_OFFSET,
   STROKE_SIZE,
 } from "../constants";
 import { clamp, lerp, oscilateLinear } from "../utils";
@@ -303,11 +304,11 @@ export class Renderer implements IRenderer {
     const height = BLOCK_SIZE.y;
     const x0 = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + (1 - size) * width - borderSize;
     const y0 = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + (1 - size) * height - borderSize;
-    const x1 = x0 + width * size;
-    const y1 = y0 + height * size;
+    const x1 = x0 + width * size + 0.75;
+    const y1 = y0 + height * size + 0.75;
     gfx.fill(color);
     // gfx.randomSeed(x + y * 500000);
-    // gfx.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
+    // gfx.fill(gfx.color(gfx.random(0, 255), gfx.random(0, 255), gfx.random(0, 255)));
     gfx.noStroke();
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
   }

@@ -109,3 +109,31 @@ input[type="range"] {
     z-index: 10;
   }
 }
+
+
+
+
+.sliderManualInput {
+  width: 100px;
+}
+
+
+
+
+input:focus-visible,
+button:focus-visible {
+  outline: 2px solid white;
+}
+
+input[type="range"].range {
+	color: #ddd;
+  --active-track-color: #567d9d;
+}
+
+input[type="range"].range:hover::-webkit-slider-thumb,
+input[type="range"].range:focus::-webkit-slider-thumb,
+input[type="range"].range:active::-webkit-slider-thumb {
+	/* filter: brightness(var(--brightness-hover)); */
+  color: var(--active-track-color);
+	cursor: grab;
+}

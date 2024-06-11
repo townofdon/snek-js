@@ -388,16 +388,6 @@ export const sketch = (p5: P5) => {
   }
 
   function* startGameRoutine(): IEnumerator {
-    // playSound(Sound.uiConfirm, 1, true);
-    // if (!DISABLE_TRANSITIONS) {
-    //   yield* coroutines.waitForTime(500, (t) => {
-    //     const freq = .2;
-    //     const shouldShow = t % freq > freq * 0.5;
-    //     // uiBindings.setStartButtonVisibility(shouldShow);
-    //   });
-    // } else {
-    //   yield null;
-    // }
     setDifficulty(DIFFICULTY_MEDIUM);
     playSound(Sound.unlock);
     state.isGameStarting = false;
@@ -506,7 +496,7 @@ function loadLevel(): Level {
       name: options.name,
       timeToClear: options.timeToClear,
       applesToClear: options.applesToClear,
-      numApplesStart: options.numApplesStart,
+      numApplesStart: options.disableAppleSpawn ? 0 : options.numApplesStart,
       applesModOverride: 1,
       snakeStartSizeOverride: Math.max(options.snakeStartSize, 3),
       disableAppleSpawn: options.disableAppleSpawn,
