@@ -269,13 +269,29 @@ button {
   padding-bottom: 3px;
   width: 100%;
 }
+.editorTools--Fu76dOpda_BOyhBLRQfj .tooltip--hhnwyl4eDqRe7BPHpfod {
+  display: none !important;
+  top: 100%;
+  left: inherit;
+  right: inherit;
+  bottom: inherit;
+  z-index: 100;
+  min-width: initial;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 8px;
+  margin-top: 3px;
+}
 
 .editorToolsOffset--qlJ88ChmC6PumZ5xu9nC {
   margin-left: 39px;
 }
 
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: top;
   background-color: inherit;
   background-image: var(--editor-tool-sprite-img);
   background-size: var(--editor-tool-sprite-background-size);
@@ -292,6 +308,10 @@ button {
   filter: none;
 }
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT:hover {
+  filter: none;
+}
+.editorToolSprite--rrVuT_GoHCoa28eSjhhT:hover .tooltip--hhnwyl4eDqRe7BPHpfod {
+  display: block !important;
   filter: none;
 }
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT.pencil--q_wv12mnGW9ldaRJ2HtS.active--Rx0uKlzWxhXt775otXDz {

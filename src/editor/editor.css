@@ -270,12 +270,29 @@ button {
   justify-content: space-between;
   padding-bottom: 3px;
   width: 100%;
+
+  & .tooltip {
+    display: none !important;
+    top: 100%;
+    left: inherit;
+    right: inherit;
+    bottom: inherit;
+    z-index: 100;
+    min-width: initial;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 8px;
+    margin-top: 3px;
+  }
 }
 .editorToolsOffset {
   margin-left: 39px;
 }
 .editorToolSprite {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: top;
   background-color: inherit;
   background-image: var(--editor-tool-sprite-img);
   background-size: var(--editor-tool-sprite-background-size);
@@ -291,6 +308,10 @@ button {
     filter: none;
   }
   &:hover {
+    filter: none;
+  }
+  &:hover .tooltip {
+    display: block!important;
     filter: none;
   }
   &.pencil.active {

@@ -19,11 +19,20 @@ export const EditorTools = ({ activeTool, setTool }: EditorToolsProps) => {
       [EditorTool.Line]: styles.line,
       [EditorTool.Rectangle]: styles.rectangle,
     }[tool]
+    const toolLabel = {
+      [EditorTool.Bucket]: 'Fill',
+      [EditorTool.Pencil]: 'Brush',
+      [EditorTool.Eraser]: 'Eraser',
+      [EditorTool.Line]: 'Line',
+      [EditorTool.Rectangle]: 'Rectangle',
+    }[tool]
     return (
       <button
         className={cx(styles.editorToolSprite, toolClassName, { [styles.active]: tool === activeTool })}
         onClick={() => setTool(tool)}
-      />
+      >
+        {toolLabel && <span className={cx('tooltip', styles.tooltip)}>{toolLabel}</span>}
+      </button>
     )
   }
   return (
