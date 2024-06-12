@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import toast from "react-hot-toast";
 
 import { EditorData, EditorOptions, Level } from "../../types";
-import { encodeMapData, getEditorDataFromLevel } from "../utils/editorUtils";
+import { encodeMapData } from "../utils/editorUtils";
 import { Stack } from "../components/Stack";
 import { DropdownField } from "../components/Field/DropdownField";
 import { LEVELS, LEVEL_01 } from "../../levels";
@@ -12,11 +12,10 @@ import * as styles from './EditorOptions.css'
 interface PanelSaveProps {
   data: EditorData;
   options: EditorOptions;
-  setData: (data: EditorData) => void;
-  setOptions: (options: EditorOptions) => void;
+  loadLevel: (level: Level) => void;
 }
 
-export const PanelSave = ({ data, options, setData, setOptions }: PanelSaveProps) => {
+export const PanelSave = ({ data, options, loadLevel }: PanelSaveProps) => {
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVEL_01)
 
   const handleSave = () => {
@@ -43,9 +42,7 @@ export const PanelSave = ({ data, options, setData, setOptions }: PanelSaveProps
   }
 
   const handleLoadLevel = () => {
-    const [data, options] = getEditorDataFromLevel(selectedLevel);
-    setData(data);
-    setOptions(options);
+    loadLevel(selectedLevel);
   }
 
   const levelOptions = levelsToInclude.map(level => level.name);

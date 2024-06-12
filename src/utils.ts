@@ -194,6 +194,8 @@ export function parseUrlQueryParams(): QueryParams {
 export function getTrackName(track?: MusicTrack) {
   if (!track) return "No Track";
   switch (track) {
+    case MusicTrack.None:
+      return 'None';
     case MusicTrack.simpleTime:
       return "Adventurer";
     case MusicTrack.conquerer:
@@ -238,6 +240,18 @@ export function getTrackName(track?: MusicTrack) {
       return "Resolute";
     case MusicTrack.overture:
       return "Overture";
+    case MusicTrack.drone:
+      return "Drone";
+    case MusicTrack.slime_dangerman:
+      return "SC_Mind Control";
+    case MusicTrack.slime_exitmusic:
+      return "SC_The Underground";
+    case MusicTrack.slime_megacreep:
+      return "SC_Lights Out";
+    case MusicTrack.slime_monsterdance:
+      return "SC_Unlikely Foe";
+    case MusicTrack.slime_rollcredits:
+      return "SC_Roll Credits";
     default:
       return "Unknown";
   }

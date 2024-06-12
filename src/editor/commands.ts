@@ -1,6 +1,6 @@
-import { EditorData, EditorDataSlice, EditorOptions, KeyChannel, Palette, PortalChannel } from "../types";
+import { EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PortalChannel } from "../types";
 import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
-import { deepCloneData, mergeData, mergeDataSlice } from "./utils/editorUtils";
+import { deepCloneData, getEditorDataFromLevel, mergeData, mergeDataSlice } from "./utils/editorUtils";
 import { SetStateValue } from "./editorTypes";
 
 //  THE COMMAND PATTERN
@@ -127,7 +127,6 @@ export class SetAppleCommand extends SetElementCommand {
       this.newData = null;
     } else {
       this.newData.apple = true;
-      this.newData.deco1 = true;
     }
   }
 }
@@ -403,7 +402,6 @@ export class SetLineAppleCommand extends SetLineCommand {
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.apple = true;
-    this.newData.deco1 = true;
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.applesMap[coord];
@@ -584,7 +582,6 @@ export class SetRectangleAppleCommand extends SetRectangleCommand {
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
     this.newData.apple = true;
-    this.newData.deco1 = true;
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.applesMap[coord];
@@ -741,5 +738,36 @@ export class SetPaletteCommand implements Command {
   };
   rollback = () => {
     this.setOptions({ ...this.optionsRef.current, palette: { ...this.initial } });
+  };
+}
+
+export class LoadLevelCommand implements Command {
+  public readonly name = 'Load Level';
+  private level: Level;
+  private initialData: EditorData;
+  private initialOptions: EditorOptions;
+  private setData: (val: EditorData) => void;
+  private setOptions: (val: EditorOptions) => void;
+  public constructor(level: Level, data: EditorData, options: EditorOptions, setData: (val: EditorData) => void, setOptions: (val: EditorOptions) => void) {
+    this.level = level;
+    this.initialData = deepCloneData(data);
+    this.initialOptions = { ...options, portalExitConfig: { ...options.portalExitConfig }, palette: { ...options.palette } };
+    this.setData = setData;
+    this.setOptions = setOptions;
+  }
+  execute = () => {
+    try {
+      const [data, options] = getEditorDataFromLevel(this.level);
+      this.setData(data);
+      this.setOptions(options);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+  rollback = () => {
+    this.setData(this.initialData);
+    this.setOptions(this.initialOptions);
   };
 }

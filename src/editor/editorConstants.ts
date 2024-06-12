@@ -1,4 +1,4 @@
-import { DIR, EditorData, EditorOptions, PortalExitMode } from '../types'
+import { DIR, EditorData, EditorOptions, MusicTrack, PortalExitMode } from '../types'
 import { PALETTE } from '../palettes';
 import { buildLevel } from '../levels/levelBuilder';
 import { LEVEL_01 } from '../levels';
@@ -43,5 +43,6 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
       8: PortalExitMode.SameDirection,
       9: PortalExitMode.SameDirection,
     },
+    musicTrack: MusicTrack.None
   },
-}
+} as const;

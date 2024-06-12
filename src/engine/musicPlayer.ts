@@ -55,6 +55,11 @@ export class MusicPlayer {
     [MusicTrack.slyguy]: false,
     [MusicTrack.overture]: false,
     [MusicTrack.drone]: false,
+    [MusicTrack.slime_dangerman]: false,
+    [MusicTrack.slime_exitmusic]: false,
+    [MusicTrack.slime_megacreep]: false,
+    [MusicTrack.slime_monsterdance]: false,
+    [MusicTrack.slime_rollcredits]: false,
   };
   private settings: GameSettings;
 

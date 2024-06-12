@@ -10,6 +10,7 @@ import { bton, ntob } from './Base64';
 import { buildLevel } from '../../levels/levelBuilder';
 import { LEVEL_01 } from '../../levels';
 import { EDITOR_DEFAULTS } from '../editorConstants';
+import { indexToMusicTrack, musicTracktoIndex } from './musicTrackUtils';
 
 const MASK_BASE_64 = true;
 
@@ -67,11 +68,12 @@ export function encodeMapData(data: EditorData, options: EditorOptions): string 
     options.globalLight,
     paletteStr,
     portalExitConfigStr,
+    musicTracktoIndex(options.musicTrack),
   ].join('|');
   return encode(parts);
 }
 
-export function decodeMapData(encoded: string): [EditorData, EditorOptions] {
+export function decodeMapData(encoded: string, debug = false): [EditorData, EditorOptions] {
   const decoded = decode(encoded);
   const parts = decoded.split('|');
   const [
@@ -89,6 +91,7 @@ export function decodeMapData(encoded: string): [EditorData, EditorOptions] {
     globalLight,
     paletteStr = '',
     portalExitConfigStr = '',
+    musicTrackStr,
   ] = parts;
 
   const playerSpawnPosition = coordToVec(NumberOrDefault(playerSpawnPositionStr, 15 + 15 * 30));
@@ -119,6 +122,8 @@ export function decodeMapData(encoded: string): [EditorData, EditorOptions] {
     portalExitConfig[i as PortalChannel] = portalExitConfigParsed[i] ?? PortalExitMode.InvertDirection
   }
 
+  const musicTrack = indexToMusicTrack(NumberOrDefault(musicTrackStr, 0));
+
   const options: EditorOptions = {
     name,
     timeToClear: NumberOrDefault(timeToClear, 60),
@@ -131,6 +136,7 @@ export function decodeMapData(encoded: string): [EditorData, EditorOptions] {
     globalLight: NumberOrDefault(globalLight, 1),
     palette,
     portalExitConfig,
+    musicTrack,
   }
   const data = getEditorDataFromLayout(layout || LEVEL_01.layout, playerSpawnPosition, startDirection)
   return [data, options];
@@ -214,6 +220,7 @@ export function getEditorDataFromLevel(level: Level): [EditorData, EditorOptions
       ...EDITOR_DEFAULTS.options.portalExitConfig,
       ...level.portalExitConfig,
     },
+    musicTrack: level.musicTrack,
   };
   return [data, options];
 }

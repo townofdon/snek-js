@@ -1,5 +1,12 @@
 import P5 from "p5";
-import { FontsInstance, IEnumerator, Image, MusicTrack, Quote, SFXInstance, SceneCallbacks, Sound } from "../types";
+import {
+  FontsInstance,
+  IEnumerator,
+  Image,
+  SFXInstance,
+  SceneCallbacks,
+  Sound,
+} from "../types";
 import { BaseScene } from "./BaseScene";
 import { MusicPlayer } from "../engine/musicPlayer";
 import { clamp, getTrackName } from "../utils";

@@ -357,6 +357,7 @@ export interface EditorOptions {
   globalLight: number, // default: 1
   palette: Palette,
   portalExitConfig: Record<PortalChannel, PortalExitMode>,
+  musicTrack: MusicTrack,
 }
 
 export type Maybe<T> = T | null | undefined;
@@ -506,6 +507,11 @@ export enum MusicTrack {
   slyguy = '21-slyguy.wav',
   overture = '22-snek-overture.wav',
   drone = '00-drone.wav',
+  slime_dangerman = '90-dangerman_180.mp3',
+  slime_exitmusic = '91-exitmusic_245.mp3',
+  slime_megacreep = '92-megacreep_120.mp3',
+  slime_monsterdance = '93-monsterdance_150.mp3',
+  slime_rollcredits = '94-rollcredits_110.mp3',
 }
 
 export type UnlockedMusicTracks = Record<MusicTrack, boolean>

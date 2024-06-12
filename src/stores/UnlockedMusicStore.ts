@@ -31,6 +31,11 @@ export class UnlockedMusicStore extends BaseStore<UnlockedMusicTracks> {
     [MusicTrack.ascension]: false,
     [MusicTrack.moneymaker]: false,
     [MusicTrack.overture]: false,
+    [MusicTrack.slime_dangerman]: false,
+    [MusicTrack.slime_exitmusic]: false,
+    [MusicTrack.slime_megacreep]: false,
+    [MusicTrack.slime_monsterdance]: false,
+    [MusicTrack.slime_rollcredits]: false,
   };
 
   private state: UnlockedMusicTracks = this.getStore() || { ...this.defaultValue };

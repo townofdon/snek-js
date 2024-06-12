@@ -472,7 +472,7 @@ function loadLevel(): Level {
       snakeSpawnPointOverride: getCoordIndex(data.playerSpawnPosition),
       showTitle: false,
       showQuoteOnLevelWin: false,
-      musicTrack: MusicTrack.None,
+      musicTrack: options.musicTrack,
       layout,
       colors: getExtendedPalette(options.palette),
       playWinSound: true,

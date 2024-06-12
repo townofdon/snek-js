@@ -1,11 +1,16 @@
 :global(.Dropdown-root) {
   position: relative;
+
+  --dropdown-bg: #c0cdd3;
+  --dropdown-bg: #e2ebf0;
+  --menu-bg: #333;
+  --menu-fg: #ddd;
 }
 
 :global(.Dropdown-control) {
   position: relative;
   overflow: hidden;
-  background-color: white;
+  background-color: var(--dropdown-bg);
   border: 1px solid #ccc;
   border-radius: 2px;
   box-sizing: border-box;
@@ -40,7 +45,8 @@
 }
 
 :global(.Dropdown-menu) {
-  background-color: white;
+  background-color: var(--menu-bg);
+  color: var(--menu-fg);
   border: 1px solid #ccc;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
   box-sizing: border-box;
@@ -63,7 +69,7 @@
 
 :global(.Dropdown-option) {
   box-sizing: border-box;
-  color: rgba(51, 51, 51, 0.8);
+  color: var(--menu-fg);
   cursor: pointer;
   display: block;
   padding: 8px 10px;

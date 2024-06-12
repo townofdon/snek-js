@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 
-import { EditorData, EditorOptions, Palette } from "../../types";
+import { EditorData, EditorOptions, Level, Palette } from "../../types";
 
 import { Tabs } from "../components/Tabs/Tabs";
 import { TabList } from "../components/Tabs/TabList";
@@ -12,7 +12,7 @@ import { PanelColors } from "./PanelColors";
 import { PanelSave } from "./PanelSave";
 import throttle from "throttleit";
 
-import { Command, SetPaletteCommand } from "../commands";
+import { Command, LoadLevelCommand, SetPaletteCommand } from "../commands";
 import { SetStateValue } from "../editorTypes";
 
 import * as styles from './EditorOptions.css';
@@ -45,6 +45,11 @@ export const EditorOptionsPanel = ({
     executeCommand(command);
   }, 100), []);
 
+  const loadLevel = (level: Level) => {
+    const command = new LoadLevelCommand(level, data, options, setData, setOptions);
+    executeCommand(command);
+  }
+
   return (
     <div ref={optionsContainerRef} className={styles.editorOptionsContainer}>
       <Tabs>
@@ -60,7 +65,7 @@ export const EditorOptionsPanel = ({
           <PanelColors options={options} setPalette={setPalette} undo={undo} redo={redo} />
         </TabPanel>
         <TabPanel id={OptionsTab.Save}>
-          <PanelSave data={data} options={options} setData={setData} setOptions={setOptions} />
+          <PanelSave data={data} options={options} loadLevel={loadLevel} />
         </TabPanel>
       </Tabs>
     </div>

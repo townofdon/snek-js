@@ -249,3 +249,11 @@ export const OST_MODE_TRACKS: MusicTrack[] = [
   MusicTrack.moneymaker,
   MusicTrack.overture,
 ];
+
+export const SLIME_CONTROL_TRACKS: MusicTrack[] = [
+  MusicTrack.slime_dangerman,
+  MusicTrack.slime_megacreep,
+  MusicTrack.slime_monsterdance,
+  MusicTrack.slime_exitmusic,
+  MusicTrack.slime_rollcredits,
+]

@@ -5,11 +5,11 @@ import { buildLevel } from "../../levels/levelBuilder";
 import { LEVEL_01 } from "../../levels/level01";
 import { LEVEL_10 } from "../../levels/level10";
 import { LEVELS } from "../../levels";
-import { DIR, EditorData, EditorOptions, Key, KeyChannel, Level, LevelType, Lock, PortalChannel, PortalExitMode } from "../../types"
+import { DIR, EditorData, EditorOptions, Key, KeyChannel, Level, LevelType, Lock, MusicTrack, PortalChannel, PortalExitMode } from "../../types"
 import { coordToVec, getCoordIndex2 } from "../../utils";
 
 import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "./editorUtils"
-import { GRIDCOUNT } from "../../constants";
+import { GRIDCOUNT, OST_MODE_TRACKS } from "../../constants";
 import { PALETTE } from "../../palettes";
 import { EDITOR_DEFAULTS } from "../editorConstants";
 
@@ -26,6 +26,7 @@ function expectLayoutMatches(actual: string, expected: string) {
     .replace(/\./g, ' ')
     .replace(/O/g, ' ')
     .replace(/a/g, 'A')
+    .replace(/D/g, 'd')
   const actualLayout = actual
     .replace(/a/g, 'A');
   expect(actualLayout.trim()).toEqual(expectedLayout.trim());
@@ -54,6 +55,7 @@ describe('editorUtils', () => {
         globalLight: 0,
         palette: PALETTE.atomic,
         portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
+        musicTrack: MusicTrack.None,
       }
       const data: EditorData = {
         barriersMap: {},
@@ -110,6 +112,7 @@ describe('editorUtils', () => {
           8: PortalExitMode.InvertDirection,
           9: PortalExitMode.SameDirection,
         },
+        musicTrack: MusicTrack.None,
       }
       const data: EditorData = {
         barriersMap: { 1: true, 2: true, 3: true, 4: true },
@@ -146,7 +149,12 @@ describe('editorUtils', () => {
       expect(decodedData.passablesMap).toEqual(data.passablesMap);
       expect(decodedData.doorsMap).toEqual(data.doorsMap);
       expect(decodedData.applesMap).toEqual(data.applesMap);
-      expect(decodedData.decoratives1Map).toEqual(data.decoratives1Map);
+      expect(decodedData.decoratives1Map).toEqual({
+        ...data.decoratives1Map,
+        // doors
+        5: true,
+        6: true,
+      });
       expect(decodedData.decoratives2Map).toEqual({
         ...data.decoratives2Map,
         // locks
@@ -195,6 +203,7 @@ describe('editorUtils', () => {
         globalLight: 0,
         palette: PALETTE.atomic,
         portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
+        musicTrack: MusicTrack.None,
       }
       const data: EditorData = {
         barriersMap: {},
@@ -229,6 +238,27 @@ describe('editorUtils', () => {
       });
     });
 
+    it('should encode and decode music tracks', () => {
+      const test = (track: MusicTrack) => {
+        const data: EditorData = { ...EDITOR_DEFAULTS.data };
+        const options: EditorOptions = { ...EDITOR_DEFAULTS.options, musicTrack: track };
+        const encoded = encodeMapData(data, options);
+        const [_, decodedOptions] = decodeMapData(encoded);
+        expect(decodedOptions.musicTrack).toEqual(track);
+      }
+      test(MusicTrack.None);
+      OST_MODE_TRACKS.forEach(track => test(track));
+    });
+
+    it('should decode old data lacking music track', () => {
+      const test = (encoded: string) => {
+        const [_, decodedOptions] = decodeMapData(encoded);
+        expect(decodedOptions.musicTrack).toEqual(MusicTrack.None);
+      }
+      test('b2Iod2RXWDZYKE1NVjNjIDRYZFgoTClfaVdYQVgoJ2NkWWMhJ0tkKCdZKSduaHVuIVVZTWVkbGcuIWdkKmVYLlVndDBYZTAuVW4gSjJYWmJnVVl0WnMuVW4hWmkqLnBndmRWN1guczYhbil1ZFVjcmlMdmRVKVloZWdwc2RNZGVnKSdkZ3JkWllNJ2pkTWRaWWRiaF9ac1Y3TWNaKlZYKWIpX2VYM1hNVjFjdlkpYlZYd3VkTTFYTWNuKF9kYmhoWXFjJyhYNHB3X2JxTWsgNFgybyoKfDYwOXxSSUdIVHxTTkVLQk9TU3wzMDAwMDBRM1EzUTEwMFEjMTVDMkNCUDExOURBNGYyMzc1OFAyRTRBNzZtZjcyQzNGbVA0QzgyQTlQM0Y2QzhEUEZGRjZGMVAwQTBFMTRQRTlFRkZGfGFhYTAhICAnIGQoWApYX3IqYlhVJ2MhIVAtI1F8MXxVLidWIFhXKioqKllkJ1oudV8pcmEwLTAtMC1iWFhjTXZVKGZQMTYxOTI1UDJnZC53KWlkIG1QMUYyMzMzbiFZbwpXVypwISEncShiKU1NcmRkc2QhdCAqdS4odiFld2gpAXd2dXRzcnFwb25taWhnZmVjYmFfWllXVlVRUE0uKikoJyFf');
+      test('Y1hwcHBXWG1XLSEtcHBXKFYtIVotIS15cFcoVlpWVi0uTHAtXyhmLW4gfl8oZi1uLX4hLm1KZSctbi0teW5vZlhkWFotZW5vdGRBWGdkJ290TEFMWGdBTFgtIWpqaiEoZS5RKWdMQVgtby5RV2dkWFonV1gKRHl5KiBiVmJuIS1XYVh4WCchRG15a2VRKXByTFgnIShKJ2VRTEFkXylLS1hMdkpRSipkQUwhLkxBTGFYeHYpVik9IVhBZGFYQXYpJ1dhIVhkWGFYQXopJ1pWVkwgVnJBeillWmYnTCBmWHh2aSpsckx6aW5YTHopWFF3Slh4emYqZHhBQUFBQUF4ZG5ZZVguJ3duWWohLmZmbkpmZlhjfDQwMnxSSUdIVHxNRUdBU05FS09QT0xJU3w2czY3fDN8czN8MXxzMXwjREJBRTk1VUMyN0E1MHFBNUE2QTdVODdBMkMwdXEyNzJDM0Z1VUNCQ0RDRFVEMkQ0RDRVNzI5RkMwVTQ2Nzc5QlU0QzgyQTl8aGhoMF90PShYbSApZWUqJz0uIFhRWD1VLSNWJyBXISFZeHg9KFotIF8hIGEgPWJWLS0tV2ZXRApELlFlWGMKd1hERER3ZQpkTExlWFhmJydnLS0tZFhoMC0wLTAtaUR4QUF4RCApKW0KWG4nKm9XXyhlcFdXcVUxNjE5MjVVcj1YczB8dCAqdVUxRjIzMzN2WGYodykpKXkuWHpRWX5aZFYnVwF%2Benl3dnV0c3JxcG9ubWloZ2ZlZGNiYV9aWVdWVVEuKikoJyFf');
+    });
+
     it('should encode a real level', () => {
       const options: EditorOptions = {
         name: "test",
@@ -242,6 +272,7 @@ describe('editorUtils', () => {
         globalLight: 0,
         palette: PALETTE.atomic,
         portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
+        musicTrack: MusicTrack.None,
       }
       const data = getEditorDataFromLayout(LEVEL_10.layout, new Vector(0, 0), DIR.UP);
       const encoded = encodeMapData(data, options);

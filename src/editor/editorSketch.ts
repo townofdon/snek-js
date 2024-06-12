@@ -212,6 +212,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         case 'numApplesStart':
         case 'snakeStartSize':
         case 'growthMod':
+        case 'musicTrack':
           break;
         default:
           throw new Error(`no case for key "${key}"`)
