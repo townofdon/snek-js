@@ -64,7 +64,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     9: PortalExitMode.InvertDirection,
     0: PortalExitMode.InvertDirection,
   },
-  musicTrack: MusicTrack.observer,
+  musicTrack: MusicTrack.slime_exitmusic,
   globalLight: 0.2,
   nextLevel: VARIANT_LEVEL_10,
 };

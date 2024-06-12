@@ -539,6 +539,7 @@ export function engine({
         level.snakeStartSizeOverride = options.snakeStartSize;
         level.extraHurtGraceTime = options.extraHurtGraceTime;
         level.globalLight = options.globalLight;
+        level.musicTrack = options.musicTrack;
       } catch (err) {
         console.error(err);
         console.error(`Unable to parse layoutV2 data for level "${level.name}"`);

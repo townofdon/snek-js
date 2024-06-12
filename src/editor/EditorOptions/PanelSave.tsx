@@ -5,10 +5,19 @@ import { EditorData, EditorOptions, Level } from "../../types";
 import { encodeMapData } from "../utils/editorUtils";
 import { Stack } from "../components/Stack";
 import { DropdownField, Option } from "../components/Field/DropdownField";
-import { LEVELS, LEVEL_01 } from "../../levels";
+import { LEVELS, LEVEL_01, VARIANT_LEVEL_99 } from "../../levels";
 
 import * as styles from './EditorOptions.css'
 import { useUndoRedo } from "../hooks/useUndoRedo";
+import { SECRET_LEVEL_10 } from "../../levels/bonusLevels/secretLevel10";
+import { SECRET_LEVEL_20 } from "../../levels/bonusLevels/secretLevel20";
+import { SECRET_LEVEL_21 } from "../../levels/bonusLevels/secretLevel21";
+import { VARIANT_LEVEL_03 } from "../../levels/bonusLevels/variantLevel03";
+import { VARIANT_LEVEL_05 } from "../../levels/bonusLevels/variantLevel05";
+import { VARIANT_LEVEL_07 } from "../../levels/bonusLevels/variantLevel07";
+import { VARIANT_LEVEL_08 } from "../../levels/bonusLevels/variantLevel08";
+import { VARIANT_LEVEL_10 } from "../../levels/bonusLevels/variantLevel10";
+import { VARIANT_LEVEL_15 } from "../../levels/bonusLevels/variantLevel15";
 
 interface PanelSaveProps {
   data: EditorData;
@@ -39,7 +48,19 @@ export const PanelSave = ({ data, options, loadLevel, redo, undo }: PanelSavePro
     }
   }
 
-  const levelsToInclude = LEVELS;
+  const levelsToInclude = [
+    ...LEVELS,
+    SECRET_LEVEL_10,
+    SECRET_LEVEL_20,
+    SECRET_LEVEL_21,
+    VARIANT_LEVEL_03,
+    VARIANT_LEVEL_05,
+    VARIANT_LEVEL_07,
+    VARIANT_LEVEL_08,
+    VARIANT_LEVEL_10,
+    VARIANT_LEVEL_15,
+    VARIANT_LEVEL_99,
+  ];
 
   const handleSetLevel = (option: Option) => {
     const levelName = option.value;
