@@ -559,7 +559,7 @@ export const Editor = () => {
           handleMouseDown={handleMouseDown}
           handleMouseUp={handleMouseUp}
           editorTiles={<EditorTiles activeTile={tile} setTile={setTile} />}
-          editorTools={<EditorTools activeTool={tool} setTool={setTool} />}
+          editorTools={<EditorTools activeTool={tool} setTool={setTool} data={data} setData={setData} executeCommand={executeCommand} />}
           tileSidebar={
             <EditorSidebar
               tile={tile}

@@ -1,4 +1,6 @@
-import { EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PortalChannel } from "../types";
+import { Vector } from "p5";
+
+import { DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PortalChannel } from "../types";
 import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
 import { deepCloneData, getEditorDataFromLevel, mergeData, mergeDataSlice } from "./utils/editorUtils";
 import { SetStateValue } from "./editorTypes";
@@ -769,5 +771,41 @@ export class LoadLevelCommand implements Command {
   rollback = () => {
     this.setData(this.initialData);
     this.setOptions(this.initialOptions);
+  };
+}
+
+export class ClearAllCommand implements Command {
+  public readonly name = 'Clear Map';
+  private initialData: EditorData;
+  private setData: (val: EditorData) => void;
+  public constructor(data: EditorData, setData: (val: EditorData) => void) {
+    this.initialData = deepCloneData(data);
+    this.setData = setData;
+  }
+  execute = () => {
+    try {
+      const newData: EditorData = {
+        applesMap: {},
+        barriersMap: {},
+        decoratives1Map: {},
+        decoratives2Map: {},
+        doorsMap: {},
+        keysMap: {},
+        locksMap: {},
+        nospawnsMap: {},
+        passablesMap: {},
+        portalsMap: {},
+        playerSpawnPosition: new Vector(15, 15),
+        startDirection: DIR.RIGHT
+      };
+      this.setData(newData);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+  rollback = () => {
+    this.setData(this.initialData);
   };
 }

@@ -40,7 +40,8 @@ export enum EditorTool {
   Eraser,
   Line,
   Rectangle,
-  Bucket,
+  Bucket, // fill
+  Bomb, // clear all
 }
 
 export enum Operation {

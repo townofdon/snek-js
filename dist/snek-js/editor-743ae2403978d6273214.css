@@ -7,7 +7,7 @@
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url("assets/graphics/editor-tools-200.png");
-  --editor-tool-sprite-background-size: 480px 48px;
+  --editor-tool-sprite-background-size: 576px 48px;
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
   --editor-bg-color: #111;
@@ -282,6 +282,9 @@ button {
   padding-top: 8px;
   margin-top: 3px;
 }
+.editorTools--Fu76dOpda_BOyhBLRQfj .tooltip--hhnwyl4eDqRe7BPHpfod.red--wEygRg1k8XUnwph4qBiT {
+  color: #f80;
+}
 
 .editorToolsOffset--qlJ88ChmC6PumZ5xu9nC {
   margin-left: 39px;
@@ -337,6 +340,13 @@ button {
 }
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT.line--vIXHkrBWfwTGXJFGHo_w {
   background-position-x: calc(-7 * var(--editor-tool-sprite-width));
+}
+.editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK.active--Rx0uKlzWxhXt775otXDz, .editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK:hover {
+  background-position-x: calc(-10 * var(--editor-tool-sprite-width));
+}
+.editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK {
+  background-position-x: calc(-11 * var(--editor-tool-sprite-width));
+  margin-left: 20px;
 }
 
 .editorTileSidebar--uuBQITMXZKkc6enfJglp {

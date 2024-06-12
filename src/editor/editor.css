@@ -5,7 +5,7 @@
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url('assets/graphics/editor-tools-200.png');
-  --editor-tool-sprite-background-size: 480px 48px;
+  --editor-tool-sprite-background-size: 576px 48px;
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
   --editor-bg-color: #111;
@@ -284,6 +284,10 @@ button {
     padding-top: 8px;
     margin-top: 3px;
   }
+
+  & .tooltip.red {
+    color: #f80;
+  }
 }
 .editorToolsOffset {
   margin-left: 39px;
@@ -337,6 +341,14 @@ button {
   }
   &.line {
     background-position-x: calc(-7 * var(--editor-tool-sprite-width));
+  }
+  &.bomb.active,
+  &.bomb:hover {
+    background-position-x: calc(-10 * var(--editor-tool-sprite-width));
+  }
+  &.bomb {
+    background-position-x: calc(-11 * var(--editor-tool-sprite-width));
+    margin-left: 20px;
   }
 }
 
