@@ -7,6 +7,7 @@ import { Stack } from "../components/Stack";
 import { SelectPalette } from "./SelectPalette";
 
 import * as styles from './EditorOptions.css';
+import { useUndoRedo } from "../hooks/useUndoRedo";
 interface PanelColorsProps {
   options: EditorOptions;
   setPalette: (palette: Palette) => void;
@@ -18,20 +19,7 @@ export const PanelColors = ({ options, setPalette, undo, redo }: PanelColorsProp
   const [isSelectPaletteShowing, setSelectPaletteShowing] = useState(false);
   const panelRef = useRef<HTMLDivElement>();
 
-  useEffect(() => {
-    const onKeyDown = (ev: KeyboardEvent) => {
-      if (getIsOutside(ev, panelRef)) return;
-      if (isCharPressed(ev, 'z', { ctrlKey: true, shiftKey: true }) || isCharPressed(ev, 'y', { ctrlKey: true })) {
-        redo();
-      } else if (isCharPressed(ev, 'z', { ctrlKey: true })) {
-        undo();
-      }
-    }
-    window.addEventListener('keydown', onKeyDown);
-    return () => {
-      window.removeEventListener('keydown', onKeyDown);
-    }
-  }, [])
+  useUndoRedo(panelRef, redo, undo);
 
   const renderField = (color: keyof Palette, fullWidth = false) => {
     return (

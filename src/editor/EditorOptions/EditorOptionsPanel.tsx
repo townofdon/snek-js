@@ -18,6 +18,7 @@ import { SetStateValue } from "../editorTypes";
 import * as styles from './EditorOptions.css';
 
 interface EditorOptionsPanelProps {
+  isPreviewShowing: boolean;
   data: EditorData;
   options: EditorOptions;
   optionsRef: React.MutableRefObject<EditorOptions>;
@@ -30,6 +31,7 @@ interface EditorOptionsPanelProps {
 }
 
 export const EditorOptionsPanel = ({
+  isPreviewShowing,
   data,
   options,
   optionsRef,
@@ -59,13 +61,13 @@ export const EditorOptionsPanel = ({
           <Tab id={OptionsTab.Save}>Save / Load</Tab>
         </TabList>
         <TabPanel id={OptionsTab.Stats}>
-          <PanelStats options={options} setOptions={setOptions} />
+          <PanelStats options={options} setOptions={setOptions} isPreviewShowing={isPreviewShowing} />
         </TabPanel>
         <TabPanel id={OptionsTab.Colors}>
           <PanelColors options={options} setPalette={setPalette} undo={undo} redo={redo} />
         </TabPanel>
         <TabPanel id={OptionsTab.Save}>
-          <PanelSave data={data} options={options} loadLevel={loadLevel} />
+          <PanelSave data={data} options={options} loadLevel={loadLevel} undo={undo} redo={redo} />
         </TabPanel>
       </Tabs>
     </div>

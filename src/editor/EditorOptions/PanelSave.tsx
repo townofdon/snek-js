@@ -1,22 +1,28 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 import { EditorData, EditorOptions, Level } from "../../types";
 import { encodeMapData } from "../utils/editorUtils";
 import { Stack } from "../components/Stack";
-import { DropdownField } from "../components/Field/DropdownField";
+import { DropdownField, Option } from "../components/Field/DropdownField";
 import { LEVELS, LEVEL_01 } from "../../levels";
 
 import * as styles from './EditorOptions.css'
+import { useUndoRedo } from "../hooks/useUndoRedo";
 
 interface PanelSaveProps {
   data: EditorData;
   options: EditorOptions;
   loadLevel: (level: Level) => void;
+  undo: () => void;
+  redo: () => void;
 }
 
-export const PanelSave = ({ data, options, loadLevel }: PanelSaveProps) => {
-  const [selectedLevel, setSelectedLevel] = useState<Level>(LEVEL_01)
+export const PanelSave = ({ data, options, loadLevel, redo, undo }: PanelSaveProps) => {
+  const [selectedLevel, setSelectedLevel] = useState<Level>(LEVEL_01);
+  const panelRef = useRef<HTMLDivElement>();
+
+  useUndoRedo(panelRef, redo, undo);
 
   const handleSave = () => {
     // TODO: update url without reloading the page - see:
@@ -35,7 +41,8 @@ export const PanelSave = ({ data, options, loadLevel }: PanelSaveProps) => {
 
   const levelsToInclude = LEVELS;
 
-  const handleSetLevel = (levelName: string) => {
+  const handleSetLevel = (option: Option) => {
+    const levelName = option.value;
     const match = levelsToInclude.find(level => level.name === levelName);
     if (!match) return;
     setSelectedLevel(match);
@@ -45,10 +52,15 @@ export const PanelSave = ({ data, options, loadLevel }: PanelSaveProps) => {
     loadLevel(selectedLevel);
   }
 
-  const levelOptions = levelsToInclude.map(level => level.name);
+  const toOption = (level: Level): Option => ({
+    value: level.name,
+    label: level.name,
+  })
+  const levelOptions: Option[] = levelsToInclude.map(toOption);
+  const selectedOption = levelOptions.find(option => option.value === selectedLevel.name) || toOption(selectedLevel);
 
   return (
-    <div>
+    <div ref={panelRef}>
       <Stack marginBottom>
         <button onClick={handleSave}>Save</button>
       </Stack>
@@ -56,7 +68,7 @@ export const PanelSave = ({ data, options, loadLevel }: PanelSaveProps) => {
         <DropdownField
           label="Load Campaign Level"
           options={levelOptions}
-          value={selectedLevel.name}
+          value={selectedOption}
           onChange={handleSetLevel}
         />
         <button className={styles.buttonLoadLevel} onClick={handleLoadLevel}>Load</button>

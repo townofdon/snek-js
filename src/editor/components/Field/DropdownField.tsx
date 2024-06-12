@@ -1,31 +1,41 @@
-import React from 'react';
-import Dropdown, { Group, Option } from 'react-dropdown';
+import React, { useRef } from 'react';
+import Select, { ActionMeta, OnChangeValue } from 'react-select'
+// import Dropdown, { Group, Option } from 'react-dropdown';
 
 import { FieldLabel } from './FieldLabel';
 
-import * as styles from './field.css';
 import './react-dropdown.css';
+
+export interface Option {
+  id?: string;
+  value: string;
+  label: string;
+}
 
 interface DropdownFieldProps {
   label?: string;
-  options: (string | Group | Option)[];
-  value: string | Option;
-  onChange: (val: string) => void;
+  options: Option[];
+  value: Option;
+  onChange: (val: Option) => void;
   placeholder?: string
 }
 
 export const DropdownField = ({ label, options, value, onChange, placeholder = "Select an option" }: DropdownFieldProps) => {
-  const handleChange = (option: Option) => {
-    onChange(option.value);
+  const select = useRef(null);
+
+  const handleChange = (option: OnChangeValue<Option, false>, actionMeta: ActionMeta<Option>) => {
+    onChange(option);
   }
 
   const dropdown = (
-    <Dropdown
+    <Select
+      ref={select}
       options={options}
       onChange={handleChange}
       value={value}
       placeholder={placeholder}
-      className={styles.dropdownRoot}
+      classNamePrefix="react-select"
+      menuShouldScrollIntoView
     />
   );
 

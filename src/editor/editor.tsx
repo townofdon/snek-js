@@ -569,6 +569,7 @@ export const Editor = () => {
           }
         />
         <EditorOptionsPanel
+          isPreviewShowing={isPreviewShowing}
           data={data}
           options={options}
           optionsRef={optionsRef}

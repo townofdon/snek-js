@@ -72,3 +72,12 @@ textarea {
 .buttonLoadLevel {
   margin-top: 20px;
 }
+
+.buttonPlay,
+.buttonStop {
+  display: inline-flex;
+  padding: 0;
+  margin-top: 12px;
+  align-items: center;
+  justify-content: center;
+}

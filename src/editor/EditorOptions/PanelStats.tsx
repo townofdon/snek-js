@@ -1,47 +1,103 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { OST_MODE_TRACKS, SLIME_CONTROL_TRACKS } from "../../constants";
-import { EditorOptions, MusicTrack } from "../../types";
-import { getTrackName } from "../../utils";
+import { EditorOptions, GameSettings, MusicTrack } from "../../types";
+import { getRelativeDir, getTrackName } from "../../utils";
 import { musicTracktoIndex } from "../utils/musicTrackUtils";
-import { useRefState } from "../hooks/useRefState";
 import { Stack } from "../components/Stack";
+import { MusicPlayer } from "../../engine/musicPlayer";
 import {
   Field,
   SliderWithInput,
   ToggleField,
   DropdownField,
+  Option,
 } from "../components/Field";
 
+import * as styles from './EditorOptions.css';
+
 interface PanelStatsProps {
+  isPreviewShowing: boolean;
   options: EditorOptions;
   setOptions: (options: EditorOptions) => void;
 }
 
-export const PanelStats = ({ options, setOptions }: PanelStatsProps) => {
-  const [isPlaying, isPlayingRef, setIsPlaying] = useRefState(false);
+export const PanelStats = ({ isPreviewShowing, options, setOptions }: PanelStatsProps) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const musicPlayer = useRef<MusicPlayer>(null);
+  const buttonPlay = useRef<HTMLButtonElement>(null);
+  const buttonStop = useRef<HTMLButtonElement>(null);
 
-  const getNumberedTrackName = (track: MusicTrack) => {
-    const index = musicTracktoIndex(track);
-    return `${String(index + 1).padStart(2, '0')}_${getTrackName(track)}`
+  if (!musicPlayer.current) {
+    const settings: GameSettings = {
+      musicVolume: 1,
+      sfxVolume: 1,
+      isScreenShakeDisabled: true,
+    };
+    musicPlayer.current = new MusicPlayer(settings);
   }
 
-  const includedTracks: MusicTrack[] = [...OST_MODE_TRACKS, MusicTrack.drone, ...SLIME_CONTROL_TRACKS];
-  const musicTrackOptions = ['None', ...includedTracks.map(getNumberedTrackName)];
+  useEffect(() => {
+    return () => {
+      musicPlayer.current?.stopAllTracks();
+    }
+  }, []);
 
-  const handleChangeTrack = (numberedTrackName: string) => {
-    if (numberedTrackName === 'None') {
-      setOptions({ ...options, musicTrack: MusicTrack.None });
-      return;
+  useEffect(() => {
+    if (isPreviewShowing) {
+      stopTrack();
     }
-    const found = includedTracks.find((track) => {
-      return track === numberedTrackName || getNumberedTrackName(track) === numberedTrackName;
-    });
+  }, [isPreviewShowing]);
+
+  const includedTracks: MusicTrack[] = [MusicTrack.None, ...OST_MODE_TRACKS, MusicTrack.drone, ...SLIME_CONTROL_TRACKS];
+
+  const getNumberedTrackName = (track: MusicTrack) => {
+    if (track === MusicTrack.None) return 'None';
+    const index = musicTracktoIndex(track);
+    return `${String(index + 1).padStart(2, '0')}_${getTrackName(track)}`
+  };
+
+  const toOption = (track: MusicTrack): Option => ({
+    id: track,
+    value: track,
+    label: getNumberedTrackName(track),
+  });
+
+  const musicTrackOptions = includedTracks.map(toOption);
+  const selectedOption = musicTrackOptions.find(option => option.value === options.musicTrack) || toOption(options.musicTrack);
+
+  const handleChangeTrack = (option: Option) => {
+    const found = includedTracks.find(includedTrack => includedTrack === option.value as MusicTrack);
     if (!found) {
-      console.warn(`[handleChangeTrack] Could not match track for ${numberedTrackName}`)
+      setOptions({ ...options, musicTrack: MusicTrack.None });
+      stopTrack();
       return;
     }
+    if (found === options.musicTrack) return;
     setOptions({ ...options, musicTrack: found });
+    if (isPlaying) playSelectedTrack(found);
+  };
+
+  const playSelectedTrack = (overrideTrack?: MusicTrack) => {
+    const track = overrideTrack || options.musicTrack;
+    if (track === MusicTrack.None) {
+      stopTrack();
+    } else {
+      musicPlayer.current?.stopAllTracks();
+      musicPlayer.current?.play(track);
+      setIsPlaying(true);
+      if (document.activeElement === buttonPlay.current) {
+        setTimeout(() => buttonStop.current?.focus(), 0);
+      }
+    }
+  }
+
+  const stopTrack = () => {
+    musicPlayer.current?.stopAllTracks();
+    setIsPlaying(false);
+    if (document.activeElement === buttonStop.current) {
+      setTimeout(() => buttonPlay.current?.focus(), 0);
+    }
   }
 
   return (
@@ -110,13 +166,23 @@ export const PanelStats = ({ options, setOptions }: PanelStatsProps) => {
         max={1}
         step={0.01}
       />
-      <Stack row>
+      <Stack row align="center">
         <DropdownField
           label="Music Track"
           options={musicTrackOptions}
-          value={getNumberedTrackName(options.musicTrack)}
+          value={selectedOption}
           onChange={handleChangeTrack}
         />
+        {!isPlaying && (
+          <button className={styles.buttonPlay} ref={buttonPlay} onClick={() => playSelectedTrack()}>
+            <img src={`${getRelativeDir()}/assets/graphics/editor-play.png`} />
+          </button>
+        )}
+        {isPlaying && (
+          <button className={styles.buttonStop} ref={buttonStop} onClick={stopTrack}>
+            <img src={`${getRelativeDir()}/assets/graphics/editor-stop.png`} />
+          </button>
+        )}
       </Stack>
     </div>
   );
