@@ -42,6 +42,8 @@ export enum EditorTool {
   Rectangle,
   Bucket, // fill
   Bomb, // clear all
+  Undo,
+  Redo,
 }
 
 export enum Operation {
@@ -567,7 +569,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         }
       }
       // preview line
-      if (state.mouseFrom > 0 && (
+      if (state.mouseFrom >= 0 && (
         (state.tool === EditorTool.Line && state.operation !== Operation.None) ||
         (state.tool === EditorTool.Pencil && state.operation === Operation.Add) ||
         (state.tool === EditorTool.Eraser && state.operation === Operation.Add)
@@ -576,7 +578,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         renderer.drawLine(p5, from.x, from.y, to.x, to.y, color);
       }
       // preview fill
-      if (state.mouseFrom > 0 && state.tool === EditorTool.Rectangle && state.operation !== Operation.None) {
+      if (state.mouseFrom >= 0 && state.tool === EditorTool.Rectangle && state.operation !== Operation.None) {
         const color = state.operation === Operation.Remove ? '#ff330044' : '#00aaff44';
         for (let y = Math.min(from.y, to.y); y <= Math.max(from.y, to.y); y++) {
           for (let x = Math.min(from.x, to.x); x <= Math.max(from.x, to.x); x++) {

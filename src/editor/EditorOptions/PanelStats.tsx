@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { OST_MODE_TRACKS, SLIME_CONTROL_TRACKS } from "../../constants";
 import { EditorOptions, GameSettings, MusicTrack } from "../../types";
+import { SetStateValue } from "../editorTypes";
 import { getRelativeDir, getTrackName } from "../../utils";
 import { musicTracktoIndex } from "../utils/musicTrackUtils";
 import { Stack } from "../components/Stack";
@@ -19,7 +20,7 @@ import * as styles from './EditorOptions.css';
 interface PanelStatsProps {
   isPreviewShowing: boolean;
   options: EditorOptions;
-  setOptions: (options: EditorOptions) => void;
+  setOptions: (value: SetStateValue<EditorOptions>) => void;
 }
 
 export const PanelStats = ({ isPreviewShowing, options, setOptions }: PanelStatsProps) => {
@@ -69,12 +70,12 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions }: PanelStats
   const handleChangeTrack = (option: Option) => {
     const found = includedTracks.find(includedTrack => includedTrack === option.value as MusicTrack);
     if (!found) {
-      setOptions({ ...options, musicTrack: MusicTrack.None });
+      setOptions(prev => ({ ...prev, musicTrack: MusicTrack.None }));
       stopTrack();
       return;
     }
     if (found === options.musicTrack) return;
-    setOptions({ ...options, musicTrack: found });
+    setOptions(prev => ({ ...prev, musicTrack: found }));
     if (isPlaying) playSelectedTrack(found);
   };
 

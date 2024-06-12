@@ -5,7 +5,7 @@
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url('assets/graphics/editor-tools-200.png');
-  --editor-tool-sprite-background-size: 576px 48px;
+  --editor-tool-sprite-background-size: 768px 48px; /* width = img_width / 64 * 48 */
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
   --editor-bg-color: #111;
@@ -348,7 +348,25 @@ button {
   }
   &.bomb {
     background-position-x: calc(-11 * var(--editor-tool-sprite-width));
+  }
+  &.undo.hasUndo:hover {
+    background-position-x: calc(-12 * var(--editor-tool-sprite-width));
+    filter: none;
+  }
+  &.undo {
+    background-position-x: calc(-13 * var(--editor-tool-sprite-width));
     margin-left: 20px;
+    &.hasUndo { filter: none; }
+    &:hover { filter: brightness(0.5) grayscale(0.5); }
+  }
+  &.redo.hasRedo:hover {
+    background-position-x: calc(-14 * var(--editor-tool-sprite-width));
+    filter: none;
+  }
+  &.redo {
+    background-position-x: calc(-15 * var(--editor-tool-sprite-width));
+    &.hasRedo { filter: none; }
+    &:hover { filter: brightness(0.5) grayscale(0.5); }
   }
 }
 

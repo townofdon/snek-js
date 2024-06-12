@@ -77,8 +77,8 @@ export const Editor = () => {
   const [isPreviewShowing, setPreviewShowing] = useState(false);
   const [options, optionsRef, setOptions] = useRefState<EditorOptions>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
-  const [_pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
-  const [_futureCommands, futureCommandsRef, setFutureCommands] = useRefState<Command[]>([]);
+  const [pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
+  const [futureCommands, futureCommandsRef, setFutureCommands] = useRefState<Command[]>([]);
   const [lastCoordUpdated, lastCoordUpdatedRef, setLastCoordUpdated] = useRefState(-1);
   const [mouseAt, mouseAtRef, setMouseAt] = useRefState(-1);
   const [mouseFrom, mouseFromRef, setMouseFrom] = useRefState(-1);
@@ -92,6 +92,9 @@ export const Editor = () => {
   const [portalChannel, portalChannelRef, setPortalChannel] = useRefState<PortalChannel>(0);
 
   useLoadMapData({ setData, setOptions });
+
+  const hasUndo = !!pastCommands.length;
+  const hasRedo = !!futureCommands.length;
 
   const setTile = (tile: Tile) => {
     if (toolRef.current === EditorTool.Eraser) setTool(EditorTool.Pencil);
@@ -540,9 +543,14 @@ export const Editor = () => {
             className={styles.mainTitle}
             style={{ color: options.palette.playerHead }}
           >
-            {options.name || '_'}
+            {options.name || "_"}
           </h1>
-          <button className={styles.previewMapButton} onClick={() => setPreviewShowing(true)}>▶️ Preview</button>
+          <button
+            className={styles.previewMapButton}
+            onClick={() => setPreviewShowing(true)}
+          >
+            ▶️ Preview
+          </button>
         </Stack>
       </div>
       <div className={styles.editorContainer}>
@@ -559,12 +567,34 @@ export const Editor = () => {
           handleMouseDown={handleMouseDown}
           handleMouseUp={handleMouseUp}
           editorTiles={<EditorTiles activeTile={tile} setTile={setTile} />}
-          editorTools={<EditorTools activeTool={tool} setTool={setTool} data={data} setData={setData} executeCommand={executeCommand} />}
+          editorTools={
+            <EditorTools
+              activeTool={tool}
+              setTool={setTool}
+              data={data}
+              setData={setData}
+              executeCommand={executeCommand}
+              undo={undo}
+              redo={redo}
+              hasUndo={hasUndo}
+              hasRedo={hasRedo}
+            />
+          }
           tileSidebar={
             <EditorSidebar
               tile={tile}
-              sidebarKeyChannels={<SidebarKeyChannels activeChannel={keyChannel} setChannel={setKeyChannel} />}
-              sidebarPortalChannels={<SidebarPortalChannels activeChannel={portalChannel} setChannel={setPortalChannel} />}
+              sidebarKeyChannels={
+                <SidebarKeyChannels
+                  activeChannel={keyChannel}
+                  setChannel={setKeyChannel}
+                />
+              }
+              sidebarPortalChannels={
+                <SidebarPortalChannels
+                  activeChannel={portalChannel}
+                  setChannel={setPortalChannel}
+                />
+              }
             />
           }
         />
@@ -581,7 +611,12 @@ export const Editor = () => {
           redo={redo}
         />
       </div>
-      <MapPreview data={data} options={options} isPreviewShowing={isPreviewShowing} setPreviewShowing={setPreviewShowing} />
+      <MapPreview
+        data={data}
+        options={options}
+        isPreviewShowing={isPreviewShowing}
+        setPreviewShowing={setPreviewShowing}
+      />
       <Toaster
         containerClassName={styles.toastContainer}
         toastOptions={{
