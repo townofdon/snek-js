@@ -114,12 +114,31 @@ button {
 
 .canvasContainer {
   display: flex;
+  flex-direction: column-reverse;
   align-items: center;
   justify-content: center;
   min-width: 600px;
   min-height: 600px;
   font-family: 'MiniMOOD', 'VT323', monospace;
   color: slategray;
+}
+
+.mapBottomInfo {
+  width: 640px;
+  margin-left: 128px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  font-family: "Courier New", monospace;
+  font-size: 0.8em;
+  color: #88939b;
+
+  & .item {
+    margin-right: 10px;
+  }
+
+  & .val {
+    color: #ccc;
+  }
 }
 
 .gridCell {
@@ -413,6 +432,29 @@ button {
     height: 20px;
     padding: 3px;
     box-sizing: content-box;
+  }
+
+  & .fullscreenButton {
+    position: absolute;
+    display: inline-block;
+    top: 100%;
+    margin-top: 6px;
+    right: -2px;
+    width: 48px;
+    height: 48px;
+    padding: 0px;
+    box-sizing: content-box;
+    /* border: 2px solid #ffffff5c; */
+    border: 2px solid #91a3c3;
+
+    &:hover {
+      border-color: #fff;
+    }
+
+    & img {
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 

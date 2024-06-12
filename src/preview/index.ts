@@ -1,7 +1,7 @@
 
 import p5 from 'p5';
 
-// import './windowManagement';
+import '../windowManagement';
 import { sketch } from './preview';
 
 function main() {

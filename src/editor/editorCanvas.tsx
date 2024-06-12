@@ -1,11 +1,13 @@
 import React, { useEffect, useLayoutEffect, useRef } from "react";
 import cx from 'classnames';
 
-import { EditorSketchReturn, EditorTool, Operation, editorSketch } from "./editorSketch";
+import { GRIDCOUNT } from "../constants";
 import { EditorData, EditorOptions } from "../types";
+import { getCoordIndex2 } from "../utils";
+import { EditorSketchReturn, EditorTool, Operation, editorSketch } from "./editorSketch";
+import { Grid } from "./components/Grid";
 
 import * as styles from "./Editor.css";
-import { Grid } from "./components/Grid";
 
 interface EditorCanvasProps {
   data: EditorData;
@@ -80,6 +82,18 @@ export const EditorCanvas = ({
       sketch.current?.cleanup();
     };
   }, []);
+
+  const preSpawnedAppleCount = (() => {
+    let count = 0;
+    for (let y = 0; y < GRIDCOUNT.y; y++) {
+      for (let x = 0; x < GRIDCOUNT.x; x++) {
+        const coord = getCoordIndex2(x, y);
+        if (data.applesMap[coord]) count++;
+      }
+    }
+    return count;
+  })();
+
   return (
     <div className={cx(styles.stack, styles.col)}>
       {editorTools}
@@ -98,6 +112,9 @@ export const EditorCanvas = ({
             onMouseLeave={handleMouseLeave}
           />
         </Grid>
+      </div>
+      <div className={styles.mapBottomInfo}>
+        <span className={styles.item}>Pre-spawned apple count: <span className={styles.val}>{preSpawnedAppleCount}</span></span>
       </div>
     </div>
   );

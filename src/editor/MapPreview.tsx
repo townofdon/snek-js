@@ -2,8 +2,10 @@ import React, { useEffect, useMemo, useRef } from "react"
 
 import { EditorData, EditorOptions } from "../types";
 
-import * as styles from './Editor.css';
 import { encodeMapData } from "./utils/editorUtils";
+import { getRelativeDir } from "../utils";
+
+import * as styles from './Editor.css';
 
 interface MapPreviewProps {
   data: EditorData,
@@ -18,14 +20,20 @@ export const MapPreview = ({ data, options, isPreviewShowing, setPreviewShowing 
   const url = useMemo(() => {
     if (!isPreviewShowing) return '';
     const encoded = encodeMapData(data, options);
-    return `/snek-js/preview/?data=${encoded}`;
+    return `/snek-js/preview/?disableFullscreen=true&data=${encoded}`;
   }, [data, options, isPreviewShowing]);
 
   useEffect(() => {
     if (iframeRef.current && isPreviewShowing) {
       iframeRef.current.focus();
     }
-  }, [isPreviewShowing, iframeRef])
+  }, [isPreviewShowing, iframeRef]);
+
+  const handleFullscreen = () => {
+    if (!iframeRef.current) return;
+    iframeRef.current.contentWindow.postMessage('fullscreen');
+    iframeRef.current.focus();
+  };
 
   if (!isPreviewShowing) return null;
 
@@ -44,6 +52,9 @@ export const MapPreview = ({ data, options, isPreviewShowing, setPreviewShowing 
             height="600"
             className={styles.mapPreview}
           />
+          <button title="Fullscreen" className={styles.fullscreenButton} onClick={handleFullscreen}>
+            <img src={`${getRelativeDir()}/assets/graphics/editor-fullscreen.png`} />
+          </button>
         </div>
       </div>
     </div>

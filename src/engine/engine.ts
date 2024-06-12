@@ -528,9 +528,17 @@ export function engine({
         // const query = new URLSearchParams(`?data=${level.layoutV2}`);
         // const queryData = query.get('data');
         // const [data] = decodeMapData(queryData);
-        const [data] = decodeMapData(level.layoutV2);
+        const [data, options] = decodeMapData(level.layoutV2);
         level.layout = buildMapLayout(data);
         level.snakeSpawnPointOverride = getCoordIndex(data.playerSpawnPosition);
+        // may decide to remove these overwrites later
+        level.disableAppleSpawn = options.disableAppleSpawn;
+        level.numApplesStart = options.numApplesStart;
+        level.applesToClear = options.applesToClear;
+        level.timeToClear = options.timeToClear;
+        level.snakeStartSizeOverride = options.snakeStartSize;
+        level.extraHurtGraceTime = options.extraHurtGraceTime;
+        level.globalLight = options.globalLight;
       } catch (err) {
         console.error(err);
         console.error(`Unable to parse layoutV2 data for level "${level.name}"`);

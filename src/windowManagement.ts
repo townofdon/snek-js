@@ -39,4 +39,9 @@ function incrementallyScaleWindow() {
   requestAnimationFrame(incrementallyScaleWindow);
 }
 
-handleWindowResize();
+const query = new URLSearchParams(window.location.search);
+const disableFullscreen = query.get('disableFullscreen') === 'true';
+
+if (!disableFullscreen) {
+  handleWindowResize();
+}

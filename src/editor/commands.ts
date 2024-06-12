@@ -127,6 +127,7 @@ export class SetAppleCommand extends SetElementCommand {
       this.newData = null;
     } else {
       this.newData.apple = true;
+      this.newData.deco1 = true;
     }
   }
 }
@@ -402,6 +403,7 @@ export class SetLineAppleCommand extends SetLineCommand {
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.apple = true;
+    this.newData.deco1 = true;
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.applesMap[coord];
@@ -582,6 +584,7 @@ export class SetRectangleAppleCommand extends SetRectangleCommand {
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
     this.newData.apple = true;
+    this.newData.deco1 = true;
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.applesMap[coord];

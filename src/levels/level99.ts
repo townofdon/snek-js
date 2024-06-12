@@ -52,11 +52,8 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   titleVariant: TitleVariant.Red,
   musicTrack: MusicTrack.moneymaker,
   pickupDrops: {
-    50: { likelihood: .8, type: PickupType.Invincibility },
-    75: { likelihood: .05, type: PickupType.Invincibility },
     100: { likelihood: .8, type: PickupType.Invincibility },
-    125: { likelihood: .05, type: PickupType.Invincibility },
-    150: { likelihood: 1, type: PickupType.Invincibility },
+    150: { likelihood: .5, type: PickupType.Invincibility },
     175: { likelihood: .05, type: PickupType.Invincibility },
     200: { likelihood: .8, type: PickupType.Invincibility },
     225: { likelihood: .05, type: PickupType.Invincibility },

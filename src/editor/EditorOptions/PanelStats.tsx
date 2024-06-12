@@ -62,6 +62,14 @@ export const PanelStats = ({ options, setOptions }: PanelStatsProps) => {
         max={100}
       />
       <SliderWithInput
+        label="Hit Grace Time (ms)"
+        name="extraHurtGraceTime"
+        value={options.extraHurtGraceTime}
+        onChange={val => setOptions(({ ...options, extraHurtGraceTime: val }))}
+        min={0}
+        max={200}
+      />
+      <SliderWithInput
         label="Global Light"
         name="globalLight"
         value={options.globalLight}

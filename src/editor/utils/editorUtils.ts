@@ -283,10 +283,7 @@ export function buildMapLayout(data: EditorData): string {
       return 'X';
     }
     if (data.doorsMap[coord]) {
-      if (data.decoratives1Map[coord]) {
-        return 'd';
-      }
-      return 'D';
+      return 'd';
     }
     if (data.applesMap[coord]) {
       return 'A';

@@ -1,11 +1,12 @@
 import P5 from 'p5';
 
+import './fullscreenHandler';
+
 import {
   FRAMERATE,
   DIMENSIONS,
   MAX_LIVES,
   HURT_GRACE_TIME,
-  DISABLE_TRANSITIONS,
   DIFFICULTY_MEDIUM,
 } from '../constants';
 import {
@@ -31,7 +32,7 @@ import {
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI } from '../ui/ui';
-import { showPauseUI, showPauseUIPreviewMode } from '../ui/uiComponents';
+import { showPauseUIPreviewMode } from '../ui/uiComponents';
 import { engine } from '../engine/engine';
 import { resumeAudioContext } from '../engine/audio';
 import { Coroutines } from '../engine/coroutines';
@@ -369,8 +370,8 @@ export const sketch = (p5: P5) => {
     tutorial.needsRewindControls = false;
 
     const query = new URLSearchParams(window.location.search);
-    const fullscreen = query.get('fullscreen');
-    if (fullscreen === 'true') {
+    const disableFullscreen = query.get('disableFullscreen') === 'true';
+    if (!disableFullscreen) {
       document.body.requestFullscreen();
     }
 
@@ -466,6 +467,7 @@ function loadLevel(): Level {
       applesModOverride: 1,
       snakeStartSizeOverride: Math.max(options.snakeStartSize, 3),
       disableAppleSpawn: options.disableAppleSpawn,
+      extraHurtGraceTime: options.extraHurtGraceTime,
       globalLight: options.globalLight,
       snakeSpawnPointOverride: getCoordIndex(data.playerSpawnPosition),
       showTitle: false,
