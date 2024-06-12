@@ -944,103 +944,33 @@ input[type=range].range--RAtUGcOxDnbVq8ni3AS1:active::-webkit-slider-thumb {
 /*!*************************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Field/react-dropdown.css ***!
   \*************************************************************************************************************************************************************************************************/
-.Dropdown-root {
-  position: relative;
+.react-select__control {
+  min-width: 230px;
+}
+
+.react-select__menu {
   --dropdown-bg: #c0cdd3;
   --dropdown-bg: #e2ebf0;
   --menu-bg: #333;
   --menu-fg: #ddd;
-}
-
-.Dropdown-control {
-  position: relative;
-  overflow: hidden;
-  background-color: var(--dropdown-bg);
-  border: 1px solid #ccc;
-  border-radius: 2px;
-  box-sizing: border-box;
-  color: #333;
-  cursor: default;
-  outline: none;
-  padding: 8px 52px 8px 10px;
-  transition: all 200ms ease;
-}
-
-.Dropdown-control:hover {
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
-}
-
-.Dropdown-arrow {
-  border-color: #999 transparent transparent;
-  border-style: solid;
-  border-width: 5px 5px 0;
-  content: " ";
-  display: block;
-  height: 0;
-  margin-top: -ceil(2.5);
-  position: absolute;
-  right: 10px;
-  top: 14px;
-  width: 0;
-}
-
-.is-open--O0BIHajioO_f7AjlzK2e .Dropdown-arrow {
-  border-color: transparent transparent #999;
-  border-width: 0 5px 5px;
-}
-
-.Dropdown-menu {
-  background-color: var(--menu-bg);
+  --hover-bg: #f2f9fc;
+  --active-fg: #47a795;
+  --active-bg: #e2ebf0;
+  --focus-fg: #f2f9fc;
+  --focus-bg: #444;
+  background-color: var(--menu-bg) !important;
   color: var(--menu-fg);
-  border: 1px solid #ccc;
-  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
-  box-sizing: border-box;
-  margin-top: -1px;
-  max-height: 200px;
-  overflow-y: auto;
-  position: absolute;
-  top: 100%;
-  width: 100%;
-  z-index: 1000;
-  -webkit-overflow-scrolling: touch;
 }
-
-.Dropdown-menu .Dropdown-group > .Dropdown-title {
-  padding: 8px 10px;
-  color: rgb(51, 51, 51);
-  font-weight: bold;
-  text-transform: capitalize;
-}
-
-.Dropdown-option {
-  box-sizing: border-box;
+.react-select__menu .react-select__option {
   color: var(--menu-fg);
-  cursor: pointer;
-  display: block;
-  padding: 8px 10px;
 }
-
-.Dropdown-option:last-child {
-  border-bottom-right-radius: 2px;
-  border-bottom-left-radius: 2px;
+.react-select__menu .react-select__option--is-focused {
+  background-color: var(--focus-bg);
+  color: var(--focus-fg);
 }
-
-.Dropdown-option:hover {
-  background-color: #f2f9fc;
-  color: #333;
-}
-
-.Dropdown-option.is-selected--uYmzckWmrTTmOKudlkLc {
-  background-color: #f2f9fc;
-  color: #333;
-}
-
-.Dropdown-noresults {
-  box-sizing: border-box;
-  color: #ccc;
-  cursor: default;
-  display: block;
-  padding: 8px 10px;
+.react-select__menu .react-select__option--is-selected {
+  background-color: var(--active-bg);
+  color: var(--active-fg);
 }
 /*!*********************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/EditorOptions/EditorOptions.css ***!
@@ -1117,4 +1047,13 @@ textarea {
 
 .buttonLoadLevel--EzYy3PLJvRuJWfSOdlg1 {
   margin-top: 20px;
+}
+
+.buttonPlay--RoAbu5ZR9Z_UhVxE99Jf,
+.buttonStop--Y5h2KH_0o6iYzhfsVH6q {
+  display: inline-flex;
+  padding: 0;
+  margin-top: 12px;
+  align-items: center;
+  justify-content: center;
 }
