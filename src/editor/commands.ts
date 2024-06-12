@@ -1,11 +1,16 @@
 import { Vector } from "p5";
 
+import { SetStateValue, Tile } from "./editorTypes";
 import { DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PortalChannel } from "../types";
 import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
 import { deepCloneData, getEditorDataFromLevel, mergeData, mergeDataSlice } from "./utils/editorUtils";
-import { SetStateValue } from "./editorTypes";
+import { tileFloodFill } from "./utils/floodFill";
 
-//  THE COMMAND PATTERN
+/**
+ * THE COMMAND PATTERN
+ *
+ * see: https://www.geeksforgeeks.org/command-pattern/
+ */
 export interface Command {
   name: string,
   execute: () => boolean,
@@ -149,7 +154,12 @@ export class SetDecorative1Command extends SetElementCommand {
   public readonly name = 'Draw BG1';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.decoratives1Map[this.coord] && !data.nospawnsMap[this.coord]) {
+    if (data.decoratives1Map[this.coord] &&
+      !data.nospawnsMap[this.coord] &&
+      !data.doorsMap[this.coord] &&
+      !data.applesMap[this.coord] &&
+      !isValidKeyChannel(data.locksMap[this.coord])
+    ) {
       this.newData = null;
     } else {
       this.newData.deco1 = true;
@@ -161,7 +171,12 @@ export class SetDecorative2Command extends SetElementCommand {
   public readonly name = 'Draw BG2';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.decoratives2Map[this.coord] && !data.nospawnsMap[this.coord]) {
+    if (data.decoratives2Map[this.coord] &&
+      !data.nospawnsMap[this.coord] &&
+      !data.doorsMap[this.coord] &&
+      !data.applesMap[this.coord] &&
+      isValidKeyChannel(data.locksMap[this.coord])
+    ) {
       this.newData = null;
     } else {
       this.newData.deco2 = true;
@@ -428,7 +443,11 @@ export class SetLineDeco1Command extends SetLineCommand {
     this.newData.deco1 = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.decoratives1Map[coord] || this.dataRef.current.nospawnsMap[coord];
+    return !this.dataRef.current.decoratives1Map[coord] ||
+      this.dataRef.current.nospawnsMap[coord] ||
+      this.dataRef.current.doorsMap[coord] ||
+      this.dataRef.current.applesMap[coord] ||
+      isValidKeyChannel(this.dataRef.current.locksMap[coord]);
   };
 }
 
@@ -439,7 +458,11 @@ export class SetLineDeco2Command extends SetLineCommand {
     this.newData.deco2 = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.decoratives2Map[coord] || this.dataRef.current.nospawnsMap[coord];
+    return !this.dataRef.current.decoratives2Map[coord] ||
+      this.dataRef.current.nospawnsMap[coord] ||
+      this.dataRef.current.doorsMap[coord] ||
+      this.dataRef.current.applesMap[coord] ||
+      isValidKeyChannel(this.dataRef.current.locksMap[coord]);
   };
 }
 
@@ -608,7 +631,11 @@ export class SetRectangleDeco1Command extends SetRectangleCommand {
     this.newData.deco1 = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.decoratives1Map[coord] || this.dataRef.current.nospawnsMap[coord];
+    return !this.dataRef.current.decoratives1Map[coord] ||
+      this.dataRef.current.nospawnsMap[coord] ||
+      this.dataRef.current.doorsMap[coord] ||
+      this.dataRef.current.applesMap[coord] ||
+      isValidKeyChannel(this.dataRef.current.locksMap[coord]);
   };
 }
 
@@ -619,7 +646,11 @@ export class SetRectangleDeco2Command extends SetRectangleCommand {
     this.newData.deco2 = true;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.decoratives2Map[coord] || this.dataRef.current.nospawnsMap[coord];
+    return !this.dataRef.current.decoratives2Map[coord] ||
+      this.dataRef.current.nospawnsMap[coord] ||
+      this.dataRef.current.doorsMap[coord] ||
+      this.dataRef.current.applesMap[coord] ||
+      isValidKeyChannel(this.dataRef.current.locksMap[coord]);
   };
 }
 
@@ -799,6 +830,58 @@ export class ClearAllCommand implements Command {
         startDirection: DIR.RIGHT
       };
       this.setData(newData);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+  rollback = () => {
+    this.setData(this.initialData);
+  };
+}
+
+export class FloodFillCommand implements Command {
+  public readonly name = 'Bucket Fill';
+
+  private tile: Tile;
+  private x: number;
+  private y: number;
+  private portalChannel: PortalChannel;
+  private keyChannel: KeyChannel;
+  private dataRef: React.MutableRefObject<EditorData>;
+  private initialData: EditorData;
+  private setData: (val: EditorData) => void;
+
+  public constructor(
+    tile: Tile,
+    x: number,
+    y: number,
+    portalChannel: PortalChannel,
+    keyChannel: KeyChannel,
+    dataRef: React.MutableRefObject<EditorData>,
+    setData: (val: EditorData) => void,
+  ) {
+    this.tile = tile;
+    this.x = x;
+    this.y = y;
+    this.portalChannel = portalChannel;
+    this.keyChannel = keyChannel;
+    this.dataRef = dataRef;
+    this.initialData = dataRef.current;
+    this.setData = setData;
+  }
+  execute = () => {
+    try {
+      const updates = tileFloodFill(
+        this.tile,
+        this.x,
+        this.y,
+        this.portalChannel,
+        this.keyChannel,
+        this.dataRef.current
+      );
+      this.setData(mergeData(this.dataRef.current, updates));
       return true;
     } catch (err) {
       console.error(err);

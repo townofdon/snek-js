@@ -15,6 +15,7 @@ import {
   DeleteElementCommand,
   DeleteLineCommand,
   DeleteRectangleCommand,
+  FloodFillCommand,
   NoOpCommand,
   SetAppleCommand,
   SetBarrierCommand,
@@ -313,6 +314,12 @@ export const Editor = () => {
       const from = prevCoord;
       const to = mouseAtRef.current;
       return new DeleteLineCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
+    } else if (toolRef.current === EditorTool.Bucket) {
+      if (mouseAtRef.current === -1) return;
+      if (tileRef.current === Tile.Spawn) return;
+      const x = Math.floor(mouseAtRef.current % GRIDCOUNT.x);
+      const y = Math.floor(mouseAtRef.current / GRIDCOUNT.x);
+      return new FloodFillCommand(tileRef.current, x, y, portalChannelRef.current, keyChannelRef.current, dataRef, setData);
     }
     throw Error('not implemented');
   }
