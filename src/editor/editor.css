@@ -343,11 +343,14 @@ button {
     background-position-x: calc(-7 * var(--editor-tool-sprite-width));
   }
   &.bomb.active,
+  &.bomb:active,
+  &.bomb:focus,
   &.bomb:hover {
     background-position-x: calc(-10 * var(--editor-tool-sprite-width));
   }
   &.bomb {
     background-position-x: calc(-11 * var(--editor-tool-sprite-width));
+    filter: none;
   }
   &.undo.hasUndo:hover {
     background-position-x: calc(-12 * var(--editor-tool-sprite-width));

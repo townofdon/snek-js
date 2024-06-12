@@ -341,11 +341,12 @@ button {
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT.line--vIXHkrBWfwTGXJFGHo_w {
   background-position-x: calc(-7 * var(--editor-tool-sprite-width));
 }
-.editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK.active--Rx0uKlzWxhXt775otXDz, .editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK:hover {
+.editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK.active--Rx0uKlzWxhXt775otXDz, .editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK:active, .editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK:focus, .editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK:hover {
   background-position-x: calc(-10 * var(--editor-tool-sprite-width));
 }
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK {
   background-position-x: calc(-11 * var(--editor-tool-sprite-width));
+  filter: none;
 }
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT.undo--ckfvUXMjUxs7bMXBGQvb.hasUndo--RwlDW1Ty9aJXt8xIzJQy:hover {
   background-position-x: calc(-12 * var(--editor-tool-sprite-width));
