@@ -16,6 +16,7 @@ import {
   DeleteLineCommand,
   DeleteRectangleCommand,
   FloodFillCommand,
+  FloodFillEmptyCommand,
   NoOpCommand,
   SetAppleCommand,
   SetBarrierCommand,
@@ -322,7 +323,11 @@ export const Editor = () => {
       if (tileRef.current === Tile.Spawn) return;
       const x = Math.floor(mouseAtRef.current % GRIDCOUNT.x);
       const y = Math.floor(mouseAtRef.current / GRIDCOUNT.x);
-      return new FloodFillCommand(tileRef.current, x, y, portalChannelRef.current, keyChannelRef.current, dataRef, setData);
+      if (operation === Operation.Remove) {
+        return new FloodFillEmptyCommand(x, y, portalChannelRef.current, keyChannelRef.current, dataRef, setData);
+      } else {
+        return new FloodFillCommand(tileRef.current, x, y, portalChannelRef.current, keyChannelRef.current, dataRef, setData);
+      }
     }
     throw Error('not implemented');
   }
@@ -375,9 +380,10 @@ export const Editor = () => {
       if (mousePressedRef.current) return Operation.Write;
       return Operation.None;
     }
-    const isImmediateTool = [EditorTool.Pencil, EditorTool.Eraser].includes(toolRef.current)
-    if (altPressedRef.current && (isImmediateTool || mousePressedRef.current)) return Operation.Remove;
-    if (shiftPressedRef.current && isImmediateTool) return Operation.Add;
+    const isImmediateRemovableTool = [EditorTool.Pencil, EditorTool.Eraser, EditorTool.Bucket].includes(toolRef.current);
+    const isImmediateAdditiveTool = [EditorTool.Pencil, EditorTool.Eraser].includes(toolRef.current)
+    if (altPressedRef.current && (isImmediateRemovableTool || mousePressedRef.current)) return Operation.Remove;
+    if (shiftPressedRef.current && isImmediateAdditiveTool) return Operation.Add;
     if (mousePressedRef.current) return Operation.Write;
     return Operation.None;
   }

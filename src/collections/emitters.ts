@@ -56,6 +56,9 @@ export class Emitters {
     let index = 0;
     while (index < this.activeLength) {
       const i = this.indices[index];
+
+      // `return` here was a mistake (should have been `continue`), but results in an interesting visual side-effect
+      // of additional particle bursts cascading down the grid, so intentionally keeping
       if (i < 0) return;
       if (this.free[i]) return;
 

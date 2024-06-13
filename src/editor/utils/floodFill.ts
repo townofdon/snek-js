@@ -7,7 +7,7 @@ import { Vector } from "p5";
 
 
 enum FloodFillTile {
-  Ignore,
+  None,
   Passable,
   Barrier,
   Door,
@@ -96,7 +96,7 @@ function getTile({ tile, portalChannel, keyChannel }: GetTileArgs) {
     }
   }
   if (tile === Tile.Nospawn) return FloodFillTile.Nospawn;
-  return FloodFillTile.Ignore;
+  return FloodFillTile.None;
 }
 
 function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
@@ -119,7 +119,7 @@ function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
   if (data.decoratives2Map[coord]) return getTile({ tile: Tile.Deco2 });
   if (data.decoratives1Map[coord]) return getTile({ tile: Tile.Deco1 });
   if (data.nospawnsMap[coord]) return getTile({ tile: Tile.Nospawn });
-  return FloodFillTile.Ignore;
+  return FloodFillTile.None;
 }
 
 function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void {
@@ -139,7 +139,7 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
     startDirection: data.startDirection,
   }
   switch (tile) {
-    case FloodFillTile.Ignore:
+    case FloodFillTile.None:
       break;
     case FloodFillTile.Passable:
       slice.passable = true;
@@ -240,13 +240,13 @@ export function tileFloodFill(
   portalChannel: PortalChannel,
   keyChannel: KeyChannel,
   data: EditorData,
-): EditorData {
+): EditorData | null {
   const prev = getTileAtLocation(getCoordIndex2(x, y), data);
   const next = getTile({ tile: tileToSet, portalChannel, keyChannel });
   const newData = deepCloneData(data);
 
   if (prev === next) {
-    return newData;
+    return null;
   }
 
   const screen: FloodFillTile[][] = [];

@@ -881,6 +881,9 @@ export class FloodFillCommand implements Command {
         this.keyChannel,
         this.dataRef.current
       );
+      if (!updates) {
+        return false;
+      }
       this.setData(mergeData(this.dataRef.current, updates));
       return true;
     } catch (err) {
@@ -891,4 +894,19 @@ export class FloodFillCommand implements Command {
   rollback = () => {
     this.setData(this.initialData);
   };
+}
+
+export class FloodFillEmptyCommand extends FloodFillCommand {
+  public readonly name = 'Bucket Fill';
+
+  public constructor(
+    x: number,
+    y: number,
+    portalChannel: PortalChannel,
+    keyChannel: KeyChannel,
+    dataRef: React.MutableRefObject<EditorData>,
+    setData: (val: EditorData) => void,
+  ) {
+    super(Tile.None, x, y, portalChannel, keyChannel, dataRef, setData);
+  }
 }
