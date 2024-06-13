@@ -27,9 +27,9 @@ export const getTileExplanation = (tile: Tile): string => {
     [Tile.Deco2]: 'background decor',
     [Tile.Apple]: 'spawns once at map start',
     [Tile.Nospawn]: 'prevent apple spawn at location',
-    [Tile.Lock]: 'opens via matching key',
-    [Tile.Key]: 'opens lock with matching channel',
-    [Tile.Portal]: 'warp to portal with matching channel',
+    [Tile.Lock]: 'opens with key of same channel',
+    [Tile.Key]: 'opens lock of same channel',
+    [Tile.Portal]: 'warp to portal with same channel',
     [Tile.Spawn]: 'spawn snek at location on map start',
   }[tile];
 }

@@ -112,6 +112,7 @@ const state: GameState = {
   currentSpeed: 1,
   steps: 0,
   frameCount: 0,
+  numTeleports: 0,
   lastHurtBy: HitType.Unknown,
   hasKeyYellow: false,
   hasKeyRed: false,
@@ -778,6 +779,16 @@ export const sketch = (p5: P5) => {
 
   // I will buy a beer for whoever can decipher my spaghetticode
   const getNextLoseMessage = (numIterations = 0): string => {
+    if (state.lastHurtBy === HitType.QuantumEntanglement) {
+      const messages = [
+        'You caused a rift in the snektime continuum.',
+        'Attempting to be in two places at once can have disastrous results.',
+        'Quantum entangle yourself lately?',
+        'Congrats, ya broke the game!',
+      ];
+      const index = Math.floor(p5.random(0, messages.length));
+      return messages[index];
+    }
     const level = getLevel();
     const difficulty = getDifficulty();
     const allMessages = (loseMessages[state.levelIndex] || []).concat(level.disableNormalLoseMessages ? [] : loseMessages[-1]);

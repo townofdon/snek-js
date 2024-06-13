@@ -281,6 +281,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       currentSpeed: 0,
       steps: 0,
       frameCount: 0,
+      numTeleports: 0,
       lastHurtBy: HitType.Unknown,
       nextLevel: undefined,
     }

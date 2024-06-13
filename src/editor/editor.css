@@ -173,6 +173,7 @@ button {
   vertical-align: bottom;
   background: var(--grid-bg-color-1);
   color: slategray;
+  user-select: none;
   &:nth-child(2n) {
     background: var(--grid-bg-color-2);
   }

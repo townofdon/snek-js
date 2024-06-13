@@ -435,6 +435,7 @@ export function engine({
     state.currentSpeed = 1;
     state.steps = 0;
     state.frameCount = 0;
+    state.numTeleports = 0;
     state.lastHurtBy = HitType.Unknown;
     state.hasKeyYellow = false;
     state.hasKeyRed = false;
@@ -681,7 +682,7 @@ export function engine({
 
     const didHit = checkHasHit(player.position);
     if (didHit) player.directionLastHit = player.direction;
-    state.isLost = didHit;
+    state.isLost = state.isLost || didHit;
     handleSnakeDamage(state.isLost && state.lives > 0);
 
     // handle snake death
@@ -720,6 +721,12 @@ export function engine({
     state.frameCount += 1;
     for (let i = recentInputTimes.length - 1; i >= 0; i--) {
       recentInputTimes[i] += loopState.deltaTime;
+    }
+    // solution to infinite portal loop soft lock:
+    // since the loop happens every frame, decrement every N frames so that
+    // the count will accumulate until it passes some critical threshold
+    if (state.frameCount % 5 === 0) {
+      state.numTeleports = Math.max(state.numTeleports - 1, 0);
     }
   }
 
@@ -1172,7 +1179,6 @@ export function engine({
       portalExitMode: level.portalExitConfig?.[portal.channel] || portal.exitMode,
       checkHasHit,
       hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, portalsMap),
-      // ignoreBestCheck: level === LEVEL_14,
     });
     return checkHasHit(portal.link.copy().add(dirToUnitVector(newDir)));
   }
@@ -1192,7 +1198,6 @@ export function engine({
       portalExitMode: level.portalExitConfig?.[portal.channel] || portal.exitMode,
       checkHasHit,
       hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, portalsMap),
-      // ignoreBestCheck: level === LEVEL_14,
     });
     player.direction = newDir;
     player.directionToFirstSegment = invertDirection(player.direction);
@@ -1200,6 +1205,13 @@ export function engine({
     state.timeSinceLastTeleport = 0;
     player.position.set(portal.link);
     player.position.add(dirToUnitVector(player.direction));
+    state.numTeleports++;
+    if (state.numTeleports > 80) {
+      // kill the snake to prevent a soft lock due to infinite loop
+      state.lives = 0;
+      state.isLost = true;
+      state.lastHurtBy = HitType.QuantumEntanglement;
+    }
   }
 
   function handleKeyPickup() {

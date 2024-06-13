@@ -104,6 +104,7 @@ export enum HitType {
   HitDoor,
   HitSelf,
   HitLock,
+  QuantumEntanglement,
 }
 
 export type RecentMove = DIR | null
@@ -162,6 +163,7 @@ export interface GameState {
   currentSpeed: number,
   steps: number,
   frameCount: number,
+  numTeleports: number,
   lastHurtBy: HitType,
   nextLevel: Level | null,
 }

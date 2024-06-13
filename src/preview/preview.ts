@@ -88,6 +88,7 @@ const state: GameState = {
   currentSpeed: 1,
   steps: 0,
   frameCount: 0,
+  numTeleports: 0,
   lastHurtBy: HitType.Unknown,
   hasKeyYellow: false,
   hasKeyRed: false,
