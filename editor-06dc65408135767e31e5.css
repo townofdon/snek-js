@@ -125,7 +125,10 @@ button {
   color: slategray;
 }
 
-.mapBottomInfo--tzmFfhTrY7dDPxZRiEoJ {
+.mapBottomInfo--tzmFfhTrY7dDPxZRiEoJ,
+.mapBottomDescription--vO5E4RRMHsSV_oWhNEAN {
+  display: flex;
+  justify-content: space-between;
   width: 640px;
   margin-left: 128px;
   padding-top: 5px;
@@ -134,11 +137,22 @@ button {
   font-size: 0.8em;
   color: #88939b;
 }
-.mapBottomInfo--tzmFfhTrY7dDPxZRiEoJ .item--GZZO5VfuQXeplX0fjlG1 {
+.mapBottomInfo--tzmFfhTrY7dDPxZRiEoJ .item--GZZO5VfuQXeplX0fjlG1,
+.mapBottomDescription--vO5E4RRMHsSV_oWhNEAN .item--GZZO5VfuQXeplX0fjlG1 {
   margin-right: 10px;
 }
-.mapBottomInfo--tzmFfhTrY7dDPxZRiEoJ .val--b0RQRO8fw8Srygs2TJkF {
+.mapBottomInfo--tzmFfhTrY7dDPxZRiEoJ .item--GZZO5VfuQXeplX0fjlG1:last-child,
+.mapBottomDescription--vO5E4RRMHsSV_oWhNEAN .item--GZZO5VfuQXeplX0fjlG1:last-child {
+  margin-right: 0;
+}
+.mapBottomInfo--tzmFfhTrY7dDPxZRiEoJ .val--b0RQRO8fw8Srygs2TJkF,
+.mapBottomDescription--vO5E4RRMHsSV_oWhNEAN .val--b0RQRO8fw8Srygs2TJkF {
   color: #ccc;
+}
+
+.mapBottomDescription--vO5E4RRMHsSV_oWhNEAN {
+  justify-content: flex-end;
+  padding-top: 0;
 }
 
 .gridCell--cRySkMGzgmh1rzx9FP2T {
