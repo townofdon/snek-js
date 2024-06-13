@@ -130,6 +130,29 @@ export const EditorCanvas = ({
           <span>{getTileExplanation(tile)}</span>
         )}
       </div>
+      <div className={styles.mapBottomShortcuts}>
+        <span className={styles.item}>
+          &lt;<span className={styles.val}>-+</span>&gt; cycle tile
+        </span>
+        <span className={styles.item}>
+          &lt;<span className={styles.val}>[]</span>&gt; cycle channel
+        </span>
+        <span className={styles.item}>
+          <span className={styles.val}>B</span>=brush
+        </span>
+        <span className={styles.item}>
+          <span className={styles.val}>E</span>=eraser
+        </span>
+        <span className={styles.item}>
+          <span className={styles.val}>L</span>=line
+        </span>
+        <span className={styles.item}>
+          <span className={styles.val}>R</span>=rect
+        </span>
+        <span className={styles.item}>
+          <span className={styles.val}>G</span>=fill
+        </span>
+      </div>
     </div>
   );
 };

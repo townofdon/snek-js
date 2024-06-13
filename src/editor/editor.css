@@ -124,7 +124,8 @@ button {
 }
 
 .mapBottomInfo,
-.mapBottomDescription {
+.mapBottomDescription,
+.mapBottomShortcuts {
   display: flex;
   justify-content: space-between;
   width: 640px;
@@ -149,6 +150,15 @@ button {
 .mapBottomDescription {
   justify-content: flex-end;
   padding-top: 0;
+
+  & span {
+    font-size: 0.9em;
+  }
+}
+
+.mapBottomShortcuts {
+  justify-content: space-between;
+  margin-bottom: 10px;
 }
 
 .gridCell {
