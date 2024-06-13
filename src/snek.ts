@@ -352,6 +352,8 @@ export const sketch = (p5: P5) => {
    */
   p5.draw = draw;
   function draw() {
+    // prevent freezing due to animation frame build up if tab loses focus
+    if (p5.deltaTime > 3000) return;
     renderLoop();
     if (!state.isGameStarted) leaderboardScene.draw();
     handleRenderWinGameScene();
@@ -784,7 +786,7 @@ export const sketch = (p5: P5) => {
         'You caused a rift in the snektime continuum.',
         'Attempting to be in two places at once can have disastrous results.',
         'Quantum entangle yourself lately?',
-        'Congrats, ya broke the game!',
+        'After a million years of being stuck in an infinite portal, you discover the horrifying truth that time loops back on itself.',
       ];
       const index = Math.floor(p5.random(0, messages.length));
       return messages[index];

@@ -279,17 +279,25 @@ function linkPortals(data: LevelData) {
       .filter(portal => !!portal);
     const maxGroup = Math.max(...channelPortals.map(portal => portal.group));
     for (let group = 0; group <= maxGroup; group++) {
+      const isSameGroupSet = (sourceGroup: number, targetGroup: number) => {
+        return Math.floor(sourceGroup / 2) === Math.floor(targetGroup / 2);
+      }
       const sourcePortals = channelPortals.filter(portal => portal.channel === i && portal.group === group);
       const targetPortals = channelPortals.filter(portal => portal.channel === i && portal.group !== group);
+      const preferPortals = targetPortals.filter(targetPortal => isSameGroupSet(group, targetPortal.group));
       if (targetPortals.length <= 0) continue;
 
       for (let j = 0; j < sourcePortals.length; j++) {
         const source = sourcePortals[j];
-        const target = targetPortals[Math.min(j, targetPortals.length - 1)];
-        if (!target) continue;
-        if (target.channel !== source.channel) continue;
-        source.link = target.position.copy();
-        source.index = j;
+        const target = targetPortals.length ? targetPortals[Math.min(j, targetPortals.length - 1)] : null;
+        const prefer = preferPortals.length ? preferPortals[Math.min(j, preferPortals.length - 1)] : null;
+        if (prefer && prefer.channel === source.channel) {
+          source.link = prefer.position.copy();
+          source.index = j;
+        } else if (target && target.channel === source.channel) {
+          source.link = target.position.copy();
+          source.index = j;
+        }
       }
     }
   }

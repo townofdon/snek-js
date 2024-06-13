@@ -73,12 +73,12 @@ import {
   LevelType,
   Lock,
   LoopState,
+  MusicTrack,
   Pickup,
   PickupType,
   PlayerState,
   Portal,
   PortalChannel,
-  PortalExitMode,
   RecentMoveTimings,
   RecentMoves,
   Replay,
@@ -120,7 +120,6 @@ import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleS
 import { buildLevel } from '../levels/levelBuilder';
 import {
   LEVELS,
-  LEVEL_14,
   LEVEL_99,
   LEVEL_WIN_GAME,
   MAIN_TITLE_SCREEN_LEVEL,
@@ -540,7 +539,10 @@ export function engine({
         level.snakeStartSizeOverride = options.snakeStartSize;
         level.extraHurtGraceTime = options.extraHurtGraceTime;
         level.globalLight = options.globalLight;
-        level.musicTrack = options.musicTrack;
+        if (options.musicTrack && options.musicTrack !== MusicTrack.None) {
+          level.musicTrack = options.musicTrack;
+        }
+        level.snakeStartDirectionOverride = data.startDirection;
       } catch (err) {
         console.error(err);
         console.error(`Unable to parse layoutV2 data for level "${level.name}"`);
@@ -549,6 +551,9 @@ export function engine({
 
     const levelData = buildLevel(level);
     player.position = levelData.playerSpawnPosition;
+    player.direction = level.snakeStartDirectionOverride ?? DIR.RIGHT;
+    player.directionToFirstSegment = invertDirection(player.direction);
+    player.directionLastHit = invertDirection(player.direction);
     barriers = levelData.barriers;
     barriersMap = levelData.barriersMap;
     passablesMap = levelData.passablesMap;
@@ -567,9 +572,15 @@ export function engine({
 
     // create snake parts
     let x = player.position.x;
+    let y = player.position.y;
     for (let i = 0; i < (level.snakeStartSizeOverride || START_SNAKE_SIZE); i++) {
-      if (i < 3) x--;
-      const segment = p5.createVector(x, player.position.y);
+      if (i < 3) {
+        if (player.direction === DIR.RIGHT) x--;
+        if (player.direction === DIR.LEFT) x++;
+        if (player.direction === DIR.UP) y++;
+        if (player.direction === DIR.DOWN) y--;
+      }
+      const segment = p5.createVector(x, y);
       segments.addVec(segment);
     }
 
@@ -725,7 +736,7 @@ export function engine({
     // solution to infinite portal loop soft lock:
     // since the loop happens every frame, decrement every N frames so that
     // the count will accumulate until it passes some critical threshold
-    if (state.frameCount % 5 === 0) {
+    if (state.frameCount % 8 === 0) {
       state.numTeleports = Math.max(state.numTeleports - 1, 0);
     }
   }

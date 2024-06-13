@@ -471,6 +471,7 @@ function loadLevel(): Level {
       extraHurtGraceTime: options.extraHurtGraceTime,
       globalLight: options.globalLight,
       snakeSpawnPointOverride: getCoordIndex(data.playerSpawnPosition),
+      snakeStartDirectionOverride: data.startDirection,
       showTitle: false,
       showQuoteOnLevelWin: false,
       musicTrack: options.musicTrack,
