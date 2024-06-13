@@ -1,6 +1,9 @@
 import React, { useCallback } from "react";
+import throttle from "throttleit";
 
 import { EditorData, EditorOptions, Level, Palette } from "../../types";
+import { SetStateValue } from "../editorTypes";
+import { Command, LoadLevelCommand, SetPaletteCommand } from "../commands";
 
 import { Tabs } from "../components/Tabs/Tabs";
 import { TabList } from "../components/Tabs/TabList";
@@ -10,10 +13,6 @@ import { TabPanel } from "../components/Tabs/TabPanel";
 import { PanelStats } from "./PanelStats";
 import { PanelColors } from "./PanelColors";
 import { PanelSave } from "./PanelSave";
-import throttle from "throttleit";
-
-import { Command, LoadLevelCommand, SetPaletteCommand } from "../commands";
-import { SetStateValue } from "../editorTypes";
 
 import * as styles from './EditorOptions.css';
 

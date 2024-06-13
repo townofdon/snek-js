@@ -104,8 +104,6 @@ function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
   if (data.barriersMap[coord]) return getTile({ tile: Tile.Barrier });
   if (data.doorsMap[coord]) return getTile({ tile: Tile.Door });
   if (data.applesMap[coord]) return getTile({ tile: Tile.Apple });
-  if (data.decoratives2Map[coord]) return getTile({ tile: Tile.Deco2 });
-  if (data.decoratives1Map[coord]) return getTile({ tile: Tile.Deco1 });
   const portalChannel = data.portalsMap[coord];
   const keyChannel = data.keysMap[coord];
   const lockChannel = data.locksMap[coord];
@@ -118,6 +116,8 @@ function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
   if (isValidKeyChannel(keyChannel)) {
     return getTile({ tile: Tile.Key, keyChannel });
   };
+  if (data.decoratives2Map[coord]) return getTile({ tile: Tile.Deco2 });
+  if (data.decoratives1Map[coord]) return getTile({ tile: Tile.Deco1 });
   if (data.nospawnsMap[coord]) return getTile({ tile: Tile.Nospawn });
   return FloodFillTile.Ignore;
 }

@@ -61,6 +61,7 @@ import { EditorSidebar } from "./EditorSidebar";
 import { SidebarPortalChannels } from "./SidebarPortalChannels";
 
 import * as styles from "./Editor.css";
+import { useUpdateUrl } from "./hooks/useUpdateUrl";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -75,27 +76,29 @@ enum MouseButton {
 export const Editor = () => {
   const canvas = useRef<HTMLCanvasElement>(null);
   const optionsContainerRef = useRef<HTMLDivElement>(null);
+  const [initialized, setInitialized] = useState(false);
   const [isPreviewShowing, setPreviewShowing] = useState(false);
   const [options, optionsRef, setOptions] = useRefState<EditorOptions>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
   const [pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
   const [futureCommands, futureCommandsRef, setFutureCommands] = useRefState<Command[]>([]);
-  const [lastCoordUpdated, lastCoordUpdatedRef, setLastCoordUpdated] = useRefState(-1);
+  const [, lastCoordUpdatedRef, setLastCoordUpdated] = useRefState(-1);
   const [mouseAt, mouseAtRef, setMouseAt] = useRefState(-1);
   const [mouseFrom, mouseFromRef, setMouseFrom] = useRefState(-1);
-  const [mousePressed, mousePressedRef, setMousePressed] = useRefState(false);
-  const [triggerOnRelease, triggerOnReleaseRef, setTriggerOnRelease] = useRefState(false);
-  const [shiftPressed, shiftPressedRef, setShiftPressed] = useRefState(false);
-  const [altPressed, altPressedRef, setAltPressed] = useRefState(false);
+  const [, mousePressedRef, setMousePressed] = useRefState(false);
+  const [, triggerOnReleaseRef, setTriggerOnRelease] = useRefState(false);
+  const [, shiftPressedRef, setShiftPressed] = useRefState(false);
+  const [, altPressedRef, setAltPressed] = useRefState(false);
   const [tool, toolRef, setTool] = useRefState(EditorTool.Pencil);
   const [tile, tileRef, _setTile] = useRefState(Tile.Barrier);
   const [keyChannel, keyChannelRef, setKeyChannel] = useRefState(KeyChannel.Yellow);
   const [portalChannel, portalChannelRef, setPortalChannel] = useRefState<PortalChannel>(0);
 
-  useLoadMapData({ setData, setOptions });
-
   const hasUndo = !!pastCommands.length;
   const hasRedo = !!futureCommands.length;
+
+  useLoadMapData({ setData, setOptions, setPastCommands, setFutureCommands, setInitialized });
+  useUpdateUrl({ initialized, data, options });
 
   const setTile = (tile: Tile) => {
     if (toolRef.current === EditorTool.Eraser) setTool(EditorTool.Pencil);
