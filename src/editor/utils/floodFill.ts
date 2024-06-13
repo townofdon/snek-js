@@ -257,14 +257,6 @@ export function tileFloodFill(
       }
       const coord = getCoordIndex2(x0, y0);
       screen[x0][y0] = getTileAtLocation(coord, newData);
-      // const tile = getTileAtLocation(coord, newData);
-      // if (tile !== prev && tile !== next) {
-      //   screen[x0][y0] = FloodFillTile.Ignore;
-      // } else if (tile === next) {
-      //   screen[x0][y0] = next;
-      // } else {
-      //   screen[x0][y0] = prev;
-      // }
     }
   }
 
@@ -297,8 +289,9 @@ function floodFill<T>(screen: T[][], m: number, n: number, x: number, y: number,
       y >= n ||
       screen[x][y] != prev ||
       screen[x][y] == next
-    )
+    ) {
       return false;
+    }
     return true;
   }
 
