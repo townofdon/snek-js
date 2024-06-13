@@ -5,7 +5,7 @@
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url('assets/graphics/editor-tools-200.png');
-  --editor-tool-sprite-background-size: 768px 48px; /* width = img_width / 64 * 48 */
+  --editor-tool-sprite-background-size: 864px 48px; /* width = img_width / 64 * 48 */
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
   --editor-bg-color: #111;
@@ -341,6 +341,12 @@ button {
   }
   &.line {
     background-position-x: calc(-7 * var(--editor-tool-sprite-width));
+  }
+  &.bucket.active {
+    background-position-x: calc(-16 * var(--editor-tool-sprite-width));
+  }
+  &.bucket {
+    background-position-x: calc(-17 * var(--editor-tool-sprite-width));
   }
   &.bomb.active,
   &.bomb:active,

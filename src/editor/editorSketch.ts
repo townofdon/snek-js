@@ -567,6 +567,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         } else {
           spriteRenderer.drawImage3x3(Image.EditorSelection, to.x, to.y, 0, 1, 0);
         }
+      } else if (state.tool === EditorTool.Bucket) {
+        spriteRenderer.drawImage3x3(Image.EditorSelection, to.x, to.y, 0, 1, 0);
       }
       // preview line
       if (state.mouseFrom >= 0 && (

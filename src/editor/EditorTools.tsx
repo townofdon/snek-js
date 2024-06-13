@@ -61,7 +61,7 @@ export const EditorTools = ({
       [EditorTool.Redo]: styles.redo,
     }[tool];
     const toolLabel = {
-      [EditorTool.Bucket]: "Fill",
+      [EditorTool.Bucket]: "Bucket Fill",
       [EditorTool.Pencil]: "Brush",
       [EditorTool.Eraser]: "Eraser",
       [EditorTool.Line]: "Line",
@@ -103,6 +103,7 @@ export const EditorTools = ({
         {renderTool(EditorTool.Eraser)}
         {renderTool(EditorTool.Line)}
         {renderTool(EditorTool.Rectangle)}
+        {renderTool(EditorTool.Bucket)}
         {renderTool(EditorTool.Undo)}
         {renderTool(EditorTool.Redo)}
         {renderTool(EditorTool.Bomb)}

@@ -501,8 +501,8 @@ export const Editor = () => {
       setTool(EditorTool.Eraser);
     } else if (isCharPressed(ev, 'l')) {
       setTool(EditorTool.Line);
-    // } else if (isCharPressed(ev, 'g')) {
-    //   setTool(EditorTool.Bucket);
+    } else if (isCharPressed(ev, 'g')) {
+      setTool(EditorTool.Bucket);
     } else if (isCharPressed(ev, 'u') || isCharPressed(ev, 'r')) {
       setTool(EditorTool.Rectangle);
     } else if (isCharPressed(ev, SpecialKey.ArrowUp, { shiftKey: true })) {

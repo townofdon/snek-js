@@ -7,7 +7,7 @@
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url("assets/graphics/editor-tools-200.png");
-  --editor-tool-sprite-background-size: 768px 48px; /* width = img_width / 64 * 48 */
+  --editor-tool-sprite-background-size: 864px 48px; /* width = img_width / 64 * 48 */
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
   --editor-bg-color: #111;
@@ -340,6 +340,12 @@ button {
 }
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT.line--vIXHkrBWfwTGXJFGHo_w {
   background-position-x: calc(-7 * var(--editor-tool-sprite-width));
+}
+.editorToolSprite--rrVuT_GoHCoa28eSjhhT.bucket--iQ7ILmKpHNRnkp_JV9UY.active--Rx0uKlzWxhXt775otXDz {
+  background-position-x: calc(-16 * var(--editor-tool-sprite-width));
+}
+.editorToolSprite--rrVuT_GoHCoa28eSjhhT.bucket--iQ7ILmKpHNRnkp_JV9UY {
+  background-position-x: calc(-17 * var(--editor-tool-sprite-width));
 }
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK.active--Rx0uKlzWxhXt775otXDz, .editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK:active, .editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK:focus, .editorToolSprite--rrVuT_GoHCoa28eSjhhT.bomb--soCwJPeLmG4X9aZSFYuK:hover {
   background-position-x: calc(-10 * var(--editor-tool-sprite-width));
