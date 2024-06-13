@@ -204,6 +204,7 @@ export function vectorsToBitmask(vectors: Vector[]): string {
 }
 
 export function getEditorDataFromLevel(level: Level): [EditorData, EditorOptions] {
+  if (level.layoutV2) return decodeMapData(level.layoutV2);
   const data = getEditorDataFromLayout(level.layout, undefined, DIR.RIGHT);
   const options: EditorOptions = {
     name: level.name,

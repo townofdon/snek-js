@@ -447,8 +447,10 @@ export const Editor = () => {
     setTriggerOnRelease(false);
     } else if (isCharPressed(ev, 'z', { ctrlKey: true, shiftKey: true }) || isCharPressed(ev, 'y', { ctrlKey: true })) {
       redo();
+      ev.preventDefault();
     } else if (isCharPressed(ev, 'z', { ctrlKey: true })) {
       undo();
+      ev.preventDefault();
     } else if (
       isNumberPressed(ev, 0, { shiftKey: true }) || 
       isNumberPressed(ev, 1, { shiftKey: true }) || 
