@@ -2,8 +2,10 @@ import React, { useEffect, useLayoutEffect, useRef } from "react";
 import cx from 'classnames';
 
 import { GRIDCOUNT } from "../constants";
+import { Tile } from "./editorTypes";
 import { EditorData, EditorOptions } from "../types";
 import { getCoordIndex2 } from "../utils";
+import { getTileExplanation, getTileLabel } from "./utils/tileUtils";
 import { EditorSketchReturn, EditorTool, Operation, editorSketch } from "./editorSketch";
 import { Grid } from "./components/Grid";
 
@@ -15,6 +17,7 @@ interface EditorCanvasProps {
   mouseAt: number;
   mouseFrom: number;
   tool: EditorTool;
+  tile: Tile;
   operation: Operation;
   canvas: React.MutableRefObject<HTMLCanvasElement>;
   handleMouseMove: React.MouseEventHandler<HTMLDivElement>;
@@ -32,6 +35,7 @@ export const EditorCanvas = ({
   mouseAt,
   mouseFrom,
   tool,
+  tile,
   operation,
   canvas,
   handleMouseMove,
@@ -94,6 +98,8 @@ export const EditorCanvas = ({
     return count;
   })();
 
+  const tileLabel = getTileLabel(tile);
+
   return (
     <div className={cx(styles.stack, styles.col)}>
       {editorTools}
@@ -115,6 +121,14 @@ export const EditorCanvas = ({
       </div>
       <div className={styles.mapBottomInfo}>
         <span className={styles.item}>Pre-spawned apple count: <span className={styles.val}>{preSpawnedAppleCount}</span></span>
+        {tile !== Tile.None && (
+          <span className={styles.item}>Current Tile: <span className={styles.val}>{tileLabel}</span></span>
+        )}
+      </div>
+      <div className={styles.mapBottomDescription}>
+        {tile !== Tile.None && (
+          <span>{getTileExplanation(tile)}</span>
+        )}
       </div>
     </div>
   );

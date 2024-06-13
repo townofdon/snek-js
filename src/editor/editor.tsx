@@ -567,6 +567,7 @@ export const Editor = () => {
           canvas={canvas}
           mouseAt={mouseAt}
           mouseFrom={mouseFrom}
+          tile={tile}
           tool={tool}
           operation={getOperation()}
           handleMouseMove={handleMouseMove}

@@ -123,7 +123,10 @@ button {
   color: slategray;
 }
 
-.mapBottomInfo {
+.mapBottomInfo,
+.mapBottomDescription {
+  display: flex;
+  justify-content: space-between;
   width: 640px;
   margin-left: 128px;
   padding-top: 5px;
@@ -135,10 +138,17 @@ button {
   & .item {
     margin-right: 10px;
   }
-
+  & .item:last-child {
+    margin-right: 0;
+  }
   & .val {
     color: #ccc;
   }
+}
+
+.mapBottomDescription {
+  justify-content: flex-end;
+  padding-top: 0;
 }
 
 .gridCell {

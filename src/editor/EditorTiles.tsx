@@ -2,6 +2,7 @@ import React, { act } from "react";
 import cx from 'classnames';
 
 import { Tile } from "./editorTypes";
+import { getTileLabel } from "./utils/tileUtils";
 
 import * as styles from "./Editor.css";
 
@@ -12,6 +13,7 @@ interface EditorTilesProps {
 
 export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
   const renderTile = (tile: Tile) => {
+    const tileLabel = getTileLabel(tile);
     const tileClassName = {
       [Tile.None]: undefined,
       [Tile.Barrier]: styles.barrier,
@@ -25,20 +27,6 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Key]: styles.key,
       [Tile.Portal]: styles.portal,
       [Tile.Spawn]: styles.spawn,
-    }[tile]
-    const tileLabel = {
-      [Tile.None]: null,
-      [Tile.Barrier]: 'barrier',
-      [Tile.Passable]: 'passable barrier',
-      [Tile.Door]: 'door',
-      [Tile.Deco1]: 'bg 1',
-      [Tile.Deco2]: 'bg 2',
-      [Tile.Apple]: 'start apple',
-      [Tile.Nospawn]: 'no apple spawn',
-      [Tile.Lock]: 'lock',
-      [Tile.Key]: 'key',
-      [Tile.Portal]: 'portal',
-      [Tile.Spawn]: 'snek spawn',
     }[tile]
     const tileShortcut = {
       [Tile.None]: null,
