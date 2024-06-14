@@ -319,8 +319,8 @@ export const Editor = () => {
       const to = mouseAtRef.current;
       return new DeleteLineCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
     } else if (toolRef.current === EditorTool.Bucket) {
-      if (mouseAtRef.current === -1) return;
-      if (tileRef.current === Tile.Spawn) return;
+      if (mouseAtRef.current === -1) return new NoOpCommand();
+      if (tileRef.current === Tile.Spawn) return new NoOpCommand();
       const x = Math.floor(mouseAtRef.current % GRIDCOUNT.x);
       const y = Math.floor(mouseAtRef.current / GRIDCOUNT.x);
       if (operation === Operation.Remove) {
@@ -333,6 +333,7 @@ export const Editor = () => {
   }
 
   const executeCommand = (command: Command) => {
+    if (!command) return;
     const success = command.execute();
     if (success) {
       setPastCommands(prev => [...prev, command]);
@@ -619,6 +620,7 @@ export const Editor = () => {
         />
         <EditorOptionsPanel
           isPreviewShowing={isPreviewShowing}
+          canvas={canvas}
           data={data}
           options={options}
           optionsRef={optionsRef}

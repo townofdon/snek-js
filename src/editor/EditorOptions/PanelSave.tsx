@@ -18,8 +18,12 @@ import { VARIANT_LEVEL_07 } from "../../levels/bonusLevels/variantLevel07";
 import { VARIANT_LEVEL_08 } from "../../levels/bonusLevels/variantLevel08";
 import { VARIANT_LEVEL_10 } from "../../levels/bonusLevels/variantLevel10";
 import { VARIANT_LEVEL_15 } from "../../levels/bonusLevels/variantLevel15";
+import { getCanvasImage } from "../utils/fileUtils";
+import { getToken, publishMap, uploadMapImage } from "../../api/map";
+import { editorStore } from "../../stores/EditorStore";
 
 interface PanelSaveProps {
+  canvas: React.MutableRefObject<HTMLCanvasElement>;
   data: EditorData;
   options: EditorOptions;
   loadLevel: (level: Level) => void;
@@ -27,23 +31,29 @@ interface PanelSaveProps {
   redo: () => void;
 }
 
-export const PanelSave = ({ data, options, loadLevel, redo, undo }: PanelSaveProps) => {
+export const PanelSave = ({ canvas, data, options, loadLevel, redo, undo }: PanelSaveProps) => {
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVEL_01);
   const panelRef = useRef<HTMLDivElement>();
 
   useUndoRedo(panelRef, redo, undo);
 
-  const handleSave = () => {
-    // TODO: update url without reloading the page - see:
-    // - https://developer.mozilla.org/en-US/docs/Web/API/History/pushState
-    // - https://stackoverflow.com/a/3354511 - popstate event
+  const handlePublish = async () => {
+    if (!canvas.current) return;
     try {
       const encoded = encodeMapData(data, options);
-      const query = new URLSearchParams(window.location.search);
-      query.set('data', encoded);
-      window.location.search = query.toString();
-      } catch (err) {
-      toast.error('Unable to save map');
+      const [file, xsrfToken] = await Promise.all([
+        getCanvasImage(canvas.current),
+        getToken(),
+      ]);
+      const authorName = editorStore.getAuthor();
+      const res = await publishMap(options.name, authorName, encoded, { xsrfToken });
+
+      // TODO: REMOVE
+      console.log({ res });
+
+      await uploadMapImage(file, res.supameta, res.upload);
+    } catch (err) {
+      toast.error('Unable to publish map');
       console.error(err.message);
     }
   }
@@ -83,7 +93,7 @@ export const PanelSave = ({ data, options, loadLevel, redo, undo }: PanelSavePro
   return (
     <div ref={panelRef}>
       <Stack marginBottom>
-        <button onClick={handleSave}>Save</button>
+        <button onClick={handlePublish}>Publish</button>
       </Stack>
       <Stack justify="start">
         <DropdownField

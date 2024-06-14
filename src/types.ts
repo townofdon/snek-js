@@ -197,6 +197,10 @@ export interface SaveData {
   levelProgress: Record<DifficultyIndex, number>,
 }
 
+export interface EditorStoreData {
+  author: string,
+}
+
 export interface Palette {
   background: string,
   playerHead: string,

@@ -22,7 +22,7 @@ interface InternalCallApiParams {
   xsrfToken?: string,
 }
 
-class ApiError extends Error {
+export class ApiError extends Error {
   public status: number = 0
   constructor(message: string, status?: number) {
     super(message);
