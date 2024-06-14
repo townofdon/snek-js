@@ -34,6 +34,7 @@ const config = {
       patterns: [
         { from: "public/assets", to: "assets/", globOptions: { ignore: ["**/music/*.wav"] } },
         { from: "public/readme", to: "readme/" },
+        // { from: "public/pages/privacy-policy", to: "pages/privacy-policy" },
         { from: "public/style.css" },
       ],
     }),
@@ -52,6 +53,12 @@ const config = {
       title: 'SNEK LEVEL PREVIEW',
       filename: 'preview/index.html',
       template: './public/pages/preview/index.ejs',
+      inject: false,
+    }),
+    new HtmlWebpackPlugin({
+      title: 'SNEK PRIVACY POLICY',
+      filename: 'privacy-policy/index.html',
+      template: './public/pages/privacy-policy/index.html',
       inject: false,
     }),
     new MiniCssExtractPlugin({
