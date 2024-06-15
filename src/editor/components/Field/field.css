@@ -130,6 +130,7 @@ input[type="range"] {
 
 .sliderManualInput {
   width: 100px;
+  margin-right: 2px;
 }
 
 .toggleLabel {

@@ -315,6 +315,10 @@ export const getRelativeDir = () => {
   return rootPath ? `/${rootPath}/` : '/';
 }
 
+export const getGraphicsDir = () => {
+  return `${getRelativeDir()}/assets/graphics`;;
+}
+
 export const isValidPortalChannel = (portalChannel: number): portalChannel is PortalChannel => {
   if (portalChannel === null || portalChannel === undefined) return false;
   return Number.isInteger(portalChannel) && portalChannel >= 0 && portalChannel <= 9

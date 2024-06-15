@@ -23,7 +23,7 @@ export const SliderWithInput = ({ label, ...props }: SliderWithInputProps) => {
             type="number"
             value={props.value}
             onChange={props.onChange}
-            className={styles.sliderManualInput}
+            inputClassName={styles.sliderManualInput}
           />
           <Field
             {...restProps}

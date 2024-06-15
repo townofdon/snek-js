@@ -11,6 +11,7 @@ interface BaseFieldProps<T> {
   name: string;
   value: T;
   onChange: (val: T) => void;
+  disabled?: boolean;
   label?: string;
   caption?: string;
   placeholder?: string
@@ -19,6 +20,7 @@ interface BaseFieldProps<T> {
   step?: number;
   fullWidth?: boolean;
   className?: string;
+  inputClassName?: string;
 }
 
 export interface TextFieldProps extends BaseFieldProps<string> { type?: 'text' }
@@ -33,8 +35,19 @@ function isRangeProps(props: FieldProps): props is RangeFieldProps { return prop
 function isCheckboxProps(props: FieldProps): props is CheckboxFieldProps { return props.type === 'checkbox'; }
 function isColorProps(props: FieldProps): props is ColorFieldProps { return props.type === 'color'; }
 
-export const Field = ({ type = 'text', min, max, step, fullWidth, className: classNameFromProps, placeholder, ...otherProps }: FieldProps) => {
-  const props: FieldProps = { type, ...otherProps } as FieldProps;
+export const Field = ({
+  type = "text",
+  min,
+  max,
+  step,
+  fullWidth,
+  className,
+  inputClassName,
+  placeholder,
+  disabled,
+  ...otherProps
+}: FieldProps) => {
+  const props: FieldProps = { type, disabled, ...otherProps } as FieldProps;
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (ev) => {
     if (isTextProps(props)) {
@@ -46,49 +59,57 @@ export const Field = ({ type = 'text', min, max, step, fullWidth, className: cla
     } else if (isCheckboxProps(props)) {
       props.onChange(ev.target.checked);
     }
-  }
+  };
 
   const renderField = () => {
-    const className = cx(styles.input, classNameFromProps, {
-      [styles.range]: props.type === 'range',
+    const inputClassNames = cx(styles.input, inputClassName, {
+      [styles.range]: props.type === "range",
       [styles.fullWidth]: fullWidth,
     });
     if (isCheckboxProps(props)) {
-      return <ToggleField
-        label={props.value ? 'Yes' : 'No'}
-        name={props.name}
-        onChange={props.onChange}
-        checked={props.value}
-        className={className}
-      />
+      return (
+        <ToggleField
+          label={props.value ? "Yes" : "No"}
+          name={props.name}
+          onChange={props.onChange}
+          checked={props.value}
+          className={inputClassNames}
+          disabled={disabled}
+        />
+      );
     } else if (isColorProps(props)) {
       return (
         <ColorField
           name={props.name}
           value={props.value}
-          onChange={color => props.onChange(color)}
+          onChange={(color) => props.onChange(color)}
           fullWidth={fullWidth}
-          className={className}
+          className={inputClassNames}
+          disabled={disabled}
         />
       );
     } else {
       return (
-      <input
-        name={props.name}
-        type={props.type || 'text'}
-        onChange={handleChange}
-        value={props.value}
-        min={min}
-        max={max}
-        step={step}
-        className={className}
-        placeholder={placeholder}
-      />)
+        <input
+          name={props.name}
+          type={props.type || "text"}
+          onChange={handleChange}
+          value={props.value}
+          min={min}
+          max={max}
+          step={step}
+          className={inputClassNames}
+          placeholder={placeholder}
+          disabled={disabled}
+        />
+      );
     }
-  }
+  };
 
   return (
-    <div className={cx(styles.fieldContainer, { [styles.fullWidth]: fullWidth })}>
+    <div
+      className={cx(styles.fieldContainer, className, { [styles.fullWidth]: fullWidth })}
+    >
       {props.label ? (
         <FieldLabel text={props.label} fullWidth={fullWidth}>
           {renderField()}
@@ -97,9 +118,7 @@ export const Field = ({ type = 'text', min, max, step, fullWidth, className: cla
         renderField()
       )}
 
-      {props.caption && (
-        <div className={styles.caption}>{props.caption}</div>
-      )}
+      {props.caption && <div className={styles.caption}>{props.caption}</div>}
     </div>
   );
-}
+};

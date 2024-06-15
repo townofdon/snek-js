@@ -10,15 +10,17 @@ interface ToggleFieldProps {
   name: string;
   checked: boolean;
   onChange: (val: boolean) => void;
+  disabled?: boolean;
   className?: string;
 }
 
-export const ToggleField = ({ name, label, checked, onChange, className }: ToggleFieldProps) => {
+export const ToggleField = ({ name, label, checked, onChange, disabled, className }: ToggleFieldProps) => {
   const toggle = (
     <Toggle
       name={name}
       checked={checked}
       onChange={(ev) => onChange(ev.target.checked)}
+      disabled={disabled}
       className={className}
     />
   );

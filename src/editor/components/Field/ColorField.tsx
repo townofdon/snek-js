@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import cx from "classnames";
-import { HexColorInput, HexColorPicker } from "react-colorful";
+import { HexColorPicker } from "react-colorful";
 
 import * as styles from './field.css';
 import { SpecialKey, getIsOutside, isCharPressed } from "../../utils/keyboardUtils";
@@ -9,11 +9,12 @@ interface ColorFieldProps {
   name: string;
   value: string;
   onChange: (val: string) => void;
+  disabled?: boolean;
   className?: string;
   fullWidth?: boolean;
 }
 
-export const ColorField = ({ name, value, onChange, className, fullWidth}: ColorFieldProps) => {
+export const ColorField = ({ name, value, onChange, disabled, className, fullWidth}: ColorFieldProps) => {
   const [isPickerShowing, setPickerShowing] = useState(false);
   const containerRef = useRef<HTMLElement>(null);
 
@@ -78,6 +79,7 @@ export const ColorField = ({ name, value, onChange, className, fullWidth}: Color
         value={stripHash(value)}
         onChange={ev => onChange(includeHash(ev.target.value))}
         onFocus={handleFocus}
+        disabled={disabled}
       />
       {isPickerShowing ? picker : null}
     </span>

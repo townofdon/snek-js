@@ -5,6 +5,10 @@ hr {
   margin: 20px 0;
 }
 
+p {
+  display: block;
+}
+
 .editorOptionsContainer {
   display: flex;
   flex-direction: column;
@@ -88,8 +92,41 @@ textarea {
   justify-content: center;
 }
 
-.publishButton {
+.authorField {
+  margin-top: 10px;
+}
+
+.publishMapButton,
+.updateMapButton {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
   padding: 10px 30px;
+  margin-top: 20px;
+  font-family: 'MiniMOOD';
+  font-size: 1.4em;
+
+  & > span {
+    display: inline-block;
+    transform: translateY(5px);
+  }
+
+  & > img {
+    margin-left: 20px;
+  }
+
+  &:hover {
+    filter: brightness(1.1) contrast(1.2);
+  }
+}
+
+.publishMapButton {
   background: #E1AA51;
+  color: #3e464c;
+}
+
+.updateMapButton {
+  background: #5d8bb3;
   color: #3e464c;
 }

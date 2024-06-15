@@ -32,6 +32,10 @@ button:focus:before {
 button {
   border-width: 0px;
   background: var(--button-bg);
+
+  &:hover {
+    filter: brightness(1.1) contrast(1.2);
+  }
 }
 
 .disableScroll {
