@@ -2,7 +2,7 @@ import P5, { Element } from 'p5';
 
 import { DOM } from './uiUtils';
 
-const UI_LABEL_OFFSET = '18px';
+const UI_LABEL_OFFSET = '36px';
 const UI_PARENT_ID = 'game';
 
 const LABEL_COLOR = '#fff';
@@ -142,6 +142,7 @@ export class UI {
       const span = UI.p5.createSpan(title[i]);
       span.parent(p);
     }
+    UI.p5.scale(2);
     p.id('title');
     p.style('font-size', '6em');
     p.style('letter-spacing', '65px');
@@ -208,6 +209,8 @@ export class UI {
       p.style('padding', '1px 8px');
       p.style('text-align', 'right');
       p.style('z-index', '5');
+      p.style('transform-origin', 'bottom right');
+      p.style('transform', 'scale(2)');
       p.parent(UI_PARENT_ID);
     }
     applyStyles(p1, isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR, isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
@@ -278,6 +281,8 @@ export class UI {
     div.style('padding', '0 5px');
     div.style('background-color', labelBackgroundColor);
     div.style('z-index', '5');
+    div.style('transform-origin', 'top right');
+    div.style('transform', 'scale(2)');
     div.class(className);
     div.id(containerId);
     div.parent(UI_PARENT_ID);
@@ -307,6 +312,8 @@ export class UI {
     p.style('padding', '1px 8px');
     p.style('text-align', 'left');
     p.style('z-index', '5');
+    p.style('transform-origin', 'bottom left');
+    p.style('transform', 'scale(2)');
     p.parent(UI_PARENT_ID);
   }
 
@@ -333,6 +340,8 @@ export class UI {
     p.style('padding', '1px 8px');
     p.style('text-align', 'left');
     p.style('z-index', '5');
+    p.style('transform-origin', 'top left');
+    p.style('transform', 'scale(2)');
     p.parent(UI_PARENT_ID);
   }
 
@@ -352,6 +361,8 @@ export class UI {
     p.style('margin', '0');
     p.style('padding', '1px 8px');
     p.style('text-align', 'right');
+    p.style('transform-origin', 'top right');
+    p.style('transform', 'scale(2)');
     p.parent(UI_PARENT_ID);
   }
 
@@ -370,7 +381,7 @@ export class UI {
     const tooltip = tooltipText ? UI.p5.createSpan(tooltipText).addClass('tooltip align-left invert') : null;
     const button = UI.p5.createButton(textStr);
     if (x >= 0 && y >= 0) {
-      button.position(x, y);
+      button.position(x * 2, y * 2);
     }
     button.mousePressed(onClick);
     button.parent(parentId);
@@ -378,20 +389,26 @@ export class UI {
       tooltip.parent(button);
     }
     button.attribute("tabindex", "0");
+    button.style('transform-origin', 'top left');
+    button.style('transform', 'scale(2)');
     uiElements.push(button);
     return button;
   }
 
-  static drawText(textStr = '', fontSize = '12px', y = 0, uiElements: Element[], { color = '#fff', marginLeft = 0 } = {}) {
+  static drawText(textStr = '', fontSize = '12px', y = 0, uiElements: Element[], { color = '#fff', width = 600, margin = '60px auto' } = {}) {
     const element = UI.p5.createP(textStr);
     element.addClass('minimood');
     element.style('font-size', fontSize);
     element.style('color', color);
     element.style('text-shadow', '0px 3px 3px black');
     element.style('padding', '0 20px');
-    element.style('width', 'calc(100% - 80px)');
+    element.style('width', `${width}px`);
     element.style('text-align', 'center');
-    element.position(20 + marginLeft, y);
+    element.style('transform-origin', 'top center');
+    element.style('transform', 'scale(2)');
+    element.position(0, 2 * y);
+    element.style('left', 'initial');
+    element.style('margin', margin);
     element.parent(UI_PARENT_ID);
     uiElements.push(element);
   }

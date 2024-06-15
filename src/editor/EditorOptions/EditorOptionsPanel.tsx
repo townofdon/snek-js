@@ -1,4 +1,5 @@
 import React, { useCallback } from "react";
+import toast from "react-hot-toast";
 import throttle from "throttleit";
 
 import { EditorData, EditorOptions, Level, Palette } from "../../types";
@@ -14,6 +15,7 @@ import { PanelStats } from "./PanelStats";
 import { PanelColors } from "./PanelColors";
 import { PanelSave } from "./PanelSave";
 
+import * as editorStyles from "../Editor.css";
 import * as styles from './EditorOptions.css';
 
 interface EditorOptionsPanelProps {
@@ -51,6 +53,12 @@ export const EditorOptionsPanel = ({
   const loadLevel = (level: Level) => {
     const command = new LoadLevelCommand(level, data, options, setData, setOptions);
     executeCommand(command);
+    toast(`Loaded Level`, {
+      icon: "✓",
+      duration: 2500,
+      position: "bottom-right",
+      className: editorStyles.toastRedo,
+    });
   }
 
   return (
@@ -62,13 +70,13 @@ export const EditorOptionsPanel = ({
           <Tab id={OptionsTab.Save}>Save / Load</Tab>
         </TabList>
         <TabPanel id={OptionsTab.Stats}>
-          <PanelStats options={options} setOptions={setOptions} isPreviewShowing={isPreviewShowing} />
+          <PanelStats options={options} setOptions={setOptions} loadLevel={loadLevel}  isPreviewShowing={isPreviewShowing} />
         </TabPanel>
         <TabPanel id={OptionsTab.Colors}>
           <PanelColors options={options} setPalette={setPalette} undo={undo} redo={redo} />
         </TabPanel>
         <TabPanel id={OptionsTab.Save}>
-          <PanelSave canvas={canvas} data={data} options={options} loadLevel={loadLevel} undo={undo} redo={redo} />
+          <PanelSave canvas={canvas} data={data} options={options} undo={undo} redo={redo} />
         </TabPanel>
       </Tabs>
     </div>

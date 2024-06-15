@@ -48,8 +48,8 @@ export const MapPreview = ({ data, options, isPreviewShowing, setPreviewShowing 
             allowFullScreen
             allow-same-origin="true"
             allow-scripts="true"
-            width="600"
-            height="600"
+            width="1200"
+            height="1200"
             className={styles.mapPreview}
           />
           <button title="Fullscreen" className={styles.fullscreenButton} onClick={handleFullscreen}>

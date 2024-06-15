@@ -386,8 +386,8 @@ export class Renderer implements IRenderer {
       }
       gfx.fill("#fff");
       gfx.stroke("#000");
-      gfx.strokeWeight(4);
-      gfx.textSize(12);
+      gfx.strokeWeight(2 * 4);
+      gfx.textSize(2 * 12);
       gfx.textAlign(this.p5.CENTER, this.p5.CENTER);
       gfx.textFont(this.fonts.variants.zicons);
       gfx.text(arrow.text, position.x, position.y);
@@ -422,8 +422,8 @@ export class Renderer implements IRenderer {
     const textY = y0 + BLOCK_SIZE.y * 3.7;
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
-    gfx.strokeWeight(4);
-    gfx.textSize(12);
+    gfx.strokeWeight(2 * 4);
+    gfx.textSize(2 * 12);
     gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("MOVE", textX, textY);
@@ -479,8 +479,8 @@ export class Renderer implements IRenderer {
     const textY = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
     gfx.fill("#fff");
     gfx.stroke("#111");
-    gfx.strokeWeight(4);
-    gfx.textSize(12);
+    gfx.strokeWeight(2 * 4);
+    gfx.textSize(2 * 12);
     gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("REWIND", textX, textY);
@@ -508,8 +508,8 @@ export class Renderer implements IRenderer {
     const textY = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
-    gfx.strokeWeight(4);
-    gfx.textSize(12);
+    gfx.strokeWeight(2 * 4);
+    gfx.textSize(2 * 12);
     gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("SPRINT", textX, textY);
@@ -558,12 +558,12 @@ export class Renderer implements IRenderer {
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
-    const textX = BLOCK_SIZE.x * x + 5 + BLOCK_SIZE.x * textXOffset;
-    const textY = BLOCK_SIZE.y * y + 7;
+    const textX = BLOCK_SIZE.x * x + 2 * 5 + BLOCK_SIZE.x * textXOffset;
+    const textY = BLOCK_SIZE.y * y + 2 * 7;
     gfx.fill(textColor);
     // gfx.stroke("#111");
-    gfx.strokeWeight(4);
-    gfx.textSize(12);
+    gfx.strokeWeight(2 * 4);
+    gfx.textSize(2 * 12);
     gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text(text, textX, textY);
@@ -622,8 +622,8 @@ export class Renderer implements IRenderer {
     const textY = BLOCK_SIZE.y * (1);
     this.p5.fill("#fff");
     this.p5.stroke("#111");
-    this.p5.strokeWeight(2);
-    this.p5.textSize(10);
+    this.p5.strokeWeight(2 * 2);
+    this.p5.textSize(2 * 10);
     this.p5.textAlign(this.p5.LEFT, this.p5.TOP);
     this.p5.textFont(this.fonts.variants.miniMood);
     if (!this.fpsFrames?.length) {
@@ -651,8 +651,8 @@ export class Renderer implements IRenderer {
     const textY = BLOCK_SIZE.y * (1);
     this.p5.fill("#fff");
     this.p5.stroke("#111");
-    this.p5.strokeWeight(2);
-    this.p5.textSize(10);
+    this.p5.strokeWeight(2 * 2);
+    this.p5.textSize(2 * 10);
     this.p5.textAlign(this.p5.LEFT, this.p5.TOP);
     this.p5.textFont(this.fonts.variants.miniMood);
     if (!this.perfFrames?.length) {

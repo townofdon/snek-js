@@ -16,9 +16,9 @@ import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { SpriteRenderer } from "../engine/spriteRenderer";
 
 const VISUALIZER = {
-  width: 360,
-  height: 360,
-  y: 80,
+  width: 2 * 360,
+  height: 2 * 360,
+  y: 2 * 80,
   sweepCycleTimeMs: 4000,
 }
 
@@ -100,12 +100,13 @@ export class OSTScene extends BaseScene {
     const addButton = (mode: VisualizerMode, x: number, y: number) => {
       const button = UI.drawButton('', x, y, () => { this.onChangeVisualizationMode(mode); }, this.uiElements);
       button.addClass('snek-audio-viz-button');
+      button.style('transform-origin', 'right top');
       return button;
     }
     const buttonSize = 32;
     const buttonPadding = 8;
-    const x = (DIMENSIONS.x - VISUALIZER.width) * 0.5 - buttonSize - buttonPadding;
-    const y = VISUALIZER.y;
+    const x = 0.5 * ((DIMENSIONS.x - VISUALIZER.width) * 0.5 - buttonSize - buttonPadding);
+    const y = 0.5 * (VISUALIZER.y);
     this.buttons[VisualizerMode.OsciliscopeLine] = addButton(VisualizerMode.OsciliscopeLine, x, y + (buttonSize + buttonPadding) * 0).id('oscilliscope-line').addClass('oscilliscope-line');
     this.buttons[VisualizerMode.OsciliscopeRing] = addButton(VisualizerMode.OsciliscopeRing, x, y + (buttonSize + buttonPadding) * 1).id('oscilliscope-ring').addClass('oscilliscope-ring').addClass('active');
     this.buttons[VisualizerMode.FrequencyBarGraph] = addButton(VisualizerMode.FrequencyBarGraph, x, y + (buttonSize + buttonPadding) * 2).id('frequency-bar-graph').addClass('frequency-bar-graph');
@@ -194,7 +195,7 @@ export class OSTScene extends BaseScene {
     p5.fill('#777');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(12);
+    p5.textSize(2 * 12);
     p5.textAlign(p5.RIGHT, p5.TOP);
     p5.text('[OST MODE]', ...this.getPosition(0.98, 0.02));
   }
@@ -204,7 +205,7 @@ export class OSTScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(12);
+    p5.textSize(2 * 12);
     p5.textAlign(p5.LEFT, p5.TOP);
     p5.text('[DEL] EXIT', ...this.getPosition(0.02, 0.02));
   }
@@ -216,7 +217,7 @@ export class OSTScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(32);
+    p5.textSize(2 * 32);
     p5.textAlign(p5.CENTER, p5.TOP);
     if (this.state.locked) {
       p5.fill('#555');
@@ -226,20 +227,20 @@ export class OSTScene extends BaseScene {
     p5.text(getTrackName(track), ...this.getPosition(0.5, 0.8));
 
     // time elapsed background
-    let x0 = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + 1;
-    let x1 = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + VISUALIZER.width - 1;
-    let y0 = VISUALIZER.y + VISUALIZER.height - 1 - 24;
+    let x0 = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + 1 * 2;
+    let x1 = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + VISUALIZER.width - 1 * 2;
+    let y0 = VISUALIZER.y + VISUALIZER.height - 1 - 24 * 2;
     let y1 = VISUALIZER.y + VISUALIZER.height - 1;
     p5.fill("#111111");
     p5.noStroke();
-    p5.strokeWeight(1);
+    p5.strokeWeight(2 * 1);
     p5.quad(x0, y0, x0, y1, x1, y1, x1, y0);
-    p5.strokeWeight(2);
+    p5.strokeWeight(2 * 2);
 
     // time elapsed, track number
     p5.textFont(fonts.variants.miniMood);
     p5.fill('#ccc');
-    p5.textSize(12);
+    p5.textSize(2 * 12);
 
     if (!this.state.locked) {
       this.drawTimeElapsed();
@@ -283,7 +284,7 @@ export class OSTScene extends BaseScene {
     const y = VISUALIZER.y + (VISUALIZER.height * 0.5) - (imgHeight * 0.5);
     this.spriteRenderer.drawImage(image, x, y);
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(14);
+    p5.textSize(2 * 14);
     p5.textAlign(p5.CENTER, p5.TOP);
     p5.fill('#ccc');
     p5.text('locked', ...this.getPosition(0.5, 0.54));
@@ -294,7 +295,7 @@ export class OSTScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(14);
+    p5.textSize(2 * 14);
     p5.textAlign(p5.CENTER, p5.TOP);
     p5.fill('#fff');
     p5.text('<- PREV           NEXT ->', ...this.getPosition(0.5, 0.9));
@@ -337,21 +338,25 @@ export class OSTScene extends BaseScene {
     }
   }
 
-  private drawVisualizationBackground = (fill = '#11111188') => {
+  private drawVisualizationBackground = (fill = '#11111199') => {
     const { p5 } = this.props;
+    p5.noStroke();
+    p5.fill('#000');
     let x0 = (DIMENSIONS.x - VISUALIZER.width) * 0.5;
     let x1 = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + VISUALIZER.width;
     let y0 = VISUALIZER.y;
     let y1 = VISUALIZER.y + VISUALIZER.height;
+    p5.quad(0, 0, DIMENSIONS.x, 0, DIMENSIONS.x, y0, 0, y0);
+    p5.quad(0, y1, DIMENSIONS.x, y1, DIMENSIONS.x, DIMENSIONS.y, 0, DIMENSIONS.y);
     p5.fill(fill);
     p5.stroke("#ccc");
-    p5.strokeWeight(1);
+    p5.strokeWeight(2 * 1);
     p5.quad(x0, y0, x0, y1, x1, y1, x1, y0);
   }
 
   private drawVisualizationOscilliscopeLine = (analyser: AnalyserNode) => {
     const { p5 } = this.props;
-    p5.strokeWeight(2);
+    p5.strokeWeight(1 * 3);
     analyser.smoothingTimeConstant = 0.5;
     analyser.fftSize = 2048;
     const bufferLength = analyser.frequencyBinCount; // buffer length will always be exactly half of the fftSize - due to nyquist theorum I believe :)
@@ -390,7 +395,7 @@ export class OSTScene extends BaseScene {
 
   private drawVisualizationOscilliscopeRing = (analyser: AnalyserNode) => {
     const { p5 } = this.props;
-    p5.strokeWeight(2);
+    p5.strokeWeight(1 * 3);
     analyser.fftSize = 2048;
     analyser.smoothingTimeConstant = 0.2;
     const bufferLength = analyser.frequencyBinCount; // buffer length will always be exactly half of the fftSize
@@ -493,7 +498,7 @@ export class OSTScene extends BaseScene {
 
   private drawVisualizationFrequencySpectrum = (analyser: AnalyserNode) => {
     const { p5 } = this.props;
-    p5.strokeWeight(2);
+    p5.strokeWeight(2 * 3);
     analyser.fftSize = 1024; // buffer length will always be exactly half of the fftSize
     analyser.smoothingTimeConstant = 0.8;
     const bufferLength = analyser.frequencyBinCount;
@@ -521,14 +526,14 @@ export class OSTScene extends BaseScene {
       logValues[i] = logValues[i] / counts[i];
     }
 
-    const baselineY = 26;
-    const leftEdge = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + 3;
-    const topEdge = VISUALIZER.y + 2;
+    const baselineY = 26 * 2;
+    const leftEdge = (DIMENSIONS.x - VISUALIZER.width) * 0.5 + 3 * 2;
+    const topEdge = VISUALIZER.y + 2 * 2;
     const bottomEdge = VISUALIZER.y + VISUALIZER.height - baselineY;
 
     for (let i = 0; i < numSamples; i++) {
       const v = (logValues[i] / 256) * 1.2;
-      const x = leftEdge + (i / (numSamples - 1)) * (VISUALIZER.width - 6);
+      const x = leftEdge + (i / (numSamples - 1)) * (VISUALIZER.width - 6 * 2);
       const y = p5.lerp(topEdge, bottomEdge, this.frequencySweep.t % 1);
       const wrapY = (val: number) => (val - topEdge) % (VISUALIZER.height - baselineY) + topEdge;
       const color0 = p5.lerpColor(p5.color("#000"), p5.color("#06b"), clamp(v * 2, 0, 1));
@@ -588,7 +593,7 @@ enum LGOrientation {
 
 function linearGradient(p5: P5, x: number, y: number, w: number, h: number, c1: P5.Color, c2: P5.Color, orientation: LGOrientation = LGOrientation.Vertical) {
   p5.noFill();
-  p5.strokeWeight(1);
+  p5.strokeWeight(2 * 1);
 
   if (orientation === LGOrientation.Vertical) {
     // Top to bottom gradient

@@ -9,6 +9,14 @@
   color: #cfcfcf;
 }
 
+.caption {
+  font-weight: 100;
+  font-size: 0.8em;
+  margin-top: 4px;
+  color: #a2b0bb;
+  -webkit-font-smoothing: antialiased;
+}
+
 .input {
   width: auto;
   border: none;
@@ -23,6 +31,11 @@
 
   &.fullWidth {
     width: 100%;
+  }
+
+  &::placeholder {
+    color: #7c8a99;
+    font-style: italic;
   }
 }
 

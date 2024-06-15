@@ -29,7 +29,7 @@ export function showGameOverUI(loseMessage: string, uiElements: Element[], state
 
   const offset = -50
   UI.drawText('YOU DIED!', '28px', 250 + offset, uiElements, { color: ACCENT_COLOR });
-  UI.drawText(loseMessage, '12px', 340 + offset, uiElements);
+  UI.drawText(loseMessage, '12px', 340 + offset, uiElements, { width: 500 });
 }
 
 interface ShowPauseMenuOptions {
@@ -120,6 +120,6 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
   warpButton("S4", x += offset, yRow4, 140, 'pauseButtonWarpS4');
 
   if (anyWarpButtonsVisible) {
-    UI.drawText('WARP TO LEVEL', '24px', 380, uiElements, { color: ACCENT_COLOR });
+    UI.drawText('WARP TO LEVEL', '24px', 380, uiElements, { color: ACCENT_COLOR, margin: '48px auto' });
   }
 }

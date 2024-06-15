@@ -33,7 +33,7 @@ export class QuoteScene extends BaseScene {
       }
       this.stopCoroutine(playingSound);
 
-      const paragraphHeight = this._estimateParagraphHeight(quote, 250, fonts.variants.miniMood, 14);
+      const paragraphHeight = this._estimateParagraphHeight(quote, 2 * 250, fonts.variants.miniMood, 14);
 
       yield* coroutines.waitForAnyKey(() => {
         if (isLastQuote) {
@@ -73,7 +73,7 @@ export class QuoteScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(14);
+    p5.textSize(2 * 14);
     p5.textAlign(p5.LEFT, p5.TOP);
     p5.text(quote.substring(0, numLetters), ...this._getQuoteRect());
   }
@@ -84,7 +84,7 @@ export class QuoteScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(12);
+    p5.textSize(2 * 12);
     p5.textAlign(p5.RIGHT, p5.TOP);
     p5.text('- ' + this._author, x, y + paragraphHeight + AUTHOR_PADDING, width, height);
   }
@@ -94,7 +94,7 @@ export class QuoteScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(14);
+    p5.textSize(2 * 14);
     p5.textAlign(p5.CENTER, p5.TOP);
     p5.fill('#fff');
     p5.text('[PRESS ANY KEY]', ...this.getPosition(0.5, 0.8));
@@ -110,7 +110,8 @@ export class QuoteScene extends BaseScene {
   };
 
   private _getQuoteRect = () => {
-    return this.getRect(0.5, 0.575, 250, 250);
+    // return this.getRect(0.5, 0.575, 250, 250);
+    return this.getRect(0.5, 0.575, 2 * 250, 2 * 250);
   }
 
   private _debugDraw = (paragraphHeight: number) => {
@@ -132,7 +133,7 @@ export class QuoteScene extends BaseScene {
     p5.fill('#777');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(12);
+    p5.textSize(2 * 12);
     p5.textAlign(p5.RIGHT, p5.TOP);
     p5.text('[QUOTE MODE]', ...this.getPosition(0.98, 0.02));
   }
@@ -142,7 +143,7 @@ export class QuoteScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(12);
+    p5.textSize(2 * 12);
     p5.textAlign(p5.LEFT, p5.TOP);
     p5.text('[DEL] EXIT', ...this.getPosition(0.02, 0.02));
   }
@@ -150,7 +151,7 @@ export class QuoteScene extends BaseScene {
   private _estimateNumLines = (paragraph: string, rectWidth: number, font: P5.Font, textSize: number) => {
     const { p5 } = this.props;
     p5.textFont(font);
-    p5.textSize(textSize);
+    p5.textSize(2 * textSize);
 
     paragraph = paragraph.trim();
     let cursorStart = 0;

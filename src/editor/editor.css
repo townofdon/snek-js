@@ -147,6 +147,10 @@ button {
   }
 }
 
+.mapBottomInfo {
+  padding-bottom: 0;
+}
+
 .mapBottomDescription {
   justify-content: flex-end;
   padding-top: 0;
@@ -496,13 +500,15 @@ button {
 .mapPreviewContainer {
   position: relative;
   display: flex;
-  width: 600px;
-  height: 600px;
+  width: 1200px;
+  height: 1200px;
   padding: 2px;
   background: black;
   border: 2px solid #ccc;
   border-radius: 4px;
   box-shadow: -2px 2px 4px 2px black;
+  transform: scale(0.5);
+  transform-origin: center center;
 
   & .closeButton {
     position: absolute;
@@ -513,6 +519,8 @@ button {
     height: 20px;
     padding: 3px;
     box-sizing: content-box;
+    transform: scale(2);
+    transform-origin: top right;
   }
 
   & .fullscreenButton {
@@ -527,6 +535,8 @@ button {
     box-sizing: content-box;
     /* border: 2px solid #ffffff5c; */
     border: 2px solid #91a3c3;
+    transform: scale(2);
+    transform-origin: top right;
 
     &:hover {
       border-color: #fff;
@@ -542,6 +552,8 @@ button {
 .mapPreview {
   display: block;
   border: none;
+  /* transform: scale(0.5);
+  transform-origin: top left; */
 }
 
 

@@ -9,10 +9,11 @@ import * as styles from './field.css';
 
 interface BaseFieldProps<T> {
   name: string;
-  label?: string;
-  caption?: string;
   value: T;
   onChange: (val: T) => void;
+  label?: string;
+  caption?: string;
+  placeholder?: string
   min?: number;
   max?: number;
   step?: number;
@@ -32,7 +33,7 @@ function isRangeProps(props: FieldProps): props is RangeFieldProps { return prop
 function isCheckboxProps(props: FieldProps): props is CheckboxFieldProps { return props.type === 'checkbox'; }
 function isColorProps(props: FieldProps): props is ColorFieldProps { return props.type === 'color'; }
 
-export const Field = ({ type = 'text', min, max, step, fullWidth, className: classNameFromProps, ...otherProps }: FieldProps) => {
+export const Field = ({ type = 'text', min, max, step, fullWidth, className: classNameFromProps, placeholder, ...otherProps }: FieldProps) => {
   const props: FieldProps = { type, ...otherProps } as FieldProps;
 
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (ev) => {
@@ -81,6 +82,7 @@ export const Field = ({ type = 'text', min, max, step, fullWidth, className: cla
         max={max}
         step={step}
         className={className}
+        placeholder={placeholder}
       />)
     }
   }
@@ -96,7 +98,7 @@ export const Field = ({ type = 'text', min, max, step, fullWidth, className: cla
       )}
 
       {props.caption && (
-        <div>{props.caption}</div>
+        <div className={styles.caption}>{props.caption}</div>
       )}
     </div>
   );

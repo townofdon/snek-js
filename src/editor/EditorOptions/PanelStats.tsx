@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { OST_MODE_TRACKS, SLIME_CONTROL_TRACKS } from "../../constants";
-import { EditorOptions, GameSettings, MusicTrack } from "../../types";
+import { EditorOptions, GameSettings, Level, MusicTrack } from "../../types";
 import { SetStateValue } from "../editorTypes";
 import { getRelativeDir, getTrackName } from "../../utils";
 import { musicTracktoIndex } from "../utils/musicTrackUtils";
 import { Stack } from "../components/Stack";
+import { resumeAudioContext } from "../../engine/audio";
 import { MusicPlayer } from "../../engine/musicPlayer";
 import {
   Field,
@@ -14,6 +15,7 @@ import {
   DropdownField,
   Option,
 } from "../components/Field";
+import { SelectLevelDropdown } from "./SelectLevelDropdown";
 
 import * as styles from './EditorOptions.css';
 
@@ -21,9 +23,10 @@ interface PanelStatsProps {
   isPreviewShowing: boolean;
   options: EditorOptions;
   setOptions: (value: SetStateValue<EditorOptions>) => void;
+  loadLevel: (level: Level) => void;
 }
 
-export const PanelStats = ({ isPreviewShowing, options, setOptions }: PanelStatsProps) => {
+export const PanelStats = ({ isPreviewShowing, options, setOptions, loadLevel }: PanelStatsProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const musicPlayer = useRef<MusicPlayer>(null);
   const buttonPlay = useRef<HTMLButtonElement>(null);
@@ -85,7 +88,9 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions }: PanelStats
       stopTrack();
     } else {
       musicPlayer.current?.stopAllTracks();
-      musicPlayer.current?.play(track);
+      resumeAudioContext().then(() => {
+        musicPlayer.current?.play(track);
+      })
       setIsPlaying(true);
       if (document.activeElement === buttonPlay.current) {
         setTimeout(() => buttonStop.current?.focus(), 0);
@@ -167,7 +172,7 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions }: PanelStats
         max={1}
         step={0.01}
       />
-      <Stack row align="center">
+      <Stack row align="center" marginBottom>
         <DropdownField
           label="Music Track"
           options={musicTrackOptions}
@@ -185,6 +190,8 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions }: PanelStats
           </button>
         )}
       </Stack>
+      <hr />
+      <SelectLevelDropdown loadLevel={loadLevel} />
     </div>
   );
 }

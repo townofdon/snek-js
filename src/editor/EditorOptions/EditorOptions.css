@@ -1,4 +1,10 @@
 
+hr {
+  border-color: #4e4f59;
+  border-style: solid;
+  margin: 20px 0;
+}
+
 .editorOptionsContainer {
   display: flex;
   flex-direction: column;
@@ -80,4 +86,10 @@ textarea {
   margin-top: 12px;
   align-items: center;
   justify-content: center;
+}
+
+.publishButton {
+  padding: 10px 30px;
+  background: #E1AA51;
+  color: #3e464c;
 }

@@ -10,6 +10,7 @@ export const DEBUG_EASY_LEVEL_EXIT = false;
 export const DISABLE_TRANSITIONS = false;
 export const RECORD_REPLAY_STATE = false;
 export const IS_DEV = window.location.href.includes('localhost') || process.env.NODE_ENV === 'test';
+const IS_EDITOR = window.location.pathname.includes('editor');
 
 export const LEADERBOARD_HOST = 'https://dontownsendcreative.com/snek-leaderboard';
 // export const MAP_HOST = 'https://dontownsendcreative.com/snek-leaderboard';
@@ -27,14 +28,16 @@ export const LIGHTMAP_RESOLUTION = 1;
 
 export const FRAMERATE = 90;
 export const FRAME_DUR_MS = (1 / FRAMERATE) * 1000;
-export const DIMENSIONS = { x: Math.min(window.innerWidth, 600), y: Math.min(window.innerWidth, 600) };
-export const GRIDCOUNT = { x: 30, y: 30 };
-export const STROKE_SIZE = 4;
-export const STRANGELY_NEEDED_OFFSET = { x: STROKE_SIZE / GRIDCOUNT.x, y: STROKE_SIZE / GRIDCOUNT.y };
+
 /**
- * Typically { x: 20, y: 20 }
+ * BLOCK SIZE IS TYPICALLY 20x20
  */
+export const DIMENSIONS = IS_EDITOR ? { x: 600, y: 600 } : { x: 1200, y: 1200 };
+export const GRIDCOUNT = { x: 30, y: 30 };
+export const STROKE_SIZE = IS_EDITOR ? 4 : 8;
+export const STRANGELY_NEEDED_OFFSET = { x: STROKE_SIZE / GRIDCOUNT.x, y: STROKE_SIZE / GRIDCOUNT.y };
 export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x + STRANGELY_NEEDED_OFFSET.x, y: DIMENSIONS.y / GRIDCOUNT.y + STRANGELY_NEEDED_OFFSET.y };
+
 export const MAX_MOVES = 4;
 export const MAX_LIVES = 3;
 export const MAX_SNAKE_SIZE = GRIDCOUNT.x * GRIDCOUNT.y * 0.50;

@@ -150,11 +150,11 @@ export class LeaderboardScene extends BaseScene {
     gfx.textAlign(p5.CENTER, p5.CENTER);
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke(bgColor)
-    gfx.strokeWeight(4);
-    gfx.textSize(32.5);
+    gfx.strokeWeight(2 * 4);
+    gfx.textSize(2 * 32.5);
     gfx.fill(bgColor);
     gfx.text(title, ...this.getPosition(0.5, 0.21 + this.state.stageClearY));
-    gfx.textSize(32);
+    gfx.textSize(2 * 32);
     gfx.fill(color);
     gfx.text(title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
   }
@@ -164,8 +164,8 @@ export class LeaderboardScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.fill(color);
     gfx.stroke("#000");
-    gfx.strokeWeight(2);
-    gfx.textSize(14);
+    gfx.strokeWeight(2 * 2);
+    gfx.textSize(2 * 14);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.text(message, ...this.getPosition(0.5, yPos + this.state.stageClearY));
   }
@@ -198,13 +198,13 @@ export class LeaderboardScene extends BaseScene {
     const { p5, gfx, fonts } = this.props;
     const valueDisplay = formatValue ? formatValue(value) : formatNumber(value, {}).trim();
     gfx.textFont(fonts.variants.miniMood);
-    gfx.textSize(14);
+    gfx.textSize(2 * 14);
     gfx.strokeCap(p5.PROJECT);
 
     if (bgStrokeSize !== strokeSize) {
       gfx.fill(bgStrokeColor);
       gfx.stroke(bgStrokeColor);
-      gfx.strokeWeight(bgStrokeSize);
+      gfx.strokeWeight(2 * bgStrokeSize);
       gfx.textAlign(p5.RIGHT, p5.TOP);
       gfx.text(label, ...this.getPosition(colLeft, yPos + this.state.stageClearY));
       gfx.textAlign(p5.LEFT, p5.TOP);
@@ -214,14 +214,14 @@ export class LeaderboardScene extends BaseScene {
     const widths = [0, 0];
     gfx.fill(color0);
     gfx.stroke(bgColor0);
-    gfx.strokeWeight(strokeSize);
+    gfx.strokeWeight(2 * strokeSize);
     gfx.textAlign(p5.RIGHT, p5.TOP);
     gfx.text(label, ...this.getPosition(colLeft, yPos + this.state.stageClearY));
     if (measureWidths) widths[0] = gfx.textWidth(label);
 
     gfx.fill(color1);
     gfx.stroke(bgColor1);
-    gfx.strokeWeight(strokeSize);
+    gfx.strokeWeight(2 * strokeSize);
     gfx.textAlign(p5.LEFT, p5.TOP);
     gfx.text(valueDisplay, ...this.getPosition(colRight, yPos + this.state.stageClearY));
     if (measureWidths) widths[1] = gfx.textWidth(valueDisplay);
@@ -270,9 +270,9 @@ export class LeaderboardScene extends BaseScene {
     const { p5, gfx, fonts } = this.props;
     gfx.fill('#fff');
     gfx.stroke("#000");
-    gfx.strokeWeight(5);
     gfx.textFont(fonts.variants.miniMood);
-    gfx.textSize(14);
+    gfx.strokeWeight(2 * 5);
+    gfx.textSize(2 * 14);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.fill('#fff');
     gfx.text('[PRESS ANY KEY]', ...this.getPosition(0.5, 0.8 + addY));

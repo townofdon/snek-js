@@ -113,10 +113,11 @@ export const Editor = () => {
           [0]: KeyChannel.Yellow,
           [1]: KeyChannel.Red,
           [2]: KeyChannel.Blue,
-        }[keyChannelRef.current] || KeyChannel.Yellow);
+        }[num - 1] || KeyChannel.Yellow);
       }
     } else if (tileRef.current === Tile.Portal) {
-      const channel = isValidPortalChannel(num) ? num : 0;
+      const index = num === 0 ? 9 : num - 1;
+      const channel = isValidPortalChannel(index) ? (index) : 0;
       setPortalChannel(channel);
     }
   }

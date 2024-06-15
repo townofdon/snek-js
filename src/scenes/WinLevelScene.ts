@@ -237,11 +237,12 @@ export class WinLevelScene extends BaseScene {
     gfx.textAlign(p5.CENTER, p5.CENTER);
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
-    gfx.strokeWeight(4);
-    gfx.textSize(32.5);
+    gfx.strokeWeight(2 * 4);
+    gfx.textSize(2 * 32.5);
     gfx.fill('#000');
     gfx.text(title, ...this.getPosition(0.5, this.stageClearY + 0.01));
-    gfx.textSize(32);
+    gfx.strokeWeight(2 * 4);
+    gfx.textSize(2 * 32);
     gfx.fill('#fff');
     gfx.text(title, ...this.getPosition(0.5, this.stageClearY + 0.0));
 
@@ -260,8 +261,8 @@ export class WinLevelScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg)
-    gfx.strokeWeight(3);
-    gfx.textSize(16);
+    gfx.strokeWeight(2 * 3);
+    gfx.textSize(2 * 16);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.text('PERFECT!', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
     gfx.textAlign(p5.CENTER, p5.TOP);
@@ -276,8 +277,8 @@ export class WinLevelScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg);
-    gfx.strokeWeight(3);
-    gfx.textSize(16);
+    gfx.strokeWeight(2 * 3);
+    gfx.textSize(2 * 16);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.text('100% Apples', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
     gfx.textAlign(p5.CENTER, p5.TOP);
@@ -289,14 +290,14 @@ export class WinLevelScene extends BaseScene {
     const shadowOffset = 0.004;
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
-    gfx.textSize(14);
+    gfx.textSize(2 * 14);
     gfx.textAlign(p5.LEFT, p5.TOP);
     gfx.fill('#000');
-    gfx.strokeWeight(3);
+    gfx.strokeWeight(2 * 3);
     gfx.text('Level Clear Bonus', ...this.getPosition(0.15, 0.4 + this.statOffsetY + shadowOffset));
     gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.15, 0.45 + this.statOffsetY + shadowOffset));
     gfx.fill('#fff');
-    gfx.strokeWeight(2);
+    gfx.strokeWeight(2 * 2);
     gfx.text('Level Clear Bonus', ...this.getPosition(0.15, 0.4 + this.statOffsetY));
     gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.15, 0.45 + this.statOffsetY));
   }
@@ -306,14 +307,15 @@ export class WinLevelScene extends BaseScene {
     const shadowOffset = 0.004;
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
-    gfx.textSize(14);
     gfx.textAlign(p5.LEFT, p5.TOP);
-    gfx.strokeWeight(3);
+    gfx.textSize(2 * 14);
+    gfx.strokeWeight(2 * 3);
     gfx.fill('#000');
     gfx.text('Lives Bonus', ...this.getPosition(0.6, 0.4 + this.statOffsetY + shadowOffset));
     gfx.text(`${lives} x ${bonus.toFixed(0)}`, ...this.getPosition(0.6, 0.45 + this.statOffsetY + shadowOffset));
     gfx.text(calcBonus.toFixed(0).padStart(5, '0'), ...this.getPosition(0.6, 0.5 + this.statOffsetY + shadowOffset));
-    gfx.strokeWeight(2);
+    gfx.textSize(2 * 14);
+    gfx.strokeWeight(2 * 2);
     gfx.fill('#fff');
     gfx.text('Lives Bonus', ...this.getPosition(0.6, 0.4 + this.statOffsetY));
     gfx.text(`${lives} x ${bonus.toFixed(0)}`, ...this.getPosition(0.6, 0.45 + this.statOffsetY));
@@ -325,12 +327,12 @@ export class WinLevelScene extends BaseScene {
     gfx.textAlign(p5.CENTER, p5.CENTER);
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
-    gfx.textSize(24.5);
-    gfx.strokeWeight(4);
+    gfx.textSize(2 * 24.5);
+    gfx.strokeWeight(2 * 4);
     gfx.fill('#000');
     gfx.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.611));
-    gfx.textSize(24);
-    gfx.strokeWeight(2);
+    gfx.textSize(2 * 24);
+    gfx.strokeWeight(2 * 2);
     gfx.fill('#fff');
     gfx.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.6));
   }
@@ -341,24 +343,26 @@ export class WinLevelScene extends BaseScene {
     const accentColorBg = Color("#119DA4").darken(0.4).hex();
     const shadowOffset = 0.011;
     gfx.textFont(fonts.variants.miniMood);
-    gfx.textSize(16);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.fill('#111');
     gfx.stroke('#000');
-    gfx.strokeWeight(4);
+    gfx.textSize(2 * 16);
+    gfx.strokeWeight(2 * 4);
     gfx.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY + shadowOffset * 0.5));
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg);
-    gfx.strokeWeight(4);
+    gfx.textSize(2 * 16);
+    gfx.strokeWeight(2 * 4);
     gfx.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY));
-    gfx.textSize(28);
     gfx.fill('#111');
     gfx.stroke('#000');
-    gfx.strokeWeight(6);
+    gfx.textSize(2 * 28);
+    gfx.strokeWeight(2 * 6);
     gfx.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY + shadowOffset));
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg);
-    gfx.strokeWeight(4);
+    gfx.textSize(2 * 28);
+    gfx.strokeWeight(2 * 4);
     gfx.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY));
   }
 }
