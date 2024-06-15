@@ -679,6 +679,8 @@ button {
   padding: 20px;
   background: var(--tab-panel-bg);
   box-shadow: -2px 3px 2px 2px #000;
+  min-width: 370px;
+  box-sizing: border-box;
 }
 /*!****************************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Stack/stack.css ***!

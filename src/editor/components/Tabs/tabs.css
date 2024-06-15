@@ -44,4 +44,6 @@
   padding: 20px;
   background: var(--tab-panel-bg);
   box-shadow: -2px 3px 2px 2px #000;
+  min-width: 370px;
+  box-sizing: border-box;
 }

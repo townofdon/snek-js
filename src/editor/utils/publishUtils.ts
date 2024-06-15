@@ -62,8 +62,8 @@ export async function drawShareImage(ctx: CanvasRenderingContext2D, colors: Pale
   const y = drawText(ctx, mapName, 300, 375, { fill: titleColor, fontSize: 36, shadow: { x: 0, y: 4, color: shadow, fontSizeAdd: -0.5 } });
 
   if (author) {
-    drawText(ctx, `custom map by`, 300, y + 60, { fill: '#ddd', fontSize: 16, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.2222 } });
-    drawText(ctx, author, 300, y + 90, { fill: authorColor, fontSize: 24, shadow: { x: 0, y: 4, color: shadow, fontSizeAdd: -0.3333 } });
+    drawText(ctx, `map by`, 300, y + 100, { fill: '#ddd', fontSize: 12, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.1667 } });
+    drawText(ctx, author, 300, y + 120, { fill: authorColor, fontSize: 12, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.1667 } });
   }
 }
 

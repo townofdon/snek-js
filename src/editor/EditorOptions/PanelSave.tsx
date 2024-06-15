@@ -23,7 +23,7 @@ interface PanelSaveProps {
 export const PanelSave = ({ canvas, data, options, redo, undo }: PanelSaveProps) => {
   const publishCanvas = useRef<HTMLCanvasElement>();
   const panelRef = useRef<HTMLDivElement>();
-  const [author, setAuthor] = useState("");
+  const [author, setAuthor] = useState(editorStore.getAuthor());
 
   useUndoRedo(panelRef, redo, undo);
 
@@ -33,15 +33,15 @@ export const PanelSave = ({ canvas, data, options, redo, undo }: PanelSaveProps)
       const mapImageDataUrl = canvas.current.toDataURL('image/png');
       const mapName = options.name;
       const ctx = publishCanvas.current.getContext('2d');
-      await drawShareImage(ctx, options.palette, mapImageDataUrl, mapName);
+      await drawShareImage(ctx, options.palette, mapImageDataUrl, mapName, author);
       const encoded = encodeMapData(data, options);
       const [file, xsrfToken] = await Promise.all([
         getCanvasImage(publishCanvas.current),
         getToken(),
       ]);
-      const authorName = editorStore.getAuthor();
-      const res = await publishMap(options.name, authorName, encoded, { xsrfToken });
+      const res = await publishMap(options.name, author, encoded, { xsrfToken });
       await uploadMapImage(file, res.supameta, res.upload);
+      editorStore.setAuthor(author);
     } catch (err) {
       toast.error('Unable to publish map');
       console.error(err.message);

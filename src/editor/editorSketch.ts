@@ -410,6 +410,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         gfx.clear(0, 0, 0, 0);
       }
 
+      const snakeAlpha = 0.75;
+
       for (let y = 0; y < GRIDCOUNT.y; y++) {
         for (let x = 0; x < GRIDCOUNT.x; x++) {
           const coord = getCoordIndex2(x, y);
@@ -461,14 +463,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.apple, x, y);
           }
 
-          const snakeAlpha = 0.75;
           if (hasSegmentAt(x, y)) {
             renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.snakeSegment, x, y, snakeAlpha);
-          }
-
-          if (data.playerSpawnPosition.equals(x, y)) {
-            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.snakeHead, x, y, snakeAlpha);
-            spriteRenderer.drawImage3x3Static(gfx, Image.SnekHead, x, y, getRotationFromDirection(data.startDirection), snakeAlpha);
           }
 
           if (data.barriersMap[coord] && data.passablesMap[coord]) {
@@ -476,6 +472,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           }
         }
       }
+
+      renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.snakeHead, data.playerSpawnPosition.x, data.playerSpawnPosition.y, snakeAlpha);
+      spriteRenderer.drawImage3x3Static(gfx, Image.SnekHead, data.playerSpawnPosition.x, data.playerSpawnPosition.y, getRotationFromDirection(data.startDirection), snakeAlpha);
 
       drawParticles(0);
       renderer.drawStaticGraphics(gfx);
