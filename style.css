@@ -20,7 +20,7 @@
   --title-sprite-width: 100px;
   --title-sprite-height: 100px;
 
-  --viz-sprite-img: url('assets/graphics/snek-audio-viz-icons.png');
+  --viz-sprite-img: url('assets/graphics/snek-audio-viz-icons-200.png');
   --viz-sprite-background-size: 128px 32px;
   --viz-sprite-width: 32px;
   --viz-sprite-height: 32px;
@@ -132,6 +132,7 @@ p, button {
   margin-bottom: 40px;
   color: #e5cecd;
   letter-spacing: 1px;
+  font-size: 2em;
 }
 
 .start-screen img {
@@ -161,6 +162,7 @@ canvas {
 main {
   position: relative;
   z-index: 10;
+  overflow: hidden;
 }
 
 main div {
@@ -175,6 +177,8 @@ main div {
   position: relative;
   filter: none;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
 }
 
 .blur {
@@ -264,6 +268,7 @@ button.focus-invert.active {
   top: 90px;
   width: 100%;
   display: block;
+  transform: scale(2);
 }
 
 .title-sprite-container .variant {
@@ -336,17 +341,17 @@ button.snek-audio-viz-button:focus
   box-shadow: none;
 }
 button.snek-audio-viz-button.oscilliscope-line { background-position: 0px 0px; }
-button.snek-audio-viz-button.oscilliscope-ring { background-position: -32px 0px; }
-button.snek-audio-viz-button.frequency-bar-graph { background-position: -64px 0px; }
-button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px; }
+button.snek-audio-viz-button.oscilliscope-ring { background-position: calc(-1 * var(--viz-sprite-width)) 0px; }
+button.snek-audio-viz-button.frequency-bar-graph { background-position: calc(-2 * var(--viz-sprite-width)) 0px; }
+button.snek-audio-viz-button.frequency-spectrum { background-position: calc(-3 * var(--viz-sprite-width)) 0px; }
 
 .main-ui-buttons {
   z-index: 20;
   display: block;
   position: absolute;
-  left: 20px;
-  bottom: 20px;
-  right: 20px;
+  left: 40px;
+  bottom: 40px;
+  right: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -355,7 +360,7 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: -96px 0px
 .main-ui-buttons .button-start-game {
   position: relative;
   z-index: 10;
-  transform: translateY(-145px);
+  transform: translateY(calc(-145px * 2)) scale(2);
 }
 .main-ui-buttons .button-start-game:focus,
 .main-ui-buttons .button-start-game:active,
@@ -426,6 +431,7 @@ button:focus:before {
   animation-iteration-count: infinite;
   animation-timing-function: cubic-bezier(.5,0,.5,1);
   animation-fill-mode: backwards;
+  transform: scale(2);
 }
 
 .main-ui-buttons button:nth-child(1) {
@@ -451,10 +457,11 @@ button:focus:before {
 .main-menu-label-casual-mode, .main-menu-label-cobra-mode {
   z-index: 20;
   position: absolute;
-  left: 303px;
-  top: 460px;
+  left: calc(2 * 303px);
+  top: calc(2 * 460px);
   display: flex;
   justify-content: center;
+  transform: scale(2);
 }
 .main-menu-label-casual-mode > span {
   /* --casual-mode-color: #15C2CB; */
@@ -523,24 +530,28 @@ button.ui-sprite.gear {
   position: absolute;
   bottom: 0;
   right: 0;
+  transform-origin: bottom right;
 }
 button.ui-sprite.trophy {
   position: absolute;
   bottom: 0;
-  right: 42px;
+  right: calc(2 * 42px);
   background-size: 24px 24px; /* export trophy at 300% */
   background-repeat: no-repeat;
   background-color: #242b4a;
+  transform-origin: bottom right;
 }
 button.ui-sprite.headphones {
   position: absolute;
   bottom: 0;
   left: 0;
+  transform-origin: bottom left;
 }
 button.ui-sprite.quote {
   position: absolute;
   bottom: 0;
-  left: 42px;
+  left: calc(2 * 42px);
+  transform-origin: bottom left;
 }
 button > .tooltip {
   display: none;
@@ -599,6 +610,7 @@ button:focus > .tooltip
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  transform: scale(2);
 }
 
 .settings-menu > .background {
@@ -609,6 +621,12 @@ button:focus > .tooltip
   right: 0;
   background: rgba(0,0,0,0.65);
   border-radius: 4px;
+}
+
+.settings-menu > .content > h2,
+.settings-menu > .content > h3,
+.settings-menu > .content > h4 {
+  text-shadow: 0px 2px 0px black;
 }
 
 .settings-menu > .content > section {
@@ -663,6 +681,7 @@ button:focus > .tooltip
   background: rgba(0,0,0,0.65);
   color: #fff;
   font-family: MiniMOOD, 'VT323', monospace;
+  transform: scale(2);
 }
 .modal .buttons > button {
   margin: 5px;
