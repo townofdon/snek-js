@@ -36,6 +36,7 @@ export const DropdownField = ({ label, options, value, onChange, placeholder = "
       placeholder={placeholder}
       classNamePrefix="react-select"
       menuShouldScrollIntoView
+      menuPlacement="top"
     />
   );
 

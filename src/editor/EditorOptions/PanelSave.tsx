@@ -25,10 +25,15 @@ export const PanelSave = ({ canvas, data, options, redo, undo }: PanelSaveProps)
   const publishCanvas = useRef<HTMLCanvasElement>();
   const panelRef = useRef<HTMLDivElement>();
   const [loading, setLoading] = useState(false);
-  const [author, setAuthor] = useState(editorStore.getAuthor());
+  const [author, _setAuthor] = useState(editorStore.getAuthor());
   const [mapId, setMapId] = useState('');
 
   useUndoRedo(panelRef, redo, undo);
+
+  const setAuthor = (val: string) => {
+    _setAuthor(val);
+    editorStore.setAuthor(val);
+  }
 
   const getSaveData = async (): Promise<[string, File, string]> => {
     if (!canvas.current) return;
@@ -51,7 +56,6 @@ export const PanelSave = ({ canvas, data, options, redo, undo }: PanelSaveProps)
       const res = await publishMap(options.name, author, encoded, { xsrfToken });
       setMapId(res.id);
       await uploadMapImage(file, res.supameta, res.upload);
-      editorStore.setAuthor(author);
     } catch (err) {
       toast.error('Unable to publish map');
       console.error(err.message);
@@ -80,7 +84,7 @@ export const PanelSave = ({ canvas, data, options, redo, undo }: PanelSaveProps)
         label="Map Author"
         caption="Leave blank to publish anonymously"
         value={author}
-        placeholder="Anonymous"
+        placeholder="Enter your hacker alias"
         onChange={(val) => setAuthor(val)}
         fullWidth
         className={styles.authorField}
