@@ -18,7 +18,7 @@ import { VARIANT_LEVEL_07 } from "../../levels/bonusLevels/variantLevel07";
 import { VARIANT_LEVEL_08 } from "../../levels/bonusLevels/variantLevel08";
 import { VARIANT_LEVEL_10 } from "../../levels/bonusLevels/variantLevel10";
 import { VARIANT_LEVEL_15 } from "../../levels/bonusLevels/variantLevel15";
-import { getCanvasImage } from "../utils/fileUtils";
+import { drawShareImage, getCanvasImage } from "../utils/publishUtils";
 import { getToken, publishMap, uploadMapImage } from "../../api/map";
 import { editorStore } from "../../stores/EditorStore";
 
@@ -32,6 +32,7 @@ interface PanelSaveProps {
 }
 
 export const PanelSave = ({ canvas, data, options, loadLevel, redo, undo }: PanelSaveProps) => {
+  const publishCanvas = useRef<HTMLCanvasElement>();
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVEL_01);
   const panelRef = useRef<HTMLDivElement>();
 
@@ -40,17 +41,17 @@ export const PanelSave = ({ canvas, data, options, loadLevel, redo, undo }: Pane
   const handlePublish = async () => {
     if (!canvas.current) return;
     try {
+      const mapImageDataUrl = canvas.current.toDataURL('image/png');
+      const mapName = options.name;
+      const ctx = publishCanvas.current.getContext('2d');
+      await drawShareImage(ctx, options.palette, mapImageDataUrl, mapName);
       const encoded = encodeMapData(data, options);
       const [file, xsrfToken] = await Promise.all([
-        getCanvasImage(canvas.current),
+        getCanvasImage(publishCanvas.current),
         getToken(),
       ]);
       const authorName = editorStore.getAuthor();
       const res = await publishMap(options.name, authorName, encoded, { xsrfToken });
-
-      // TODO: REMOVE
-      console.log({ res });
-
       await uploadMapImage(file, res.supameta, res.upload);
     } catch (err) {
       toast.error('Unable to publish map');
@@ -104,6 +105,14 @@ export const PanelSave = ({ canvas, data, options, loadLevel, redo, undo }: Pane
         />
         <button className={styles.buttonLoadLevel} onClick={handleLoadLevel}>Load</button>
       </Stack>
+
+      <div>
+        <canvas ref={publishCanvas} width={1200} height={630} style={{
+          // display: 'none',
+          width: '100%',
+          height: 'auto',
+        }} />
+      </div>
     </div>
   );
 }

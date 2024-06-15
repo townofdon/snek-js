@@ -29,7 +29,6 @@ import {
   PORTAL_FADE_DURATION,
   PORTAL_INDEX_DELAY,
   SHOW_FPS,
-  STRANGELY_NEEDED_OFFSET,
   STROKE_SIZE,
 } from "../constants";
 import { clamp, lerp, oscilateLinear } from "../utils";

@@ -53,6 +53,11 @@
 }
 
 @font-face {
+  font-family: RetroGaming;
+  src: url(assets/fonts/RetroGaming.ttf);
+}
+
+@font-face {
   font-family: Casual;
   src: url(assets/fonts/casual/LowIndustrial.ttf);
 }
