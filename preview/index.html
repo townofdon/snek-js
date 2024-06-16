@@ -25,9 +25,46 @@
 
   <title>SNEK CUSTOM LEVEL</title>
 
-  <script defer src="/snek-js/preview.bundle-a6eddd4b30a860aeccaf.js"></script>
+  <script defer src="/snek-js/preview.bundle-001e7840e847e6171420.js"></script>
+
+  <style>
+    body {
+      position: relative;
+    }
+
+    a.button.allMapsButton,
+    a.button.editMapButton {
+      position: absolute;
+      top: 10px;
+      font-size: 1em;
+      padding: 10px 20px;
+      background: #292b2d;
+    }
+    a.button.allMapsButton > span,
+    a.button.editMapButton > span {
+      display: inline-block;
+      transform: translateY(4px);
+    }
+    a.button.allMapsButton:hover,
+    a.button.editMapButton:hover {
+      background: #556772;
+      background: #455863;
+    }
+    a.button.allMapsButton {
+      left: 10px;
+    }
+    a.button.editMapButton {
+      right: 10px;
+    }
+  </style>
 </head>
 <body>
+  <a href="/snek-js/community" class="button minimood allMapsButton">
+    <span>&lt;- All Maps</span>
+  </a>
+  <a id="buttonEditMap" href="#" class="button minimood editMapButton">
+    <span>Edit Map</span>
+  </a>
   <div class="center stretch">
     <main id="main">
 
