@@ -756,8 +756,14 @@ button:hover,
   align-items: center;
   justify-content: center;
 }
+.stack--upysNjv855vwZqYPVwor.noChildMargin--iwsXaS1cu3Qrt7UDCNfB {
+  --stack-margin: 0px;
+}
 .stack--upysNjv855vwZqYPVwor.marginBottom--ytP38tNSF4fTMI9lXlkm {
   margin-bottom: 20px;
+}
+.stack--upysNjv855vwZqYPVwor.marginTop--YZSjLG2ouv4GhQ7O8IYL {
+  margin-top: 20px;
 }
 .stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd {
   flex-direction: row;
