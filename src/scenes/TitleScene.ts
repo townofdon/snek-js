@@ -3,19 +3,21 @@ import { FontsInstance, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 
 export class TitleScene extends BaseScene {
-  private _title: string = 'UNTITLED'
-  private _sfx: SFXInstance;
+  private title: string = 'UNTITLED';
+  private author: string = '';
+  private sfx: SFXInstance;
 
-  constructor(title: string, p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+  constructor(title: string, author: string | undefined, p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     super(p5, gfx, fonts, callbacks)
-    this._title = title;
-    this._sfx = sfx;
+    this.title = title;
+    this.author = author || '';
+    this.sfx = sfx;
     this.bindActions();
   }
 
   *action() {
     const { coroutines } = this.props;
-    this._sfx.play(Sound.unlock);
+    this.sfx.play(Sound.unlock);
     yield* coroutines.waitForTime(1500);
     this.cleanup();
   }
@@ -35,7 +37,13 @@ export class TitleScene extends BaseScene {
     p5.text('now entering', ...this.getPosition(0.5, 0.4));
     p5.textSize(2 * 32);
     p5.fill('#fff');
-    p5.text(this._title, ...this.getPosition(0.5, 0.5));
+    p5.text(this.title, ...this.getPosition(0.5, 0.5));
+
+    if (this.author) {
+      p5.textSize(2 * 12);
+      p5.fill('#fff');
+      p5.text(`by ${this.author}`, ...this.getPosition(0.5, 0.575));
+    }
 
     this.tick();
   };

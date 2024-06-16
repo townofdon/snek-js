@@ -276,6 +276,7 @@ export interface Level {
   applesModOverride?: number,
   pickupDrops?: Record<number, PickupDrop>,
   recordProgressAsLevel?: Level,
+  author?: string,
 }
 
 export interface IRenderer {

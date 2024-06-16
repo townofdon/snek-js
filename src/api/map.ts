@@ -65,6 +65,15 @@ export const getMap = (id: string): Promise<SnekMap> => {
   return Api.get(url);
 }
 
+export interface GetMapByDataResponse {
+  map: SnekMap,
+  next: SnekMap | null,
+}
+export const getMapByData = (data: string): Promise<GetMapByDataResponse> => {
+  const url = `${MAP_HOST}/map/lookup?data=${data}`;
+  return Api.get(url);
+}
+
 export const listMap = (limit = 10, offset = 0): Promise<SnekMap> => {
   const query = new URLSearchParams();
   query.set('limit', String(limit));

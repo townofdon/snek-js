@@ -386,7 +386,7 @@ export function engine({
   function getMaybeTitleScene() {
       const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts, state);
       return level.showTitle
-        ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(level.name, p5, gfx, sfx, fonts, callbacks))
+        ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(level.name, level.author, p5, gfx, sfx, fonts, callbacks))
         : () => Promise.resolve();
   }
 

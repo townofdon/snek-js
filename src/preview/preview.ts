@@ -41,12 +41,25 @@ import { SFX } from '../engine/sfx';
 import { SpriteRenderer } from '../engine/spriteRenderer';
 import { Fonts } from '../fonts';
 import { WinLevelScene } from '../scenes/WinLevelScene';
+import { LoadingScene } from '../scenes/LoadingScene';
 import { NoOpUnlockedMusicStore } from '../stores/UnlockedMusicStore';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
+import { getEditorUrl } from '../editor/utils/publishUtils';
+import { GetMapByDataResponse, getMapByData } from '../api/map';
 import { getExtendedPalette } from '../palettes';
-import { LEVEL_01 } from '../levels';
+import { LEVEL_01, LEVEL_02 } from '../levels';
 
-const level = loadLevel();
+interface PreviewLevel {
+  loading: boolean,
+  current: Level,
+  nextMap: string,
+}
+const level: PreviewLevel = {
+  loading: true,
+  current: undefined,
+  nextMap: '',
+}
+loadLevel(getDataFromUrl());
 
 const settings: GameSettings = {
   musicVolume: 1,
@@ -142,6 +155,7 @@ export const sketch = (p5: P5) => {
 
   const spriteRenderer = new SpriteRenderer({ p5 });
   const winLevelScene = new WinLevelScene(p5, gfxPresentation, sfx, fonts, NoOpUnlockedMusicStore, spriteRenderer, { onSceneEnded: gotoNextLevel });
+  const loadingScene = new LoadingScene(p5, gfxPresentation, fonts);
 
   const {
     setLevel,
@@ -268,7 +282,7 @@ export const sketch = (p5: P5) => {
     if (!canvas) throw new Error('could not find canvas with id="game-canvas"');
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
     p5.frameRate(FRAMERATE);
-    setLevel(level);
+    setLevel(level.current);
     state.isPreloaded = true;
   }
 
@@ -279,6 +293,9 @@ export const sketch = (p5: P5) => {
   p5.draw = draw;
   function draw() {
     renderLoop();
+    if (level.loading) {
+      loadingScene.draw();
+    }
   }
 
   /**
@@ -337,6 +354,7 @@ export const sketch = (p5: P5) => {
   }
 
   function hideStartScreen() {
+    if (level.loading) return;
     if (!state.isPreloaded) return;
     resumeAudioContext().then(() => {
       startGame();
@@ -358,6 +376,7 @@ export const sketch = (p5: P5) => {
     musicPlayer.stopAllTracks();
     musicPlayer.setVolume(1);
     sfx.stop(Sound.invincibleLoop);
+    setLevel(level.current);
     initLevel();
     coroutines.stopAll();
     actions.stopAll();
@@ -440,26 +459,44 @@ export const sketch = (p5: P5) => {
     modal.hide();
   }
 
-  function gotoNextLevel() {
+  async function gotoNextLevel() {
     musicPlayer.stopAllTracks();
     sfx.stop(Sound.invincibleLoop);
     clearBackground();
     maybeSaveReplayStateToFile();
+
+    if (level.nextMap) {
+      await loadLevel(level.nextMap);
+      setLevel(level.current);
+    }
+
     initLevel();
   }
 }
 
-function loadLevel(): Level {
+function getDataFromUrl() {
+  const query = new URLSearchParams(window.location.search);
+  const queryData = query.get('data');
+  return queryData;
+}
+
+async function loadLevel(queryData: string): Promise<void> {
   try {
+    level.loading = true;
     const query = new URLSearchParams(window.location.search);
-    const queryData = query.get('data');
-    const disableShowTitle = query.get('disableTitle') === 'true';
+    const isEditorPreview = query.get('editorPreview') === 'true'
     if (!queryData) {
-      return LEVEL_01;
+      level.current = LEVEL_01;
+      return;
     }
+    const res: GetMapByDataResponse | null = isEditorPreview ? null : await getMapByData(queryData)
+      .catch(err => {
+        console.warn(`No map found matching data param`);
+        return null;
+      });
     const [data, options] = decodeMapData(queryData);
     const layout = buildMapLayout(data);
-    const level: Level = {
+    const loaded: Level = {
       name: options.name,
       timeToClear: options.timeToClear,
       applesToClear: options.applesToClear,
@@ -471,20 +508,35 @@ function loadLevel(): Level {
       globalLight: options.globalLight,
       snakeSpawnPointOverride: getCoordIndex(data.playerSpawnPosition),
       snakeStartDirectionOverride: data.startDirection,
-      showTitle: !disableShowTitle,
+      showTitle: !isEditorPreview,
       showQuoteOnLevelWin: false,
       musicTrack: options.musicTrack,
       layout,
       colors: getExtendedPalette(options.palette),
-      playWinSound: true,
+      playWinSound: isEditorPreview,
       portalExitConfig: options.portalExitConfig,
+      author: res?.map?.author,
     };
-    return level;
+    level.current = loaded;
+    if (!isEditorPreview) {
+      level.nextMap = res?.next?.data;
+    }
+    populateEditMapLink(queryData);
   } catch (err) {
+    level.current = LEVEL_02;
     console.error(err.message);
-    // TODO: HANDLE ERROR STATE
-    // toast.error('Unable to load map data from url');
-    return LEVEL_01;
+  } finally {
+    document.getElementById('loader')?.remove();
+    level.loading = false;
   }
 }
 
+function populateEditMapLink(queryData: string) {
+  const query = new URLSearchParams(window.location.search);
+  const data = query.get('data');
+  const url = getEditorUrl(data);
+  const button = document.getElementById('buttonEditMap');
+  button.setAttribute('href', url);
+  button.setAttribute('target', '_blank');
+  button.classList.remove('hidden');
+}

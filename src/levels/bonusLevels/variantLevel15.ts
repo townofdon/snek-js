@@ -1,6 +1,5 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../../types";
 import { TUTORIAL_LEVEL_40 } from "../tutorialLevel40";
 import { LEVEL_15 } from "../level15";

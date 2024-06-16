@@ -1,5 +1,4 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { TitleScene } from "../../scenes/TitleScene";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { getCoordIndex2 } from "../../utils";
 import { LEVEL_01_HARD } from "../level01hard";

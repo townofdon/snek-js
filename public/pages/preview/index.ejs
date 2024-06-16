@@ -67,7 +67,7 @@
   <a href="<%= htmlWebpackPlugin.files.publicPath %>community" class="button minimood allMapsButton">
     <span>&lt;- All Maps</span>
   </a>
-  <a id="buttonEditMap" href="#" class="button minimood editMapButton">
+  <a id="buttonEditMap" href="#" class="button minimood editMapButton hidden">
     <span>Edit Map</span>
   </a>
   <div class="center stretch">
@@ -151,7 +151,10 @@
         </form>
       </div>
 
-      <div id="loader" class="loader-container hidden"><span class="loader"></span></div>
+      <div id="loader" class="loader-container">
+        <span class="minimood" style="margin-bottom: 10px;">loading</span>
+        <span class="loader"></span>
+      </div>
     </main>
   </div>
 </body>

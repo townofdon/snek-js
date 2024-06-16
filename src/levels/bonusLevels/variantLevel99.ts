@@ -1,5 +1,4 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { TitleScene } from "../../scenes/TitleScene";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
 import { LEVEL_WIN_GAME } from "../winGame";
 
