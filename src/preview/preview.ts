@@ -477,7 +477,7 @@ export const sketch = (p5: P5) => {
 function getDataFromUrl() {
   const query = new URLSearchParams(window.location.search);
   const queryData = query.get('data');
-  return queryData;
+  return encodeURIComponent(queryData);
 }
 
 async function loadLevel(queryData: string): Promise<void> {
@@ -531,9 +531,7 @@ async function loadLevel(queryData: string): Promise<void> {
   }
 }
 
-function populateEditMapLink(queryData: string) {
-  const query = new URLSearchParams(window.location.search);
-  const data = query.get('data');
+function populateEditMapLink(data: string) {
   const url = getEditorUrl(data);
   const button = document.getElementById('buttonEditMap');
   button.setAttribute('href', url);

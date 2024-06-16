@@ -15,7 +15,7 @@ import { indexToMusicTrack, musicTracktoIndex } from './musicTrackUtils';
 const MASK_BASE_64 = true;
 
 export function encode(layout: string): string {
-  return encodeURIComponent(Buffer.from(JSONCrush.crush(layout)).toString('base64'));
+  return encodeURI(encodeURIComponent(Buffer.from(JSONCrush.crush(layout)).toString('base64')));
 }
 
 export function decode(encoded: string): string {

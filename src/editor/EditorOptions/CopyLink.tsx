@@ -11,7 +11,7 @@ import { FieldLabel } from "../components/Field";
 export const CopyLink = () => {
   const input = useRef<HTMLInputElement>();
   const query = new URLSearchParams(window.location.search);
-  const data = query.get("data");
+  const data = encodeURIComponent(query.get("data"));
   const url = getPreviewUrl(data);
 
   const copyText = () => {
