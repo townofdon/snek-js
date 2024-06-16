@@ -46,6 +46,7 @@ button,
 }
 
 .layout {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -296,6 +297,7 @@ button,
 }
 
 .editorTools {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -656,4 +658,26 @@ button,
 .toastRedo {
   background: #000!important;
   color: #7ad9cd!important;
+}
+
+button.allMapsButton,
+a:global(.button).allMapsButton {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  font-size: 1em;
+  padding: 10px 20px;
+  background: #292b2d;
+
+  & > span {
+    display: inline-block;
+    transform: translateY(4px);
+  }
+
+  &:hover {
+    background: #556772;
+    /* background: #babebf;
+    color: #46657a; */
+    background: #455863;
+  }
 }

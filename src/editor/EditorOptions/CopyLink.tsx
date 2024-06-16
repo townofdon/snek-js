@@ -24,7 +24,7 @@ export const CopyLink = () => {
 
   return (
     <Stack row align="center" justify="spaceBetween">
-      <FieldLabel text="Map Url" fullWidth style={{ marginRight: 0 }}>
+      <FieldLabel text="Playable Map Url" fullWidth style={{ marginRight: 0 }}>
         <input
           ref={input}
           type="text"

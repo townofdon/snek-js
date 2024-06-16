@@ -558,6 +558,10 @@ export const Editor = () => {
 
   return (
     <div className={cx(styles.layout)}>
+      <a href="/" className={cx("button minimood", styles.allMapsButton)}>
+        <span>&lt;- All Maps</span>
+      </a>
+      {/* <button className={cx("minimood", styles.allMapsButton)}>&lt;- All Maps</button> */}
       <div className={styles.container}>
         <Stack row>
           <h1

@@ -10,6 +10,10 @@ export const getPreviewUrl = (data: string) => {
   return `${window.location.origin}/snek-js/preview/?data=${data}`;
 }
 
+export const getEditorUrl = (data: string) => {
+  return `${window.location.origin}/snek-js/editor/?data=${data}`;
+}
+
 export const getCanvasImage = async (canvas: HTMLCanvasElement): Promise<File> => {
   const dataUrl = canvas.toDataURL('image/png');
   const blob = await (await fetch(dataUrl)).blob();

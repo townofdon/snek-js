@@ -246,8 +246,11 @@ button,
   font-family: BIOSfontII, monospace;
   font-size: 1em;
   cursor: pointer;
+  text-decoration: none;
 }
-button.minimood {
+button.minimood,
+.button.minimood {
+  font-family: 'MiniMOOD', 'VT323', monospace;
   padding-bottom: 0;
   padding-top: 6px;
   font-size: 12px;

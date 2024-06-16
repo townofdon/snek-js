@@ -20,7 +20,7 @@ export const MapPreview = ({ data, options, isPreviewShowing, setPreviewShowing 
   const url = useMemo(() => {
     if (!isPreviewShowing) return '';
     const encoded = encodeMapData(data, options);
-    return `/snek-js/preview/?disableFullscreen=true&data=${encoded}`;
+    return `/snek-js/preview/?disableFullscreen=true&disableTitle=true&data=${encoded}`;
   }, [data, options, isPreviewShowing]);
 
   useEffect(() => {

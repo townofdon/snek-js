@@ -2,9 +2,10 @@ import React from "react";
 import cx from 'classnames';
 import toast from "react-hot-toast";
 
-import { EditorTool } from "./editorSketch";
 import { ClearAllCommand, Command } from "./commands";
 import { EditorData } from "../types";
+import { EditorTool } from "./editorSketch";
+import { NavToggle } from "./Navigation/NavToggle";
 
 import * as styles from "./Editor.css";
 
@@ -93,6 +94,7 @@ export const EditorTools = ({
   };
   return (
     <div className={styles.editorTools}>
+      <NavToggle />
       <h1 className={styles.editorTitle}>
         SNEK
         <br />

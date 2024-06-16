@@ -134,7 +134,7 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
         <Stack col align="center" marginTop>
           <Stack row align="center" className={styles.socialContainer}>
             <h2 className={styles.shareHeading}>
-              <span>Share</span>
+              <span>Share!</span>
             </h2>
             <FacebookShareButton url={getShareUrl(mapId)} className={styles.socialButton} style={{ margin: 0 }}>
               <img src={getGraphicsDir('editor-social-icon-fb.png')} width={48} height={48} />

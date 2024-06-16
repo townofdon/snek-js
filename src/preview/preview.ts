@@ -11,7 +11,6 @@ import {
 } from '../constants';
 import {
   getCoordIndex,
-  parseUrlQueryParams,
 } from '../utils';
 import {
   HitType,
@@ -154,7 +153,6 @@ export const sketch = (p5: P5) => {
     startMoving,
     startRewinding,
     startLogicLoop,
-    getIsStartLevel,
     clearBackground,
     changeMusicLowpass,
     playSound,
@@ -455,6 +453,7 @@ function loadLevel(): Level {
   try {
     const query = new URLSearchParams(window.location.search);
     const queryData = query.get('data');
+    const disableShowTitle = query.get('disableTitle') === 'true';
     if (!queryData) {
       return LEVEL_01;
     }
@@ -472,7 +471,7 @@ function loadLevel(): Level {
       globalLight: options.globalLight,
       snakeSpawnPointOverride: getCoordIndex(data.playerSpawnPosition),
       snakeStartDirectionOverride: data.startDirection,
-      showTitle: false,
+      showTitle: !disableShowTitle,
       showQuoteOnLevelWin: false,
       musicTrack: options.musicTrack,
       layout,
