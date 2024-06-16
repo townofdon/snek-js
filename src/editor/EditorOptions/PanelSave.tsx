@@ -133,20 +133,27 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
       <Stack marginBottom row align="center" justify="spaceBetween">
         <PublishButton loading={loading} hasMapId={!!mapId} onPublish={handlePublish} />
       </Stack>
-      <Stack marginBottom>
+      <Stack>
         <PreviewShareDialog
           publishCanvas={(
-            <canvas ref={publishCanvas} width={1200} height={630} style={{
-              width: isPreviewShowing ? 900 : 370,
-              height: isPreviewShowing ? 472.5 : 'auto',
-            }} />
+            <canvas
+              ref={publishCanvas}
+              width={1200}
+              height={630}
+              onClick={() => !isPreviewShowing && setPreviewShowing(true)}
+              style={{
+                width: isPreviewShowing ? 900 : 356,
+                height: isPreviewShowing ? 472.5 : 'auto',
+                cursor: isPreviewShowing ? 'initial' : 'pointer',
+              }}
+            />
           )}
           isShowing={isPreviewShowing}
           setShowing={setPreviewShowing}
         />
       </Stack>
       {mapId ? (
-        <Stack col align="center">
+        <Stack col align="center" marginTop>
           <Stack row align="center" className={styles.socialContainer}>
             <h2 className={styles.shareHeading}>
               <span>Share</span>

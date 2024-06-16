@@ -8,8 +8,16 @@
   align-items: center;
   justify-content: center;
 
+  &.noChildMargin {
+    --stack-margin: 0px;
+  }
+
   &.marginBottom {
     margin-bottom: 20px;
+  }
+
+  &.marginTop {
+    margin-top: 20px;
   }
 
   &.row {

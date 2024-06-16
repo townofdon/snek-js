@@ -6,6 +6,7 @@ import { getPreviewUrl } from "../utils/publishUtils";
 import { getGraphicsDir } from "../../utils";
 
 import * as fieldStyles from "../components/Field/field.css";
+import { FieldLabel } from "../components/Field";
 
 export const CopyLink = () => {
   const input = useRef<HTMLInputElement>();
@@ -23,45 +24,49 @@ export const CopyLink = () => {
 
   return (
     <Stack row align="center" justify="spaceBetween">
-      <input
-        ref={input}
-        type="text"
-        value={url}
-        className={fieldStyles.input}
-        style={{
-          width: "100%",
-          padding: 8,
-          transform: "translateY(2px)",
-          marginRight: 0,
-          background: "#000",
-          color: "#eee",
-        }}
-        readOnly
-      />
-      <button onClick={copyText}>Copy</button>
-      <a
-        href={url}
-        target="_blank"
-        rel="nofollow"
-        title="Goto map preview link"
-        className="button"
-        style={{
-          display: "inline-flex",
-          padding: 4,
-          marginLeft: 0,
-        }}
-      >
-        <img
-          alt="Goto map preview link"
-          src={getGraphicsDir("editor-publish-external-link.png")}
-          width={32}
-          height={32}
+      <FieldLabel text="Map Url" fullWidth style={{ marginRight: 0 }}>
+        <input
+          ref={input}
+          type="text"
+          value={url}
+          className={fieldStyles.input}
           style={{
-            height: 19,
-            width: "auto",
+            width: "100%",
+            padding: 8,
+            transform: "translateY(2px)",
+            marginRight: 0,
+            background: "#000",
+            color: "#eee",
           }}
+          readOnly
         />
-      </a>
+      </FieldLabel>
+      <Stack row align="center" style={{ marginTop: 17 }}>
+        <button onClick={copyText}>Copy</button>
+        <a
+          href={url}
+          target="_blank"
+          rel="nofollow"
+          title="Goto map preview link"
+          className="button"
+          style={{
+            display: "inline-flex",
+            padding: 4,
+            marginLeft: 0,
+          }}
+        >
+          <img
+            alt="Goto map preview link"
+            src={getGraphicsDir("editor-publish-external-link.png")}
+            width={32}
+            height={32}
+            style={{
+              height: 19,
+              width: "auto",
+            }}
+          />
+        </a>
+      </Stack>
     </Stack>
   );
 };
