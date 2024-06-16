@@ -77,6 +77,7 @@ enum MouseButton {
 export const Editor = () => {
   const canvas = useRef<HTMLCanvasElement>(null);
   const optionsContainerRef = useRef<HTMLDivElement>(null);
+  const [mapId, setMapId] = useState('');
   const [initialized, setInitialized] = useState(false);
   const [isPreviewShowing, setPreviewShowing] = useState(false);
   const [options, optionsRef, setOptions] = useRefState<EditorOptions>(EDITOR_DEFAULTS.options)
@@ -622,10 +623,12 @@ export const Editor = () => {
         <EditorOptionsPanel
           isPreviewShowing={isPreviewShowing}
           canvas={canvas}
+          mapId={mapId}
           data={data}
           options={options}
           optionsRef={optionsRef}
           optionsContainerRef={optionsContainerRef}
+          setMapId={setMapId}
           setData={setData}
           setOptions={setOptions}
           executeCommand={executeCommand}
@@ -644,11 +647,20 @@ export const Editor = () => {
         toastOptions={{
           className: styles.toast,
           success: {
+            duration: 5000,
             className: styles.toastSuccess,
+            iconTheme: {
+              primary: "#111",
+              secondary: "#7ad9cd",
+            },
           },
           error: {
-            className: styles.toastError,
             duration: 10000,
+            className: styles.toastError,
+            iconTheme: {
+              primary: "#111",
+              secondary: "#f2805d",
+            },
           },
         }}
       />

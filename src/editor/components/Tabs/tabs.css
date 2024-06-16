@@ -12,6 +12,11 @@
   background: var(--tab-inactive);
   color: #aaa;
 
+  &:hover {
+    background: var(--tab-panel-bg);
+    color: white;
+    filter: none;
+  }
   &.active {
     padding-top: 10px;
     background: cyan;

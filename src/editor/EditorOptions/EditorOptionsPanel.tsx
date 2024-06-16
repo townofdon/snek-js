@@ -21,10 +21,12 @@ import * as styles from './EditorOptions.css';
 interface EditorOptionsPanelProps {
   isPreviewShowing: boolean;
   canvas: React.MutableRefObject<HTMLCanvasElement>;
+  mapId: string;
   data: EditorData;
   options: EditorOptions;
   optionsRef: React.MutableRefObject<EditorOptions>;
   optionsContainerRef: React.MutableRefObject<HTMLDivElement>;
+  setMapId: (val: string) => void;
   setData: (data: EditorData) => void;
   setOptions: (value: SetStateValue<EditorOptions>) => void;
   executeCommand: (command: Command) => void;
@@ -35,10 +37,12 @@ interface EditorOptionsPanelProps {
 export const EditorOptionsPanel = ({
   isPreviewShowing,
   canvas,
+  mapId,
   data,
   options,
   optionsRef,
   optionsContainerRef,
+  setMapId,
   setData,
   setOptions,
   executeCommand,
@@ -76,7 +80,7 @@ export const EditorOptionsPanel = ({
           <PanelColors options={options} setPalette={setPalette} undo={undo} redo={redo} />
         </TabPanel>
         <TabPanel id={OptionsTab.Save}>
-          <PanelSave canvas={canvas} data={data} options={options} undo={undo} redo={redo} />
+          <PanelSave canvas={canvas} mapId={mapId} setMapId={setMapId} data={data} options={options} undo={undo} redo={redo} />
         </TabPanel>
       </Tabs>
     </div>

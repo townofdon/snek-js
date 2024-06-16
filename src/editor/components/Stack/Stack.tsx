@@ -22,17 +22,18 @@ enum Justify {
 }
 
 interface StackProps {
-  children?: React.ReactNode;
   align?: keyof typeof Align;
   justify?: keyof typeof Justify;
-  row?: boolean
-  col?: boolean
-  marginBottom?: boolean
+  row?: boolean;
+  col?: boolean;
+  marginBottom?: boolean;
+  className?: string;
+  children?: React.ReactNode;
 }
 
-export const Stack = ({ row, col, align = 'center', justify = 'start', marginBottom, children }: StackProps) => {
+export const Stack = ({ row, col, align = 'center', justify = 'start', marginBottom, className, children }: StackProps) => {
   return (
-    <div className={cx(styles.stack, {
+    <div className={cx(styles.stack, className, {
       [styles.row]: row || (!row && !col),
       [styles.col]: col,
       [styles.alignStart]: align === Align.start,

@@ -141,6 +141,7 @@ import { UI } from '../ui/ui';
 import { buildSceneActionFactory } from '../scenes/sceneUtils';
 import { TitleScene } from '../scenes/TitleScene';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
+import { resumeAudioContext } from './audio';
 
 interface EngineParams {
   p5: P5,
@@ -505,7 +506,9 @@ export function engine({
           renderLevelName();
           UI.showGfxCanvas();
           musicPlayer.stopAllTracks();
-          musicPlayer.play(level.musicTrack);
+          resumeAudioContext().then(() => {
+            musicPlayer.play(level.musicTrack);
+          })
           startLogicLoop();
         })
     } else {

@@ -19,7 +19,6 @@ import {
   IEnumerator,
   Sound,
   Stats,
-  MusicTrack,
   GameSettings,
   AppMode,
   Tutorial,
@@ -48,7 +47,6 @@ import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 import { getExtendedPalette } from '../palettes';
 import { LEVEL_01 } from '../levels';
 
-const queryParams = parseUrlQueryParams();
 const level = loadLevel();
 
 const settings: GameSettings = {
@@ -342,9 +340,11 @@ export const sketch = (p5: P5) => {
 
   function hideStartScreen() {
     if (!state.isPreloaded) return;
-    startGame();
-    UI.hideStartScreen();
-    sfx.play(Sound.doorOpen);
+    resumeAudioContext().then(() => {
+      startGame();
+      UI.hideStartScreen();
+      sfx.play(Sound.doorOpen);
+    });
   }
 
   function startGame() {

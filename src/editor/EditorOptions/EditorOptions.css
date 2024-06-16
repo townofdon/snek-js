@@ -103,13 +103,17 @@ textarea {
   align-items: center;
   width: 100%;
   padding: 10px 30px;
-  margin-top: 20px;
   font-family: 'MiniMOOD';
   font-size: 1.4em;
+  min-height: 52px;
 
   & > span {
     display: inline-block;
     transform: translateY(5px);
+  }
+
+  &.loading > span {
+    opacity: 0.8;
   }
 
   & > img {
@@ -119,14 +123,79 @@ textarea {
   &:hover {
     filter: brightness(1.1) contrast(1.2);
   }
+
+  & .loader,
+  & :global(.loader) {
+    transform: none;
+    margin: 0;
+    opacity: 1!important;
+  }
 }
 
 .publishMapButton {
   background: #E1AA51;
   color: #3e464c;
+  text-shadow: -1px 3px 0px #00000054;
 }
 
 .updateMapButton {
   background: #5d8bb3;
   color: #3e464c;
+  text-shadow: -1px 3px 0px #00000054;
+}
+
+.sharePreviewContainer {
+  position: relative;
+}
+
+.sharePreviewButton {
+  display: inline-flex;
+  position: absolute;
+  bottom: 14px;
+  right: 7px;
+  padding: 0;
+  margin: 0;
+}
+
+.shareHeading {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0!important;
+  margin: 0;
+  font-family: 'MiniMOOD', 'VT323', monospace;
+  font-size: 1.5em;
+  color: #c6dbde;
+  text-shadow: -1px 4px 1px black;
+
+  & > span {
+    transform: translateY(6px);
+    margin-right: 20px;
+  }
+}
+
+.socialContainer {
+  display: inline-flex;
+  padding: 12px 40px;
+  border-radius: 4px;
+  background: #3c4952;
+}
+
+.socialButton {
+  display: inline-flex;
+  box-shadow: none;
+}
+
+.socialEmptyMessage {
+  display: flex;
+  align-items: center;
+  font-style: italic;
+  color: #838e9a;
+
+  & > span {
+    margin-right: 20px;
+  }
+
+  & > img {
+    filter: brightness(0.4) saturate(0.3);
+  }
 }

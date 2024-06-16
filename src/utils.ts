@@ -315,8 +315,8 @@ export const getRelativeDir = () => {
   return rootPath ? `/${rootPath}/` : '/';
 }
 
-export const getGraphicsDir = () => {
-  return `${getRelativeDir()}/assets/graphics`;;
+export const getGraphicsDir = (appendPath = '') => {
+  return `${getRelativeDir()}/assets/graphics/${appendPath}`;;
 }
 
 export const isValidPortalChannel = (portalChannel: number): portalChannel is PortalChannel => {

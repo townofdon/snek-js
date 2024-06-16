@@ -38,9 +38,9 @@ export const MapPreview = ({ data, options, isPreviewShowing, setPreviewShowing 
   if (!isPreviewShowing) return null;
 
   return (
-    <div className={styles.mapPreviewOverlay}>
+    <div className={styles.mapPreviewOverlay} onClick={() => setPreviewShowing(false)}>
       <div className={styles.mapPreviewLayout}>
-        <div className={styles.mapPreviewContainer}>
+        <div className={styles.mapPreviewContainer} onClick={(ev) => { ev.stopPropagation(); }}>
           <button title="Close" className={styles.closeButton} onClick={() => setPreviewShowing(false)}>x</button>
           <iframe
             ref={iframeRef}

@@ -2,11 +2,44 @@ import Color from "color";
 import { getRelativeDir } from "../../utils";
 import { Palette } from "../../types";
 
+export const getShareUrl = (mapId: string) => {
+  return `https://dontownsendcreative.com/snek-leaderboard/map/${mapId}/share`
+}
+
+export const getPreviewUrl = (data: string) => {
+  return `${window.location.origin}/snek-js/preview/?data=${data}`;
+}
+
 export const getCanvasImage = async (canvas: HTMLCanvasElement): Promise<File> => {
   const dataUrl = canvas.toDataURL('image/png');
   const blob = await (await fetch(dataUrl)).blob();
   return new File([blob], `map-${Date.now()}.png`, { type: blob.type });
 };
+
+export async function drawShareImage(ctx: CanvasRenderingContext2D, mapWidth: number, mapHeight: number, colors: Palette, mapImageDataUrl: string, mapName: string, author?: string) {
+  const template = await loadImage('editor-share-template.png');
+  const mapImage = await loadImage(mapImageDataUrl);
+  await loadFont('RetroGaming', 'RetroGaming.ttf');
+  await loadFont('MiniMOOD', 'MiniMOOD.ttf');
+
+  const shadow = '#405578';
+  const titleColor = colors.playerHead;
+  const authorColor = colors.apple;
+
+  ctx.fillStyle = Color(colors.background).darken(0.2).desaturate(0.15).hex();
+  ctx.fillRect(0, 0, 1200, 630);
+  ctx.fillStyle = colors.background;
+  ctx.fillRect(0, 15, 1200, 600);
+  ctx.drawImage(template, 0, 0, 600, 600, 0, 15, 600, 600);
+  ctx.drawImage(mapImage, 0, 0, mapWidth, mapHeight, 600, 15, 600, 600);
+
+  const y = drawText(ctx, mapName, 300, 375, { fill: titleColor, fontSize: 36, shadow: { x: 0, y: 4, color: shadow, fontSizeAdd: -0.5 } });
+
+  if (author?.trim()) {
+    drawText(ctx, `map by`, 300, y + 100, { fill: '#ddd', fontSize: 12, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.1667 } });
+    drawText(ctx, author, 300, y + 120, { fill: authorColor, fontSize: 12, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.1667 } });
+  }
+}
 
 export async function loadImage(path: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
@@ -40,31 +73,6 @@ export async function loadFont(name: string, path: string): Promise<void> {
   const font = new FontFace(name, `url(${url})`);
   const loaded = await (font.load());
   document.fonts.add(loaded);
-}
-
-export async function drawShareImage(ctx: CanvasRenderingContext2D, colors: Palette, mapImageDataUrl: string, mapName: string, author?: string) {
-  const template = await loadImage('editor-share-template.png');
-  const mapImage = await loadImage(mapImageDataUrl);
-  await loadFont('RetroGaming', 'RetroGaming.ttf');
-  await loadFont('MiniMOOD', 'MiniMOOD.ttf');
-
-  const shadow = '#405578';
-  const titleColor = colors.playerHead;
-  const authorColor = colors.apple;
-
-  ctx.fillStyle = Color(colors.background).darken(0.2).desaturate(0.15).hex();
-  ctx.fillRect(0, 0, 1200, 630);
-  ctx.fillStyle = colors.background;
-  ctx.fillRect(0, 15, 1200, 600);
-  ctx.drawImage(template, 0, 0, 600, 600, 0, 15, 600, 600);
-  ctx.drawImage(mapImage, 0, 0, 600, 600, 600, 15, 600, 600);
-
-  const y = drawText(ctx, mapName, 300, 375, { fill: titleColor, fontSize: 36, shadow: { x: 0, y: 4, color: shadow, fontSizeAdd: -0.5 } });
-
-  if (author) {
-    drawText(ctx, `map by`, 300, y + 100, { fill: '#ddd', fontSize: 12, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.1667 } });
-    drawText(ctx, author, 300, y + 120, { fill: authorColor, fontSize: 12, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.1667 } });
-  }
 }
 
 interface DrawTextOptions {

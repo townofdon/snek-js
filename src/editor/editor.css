@@ -26,10 +26,13 @@ canvas {
   font-family: 'MiniMOOD', 'VT323', monospace;
 }
 
-button:focus:before {
+button:focus:before,
+:global(.button):focus:before {
   display: none;
 }
-button {
+
+button,
+:global(.button) {
   border-width: 0px;
   background: var(--button-bg);
 
@@ -482,6 +485,7 @@ button {
   margin-left: 40px;
 }
 
+.modalOverlay,
 .mapPreviewOverlay {
   display: block;
   position: fixed;
@@ -493,6 +497,7 @@ button {
   z-index: 1000;
 }
 
+.modalLayout,
 .mapPreviewLayout {
   display: flex;
   width: 100%;
@@ -501,18 +506,15 @@ button {
   justify-content: center;
 }
 
+.modalContainer,
 .mapPreviewContainer {
   position: relative;
   display: flex;
-  width: 1200px;
-  height: 1200px;
   padding: 2px;
   background: black;
   border: 2px solid #ccc;
   border-radius: 4px;
   box-shadow: -2px 2px 4px 2px black;
-  transform: scale(0.5);
-  transform-origin: center center;
 
   & .closeButton {
     position: absolute;
@@ -523,6 +525,21 @@ button {
     height: 20px;
     padding: 3px;
     box-sizing: content-box;
+  }
+}
+
+.modalContainer {
+  overflow-y: auto;
+  max-height: 100vh;
+}
+
+.mapPreviewContainer {
+  width: 1200px;
+  height: 1200px;
+  transform: scale(0.5);
+  transform-origin: center center;
+
+  & .closeButton {
     transform: scale(2);
     transform-origin: top right;
   }
@@ -584,6 +601,34 @@ button {
 66% { background-size: 5px 40px, 5px 40px, 5px 40px, 5px 55px, 5px 40px, 5px 40px}
 83% { background-size: 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 55px, 5px 40px}
 100% { background-size: 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 40px, 5px 55px}
+}
+
+.loader30 {
+  --lg0: 15px;
+  --lg1: 25px;
+  --lg2: 30px;
+  position: relative;
+  width: 55px;
+  height: var(--lg2);
+  background-repeat: no-repeat;
+  background-image: linear-gradient(#FFF var(--lg1), transparent 0),
+                    linear-gradient(#FFF var(--lg1), transparent 0),
+                    linear-gradient(#FFF var(--lg1), transparent 0),
+                    linear-gradient(#FFF var(--lg1), transparent 0),
+                    linear-gradient(#FFF var(--lg1), transparent 0),
+                    linear-gradient(#FFF var(--lg1), transparent 0);
+  background-size: 5px var(--lg0);
+  background-position: 0px center, 10px center, 20px center, 30px center, 40px center, 50px center;
+  animation: loaderSpikeUp 1s linear infinite alternate;
+}
+@keyframes loaderSpikeUp {
+0% { background-size: 5px var(--lg0)}
+16% { background-size: 5px var(--lg2), 5px var(--lg0), 5px var(--lg0), 5px var(--lg0), 5px var(--lg0), 5px var(--lg0)}
+33% { background-size: 5px var(--lg0), 5px var(--lg2), 5px var(--lg0), 5px var(--lg0), 5px var(--lg0), 5px var(--lg0)}
+50% { background-size: 5px var(--lg0), 5px var(--lg0), 5px var(--lg2), 5px var(--lg0), 5px var(--lg0), 5px var(--lg0)}
+66% { background-size: 5px var(--lg0), 5px var(--lg0), 5px var(--lg0), 5px var(--lg2), 5px var(--lg0), 5px var(--lg0)}
+83% { background-size: 5px var(--lg0), 5px var(--lg0), 5px var(--lg0), 5px var(--lg0), 5px var(--lg2), 5px var(--lg0)}
+100% { background-size: 5px var(--lg0), 5px var(--lg0), 5px var(--lg0), 5px var(--lg0), 5px var(--lg0), 5px var(--lg2)}
 }
 
 
