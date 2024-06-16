@@ -47,7 +47,7 @@ export const CopyLink = () => {
           href={url}
           target="_blank"
           rel="nofollow"
-          title="Goto map preview link"
+          title="Open in new tab"
           className="button"
           style={{
             display: "inline-flex",
@@ -56,7 +56,7 @@ export const CopyLink = () => {
           }}
         >
           <img
-            alt="Goto map preview link"
+            alt="Open in new tab"
             src={getGraphicsDir("editor-publish-external-link.png")}
             width={32}
             height={32}

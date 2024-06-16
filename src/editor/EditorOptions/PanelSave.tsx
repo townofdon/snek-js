@@ -13,9 +13,9 @@ import { Stack } from "../components/Stack";
 import { Field } from "../components/Field";
 import { PreviewShareDialog } from "./PreviewShareDialog";
 import { PublishButton } from "./PublishButton";
+import { CopyLink } from "./CopyLink";
 
 import * as styles from './EditorOptions.css';
-import { CopyLink } from "./CopyLink";
 
 interface PanelSaveProps {
   canvas: React.MutableRefObject<HTMLCanvasElement>;
@@ -108,7 +108,6 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
       <hr />
       <CopyLink />
       <hr />
-      {/* <p className="minimood center">SNEK COMMUNITY</p> */}
       <Stack marginBottom row align="center" justify="spaceBetween">
         <PublishButton loading={loading} hasMapId={!!mapId} onPublish={handlePublish} />
       </Stack>
@@ -137,7 +136,7 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
             <h2 className={styles.shareHeading}>
               <span>Share</span>
             </h2>
-            <FacebookShareButton url={getShareUrl(mapId)} className={styles.socialButton}>
+            <FacebookShareButton url={getShareUrl(mapId)} className={styles.socialButton} style={{ margin: 0 }}>
               <img src={getGraphicsDir('editor-social-icon-fb.png')} width={48} height={48} />
             </FacebookShareButton>
             <TwitterShareButton url={getShareUrl(mapId)} className={styles.socialButton}>

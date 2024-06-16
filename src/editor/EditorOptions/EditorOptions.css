@@ -163,21 +163,22 @@ textarea {
   margin-bottom: 0!important;
   margin: 0;
   font-family: 'MiniMOOD', 'VT323', monospace;
-  font-size: 1.5em;
+  font-size: 1.3em;
   color: #c6dbde;
   text-shadow: -1px 4px 1px black;
 
   & > span {
     transform: translateY(6px);
-    margin-right: 20px;
+    margin-right: 10px;
   }
 }
 
 .socialContainer {
   display: inline-flex;
-  padding: 12px 40px;
+  padding: 12px 30px;
   border-radius: 4px;
   background: #3c4952;
+  background: #2e3941;
 }
 
 .socialButton {
