@@ -40,9 +40,9 @@ interface PublishMapResponse {
   supameta: SupabaseMeta,
 }
 
-export const publishMap = (name: string, author: string, mapData: string, options: ApiOptions): Promise<PublishMapResponse> => {
+export const publishMap = (mapId: string | undefined, name: string, author: string, mapData: string, options: ApiOptions): Promise<PublishMapResponse> => {
   const url = `${MAP_HOST}/map`;
-  const body = { name, author, mapData };
+  const body = { mapId, name, author, mapData };
   return Api.post(url, body, options);
 }
 

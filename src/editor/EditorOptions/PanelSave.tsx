@@ -74,38 +74,17 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
   }
 
   const handlePublish = async () => {
-    if (mapId) {
-      handleUpdate();
-      return;
-    }
     try {
-      setLoading(true);
       if (!canvas.current) throw new Error('canvas not set');
+      setLoading(true);
+      const isUpdate = !!mapId;
       const [encoded, file, xsrfToken] = await getSaveData();
-      const res = await publishMap(options.name, author, encoded, { xsrfToken });
+      const res = await publishMap(mapId, options.name, author, encoded, { xsrfToken });
       await uploadMapImage(file, res.supameta, res.upload);
       setMapId(res.id);
-      toast.success('Successfully published map');
+      toast.success(isUpdate ? 'Successfully updated map' : 'Successfully published map');
     } catch (err) {
       toast.error('Unable to publish map');
-      console.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const handleUpdate = async () => {
-    try {
-      setLoading(true);
-      if (!canvas.current) throw new Error('canvas not set');
-      const [encoded, file, xsrfToken] = await getSaveData();
-      // const res = await publishMap(options.name, author, encoded, { xsrfToken });
-      // setMapId(res.id);
-      // await uploadMapImage(file, res.supameta, res.upload);
-      // editorStore.setAuthor(author);
-      toast.success('Successfully updated map');
-    } catch (err) {
-      toast.error('Unable to update map');
       console.error(err.message);
     } finally {
       setLoading(false);
