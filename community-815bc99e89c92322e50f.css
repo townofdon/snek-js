@@ -143,9 +143,13 @@ a:hover {
 }
 
 .searchField--ZcV0FiPQpnM5CgGu6aSC {
-  padding: 0 30px;
   box-sizing: border-box;
   max-width: 100%;
+}
+@media (max-width: 899px) {
+  .searchField--ZcV0FiPQpnM5CgGu6aSC {
+    padding: 0 30px;
+  }
 }
 
 .searchMapInput--_ZCLjTAd7EKzoPyhKh_5 {
