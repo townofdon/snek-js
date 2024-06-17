@@ -437,3 +437,33 @@ export function getBestPortalExitDirection({
       return newDir;
   }
 }
+
+export function preloadImage(url: string)
+{
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const onLoad = () => {
+      cleanup();
+      resolve(image);
+    }
+    const onError = (err: ErrorEvent) => {
+      cleanup();
+      reject(err);
+    }
+    const cleanup = () => {
+      image.removeEventListener("load", onLoad);
+      image.removeEventListener("error", onError)
+    }
+    image.addEventListener("load", onLoad);
+    image.addEventListener("error", onError)
+    image.src = url;
+  });
+}
+
+export function wait(duration: number) {
+  return new Promise<void>((resolve, reject) => {
+    setTimeout(() => {
+      resolve();
+    }, duration);
+  })
+}

@@ -12,6 +12,8 @@ import {
 } from '../constants';
 import {
   getCoordIndex,
+  preloadImage,
+  wait,
 } from '../utils';
 import {
   HitType,
@@ -575,32 +577,3 @@ function updateStartScreenImage(imgUrl: string | undefined, colors: Palette) {
   splash.style.backgroundColor = backgroundColor;
 }
 
-function preloadImage(url: string)
-{
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    const onLoad = () => {
-      cleanup();
-      resolve(image);
-    }
-    const onError = (err: ErrorEvent) => {
-      cleanup();
-      reject(err);
-    }
-    const cleanup = () => {
-      image.removeEventListener("load", onLoad);
-      image.removeEventListener("error", onError)
-    }
-    image.addEventListener("load", onLoad);
-    image.addEventListener("error", onError)
-    image.src = url;
-  });
-}
-
-function wait(duration: number) {
-  return new Promise<void>((resolve, reject) => {
-    setTimeout(() => {
-      resolve();
-    }, duration);
-  })
-}

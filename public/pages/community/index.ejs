@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" type="text/css" href="../style.css">
+  <link rel="stylesheet" type="text/css" href="../assets/css/hamburgers.css">
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SNEK COMMUNITY MAPS</title>
+
+  <%= htmlWebpackPlugin
+    .tags
+    .headTags
+    .filter((tag) => tag.attributes?.src?.includes('community.bundle') || /\.css$/.test(tag.attributes?.href) || tag.tagName === 'link' || tag.tagName === 'style')
+    .join('')
+  %>
+</head>
+<body>
+  <div id="app"></div>
+  <noscript>
+    JavaScript is required to run this application
+  </noscript>
+</body>
+</html>

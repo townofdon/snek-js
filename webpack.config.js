@@ -17,6 +17,7 @@ const config = {
     main: './src/index.ts',
     editor: './src/editor/index',
     preview: './src/preview/index',
+    community: './src/community/index',
   },
   output: {
     filename: '[name].bundle-[contenthash].js',
@@ -53,6 +54,12 @@ const config = {
       title: 'SNEK LEVEL PREVIEW',
       filename: 'preview/index.html',
       template: './public/pages/preview/index.ejs',
+      inject: false,
+    }),
+    new HtmlWebpackPlugin({
+      title: 'SNEK COMMUNITY',
+      filename: 'community/index.html',
+      template: './public/pages/community/index.ejs',
       inject: false,
     }),
     new HtmlWebpackPlugin({
