@@ -75,10 +75,14 @@ export const getMapByData = (data: string): Promise<GetMapByDataResponse> => {
   return Api.get(url);
 }
 
-export const listMap = (limit = 10, offset = 0): Promise<SnekMap> => {
-  const query = new URLSearchParams();
-  query.set('limit', String(limit));
-  query.set('offset', String(offset));
-  const url = `${MAP_HOST}/map/?${query.toString()}`;
+interface ListMapResponse {
+  data: SnekMap[]
+  meta: {
+    numResults: number;
+    totalItems: number;
+  }
+}
+export const listMap = ({ limit = 10, offset = 0, search = '' }): Promise<ListMapResponse> => {
+  const url = `${MAP_HOST}/map/?limit=${limit}&offset=${offset}&search=${search}`;
   return Api.get(url);
 }

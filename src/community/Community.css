@@ -1,0 +1,202 @@
+
+.layout {
+  max-width: 1200px;
+  box-sizing: content-box;
+  padding: 30px;
+  margin: auto;
+}
+
+.titleImg {
+  display: inline-block;
+  width: 400px;
+  height: auto;
+  max-width: 100%;
+}
+
+:global(.snek-red) {
+  color: #911d55;
+  font-weight: 900;
+}
+
+a {
+  color: #5d8bb3;
+}
+
+.mapListLoadingOverlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: #00000077;
+  margin: 0!important;
+}
+
+.mapList {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(5, 1fr);
+  grid-column-gap: 30px;
+  grid-row-gap: 30px;
+}
+
+.mapListEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  background: #242627;
+}
+
+
+.mapImageLink {
+  text-decoration: none;
+  display: inline-flex;
+}
+
+.mapImage {
+  display: inline-block;
+  width: 157.5px;
+  height: 157.5px;
+  flex-shrink: 0;
+  aspect-ratio: 1 / 1;
+  background-size: 300px 157.5px;
+  background-position: -147px 0;
+}
+
+.emptyMapImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 157.5px;
+  height: 157.5px;
+  flex-shrink: 0;
+  background: #3b3e42;
+  color: #727c83;
+}
+
+.mapImage,
+.emptyMapImage {
+  cursor: pointer;
+  text-decoration: none;
+  border: 1px solid white;
+  border-radius: 4px;
+  box-shadow: -1px 2px 1px 2px black;
+
+  &:hover {
+    filter: brightness(1.1) contrast(1.2);
+  }
+}
+
+.mapCard {
+  background: #2b2f32;
+  border-radius: 4px;
+  padding-left: 20px;
+  margin: auto;
+  margin-left: 0;
+  border: 2px solid transparent;
+  box-shadow: 0px 3px 2px 2px black;
+
+  &:hover {
+    border-color: white
+  }
+
+  &:hover .mapImage,
+  &:hover .emptyMapImage {
+    filter: brightness(1.1) contrast(1.2);
+  }
+}
+
+.mapCardInfo {
+  width: 200px;
+
+  & > .name {
+    color: #e6cc8a;
+    font-family: 'MiniMOOD', 'VT323', monospace;
+    font-size: 0.9em;
+  }
+  & > .author {
+    color: #c6dbde;
+    font-size: 0.9em;
+  }
+}
+
+.searchMapInput {
+  padding: 7px 11px!important;
+  min-width: 400px;
+}
+
+.paginationContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #b1c3cf;
+
+  li {
+    list-style: none;
+    margin: 0 10px;
+    padding: 0;
+    border: solid 2px transparent;
+    box-shadow: 0px 3px 2px 2px black;
+    font-family: BIOSfontII, monospace;
+    font-size: 1em;
+    cursor: pointer;
+    text-decoration: none;
+
+    background: #2b3b45;
+    color: #b1c3cf;
+
+    > a {
+      display: inline-block;
+      padding: 5px 20px;
+      padding-bottom: 4px;
+      color: inherit;
+    }
+  }
+
+  & .page {
+    color: inherit;
+  }
+
+  & .pageLink {
+    color: inherit;
+  }
+
+  & .active {
+    background: #9babb8;
+    color: #355d6d;
+  }
+
+  & .activeLink {
+    color: inherit;
+  }
+
+  & .previous {
+    color: inherit;
+  }
+  
+  & .previousLink {
+    color: inherit;
+  }
+
+  & .next {
+    color: inherit;
+  }
+
+  & .nextLink {
+    color: inherit;
+  }
+
+  & .disabled {
+    background: #181c1f;
+    color: #454647;
+
+    > a {
+      color: inherit!important;
+    }
+  }
+}

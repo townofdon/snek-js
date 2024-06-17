@@ -441,22 +441,26 @@ export function getBestPortalExitDirection({
 export function preloadImage(url: string)
 {
   return new Promise((resolve, reject) => {
-    const image = new Image();
-    const onLoad = () => {
-      cleanup();
-      resolve(image);
-    }
-    const onError = (err: ErrorEvent) => {
-      cleanup();
+    try {
+      const image = new Image();
+      const onLoad = () => {
+        cleanup();
+        resolve(image);
+      }
+      const onError = (err: ErrorEvent) => {
+        cleanup();
+        reject(err.error);
+      }
+      const cleanup = () => {
+        image.removeEventListener("load", onLoad);
+        image.removeEventListener("error", onError)
+      }
+      image.addEventListener("load", onLoad);
+      image.addEventListener("error", onError)
+      image.src = url;      
+    } catch (err) {
       reject(err);
     }
-    const cleanup = () => {
-      image.removeEventListener("load", onLoad);
-      image.removeEventListener("error", onError)
-    }
-    image.addEventListener("load", onLoad);
-    image.addEventListener("error", onError)
-    image.src = url;
   });
 }
 
