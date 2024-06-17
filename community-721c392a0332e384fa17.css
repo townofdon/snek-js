@@ -1,3 +1,77 @@
+/*!****************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Stack/stack.css ***!
+  \****************************************************************************************************************************************************************************************/
+:root {
+  --stack-margin: 10px;
+}
+
+.stack--upysNjv855vwZqYPVwor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stack--upysNjv855vwZqYPVwor.noChildMargin--iwsXaS1cu3Qrt7UDCNfB {
+  --stack-margin: 0px;
+}
+.stack--upysNjv855vwZqYPVwor.marginBottom--ytP38tNSF4fTMI9lXlkm {
+  margin-bottom: 20px;
+}
+.stack--upysNjv855vwZqYPVwor.marginTop--YZSjLG2ouv4GhQ7O8IYL {
+  margin-top: 20px;
+}
+.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd {
+  flex-direction: row;
+}
+.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd > * {
+  margin-left: var(--stack-margin);
+  margin-right: var(--stack-margin);
+}
+.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd > :first-child {
+  margin-left: 0;
+}
+.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd > :last-child {
+  margin-right: 0;
+}
+.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv {
+  flex-direction: column;
+}
+.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv > * {
+  margin-top: var(--stack-margin);
+  margin-bottom: var(--stack-margin);
+}
+.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv > :first-child {
+  margin-top: 0;
+}
+.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv > :last-child {
+  margin-bottom: 0;
+}
+.stack--upysNjv855vwZqYPVwor.alignStart--tbjRqmfXqQw2ISRBZB0K {
+  align-items: flex-start;
+}
+.stack--upysNjv855vwZqYPVwor.alignEnd--VSgGDwYN5u71unlE_ZDL {
+  align-items: flex-end;
+}
+.stack--upysNjv855vwZqYPVwor.alignStretch--YEt4TjYACA6LnMlLKihT {
+  align-items: stretch;
+}
+.stack--upysNjv855vwZqYPVwor.alignSpaceAround--sHzKqg0a2Y1auiiqAJqm {
+  align-items: space-around;
+}
+.stack--upysNjv855vwZqYPVwor.alignSpaceBetween--_FTFebYitty84KvmTEoq {
+  align-items: space-between;
+}
+.stack--upysNjv855vwZqYPVwor.justifyStart--tNalNLgV6crQx9htyTj2 {
+  justify-content: flex-start;
+}
+.stack--upysNjv855vwZqYPVwor.justifyEnd--HWerZZwJyZR8DGIAygIU {
+  justify-content: flex-end;
+}
+.stack--upysNjv855vwZqYPVwor.justifySpaceAround--qT245whCFMdSnrhrA3wb {
+  justify-content: space-around;
+}
+.stack--upysNjv855vwZqYPVwor.justifySpaceBetween--YXer3jP2pVPS1fHIfG0u {
+  justify-content: space-between;
+}
 /*!******************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/community/Community.css ***!
   \******************************************************************************************************************************************************************************/
@@ -18,6 +92,10 @@
 .snek-red {
   color: #911d55;
   font-weight: 900;
+}
+
+h1, h2, h3 {
+  text-shadow: -2px 4px 1px black;
 }
 
 a {
@@ -41,7 +119,8 @@ a {
 .mapList--UYnUBYQQ2CNWZLInuX6j {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(5, 1fr);
+  /* grid-template-rows: repeat(5, 1fr); */
+  grid-template-rows: min-content 1fr;
   grid-column-gap: 30px;
   grid-row-gap: 30px;
 }
@@ -185,78 +264,344 @@ a {
   color: inherit !important;
 }
 /*!****************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Stack/stack.css ***!
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Field/field.css ***!
   \****************************************************************************************************************************************************************************************/
-:root {
-  --stack-margin: 10px;
-}
-
-.stack--upysNjv855vwZqYPVwor {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.stack--upysNjv855vwZqYPVwor.noChildMargin--iwsXaS1cu3Qrt7UDCNfB {
-  --stack-margin: 0px;
-}
-.stack--upysNjv855vwZqYPVwor.marginBottom--ytP38tNSF4fTMI9lXlkm {
+.fieldContainer--wOiQ29ZJlVkIxoRZe6L8 {
+  display: block;
   margin-bottom: 20px;
 }
-.stack--upysNjv855vwZqYPVwor.marginTop--YZSjLG2ouv4GhQ7O8IYL {
-  margin-top: 20px;
+
+.label--gKEPiCZOVVEAPymRnX1r {
+  display: block;
+  color: #cfcfcf;
 }
-.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd {
-  flex-direction: row;
+
+.caption--Oip7aKucVPy25716A7M1 {
+  font-weight: 100;
+  font-size: 0.8em;
+  margin-top: 4px;
+  color: #a2b0bb;
+  -webkit-font-smoothing: antialiased;
 }
-.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd > * {
-  margin-left: var(--stack-margin);
-  margin-right: var(--stack-margin);
+
+.input--_oHfXLzBtCkuI50Iku60 {
+  width: auto;
+  border: none;
+  padding: 3px 6px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: "BIOSfontII", "VT323", monospace;
+  font-family: "Courier New", monospace;
+  background: #eee;
+  background: #c0cdd3;
+  color: #333;
 }
-.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd > :first-child {
-  margin-left: 0;
+.input--_oHfXLzBtCkuI50Iku60.fullWidth--GZouWjhla_r1mpZGuUBR {
+  width: 100%;
 }
-.stack--upysNjv855vwZqYPVwor.row--C3q4u6zIlxxwb4bmXzwd > :last-child {
-  margin-right: 0;
+.input--_oHfXLzBtCkuI50Iku60::placeholder {
+  color: #7c8a99;
+  font-style: italic;
 }
-.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv {
-  flex-direction: column;
+
+input[type=range] {
+  width: auto;
 }
-.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv > * {
-  margin-top: var(--stack-margin);
-  margin-bottom: var(--stack-margin);
+
+.fullWidth--GZouWjhla_r1mpZGuUBR {
+  width: 100%;
 }
-.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv > :first-child {
-  margin-top: 0;
+
+.colorInputContainer--l8fuP6keuaqhxClY8yC5 {
+  position: relative;
+  display: inline-block;
 }
-.stack--upysNjv855vwZqYPVwor.col--zufNsGxwgR9nmKyg6eLv > :last-child {
-  margin-bottom: 0;
+
+.colorPicker--ufHniX94bJbhRDFmFDCp {
+  position: absolute !important;
+  left: 100%;
+  top: -8px;
+  border: none;
+  border-radius: 10px;
+  box-sizing: border-box;
+  border: 2px solid white;
+  box-shadow: -2px 2px 6px 2px black;
+  z-index: 20;
 }
-.stack--upysNjv855vwZqYPVwor.alignStart--tbjRqmfXqQw2ISRBZB0K {
-  align-items: flex-start;
+
+.colorInput--iDZhutJaUnSgOR2VvZQa {
+  display: block;
+  padding-left: 22px;
+  padding-top: 4px;
+  width: 120px;
 }
-.stack--upysNjv855vwZqYPVwor.alignEnd--VSgGDwYN5u71unlE_ZDL {
-  align-items: flex-end;
+
+.colorInputHash--XwIcKxd0q0lFmJlVsrLQ {
+  display: inline-block;
+  position: absolute;
+  left: 0px;
+  height: 100%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-top: 1px;
+  box-sizing: border-box;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+  font-family: "VT323", monospace;
+  font-family: "Courier New", monospace;
+  font-size: 1.1em;
+  font-weight: 900;
+  color: #79868f;
+  background: #a6b7c3;
 }
-.stack--upysNjv855vwZqYPVwor.alignStretch--YEt4TjYACA6LnMlLKihT {
-  align-items: stretch;
+
+.colorInputPreview--IYHwXqi2IZXsTPWRDnQl {
+  display: inline-block;
+  position: absolute;
+  right: 0px;
+  height: 100%;
+  width: 20px;
+  box-sizing: content-box;
+  background: #000;
+  border: none;
 }
-.stack--upysNjv855vwZqYPVwor.alignSpaceAround--sHzKqg0a2Y1auiiqAJqm {
-  align-items: space-around;
+.colorInputPreview--IYHwXqi2IZXsTPWRDnQl:before {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+  border: 2px solid #fff;
+  z-index: 5;
 }
-.stack--upysNjv855vwZqYPVwor.alignSpaceBetween--_FTFebYitty84KvmTEoq {
-  align-items: space-between;
+.colorInputPreview--IYHwXqi2IZXsTPWRDnQl:after {
+  content: "";
+  display: inline-block;
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  background: transparent;
+  border: 2px solid #000;
+  z-index: 10;
 }
-.stack--upysNjv855vwZqYPVwor.justifyStart--tNalNLgV6crQx9htyTj2 {
-  justify-content: flex-start;
+
+.sliderManualInput--Ez5hu1wLav_imlqJo1gX {
+  width: 100px;
+  margin-right: 2px;
 }
-.stack--upysNjv855vwZqYPVwor.justifyEnd--HWerZZwJyZR8DGIAygIU {
-  justify-content: flex-end;
+
+.toggleLabel--t058ewzH_XpLH_kG5eJq {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  color: #cfcfcf;
 }
-.stack--upysNjv855vwZqYPVwor.justifySpaceAround--qT245whCFMdSnrhrA3wb {
-  justify-content: space-around;
+
+.toggleLabelText--WphnzbgeJOZuzaCCFop2 {
+  margin-left: 10px;
 }
-.stack--upysNjv855vwZqYPVwor.justifySpaceBetween--YXer3jP2pVPS1fHIfG0u {
-  justify-content: space-between;
+
+input:focus-visible,
+button:focus-visible {
+  outline: 2px solid white;
+}
+
+input[type=range].range--RAtUGcOxDnbVq8ni3AS1 {
+  color: #ddd;
+  --active-track-color: #567d9d;
+}
+
+input[type=range].range--RAtUGcOxDnbVq8ni3AS1:hover::-webkit-slider-thumb,
+input[type=range].range--RAtUGcOxDnbVq8ni3AS1:focus::-webkit-slider-thumb,
+input[type=range].range--RAtUGcOxDnbVq8ni3AS1:active::-webkit-slider-thumb {
+  /* filter: brightness(var(--brightness-hover)); */
+  color: var(--active-track-color);
+  cursor: grab;
+}
+
+.dropdownRoot--YnA2v24cr87RubyZmvKH {
+  min-width: 200px;
+}
+/*!***********************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Field/react-toggle.css ***!
+  \***********************************************************************************************************************************************************************************************/
+.react-toggle {
+  touch-action: pan-x;
+  display: inline-block;
+  position: relative;
+  cursor: pointer;
+  background-color: transparent;
+  border: 0;
+  padding: 0;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  -webkit-tap-highlight-color: transparent;
+  --active-color-1: #19ab8b;
+  --active-color-2: #1a8969;
+  --focus-color: #0099E0;
+}
+
+.react-toggle-screenreader-only {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.react-toggle--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  -webkit-transition: opacity 0.25s;
+  transition: opacity 0.25s;
+}
+
+.react-toggle-track {
+  width: 55px;
+  height: 20px;
+  padding: 0;
+  border-radius: 4px;
+  background-color: #4D4D4D;
+  -webkit-transition: all 0.2s ease;
+  -moz-transition: all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+.react-toggle:hover:not(.react-toggle--disabled) .react-toggle-track {
+  background-color: #000000;
+}
+
+.react-toggle--checked .react-toggle-track {
+  /* background-color: #19AB27; */
+  background-color: var(--active-color-1);
+}
+
+.react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
+  /* background-color: #128D15; */
+  background-color: var(--active-color-2);
+}
+
+.react-toggle-track-check {
+  position: absolute;
+  width: 14px;
+  height: 10px;
+  top: 0px;
+  bottom: 0px;
+  margin-top: auto;
+  margin-bottom: auto;
+  line-height: 0;
+  left: 8px;
+  opacity: 0;
+  -webkit-transition: opacity 0.25s ease;
+  -moz-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.react-toggle--checked .react-toggle-track-check {
+  opacity: 1;
+  -webkit-transition: opacity 0.25s ease;
+  -moz-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.react-toggle-track-x {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  top: 0px;
+  bottom: 0px;
+  margin-top: auto;
+  margin-bottom: auto;
+  line-height: 0;
+  right: 9px;
+  opacity: 0.2;
+  -webkit-transition: opacity 0.25s ease;
+  -moz-transition: opacity 0.25s ease;
+  transition: opacity 0.25s ease;
+}
+
+.react-toggle--checked .react-toggle-track-x {
+  opacity: 0;
+}
+
+.react-toggle-thumb {
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0ms;
+  position: absolute;
+  top: -3px;
+  left: 1px;
+  width: 26px;
+  height: 26px;
+  border: 1px solid #4D4D4D;
+  border-radius: 2px;
+  background-color: #FAFAFA;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  -webkit-transition: all 0.25s ease;
+  -moz-transition: all 0.25s ease;
+  transition: all 0.25s ease;
+}
+
+.react-toggle--checked .react-toggle-thumb {
+  left: 30px;
+  /* border-color: #19AB27; */
+  border-color: var(--active-color-1);
+}
+
+.react-toggle--focus .react-toggle-thumb {
+  -webkit-box-shadow: 0px 0px 3px 2px var(--focus-color);
+  -moz-box-shadow: 0px 0px 3px 2px var(--focus-color);
+  box-shadow: 0px 0px 2px 3px var(--focus-color);
+}
+
+.react-toggle:active:not(.react-toggle--disabled) .react-toggle-thumb {
+  -webkit-box-shadow: 0px 0px 5px 5px var(--focus-color);
+  -moz-box-shadow: 0px 0px 5px 5px var(--focus-color);
+  box-shadow: 0px 0px 5px 5px var(--focus-color);
+}
+/*!*************************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Field/react-dropdown.css ***!
+  \*************************************************************************************************************************************************************************************************/
+.react-select__control {
+  min-width: 230px;
+}
+
+.react-select__menu {
+  --dropdown-bg: #c0cdd3;
+  --dropdown-bg: #e2ebf0;
+  --menu-bg: #333;
+  --menu-fg: #ddd;
+  --hover-bg: #f2f9fc;
+  --active-fg: #47a795;
+  --active-bg: #e2ebf0;
+  --focus-fg: #f2f9fc;
+  --focus-bg: #444;
+  background-color: var(--menu-bg) !important;
+  color: var(--menu-fg);
+}
+.react-select__menu .react-select__option {
+  color: var(--menu-fg);
+}
+.react-select__menu .react-select__option--is-focused {
+  background-color: var(--focus-bg);
+  color: var(--focus-fg);
+}
+.react-select__menu .react-select__option--is-selected {
+  background-color: var(--active-bg);
+  color: var(--active-fg);
 }
 /*!************************************************************************************************************************************************************************!*\
   !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/Editor.css ***!
@@ -980,344 +1325,4 @@ a.button.allMapsButton--N5xVXHYdnpqnHxq1zXiJ:hover {
   /* background: #babebf;
   color: #46657a; */
   background: #455863;
-}
-/*!****************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Field/field.css ***!
-  \****************************************************************************************************************************************************************************************/
-.fieldContainer--wOiQ29ZJlVkIxoRZe6L8 {
-  display: block;
-  margin-bottom: 20px;
-}
-
-.label--gKEPiCZOVVEAPymRnX1r {
-  display: block;
-  color: #cfcfcf;
-}
-
-.caption--Oip7aKucVPy25716A7M1 {
-  font-weight: 100;
-  font-size: 0.8em;
-  margin-top: 4px;
-  color: #a2b0bb;
-  -webkit-font-smoothing: antialiased;
-}
-
-.input--_oHfXLzBtCkuI50Iku60 {
-  width: auto;
-  border: none;
-  padding: 3px 6px;
-  border-radius: 4px;
-  box-sizing: border-box;
-  font-family: "BIOSfontII", "VT323", monospace;
-  font-family: "Courier New", monospace;
-  background: #eee;
-  background: #c0cdd3;
-  color: #333;
-}
-.input--_oHfXLzBtCkuI50Iku60.fullWidth--GZouWjhla_r1mpZGuUBR {
-  width: 100%;
-}
-.input--_oHfXLzBtCkuI50Iku60::placeholder {
-  color: #7c8a99;
-  font-style: italic;
-}
-
-input[type=range] {
-  width: auto;
-}
-
-.fullWidth--GZouWjhla_r1mpZGuUBR {
-  width: 100%;
-}
-
-.colorInputContainer--l8fuP6keuaqhxClY8yC5 {
-  position: relative;
-  display: inline-block;
-}
-
-.colorPicker--ufHniX94bJbhRDFmFDCp {
-  position: absolute !important;
-  left: 100%;
-  top: -8px;
-  border: none;
-  border-radius: 10px;
-  box-sizing: border-box;
-  border: 2px solid white;
-  box-shadow: -2px 2px 6px 2px black;
-  z-index: 20;
-}
-
-.colorInput--iDZhutJaUnSgOR2VvZQa {
-  display: block;
-  padding-left: 22px;
-  padding-top: 4px;
-  width: 120px;
-}
-
-.colorInputHash--XwIcKxd0q0lFmJlVsrLQ {
-  display: inline-block;
-  position: absolute;
-  left: 0px;
-  height: 100%;
-  padding-left: 4px;
-  padding-right: 4px;
-  padding-top: 1px;
-  box-sizing: border-box;
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-  font-family: "VT323", monospace;
-  font-family: "Courier New", monospace;
-  font-size: 1.1em;
-  font-weight: 900;
-  color: #79868f;
-  background: #a6b7c3;
-}
-
-.colorInputPreview--IYHwXqi2IZXsTPWRDnQl {
-  display: inline-block;
-  position: absolute;
-  right: 0px;
-  height: 100%;
-  width: 20px;
-  box-sizing: content-box;
-  background: #000;
-  border: none;
-}
-.colorInputPreview--IYHwXqi2IZXsTPWRDnQl:before {
-  content: "";
-  display: inline-block;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: transparent;
-  border: 2px solid #fff;
-  z-index: 5;
-}
-.colorInputPreview--IYHwXqi2IZXsTPWRDnQl:after {
-  content: "";
-  display: inline-block;
-  position: absolute;
-  top: 2px;
-  bottom: 2px;
-  left: 2px;
-  right: 2px;
-  background: transparent;
-  border: 2px solid #000;
-  z-index: 10;
-}
-
-.sliderManualInput--Ez5hu1wLav_imlqJo1gX {
-  width: 100px;
-  margin-right: 2px;
-}
-
-.toggleLabel--t058ewzH_XpLH_kG5eJq {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-  color: #cfcfcf;
-}
-
-.toggleLabelText--WphnzbgeJOZuzaCCFop2 {
-  margin-left: 10px;
-}
-
-input:focus-visible,
-button:focus-visible {
-  outline: 2px solid white;
-}
-
-input[type=range].range--RAtUGcOxDnbVq8ni3AS1 {
-  color: #ddd;
-  --active-track-color: #567d9d;
-}
-
-input[type=range].range--RAtUGcOxDnbVq8ni3AS1:hover::-webkit-slider-thumb,
-input[type=range].range--RAtUGcOxDnbVq8ni3AS1:focus::-webkit-slider-thumb,
-input[type=range].range--RAtUGcOxDnbVq8ni3AS1:active::-webkit-slider-thumb {
-  /* filter: brightness(var(--brightness-hover)); */
-  color: var(--active-track-color);
-  cursor: grab;
-}
-
-.dropdownRoot--YnA2v24cr87RubyZmvKH {
-  min-width: 200px;
-}
-/*!***********************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Field/react-toggle.css ***!
-  \***********************************************************************************************************************************************************************************************/
-.react-toggle {
-  touch-action: pan-x;
-  display: inline-block;
-  position: relative;
-  cursor: pointer;
-  background-color: transparent;
-  border: 0;
-  padding: 0;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  -webkit-tap-highlight-color: transparent;
-  --active-color-1: #19ab8b;
-  --active-color-2: #1a8969;
-  --focus-color: #0099E0;
-}
-
-.react-toggle-screenreader-only {
-  border: 0;
-  clip: rect(0 0 0 0);
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  padding: 0;
-  position: absolute;
-  width: 1px;
-}
-
-.react-toggle--disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
-  -webkit-transition: opacity 0.25s;
-  transition: opacity 0.25s;
-}
-
-.react-toggle-track {
-  width: 55px;
-  height: 20px;
-  padding: 0;
-  border-radius: 4px;
-  background-color: #4D4D4D;
-  -webkit-transition: all 0.2s ease;
-  -moz-transition: all 0.2s ease;
-  transition: all 0.2s ease;
-}
-
-.react-toggle:hover:not(.react-toggle--disabled) .react-toggle-track {
-  background-color: #000000;
-}
-
-.react-toggle--checked .react-toggle-track {
-  /* background-color: #19AB27; */
-  background-color: var(--active-color-1);
-}
-
-.react-toggle--checked:hover:not(.react-toggle--disabled) .react-toggle-track {
-  /* background-color: #128D15; */
-  background-color: var(--active-color-2);
-}
-
-.react-toggle-track-check {
-  position: absolute;
-  width: 14px;
-  height: 10px;
-  top: 0px;
-  bottom: 0px;
-  margin-top: auto;
-  margin-bottom: auto;
-  line-height: 0;
-  left: 8px;
-  opacity: 0;
-  -webkit-transition: opacity 0.25s ease;
-  -moz-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-}
-
-.react-toggle--checked .react-toggle-track-check {
-  opacity: 1;
-  -webkit-transition: opacity 0.25s ease;
-  -moz-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-}
-
-.react-toggle-track-x {
-  position: absolute;
-  width: 10px;
-  height: 10px;
-  top: 0px;
-  bottom: 0px;
-  margin-top: auto;
-  margin-bottom: auto;
-  line-height: 0;
-  right: 9px;
-  opacity: 0.2;
-  -webkit-transition: opacity 0.25s ease;
-  -moz-transition: opacity 0.25s ease;
-  transition: opacity 0.25s ease;
-}
-
-.react-toggle--checked .react-toggle-track-x {
-  opacity: 0;
-}
-
-.react-toggle-thumb {
-  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1) 0ms;
-  position: absolute;
-  top: -3px;
-  left: 1px;
-  width: 26px;
-  height: 26px;
-  border: 1px solid #4D4D4D;
-  border-radius: 2px;
-  background-color: #FAFAFA;
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  -webkit-transition: all 0.25s ease;
-  -moz-transition: all 0.25s ease;
-  transition: all 0.25s ease;
-}
-
-.react-toggle--checked .react-toggle-thumb {
-  left: 30px;
-  /* border-color: #19AB27; */
-  border-color: var(--active-color-1);
-}
-
-.react-toggle--focus .react-toggle-thumb {
-  -webkit-box-shadow: 0px 0px 3px 2px var(--focus-color);
-  -moz-box-shadow: 0px 0px 3px 2px var(--focus-color);
-  box-shadow: 0px 0px 2px 3px var(--focus-color);
-}
-
-.react-toggle:active:not(.react-toggle--disabled) .react-toggle-thumb {
-  -webkit-box-shadow: 0px 0px 5px 5px var(--focus-color);
-  -moz-box-shadow: 0px 0px 5px 5px var(--focus-color);
-  box-shadow: 0px 0px 5px 5px var(--focus-color);
-}
-/*!*************************************************************************************************************************************************************************************************!*\
-  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/editor/components/Field/react-dropdown.css ***!
-  \*************************************************************************************************************************************************************************************************/
-.react-select__control {
-  min-width: 230px;
-}
-
-.react-select__menu {
-  --dropdown-bg: #c0cdd3;
-  --dropdown-bg: #e2ebf0;
-  --menu-bg: #333;
-  --menu-fg: #ddd;
-  --hover-bg: #f2f9fc;
-  --active-fg: #47a795;
-  --active-bg: #e2ebf0;
-  --focus-fg: #f2f9fc;
-  --focus-bg: #444;
-  background-color: var(--menu-bg) !important;
-  color: var(--menu-fg);
-}
-.react-select__menu .react-select__option {
-  color: var(--menu-fg);
-}
-.react-select__menu .react-select__option--is-focused {
-  background-color: var(--focus-bg);
-  color: var(--focus-fg);
-}
-.react-select__menu .react-select__option--is-selected {
-  background-color: var(--active-bg);
-  color: var(--active-fg);
 }
