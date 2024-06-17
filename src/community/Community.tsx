@@ -23,23 +23,23 @@ export const Community = () => {
       <div style={{ marginBottom: 60 }} />
 
       <Stack col>
-        <div style={{ display: "inline-block" }}>
-          <p className="center">
+        <div className="d-inline-block mw-100">
+          <p className="align-center">
             Your bonafide destination for locally-sourced, home-grown,
             critically acclaimed&nbsp;<span className="snek-red">SNEK™</span>
             &nbsp;maps.
           </p>
   
           <Stack col align="center" style={{ marginTop: 60, marginBottom: 60 }}>
-              <h3 className="minimood">links</h3>
-              <Stack row>
-                <p><a href={`${getRelativeDir()}`}>SNEK Campaign</a></p>
-                <div style={{ width: 30 }} />
-                <p><a href={`${getRelativeDir()}editor`}>SNEK Editor</a></p>
-              </Stack>
+            <h3 className="minimood">links</h3>
+            <Stack row style={{ padding: '0 40px', boxSizing: 'border-box' }}>
+              <p><a href={`${getRelativeDir()}`}>SNEK Campaign</a></p>
+              <div className="d-none d-block-md" style={{ width: 30 }} />
+              <p><a href={`${getRelativeDir()}editor`}>SNEK Editor</a></p>
+            </Stack>
           </Stack>
 
-          <Stack col align="center">
+          <Stack className="mw-100" col align="center">
             <h3 className="minimood">maps</h3>
             <MapList />
           </Stack>

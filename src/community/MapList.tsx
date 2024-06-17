@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react"
-import ReactPaginate from 'react-paginate';
+import React, { useEffect, useState } from "react";
+import ReactPaginate from "react-paginate";
 
 import { clamp } from "../utils";
 import { useListMap } from "./useListMap";
@@ -7,14 +7,14 @@ import { MapCard } from "./MapCard";
 import { Stack } from "../editor/components/Stack";
 import { Field } from "../editor/components/Field";
 
-import * as styles from './Community.css';
-import * as editorStyles from '../editor/Editor.css'
+import * as styles from "./Community.css";
+import * as editorStyles from "../editor/Editor.css";
 
 export const MapList = () => {
   const [limit, setLimit] = useState(10);
   const [offset, setOffset] = useState(0);
-  const [searchText, setSearchText] = useState('');
-  const [search, setSearch] = useState('');
+  const [searchText, setSearchText] = useState("");
+  const [search, setSearch] = useState("");
 
   // debounce search input
   useEffect(() => {
@@ -23,10 +23,14 @@ export const MapList = () => {
     }, 200);
     return () => {
       clearTimeout(t);
-    }
-  }, [searchText])
+    };
+  }, [searchText]);
 
-  const {data, meta, loadedImageMap, isLoading} = useListMap({ offset, limit, search });
+  const { data, meta, loadedImageMap, isLoading } = useListMap({
+    offset,
+    limit,
+    search,
+  });
 
   const pageCount = Math.ceil(meta.totalItems / limit) || 1;
 
@@ -51,8 +55,8 @@ export const MapList = () => {
   );
 
   return (
-    <div style={{ width: "100%" }}>
-      <Stack>
+    <div className="mw-100" style={{ width: "100%" }}>
+      <Stack className={styles.searchContainer}>
         <Field
           label="search maps"
           name="search"
@@ -60,6 +64,7 @@ export const MapList = () => {
           placeholder="search by map name..."
           value={searchText}
           onChange={(val) => setSearchText(val)}
+          className={styles.searchField}
           inputClassName={styles.searchMapInput}
         />
       </Stack>
@@ -84,9 +89,15 @@ export const MapList = () => {
         )}
       </div>
 
-      <Stack row style={{ marginTop: 30, marginBottom: 30 }} justify="spaceBetween">
+      <Stack
+        className={styles.paginationContainer}
+        row
+        style={{ marginTop: 30, marginBottom: 30 }}
+        justify="spaceBetween"
+      >
         <p>
-          {Math.min(offset + 1, meta.totalItems)}-{offset + meta.numResults} of {meta.totalItems} results
+          {Math.min(offset + 1, meta.totalItems)}-{offset + meta.numResults} of{" "}
+          {meta.totalItems} results
         </p>
         <ReactPaginate
           breakLabel="..."
@@ -95,7 +106,7 @@ export const MapList = () => {
           pageRangeDisplayed={5}
           pageCount={pageCount}
           previousLabel="<"
-          className={styles.paginationContainer}
+          className={styles.pagination}
           pageClassName={styles.page}
           pageLinkClassName={styles.pageLink}
           activeClassName={styles.active}
@@ -108,4 +119,4 @@ export const MapList = () => {
       <div style={{ marginBottom: 60 }} />
     </div>
   );
-}
+};
