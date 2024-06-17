@@ -1,4 +1,5 @@
 import P5 from 'p5';
+import Color from 'color';
 
 import './fullscreenHandler';
 
@@ -27,6 +28,7 @@ import {
   ActionKey,
   Action,
   Level,
+  Palette,
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI } from '../ui/ui';
@@ -44,10 +46,11 @@ import { WinLevelScene } from '../scenes/WinLevelScene';
 import { LoadingScene } from '../scenes/LoadingScene';
 import { NoOpUnlockedMusicStore } from '../stores/UnlockedMusicStore';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
-import { getEditorUrl } from '../editor/utils/publishUtils';
+import { getEditorUrl, getPreviewUrl } from '../editor/utils/publishUtils';
 import { GetMapByDataResponse, getMapByData } from '../api/map';
 import { getExtendedPalette } from '../palettes';
 import { LEVEL_01, LEVEL_02 } from '../levels';
+import { requireElementById } from '../ui/uiUtils';
 
 interface PreviewLevel {
   loading: boolean,
@@ -59,7 +62,7 @@ const level: PreviewLevel = {
   current: undefined,
   nextMap: '',
 }
-loadLevel(getDataFromUrl());
+loadLevel(getDataFromUrl(), true);
 
 const settings: GameSettings = {
   musicVolume: 1,
@@ -480,7 +483,7 @@ function getDataFromUrl() {
   return encodeURIComponent(queryData);
 }
 
-async function loadLevel(queryData: string): Promise<void> {
+async function loadLevel(queryData: string, loadMapImage = false): Promise<void> {
   try {
     level.loading = true;
     const query = new URLSearchParams(window.location.search);
@@ -522,6 +525,24 @@ async function loadLevel(queryData: string): Promise<void> {
       level.nextMap = res?.next?.data;
     }
     populateEditMapLink(queryData);
+    const mapId = res?.map?.id;
+    const imageUrl = res?.map?.imageUrl;
+    if (loadMapImage && mapId && imageUrl) {
+      await preloadImage(imageUrl)
+        .then(() => {
+          updateStartScreenImage(imageUrl, options.palette);
+        })
+        .catch(err => {
+          console.warn(`Unable to fetch image for map ${mapId}`);
+        });
+    }
+    if (level.nextMap) {
+      document.getElementById('buttonNextMap')?.classList.remove('hidden');
+      document.getElementById('buttonNextMap')?.setAttribute('href', getPreviewUrl(level.nextMap));
+    } else {
+      document.getElementById('buttonNextMap')?.classList.add('hidden');
+    }
+    await(wait(20));
   } catch (err) {
     level.current = LEVEL_02;
     console.error(err.message);
@@ -537,4 +558,49 @@ function populateEditMapLink(data: string) {
   button.setAttribute('href', url);
   button.setAttribute('target', '_blank');
   button.classList.remove('hidden');
+}
+
+function updateStartScreenImage(imgUrl: string | undefined, colors: Palette) {
+  if (!imgUrl) return;
+  const splash = requireElementById<HTMLDivElement>('map-preview-splash');
+  const image = requireElementById<HTMLImageElement>('map-preview-splash-img');
+  const width = 1200;
+  const height = 630;
+  image.setAttribute('src', imgUrl);
+  image.setAttribute('width', String(width));
+  image.setAttribute('height', String(height));
+  splash.classList.remove('hidden');
+  document.getElementById('start-screen')?.remove();
+  const backgroundColor = Color(colors.background).darken(0.4).desaturate(0.3).hex();
+  splash.style.backgroundColor = backgroundColor;
+}
+
+function preloadImage(url: string)
+{
+  return new Promise((resolve, reject) => {
+    const image = new Image();
+    const onLoad = () => {
+      cleanup();
+      resolve(image);
+    }
+    const onError = (err: ErrorEvent) => {
+      cleanup();
+      reject(err);
+    }
+    const cleanup = () => {
+      image.removeEventListener("load", onLoad);
+      image.removeEventListener("error", onError)
+    }
+    image.addEventListener("load", onLoad);
+    image.addEventListener("error", onError)
+    image.src = url;
+  });
+}
+
+function wait(duration: number) {
+  return new Promise<void>((resolve, reject) => {
+    setTimeout(() => {
+      resolve();
+    }, duration);
+  })
 }

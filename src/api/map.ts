@@ -6,6 +6,7 @@ export interface SnekMap {
   name: string,
   author: string,
   data: string,
+  imageUrl: string,
 }
 
 interface GetTokenResponse {

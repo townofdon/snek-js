@@ -43,7 +43,8 @@ export class UI {
   }
 
   static hideStartScreen() {
-    document.getElementById('start-screen').remove();
+    document.getElementById('start-screen')?.remove();
+    document.getElementById('map-preview-splash')?.remove();
   }
 
   static showTitle() {

@@ -38,25 +38,38 @@
     }
 
     a.button.allMapsButton,
+    a.button.nextMapButton,
     a.button.editMapButton {
       position: absolute;
       top: 10px;
       font-size: 1em;
       padding: 10px 20px;
       background: #292b2d;
+      z-index: 1000;
+    }
+    a.button.allMapsButton:before,
+    a.button.nextMapButton:before,
+    a.button.editMapButton:before {
+      display: none!important;
     }
     a.button.allMapsButton > span,
+    a.button.nextMapButton > span,
     a.button.editMapButton > span {
       display: inline-block;
       transform: translateY(4px);
     }
     a.button.allMapsButton:hover,
+    a.button.nextMapButton:hover,
     a.button.editMapButton:hover {
       background: #556772;
       background: #455863;
     }
     a.button.allMapsButton {
       left: 10px;
+    }
+    a.button.nextMapButton {
+      right: 10px;
+      top: 70px;
     }
     a.button.editMapButton {
       right: 10px;
@@ -68,9 +81,19 @@
     <span>&lt;- All Maps</span>
   </a>
   <a id="buttonEditMap" href="#" class="button minimood editMapButton hidden">
+    <img src="<%= htmlWebpackPlugin.files.publicPath %>assets/graphics/editor-edit-wrench.png" />
     <span>Edit Map</span>
   </a>
-  <div class="center stretch">
+  <a href="#" id="buttonNextMap" href="#" class="button minimood nextMapButton hidden">
+    <span>Next Map -&gt;</span>
+  </a>
+  <div class="center stretch position-relative">
+
+    <div id="map-preview-splash" class="map-preview-splash hidden" width="1200" height="630">
+      <img id="map-preview-splash-img" alt="SNEK" src="#" width="1200" height="630" />
+      <p id="map-preview-splash-press-enter" class="press-enter"><span>[ PRESS ENTER ]</span></p>
+    </div>
+
     <main id="main">
 
       <div id="game" class="game">
@@ -135,9 +158,9 @@
       </div>
 
       <div id="start-screen" class="start-screen" style="width: 1200px; height: 1200px;" width="1200" height="1200">
-        <img alt="SNEK" class="start-screen-title" src="../assets/graphics/snek-title-red-sm.png" width="768" height="256" />
+        <img id="start-screen-img" alt="SNEK" class="start-screen-title" src="../assets/graphics/snek-title-red-sm.png" width="768" height="256" />
         <button id="start-screen-start-button" class="start">start game</button>
-        <p class="press-enter"><span>[ PRESS ENTER ]</span></p>
+        <p id="start-screen-press-enter" class="press-enter"><span>[ PRESS ENTER ]</span></p>
       </div>
 
       <div id="modal" class="modal hidden">
@@ -155,6 +178,10 @@
         <span class="minimood" style="margin-bottom: 10px;">loading</span>
         <span class="loader"></span>
       </div>
+
+      <!-- <button title="Fullscreen" class="fullscreen-button" onClick="window.postMessage('fullscreen')">
+        <img src="<%= htmlWebpackPlugin.files.publicPath %>assets/graphics/editor-fullscreen.png" />
+      </button> -->
     </main>
   </div>
 </body>
