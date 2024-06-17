@@ -24,6 +24,10 @@ h1, h2, h3 {
 
 a {
   color: #5d8bb3;
+
+  &:hover {
+    color: #6d9bc4;
+  }
 }
 
 .mapListLoadingOverlay {

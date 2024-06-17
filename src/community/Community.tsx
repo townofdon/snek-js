@@ -10,12 +10,14 @@ export const Community = () => {
   return (
     <div className={styles.layout}>
       <Stack col align="center" justify="center">
-        <img
-          className={styles.titleImg}
-          src={getGraphicsDir("snek-title-grayblue-crop.png")}
-          width={907}
-          height={223}
-        />
+        <a href={getRelativeDir()} style={{ display: 'inline-flex' }}>
+          <img
+            className={styles.titleImg}
+            src={getGraphicsDir("snek-title-grayblue-crop.png")}
+            width={907}
+            height={223}
+          />
+        </a>
         <h1 className="minimood">Community</h1>
       </Stack>
       <div style={{ marginBottom: 60 }} />

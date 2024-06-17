@@ -18,6 +18,7 @@ import {
 } from './constants';
 import {
   getDifficultyFromIndex,
+  getRelativeDir,
   parseUrlQueryParams,
   removeArrayElement,
   shuffleArray,
@@ -311,6 +312,9 @@ export const sketch = (p5: P5) => {
         break;
       case InputAction.StartRewinding:
         startRewinding();
+        break;
+      case InputAction.GotoCommunityPage:
+        window.location.href = `${getRelativeDir()}community`;
         break;
     }
   }
