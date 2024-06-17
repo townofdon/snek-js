@@ -525,8 +525,9 @@ async function loadLevel(queryData: string, loadMapImage = false): Promise<void>
     level.current = loaded;
     if (!isEditorPreview) {
       level.nextMap = res?.next?.data;
+      populateEditMapLink(queryData);
+      document.getElementById('allMapsButton')?.classList.remove('hidden');
     }
-    populateEditMapLink(queryData);
     const mapId = res?.map?.id;
     const imageUrl = res?.map?.imageUrl;
     if (loadMapImage && mapId && imageUrl) {

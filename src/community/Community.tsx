@@ -1,9 +1,10 @@
 import React from "react";
 
-import * as styles from "./Community.css";
 import { getGraphicsDir, getRelativeDir } from "../utils";
 import { Stack } from "../editor/components/Stack";
 import { MapList } from "./MapList";
+
+import * as styles from "./Community.css";
 
 export const Community = () => {
   return (
@@ -22,7 +23,7 @@ export const Community = () => {
       <Stack col>
         <div style={{ display: "inline-block" }}>
           <p className="center">
-            Your bonifide destination for locally-sourced, home-grown,
+            Your bonafide destination for locally-sourced, home-grown,
             critically acclaimed&nbsp;<span className="snek-red">SNEK™</span>
             &nbsp;maps.
           </p>
@@ -38,7 +39,6 @@ export const Community = () => {
 
           <Stack col align="center">
             <h3 className="minimood">maps</h3>
-            {/* <div style={{ marginTop: 30 }} /> */}
             <MapList />
           </Stack>
         </div>

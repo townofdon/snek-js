@@ -1,18 +1,25 @@
-import React, { useRef } from "react";
+import React, { useMemo, useRef } from "react";
 import toast from "react-hot-toast";
 
 import { Stack } from "../components/Stack";
 import { getPreviewUrl } from "../utils/publishUtils";
 import { getGraphicsDir } from "../../utils";
 
+import { EditorData, EditorOptions } from "../../types";
 import * as fieldStyles from "../components/Field/field.css";
 import { FieldLabel } from "../components/Field";
+import { encodeMapData } from "../utils/editorUtils";
 
-export const CopyLink = () => {
+interface CopyLinkProps {
+  data: EditorData;
+  options: EditorOptions;
+}
+
+export const CopyLink = ({ data, options }: CopyLinkProps) => {
   const input = useRef<HTMLInputElement>();
-  const query = new URLSearchParams(window.location.search);
-  const data = encodeURIComponent(query.get("data"));
-  const url = getPreviewUrl(data);
+
+  const encoded = useMemo(() => decodeURI(encodeMapData(data, options)), [data, options]);
+  const url = getPreviewUrl(encoded);
 
   const copyText = () => {
     if (!input.current) return;

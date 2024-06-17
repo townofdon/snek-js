@@ -1,6 +1,7 @@
 import { useQuery } from "react-query";
 import { listMap } from "../api/map";
 import toast from "react-hot-toast";
+
 import { preloadImage } from "../utils";
 
 export const useListMap = ({ offset = 0, limit = 10, search = '' }) => {
@@ -15,8 +16,9 @@ export const useListMap = ({ offset = 0, limit = 10, search = '' }) => {
   const preloadImages = async () => {
     if (isLoading) return;
     try {
+      const maps = data.data || [];
       const preloads = await Promise.all(
-        data.data.map((map) => {
+        maps.map((map) => {
           return preloadImage(map.imageUrl)
             .then(() => true)
             .catch((err) => {
@@ -27,7 +29,7 @@ export const useListMap = ({ offset = 0, limit = 10, search = '' }) => {
             });
         })
       );
-      return data.data.reduce((acc, map, i) => {
+      return maps.reduce((acc, map, i) => {
         acc[map.id] = preloads[i];
         return acc;
       }, {} as Record<string, boolean>);

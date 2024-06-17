@@ -106,7 +106,7 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
         disabled={loading}
       />
       <hr />
-      <CopyLink />
+      <CopyLink data={data} options={options} />
       <hr />
       <Stack marginBottom row align="center" justify="spaceBetween">
         <PublishButton loading={loading} hasMapId={!!mapId} onPublish={handlePublish} />

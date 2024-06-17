@@ -3,7 +3,7 @@ import toast, { Toaster } from "react-hot-toast";
 import cx from "classnames";
 
 import { Operation, EditorTool } from "./editorSketch";
-import { clamp, getCoordIndex2, isValidPortalChannel } from "../utils";
+import { clamp, getCoordIndex2, getRelativeDir, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
 import { EDITOR_DEFAULTS } from "./editorConstants";
 import { DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
@@ -558,7 +558,7 @@ export const Editor = () => {
 
   return (
     <div className={cx(styles.layout)}>
-      <a href="/" className={cx("button minimood", styles.allMapsButton)}>
+      <a href={`${getRelativeDir()}community`} className={cx("button minimood", styles.allMapsButton)}>
         <span>&lt;- All Maps</span>
       </a>
       {/* <button className={cx("minimood", styles.allMapsButton)}>&lt;- All Maps</button> */}
