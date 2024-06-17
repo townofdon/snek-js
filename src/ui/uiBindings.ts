@@ -151,6 +151,7 @@ export class UIBindings implements UIHandler {
     [MainMenuButton.QuoteMode]: null,
     [MainMenuButton.Leaderboard]: null,
     [MainMenuButton.Settings]: null,
+    [MainMenuButton.Community]: null,
   }
   private settingsMenuNavMap: SettingsMenuNavMap;
   private settingsMenuElements: Record<SettingsMenuElement, HTMLInputElement | HTMLButtonElement> = {
@@ -180,6 +181,7 @@ export class UIBindings implements UIHandler {
         [MainMenuButton.QuoteMode]: InputAction.EnterQuoteMode,
         [MainMenuButton.Leaderboard]: InputAction.ShowLeaderboard,
         [MainMenuButton.Settings]: InputAction.ShowSettingsMenu,
+        [MainMenuButton.Community]: InputAction.GotoCommunityPage,
       },
       callAction
     );
@@ -332,6 +334,7 @@ export class UIBindings implements UIHandler {
     this.mainMenuButtons[MainMenuButton.QuoteMode] = requireElementById<HTMLButtonElement>('ui-button-quote-mode');
     this.mainMenuButtons[MainMenuButton.Leaderboard] = requireElementById<HTMLButtonElement>('ui-button-leaderboard');
     this.mainMenuButtons[MainMenuButton.Settings] = requireElementById<HTMLButtonElement>('ui-button-settings');
+    this.mainMenuButtons[MainMenuButton.Community] = requireElementById<HTMLButtonElement>('ui-button-community');
 
     this.mainMenuButtons[MainMenuButton.StartGame].addEventListener('click', this.handleStartGame);
     this.mainMenuButtons[MainMenuButton.OSTMode].addEventListener('click', this.handleEnterOstMode);

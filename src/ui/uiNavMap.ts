@@ -206,6 +206,7 @@ export enum MainMenuButton {
   Leaderboard,
   QuoteMode,
   OSTMode,
+  Community,
 }
 
 /**
@@ -215,6 +216,7 @@ export const MAIN_MENU_BUTTON_ORDER: MainMenuButton[] = [
   MainMenuButton.StartGame,
   MainMenuButton.OSTMode,
   MainMenuButton.QuoteMode,
+  MainMenuButton.Community,
   MainMenuButton.Leaderboard,
   MainMenuButton.Settings,
 ]

@@ -351,6 +351,7 @@ export enum InputAction {
   UnPause,
   StartMoving,
   StartRewinding,
+  GotoCommunityPage,
 }
 
 export interface EditorOptions {

@@ -31,13 +31,14 @@ export const Community = () => {
               <h3 className="minimood">links</h3>
               <Stack row>
                 <p><a href={`${getRelativeDir()}`}>SNEK Campaign</a></p>
+                <div style={{ width: 30 }} />
                 <p><a href={`${getRelativeDir()}editor`}>SNEK Editor</a></p>
               </Stack>
           </Stack>
 
           <Stack col align="center">
             <h3 className="minimood">maps</h3>
-            <div style={{ marginTop: 30 }} />
+            {/* <div style={{ marginTop: 30 }} /> */}
             <MapList />
           </Stack>
         </div>
