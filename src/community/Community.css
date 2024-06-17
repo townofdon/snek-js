@@ -72,9 +72,14 @@ a {
 }
 
 .searchField {
-  padding: 0 30px;
   box-sizing: border-box;
   max-width: 100%;
+
+  @media (max-width: 899px) {
+    & {
+      padding: 0 30px;
+    }
+  }
 }
 
 .searchMapInput {
