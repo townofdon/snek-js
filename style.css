@@ -155,14 +155,24 @@ canvas {
   height: 100%;
 }
 
+.position-relative {
+  position: relative;
+}
+
 .hidden {
   display: none!important;
+}
+
+.main-container {
+  position: relative;
+  display: inline-flex;
 }
 
 main {
   position: relative;
   z-index: 10;
   overflow: hidden;
+  /* padding: 0 120px; */
 }
 
 main div {
@@ -1107,4 +1117,68 @@ input[type="range"]:disabled::-moz-range-thumb {
   50% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0); }
   75% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0); }
   100% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color) 20px, transparent 0); }
+}
+
+.fullscreen-button {
+  position: absolute;
+  display: inline-block;
+  bottom: 56px;
+  right: 10px;
+  width: 48px;
+  height: 48px;
+  padding: 0px;
+  box-sizing: content-box;
+  border: 2px solid #91a3c3;
+  transform: scale(2);
+  transform-origin: top right;
+
+  &:hover {
+    border-color: #fff;
+  }
+
+  & img {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.editMapButton {
+  display: inline-flex;
+  align-items: center;
+  padding-left: 58px!important;
+}
+.editMapButton > img {
+  display: inline-block;
+  position: absolute;
+  left: 13px;
+}
+
+.map-preview-splash {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #000;
+  border-left: 10px solid black;
+  border-right: 10px solid black;
+}
+
+.map-preview-splash img {
+  width: 900px;
+  height: auto;
+}
+
+.map-preview-splash .press-enter {
+  position: absolute;
+  bottom: 0;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  font-family: 'MiniMOOD', 'VT323', monospace;
+  color: #cdd7e5;
+  letter-spacing: 1px;
+  font-size: 1.5em;
 }
