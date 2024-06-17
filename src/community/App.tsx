@@ -16,7 +16,6 @@ export const App = () => {
         <Toaster
           containerClassName={editorStyles.toastContainer}
           toastOptions={{
-            duration: 10000000,
             className: editorStyles.toast,
             success: {
               duration: 5000,
@@ -27,7 +26,7 @@ export const App = () => {
               },
             },
             error: {
-              duration: 10000000,
+              duration: 10000,
               className: editorStyles.toastError,
               iconTheme: {
                 primary: "#111",
