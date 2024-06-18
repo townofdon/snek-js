@@ -1108,10 +1108,10 @@ export function engine({
 
   function applyScreenShakeGfx(x: number, y: number) {
     const shake = (g: P5.Graphics, mul = 1) => { g.style('transform', `translate(${x * mul}px, ${y * mul}px)`); }
-    shake(gfxBG, 0);
+    shake(gfxBG, 0.5);
     shake(gfxFG, 2);
     shake(gfxKeysLocks, 2);
-    shake(gfxApples, 1);
+    shake(gfxApples, 1.1);
   }
 
   function resetScreenShake() {
