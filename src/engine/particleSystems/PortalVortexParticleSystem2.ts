@@ -11,6 +11,7 @@ const DEFAULT_EMITTER_OPTIONS: EmitterOptions = {
   lifetime: 500,
   burst: 5,
   spawnOverTime: 5,
+  spawnDelay: 0,
   speed: -1,
   speedVariance: .01,
   scaleStart: .1,

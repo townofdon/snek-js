@@ -2,7 +2,7 @@
 import P5, { Vector, Color } from 'p5';
 
 import { clamp } from '../../utils';
-import { BLOCK_SIZE } from '../../constants';
+import { BLOCK_SIZE, MAP_OFFSET } from '../../constants';
 import { ScreenShakeState } from '../../types';
 
 interface ParticleConstructorArgs {
@@ -85,13 +85,14 @@ class Particle {
     } : { x: 0, y: 0 }
 
     const drawPosition = {
-      x: position.x * BLOCK_SIZE.x + screenShake.offset.x + orbitOffset.x,
-      y: position.y * BLOCK_SIZE.y + screenShake.offset.y + orbitOffset.y,
+      x: MAP_OFFSET + Math.floor(position.x * BLOCK_SIZE.x + screenShake.offset.x + orbitOffset.x),
+      y: MAP_OFFSET + Math.floor(position.y * BLOCK_SIZE.y + screenShake.offset.y + orbitOffset.y),
     }
     p5.fill(calcColor);
     p5.stroke(calcColor);
     p5.strokeWeight(0);
-    p5.square(drawPosition.x, drawPosition.y, BLOCK_SIZE.x * scale);
+    p5.noStroke();
+    p5.square(drawPosition.x, drawPosition.y, Math.floor(BLOCK_SIZE.x * scale));
   }
 
   isActive = () => {

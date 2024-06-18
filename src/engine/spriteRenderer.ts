@@ -1,7 +1,7 @@
 import P5, { Vector } from "p5";
 
 import { ScreenShakeState, Image } from "../types";
-import { BLOCK_SIZE, STROKE_SIZE } from "../constants";
+import { BLOCK_SIZE, MAP_OFFSET, STROKE_SIZE } from "../constants";
 import { getRelativeDir, lerp } from "../utils";
 
 const IMAGE_SCALE = 1.01;
@@ -129,11 +129,11 @@ export class SpriteRenderer {
   private drawImage3x3Impl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 1) => {
     const loaded = this.images[image];
     if (!loaded) return;
-    const widthX = BLOCK_SIZE.x;
-    const widthY = BLOCK_SIZE.y;
+    const widthX = Math.floor(BLOCK_SIZE.x);
+    const widthY = Math.floor(BLOCK_SIZE.y);
     const position = {
-      x: x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE.x * IMAGE_SCALE,
-      y: y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE.y * IMAGE_SCALE,
+      x: Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE.x * IMAGE_SCALE) + MAP_OFFSET,
+      y: Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE.y * IMAGE_SCALE) + MAP_OFFSET,
     }
 
     const offset = -STROKE_SIZE * 0.5;
@@ -198,10 +198,10 @@ export class SpriteRenderer {
     gfx.tint(255, 255, 255, lerp(0, 255, alpha));
     gfx.image(
       loaded,
-      x,
-      y,
-      2 * loaded.width,
-      2 * loaded.height,
+      Math.round(x + MAP_OFFSET),
+      Math.round(y + MAP_OFFSET),
+      Math.round(2 * loaded.width),
+      Math.round(2 * loaded.height),
       0,
       0,
       loaded.width,

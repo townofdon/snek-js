@@ -24,6 +24,7 @@ import {
   GRIDCOUNT,
   HURT_STUN_TIME,
   INVALID_PORTAL_COLOR,
+  MAP_OFFSET,
   NUM_PORTAL_GRADIENT_COLORS,
   PORTAL_CHANNEL_COLORS,
   PORTAL_FADE_DURATION,
@@ -140,10 +141,11 @@ export class Renderer implements IRenderer {
     gfx.tint(255, 255, 255, lerp(0, 255, alpha));
     gfx.image(
       component,
-      dx,
-      dy,
-      BLOCK_SIZE.x + sizeOffset,
-      BLOCK_SIZE.y + sizeOffset,
+      // MAP_OFFSET not needed here, as graphical components have already been drawn including this offset
+      Math.round(dx),
+      Math.round(dy),
+      Math.round(BLOCK_SIZE.x + sizeOffset),
+      Math.round(BLOCK_SIZE.y + sizeOffset),
       sx,
       sy,
       BLOCK_SIZE.x + sizeOffset,
@@ -184,31 +186,42 @@ export class Renderer implements IRenderer {
     const strokeOffset = STROKE_SIZE - strokeSize;
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
     const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
-    const px = (x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + strokeOffset) + sizeOffsetX;
-    const py = (y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + strokeOffset) + sizeOffsetY;
-    const squareSize = (BLOCK_SIZE.x - strokeSize - strokeOffset * 2) * size;
+    const px = MAP_OFFSET + Math.floor((x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + strokeOffset) + sizeOffsetX);
+    const py = MAP_OFFSET + Math.floor((y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + strokeOffset) + sizeOffsetY);
+    const squareSize = Math.floor((BLOCK_SIZE.x - strokeSize - strokeOffset * 2) * size);
     gfx.square(px, py, squareSize);
     if (is3d) {
       const borderSize = STROKE_SIZE * 0.5;
-      const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX;
-      const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY;
-      const x1 = x0 + (BLOCK_SIZE.x * size) - strokeOffset;
-      const y1 = y0 + (BLOCK_SIZE.y * size) - strokeOffset;
-      const x0i = x0 + borderSize;
-      const y0i = y0 + borderSize;
-      const x1i = x1 - borderSize;
-      const y1i = y1 - borderSize;
+      const x0 = Math.floor(x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX);
+      const y0 = Math.floor(y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY);
+      const x1 = Math.floor(x0 + (BLOCK_SIZE.x * size) - strokeOffset);
+      const y1 = Math.floor(y0 + (BLOCK_SIZE.y * size) - strokeOffset);
+      const x0i = Math.floor(x0 + borderSize);
+      const y0i = Math.floor(y0 + borderSize);
+      const x1i = Math.floor(x1 - borderSize);
+      const y1i = Math.floor(y1 - borderSize);
+      const drawQuad = (_x0: number, _y0: number, _x1: number, _y1: number, _x2: number, _y2: number, _x3: number, _y3: number) => {
+        gfx.quad(
+          MAP_OFFSET + _x0,
+          MAP_OFFSET + _y0,
+          MAP_OFFSET + _x1,
+          MAP_OFFSET + _y1,
+          MAP_OFFSET + _x2,
+          MAP_OFFSET + _y2,
+          MAP_OFFSET + _x3,
+          MAP_OFFSET + _y3);
+      }
       gfx.noStroke();
       this.p5CachedFill(gfx, this.getBorderColor(lineColor, 'light'), optimize);
       // TOP
-      gfx.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
+      drawQuad(x0, y0, x1, y0, x1, y0i, x0, y0i);
       // RIGHT
-      gfx.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
+      drawQuad(x1, y0, x1, y1, x1i, y1, x1i, y0);
       this.p5CachedFill(gfx, this.getBorderColor(lineColor, 'dark'), optimize);
       // BOTTOM
-      gfx.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
+      drawQuad(x0, y1i, x1, y1i, x1, y1, x0, y1);
       // LEFT
-      gfx.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
+      drawQuad(x0, y0, x0i, y0, x0i, y1, x0, y1);
     }
   }
 
@@ -232,30 +245,42 @@ export class Renderer implements IRenderer {
     const strokeOffset = STROKE_SIZE - strokeSize;
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
     const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
-    const x0 = x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX;
-    const y0 = y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY;
-    const x1 = x0 + (BLOCK_SIZE.x * size) - strokeOffset;
-    const y1 = y0 + (BLOCK_SIZE.y * size) - strokeOffset;
-    const x0i = x0 + borderSize;
-    const y0i = y0 + borderSize;
-    const x1i = x1 - borderSize;
-    const y1i = y1 - borderSize;
+    const x0 = Math.floor(x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX);
+    const y0 = Math.floor(y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY);
+    const x1 = Math.floor(x0 + (BLOCK_SIZE.x * size) - strokeOffset);
+    const y1 = Math.floor(y0 + (BLOCK_SIZE.y * size) - strokeOffset);
+    const x0i = Math.floor(x0 + borderSize);
+    const y0i = Math.floor(y0 + borderSize);
+    const x1i = Math.floor(x1 - borderSize);
+    const y1i = Math.floor(y1 - borderSize);
     gfx.noStroke();
     if (overrideColor) {
       this.p5CachedFill(gfx, strokeColor);
     } else {
       this.p5CachedFill(gfx, this.getBorderColor(strokeColor, mode));
     }
+    const drawQuad = (_x0: number, _y0: number, _x1: number, _y1: number, _x2: number, _y2: number, _x3: number, _y3: number) => {
+      gfx.quad(
+        MAP_OFFSET + _x0,
+        MAP_OFFSET + _y0,
+        MAP_OFFSET + _x1,
+        MAP_OFFSET + _y1,
+        MAP_OFFSET + _x2,
+        MAP_OFFSET + _y2,
+        MAP_OFFSET + _x3,
+        MAP_OFFSET + _y3);
+    }
     if (mode === 'light') {
       // TOP
-      gfx.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
+      drawQuad(x0, y0, x1, y0, x1, y0i, x0, y0i);
+      // gfx.quad(x0, y0, x1, y0, x1, y0i, x0, y0i);
       // RIGHT
-      gfx.quad(x1, y0, x1, y1, x1i, y1, x1i, y0);
+      drawQuad(x1, y0, x1, y1, x1i, y1, x1i, y0);
     } else if (mode === 'dark') {
       // BOTTOM
-      gfx.quad(x0, y1i, x1, y1i, x1, y1, x0, y1);
+      drawQuad(x0, y1i, x1, y1i, x1, y1, x0, y1);
       // LEFT
-      gfx.quad(x0, y0, x0i, y0, x0i, y1, x0, y1);
+      drawQuad(x0, y0, x0i, y0, x0i, y1, x0, y1);
     }
   }
 
@@ -280,12 +305,12 @@ export class Renderer implements IRenderer {
     // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
     gfx.noStroke();
     for (let i = 0; i < blockDivisions; i++) {
-      const px0 = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + i * sizeX;
-      const py0 = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + i * sizeY;
-      const px1 = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + i * sizeX;
-      const py1 = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + (blockDivisions - 1 - i) * sizeY;
-      gfx.square(px0, py0, Math.max(sizeX, sizeY));
-      gfx.square(px1, py1, Math.max(sizeX, sizeY));
+      const px0 = MAP_OFFSET + Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + i * sizeX);
+      const py0 = MAP_OFFSET + Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + i * sizeY);
+      const px1 = MAP_OFFSET + Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + i * sizeX);
+      const py1 = MAP_OFFSET + Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + (blockDivisions - 1 - i) * sizeY);
+      gfx.square(px0, py0, Math.floor(Math.max(sizeX, sizeY)));
+      gfx.square(px1, py1, Math.floor(Math.max(sizeX, sizeY)));
     }
   }
 
@@ -303,22 +328,33 @@ export class Renderer implements IRenderer {
     const height = BLOCK_SIZE.y;
     const x0 = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + (1 - size) * width - borderSize;
     const y0 = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + (1 - size) * height - borderSize;
-    const x1 = x0 + width * size + 0.75;
-    const y1 = y0 + height * size + 0.75;
+    const x1 = x0 + width * size;
+    const y1 = y0 + height * size;
+    const drawQuad = (_x0: number, _y0: number, _x1: number, _y1: number, _x2: number, _y2: number, _x3: number, _y3: number) => {
+      gfx.quad(
+        MAP_OFFSET + Math.floor(_x0),
+        MAP_OFFSET + Math.floor(_y0),
+        MAP_OFFSET + Math.floor(_x1),
+        MAP_OFFSET + Math.floor(_y1),
+        MAP_OFFSET + Math.floor(_x2),
+        MAP_OFFSET + Math.floor(_y2),
+        MAP_OFFSET + Math.floor(_x3),
+        MAP_OFFSET + Math.floor(_y3));
+    }
     gfx.fill(color);
     // gfx.randomSeed(x + y * 500000);
     // gfx.fill(gfx.color(gfx.random(0, 255), gfx.random(0, 255), gfx.random(0, 255)));
     gfx.noStroke();
-    gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    drawQuad(x0, y0, x1, y0, x1, y1, x0, y1);
   }
 
   drawLine(gfx: P5 | P5.Graphics, x0: number, y0: number, x1: number, y1: number, color: string) {
     const width = BLOCK_SIZE.x;
     const height = BLOCK_SIZE.y;
-    const px0 = x0 * BLOCK_SIZE.x + width * 0.5;
-    const py0 = y0 * BLOCK_SIZE.y + height * 0.5;
-    const px1 = x1 * BLOCK_SIZE.x + width * 0.5;
-    const py1 = y1 * BLOCK_SIZE.y + height * 0.5;
+    const px0 = MAP_OFFSET + x0 * BLOCK_SIZE.x + width * 0.5;
+    const py0 = MAP_OFFSET + y0 * BLOCK_SIZE.y + height * 0.5;
+    const px1 = MAP_OFFSET + x1 * BLOCK_SIZE.x + width * 0.5;
+    const py1 = MAP_OFFSET + y1 * BLOCK_SIZE.y + height * 0.5;
     gfx.stroke(color);
     gfx.strokeWeight(5);
     gfx.strokeCap(this.p5.SQUARE);
@@ -381,8 +417,8 @@ export class Renderer implements IRenderer {
       const arrow = arrowBlocks[i];
       if (!arrow.show) continue;
       const position = {
-        x: arrow.x * BLOCK_SIZE.x + BLOCK_SIZE.x * 0.4 + this.screenShake.offset.x,
-        y: arrow.y * BLOCK_SIZE.y + BLOCK_SIZE.y * 0.35 + this.screenShake.offset.y,
+        x: MAP_OFFSET + arrow.x * BLOCK_SIZE.x + BLOCK_SIZE.x * 0.4 + this.screenShake.offset.x,
+        y: MAP_OFFSET + arrow.y * BLOCK_SIZE.y + BLOCK_SIZE.y * 0.35 + this.screenShake.offset.y,
       }
       gfx.fill("#fff");
       gfx.stroke("#000");
@@ -409,17 +445,17 @@ export class Renderer implements IRenderer {
       x: 10,
       y: 12.3,
     };
-    const x0 = BLOCK_SIZE.x * (bannerPosition.x - 5);
-    const x1 = x0 + bannerWidth * BLOCK_SIZE.x - STROKE_SIZE;
-    const y0 = BLOCK_SIZE.y * (bannerPosition.y);
-    const y1 = y0 + bannerHeight * BLOCK_SIZE.y - STROKE_SIZE;
+    const x0 = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x - 5);
+    const y0 = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y);
+    const x1 = MAP_OFFSET + x0 + bannerWidth * BLOCK_SIZE.x - STROKE_SIZE;
+    const y1 = MAP_OFFSET + y0 + bannerHeight * BLOCK_SIZE.y - STROKE_SIZE;
     gfx.fill('#000000aa');
     gfx.stroke("#000");
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // // text
-    const textX = x0 + BLOCK_SIZE.x * 1.7;
-    const textY = y0 + BLOCK_SIZE.y * 3.7;
+    const textX = MAP_OFFSET + x0 + BLOCK_SIZE.x * 1.7;
+    const textY = MAP_OFFSET + y0 + BLOCK_SIZE.y * 3.7;
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
@@ -466,17 +502,17 @@ export class Renderer implements IRenderer {
     }
     bannerPosition.x = clamp(bannerPosition.x, bounds.min.x, bounds.max.x);
     bannerPosition.y = clamp(bannerPosition.y, bounds.min.y, bounds.max.y);
-    const x0 = BLOCK_SIZE.x * (bannerPosition.x);
-    const x1 = BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
-    const y0 = BLOCK_SIZE.y * (bannerPosition.y);
-    const y1 = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
+    const x0 = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x);
+    const x1 = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
+    const y0 = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y);
+    const y1 = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
     gfx.fill('#000000aa');
     gfx.stroke("#000");
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
-    const textX = BLOCK_SIZE.x * (bannerPosition.x + 3);
-    const textY = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
+    const textX = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x + 3);
+    const textY = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
     gfx.fill("#fff");
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
@@ -495,17 +531,17 @@ export class Renderer implements IRenderer {
     const bannerWidth = 7.8;
     const bannerHeight = 2.8;
     const bannerPosition = { x, y };
-    const x0 = BLOCK_SIZE.x * (bannerPosition.x);
-    const x1 = BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
-    const y0 = BLOCK_SIZE.y * (bannerPosition.y);
-    const y1 = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
+    const x0 = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x);
+    const x1 = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
+    const y0 = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y);
+    const y1 = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
     gfx.fill('#000000aa');
     gfx.stroke("#000");
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
-    const textX = BLOCK_SIZE.x * (bannerPosition.x + 3.5);
-    const textY = BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
+    const textX = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x + 3.5);
+    const textY = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
@@ -548,18 +584,18 @@ export class Renderer implements IRenderer {
     textColor = "#fff",
     backgroundColor = "#000000aa",
   } = {}) => {
-    const x0 = BLOCK_SIZE.x * x;
-    const x1 = BLOCK_SIZE.x * (x + bannerWidth) - STROKE_SIZE * 0.5;
-    const y0 = BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
-    const y1 = BLOCK_SIZE.y * (y + bannerHeight) - STROKE_SIZE;
+    const x0 = MAP_OFFSET + BLOCK_SIZE.x * x;
+    const x1 = MAP_OFFSET + BLOCK_SIZE.x * (x + bannerWidth) - STROKE_SIZE * 0.5;
+    const y0 = MAP_OFFSET + BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
+    const y1 = MAP_OFFSET + BLOCK_SIZE.y * (y + bannerHeight) - STROKE_SIZE;
     gfx.fill(backgroundColor);
     gfx.noStroke();
     // gfx.stroke("#000");
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
-    const textX = BLOCK_SIZE.x * x + 2 * 5 + BLOCK_SIZE.x * textXOffset;
-    const textY = BLOCK_SIZE.y * y + 2 * 7;
+    const textX = MAP_OFFSET + BLOCK_SIZE.x * x + 2 * 5 + BLOCK_SIZE.x * textXOffset;
+    const textY = MAP_OFFSET + BLOCK_SIZE.y * y + 2 * 7;
     gfx.fill(textColor);
     // gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
@@ -575,10 +611,10 @@ export class Renderer implements IRenderer {
     if (!this.gameState.isGameStarted) return;
     if (!this.gameState.hasKeyYellow && !this.gameState.hasKeyRed && !this.gameState.hasKeyBlue) return;
 
-    const x0 = BLOCK_SIZE.x * 29 - STROKE_SIZE * 0.5;
-    const y0 = BLOCK_SIZE.y * 1 - STROKE_SIZE * 0.5;
-    const x1 = x0 + BLOCK_SIZE.x * 1 + STROKE_SIZE * 0.5;
-    const y1 = y0 + BLOCK_SIZE.y * 3 + STROKE_SIZE * 0.5;
+    const x0 = MAP_OFFSET + BLOCK_SIZE.x * 29 - STROKE_SIZE * 0.5;
+    const y0 = MAP_OFFSET + BLOCK_SIZE.y * 1 - STROKE_SIZE * 0.5;
+    const x1 = MAP_OFFSET + x0 + BLOCK_SIZE.x * 1 + STROKE_SIZE * 0.5;
+    const y1 = MAP_OFFSET + y0 + BLOCK_SIZE.y * 3 + STROKE_SIZE * 0.5;
     gfx.fill("#00000099");
     gfx.noStroke();
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
@@ -694,8 +730,8 @@ export class Renderer implements IRenderer {
       this.hydratePortalCachedColors();
     }
     return [
-      this.portalCachedColorsFG[channel][Math.min(Math.floor(t1 * NUM_PORTAL_GRADIENT_COLORS), NUM_PORTAL_GRADIENT_COLORS - 1)] || INVALID_PORTAL_COLOR,
-      this.portalCachedColorsBG[channel][Math.min(Math.floor(t2 * NUM_PORTAL_GRADIENT_COLORS), NUM_PORTAL_GRADIENT_COLORS - 1)] || INVALID_PORTAL_COLOR,
+      this.portalCachedColorsFG[channel][Math.min(Math.round(t1 * NUM_PORTAL_GRADIENT_COLORS), NUM_PORTAL_GRADIENT_COLORS - 1)] || INVALID_PORTAL_COLOR,
+      this.portalCachedColorsBG[channel][Math.min(Math.round(t2 * NUM_PORTAL_GRADIENT_COLORS), NUM_PORTAL_GRADIENT_COLORS - 1)] || INVALID_PORTAL_COLOR,
     ];
   }
 

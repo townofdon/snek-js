@@ -31,7 +31,7 @@ export function getCoordIndex(vec: Vector | undefined): number {
 }
 
 export function getCoordIndex2(x: number, y: number): number {
-  return clamp(x, 0, GRIDCOUNT.x - 1) + clamp(y, 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
+  return clamp(Math.floor(x), 0, GRIDCOUNT.x - 1) + clamp(Math.floor(y), 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
 }
 
 export function coordToVec(index: number): Vector {

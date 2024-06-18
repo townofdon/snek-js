@@ -492,8 +492,14 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
     function drawParticles(zIndexPass = 0) {
       if (zIndexPass < 10) {
+        const test = (coord: number): boolean => {
+          if (data.barriersMap[coord] && !data.passablesMap[coord]) return false;
+          if (data.doorsMap[coord]) return false;
+          if (isValidPortalChannel(data.portalsMap[coord])) return false;
+          return true;
+        }
         emitters.tick(p5.deltaTime);
-        particles.tick(p5.deltaTime);
+        particles.tick(p5.deltaTime, test);
       } else if (zIndexPass < 20) {
         emitters10.tick(p5.deltaTime);
         particles10.tick(p5.deltaTime);

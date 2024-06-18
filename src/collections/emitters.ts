@@ -124,7 +124,11 @@ export class Emitters {
     this.timeTillNextSpawn[i] = 0;
     this.options[i] = opt;
     if (opt.spawnOverTime > 0) {
-      this.timeTillNextSpawn[i] = opt.lifetime / opt.spawnOverTime;
+      if (opt.spawnDelay) {
+        this.timeTillNextSpawn[i] = Math.random() * opt.spawnDelay;
+      } else {
+        this.timeTillNextSpawn[i] = opt.lifetime / opt.spawnOverTime;
+      }
     }
     this.spawnBurst(i);
   }

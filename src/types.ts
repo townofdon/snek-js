@@ -657,6 +657,7 @@ export interface EmitterOptions {
   originOffset: number,
   lifetime: number,
   burst: number,
+  spawnDelay: number,
   spawnOverTime: number,
   speed: number,
   speedVariance: number,

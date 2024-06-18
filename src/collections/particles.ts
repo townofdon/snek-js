@@ -1,7 +1,7 @@
 import P5, { Vector } from "p5";
 
-import { BLOCK_SIZE, IS_DEV } from "../constants";
-import { clamp, lerp } from "../utils";
+import { BLOCK_SIZE, IS_DEV, MAP_OFFSET } from "../constants";
+import { clamp, getCoordIndex2, lerp } from "../utils";
 import { Gradients } from "./gradients";
 import { ScreenShakeState } from "../types";
 
@@ -110,7 +110,7 @@ export class Particles {
     return this.timeElapsed;
   }
 
-  public tick = (deltaTime: number) => {
+  public tick = (deltaTime: number, test?: (coord: number) => boolean) => {
     this.timeElapsed += deltaTime;
     let index = 0;
     while (index < this.indices.length) {
@@ -124,7 +124,7 @@ export class Particles {
         continue;
       }
 
-      this.drawParticle(i);
+      this.drawParticle(i, test);
       index++;
     }
   }
@@ -208,7 +208,7 @@ export class Particles {
     this.activeLength--;
   }
 
-  private drawParticle = (i: number): void => {
+  private drawParticle = (i: number, test?: (coord: number) => boolean): void => {
     if (!this.lifetime[i]) return;
     const normalizedTimeElapsed = Math.max((this.timeElapsed - this.birthtime[i]) / this.lifetime[i], 0);
     const t = this.easing[i] ? this.easing[i](normalizedTimeElapsed) : normalizedTimeElapsed;
@@ -221,12 +221,16 @@ export class Particles {
     const position = Vector.lerp(positionStart, positionEnd, t);
 
     const orbitOffset = this.getOrbitOffset(this.orbit[i], origin, positionStart, position, t);
-    const x = position.x * BLOCK_SIZE.x + this.screenShake.offset.x + orbitOffset.x;
-    const y = position.y * BLOCK_SIZE.y + this.screenShake.offset.y + orbitOffset.y;
+    const x = MAP_OFFSET + Math.floor(position.x * BLOCK_SIZE.x + this.screenShake.offset.x + orbitOffset.x);
+    const y = MAP_OFFSET + Math.floor(position.y * BLOCK_SIZE.y + this.screenShake.offset.y + orbitOffset.y);
+    const coord = getCoordIndex2(position.x + (this.screenShake.offset.x + orbitOffset.x) / BLOCK_SIZE.x, position.y + (this.screenShake.offset.x + orbitOffset.x) / BLOCK_SIZE.y);
+    if (test && !test(coord)) return;
+
     this.p5.fill(color);
     this.p5.stroke(color);
     this.p5.strokeWeight(0);
-    this.p5.square(x, y, BLOCK_SIZE.x * scale);
+    this.p5.noStroke();
+    this.p5.square(x, y, Math.round(BLOCK_SIZE.x * scale));
   }
 
   private getOrbitOffset = (orbit: number, origin: Vector, positionStart: Vector, position: Vector, t: number): { x: number, y: number } => {

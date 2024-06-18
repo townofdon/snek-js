@@ -104,6 +104,7 @@ import {
   getTraversalDistance,
   invertDirection,
   isOrthogonalDirection,
+  isValidPortalChannel,
   isWithinBlockDistance,
   lerp,
   } from "../utils";
@@ -2118,8 +2119,16 @@ export function engine({
   function drawParticles(zIndexPass = 0) {
     if (state.isShowingDeathColours) return;
     if (zIndexPass < 10) {
+      const test = (coord: number): boolean => {
+        if (barriersMap[coord] && !passablesMap[coord]) return false;
+        if (doorsMap[coord]) return false;
+        if (portalsMap[coord]) return false;
+        if (locksMap[coord]) return false;
+        if (segments.containsCoord(coord)) return false;
+        return true;
+      }
       emitters.tick(p5.deltaTime);
-      particles.tick(p5.deltaTime);
+      particles.tick(p5.deltaTime, test);
     } else if (zIndexPass < 20) {
       emitters10.tick(p5.deltaTime);
       particles10.tick(p5.deltaTime);

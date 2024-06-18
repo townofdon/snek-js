@@ -297,6 +297,8 @@ export const sketch = (p5: P5) => {
    */
   p5.draw = draw;
   function draw() {
+    // prevent freezing due to animation frame build up if tab loses focus
+    if (p5.deltaTime > 3000) return;
     renderLoop();
     if (level.loading) {
       loadingScene.draw();
