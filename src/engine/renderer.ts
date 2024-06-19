@@ -324,26 +324,32 @@ export class Renderer implements IRenderer {
 
   private drawBasicSquareImpl(gfx: P5 | P5.Graphics, x: number, y: number, color: P5.Color, size = 1, screenshakeMul = 1) {
     const borderSize = STROKE_SIZE * 0.5;
-    const width = BLOCK_SIZE.x;
-    const height = BLOCK_SIZE.y;
+    const widthAddLastX = MAP_OFFSET * (x >= BLOCK_SIZE.x - 1 ? 1 : 0);
+    const heightAddLastY = MAP_OFFSET * (y >= BLOCK_SIZE.y - 1 ? 1 : 0);
+    const width = BLOCK_SIZE.x + widthAddLastX;
+    const height = BLOCK_SIZE.y + heightAddLastY;
     const x0 = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + (1 - size) * width - borderSize;
     const y0 = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + (1 - size) * height - borderSize;
     const x1 = x0 + width * size;
     const y1 = y0 + height * size;
+    const offsetMulFirstX = x <= 0 ? 0 : 1;
+    const offsetMulFirstY = y <= 0 ? 0 : 1;
     const drawQuad = (_x0: number, _y0: number, _x1: number, _y1: number, _x2: number, _y2: number, _x3: number, _y3: number) => {
       gfx.quad(
-        MAP_OFFSET + Math.floor(_x0),
-        MAP_OFFSET + Math.floor(_y0),
-        MAP_OFFSET + Math.floor(_x1),
-        MAP_OFFSET + Math.floor(_y1),
-        MAP_OFFSET + Math.floor(_x2),
-        MAP_OFFSET + Math.floor(_y2),
-        MAP_OFFSET + Math.floor(_x3),
-        MAP_OFFSET + Math.floor(_y3));
+        Math.floor(_x0) + MAP_OFFSET * offsetMulFirstX,
+        Math.floor(_y0) + MAP_OFFSET * offsetMulFirstY,
+        Math.floor(_x1) + MAP_OFFSET,
+        Math.floor(_y1) + MAP_OFFSET * offsetMulFirstY,
+        Math.floor(_x2) + MAP_OFFSET,
+        Math.floor(_y2) + MAP_OFFSET,
+        Math.floor(_x3) + MAP_OFFSET * offsetMulFirstX,
+        Math.floor(_y3) + MAP_OFFSET,
+      );
     }
     gfx.fill(color);
     // gfx.randomSeed(x + y * 500000);
     // gfx.fill(gfx.color(gfx.random(0, 255), gfx.random(0, 255), gfx.random(0, 255)));
+    // gfx.fill(gfx.lerpColor(gfx.color('black'), gfx.color('#fff'), ((x || 0.01) * (y || 0.01)) / (GRIDCOUNT.x * GRIDCOUNT.y)))
     gfx.noStroke();
     drawQuad(x0, y0, x1, y0, x1, y1, x0, y1);
   }

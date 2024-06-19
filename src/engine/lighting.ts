@@ -48,13 +48,13 @@ export function updateLighting(lightMap: number[], globalLight: number, playerPo
 }
 
 export function drawLighting(lightMap: number[], renderer: Renderer, graphics: P5 | P5.Graphics) {
+  const coefficient = 1 / LIGHTMAP_RESOLUTION;
   for (let i = 0; i < lightMap.length; i++) {
     const x = i % (GRIDCOUNT.x * LIGHTMAP_RESOLUTION);
     const y = Math.floor(i / (GRIDCOUNT.x * LIGHTMAP_RESOLUTION));
     const a = 1 - clamp(lightMap[i], 0, 1);
     const color = lightColorLookup[Math.floor(a * (numUniqLightColors - 1) + Number.EPSILON)];
     if (!color) continue;
-    const coefficient = 1 / LIGHTMAP_RESOLUTION;
     renderer.drawBasicSquareCustom(graphics, x * coefficient, y * coefficient, color, coefficient, 0);
   }
 }
