@@ -113,7 +113,6 @@ export const LOSE_MESSAGES: LoseMessage[] = [
     ["Focus. Harness your reptilian brain.", (state, stats, difficulty) => difficulty.index >= 4 && stats.numLevelsCleared <= 0],
     ["Do not try to overcome the snek.<br/>Become the snek.", (state, stats, difficulty) => difficulty.index >= 4],
     ["You cannot out-snek snek.", (state, stats, difficulty) => difficulty.index >= 4],
-    ["What are you after, bragging rights?", (state, stats, difficulty) => difficulty.index >= 4 && stats.numDeaths >= 3],
     ["Alas, your reign of terror has come to an end.", (state, stats, difficulty) => difficulty.index >= 4 && stats.numLevelsCleared >= 3],
     ["Annals shall be written of your great deeds.", (state, stats, difficulty) => difficulty.index >= 4 && stats.numLevelsCleared >= 2],
     ["Tales of your deeds shall resound across the lands.", (state, stats, difficulty) => difficulty.index >= 4 && stats.numLevelsCleared >= 2],
