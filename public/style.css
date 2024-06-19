@@ -139,7 +139,7 @@ p, button, .button {
   animation-duration: 1000ms;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
-  animation-delay: 0.75s;
+  animation-delay: 1.5s;
 }
 
 .start-screen img {

@@ -16,8 +16,8 @@ X     --   xx+++xx   --      X
 X     --     ===     --      X
 X     --     ===     --      X
 X    xddx    ===    xddx     X
-X+---xXXx----===----xXXx----+X
-X+---xXXx----===----xXXx----+X
+X+---xxxx----===----xxxx----+X
+X+---xxxx----===----xxxx----+X
 X    xddx    ===    xddx     X
 X     --     ===     --      X
 X~    --     ===     --     ~X
@@ -31,8 +31,8 @@ XXx   --     ===     --    xXX
 X~    --     ===     --     ~X
 X     --     ===     --      X
 X    xddx    ===    xddx     X
-X+---xXXx----===----xXXx----+X
-X+---xXXx----===----xXXx----+X
+X+---xxxx----===----xxxx----+X
+X+---xxxx----===----xxxx----+X
 X    xddx    ===    xddx     X
 X     --     ===     --      X
 X     --  O  ===     --      X

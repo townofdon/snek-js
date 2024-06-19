@@ -241,7 +241,7 @@ export const sketch = (p5: P5) => {
   });
 
   const mainTitleFader = new MainTitleFader(p5);
-  const winGameScene = new WinGameScene({ p5, gfx: gfxPresentation, gameState: state, stats, sfx, fonts, onChangePlayerDirection, callbacks: { onSceneEnded: gotoNextLevel } })
+  const winGameScene = new WinGameScene({ p5, gfx: gfxPresentation, gameState: state, stats, sfx, fonts, onChangePlayerDirection, spriteRenderer, callbacks: { onSceneEnded: gotoNextLevel } })
   const leaderboardScene = new LeaderboardScene({ p5, gfx: gfxPresentation, sfx, fonts, callbacks: { onSceneEnded: hideLeaderboard } });
 
   const modal = new Modal();

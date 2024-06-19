@@ -2,7 +2,7 @@ import P5 from "p5";
 import Color from "color";
 import formatNumberFn from 'format-number'
 
-import { DIR, FontsInstance, GameMode, GameState, IEnumerator, SFXInstance, SceneCallbacks, Sound, Stats, UINavDir } from "../types";
+import { DIR, FontsInstance, GameMode, GameState, IEnumerator, Image, SFXInstance, SceneCallbacks, Sound, Stats, UINavDir } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { ACCENT_COLOR, DIMENSIONS, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "../constants";
@@ -13,6 +13,7 @@ import { ApiOptions } from "../api/utils/apiUtils";
 import { handleUIEvents } from "../engine/controls";
 import { HighscoreEntryModal } from "../ui/highscoreEntryModal";
 import { Modal } from "../ui/modal";
+import { SpriteRenderer } from "../engine/spriteRenderer";
 
 const formatNumber = formatNumberFn({
   truncate: 0,
@@ -75,11 +76,13 @@ export interface WinGameSceneConstructorArgs {
   sfx: SFXInstance,
   fonts: FontsInstance,
   onChangePlayerDirection: (direction: DIR) => void;
+  spriteRenderer: SpriteRenderer;
   callbacks: SceneCallbacks,
 }
 
 export class WinGameScene extends BaseScene {
   private sfx: SFXInstance;
+  private spriteRenderer: SpriteRenderer;
   private gameState: GameState;
   private stats: Stats;
   private state: WinGameState = {
@@ -101,9 +104,10 @@ export class WinGameScene extends BaseScene {
   private modalHighScoreEntry = new HighscoreEntryModal();
   private modalConfirm = new Modal();
 
-  constructor({ p5, gfx, gameState, stats, sfx, fonts, onChangePlayerDirection, callbacks = {} }: WinGameSceneConstructorArgs) {
+  constructor({ p5, gfx, gameState, stats, sfx, fonts, onChangePlayerDirection, spriteRenderer, callbacks = {} }: WinGameSceneConstructorArgs) {
     super(p5, gfx, fonts, callbacks)
     this.sfx = sfx;
+    this.spriteRenderer = spriteRenderer;
     this.gameState = gameState;
     this.stats = stats;
     this.onChangePlayerDirection = onChangePlayerDirection;
@@ -413,9 +417,19 @@ export class WinGameScene extends BaseScene {
   }
 
   draw = () => {
-    const { p5 } = this.props;
+    const { p5, gfx } = this.props;
     const { bgOpacity } = this.state;
-    this.drawBackground(p5.lerpColor(p5.color("#00000000"), p5.color("#00000099"), bgOpacity).toString());
+
+    if (this.gameState.isLost) {
+      const bgColor = (amount = 1) => {
+        return p5.lerpColor(p5.color("#00000000"), p5.color("#00000066"), bgOpacity * amount).toString()
+      }
+      this.drawBackground(bgColor(0.8));
+      this.drawBackground(bgColor(1), gfx);
+      this.spriteRenderer.drawImage(Image.Darken, 0, 0, gfx, bgOpacity * 0.3);
+    } else {
+      this.drawBackground(p5.lerpColor(p5.color("#00000000"), p5.color("#00000099"), bgOpacity).toString());
+    }
 
     if (this.fieldVisible[FIELD.TITLE]) {
       const title = (() => {
