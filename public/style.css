@@ -896,7 +896,6 @@ button:focus > .tooltip
   font-size: 1em;
   line-height: 1em;
   white-space: nowrap;
-  min-width: 43px;
 }
 
 .ui-label.difficulty {
