@@ -900,9 +900,9 @@ button:focus > .tooltip
 }
 
 .ui-label.difficulty {
-  left: 43px;
+  left: 40px;
   top: 0px;
-  padding: 2px 8px;
+  padding: 1px 8px;
   text-align: left;
   transform-origin: left top;
   transform: scale(2);
@@ -926,13 +926,20 @@ button:focus > .tooltip
   margin: 0 8px;
 }
 
-.ui-label.casual {}
+.ui-label.casual {
+  left: inherit;
+  right: 37px;
+  padding: 1px 8px;
+  text-align: right;
+  transform-origin: top right;
+  transform: scale(2);
+}
 
 .ui-label.score {
   left: 40px;
   top: inherit;
   bottom: 0px;
-  padding: 2px 8px;
+  padding: 1px 8px;
   text-align: left;
   transform-origin: left bottom;
   transform: scale(2);
@@ -943,7 +950,7 @@ button:focus > .tooltip
   top: inherit;
   bottom: 0px;
   right: 37px;
-  padding: 2px 8px;
+  padding: 1px 8px;
   text-align: right;
   z-index: 5;
   transform-origin: right bottom;
