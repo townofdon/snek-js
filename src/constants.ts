@@ -257,6 +257,28 @@ export const OST_MODE_TRACKS: MusicTrack[] = [
   MusicTrack.overture,
 ];
 
+export const OST_MODE_TRACKS_NOTIFY_UNLOCK: MusicTrack[] = [
+  MusicTrack.simpleTime,
+  MusicTrack.transient,
+  MusicTrack.conquerer,
+  MusicTrack.observer,
+  MusicTrack.lordy,
+  MusicTrack.factorio,
+  MusicTrack.skycastle,
+  MusicTrack.creeplord,
+  MusicTrack.dangerZone,
+  MusicTrack.stonemaze,
+  MusicTrack.shopkeeper,
+  MusicTrack.woorb,
+  MusicTrack.gravy,
+  MusicTrack.lostcolony,
+  MusicTrack.slyguy,
+  MusicTrack.reconstitute,
+  MusicTrack.ascension,
+  MusicTrack.moneymaker,
+  MusicTrack.overture,
+];
+
 export const SLIME_CONTROL_TRACKS: MusicTrack[] = [
   MusicTrack.slime_dangerman,
   MusicTrack.slime_megacreep,

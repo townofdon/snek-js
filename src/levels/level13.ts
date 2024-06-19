@@ -57,6 +57,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
   titleVariant: TitleVariant.GrayBlue,
   pickupDrops: {
     54: { likelihood: .4, type: PickupType.Invincibility },
-    59: { likelihood: .4, type: PickupType.Invincibility },
+    99: { likelihood: .4, type: PickupType.Invincibility },
   },
 };

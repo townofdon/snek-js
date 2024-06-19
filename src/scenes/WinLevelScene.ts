@@ -5,7 +5,7 @@ import { FontsInstance, Image, MusicTrack, SFXInstance, SceneCallbacks, Sound } 
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
-import { OST_MODE_TRACKS } from "../constants";
+import { OST_MODE_TRACKS, OST_MODE_TRACKS_NOTIFY_UNLOCK } from "../constants";
 import { getTrackName } from "../utils";
 import { SpriteRenderer } from "../engine/spriteRenderer";
 
@@ -199,14 +199,16 @@ export class WinLevelScene extends BaseScene {
 
     // unlock music track
     if (this.levelMusicTrack && !this.unlockedMusicStore.getIsUnlocked(this.levelMusicTrack) && OST_MODE_TRACKS.includes(this.levelMusicTrack)) {
-      sfx.play(Sound.unlockAbility, 1);
       this.unlockedMusicStore.unlockTrack(this.levelMusicTrack);
-      yield* coroutines.waitForTime(3200, (t) => {
-        // flash
-        const freq = 0.3;
-        const shouldShow = t % freq < freq * 0.5;
-        if (shouldShow) this.drawMusicTrackUnlocked(this.levelMusicTrack);
-      });
+      if (OST_MODE_TRACKS_NOTIFY_UNLOCK.includes(this.levelMusicTrack)) {
+        sfx.play(Sound.unlockAbility, 1);
+        yield* coroutines.waitForTime(3200, (t) => {
+          // flash
+          const freq = 0.3;
+          const shouldShow = t % freq < freq * 0.5;
+          if (shouldShow) this.drawMusicTrackUnlocked(this.levelMusicTrack);
+        });
+      }
     }
 
     this.cleanup();

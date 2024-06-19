@@ -72,10 +72,10 @@ XXXXXXXXXXXXXXXDDDXXXXXXXXXXXX
     ["I daresay that was one teleport too many."],
   ],
   pickupDrops: {
-    20: { likelihood: .5, type: PickupType.Invincibility },
-    30: { likelihood: .6, type: PickupType.Invincibility },
-    40: { likelihood: .7, type: PickupType.Invincibility },
-    50: { likelihood: .8, type: PickupType.Invincibility },
-    59: { likelihood: .9, type: PickupType.Invincibility },
+    20: { likelihood: .2, type: PickupType.Invincibility },
+    30: { likelihood: .2, type: PickupType.Invincibility },
+    40: { likelihood: .3, type: PickupType.Invincibility },
+    50: { likelihood: .3, type: PickupType.Invincibility },
+    59: { likelihood: .4, type: PickupType.Invincibility },
   },
 };

@@ -50,7 +50,7 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   musicTrack: MusicTrack.dangerZone,
   titleVariant: TitleVariant.Red,
   pickupDrops: {
-    30: { likelihood: .4, type: PickupType.Invincibility },
-    50: { likelihood: .7, type: PickupType.Invincibility },
+    30: { likelihood: .1, type: PickupType.Invincibility },
+    50: { likelihood: .3, type: PickupType.Invincibility },
   },
 };
