@@ -474,7 +474,7 @@ button:focus:before {
   animation-delay: calc(var(--hover-duration) * 0.2);
 }
 
-.main-ui-buttons .button:nth-child(4)
+.main-ui-buttons .button:nth-child(4),
 .main-ui-buttons button:nth-child(4) {
   animation-delay: calc(var(--hover-duration) * 0.3);
 }
