@@ -134,6 +134,11 @@ p, button, .button {
   color: #e5cecd;
   letter-spacing: 1px;
   font-size: 2em;
+
+  animation-name: anim-dim;
+  animation-duration: 1000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
 }
 
 .start-screen img {
