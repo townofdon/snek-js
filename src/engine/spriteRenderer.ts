@@ -170,36 +170,36 @@ export class SpriteRenderer {
     gfx.pop();
   }
 
-  drawImage = (image: Image, x: number, y: number, gfx: P5 | P5.Graphics = this.p5, alpha = 1) => {
-    this.drawImageImpl(gfx, image, x, y, alpha);
+  drawImage = (image: Image, x: number, y: number, gfx: P5 | P5.Graphics = this.p5, alpha = 1, offset = MAP_OFFSET) => {
+    this.drawImageImpl(gfx, image, x, y, alpha, offset);
   }
 
-  drawImageStatic = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha = 1) => {
+  drawImageStatic = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha = 1, offset = MAP_OFFSET) => {
     if (this.isStaticCached) return;
-    this.drawImageImpl(gfx, image, x, y, alpha);
+    this.drawImageImpl(gfx, image, x, y, alpha, offset);
   }
 
   getImageWidth = (image: Image): number => {
     const loaded = this.images[image];
     if (!loaded) return 0;
-    return loaded.width;
+    return loaded.width * 2;
   }
 
   getImageHeight = (image: Image): number => {
     const loaded = this.images[image];
     if (!loaded) return 0;
-    return loaded.height;
+    return loaded.height * 2;
   }
 
-  private drawImageImpl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha = 1) => {
+  private drawImageImpl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha = 1, offset = MAP_OFFSET) => {
     const loaded = this.images[image];
     if (!loaded) return;
     gfx.push();
     gfx.tint(255, 255, 255, lerp(0, 255, alpha));
     gfx.image(
       loaded,
-      Math.round(x + MAP_OFFSET),
-      Math.round(y + MAP_OFFSET),
+      Math.round(x + offset),
+      Math.round(y + offset),
       Math.round(2 * loaded.width),
       Math.round(2 * loaded.height),
       0,

@@ -277,12 +277,12 @@ export class OSTScene extends BaseScene {
       return;
     }
     const { p5, fonts } = this.props;
-    const image = Image.UILocked
+    const image = Image.UILocked;
     const imgWidth = this.spriteRenderer.getImageWidth(image);
     const imgHeight = this.spriteRenderer.getImageHeight(image);
     const x = DIMENSIONS.x * 0.5 - (imgWidth * 0.5);
     const y = VISUALIZER.y + (VISUALIZER.height * 0.5) - (imgHeight * 0.5);
-    this.spriteRenderer.drawImage(image, x, y);
+    this.spriteRenderer.drawImage(image, x, y, undefined, 1, 0);
     p5.textFont(fonts.variants.miniMood);
     p5.textSize(2 * 14);
     p5.textAlign(p5.CENTER, p5.TOP);
