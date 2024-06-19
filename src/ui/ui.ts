@@ -7,7 +7,8 @@ const UI_PARENT_ID = 'game';
 
 const LABEL_COLOR = '#fff';
 const LABEL_COLOR_INVERTED = '#000';
-const LABEL_BG_COLOR = 'rgba(0,0,0, 0.5)';
+// const LABEL_BG_COLOR = 'rgba(0,0,0, 0.5)';
+const LABEL_BG_COLOR = 'radial-gradient(circle, rgba(0,0,0,0.4990371148459384) 0%, rgba(0,0,0,0.4430147058823529) 18%, rgba(68,138,227,0) 100%)';
 const LABEL_BG_COLOR_INVERTED = 'rgba(255,255,255, 0.5)';
 
 export class UI {
@@ -196,22 +197,23 @@ export class UI {
     const p2 = progress > Number.EPSILON ? UI.p5.createP(levelName).id(id2) : null;
     const applyStyles = (p: P5.Element | null, backgroundColor: string, color: string) => {
       if (!p) return;
-      p.position(0, 0);
-      p.style('font-size', '1em');
+      // p.position(0, 0);
+      // p.style('font-size', '1em');
       p.style('background-color', backgroundColor);
       p.style('color', color);
-      p.style('line-height', '1em');
-      p.style('white-space', 'nowrap');
-      p.style('top', 'inherit');
-      p.style('left', 'inherit');
-      p.style('bottom', '0');
-      p.style('right', UI_LABEL_OFFSET);
-      p.style('margin', '0');
-      p.style('padding', '1px 8px');
-      p.style('text-align', 'right');
-      p.style('z-index', '5');
-      p.style('transform-origin', 'bottom right');
-      p.style('transform', 'scale(2)');
+      // p.style('line-height', '1em');
+      // p.style('white-space', 'nowrap');
+      // p.style('top', 'inherit');
+      // p.style('left', 'inherit');
+      // p.style('bottom', '0');
+      // p.style('right', UI_LABEL_OFFSET);
+      // p.style('margin', '0');
+      // p.style('padding', '1px 8px');
+      // p.style('text-align', 'right');
+      // p.style('z-index', '5');
+      // p.style('transform-origin', 'bottom right');
+      // p.style('transform', 'scale(2)');
+      p.class('ui-label level-name');
       p.parent(UI_PARENT_ID);
     }
     applyStyles(p1, isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR, isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
@@ -240,7 +242,7 @@ export class UI {
 
   static renderHearts(numLives = 3, isShowingDeathColours: boolean) {
     const containerId = "hearts-container";
-    const className = "hearts-container";
+    const className = "ui-label hearts-container";
     const getLabelColor = (index: number) => {
       if (isShowingDeathColours) return LABEL_COLOR_INVERTED;
       if (numLives === 0) return '#f50';
@@ -249,7 +251,8 @@ export class UI {
     }
     const labelBackgroundColor = (() => {
       if (isShowingDeathColours) return LABEL_COLOR_INVERTED;
-      return numLives === 0 ? '#631705db' : 'rgb(7 11 15 / 52%)';
+      // return numLives === 0 ? '#631705db' : 'rgb(7 11 15 / 52%)';
+      return numLives === 0 ? '#631705db' : LABEL_BG_COLOR;
     })()
     const numHearts = 3;
     const elem = document.getElementById(containerId);
@@ -265,25 +268,26 @@ export class UI {
     let div = UI.p5.createDiv();
     const drawHeart = (index = 0) => {
       const element = UI.p5.createP(index < numLives ? "♥︎" : "♡");
-      element.style('display', 'inline-block');
-      element.style('font-size', '15px');
       element.style('color', getLabelColor(index));
-      element.style('text-shadow', '0px 3px 3px black');
-      element.style('text-align', 'center');
-      element.style('margin', '0 8px');
+      // element.style('display', 'inline-block');
+      // element.style('font-size', '15px');
+      // element.style('text-shadow', '0px 3px 3px black');
+      // element.style('text-align', 'center');
+      // element.style('margin', '0 8px');
+      // element.class
       element.parent(div);
     }
     for (let i = 0; i < numHearts; i++) {
       drawHeart(i);
     }
-    div.position(0, 0);
-    div.style('left', 'inherit');
-    div.style('right', UI_LABEL_OFFSET);
-    div.style('padding', '0 5px');
+    // div.position(0, 0);
+    // div.style('left', 'inherit');
+    // div.style('right', UI_LABEL_OFFSET);
+    // div.style('padding', '0 5px');
     div.style('background-color', labelBackgroundColor);
-    div.style('z-index', '5');
-    div.style('transform-origin', 'top right');
-    div.style('transform', 'scale(2)');
+    // div.style('z-index', '5');
+    // div.style('transform-origin', 'top right');
+    // div.style('transform', 'scale(2)');
     div.class(className);
     div.id(containerId);
     div.parent(UI_PARENT_ID);
@@ -299,22 +303,23 @@ export class UI {
       return;
     }
     const p = UI.p5.createP(String(score).padStart(8, '0'));
-    p.position(0, 0);
+    // p.position(0, 0);
     p.id(id);
-    p.style('font-size', '1em');
     p.style('color', isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
     p.style('background-color', isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
-    p.style('line-height', '1em');
-    p.style('white-space', 'nowrap');
-    p.style('top', 'inherit');
-    p.style('bottom', '0');
-    p.style('left', UI_LABEL_OFFSET);
-    p.style('margin', '0');
-    p.style('padding', '1px 8px');
-    p.style('text-align', 'left');
-    p.style('z-index', '5');
-    p.style('transform-origin', 'bottom left');
-    p.style('transform', 'scale(2)');
+    // p.style('font-size', '1em');
+    // p.style('line-height', '1em');
+    // p.style('white-space', 'nowrap');
+    // p.style('top', 'inherit');
+    // p.style('bottom', '0');
+    // p.style('left', UI_LABEL_OFFSET);
+    // p.style('margin', '0');
+    // p.style('padding', '1px 8px');
+    // p.style('text-align', 'left');
+    // p.style('z-index', '5');
+    // p.style('transform-origin', 'bottom left');
+    // p.style('transform', 'scale(2)');
+    p.class('ui-label score');
     p.parent(UI_PARENT_ID);
   }
 
@@ -329,20 +334,21 @@ export class UI {
     })() + (isCasualModeEnabled ? ' CASUAL' : '') + (isCobraModeEnabled ? ' COBRA' : '');
     document.getElementById(id)?.remove();
     const p = UI.p5.createP(difficultyText);
-    p.position(0, 0);
+    // p.position(0, 0);
     p.id(id);
-    p.style('font-size', '1em');
     p.style('color', isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
     p.style('background-color', isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
-    p.style('line-height', '1em');
-    p.style('white-space', 'nowrap');
-    p.style('left', UI_LABEL_OFFSET);
-    p.style('margin', '0');
-    p.style('padding', '1px 8px');
-    p.style('text-align', 'left');
-    p.style('z-index', '5');
-    p.style('transform-origin', 'top left');
-    p.style('transform', 'scale(2)');
+    // p.style('font-size', '1em');
+    // p.style('line-height', '1em');
+    // p.style('white-space', 'nowrap');
+    // p.style('left', UI_LABEL_OFFSET);
+    // p.style('margin', '0');
+    // p.style('padding', '1px 8px');
+    // p.style('text-align', 'left');
+    // p.style('z-index', '5');
+    // p.style('transform-origin', 'top left');
+    // p.style('transform', 'scale(2)');
+    p.class('ui-label difficulty');
     p.parent(UI_PARENT_ID);
   }
 

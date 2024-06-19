@@ -886,6 +886,70 @@ button:focus > .tooltip
 }
 
 
+.ui-label {
+  z-index: 5;
+  position: absolute;
+  margin: 0px;
+  color: #fff;
+  background: rgba(0,0,0,0.2);
+  background: radial-gradient(circle, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.2) 18%, rgba(68,138,227,0) 100%);
+  font-size: 1em;
+  line-height: 1em;
+  white-space: nowrap;
+  min-width: 43px;
+}
+
+.ui-label.difficulty {
+  left: 43px;
+  top: 0px;
+  padding: 2px 8px;
+  text-align: left;
+  transform-origin: left top;
+  transform: scale(2);
+}
+
+.ui-label.hearts-container {
+  left: inherit;
+  top: 0px;
+  right: 39px;
+  padding: 0px 5px;
+  transform-origin: right top;
+  transform: scale(2);
+  font-size: 15px;
+  line-height: 18px;
+}
+.ui-label.hearts-container > p {
+  display: inline-block;
+  font-size: inherit;
+  text-shadow: 0px 3px 3px black;
+  text-align: center;
+  margin: 0 8px;
+}
+
+.ui-label.casual {}
+
+.ui-label.score {
+  left: 40px;
+  top: inherit;
+  bottom: 0px;
+  padding: 2px 8px;
+  text-align: left;
+  transform-origin: left bottom;
+  transform: scale(2);
+}
+
+.ui-label.level-name {
+  left: inherit;
+  top: inherit;
+  bottom: 0px;
+  right: 37px;
+  padding: 2px 8px;
+  text-align: right;
+  z-index: 5;
+  transform-origin: right bottom;
+  transform: scale(2);
+}
+
 
 
 /* 
