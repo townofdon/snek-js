@@ -8,7 +8,8 @@ const UI_PARENT_ID = 'game';
 const LABEL_COLOR = '#fff';
 const LABEL_COLOR_INVERTED = '#000';
 // const LABEL_BG_COLOR = 'rgba(0,0,0, 0.5)';
-const LABEL_BG_COLOR = 'radial-gradient(circle, rgba(0,0,0,0.4990371148459384) 0%, rgba(0,0,0,0.4430147058823529) 18%, rgba(68,138,227,0) 100%)';
+const LABEL_BG_COLOR = 'rgb(7 11 15 / 52%)';
+// const LABEL_BG_COLOR = 'radial-gradient(circle, rgba(0,0,0,0.4990371148459384) 0%, rgba(0,0,0,0.4430147058823529) 18%, rgba(68,138,227,0) 100%)';
 const LABEL_BG_COLOR_INVERTED = 'rgba(255,255,255, 0.5)';
 
 export class UI {
@@ -358,18 +359,19 @@ export class UI {
     const p = UI.p5.createP('[DEL] rewind moves');
     p.position(0, 0);
     p.id(id);
-    p.style('font-size', '1em');
     p.style('color', LABEL_COLOR);
     p.style('background-color', LABEL_BG_COLOR);
-    p.style('line-height', '1em');
-    p.style('white-space', 'nowrap');
-    p.style('left', 'inherit');
-    p.style('right', UI_LABEL_OFFSET);
-    p.style('margin', '0');
-    p.style('padding', '1px 8px');
-    p.style('text-align', 'right');
-    p.style('transform-origin', 'top right');
-    p.style('transform', 'scale(2)');
+    // p.style('font-size', '1em');
+    // p.style('line-height', '1em');
+    // p.style('white-space', 'nowrap');
+    // p.style('left', 'inherit');
+    // p.style('right', UI_LABEL_OFFSET);
+    // p.style('margin', '0');
+    // p.style('padding', '1px 8px');
+    // p.style('text-align', 'right');
+    // p.style('transform-origin', 'top right');
+    // p.style('transform', 'scale(2)');
+    p.addClass('ui-label casual')
     p.parent(UI_PARENT_ID);
   }
 
