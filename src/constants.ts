@@ -42,7 +42,7 @@ export const MAP_OFFSET = IS_EDITOR ? 2 : 4;
 
 export const MAX_MOVES = 4;
 export const MAX_LIVES = 3;
-export const MAX_SNAKE_SIZE = GRIDCOUNT.x * GRIDCOUNT.y * 0.50;
+export const MAX_SNAKE_SIZE = GRIDCOUNT.x * GRIDCOUNT.y * 0.40;
 export const START_SNAKE_SIZE = 3;
 export const SPEED_INCREMENT_SPEED_MS = 600;
 export const SPRINT_INCREMENT_SPEED_MS = 250;

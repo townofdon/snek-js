@@ -829,7 +829,7 @@ export const sketch = (p5: P5) => {
         loseMessages[i] = [...level.extraLoseMessages];
       }
     } else {
-      const level = LEVELS[levelIndex];
+      const level = LEVELS[levelIndex || -1] || getLevel();
       if (!level) return;
       if (!level.extraLoseMessages) return;
       loseMessages[levelIndex] = [...level.extraLoseMessages];
