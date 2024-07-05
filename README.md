@@ -49,7 +49,10 @@ brew install ffmpeg
 ```
 cd /path/to/dir
 BITRATE=256k
-for i in *.wav; do ffmpeg -i "$i" -acodec mp3 -b:a $BITRATE "mp3/${i%.*}.mp3"; done
+convertmp3() {
+  ffmpeg -i "$1" -acodec mp3 -b:a $BITRATE "mp3/${1%.*}.mp3"
+}
+for i in *.wav; do convertmp3 $i; done
 ```
 
 Sources:

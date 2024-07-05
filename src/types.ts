@@ -495,7 +495,7 @@ export enum MusicTrack {
   None = '__NO_TRACK__',
   simpleTime = '01-simpletime5.wav',
   conquerer = '02-conquerer.wav',
-  transient = '03-transient-2.wav',
+  transient = '03-transient-4-LOOP.wav',
   lordy = '04-lordy.wav',
   champion = '05-champion-2.wav',
   dangerZone = '06-dangerzone-2.wav',
