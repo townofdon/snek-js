@@ -1,4 +1,4 @@
-import { LEADERBOARD_HOST } from "../constants";
+import { LEADERBOARD_API_HOST } from "../constants";
 import { Api, ApiOptions } from "./utils/apiUtils";
 
 export interface HighScoreEntry {
@@ -8,7 +8,7 @@ export interface HighScoreEntry {
 }
 
 export const getLeaderboard = (): Promise<HighScoreEntry[]> => {
-  const url = `${LEADERBOARD_HOST}/leaderboard`;
+  const url = `${LEADERBOARD_API_HOST}/leaderboard`;
   return Api.get(url);
 }
 
@@ -17,7 +17,7 @@ interface GetTokenResponse {
 }
 
 export const getToken = async (): Promise<string> => {
-  const url = `${LEADERBOARD_HOST}/csrf-token`;
+  const url = `${LEADERBOARD_API_HOST}/csrf-token`;
   const res: GetTokenResponse = await Api.get(url);
   if (res.csrfToken) {
     return res.csrfToken;
@@ -25,7 +25,7 @@ export const getToken = async (): Promise<string> => {
 }
 
 export const postLeaderboardResult = (name: string, score: number, options: ApiOptions): Promise<void> => {
-  const url = `${LEADERBOARD_HOST}/leaderboard`;
+  const url = `${LEADERBOARD_API_HOST}/leaderboard`;
   const body = { name, score };
   return Api.post(url, body, options);
 }

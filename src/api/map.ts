@@ -1,4 +1,4 @@
-import { MAP_HOST } from "../constants";
+import { MAP_API_HOST } from "../constants";
 import { Api, ApiError, ApiOptions } from "./utils/apiUtils";
 
 export interface SnekMap {
@@ -14,7 +14,7 @@ interface GetTokenResponse {
 }
 
 export const getToken = async (): Promise<string> => {
-  const url = `${MAP_HOST}/csrf-token`;
+  const url = `${MAP_API_HOST}/csrf-token`;
   const res: GetTokenResponse = await Api.get(url);
   if (res.csrfToken) {
     return res.csrfToken;
@@ -42,7 +42,7 @@ interface PublishMapResponse {
 }
 
 export const publishMap = (mapId: string | undefined, name: string, author: string, mapData: string, options: ApiOptions): Promise<PublishMapResponse> => {
-  const url = `${MAP_HOST}/map`;
+  const url = `${MAP_API_HOST}/map`;
   const body = { mapId, name, author, mapData };
   return Api.post(url, body, options);
 }
@@ -62,7 +62,7 @@ export const uploadMapImage = async (file: File, supameta: SupabaseMeta, upload:
 }
 
 export const getMap = (id: string): Promise<SnekMap> => {
-  const url = `${MAP_HOST}/map/${id}`;
+  const url = `${MAP_API_HOST}/map/${id}`;
   return Api.get(url);
 }
 
@@ -71,7 +71,7 @@ export interface GetMapByDataResponse {
   next: SnekMap | null,
 }
 export const getMapByData = (data: string): Promise<GetMapByDataResponse> => {
-  const url = `${MAP_HOST}/map/lookup?data=${data}`;
+  const url = `${MAP_API_HOST}/map/lookup?data=${data}`;
   return Api.get(url);
 }
 
@@ -83,6 +83,6 @@ interface ListMapResponse {
   }
 }
 export const listMap = ({ limit = 10, offset = 0, search = '' }): Promise<ListMapResponse> => {
-  const url = `${MAP_HOST}/map/?limit=${limit}&offset=${offset}&search=${search}`;
+  const url = `${MAP_API_HOST}/map/?limit=${limit}&offset=${offset}&search=${search}`;
   return Api.get(url);
 }

@@ -82,6 +82,22 @@ export function getDifficultyFromIndex(index: number) {
   }
 }
 
+export function getDifficultyName(index: number) {
+  index = clamp(index, 1, 4);
+  switch (index) {
+    case 1:
+      return 'EASY';
+    case 2:
+      return 'MEDIUM';
+    case 3:
+      return 'HARD';
+    case 4:
+      return 'ULTRA';
+    default:
+      throw new Error(`Unexpected difficulty index: ${index}`)
+  }
+}
+
 export function invertDirection(dir: DIR) {
   if (dir === DIR.UP) return DIR.DOWN;
   if (dir === DIR.DOWN) return DIR.UP;

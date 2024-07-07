@@ -18,6 +18,8 @@ import {
 } from './constants';
 import {
   getDifficultyFromIndex,
+  getDifficultyName,
+  getLevelProgress,
   getRelativeDir,
   parseUrlQueryParams,
   removeArrayElement,
@@ -46,6 +48,7 @@ import {
   InputAction,
   ActionKey,
   Action,
+  SNEKALYTICS_EVENT_TYPE,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -71,6 +74,7 @@ import { WinGameScene } from './scenes/WinGameScene';
 import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
 import { SaveDataStore } from './stores/SaveDataStore';
+import { recordSnekalyticsEvent } from './api/snekalytics';
 
 const queryParams = parseUrlQueryParams();
 const unlockedMusicStore = new UnlockedMusicStore()
@@ -348,6 +352,19 @@ export const sketch = (p5: P5) => {
     p5.frameRate(FRAMERATE);
     initLevel(false);
     state.isPreloaded = true;
+    window.addEventListener('beforeunload', () => {
+      if (state.appMode === AppMode.Game && state.isGameStarted) {
+        recordSnekalyticsEvent({
+          difficulty: getDifficultyName(getDifficulty().index),
+          eventType: SNEKALYTICS_EVENT_TYPE.QUIT_GAME,
+          levelName: getLevel().name,
+          levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
+          levelTimeProgress: state.timeElapsed,
+          score: stats.score,
+          isCobra: state.gameMode === GameMode.Cobra,
+        });
+      }
+    })
   }
 
   /**
@@ -647,6 +664,15 @@ export const sketch = (p5: P5) => {
   function onGameOverCobra() {
     winGameScene.trigger();
     UI.enableScreenScroll();
+    recordSnekalyticsEvent({
+      difficulty: getDifficultyName(getDifficulty().index),
+      eventType: SNEKALYTICS_EVENT_TYPE.DEATH,
+      levelName: getLevel().name,
+      levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
+      levelTimeProgress: state.timeElapsed,
+      score: stats.score,
+      isCobra: state.gameMode === GameMode.Cobra,
+    });
   }
 
   function onGameOver() {
@@ -654,15 +680,35 @@ export const sketch = (p5: P5) => {
     showGameOverUI(getNextLoseMessage(), uiElements, state, { confirmShowMainMenu, initLevel });
     uiBindings.onGameOver();
     stats.numLevelsCleared = 0;
+    recordSnekalyticsEvent({
+      difficulty: getDifficultyName(getDifficulty().index),
+      eventType: SNEKALYTICS_EVENT_TYPE.DEATH,
+      levelName: getLevel().name,
+      levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
+      levelTimeProgress: state.timeElapsed,
+      score: stats.score,
+      isCobra: state.gameMode === GameMode.Cobra,
+    });
   }
 
   function warpToLevel(levelNum = 1) {
     if (getIsStartLevel() || state.gameMode === GameMode.Cobra) return;
+    const fromLevel = getLevel();
+    const toLevel = getWarpLevelFromNum(levelNum);
+    recordSnekalyticsEvent({
+      difficulty: getDifficultyName(getDifficulty().index),
+      eventType: SNEKALYTICS_EVENT_TYPE.WARP,
+      levelName: `${fromLevel.name}-->${toLevel.name}`,
+      levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
+      levelTimeProgress: state.timeElapsed,
+      score: stats.score,
+      isCobra: false,
+    });
     clearBackground();
     stats.numLevelsCleared = 0;
     musicPlayer.stopAllTracks();
     sfx.stop(Sound.invincibleLoop);
-    setLevel(getWarpLevelFromNum(levelNum));
+    setLevel(toLevel);
     resetStats();
     setLevelIndexFromCurrentLevel();
     initLevel();
@@ -704,6 +750,15 @@ export const sketch = (p5: P5) => {
 
   function confirmShowMainMenu() {
     const handleYes = () => {
+      recordSnekalyticsEvent({
+        difficulty: getDifficultyName(getDifficulty().index),
+        eventType: SNEKALYTICS_EVENT_TYPE.QUIT_GAME,
+        levelName: getLevel().name,
+        levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
+        levelTimeProgress: state.timeElapsed,
+        score: stats.score,
+        isCobra: state.gameMode === GameMode.Cobra,
+      });
       modal.hide();
       showMainMenu();
       sfx.play(Sound.doorOpen);
@@ -734,6 +789,15 @@ export const sketch = (p5: P5) => {
     clearBackground();
 
     if (state.isGameWon) {
+      recordSnekalyticsEvent({
+        difficulty: getDifficultyName(getDifficulty().index),
+        eventType: SNEKALYTICS_EVENT_TYPE.WIN_GAME,
+        levelName: getLevel().name,
+        levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
+        levelTimeProgress: state.timeElapsed,
+        score: stats.score,
+        isCobra: false,
+      });
       resetStats();
       state.gameMode = GameMode.Cobra;
       const nextDifficultyIndex = getDifficulty().index + 1;
@@ -749,6 +813,18 @@ export const sketch = (p5: P5) => {
       resetStats();
       showMainMenu();
       return;
+    }
+
+    if (getLevel() !== START_LEVEL && getLevel() !== START_LEVEL_COBRA) {
+      recordSnekalyticsEvent({
+        difficulty: getDifficultyName(getDifficulty().index),
+        eventType: SNEKALYTICS_EVENT_TYPE.WIN_LEVEL,
+        levelName: getLevel().name,
+        levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
+        levelTimeProgress: state.timeElapsed,
+        score: stats.score,
+        isCobra: state.gameMode === GameMode.Cobra,
+      });
     }
 
     const level = getLevel();

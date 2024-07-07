@@ -683,3 +683,11 @@ export interface PickupDrop {
   likelihood: number,
   type: PickupType,
 }
+
+export enum SNEKALYTICS_EVENT_TYPE {
+  DEATH = 'DEATH',
+  WARP = 'WARP',
+  WIN_LEVEL = 'WIN_LEVEL',
+  WIN_GAME = 'WIN_GAME',
+  QUIT_GAME = 'QUIT_GAME',
+}
