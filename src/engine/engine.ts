@@ -135,6 +135,7 @@ import { Renderer } from './renderer';
 import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
 import { MusicPlayer } from './musicPlayer';
 import { InputCallbacks, handleKeyPressed, validateMove } from './controls';
+import { applyGamepadMove, getCurrentGamepadSprint, updateGamepadPrevState } from './gamepad'
 import { Easing } from '../easing';
 import { PALETTE } from '../palettes';
 import { Coroutines } from './coroutines';
@@ -630,7 +631,10 @@ export function engine({
       loopState.timeAccumulatedMs = 0;
     }
 
-    if (p5.keyIsDown(p5.SHIFT) && (state.isMoving || state.isRewinding)) {
+    if (
+      (state.isMoving || state.isRewinding) &&
+      (p5.keyIsDown(p5.SHIFT) || getCurrentGamepadSprint())
+    ) {
       state.isSprinting = true;
     } else {
       state.isSprinting = false;
@@ -770,6 +774,8 @@ export function engine({
 
   function renderLoop() {
     const timeFrameStart = performance.now();
+    applyGamepadMove(state, player.direction, moves, inputCallbacks, handleInputAction)
+    updateGamepadPrevState()
 
     actions.tick();
 

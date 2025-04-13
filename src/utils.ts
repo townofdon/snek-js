@@ -106,6 +106,9 @@ export function invertDirection(dir: DIR) {
   return dir;
 }
 
+/**
+ * rotate direction counter-clockwise
+ */
 export function rotateDirection(dir: DIR) {
   if (dir === DIR.UP) return DIR.LEFT;
   if (dir === DIR.LEFT) return DIR.DOWN;

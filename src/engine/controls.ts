@@ -231,7 +231,7 @@ function getSpecialMove(currentDirection: DIR, recentMoves: RecentMoves, recentI
   return null;
 }
 
-export function validateMove(prev: DIR, current: DIR, disallowEqual = true): boolean {
+export function validateMove(prev: DIR, current: DIR | null, disallowEqual = true): boolean {
   if (!current) return false;
   if (disallowEqual && prev === current) return false;
   if (prev === DIR.UP && current === DIR.DOWN) return false;

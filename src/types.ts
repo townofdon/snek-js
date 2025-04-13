@@ -52,6 +52,18 @@ export enum DIR {
   RIGHT = 'RIGHT',
 }
 
+export enum MOVE {
+  Nil = 0,
+  UP = 1,
+  DOWN = 2,
+  LEFT = 3,
+  RIGHT = 4,
+  TURN_R = 5,
+  TURN_L = 6,
+  UTURN_R = 7,
+  UTURN_L = 8,
+}
+
 export interface PlayerState {
   position: Vector,
   direction: DIR,
