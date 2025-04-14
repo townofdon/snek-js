@@ -135,7 +135,7 @@ import { Renderer } from './renderer';
 import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
 import { MusicPlayer } from './musicPlayer';
 import { InputCallbacks, handleKeyPressed, validateMove } from './controls';
-import { applyGamepadMove, getCurrentGamepadSprint, updateGamepadPrevState } from './gamepad'
+import { applyGamepadMove, applyGamepadUIActions, getCurrentGamepadSprint, updateGamepadCurrentState, updateGamepadPrevState } from './gamepad'
 import { Easing } from '../easing';
 import { PALETTE } from '../palettes';
 import { Coroutines } from './coroutines';
@@ -170,6 +170,8 @@ interface EngineParams {
   // TODO: REFACTOR TO PREFER RETURN VALUE OVER CALLBACK
   handleInputAction: (action: InputAction) => void,
   onUINavigate: UINavEventHandler,
+  onUIInteract: () => boolean,
+  onUICancel: () => boolean,
   onGameOver: () => void,
   onGameOverCobra: () => void,
   onRecordLevelProgress: (levelIndex: number, difficulty: Difficulty) => void,
@@ -199,6 +201,8 @@ export function engine({
   warpToLevel,
   handleInputAction,
   onUINavigate,
+  onUIInteract,
+  onUICancel,
   onGameOver,
   onGameOverCobra,
   onRecordLevelProgress,
@@ -774,8 +778,12 @@ export function engine({
 
   function renderLoop() {
     const timeFrameStart = performance.now();
-    applyGamepadMove(state, player.direction, moves, inputCallbacks, handleInputAction)
-    updateGamepadPrevState()
+    updateGamepadPrevState();
+    updateGamepadCurrentState();
+    const handled = applyGamepadUIActions(state, handleInputAction, onUINavigate, onUIInteract, onUICancel)
+    if (!handled) {
+      applyGamepadMove(state, player.direction, moves, inputCallbacks, handleInputAction)
+    }
 
     actions.tick();
 
@@ -1647,6 +1655,7 @@ export function engine({
     // set current direction to be the direction from the first segment towards the snake head
     player.direction = getDirectionSnakeForward();
     player.directionToFirstSegment = invertDirection(player.direction);
+    moves = [];
     startAction(duckMusicOnHurt(), Action.FadeMusic);
     switch (state.lives) {
       case 2:

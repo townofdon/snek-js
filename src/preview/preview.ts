@@ -201,6 +201,8 @@ export const sketch = (p5: P5) => {
     warpToLevel: () => {},
     handleInputAction,
     onUINavigate,
+    onUIInteract,
+    onUICancel,
     onGameOver,
     onGameOverCobra: onGameOver,
     onRecordLevelProgress: () => {},
@@ -497,7 +499,7 @@ async function loadLevel(queryData: string, loadMapImage = false): Promise<void>
       return;
     }
     const res: GetMapByDataResponse | null = isEditorPreview ? null : await getMapByData(queryData)
-      .catch(err => {
+      .catch((err) => {
         console.warn(`No map found matching data param`);
         return null;
       });

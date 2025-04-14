@@ -58,7 +58,7 @@ Man alone suffers so deeply that he had to invent snek.
 
 I know of no better life purpose than to perish in attempting snek.
 
-Is it better to out-snek the snek, or to be quietly devoured?
+Is it better to out-snek the snek, or to be quietly sneked?
 
 And once you are snek, you shall remain snek eternally.
 

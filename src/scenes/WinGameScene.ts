@@ -14,6 +14,7 @@ import { handleUIEvents } from "../engine/controls";
 import { HighscoreEntryModal } from "../ui/highscoreEntryModal";
 import { Modal } from "../ui/modal";
 import { SpriteRenderer } from "../engine/spriteRenderer";
+import { applyGamepadUIActions, updateGamepadCurrentState, updateGamepadPrevState } from "../engine/gamepad";
 
 const formatNumber = formatNumberFn({
   truncate: 0,
@@ -488,7 +489,10 @@ export class WinGameScene extends BaseScene {
       }
     }
 
+    updateGamepadPrevState();
+    updateGamepadCurrentState();
     this.tick();
+    applyGamepadUIActions(this.gameState, () => {}, this.onUINavigate, this.onUIInteract, this.onUICancel)
   };
 
   private drawTitle = (title: string, type: 'primary' | 'secondary' = 'primary') => {

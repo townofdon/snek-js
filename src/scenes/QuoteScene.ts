@@ -1,6 +1,8 @@
 import P5 from "p5";
 import { FontsInstance, Quote, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
+import { getGamepad, updateGamepadCurrentState, updateGamepadPrevState, wasPressedThisFrame } from "../engine/gamepad";
+import { Button } from "../engine/gamepad/StandardGamepadMapping";
 
 const AUTHOR_PADDING = 15;
 
@@ -58,15 +60,19 @@ export class QuoteScene extends BaseScene {
 
   keyPressed = () => {
     const { keyCode, ESCAPE, BACKSPACE, DELETE } = this.props.p5;
-    const { onEscapePress } = this.props.callbacks;
     if (keyCode === ESCAPE || keyCode === BACKSPACE || keyCode === DELETE) {
-      if (onEscapePress) {
-        this.stopAllCoroutines();
-        onEscapePress();
-        this.cleanup();
-      }
+      this.exitQuoteScene()
     }
   };
+
+  private exitQuoteScene = () => {
+    const { onEscapePress } = this.props.callbacks;
+    if (onEscapePress) {
+      this.stopAllCoroutines();
+      onEscapePress();
+      this.cleanup();
+    }
+  }
 
   private drawPartialQuote = (quote: string, numLetters = 1000) => {
     const { p5, fonts } = this.props;
@@ -101,11 +107,16 @@ export class QuoteScene extends BaseScene {
   }
 
   draw = () => {
+    updateGamepadPrevState();
+    updateGamepadCurrentState();
     this.drawBackground();
     this.tick();
     if (this.props.callbacks.onEscapePress) {
       this.drawSceneTitle();
       this.drawExit();
+      if (wasPressedThisFrame(getGamepad(), Button.East)) {
+        this.exitQuoteScene();
+      }
     }
   };
 

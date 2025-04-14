@@ -14,6 +14,8 @@ import { DIMENSIONS, OST_MODE_TRACKS } from "../constants";
 import { UI } from "../ui/ui";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { SpriteRenderer } from "../engine/spriteRenderer";
+import { getGamepad, updateGamepadCurrentState, updateGamepadPrevState, wasPressedThisFrame } from "../engine/gamepad";
+import { Button } from "../engine/gamepad/StandardGamepadMapping";
 
 const VISUALIZER = {
   width: 2 * 360,
@@ -130,6 +132,8 @@ export class OSTScene extends BaseScene {
   }
 
   draw = () => {
+    updateGamepadPrevState();
+    updateGamepadCurrentState();
     if (Date.now() - this.state.timeStarted <= 50) {
       this.drawBackground();
     }
@@ -140,20 +144,15 @@ export class OSTScene extends BaseScene {
     this.drawInstructions();
     this.drawExit();
     this.tick();
+    this.handleGamepadPress();
   };
 
   *action(): Generator<IEnumerator, void, unknown> { }
 
   keyPressed = () => {
     const { keyCode, ESCAPE, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = this.props.p5;
-    const { onEscapePress } = this.props.callbacks;
     if (keyCode === ESCAPE || keyCode === BACKSPACE || keyCode === DELETE) {
-      if (onEscapePress) {
-        this.stopAllCoroutines();
-        onEscapePress();
-        this.cleanupUI();
-        this.cleanup();
-      }
+      this.exitOSTScene();
     } else if (keyCode === LEFT_ARROW) {
       this.advanceTrack(-1);
     } else if (keyCode === RIGHT_ARROW) {
@@ -164,6 +163,30 @@ export class OSTScene extends BaseScene {
       this.advanceVisMode(1);
     }
   };
+
+  private handleGamepadPress = () => {
+    if (wasPressedThisFrame(getGamepad(), Button.East)) {
+      this.exitOSTScene();
+    } else if (wasPressedThisFrame(getGamepad(), Button.DpadLeft)) {
+      this.advanceTrack(-1);
+    } else if (wasPressedThisFrame(getGamepad(), Button.DpadRight)) {
+      this.advanceTrack(1);
+    } else if (wasPressedThisFrame(getGamepad(), Button.DpadUp)) {
+      this.advanceVisMode(-1);
+    } else if (wasPressedThisFrame(getGamepad(), Button.DpadDown)) {
+      this.advanceVisMode(1);
+    }
+  }
+
+  private exitOSTScene = () => {
+    const { onEscapePress } = this.props.callbacks;
+    if (onEscapePress) {
+      this.stopAllCoroutines();
+      onEscapePress();
+      this.cleanupUI();
+      this.cleanup();
+    }
+  }
 
   private stopTrack() {
     return this.musicPlayer.stopAllTracks({ unload: false });

@@ -396,15 +396,16 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: calc(-3 *
   /* --button-filter: brightness(1) grayscale(0); */
 }
 
-button:focus:before {
+button:focus::before {
   content: "";
+  display: inline-block;
   animation-name: selection-expand;
   animation-duration: var(--selection-expand-duration);
   animation-iteration-count: infinite;
   animation-timing-function: cubic-bezier(.5,0,.5,1);
   animation-fill-mode: backwards;
   position: absolute;
-  /* z-index: -1; */
+  /* z-index: 100; */
   left: -20px;
   right: -20px;
   top: -16px;
@@ -840,17 +841,17 @@ button:focus > .tooltip
 .checkbox-label input[type='checkbox']:focus:checked ~ .checkmark {
   background-color: #137bcd;
 }
-.checkmark:after {
+.checkmark::after {
   content: "x";
   position: absolute;
   top: 7px;
   left: 5px;
   display: none;
 }
-.checkbox-label input[type='checkbox']:checked ~ .checkmark:after {
+.checkbox-label input[type='checkbox']:checked ~ .checkmark::after {
   display: block;
 }
-.container input[type='checkbox']:after {
+.container input[type='checkbox']::after {
   left: 9px;
   top: 5px;
   width: 5px;

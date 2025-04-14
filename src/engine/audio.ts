@@ -42,11 +42,11 @@ export function setMasterVolume(gain: number): void {
 }
 
 export function setMusicVolume(gain: number): void {
-  musicGainNode.gain.value = gain * MAX_GAIN_MUSIC;
+  musicGainNode.gain.value = Math.max(gain * MAX_GAIN_MUSIC, 0);
 }
 
 export function setSfxVolume(gain: number): void {
-  sfxGainNode.gain.value = gain;
+  sfxGainNode.gain.value = Math.max(gain, 0);
 }
 
 export function setMusicLowpassFrequency(normalizedFreq: number) {

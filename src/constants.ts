@@ -40,6 +40,7 @@ export const STRANGELY_NEEDED_OFFSET = { x: 0, y: 0 };
 export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x + STRANGELY_NEEDED_OFFSET.x, y: DIMENSIONS.y / GRIDCOUNT.y + STRANGELY_NEEDED_OFFSET.y };
 export const MAP_OFFSET = IS_EDITOR ? 2 : 4;
 
+export const MAX_MOVES_GAMEPAD = 8;
 export const MAX_MOVES = 4;
 export const MAX_LIVES = 3;
 export const MAX_SNAKE_SIZE = GRIDCOUNT.x * GRIDCOUNT.y * 0.40;

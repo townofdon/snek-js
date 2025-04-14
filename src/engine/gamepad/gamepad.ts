@@ -1,5 +1,5 @@
-import { HURT_STUN_TIME, MAX_MOVES } from "../../constants";
-import { AppMode, DIR, GameState, InputAction, MOVE, UINavDir } from "../../types";
+import { HURT_STUN_TIME, MAX_MOVES_GAMEPAD } from "../../constants";
+import { AppMode, DIR, GameMode, GameState, InputAction, MOVE, UINavDir } from "../../types";
 import { invertDirection, rotateDirection } from "../../utils";
 import { InputCallbacks, validateMove } from "../controls";
 import {
@@ -10,6 +10,25 @@ import {
 const TRIGGER_THRESHOLD = 0.05;
 const AXIS_DEADZONE = 0.05;
 
+const current: Record<Button, boolean> = {
+  [Button.South]: false,
+  [Button.East]: false,
+  [Button.West]: false,
+  [Button.North]: false,
+  [Button.BumperLeft]: false,
+  [Button.BumperRight]: false,
+  [Button.TriggerLeft]: false,
+  [Button.TriggerRight]: false,
+  [Button.Select]: false,
+  [Button.Start]: false,
+  [Button.StickLeft]: false,
+  [Button.StickRight]: false,
+  [Button.DpadUp]: false,
+  [Button.DpadDown]: false,
+  [Button.DpadLeft]: false,
+  [Button.DpadRight]: false,
+  [Button.XboxButton]: false
+}
 const prev: Record<Button, boolean> = {
   [Button.South]: false,
   [Button.East]: false,
@@ -103,15 +122,19 @@ export function applyGamepadMove(
   }
 
   // validate current move
-  if (moves.length >= MAX_MOVES) {
+  if (moves.length > MAX_MOVES_GAMEPAD) {
     return;
   }
 
-  const disallowEqual = state.isMoving && state.timeSinceHurt >= HURT_STUN_TIME;
+  const disallowEqual = state.isMoving && (!!moves.length || state.timeSinceHurt >= HURT_STUN_TIME);
 
-  desiredMoves.forEach(move => {
-    if (validateMove(prevMove, desiredMoves[0], disallowEqual)) {
-      callbacks.onAddMove(move)
+  let cancel = false
+  desiredMoves.forEach((desiredMove, i) => {
+    const valid = validateMove(i === 0 ? prevMove : desiredMoves[i - 1], desiredMove, disallowEqual || i > 0)
+    if (!cancel && valid) {
+      callbacks.onAddMove(desiredMove)
+    } else {
+      cancel = true
     }
   })
 }
@@ -155,8 +178,11 @@ export function applyGamepadUIActions(
   if (state.appMode !== AppMode.Game) {
     return false;
   }
-  if (state.isGameStarted && !state.isPaused) {
-    return false
+
+  const isGameOverNormal = state.isLost && state.gameMode !== GameMode.Cobra && state.timeSinceHurt > 20;
+  const proceed = !state.isGameStarted || state.isPaused || isGameOverNormal
+  if (!proceed) {
+    return;
   }
 
   if (wasPressedThisFrame(gamepad, Button.DpadUp)) {
@@ -188,29 +214,47 @@ export function applyGamepadUIActions(
   }
 }
 
-/**
- * Call this function after getting current button state to set prev state for the next loop.
- */
-export function updateGamepadPrevState() {
+export function updateGamepadCurrentState() {
   const gamepad = navigator.getGamepads()?.[0];
   if (!gamepad) return;
   if (!gamepad.connected) return;
   gamepad.buttons.forEach((button, idx) => {
-    prev[idx as Button] = button.pressed || button.touched
+    current[idx as Button] = button.pressed;
   });
+  return;
 }
 
-function wasPressedThisFrame(gamepad: Gamepad, id: Button) {
+export function updateGamepadPrevState() {
+  const gamepad = navigator.getGamepads()?.[0];
+  if (!gamepad) return;
+  if (!gamepad.connected) return;
+  gamepad.buttons.forEach((_, idx) => {
+    prev[idx as Button] = current[idx as Button];
+  });
+  return;
+}
+
+export function getGamepad(): Gamepad | null {
+  return navigator.getGamepads()?.[0];
+}
+
+export function gamepadPressed(gamepad: Gamepad, id: Button) {
   if (!gamepad) return false;
   if (!gamepad.connected) return false;
-  return !!gamepad.buttons[id]?.pressed && !prev[id];
+  return !!gamepad.buttons[id]?.pressed;
 }
 
-// function wasAnyButtonPressedThisFrame(gamepad: Gamepad) {
-//   if (!gamepad) return false;
-//   if (!gamepad.connected) return false;
-//   return gamepad.buttons.some((_, id) => wasPressedThisFrame(gamepad, id))
-// }
+export function wasPressedThisFrame(gamepad: Gamepad, id: Button) {
+  if (!gamepad) return false;
+  if (!gamepad.connected) return false;
+  return !!current[id] && !prev[id];
+}
+
+export function anyButtonPressedThisFrame(gamepad: Gamepad) {
+  if (!gamepad) return false;
+  if (!gamepad.connected) return false;
+  return gamepad.buttons.some((_, id) => wasPressedThisFrame(gamepad, id))
+}
 
 /**
  * Process gamepad buttons and axes and return the desired direction
@@ -220,13 +264,11 @@ function getCurrentGamepadMove(): MOVE {
   if (!gamepad) return MOVE.Nil;
   if (!gamepad.connected) return MOVE.Nil;
 
-  const triggerR = gamepad.buttons[Button.TriggerRight]?.value > TRIGGER_THRESHOLD;
-
   if (wasPressedThisFrame(gamepad, Button.BumperLeft)) {
-    return triggerR ? MOVE.UTURN_L : MOVE.UTURN_L;
+    return MOVE.UTURN_L;
   }
   if (wasPressedThisFrame(gamepad, Button.BumperRight)) {
-    return triggerR ? MOVE.UTURN_R : MOVE.UTURN_R;
+    return MOVE.UTURN_R;
   }
 
   if (gamepad.buttons[Button.DpadUp]?.pressed) return MOVE.UP;

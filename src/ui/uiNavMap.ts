@@ -355,7 +355,7 @@ export class SettingsMenuNavMap implements NavMap {
     return true
   };
 
-  private getFocused = (): SettingsMenuElement | null => {
+  getFocused = (): SettingsMenuElement | null => {
     if (!document.activeElement) return null;
     for (let i = 0; i < SETTINGS_MENU_ELEMENT_ORDER.length; i++) {
       const target = this.elementMap[SETTINGS_MENU_ELEMENT_ORDER[i]];

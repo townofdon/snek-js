@@ -3,6 +3,8 @@ import { v4 as uuid } from 'uuid';
 
 import { IEnumerator } from "../types";
 import { clamp } from "../utils";
+import { anyButtonPressedThisFrame, getGamepad, wasPressedThisFrame } from "./gamepad";
+import { Button } from "./gamepad/StandardGamepadMapping";
 
 type UUID = string;
 
@@ -80,14 +82,14 @@ export class Coroutines {
 
   private * _waitForAnyKey(callback?: () => void): IEnumerator {
     this._p5.keyIsPressed = false;
-    while (!this._p5.keyIsPressed) {
+    while (!this._p5.keyIsPressed && !anyButtonPressedThisFrame(getGamepad())) {
       if (callback) callback();
       yield null;
     }
   }
 
   private * _waitForEnterKey(callback?: () => void): IEnumerator {
-    while (!this._p5.keyIsDown(this._p5.ENTER)) {
+    while (!this._p5.keyIsDown(this._p5.ENTER) && !wasPressedThisFrame(getGamepad(), Button.Start)) {
       if (callback) callback();
       yield null;
     }

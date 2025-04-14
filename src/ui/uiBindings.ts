@@ -26,6 +26,8 @@ import {
 } from './uiNavMap';
 import { UI } from './ui';
 import { requireElementById } from './uiUtils';
+import { gamepadPressed, getGamepad } from '../engine/gamepad';
+import { Button } from '../engine/gamepad/StandardGamepadMapping';
 
 interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
@@ -202,7 +204,17 @@ export class UIBindings implements UIHandler {
           this.settingsMenuNavMap.gotoNext();
           break;
         case UINavDir.Left:
+          if (gamepadPressed(getGamepad(), Button.DpadLeft)) {
+            const focused = this.settingsMenuNavMap.getFocused()
+            return this.moveSlider(focused, -1);
+          }
+          // do not handle event so that slider can receive left/right DOM event
+          return false;
         case UINavDir.Right:
+          if (gamepadPressed(getGamepad(), Button.DpadRight)) {
+            const focused = this.settingsMenuNavMap.getFocused()
+            return this.moveSlider(focused, 1);
+          }
           // do not handle event so that slider can receive left/right DOM event
           return false;
       }
@@ -292,6 +304,27 @@ export class UIBindings implements UIHandler {
     if (UI.getIsSettingsMenuShowing()) {
       this.onHideSettingsMenuClick();
       return true;
+    }
+    return false;
+  }
+
+  moveSlider = (focused: SettingsMenuElement | null, direction: number): boolean => {
+    if (focused === SettingsMenuElement.SliderMusicVolume) {
+      const elem = this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume] as HTMLInputElement;
+      const volume = Math.max((parseFloat(elem.value) || 0) + (direction * 0.1), 0)
+      elem.value = String(volume);
+      setMusicVolume(volume);
+      this.callbacks.onSetMusicVolume(volume);
+      return true
+    } else if (focused === SettingsMenuElement.SliderSfxVolume) {
+      const elem = this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume] as HTMLInputElement;
+      const volume = Math.max((parseFloat(elem.value) || 0) + (direction * 0.1), 0)
+      elem.value = String(volume);
+      this.sfx.setGlobalVolume(volume);
+      setSfxVolume(volume);
+      this.callbacks.onSetSfxVolume(volume);
+      this.sfx.play(Sound.eat);
+      return true
     }
     return false;
   }
