@@ -12,15 +12,22 @@ const LABEL_BG_COLOR = 'rgb(7 11 15 / 52%)';
 // const LABEL_BG_COLOR = 'radial-gradient(circle, rgba(0,0,0,0.4990371148459384) 0%, rgba(0,0,0,0.4430147058823529) 18%, rgba(68,138,227,0) 100%)';
 const LABEL_BG_COLOR_INVERTED = 'rgba(255,255,255, 0.5)';
 
+
+enum ActiveMenu {
+  None,
+  MainMenu,
+  SettingsMenu,
+  GameModeMenu,
+}
+
 export class UI {
 
   private static p5: P5;
+  private static activeMenu = ActiveMenu.None;
 
-  private static isSettingsMenuShowing = false;
-  private static isMainMenuShowing = false;
-
-  static getIsSettingsMenuShowing = () => UI.isSettingsMenuShowing;
-  static getIsMainMenuShowing = () => UI.isMainMenuShowing;
+  static getIsMainMenuShowing = () => UI.activeMenu === ActiveMenu.MainMenu;
+  static getIsSettingsMenuShowing = () => UI.activeMenu === ActiveMenu.SettingsMenu;
+  static getIsGameModeMenuShowing = () => UI.activeMenu === ActiveMenu.GameModeMenu;
 
   static setP5Instance(p5: P5) {
     UI.p5 = p5;
@@ -64,12 +71,26 @@ export class UI {
   static showMainMenu() {
     document.getElementById('main-ui-buttons').classList.remove('hidden');
     DOM.select(document.getElementById('ui-button-start'));
-    UI.isMainMenuShowing = true;
+    UI.activeMenu = ActiveMenu.MainMenu;
   }
 
   static hideMainMenu() {
     document.getElementById('main-ui-buttons').classList.add('hidden');
-    UI.isMainMenuShowing = false;
+    if (UI.getIsMainMenuShowing()) {
+      UI.activeMenu = ActiveMenu.None;
+    }
+  }
+
+  static showGameModeMenu() {
+    document.getElementById('select-game-mode-menu').classList.remove('hidden');
+    UI.activeMenu = ActiveMenu.GameModeMenu;
+  }
+
+  static hideGameModeMenu() {
+    document.getElementById('select-game-mode-menu').classList.add('hidden');
+    if (UI.getIsGameModeMenuShowing()) {
+      UI.activeMenu = ActiveMenu.None;
+    }
   }
 
   static showSettingsMenu({ isInGameMenu = false, isCobraModeUnlocked = false }) {
@@ -90,7 +111,7 @@ export class UI {
         fieldCobraMode.classList.add('hidden');
       }
     }
-    UI.isSettingsMenuShowing = true;
+    UI.activeMenu = ActiveMenu.SettingsMenu;
     setTimeout(() => {
       if (isInGameMenu) {
         DOM.select(document.getElementById('checkbox-disable-screenshake'));
@@ -103,7 +124,9 @@ export class UI {
   static hideSettingsMenu() {
     UI.disableGameBlur();
     document.getElementById('settings-menu').style.display = 'none';
-    UI.isSettingsMenuShowing = false;
+    if (UI.getIsSettingsMenuShowing()) {
+      UI.activeMenu = ActiveMenu.None;
+    }
   }
 
   static showMainCasualModeLabel() {

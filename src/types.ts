@@ -351,6 +351,8 @@ export enum InputAction {
   ShowSettingsMenu,
   HideSettingsMenu,
   RetryLevel,
+  ChooseGameMode,
+  CancelChooseGameMode,
   StartGame,
   ToggleCasualMode,
   ToggleCobraMode,

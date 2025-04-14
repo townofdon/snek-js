@@ -508,3 +508,26 @@ export class GameOverMenuNavMap extends GroupedNavMap<GameOverMenuElement> {
     super(callAction, GAME_OVER_ELEMENT_ORDER)
   }
 }
+
+
+export enum GameModeMenuElement {
+  Campaign = 'button-game-mode-campaign',
+  LevelSelect = 'button-game-mode-level-select',
+  Randomizer = 'button-game-mode-randomizer',
+  Back = 'button-game-mode-back',
+}
+
+const GAME_MODE_MENU_ELEMENT_ORDER = [
+  [
+    GameModeMenuElement.Campaign,
+    GameModeMenuElement.LevelSelect,
+    GameModeMenuElement.Randomizer,
+    GameModeMenuElement.Back,
+  ],
+];
+
+export class GameModeMenuNavMap extends GroupedNavMap<GameModeMenuElement> {
+  constructor(callAction: (element: GameModeMenuElement) => void) {
+    super(callAction, GAME_MODE_MENU_ELEMENT_ORDER)
+  }
+}

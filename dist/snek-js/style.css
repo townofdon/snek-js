@@ -668,6 +668,23 @@ button:focus > .tooltip
 .tooltip.align-right { right: 0; }
 
 
+button.game-mode {
+  min-width: 160px;
+  text-align: left;
+}
+button.game-mode.campaign {
+  color: #E9C46A;
+}
+button.game-mode.level-select {
+  color: #E76F51;
+}
+button.game-mode.randomizer {
+  color: #2FB1A2;
+}
+button.game-mode.back {
+  color: #bbb;
+}
+
 
 .settings-menu {
   z-index: 30;
@@ -695,6 +712,15 @@ button:focus > .tooltip
   justify-content: center;
   flex-direction: column;
   transform: scale(2);
+}
+
+.settings-menu > .content.gap {
+  gap: 16px;
+}
+
+.settings-menu > .content button {
+  min-width: 160px;
+  text-align: left;
 }
 
 .settings-menu > .background {

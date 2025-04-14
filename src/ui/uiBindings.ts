@@ -15,6 +15,8 @@ import {
 } from '../types';
 import { InputAction } from '../types';
 import {
+  GameModeMenuElement as GameModeButton,
+  GameModeMenuNavMap,
   GameOverMenuElement,
   GameOverMenuNavMap,
   MainMenuButton,
@@ -145,6 +147,22 @@ export class UIBindings implements UIHandler {
         break;
     }
   }
+  private callGameModeMenuAction = (element: GameModeButton) => {
+    switch (element) {
+      case GameModeButton.Campaign:
+        this.callAction(InputAction.StartGame);
+        break;
+      case GameModeButton.LevelSelect:
+        // TODO: IMPL
+        break;
+      case GameModeButton.Randomizer:
+        // TODO: IMPL
+        break;
+      case GameModeButton.Back:
+        this.callAction(InputAction.ShowMainMenu);
+        break;
+    }
+  }
 
   private mainMenuNavMap: MainMenuNavMap;
   private mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
@@ -166,6 +184,13 @@ export class UIBindings implements UIHandler {
   }
   private pauseMenuNavMap: PauseMenuNavMap;
   private gameOverMenuNavMap: GameOverMenuNavMap;
+  private gameModeMenuNavMap: GameModeMenuNavMap;
+  private gameModeMenuElements: Record<GameModeButton, HTMLButtonElement> = {
+    [GameModeButton.Campaign]: undefined,
+    [GameModeButton.LevelSelect]: undefined,
+    [GameModeButton.Randomizer]: undefined,
+    [GameModeButton.Back]: undefined
+  }
 
   constructor(p5: P5, sfx: SFXInstance, gameState: GameState, settings: GameSettings, callbacks: UIBindingsCallbacks, callAction: (action: InputAction) => void) {
     this.p5 = p5;
@@ -178,7 +203,7 @@ export class UIBindings implements UIHandler {
     this.mainMenuNavMap = new MainMenuNavMap(
       this.mainMenuButtons,
       {
-        [MainMenuButton.StartGame]: InputAction.StartGame,
+        [MainMenuButton.StartGame]: InputAction.ChooseGameMode,
         [MainMenuButton.OSTMode]: InputAction.EnterOstMode,
         [MainMenuButton.QuoteMode]: InputAction.EnterQuoteMode,
         [MainMenuButton.Leaderboard]: InputAction.ShowLeaderboard,
@@ -190,6 +215,7 @@ export class UIBindings implements UIHandler {
     this.settingsMenuNavMap = new SettingsMenuNavMap(this.settingsMenuElements, callAction);
     this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
     this.gameOverMenuNavMap = new GameOverMenuNavMap(this.callGameOverMenuAction);
+    this.gameModeMenuNavMap = new GameModeMenuNavMap(this.callGameModeMenuAction)
   }
 
   handleUINavigation: UINavEventHandler = (navDir) => {
@@ -231,6 +257,21 @@ export class UIBindings implements UIHandler {
         case UINavDir.Down:
         case UINavDir.Right:
           this.mainMenuNavMap.gotoNext();
+          break;
+      }
+      return true;
+    }
+    if (UI.getIsGameModeMenuShowing()) {
+      switch (navDir) {
+        case UINavDir.Prev:
+        case UINavDir.Up:
+        case UINavDir.Left:
+          this.gameModeMenuNavMap.gotoPrev();
+          break;
+        case UINavDir.Next:
+        case UINavDir.Down:
+        case UINavDir.Right:
+          this.gameModeMenuNavMap.gotoNext();
           break;
       }
       return true;
@@ -291,6 +332,9 @@ export class UIBindings implements UIHandler {
     if (UI.getIsMainMenuShowing()) {
       return this.mainMenuNavMap.callSelected();
     }
+    if (UI.getIsGameModeMenuShowing()) {
+      return this.gameModeMenuNavMap.callSelected();
+    }
     if (this.gameState.isLost) {
       return this.gameOverMenuNavMap.callSelected();
     }
@@ -303,6 +347,10 @@ export class UIBindings implements UIHandler {
   handleUICancel: UICancelHandler = () => {
     if (UI.getIsSettingsMenuShowing()) {
       this.onHideSettingsMenuClick();
+      return true;
+    }
+    if (UI.getIsGameModeMenuShowing()) {
+      this.callAction(InputAction.CancelChooseGameMode);
       return true;
     }
     return false;
@@ -353,6 +401,12 @@ export class UIBindings implements UIHandler {
     }
   }
 
+  onSelectGameMode = () => {
+    if (UI.getIsGameModeMenuShowing()) {
+      this.gameModeMenuNavMap.gotoFirst();
+    }
+  }
+
   refreshFieldValues() {
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].value = String(this.settings.musicVolume);
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].value = String(this.settings.sfxVolume);
@@ -388,6 +442,16 @@ export class UIBindings implements UIHandler {
     this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].addEventListener('change', this.onCheckboxDisableScreenshakeChange);
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].addEventListener('input', this.onMusicSliderInput);
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].addEventListener('input', this.onSfxSliderInput);
+
+    this.gameModeMenuElements[GameModeButton.Campaign] = requireElementById<HTMLButtonElement>('button-game-mode-campaign')
+    this.gameModeMenuElements[GameModeButton.LevelSelect] = requireElementById<HTMLButtonElement>('button-game-mode-level-select')
+    this.gameModeMenuElements[GameModeButton.Randomizer] = requireElementById<HTMLButtonElement>('button-game-mode-randomizer')
+    this.gameModeMenuElements[GameModeButton.Back] = requireElementById<HTMLButtonElement>('button-game-mode-back')
+
+    this.gameModeMenuElements[GameModeButton.Campaign].addEventListener('click', this.onSelectGameModeCampaign)
+    this.gameModeMenuElements[GameModeButton.LevelSelect].addEventListener('click', this.onSelectGameModeLevelSelect)
+    this.gameModeMenuElements[GameModeButton.Randomizer].addEventListener('click', this.onSelectGameModeRandomizer)
+    this.gameModeMenuElements[GameModeButton.Back].addEventListener('click', this.onSelectGameModeBack)
     // document.addEventListener('keydown', this.overrideEscapeKeydown);
     window.addEventListener('blur', this.handleWindowBlur);
   }
@@ -405,13 +469,18 @@ export class UIBindings implements UIHandler {
     this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].removeEventListener('change', this.onCheckboxDisableScreenshakeChange);
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].removeEventListener('input', this.onMusicSliderInput);
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].removeEventListener('input', this.onSfxSliderInput);
+
+    this.gameModeMenuElements[GameModeButton.Campaign].removeEventListener('click', this.onSelectGameModeCampaign)
+    this.gameModeMenuElements[GameModeButton.LevelSelect].removeEventListener('click', this.onSelectGameModeLevelSelect)
+    this.gameModeMenuElements[GameModeButton.Randomizer].removeEventListener('click', this.onSelectGameModeRandomizer)
+    this.gameModeMenuElements[GameModeButton.Back].removeEventListener('click', this.onSelectGameModeBack)
     // document.removeEventListener('keydown', this.overrideEscapeKeydown);
     window.removeEventListener('blur', this.handleWindowBlur);
   }
 
   public setStartButtonVisibility = (visible: boolean) => {
-    this.mainMenuButtons[MainMenuButton.StartGame].style.visibility = visible ? 'visible' : 'hidden';
-    this.mainMenuButtons[MainMenuButton.StartGame].classList.add('active');
+    this.gameModeMenuElements[GameModeButton.Campaign].style.visibility = visible ? 'visible' : 'hidden';
+    this.gameModeMenuElements[GameModeButton.Campaign].classList.add('active');
   }
 
   // private overrideEscapeKeydown = (event: KeyboardEvent) => {
@@ -460,7 +529,7 @@ export class UIBindings implements UIHandler {
   }
 
   private handleStartGame = () => {
-    this.callAction(InputAction.StartGame);
+    this.callAction(InputAction.ChooseGameMode);
   }
 
   private handleEnterOstMode = () => {
@@ -477,5 +546,21 @@ export class UIBindings implements UIHandler {
 
   private handleShowSettingsMenu = () => {
     this.callAction(InputAction.ShowSettingsMenu);
+  }
+
+  private onSelectGameModeCampaign = () => {
+    this.callAction(InputAction.StartGame);
+  }
+
+  private onSelectGameModeLevelSelect = () => {
+    // TODO: IMPL
+  }
+
+  private onSelectGameModeRandomizer = () => {
+    // TODO: IMPL
+  }
+
+  private onSelectGameModeBack = () => {
+    this.callAction(InputAction.CancelChooseGameMode);
   }
 }

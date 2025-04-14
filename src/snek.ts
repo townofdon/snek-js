@@ -283,6 +283,14 @@ export const sketch = (p5: P5) => {
       case InputAction.RetryLevel:
         retryLevel();
         break;
+      case InputAction.ChooseGameMode:
+        if (!state.isGameStarted) showGameModeMenu();
+        break;
+      case InputAction.CancelChooseGameMode:
+        UI.hideGameModeMenu();
+        sfx.play(Sound.doorOpen);
+        if (!state.isGameStarted) UI.showMainMenu();
+        break;
       case InputAction.StartGame:
         startGame();
         break;
@@ -517,6 +525,7 @@ export const sketch = (p5: P5) => {
     tutorial.needsRewindControls = true;
 
     UI.enableScreenScroll();
+    UI.hideGameModeMenu();
     showMainMenuUI();
     hydrateLoseMessages(-1);
   }
@@ -552,6 +561,12 @@ export const sketch = (p5: P5) => {
     state.appMode = AppMode.Game;
     playSound(Sound.unlock, 1, true);
     showMainMenuUI();
+  }
+
+  function showGameModeMenu() {
+    playSound(Sound.unlock, 1, true);
+    UI.showGameModeMenu();
+    uiBindings.onSelectGameMode();
   }
 
   function startGame() {
@@ -599,6 +614,7 @@ export const sketch = (p5: P5) => {
     UI.hideMainCasualModeLabel();
     UI.hideMainCobraModeLabel();
     UI.hideMainMenu();
+    UI.hideGameModeMenu();
   }
 
   function showSettingsMenu() {
