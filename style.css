@@ -41,6 +41,41 @@
 
   --loader-color: #fff;
   --loader-color-bg: #000;
+
+  /* selection path */
+  --path: polygon(
+    evenodd,
+    0 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    /* top-left */
+    0px 9px,
+    3px 9px,
+    3px 3px,
+    9px 3px,
+    9px 0px,
+    /* top-right */
+    calc(100% - 9px) 0,
+    calc(100% - 9px) 3px,
+    calc(100% - 3px) 3px,
+    calc(100% - 3px) 9px,
+    100% 9px,
+    /* bottom-right */
+    calc(100% - 0px) calc(100% - 9px),
+    calc(100% - 3px) calc(100% - 9px),
+    calc(100% - 3px) calc(100% - 3px),
+    calc(100% - 9px) calc(100% - 3px),
+    calc(100% - 9px) calc(100% - 0px),
+    /* bottom-left */
+    9px calc(100% - 0px),
+    9px calc(100% - 3px),
+    3px calc(100% - 3px),
+    3px calc(100% - 9px),
+    0px calc(100% - 9px),
+    /* back to origin */
+    0 0
+  );
 }
 
 @font-face {
@@ -183,7 +218,7 @@ main {
 }
 
 main div {
-  cursor: crosshair
+  cursor: crosshair;
 }
 
 .minimood {
@@ -322,10 +357,10 @@ button.focus-invert.active,
 
 .title-sprite-container .variant.default { opacity: 1; }
 .title-sprite-container .variant.gray { opacity: 0; }
-.title-sprite-container .variant.green { opacity: 0 }
-.title-sprite-container .variant.red { opacity: 0 }
-.title-sprite-container .variant.sand { opacity: 0 }
-.title-sprite-container .variant.yellow { opacity: 0 }
+.title-sprite-container .variant.green { opacity: 0; }
+.title-sprite-container .variant.red { opacity: 0; }
+.title-sprite-container .variant.sand { opacity: 0; }
+.title-sprite-container .variant.yellow { opacity: 0; }
 
 .title-sprite-container .variant.default .title-sprite-img { background-image: var(--title-sprite-img-grayblue); }
 .title-sprite-container .variant.gray .title-sprite-img { background-image: var(--title-sprite-img-gray); }
@@ -396,7 +431,9 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: calc(-3 *
   /* --button-filter: brightness(1) grayscale(0); */
 }
 
-button:focus::before {
+.button:focus:before,
+button:focus:before,
+.main-ui-buttons .button-start-game:focus:before {
   content: "";
   display: inline-block;
   animation-name: selection-expand;
@@ -405,47 +442,14 @@ button:focus::before {
   animation-timing-function: cubic-bezier(.5,0,.5,1);
   animation-fill-mode: backwards;
   position: absolute;
-  /* z-index: 100; */
+  z-index: 10;
   left: -20px;
   right: -20px;
   top: -16px;
   bottom: -20px;
   background: white;
-  --button-filter: brightness(1) grayscale(0);
-  
-  --path: polygon(
-    evenodd,
-    0 0,
-    100% 0,
-    100% 100%,
-    0 100%,
-    /* top-left */
-    0px 9px,
-    3px 9px,
-    3px 3px,
-    9px 3px,
-    9px 0px,
-    /* top-right */
-    calc(100% - 9px) 0,
-    calc(100% - 9px) 3px,
-    calc(100% - 3px) 3px,
-    calc(100% - 3px) 9px,
-    100% 9px,
-    /* bottom-right */
-    calc(100% - 0px) calc(100% - 9px),
-    calc(100% - 3px) calc(100% - 9px),
-    calc(100% - 3px) calc(100% - 3px),
-    calc(100% - 9px) calc(100% - 3px),
-    calc(100% - 9px) calc(100% - 0px),
-    /* bottom-left */
-    9px calc(100% - 0px),
-    9px calc(100% - 3px),
-    3px calc(100% - 3px),
-    3px calc(100% - 9px),
-    0px calc(100% - 9px),
-    /* back to origin */
-    0 0
-  );
+  transform: scaleX(1) scaleY(1);
+  /* --button-filter: brightness(1) grayscale(0); */
   clip-path: var(--path);
   -webkit-clip-path: var(--path);
 }
@@ -541,6 +545,10 @@ button.ui-sprite:focus,
 button.ui-sprite.selected {
   --button-filter: brightness(1) grayscale(0) invert(1);
 }
+a.ui-sprite:focus:before,
+button.ui-sprite:focus:before {
+  background-color: black;
+}
 
 a.ui-sprite,
 button.ui-sprite {
@@ -615,6 +623,7 @@ a > .tooltip,
 button > .tooltip {
   display: none;
   position: absolute;
+  z-index: 20;
   bottom: 100%;
   width: auto;
   min-width: 130px;
@@ -841,17 +850,17 @@ button:focus > .tooltip
 .checkbox-label input[type='checkbox']:focus:checked ~ .checkmark {
   background-color: #137bcd;
 }
-.checkmark::after {
+.checkmark:after {
   content: "x";
   position: absolute;
   top: 7px;
   left: 5px;
   display: none;
 }
-.checkbox-label input[type='checkbox']:checked ~ .checkmark::after {
+.checkbox-label input[type='checkbox']:checked ~ .checkmark:after {
   display: block;
 }
-.container input[type='checkbox']::after {
+.container input[type='checkbox']:after {
   left: 9px;
   top: 5px;
   width: 5px;
