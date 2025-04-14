@@ -256,7 +256,8 @@ p {
 
 @keyframes selection-expand {
   0%   { transform: scaleX(1) scaleY(1); }
-  50%  { transform: scaleX(1.05) scaleY(1.1); }
+  /* 50%  { transform: scaleX(1.05) scaleY(1.1); } */
+  50%  { transform: scaleX(1.02) scaleY(1.02); }
   100% { transform: scaleX(1) scaleY(1); }
 }
 
@@ -443,15 +444,23 @@ button:focus:before,
   animation-fill-mode: backwards;
   position: absolute;
   z-index: 10;
-  left: -20px;
+  /* left: -20px;
   right: -20px;
   top: -16px;
-  bottom: -20px;
+  bottom: -20px; */
   background: white;
   transform: scaleX(1) scaleY(1);
   /* --button-filter: brightness(1) grayscale(0); */
-  clip-path: var(--path);
-  -webkit-clip-path: var(--path);
+  /* clip-path: var(--path);
+  -webkit-clip-path: var(--path); */
+  background: transparent;
+  border-radius: 8px;
+  border: 2px solid white;
+  --selection-offset: -8px;
+  left: var(--selection-offset);
+  right: var(--selection-offset);
+  top: var(--selection-offset);
+  bottom: var(--selection-offset);
 }
 
 .main-ui-buttons .button,
@@ -547,7 +556,8 @@ button.ui-sprite.selected {
 }
 a.ui-sprite:focus:before,
 button.ui-sprite:focus:before {
-  background-color: black;
+  /* background-color: black; */
+  border-color: black;
 }
 
 a.ui-sprite,
