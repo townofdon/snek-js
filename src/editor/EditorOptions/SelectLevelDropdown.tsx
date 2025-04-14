@@ -10,9 +10,10 @@ import * as styles from './EditorOptions.css'
 
 interface SelectLevelDropdownProps {
   loadLevel: (level: Level) => void;
+  levelName: string,
 }
 
-export const SelectLevelDropdown = ({ loadLevel }: SelectLevelDropdownProps) => {
+export const SelectLevelDropdown = ({ loadLevel, levelName }: SelectLevelDropdownProps) => {
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVEL_01);
 
   const levelsToInclude = [
@@ -20,6 +21,16 @@ export const SelectLevelDropdown = ({ loadLevel }: SelectLevelDropdownProps) => 
     ...SECRET_LEVELS,
     ...CHALLENGE_LEVELS,
   ];
+
+  React.useEffect(() => {
+    levelsToInclude.find(level => {
+      if (level.name === levelName) {
+        setSelectedLevel(level);
+        return true;
+      }
+      return false;
+    })
+  }, [levelName])
 
   const handleSetLevel = (option: Option) => {
     const levelName = option.value;

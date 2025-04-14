@@ -61,6 +61,7 @@ export interface EditorState {
   mouseFrom: number,
   operation: Operation,
   tool: EditorTool,
+  showNospawns: boolean,
 }
 
 export interface EditorSketchReturn {
@@ -68,6 +69,7 @@ export interface EditorSketchReturn {
   setMouseFrom: (coord: number) => void,
   setOperation: (val: Operation) => void,
   setTool: (tool: EditorTool) => void,
+  setShowNospawns: (showNospawns: boolean) => void,
   setData: (data: EditorData) => void,
   setOptions: (options: EditorOptions) => void,
   cleanup: () => void,
@@ -101,6 +103,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     mouseFrom: -1,
     operation: Operation.None,
     tool: EditorTool.Pencil,
+    showNospawns: false,
   }
 
   const setMouseAt = (incoming: number): void => {
@@ -114,6 +117,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
   }
   const setTool = (incoming: EditorTool) => {
     state.tool = incoming;
+  }
+  const setShowNospawns = (incoming: boolean): void => {
+    state.showNospawns = incoming;
   }
   const setData = (incoming: EditorData): void => {
     const getIsDiff = (key: keyof EditorData): boolean => {
@@ -400,8 +406,10 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       renderer.clearGraphicalComponent(graphicalComponents.deco2);
       renderer.drawSquareCustom(graphicalComponents.deco2, 1, 1, colors.deco2, colors.deco2Stroke, drawBasicOptions);
 
-      renderer.clearGraphicalComponent(graphicalComponents.nospawn);
-      renderer.drawXCustom(graphicalComponents.nospawn, 1, 1, PALETTE.atomic.apple);
+      if (state.showNospawns) {
+        renderer.clearGraphicalComponent(graphicalComponents.nospawn);
+        renderer.drawXCustom(graphicalComponents.nospawn, 1, 1, PALETTE.atomic.apple);
+      }
     }
 
     function renderElements() {
@@ -682,6 +690,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     setMouseFrom,
     setOperation,
     setTool,
+    setShowNospawns,
     cleanup,
   };
 }

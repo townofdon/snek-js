@@ -93,6 +93,17 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
     }
   }
 
+  const download = async () => {
+    try {
+      setLoading(true);
+      const [encoded, file, xsrfToken] = await getSaveData();
+    } catch (err) {
+      
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div ref={panelRef}>
       <Field
@@ -123,12 +134,16 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
           publishCanvas={(
             <canvas
               ref={publishCanvas}
-              width={1200}
-              height={630}
+              // width={1200}
+              // height={630}
+              width={600}
+              height={600}
               onClick={() => !isPreviewShowing && setPreviewShowing(true)}
               style={{
-                width: isPreviewShowing ? 900 : 356,
-                height: isPreviewShowing ? 472.5 : 'auto',
+                // width: isPreviewShowing ? 900 : 356,
+                // height: isPreviewShowing ? 472.5 : 'auto',
+                width: 356,
+                height: 'auto',
                 cursor: isPreviewShowing ? 'initial' : 'pointer',
               }}
             />

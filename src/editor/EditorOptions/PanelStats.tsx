@@ -191,7 +191,7 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions, loadLevel }:
         )}
       </Stack>
       <hr />
-      <SelectLevelDropdown loadLevel={loadLevel} />
+      <SelectLevelDropdown loadLevel={loadLevel} levelName={options.name} />
     </div>
   );
 }

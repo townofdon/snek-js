@@ -32,17 +32,18 @@ export async function drawShareImage(ctx: CanvasRenderingContext2D, mapWidth: nu
 
   ctx.fillStyle = Color(colors.background).darken(0.2).desaturate(0.15).hex();
   ctx.fillRect(0, 0, 1200, 630);
-  ctx.fillStyle = colors.background;
-  ctx.fillRect(0, 15, 1200, 600);
-  ctx.drawImage(template, 0, 0, 600, 600, 0, 15, 600, 600);
-  ctx.drawImage(mapImage, 0, 0, mapWidth, mapHeight, 600, 15, 600, 600);
+  // ctx.fillStyle = colors.background;
+  // ctx.fillRect(0, 15, 1200, 600);
+  // ctx.drawImage(template, 0, 0, 600, 600, 0, 15, 600, 600);
+  // ctx.drawImage(mapImage, 0, 0, mapWidth, mapHeight, 600, 15, 600, 600);
+  ctx.drawImage(mapImage, 0, 0, mapWidth, mapHeight, 0, 0, 600, 600);
 
-  const y = drawText(ctx, mapName, 300, 375, { fill: titleColor, fontSize: 36, shadow: { x: 0, y: 4, color: shadow, fontSizeAdd: -0.5 } });
+  // const y = drawText(ctx, mapName, 300, 375, { fill: titleColor, fontSize: 36, shadow: { x: 0, y: 4, color: shadow, fontSizeAdd: -0.5 } });
 
-  if (author?.trim()) {
-    drawText(ctx, `map by`, 300, y + 100, { fill: '#ddd', fontSize: 12, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.1667 } });
-    drawText(ctx, author, 300, y + 120, { fill: authorColor, fontSize: 12, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.1667 } });
-  }
+  // if (author?.trim()) {
+  //   drawText(ctx, `map by`, 300, y + 100, { fill: '#ddd', fontSize: 12, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.1667 } });
+  //   drawText(ctx, author, 300, y + 120, { fill: authorColor, fontSize: 12, shadow: { x: 0, y: 3, color: shadow, fontSizeAdd: -0.1667 } });
+  // }
 }
 
 export async function loadImage(path: string): Promise<HTMLImageElement> {
