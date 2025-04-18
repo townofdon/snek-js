@@ -67,8 +67,4 @@ XXXXXXXXXXXXXD4DXXXXXXXXXXXXXX
   },
   musicTrack: MusicTrack.drone,
   globalLight: 0.4,
-  nextLevelMap: {
-    [getCoordIndex2(29, 14)]: LEVEL_01_HARD,
-    [getCoordIndex2(14, 29)]: LEVEL_01_ULTRA,
-  },
 };

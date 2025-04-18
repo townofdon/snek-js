@@ -121,6 +121,7 @@ import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleS
 import { buildLevel } from '../levels/levelBuilder';
 import {
   LEVELS,
+  LEVEL_01,
   LEVEL_99,
   LEVEL_WIN_GAME,
   MAIN_TITLE_SCREEN_LEVEL,
@@ -144,6 +145,8 @@ import { buildSceneActionFactory } from '../scenes/sceneUtils';
 import { TitleScene } from '../scenes/TitleScene';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 import { resumeAudioContext } from './audio';
+import { LEVEL_01_HARD } from '../levels/level01hard';
+import { LEVEL_01_ULTRA } from '../levels/level01ultra';
 
 interface EngineParams {
   p5: P5,
@@ -325,6 +328,13 @@ export function engine({
 
   function setLevel(incoming: Level) {
     level = incoming;
+    if (level === LEVEL_01) {
+      if (difficulty.index === 3) {
+        level = LEVEL_01_HARD;
+      } else if (difficulty.index === 4) {
+        level = LEVEL_01_ULTRA;
+      }
+    }
   }
 
   function setDifficulty(incoming: Difficulty) {
@@ -442,7 +452,6 @@ export function engine({
     state.hasKeyYellow = false;
     state.hasKeyRed = false;
     state.hasKeyBlue = false;
-    state.nextLevel = null;
     moves = [];
     recentMoves = [null, null, null, null];
     recentInputs = [null, null, null, null];

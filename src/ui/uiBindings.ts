@@ -52,7 +52,7 @@ export class UIBindings implements UIHandler {
     onToggleCobraMode: (value?: boolean) => { },
     onWarpToLevel: (index: number) => { }
   };
-  private callAction: (action: InputAction) => void;
+  private callAction: (action: InputAction, p0?: any) => void;
   private callPauseMenuAction = (element: PauseMenuElement) => {
     switch (element) {
       case PauseMenuElement.ButtonResume:
@@ -154,7 +154,7 @@ export class UIBindings implements UIHandler {
         this.callAction(InputAction.StartGame);
         break;
       case GameModeButton.LevelSelect:
-        // TODO: IMPL
+        this.callAction(InputAction.ShowLevelSelectMenu);
         break;
       case GameModeButton.Randomizer:
         // TODO: IMPL
@@ -192,8 +192,9 @@ export class UIBindings implements UIHandler {
     [GameModeButton.Randomizer]: undefined,
     [GameModeButton.Back]: undefined
   }
+  private levelSelectElement: HTMLElement;
 
-  constructor(p5: P5, sfx: SFXInstance, gameState: GameState, settings: GameSettings, callbacks: UIBindingsCallbacks, callAction: (action: InputAction) => void) {
+  constructor(p5: P5, sfx: SFXInstance, gameState: GameState, settings: GameSettings, callbacks: UIBindingsCallbacks, callAction: (action: InputAction, p0?: any) => void) {
     this.p5 = p5;
     this.sfx = sfx;
     this.gameState = gameState;
@@ -222,6 +223,10 @@ export class UIBindings implements UIHandler {
   }
 
   handleUINavigation: UINavEventHandler = (navDir) => {
+    if (UI.getIsLevelSelectMenuShowing()) {
+      // TODO: IMPL
+      console.log(navDir);
+    }
     if (UI.getIsSettingsMenuShowing()) {
       switch (navDir) {
         case UINavDir.Prev:
@@ -329,6 +334,9 @@ export class UIBindings implements UIHandler {
   }
 
   handleUIInteract: UIInteractHandler = () => {
+    if (UI.getIsLevelSelectMenuShowing()) {
+      // TODO: IMPL
+    }
     if (UI.getIsSettingsMenuShowing()) {
       return this.settingsMenuNavMap.callSelected();
     }
@@ -348,6 +356,10 @@ export class UIBindings implements UIHandler {
   }
 
   handleUICancel: UICancelHandler = () => {
+    if (UI.getIsLevelSelectMenuShowing()) {
+      this.callAction(InputAction.HideLevelSelectMenu);
+      return true;
+    }
     if (UI.getIsSettingsMenuShowing()) {
       this.onHideSettingsMenuClick();
       return true;
@@ -437,6 +449,8 @@ export class UIBindings implements UIHandler {
     this.gameModeMenuElements[GameModeButton.LevelSelect] = requireElementById<HTMLButtonElement>('button-game-mode-level-select')
     this.gameModeMenuElements[GameModeButton.Randomizer] = requireElementById<HTMLButtonElement>('button-game-mode-randomizer')
     this.gameModeMenuElements[GameModeButton.Back] = requireElementById<HTMLButtonElement>('button-game-mode-back')
+
+    this.levelSelectElement = requireElementById<HTMLElement>('level-select-menu')
   }
 
   private handleUIEvent = (action: UIAction = UIAction.None) => {
@@ -477,8 +491,10 @@ export class UIBindings implements UIHandler {
         this.gameModeMenuElements[GameModeButton.LevelSelect].removeEventListener('click', this.onSelectGameModeLevelSelect);
         this.gameModeMenuElements[GameModeButton.Randomizer].removeEventListener('click', this.onSelectGameModeRandomizer);
         this.gameModeMenuElements[GameModeButton.Back].removeEventListener('click', this.onSelectGameModeBack);
+      } else if (action === UIAction.ShowLevelSelectMenu) {
+        this.levelSelectElement.addEventListener('click', this.onLevelSelect);
       } else if (cleanup || action === UIAction.HideLevelSelectMenu) {
-        // TODO: ADD ACTIONS
+        this.levelSelectElement.removeEventListener('click', this.onLevelSelect);
       }
   }
 
@@ -489,9 +505,16 @@ export class UIBindings implements UIHandler {
     window.removeEventListener('blur', this.handleWindowBlur);
   }
 
-  public setStartButtonVisibility = (visible: boolean) => {
+  public setStartButtonVisibility = (visible: boolean, levelNum = -1) => {
     this.gameModeMenuElements[GameModeButton.Campaign].style.visibility = visible ? 'visible' : 'hidden';
     this.gameModeMenuElements[GameModeButton.Campaign].classList.add('active');
+    if (levelNum > 0 && this.levelSelectElement) {
+      const elem = this.levelSelectElement.querySelector(`button[data-level="${levelNum}"]`) as HTMLElement;
+      if (elem) {
+        elem.style.visibility = visible ? 'visible' : 'hidden';
+        elem.classList.add('active');
+      }
+    }
   }
 
   // private overrideEscapeKeydown = (event: KeyboardEvent) => {
@@ -564,7 +587,7 @@ export class UIBindings implements UIHandler {
   }
 
   private onSelectGameModeLevelSelect = () => {
-    // TODO: IMPL
+    this.callAction(InputAction.ShowLevelSelectMenu);
   }
 
   private onSelectGameModeRandomizer = () => {
@@ -573,5 +596,16 @@ export class UIBindings implements UIHandler {
 
   private onSelectGameModeBack = () => {
     this.callAction(InputAction.CancelChooseGameMode);
+  }
+
+  private onLevelSelect = (ev: MouseEvent) => {
+    ev.preventDefault();
+    const element = ev.target as HTMLButtonElement
+    const level = parseInt(element?.dataset?.level || '', 10);
+    if (!level) {
+      console.warn('could not parse level from dataset', element, element?.dataset);
+      return;
+    }
+    this.callAction(InputAction.StartGame, level);
   }
 }

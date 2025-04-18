@@ -350,6 +350,8 @@ export enum InputAction {
   ConfirmShowMainMenu,
   ShowSettingsMenu,
   HideSettingsMenu,
+  ShowLevelSelectMenu,
+  HideLevelSelectMenu,
   RetryLevel,
   ChooseGameMode,
   CancelChooseGameMode,

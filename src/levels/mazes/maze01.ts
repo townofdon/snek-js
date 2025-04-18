@@ -66,8 +66,4 @@ XXXXXXXXXXXXXD3DXXXXXXXXDD4DXX
   },
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.4,
-  nextLevelMap: {
-    [getCoordIndex2(14, 29)]: LEVEL_01_HARD,
-    [getCoordIndex2(26, 29)]: LEVEL_01_ULTRA,
-  },
 };

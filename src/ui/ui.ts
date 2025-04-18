@@ -30,6 +30,7 @@ export class UI {
   static getIsMainMenuShowing = () => UI.activeMenu === ActiveMenu.MainMenu;
   static getIsSettingsMenuShowing = () => UI.activeMenu === ActiveMenu.SettingsMenu;
   static getIsGameModeMenuShowing = () => UI.activeMenu === ActiveMenu.GameModeMenu;
+  static getIsLevelSelectMenuShowing = () => UI.activeMenu === ActiveMenu.LevelSelectMenu;
 
   static setP5Instance(p5: P5) {
     UI.p5 = p5;
@@ -144,6 +145,23 @@ export class UI {
       UI.activeMenu = ActiveMenu.None;
     }
     emitUIEvent(UIAction.HideSettingsMenu);
+  }
+
+  static showLevelSelectMenu() {
+    if (UI.getIsLevelSelectMenuShowing()) {
+      return;
+    }
+    UI.activeMenu = ActiveMenu.LevelSelectMenu;
+    document.getElementById('level-select-menu').classList.remove('hidden');
+    emitUIEvent(UIAction.ShowLevelSelectMenu);
+  }
+
+  static hideLevelSelectMenu() {
+    document.getElementById('level-select-menu').classList.add('hidden');
+    if (UI.getIsLevelSelectMenuShowing()) {
+      UI.activeMenu = ActiveMenu.None;
+    }
+    emitUIEvent(UIAction.HideLevelSelectMenu);
   }
 
   static showMainCasualModeLabel() {

@@ -259,7 +259,7 @@ export const sketch = (p5: P5) => {
     onWarpToLevel: warpToLevel,
   }, handleInputAction);
 
-  function handleInputAction(action: InputAction) {
+  function handleInputAction(action: InputAction, p0?: any) {
     switch (action) {
       case InputAction.HideStartScreen:
         hideStartScreen();
@@ -290,8 +290,15 @@ export const sketch = (p5: P5) => {
         sfx.play(Sound.doorOpen);
         if (!state.isGameStarted) UI.showMainMenu();
         break;
+      case InputAction.ShowLevelSelectMenu:
+        if (!state.isGameStarted) showLevelSelectMenu();
+        break;
+      case InputAction.HideLevelSelectMenu:
+        if (!state.isGameStarted) showGameModeMenu();
+        break;
       case InputAction.StartGame:
-        startGame();
+        const levelNum = typeof p0 === 'number' ? p0 : -1;
+        startGame(levelNum);
         break;
       case InputAction.ToggleCasualMode:
         toggleCasualMode();
@@ -571,11 +578,18 @@ export const sketch = (p5: P5) => {
 
   function showGameModeMenu() {
     playSound(Sound.unlock, 1, true);
+    UI.hideLevelSelectMenu();
     UI.showGameModeMenu();
     uiBindings.onSelectGameMode();
   }
 
-  function startGame() {
+  function showLevelSelectMenu() {
+    playSound(Sound.unlock, 1, true);
+    UI.hideGameModeMenu();
+    UI.showLevelSelectMenu();
+  }
+
+  function startGame(levelNum = -1) {
     if (!state.isPreloaded) return;
     if (state.isGameStarting) return;
     state.isGameStarting = true;
@@ -587,20 +601,21 @@ export const sketch = (p5: P5) => {
       sfx.stop(Sound.invincibleLoop);
     }, 0)
     playSound(Sound.uiConfirm, 1, true);
-    coroutines.start(startGameRoutine());
+    coroutines.start(startGameRoutine(levelNum));
   }
 
-  function* startGameRoutine(): IEnumerator {
+  function* startGameRoutine(levelNum = -1): IEnumerator {
     if (!DISABLE_TRANSITIONS) {
       yield* coroutines.waitForTime(1000, (t) => {
         const freq = .2;
         const shouldShow = t % freq > freq * 0.5;
-        uiBindings.setStartButtonVisibility(shouldShow);
+        uiBindings.setStartButtonVisibility(shouldShow, levelNum);
       });
     } else {
       yield null;
     }
     stopReplay();
+    state.nextLevel = levelNum >= 1 ? getWarpLevelFromNum(levelNum) : null;
     setLevel(state.gameMode === GameMode.Cobra ? START_LEVEL_COBRA : START_LEVEL);
     setDifficulty(DIFFICULTY_EASY);
 
@@ -621,6 +636,7 @@ export const sketch = (p5: P5) => {
     UI.hideMainCobraModeLabel();
     UI.hideMainMenu();
     UI.hideGameModeMenu();
+    UI.hideLevelSelectMenu();
   }
 
   function showSettingsMenu() {
@@ -796,7 +812,7 @@ export const sketch = (p5: P5) => {
         uiBindings.onPauseCancelModal();
       }
     }
-    modal.show('Goto Main Menu?', 'Progress will be saved.', handleYes, handleNo);
+    modal.show('Goto Main Menu?', 'Current score will be lost.', handleYes, handleNo);
     sfx.play(Sound.unlock);
   }
 
@@ -824,6 +840,7 @@ export const sketch = (p5: P5) => {
       });
       resetStats();
       state.gameMode = GameMode.Cobra;
+      state.nextLevel = null;
       const nextDifficultyIndex = getDifficulty().index + 1;
       setDifficulty(getDifficultyFromIndex(nextDifficultyIndex));
       setLevel(START_LEVEL_COBRA);
@@ -856,14 +873,16 @@ export const sketch = (p5: P5) => {
     stats.numLevelsCleared += 1;
     stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
-    const nextLevel = level.nextLevel;
-    if (state.nextLevel || nextLevel) {
-      setLevel(state.nextLevel || nextLevel)
+
+    const nextLevel = state.nextLevel || level.nextLevel;
+    if (nextLevel) {
+      setLevel(nextLevel)
       setLevelIndexFromCurrentLevel();
     } else {
       state.levelIndex++;
       setLevel(LEVELS[state.levelIndex % LEVELS.length]);
     }
+    state.nextLevel = null;
 
     maybeSaveReplayStateToFile();
 
