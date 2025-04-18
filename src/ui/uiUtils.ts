@@ -8,12 +8,12 @@ export function requireElementById<T>(id: string) {
 export class DOM {
   private static prev: HTMLElement;
 
-  static select(element: HTMLElement | null | undefined) {
+  static select(element: HTMLElement | null | undefined, preventScroll = false) {
     if (!element) return;
     if (document.activeElement && document.activeElement !== element) {
       document.activeElement.classList.remove('active');
     }
-    element.focus();
+    element.focus({ preventScroll });
     const didFocusWork = document.activeElement === element;
     if (didFocusWork) {
       element.classList.add('active');

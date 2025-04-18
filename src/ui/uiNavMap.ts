@@ -14,16 +14,22 @@ export interface NavMap {
   gotoRight: () => void,
 }
 
+interface GroupedNavMapOptions {
+  preventScroll?: boolean
+}
+
 export abstract class GroupedNavMap<ElementType extends string> implements NavMap {
   private readonly callAction: (element: ElementType) => void;
   private readonly ORDER: ElementType[][]
+  private opts: GroupedNavMapOptions
 
   private selectedGroup = -1;
   private selectedIndex = -1;
 
-  constructor(callAction: (element: ElementType) => void, order: ElementType[][]) {
+  constructor(callAction: (element: ElementType) => void, order: ElementType[][], opts?: GroupedNavMapOptions) {
     this.callAction = callAction;
     this.ORDER = order;
+    this.opts = opts || {}
   }
 
   callSelected = () => {
@@ -32,12 +38,33 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     return !!focused;
   };
 
+  getActiveElement = (): Element | null => {
+    const focused = this.getFocused();
+    if (!focused) return null;
+    return document.activeElement || null;
+  }
+
+  getActiveIndex = (): [number, number] => {
+    if (!document.activeElement) return [-1, -1];
+    const ORDER = this.ORDER;
+    for (let group = 0; group < ORDER.length; group++) {
+      if (!ORDER[group]?.length) continue;
+      for (let i = 0; i < ORDER[group].length; i++) {
+        const target = document.getElementById(ORDER[group][i]);
+        if (target && target === document.activeElement) {
+          return [group, i]
+        }
+      }
+    }
+    return [-1, -1];
+  }
+
   private getFocused = (): ElementType | null => {
     if (!document.activeElement) return null;
     const ORDER = this.ORDER;
     for (let group = 0; group < ORDER.length; group++) {
-      for (let i = 0; i < 6; i++) {
-        if (!ORDER[group] || i >= ORDER[group].length) break;
+      if (!ORDER[group]?.length) continue;
+      for (let i = 0; i < ORDER[group].length; i++) {
         const target = document.getElementById(ORDER[group][i]);
         if (target && target === document.activeElement) {
           this.selectedGroup = group;
@@ -68,7 +95,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     const nextElement = ORDER[nextGroupIndex][nextIndex];
     const didSelect = (elem: HTMLElement | null) => !!elem && elem === document.activeElement
     let node = document.getElementById(nextElement);
-    DOM.select(node);
+    DOM.select(node, this.opts.preventScroll);
     if (!didSelect(node)) {
       // search in both directions from nextIndex, finding first selectable node
       let i0 = nextIndex;
@@ -76,11 +103,11 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
       while (!didSelect(node) && (i0 >= 0 || i1 < nextGroupSize)) {
         if (i0 >= 0) {
           node = document.getElementById(ORDER[nextGroupIndex][i0]);
-          DOM.select(node);
+          DOM.select(node, this.opts.preventScroll);
         }
         if (!didSelect(node) && i1 < nextGroupSize) {
           node = document.getElementById(ORDER[nextGroupIndex][i1]);
-          DOM.select(node);
+          DOM.select(node, this.opts.preventScroll);
         }
         i0--;
         i1++;
@@ -121,7 +148,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     const nextElement = ORDER[this.selectedGroup][nextIndex];
     const didSelect = (elem: HTMLElement | null) => !!elem && elem === document.activeElement
     const node = document.getElementById(nextElement);
-    if (node) DOM.select(node);
+    if (node) DOM.select(node, this.opts.preventScroll);
     if (!didSelect(node)) {
       if (count >= 100) {
         if (IS_DEV) console.warn("gotoHoriz: infinite loop was just prevented");
@@ -138,12 +165,12 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
   gotoFirst = () => {
     const didSelect = (elem: HTMLElement | null) => !!elem && elem === document.activeElement
     let node = document.getElementById(this.ORDER[0][0]);
-    DOM.select(node);
+    DOM.select(node, this.opts.preventScroll);
     if (!didSelect(node)) {
       for (let group = 0; group < this.ORDER.length && !didSelect(node); group++) {
         for (let index = 0; index < this.ORDER[group].length && !didSelect(node); index++) {
           node = document.getElementById(this.ORDER[group][index]);
-          DOM.select(node);
+          DOM.select(node, this.opts.preventScroll);
         }
       }
     }
@@ -172,7 +199,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
       this.gotoFirst();
       return;
     }
-    DOM.select(node);
+    DOM.select(node, this.opts.preventScroll);
     if (!didSelect(node)) {
       this.gotoFirst();
       return;
@@ -529,5 +556,11 @@ const GAME_MODE_MENU_ELEMENT_ORDER = [
 export class GameModeMenuNavMap extends GroupedNavMap<GameModeMenuElement> {
   constructor(callAction: (element: GameModeMenuElement) => void) {
     super(callAction, GAME_MODE_MENU_ELEMENT_ORDER)
+  }
+}
+
+export class LevelSelectMenuNavMap extends GroupedNavMap<string> {
+  constructor(callAction: (id: string) => void, order: string[]) {
+    super(callAction, [order], { preventScroll: true })
   }
 }

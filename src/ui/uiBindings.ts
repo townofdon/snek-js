@@ -19,6 +19,7 @@ import {
   GameModeMenuNavMap,
   GameOverMenuElement,
   GameOverMenuNavMap,
+  LevelSelectMenuNavMap,
   MainMenuButton,
   MainMenuNavMap,
   PauseMenuElement,
@@ -31,6 +32,7 @@ import { requireElementById } from './uiUtils';
 import { gamepadPressed, getGamepad } from '../engine/gamepad';
 import { Button } from '../engine/gamepad/StandardGamepadMapping';
 import { offUIEvent, onUIEvent, UIAction } from './uiEvents';
+import { getWarpLevelFromNum } from '../levels/levelUtils';
 
 interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
@@ -165,6 +167,16 @@ export class UIBindings implements UIHandler {
     }
   }
 
+  private callLevelSelectMenuAction = (id: string) => {
+    const elem = document.getElementById(id);
+    if (!elem) {
+      console.warn(`could not find element with id '${id}'`)
+      return;
+    }
+    elem.click();
+  }
+
+  private main: HTMLElement;
   private mainMenuNavMap: MainMenuNavMap;
   private mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
     [MainMenuButton.StartGame]: null,
@@ -192,7 +204,12 @@ export class UIBindings implements UIHandler {
     [GameModeButton.Randomizer]: undefined,
     [GameModeButton.Back]: undefined
   }
-  private levelSelectElement: HTMLElement;
+  private levelSelectMenuNavMap: LevelSelectMenuNavMap;
+  private levelSelectMenu: HTMLElement;
+  private levelSelectMapNum: HTMLElement;
+  private levelSelectMapName: HTMLElement;
+  private levelSelectScroll: HTMLElement;
+  private levelSelectItems: HTMLElement[];
 
   constructor(p5: P5, sfx: SFXInstance, gameState: GameState, settings: GameSettings, callbacks: UIBindingsCallbacks, callAction: (action: InputAction, p0?: any) => void) {
     this.p5 = p5;
@@ -218,14 +235,44 @@ export class UIBindings implements UIHandler {
     this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
     this.gameOverMenuNavMap = new GameOverMenuNavMap(this.callGameOverMenuAction);
     this.gameModeMenuNavMap = new GameModeMenuNavMap(this.callGameModeMenuAction);
+    this.levelSelectMenuNavMap = new LevelSelectMenuNavMap(
+      this.callLevelSelectMenuAction,
+      this.levelSelectItems.map((elem => elem.id)),
+    )
     onUIEvent(this.handleUIEvent);
     window.addEventListener('blur', this.handleWindowBlur);
   }
 
   handleUINavigation: UINavEventHandler = (navDir) => {
     if (UI.getIsLevelSelectMenuShowing()) {
-      // TODO: IMPL
-      console.log(navDir);
+      switch (navDir) {
+        case UINavDir.Prev:
+        case UINavDir.Up:
+        case UINavDir.Left:
+          this.levelSelectMenuNavMap.gotoPrev();
+          break;
+        case UINavDir.Next:
+        case UINavDir.Down:
+        case UINavDir.Right:
+          this.levelSelectMenuNavMap.gotoNext();
+          break;
+      }
+      const elem = this.levelSelectMenuNavMap.getActiveElement();
+      const levelNum = this.parseElementLevelNum(elem as HTMLButtonElement);
+      const [, idx] = this.levelSelectMenuNavMap.getActiveIndex();
+      if (!elem || idx < 0) {
+        console.warn('active level or active index not found', elem, idx);
+        return true;
+      }
+      const reg = /scale\((.+)\)/;
+      const scale = parseFloat(this.main.style.transform?.match(reg)[1]) || 1;
+      const diff = this.levelSelectItems[1].getBoundingClientRect().x - this.levelSelectItems[0].getBoundingClientRect().x;
+      const maxScroll = (diff / scale) * this.levelSelectItems.length;
+      const scrollAmt = idx / this.levelSelectItems.length;
+      this.levelSelectMapNum.innerText = String(idx + 1).padStart(2, '0');
+      this.levelSelectMapName.innerText = getWarpLevelFromNum(levelNum).name;
+      this.levelSelectScroll.scrollTo({ left: scrollAmt * maxScroll });
+      return true;
     }
     if (UI.getIsSettingsMenuShowing()) {
       switch (navDir) {
@@ -335,7 +382,7 @@ export class UIBindings implements UIHandler {
 
   handleUIInteract: UIInteractHandler = () => {
     if (UI.getIsLevelSelectMenuShowing()) {
-      // TODO: IMPL
+      return this.levelSelectMenuNavMap.callSelected();
     }
     if (UI.getIsSettingsMenuShowing()) {
       return this.settingsMenuNavMap.callSelected();
@@ -431,6 +478,8 @@ export class UIBindings implements UIHandler {
   }
 
   private assignElements = () => {
+    this.main = requireElementById<HTMLElement>('main');
+
     this.mainMenuButtons[MainMenuButton.StartGame] = requireElementById<HTMLButtonElement>('ui-button-start');
     this.mainMenuButtons[MainMenuButton.OSTMode] = requireElementById<HTMLButtonElement>('ui-button-ost-mode');
     this.mainMenuButtons[MainMenuButton.QuoteMode] = requireElementById<HTMLButtonElement>('ui-button-quote-mode');
@@ -450,7 +499,18 @@ export class UIBindings implements UIHandler {
     this.gameModeMenuElements[GameModeButton.Randomizer] = requireElementById<HTMLButtonElement>('button-game-mode-randomizer')
     this.gameModeMenuElements[GameModeButton.Back] = requireElementById<HTMLButtonElement>('button-game-mode-back')
 
-    this.levelSelectElement = requireElementById<HTMLElement>('level-select-menu')
+    this.levelSelectMenu = requireElementById<HTMLElement>('level-select-menu')
+    this.levelSelectMapNum = requireElementById<HTMLElement>('level-select-map-number')
+    this.levelSelectMapName = requireElementById<HTMLElement>('level-select-map-name')
+    this.levelSelectScroll = requireElementById<HTMLElement>('level-select-levels')
+    this.levelSelectItems = (() => {
+      const order: HTMLElement[] = []
+      const buttons = this.levelSelectMenu.querySelectorAll('button.select-level');
+      buttons.forEach(button => {
+        order.push(button as HTMLElement);
+      })
+      return order;
+    })()
   }
 
   private handleUIEvent = (action: UIAction = UIAction.None) => {
@@ -492,9 +552,13 @@ export class UIBindings implements UIHandler {
         this.gameModeMenuElements[GameModeButton.Randomizer].removeEventListener('click', this.onSelectGameModeRandomizer);
         this.gameModeMenuElements[GameModeButton.Back].removeEventListener('click', this.onSelectGameModeBack);
       } else if (action === UIAction.ShowLevelSelectMenu) {
-        this.levelSelectElement.addEventListener('click', this.onLevelSelect);
+        this.levelSelectMenu.addEventListener('click', this.onLevelSelect);
+        this.levelSelectMenuNavMap.gotoFirst();
+        this.levelSelectScroll.scrollTo({ left: 0 });
+        this.levelSelectMapNum.innerText = '01';
+        this.levelSelectMapName.innerText = 'Snekadia';
       } else if (cleanup || action === UIAction.HideLevelSelectMenu) {
-        this.levelSelectElement.removeEventListener('click', this.onLevelSelect);
+        this.levelSelectMenu.removeEventListener('click', this.onLevelSelect);
       }
   }
 
@@ -508,8 +572,8 @@ export class UIBindings implements UIHandler {
   public setStartButtonVisibility = (visible: boolean, levelNum = -1) => {
     this.gameModeMenuElements[GameModeButton.Campaign].style.visibility = visible ? 'visible' : 'hidden';
     this.gameModeMenuElements[GameModeButton.Campaign].classList.add('active');
-    if (levelNum > 0 && this.levelSelectElement) {
-      const elem = this.levelSelectElement.querySelector(`button[data-level="${levelNum}"]`) as HTMLElement;
+    if (levelNum > 0 && this.levelSelectMenu) {
+      const elem = this.levelSelectMenu.querySelector(`button[data-level="${levelNum}"]`) as HTMLElement;
       if (elem) {
         elem.style.visibility = visible ? 'visible' : 'hidden';
         elem.classList.add('active');
@@ -601,11 +665,16 @@ export class UIBindings implements UIHandler {
   private onLevelSelect = (ev: MouseEvent) => {
     ev.preventDefault();
     const element = ev.target as HTMLButtonElement
-    const level = parseInt(element?.dataset?.level || '', 10);
-    if (!level) {
+    const level = this.parseElementLevelNum(element);
+    if (level <= 0) {
       console.warn('could not parse level from dataset', element, element?.dataset);
       return;
     }
     this.callAction(InputAction.StartGame, level);
+  }
+
+  private parseElementLevelNum = (element: HTMLButtonElement) => {
+    if (!element?.dataset?.level) return -1;
+    return parseInt(element.dataset?.level || '', 10) || -1;
   }
 }
