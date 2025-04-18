@@ -1,6 +1,7 @@
 import P5, { Element } from 'p5';
 
 import { DOM } from './uiUtils';
+import { emitUIEvent, UIAction } from './uiEvents';
 
 const UI_LABEL_OFFSET = '36px';
 const UI_PARENT_ID = 'game';
@@ -18,6 +19,7 @@ enum ActiveMenu {
   MainMenu,
   SettingsMenu,
   GameModeMenu,
+  LevelSelectMenu,
 }
 
 export class UI {
@@ -69,9 +71,13 @@ export class UI {
   }
 
   static showMainMenu() {
+    if (UI.getIsMainMenuShowing()) {
+      return;
+    }
+    UI.activeMenu = ActiveMenu.MainMenu;
     document.getElementById('main-ui-buttons').classList.remove('hidden');
     DOM.select(document.getElementById('ui-button-start'));
-    UI.activeMenu = ActiveMenu.MainMenu;
+    emitUIEvent(UIAction.ShowMainMenu);
   }
 
   static hideMainMenu() {
@@ -79,11 +85,16 @@ export class UI {
     if (UI.getIsMainMenuShowing()) {
       UI.activeMenu = ActiveMenu.None;
     }
+    emitUIEvent(UIAction.HideMainMenu);
   }
 
   static showGameModeMenu() {
-    document.getElementById('select-game-mode-menu').classList.remove('hidden');
+    if (UI.getIsGameModeMenuShowing()) {
+      return;
+    }
     UI.activeMenu = ActiveMenu.GameModeMenu;
+    document.getElementById('select-game-mode-menu').classList.remove('hidden');
+    emitUIEvent(UIAction.ShowGameModeMenu);
   }
 
   static hideGameModeMenu() {
@@ -91,9 +102,14 @@ export class UI {
     if (UI.getIsGameModeMenuShowing()) {
       UI.activeMenu = ActiveMenu.None;
     }
+    emitUIEvent(UIAction.HideGameModeMenu);
   }
 
   static showSettingsMenu({ isInGameMenu = false, isCobraModeUnlocked = false }) {
+    if (UI.getIsSettingsMenuShowing()) {
+      return;
+    }
+    UI.activeMenu = ActiveMenu.SettingsMenu;
     UI.enableGameBlur();
     const settingsMenu = document.getElementById('settings-menu');
     settingsMenu.style.display = 'block';
@@ -111,7 +127,7 @@ export class UI {
         fieldCobraMode.classList.add('hidden');
       }
     }
-    UI.activeMenu = ActiveMenu.SettingsMenu;
+    emitUIEvent(UIAction.ShowSettingsMenu);
     setTimeout(() => {
       if (isInGameMenu) {
         DOM.select(document.getElementById('checkbox-disable-screenshake'));
@@ -127,6 +143,7 @@ export class UI {
     if (UI.getIsSettingsMenuShowing()) {
       UI.activeMenu = ActiveMenu.None;
     }
+    emitUIEvent(UIAction.HideSettingsMenu);
   }
 
   static showMainCasualModeLabel() {

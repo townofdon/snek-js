@@ -30,6 +30,7 @@ import { UI } from './ui';
 import { requireElementById } from './uiUtils';
 import { gamepadPressed, getGamepad } from '../engine/gamepad';
 import { Button } from '../engine/gamepad/StandardGamepadMapping';
+import { offUIEvent, onUIEvent, UIAction } from './uiEvents';
 
 interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
@@ -199,7 +200,7 @@ export class UIBindings implements UIHandler {
     this.settings = settings;
     this.callbacks = callbacks;
     this.callAction = callAction;
-    this.bindElements();
+    this.assignElements();
     this.mainMenuNavMap = new MainMenuNavMap(
       this.mainMenuButtons,
       {
@@ -215,7 +216,9 @@ export class UIBindings implements UIHandler {
     this.settingsMenuNavMap = new SettingsMenuNavMap(this.settingsMenuElements, callAction);
     this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
     this.gameOverMenuNavMap = new GameOverMenuNavMap(this.callGameOverMenuAction);
-    this.gameModeMenuNavMap = new GameModeMenuNavMap(this.callGameModeMenuAction)
+    this.gameModeMenuNavMap = new GameModeMenuNavMap(this.callGameModeMenuAction);
+    onUIEvent(this.handleUIEvent);
+    window.addEventListener('blur', this.handleWindowBlur);
   }
 
   handleUINavigation: UINavEventHandler = (navDir) => {
@@ -415,19 +418,13 @@ export class UIBindings implements UIHandler {
     (this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake] as HTMLInputElement).checked = this.settings.isScreenShakeDisabled;
   }
 
-  private bindElements = () => {
+  private assignElements = () => {
     this.mainMenuButtons[MainMenuButton.StartGame] = requireElementById<HTMLButtonElement>('ui-button-start');
     this.mainMenuButtons[MainMenuButton.OSTMode] = requireElementById<HTMLButtonElement>('ui-button-ost-mode');
     this.mainMenuButtons[MainMenuButton.QuoteMode] = requireElementById<HTMLButtonElement>('ui-button-quote-mode');
     this.mainMenuButtons[MainMenuButton.Leaderboard] = requireElementById<HTMLButtonElement>('ui-button-leaderboard');
     this.mainMenuButtons[MainMenuButton.Settings] = requireElementById<HTMLButtonElement>('ui-button-settings');
     this.mainMenuButtons[MainMenuButton.Community] = requireElementById<HTMLButtonElement>('ui-button-community');
-
-    this.mainMenuButtons[MainMenuButton.StartGame].addEventListener('click', this.handleStartGame);
-    this.mainMenuButtons[MainMenuButton.OSTMode].addEventListener('click', this.handleEnterOstMode);
-    this.mainMenuButtons[MainMenuButton.QuoteMode].addEventListener('click', this.handleEnterQuoteMode);
-    this.mainMenuButtons[MainMenuButton.Leaderboard].addEventListener('click', this.handleShowLeaderboard);
-    this.mainMenuButtons[MainMenuButton.Settings].addEventListener('click', this.handleShowSettingsMenu);
 
     this.settingsMenuElements[SettingsMenuElement.ButtonClose] = requireElementById<HTMLButtonElement>('settings-menu-close-button');
     this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] = requireElementById<HTMLInputElement>('checkbox-casual-mode');
@@ -436,44 +433,58 @@ export class UIBindings implements UIHandler {
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume] = requireElementById<HTMLInputElement>('slider-volume-music');
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume] = requireElementById<HTMLInputElement>("slider-volume-sfx");
 
-    this.settingsMenuElements[SettingsMenuElement.ButtonClose].addEventListener('click', this.onHideSettingsMenuClick);
-    this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].addEventListener('change', this.onCheckboxCasualModeChange);
-    this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode].addEventListener('change', this.onCheckboxCobraModeChange);
-    this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].addEventListener('change', this.onCheckboxDisableScreenshakeChange);
-    this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].addEventListener('input', this.onMusicSliderInput);
-    this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].addEventListener('input', this.onSfxSliderInput);
-
     this.gameModeMenuElements[GameModeButton.Campaign] = requireElementById<HTMLButtonElement>('button-game-mode-campaign')
     this.gameModeMenuElements[GameModeButton.LevelSelect] = requireElementById<HTMLButtonElement>('button-game-mode-level-select')
     this.gameModeMenuElements[GameModeButton.Randomizer] = requireElementById<HTMLButtonElement>('button-game-mode-randomizer')
     this.gameModeMenuElements[GameModeButton.Back] = requireElementById<HTMLButtonElement>('button-game-mode-back')
+  }
 
-    this.gameModeMenuElements[GameModeButton.Campaign].addEventListener('click', this.onSelectGameModeCampaign)
-    this.gameModeMenuElements[GameModeButton.LevelSelect].addEventListener('click', this.onSelectGameModeLevelSelect)
-    this.gameModeMenuElements[GameModeButton.Randomizer].addEventListener('click', this.onSelectGameModeRandomizer)
-    this.gameModeMenuElements[GameModeButton.Back].addEventListener('click', this.onSelectGameModeBack)
-    // document.addEventListener('keydown', this.overrideEscapeKeydown);
-    window.addEventListener('blur', this.handleWindowBlur);
+  private handleUIEvent = (action: UIAction = UIAction.None) => {
+      const cleanup = action === UIAction.Cleanup;
+      if (action === UIAction.ShowMainMenu) {
+        this.mainMenuButtons[MainMenuButton.StartGame].addEventListener('click', this.handleStartGame);
+        this.mainMenuButtons[MainMenuButton.OSTMode].addEventListener('click', this.handleEnterOstMode);
+        this.mainMenuButtons[MainMenuButton.QuoteMode].addEventListener('click', this.handleEnterQuoteMode);
+        this.mainMenuButtons[MainMenuButton.Leaderboard].addEventListener('click', this.handleShowLeaderboard);
+        this.mainMenuButtons[MainMenuButton.Settings].addEventListener('click', this.handleShowSettingsMenu);
+      } else if (cleanup || action === UIAction.HideMainMenu) {
+        this.mainMenuButtons[MainMenuButton.StartGame].removeEventListener('click', this.handleStartGame);
+        this.mainMenuButtons[MainMenuButton.OSTMode].removeEventListener('click', this.handleEnterOstMode);
+        this.mainMenuButtons[MainMenuButton.QuoteMode].removeEventListener('click', this.handleEnterQuoteMode);
+        this.mainMenuButtons[MainMenuButton.Leaderboard].removeEventListener('click', this.handleShowLeaderboard);
+        this.mainMenuButtons[MainMenuButton.Settings].removeEventListener('click', this.handleShowSettingsMenu);
+      } else if (action === UIAction.ShowSettingsMenu) {
+        this.settingsMenuElements[SettingsMenuElement.ButtonClose].addEventListener('click', this.onHideSettingsMenuClick);
+        this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].addEventListener('change', this.onCheckboxCasualModeChange);
+        this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode].addEventListener('change', this.onCheckboxCobraModeChange);
+        this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].addEventListener('change', this.onCheckboxDisableScreenshakeChange);
+        this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].addEventListener('input', this.onMusicSliderInput);
+        this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].addEventListener('input', this.onSfxSliderInput);
+      } else if (cleanup || action === UIAction.HideSettingsMenu) {
+        this.settingsMenuElements[SettingsMenuElement.ButtonClose].removeEventListener('click', this.onHideSettingsMenuClick);
+        this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].removeEventListener('change', this.onCheckboxCasualModeChange);
+        this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode].removeEventListener('change', this.onCheckboxCobraModeChange);
+        this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].removeEventListener('change', this.onCheckboxDisableScreenshakeChange);
+        this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].removeEventListener('input', this.onMusicSliderInput);
+        this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].removeEventListener('input', this.onSfxSliderInput);
+      } else if (action === UIAction.ShowGameModeMenu) {
+        this.gameModeMenuElements[GameModeButton.Campaign].addEventListener('click', this.onSelectGameModeCampaign);
+        this.gameModeMenuElements[GameModeButton.LevelSelect].addEventListener('click', this.onSelectGameModeLevelSelect);
+        this.gameModeMenuElements[GameModeButton.Randomizer].addEventListener('click', this.onSelectGameModeRandomizer);
+        this.gameModeMenuElements[GameModeButton.Back].addEventListener('click', this.onSelectGameModeBack);
+      } else if (cleanup || action === UIAction.HideGameModeMenu) {
+        this.gameModeMenuElements[GameModeButton.Campaign].removeEventListener('click', this.onSelectGameModeCampaign);
+        this.gameModeMenuElements[GameModeButton.LevelSelect].removeEventListener('click', this.onSelectGameModeLevelSelect);
+        this.gameModeMenuElements[GameModeButton.Randomizer].removeEventListener('click', this.onSelectGameModeRandomizer);
+        this.gameModeMenuElements[GameModeButton.Back].removeEventListener('click', this.onSelectGameModeBack);
+      } else if (cleanup || action === UIAction.HideLevelSelectMenu) {
+        // TODO: ADD ACTIONS
+      }
   }
 
   public cleanup = () => {
-    this.mainMenuButtons[MainMenuButton.StartGame].removeEventListener('click', this.handleStartGame);
-    this.mainMenuButtons[MainMenuButton.OSTMode].removeEventListener('click', this.handleEnterOstMode);
-    this.mainMenuButtons[MainMenuButton.QuoteMode].removeEventListener('click', this.handleEnterQuoteMode);
-    this.mainMenuButtons[MainMenuButton.Leaderboard].removeEventListener('click', this.handleShowLeaderboard);
-    this.mainMenuButtons[MainMenuButton.Settings].removeEventListener('click', this.handleShowSettingsMenu);
-
-    this.settingsMenuElements[SettingsMenuElement.ButtonClose].removeEventListener('click', this.onHideSettingsMenuClick);
-    this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].removeEventListener('change', this.onCheckboxCasualModeChange);
-    this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode].removeEventListener('change', this.onCheckboxCobraModeChange);
-    this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].removeEventListener('change', this.onCheckboxDisableScreenshakeChange);
-    this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].removeEventListener('input', this.onMusicSliderInput);
-    this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].removeEventListener('input', this.onSfxSliderInput);
-
-    this.gameModeMenuElements[GameModeButton.Campaign].removeEventListener('click', this.onSelectGameModeCampaign)
-    this.gameModeMenuElements[GameModeButton.LevelSelect].removeEventListener('click', this.onSelectGameModeLevelSelect)
-    this.gameModeMenuElements[GameModeButton.Randomizer].removeEventListener('click', this.onSelectGameModeRandomizer)
-    this.gameModeMenuElements[GameModeButton.Back].removeEventListener('click', this.onSelectGameModeBack)
+    offUIEvent(this.handleUIEvent);
+    this.handleUIEvent(UIAction.Cleanup);
     // document.removeEventListener('keydown', this.overrideEscapeKeydown);
     window.removeEventListener('blur', this.handleWindowBlur);
   }
