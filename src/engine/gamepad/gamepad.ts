@@ -180,7 +180,7 @@ export function applyGamepadUIActions(
   }
 
   const isGameOverNormal = state.isLost && state.gameMode !== GameMode.Cobra && state.timeSinceHurt > 20;
-  const proceed = !state.isGameStarted || state.isPaused || isGameOverNormal
+  const proceed = !state.isGameStarted || state.isPaused || isGameOverNormal || state.isGameWon
   if (!proceed) {
     return;
   }
@@ -214,24 +214,19 @@ export function applyGamepadUIActions(
   }
 }
 
-export function updateGamepadCurrentState() {
+export function updateGamepadState(): boolean {
   const gamepad = navigator.getGamepads()?.[0];
-  if (!gamepad) return;
-  if (!gamepad.connected) return;
+  if (!gamepad) return false;
+  if (!gamepad.connected) return false;
+  let anyButtonPressed = false
   gamepad.buttons.forEach((button, idx) => {
-    current[idx as Button] = button.pressed;
-  });
-  return;
-}
-
-export function updateGamepadPrevState() {
-  const gamepad = navigator.getGamepads()?.[0];
-  if (!gamepad) return;
-  if (!gamepad.connected) return;
-  gamepad.buttons.forEach((_, idx) => {
     prev[idx as Button] = current[idx as Button];
+    current[idx as Button] = button.pressed;
+    if (button.pressed) {
+      anyButtonPressed = true
+    }
   });
-  return;
+  return anyButtonPressed;
 }
 
 export function getGamepad(): Gamepad | null {

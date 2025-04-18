@@ -75,6 +75,7 @@ import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
 import { SaveDataStore } from './stores/SaveDataStore';
 import { recordSnekalyticsEvent } from './api/snekalytics';
+import { applyGamepadUIActions, updateGamepadState } from './engine/gamepad';
 
 const queryParams = parseUrlQueryParams();
 const unlockedMusicStore = new UnlockedMusicStore()
@@ -239,8 +240,6 @@ export const sketch = (p5: P5) => {
     warpToLevel,
     handleInputAction,
     onUINavigate,
-    onUIInteract,
-    onUICancel,
     onGameOver,
     onGameOverCobra,
     onRecordLevelProgress,
@@ -385,6 +384,13 @@ export const sketch = (p5: P5) => {
   function draw() {
     // prevent freezing due to animation frame build up if tab loses focus
     if (p5.deltaTime > 3000) return;
+    const anyButtonPressed = updateGamepadState();
+    if (anyButtonPressed) {
+      state.timeSinceLastInput = 0;
+    }
+    let handled = false;
+    if (!handled) handled = winGameScene.gamepadButtonPressed()
+    if (!handled) handled = applyGamepadUIActions(state, handleInputAction, onUINavigate, onUIInteract, onUICancel);
     renderLoop();
     if (!state.isGameStarted) leaderboardScene.draw();
     handleRenderWinGameScene();

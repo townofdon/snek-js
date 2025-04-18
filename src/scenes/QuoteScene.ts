@@ -1,7 +1,7 @@
 import P5 from "p5";
 import { FontsInstance, Quote, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
-import { getGamepad, updateGamepadCurrentState, updateGamepadPrevState, wasPressedThisFrame } from "../engine/gamepad";
+import { getGamepad, updateGamepadState, wasPressedThisFrame } from "../engine/gamepad";
 import { Button } from "../engine/gamepad/StandardGamepadMapping";
 
 const AUTHOR_PADDING = 15;
@@ -107,8 +107,7 @@ export class QuoteScene extends BaseScene {
   }
 
   draw = () => {
-    updateGamepadPrevState();
-    updateGamepadCurrentState();
+    updateGamepadState();
     this.drawBackground();
     this.tick();
     if (this.props.callbacks.onEscapePress) {

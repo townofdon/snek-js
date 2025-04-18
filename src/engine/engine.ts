@@ -135,7 +135,7 @@ import { Renderer } from './renderer';
 import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
 import { MusicPlayer } from './musicPlayer';
 import { InputCallbacks, handleKeyPressed, validateMove } from './controls';
-import { applyGamepadMove, applyGamepadUIActions, getCurrentGamepadSprint, updateGamepadCurrentState, updateGamepadPrevState } from './gamepad'
+import { applyGamepadMove, getCurrentGamepadSprint } from './gamepad'
 import { Easing } from '../easing';
 import { PALETTE } from '../palettes';
 import { Coroutines } from './coroutines';
@@ -170,8 +170,6 @@ interface EngineParams {
   // TODO: REFACTOR TO PREFER RETURN VALUE OVER CALLBACK
   handleInputAction: (action: InputAction) => void,
   onUINavigate: UINavEventHandler,
-  onUIInteract: () => boolean,
-  onUICancel: () => boolean,
   onGameOver: () => void,
   onGameOverCobra: () => void,
   onRecordLevelProgress: (levelIndex: number, difficulty: Difficulty) => void,
@@ -201,8 +199,6 @@ export function engine({
   warpToLevel,
   handleInputAction,
   onUINavigate,
-  onUIInteract,
-  onUICancel,
   onGameOver,
   onGameOverCobra,
   onRecordLevelProgress,
@@ -778,12 +774,8 @@ export function engine({
 
   function renderLoop() {
     const timeFrameStart = performance.now();
-    updateGamepadPrevState();
-    updateGamepadCurrentState();
-    const handled = applyGamepadUIActions(state, handleInputAction, onUINavigate, onUIInteract, onUICancel)
-    if (!handled) {
-      applyGamepadMove(state, player.direction, moves, inputCallbacks, handleInputAction)
-    }
+
+    applyGamepadMove(state, player.direction, moves, inputCallbacks, handleInputAction)
 
     actions.tick();
 
