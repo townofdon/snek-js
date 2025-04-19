@@ -402,7 +402,7 @@ button.snek-audio-viz-button:active,
 button.snek-audio-viz-button:focus
 {
   background-color: inherit;
-  filter: invert(1);
+  filter: invert(1) grayscale(1);
   box-shadow: none;
 }
 button.snek-audio-viz-button.oscilliscope-line { background-position: 0px 0px; }
@@ -557,7 +557,7 @@ button.ui-sprite:hover,
 button.ui-sprite:active,
 button.ui-sprite:focus,
 button.ui-sprite.selected {
-  --button-filter: brightness(1) grayscale(0) invert(1);
+  --button-filter: brightness(1) grayscale(1) invert(1);
 }
 a.ui-sprite:focus:before,
 button.ui-sprite:focus:before {
