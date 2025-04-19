@@ -16,6 +16,8 @@ import { PublishButton } from "./PublishButton";
 import { CopyLink } from "./CopyLink";
 
 import * as styles from './EditorOptions.css';
+import { IS_DEV } from "../../constants";
+import { CopyLinkDev } from "./CopyLinkDev";
 
 interface PanelSaveProps {
   canvas: React.MutableRefObject<HTMLCanvasElement>;
@@ -108,6 +110,11 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
       <hr />
       <CopyLink data={data} options={options} />
       <hr />
+      {IS_DEV && (
+        <Stack marginBottom row align="center" justify="spaceBetween">
+          <CopyLinkDev />
+        </Stack>
+      )}
       <Stack marginBottom row align="center" justify="spaceBetween">
         <PublishButton loading={loading} hasMapId={!!mapId} onPublish={handlePublish} />
       </Stack>

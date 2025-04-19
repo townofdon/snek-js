@@ -162,7 +162,7 @@ export class UIBindings implements UIHandler {
         // TODO: IMPL
         break;
       case GameModeButton.Back:
-        this.callAction(InputAction.ShowMainMenu);
+        this.callAction(InputAction.CancelChooseGameMode);
         break;
     }
   }

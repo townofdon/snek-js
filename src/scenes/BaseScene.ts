@@ -31,6 +31,7 @@ export abstract class BaseScene implements Scene {
 
   private _internalState = {
     isCleaningUp: false,
+    isShowing: false,
   }
 
   constructor(p5: P5, gfx: P5.Graphics, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
@@ -43,10 +44,13 @@ export abstract class BaseScene implements Scene {
     this.props.coroutines = new Coroutines(p5);
   }
 
+  public isShowing = () => this._internalState.isShowing;
+
   /**
    * call in the last line of constructor after super()
    */
   protected bindActions = () => {
+    this._internalState.isShowing = true;
     const { p5 } = this.props;
     p5.draw = this.draw;
     p5.keyPressed = this.keyPressed;
@@ -63,6 +67,7 @@ export abstract class BaseScene implements Scene {
    * make sure to call onSceneEnded callback afterwards :)
    */
   protected startActionsNoBind = () => {
+    this._internalState.isShowing = true;
     this.stopAllCoroutines();
     this.startCoroutine(this.action());
   }
@@ -82,6 +87,7 @@ export abstract class BaseScene implements Scene {
     this.stopAllCoroutines();
     if (callbacks.onSceneEnded) callbacks.onSceneEnded();
     this._internalState.isCleaningUp = false;
+    this._internalState.isShowing = false;
   }
 
   abstract keyPressed: () => void

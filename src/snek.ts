@@ -398,7 +398,7 @@ export const sketch = (p5: P5) => {
     let handled = false;
     if (!handled) handled = winGameScene.gamepadButtonPressed()
     if (!handled) handled = applyGamepadUIActions(state, handleInputAction, onUINavigate, onUIInteract, onUICancel);
-    renderLoop();
+    renderLoop(handled);
     if (!state.isGameStarted) leaderboardScene.draw();
     handleRenderWinGameScene();
   }
@@ -413,9 +413,13 @@ export const sketch = (p5: P5) => {
     let handled = false;
     // check if can handle UI events
     if (!state.isGameStarting && state.appMode === AppMode.Game) {
+      // const isGameOverNormal = state.isLost && state.gameMode !== GameMode.Cobra && state.timeSinceHurt > 20;
+      // const isGameOverCobra = state.isLost && state.gameMode === GameMode.Cobra;
+      // if (!handled && (state.isGameWon || isGameOverCobra)) {
+      //   handled = winGameScene.keyPressed();
+      // }
       const isGameOverNormal = state.isLost && state.gameMode !== GameMode.Cobra && state.timeSinceHurt > 20;
-      const isGameOverCobra = state.isLost && state.gameMode === GameMode.Cobra;
-      if (!handled && (state.isGameWon || isGameOverCobra)) {
+      if (!handled) {
         handled = winGameScene.keyPressed();
       }
       if (!handled && (!state.isGameStarted || state.isPaused || isGameOverNormal)) {
@@ -564,10 +568,9 @@ export const sketch = (p5: P5) => {
     clearUI(true);
     modal.hide();
     state.appMode = AppMode.Leaderboard;
-    leaderboardScene.trigger();
-    setTimeout(() => {
+    leaderboardScene.trigger(() => {
       startScreenShake(3, 0.5, 1, true)
-    }, 600)
+    });
   }
 
   function hideLeaderboard() {

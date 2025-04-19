@@ -62,6 +62,8 @@ export enum MOVE {
   TURN_L = 6,
   UTURN_R = 7,
   UTURN_L = 8,
+  STRAFE_R = 9,
+  STRAFE_L = 10,
 }
 
 export interface PlayerState {

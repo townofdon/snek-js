@@ -392,15 +392,19 @@ export class WinGameScene extends BaseScene {
   }
 
   gamepadButtonPressed = (): boolean => {
-    if (!this.gameState.isGameWon) return false;
+    if (!this.isShowing()) return false;
+    // const state = this.gameState;
+    // const isGameOverCobra = state.isLost && state.gameMode === GameMode.Cobra;
+    // if (!this.gameState.isGameWon && !isGameOverCobra) return false;
+    // if (this.gameState.isLost && !isGameOverCobra) return false;
     if (this.gameState.isExitingLevel) return false;
     if (this.gameState.isExited) return false;
-    if (this.gameState.isLost) return false;
     if (this.gameState.isPaused) return false;
     return applyGamepadUIActions(this.gameState, () => {}, this.onUINavigate, this.onUIInteract, this.onUICancel)
   }
 
   keyPressed = (): boolean => {
+    if (!this.isShowing()) return false;
     return handleUIEvents(this.props.p5, this.onUINavigate, this.onUIInteract, this.onUICancel)
   };
 

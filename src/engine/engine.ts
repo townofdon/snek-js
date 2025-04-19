@@ -539,6 +539,8 @@ export function engine({
 
     if (level.layoutV2?.length) {
       try {
+        // // NOTE TO FUTURE SELF: do NOT copy data directly from the URL. This is the path of pain and misery.
+        // // Instead, use "Copy dev link" in snek editor, or use this snippet below:
         // const query = new URLSearchParams(`?data=${level.layoutV2}`);
         // const queryData = query.get('data');
         // const [data] = decodeMapData(queryData);
@@ -547,6 +549,9 @@ export function engine({
         level.snakeSpawnPointOverride = getCoordIndex(data.playerSpawnPosition);
         // may decide to remove these overwrites later
         level.disableAppleSpawn = options.disableAppleSpawn;
+        if (options.disableAppleSpawn) {
+          level.applesModOverride = 1;
+        }
         level.numApplesStart = options.numApplesStart;
         level.applesToClear = options.applesToClear;
         level.timeToClear = options.timeToClear;
@@ -781,10 +786,12 @@ export function engine({
     );
   }
 
-  function renderLoop() {
+  function renderLoop(gamepadInputHandled = false) {
     const timeFrameStart = performance.now();
 
-    applyGamepadMove(state, player.direction, moves, inputCallbacks, handleInputAction)
+    if (!gamepadInputHandled && !state.isGameWon) {
+      applyGamepadMove(state, player.direction, moves, inputCallbacks, handleInputAction)
+    }
 
     actions.tick();
 

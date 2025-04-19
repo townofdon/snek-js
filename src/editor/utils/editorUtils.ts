@@ -114,6 +114,7 @@ export function decodeMapData(encoded: string, debug = false): [EditorData, Edit
     palette.playerHead = defaultPalette.playerHead,
     palette.playerTail = defaultPalette.playerTail,
     palette.playerTailStroke = defaultPalette.playerTailStroke,
+    // @ts-ignore
   ] = paletteStr.split('-').concat(Array.from({ length: 14 }, () => undefined));
 
   const portalExitConfig = { ...EDITOR_DEFAULTS.options.portalExitConfig };
@@ -138,6 +139,15 @@ export function decodeMapData(encoded: string, debug = false): [EditorData, Edit
     portalExitConfig,
     musicTrack,
   }
+
+  if (!layout) {
+    console.warn(
+      'LAYOUT DECODE FAILED. You may need to parse data from the URL using the following method:',
+      'const query = new URLSearchParams(`?data=${level.layoutV2}`)',
+      'const queryData = query.get(`data`);',
+    );
+  }
+
   const data = getEditorDataFromLayout(layout || LEVEL_01.layout, playerSpawnPosition, startDirection)
   return [data, options];
 }

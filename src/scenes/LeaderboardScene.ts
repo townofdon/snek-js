@@ -79,6 +79,7 @@ export class LeaderboardScene extends BaseScene {
     }
   }
 
+  onLeaderboardShown = () => {}
   beforeGotoNextLevel = () => { };
 
   private reset = () => {
@@ -89,9 +90,10 @@ export class LeaderboardScene extends BaseScene {
     this.stopAllCoroutines();
   }
 
-  trigger = () => {
+  trigger = (onLeaderboardShown: () => void) => {
     this.reset();
     this.state.isActive = true;
+    this.onLeaderboardShown = onLeaderboardShown;
     this.fetchHighScores();
     this.startActionsNoBind();
   }
@@ -104,11 +106,17 @@ export class LeaderboardScene extends BaseScene {
 
     this.state.stageClearY = STATE_CLEAR_Y_START;
     this.state.bgOpacity = 1;
+    while (this.state.leaderboardLoading) {
+      yield null;
+    }
+
+    sfx.play(Sound.moveStart);
     yield* coroutines.waitForTime(600, (t) => {
       // this.state.bgOpacity = t;
       this.state.stageClearY = p5.lerp(STATE_CLEAR_Y_START, 0, Easing.inOutCubic(t));
     });
 
+    this.onLeaderboardShown();
     sfx.play(Sound.xpound);
     yield* coroutines.waitForTime(500);
 
@@ -131,7 +139,7 @@ export class LeaderboardScene extends BaseScene {
     this.drawTitle();
 
     if (this.state.leaderboardLoading) {
-      this.drawParagraph("Loading...", 0.3);
+      this.drawParagraph("Loading...", 0.3, undefined, 0);
     } else if (this.state.leaderboardError) {
       this.drawParagraph("Unable to fetch leaderboard results.", 0.35, "#e54");
     } else {
@@ -159,7 +167,7 @@ export class LeaderboardScene extends BaseScene {
     gfx.text(title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
   }
 
-  private drawParagraph = (message: string, yPos: number, color: string = "#fff") => {
+  private drawParagraph = (message: string, yPos: number, color: string = "#fff", yMod = 1) => {
     const { p5, gfx, fonts } = this.props;
     gfx.textFont(fonts.variants.miniMood);
     gfx.fill(color);
@@ -167,7 +175,7 @@ export class LeaderboardScene extends BaseScene {
     gfx.strokeWeight(2 * 2);
     gfx.textSize(2 * 14);
     gfx.textAlign(p5.CENTER, p5.TOP);
-    gfx.text(message, ...this.getPosition(0.5, yPos + this.state.stageClearY));
+    gfx.text(message, ...this.getPosition(0.5, yPos + this.state.stageClearY * yMod));
   }
 
   private drawField = (label: string, value: number, yPos: number, {

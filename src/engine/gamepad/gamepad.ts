@@ -8,7 +8,7 @@ import {
 } from "./StandardGamepadMapping";
 
 const TRIGGER_THRESHOLD = 0.05;
-const AXIS_DEADZONE = 0.05;
+const AXIS_DEADZONE = 0.33;
 
 const current: Record<Button, boolean> = {
   [Button.South]: false,
@@ -110,6 +110,14 @@ export function applyGamepadMove(
           const move0 = invertDirection(rotateDirection(prevMove));
           return [move0, invertDirection(rotateDirection(move0))];
         }
+      case MOVE.STRAFE_L: {
+        const move0 = rotateDirection(prevMove);
+        return [move0, invertDirection(rotateDirection(move0))];
+      }
+      case MOVE.STRAFE_R: {
+        const move0 = invertDirection(rotateDirection(prevMove));
+        return [move0, rotateDirection(move0)];
+      }
       default:
         return [];
     }
@@ -182,7 +190,21 @@ export function applyGamepadUIActions(
   const isGameOverNormal = state.isLost && state.gameMode !== GameMode.Cobra && state.timeSinceHurt > 20;
   const proceed = !state.isGameStarted || state.isPaused || isGameOverNormal || state.isGameWon
   if (!proceed) {
-    return;
+    return false;
+  }
+
+  if (wasPressedThisFrame(gamepad, Button.Start)) {
+    return onUIInteract();
+  }
+  if (wasPressedThisFrame(gamepad, Button.South)) {
+    return onUIInteract();
+  }
+  if (wasPressedThisFrame(gamepad, Button.East)) {
+    return onUICancel();
+  }
+
+  if (state.isGameWon) {
+    return false;
   }
 
   if (wasPressedThisFrame(gamepad, Button.DpadUp)) {
@@ -202,15 +224,6 @@ export function applyGamepadUIActions(
   }
   if (wasPressedThisFrame(gamepad, Button.BumperRight)) {
     return onUINavigate(UINavDir.Next);
-  }
-  if (wasPressedThisFrame(gamepad, Button.Start)) {
-    return onUIInteract();
-  }
-  if (wasPressedThisFrame(gamepad, Button.South)) {
-    return onUIInteract();
-  }
-  if (wasPressedThisFrame(gamepad, Button.East)) {
-    return onUICancel();
   }
 }
 
@@ -265,11 +278,27 @@ function getCurrentGamepadMove(): MOVE {
   if (wasPressedThisFrame(gamepad, Button.BumperRight)) {
     return MOVE.UTURN_R;
   }
+  if (wasPressedThisFrame(gamepad, Button.StickLeft)) {
+    return MOVE.STRAFE_L;
+  }
+  if (wasPressedThisFrame(gamepad, Button.StickRight)) {
+    return MOVE.STRAFE_R;
+  }
 
-  if (gamepad.buttons[Button.DpadUp]?.pressed) return MOVE.UP;
-  if (gamepad.buttons[Button.DpadDown]?.pressed) return MOVE.DOWN;
-  if (gamepad.buttons[Button.DpadLeft]?.pressed) return MOVE.LEFT;
-  if (gamepad.buttons[Button.DpadRight]?.pressed) return MOVE.RIGHT;
+  if (wasPressedThisFrame(gamepad, Button.North)) return MOVE.UP;
+  if (wasPressedThisFrame(gamepad, Button.South)) return MOVE.DOWN;
+  if (wasPressedThisFrame(gamepad, Button.West)) return MOVE.LEFT;
+  if (wasPressedThisFrame(gamepad, Button.East)) return MOVE.RIGHT;
+
+  if (wasPressedThisFrame(gamepad, Button.DpadUp)) return MOVE.UP;
+  if (wasPressedThisFrame(gamepad, Button.DpadDown)) return MOVE.DOWN;
+  if (wasPressedThisFrame(gamepad, Button.DpadLeft)) return MOVE.LEFT;
+  if (wasPressedThisFrame(gamepad, Button.DpadRight)) return MOVE.RIGHT;
+
+  // if (gamepad.buttons[Button.DpadUp]?.pressed) return MOVE.UP;
+  // if (gamepad.buttons[Button.DpadDown]?.pressed) return MOVE.DOWN;
+  // if (gamepad.buttons[Button.DpadLeft]?.pressed) return MOVE.LEFT;
+  // if (gamepad.buttons[Button.DpadRight]?.pressed) return MOVE.RIGHT;
 
   const x0 = gamepad.axes[Axis.LeftX]?.valueOf() || 0;
   const y0 = gamepad.axes[Axis.LeftY]?.valueOf() || 0;

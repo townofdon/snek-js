@@ -144,6 +144,11 @@ textarea {
   text-shadow: -1px 3px 0px #00000054;
 }
 
+.copyDevLinkButton {
+  width: 100%;
+  padding: 10px 30px;
+}
+
 .sharePreviewContainer {
   position: relative;
 }
