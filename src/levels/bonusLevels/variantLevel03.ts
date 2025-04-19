@@ -45,10 +45,11 @@ XXX~ =-=     =-=     =-=  ~XXX
 XXX~~=-=     =-=     =-= ~~XXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 `,
+  layoutV2: `CmZXTGZaV0xpeVcqMFZrbC1PVVVWMVNTUVhNV1lZeldNWFFLY0tvS3dLUyoxbFVVbGxsVjAqeVpLaWZmS1cKfDQzNHxSSUdIVHxtZXRyb3RlcXVlMnw4NDAwYTdhMWFhM3wwLjc1fGEwLjg5fCM4M0VDRDNOMjFENEFBTjJDMkEzOE5DQkNEQ0RORDJENEQ0aDczNDQ2TjQ5NDU1RWg0M0Y0N040RTY5N0NORTFBQTUxTkRDOTkyRU5FRENCOTZ8YmJiMXwxNCFQKHd2UCB2IGNQKCpYClhKLCdLV1hNcGpzTi0jTyghKF9rUD1uUSpYcGNnWHhYZ3dzWCpTKktjS3hLd0tVLSghKC1rVl9KakpfV1hYemRkTWRkWlcqV2crbigoYTB8YjEtMS0xLWMpIGZLS0tLZ0pKaE40MDNENTJOM2lXKChQZ0pXKmogISBrMyozbF9Pbi09cCtfc18rdiggdygpeVdnIWd6WQoBenl3dnNwbmxramloZ2ZjYmFaWVdWVVNRUE9OTUtKKikoIV8%253D`,
   colors: getExtendedPalette(PALETTE.gravChamber),
   showTitle: true,
   showQuoteOnLevelWin: true,
-  musicTrack: MusicTrack.woorb,
+  musicTrack: MusicTrack.transient,
   titleVariant: TitleVariant.GrayBlue,
   portalExitConfig: {
     1: PortalExitMode.SameDirection,

@@ -39,7 +39,7 @@ X            -=-            ~X
 X++-         -=-          -++X
 XX++-        -=-         -++XX
 XXX++-       -=-        -++XXX
-8xxx++   ~   -_-   ~    ++xxx8
+8XXX++   ~   -_-   ~    ++xxx8
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.plumsea),
