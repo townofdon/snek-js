@@ -815,6 +815,10 @@ button.game-mode.back {
   padding: 10px;
   display: inline-flex;
   flex-shrink: 0;
+  filter: brightness(0.3) grayscale(0.8) contrast(1);
+}
+.level-select-menu button.select-level.active {
+  filter: brightness(1.05) grayscale(0) contrast(1.1);
 }
 .level-select-menu button.select-level img {
   display: block;
