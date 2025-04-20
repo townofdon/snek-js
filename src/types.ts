@@ -173,6 +173,10 @@ export interface GameState {
   timeSinceSpawnedPickup: number,
   hurtGraceTime: number,
   lives: number,
+  /**
+   * The number of collisions the player has accumulated since the start of the level
+   */
+  collisions: number,
   targetSpeed: number,
   currentSpeed: number,
   steps: number,

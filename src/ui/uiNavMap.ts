@@ -5,13 +5,13 @@ import { DOM } from "./uiUtils";
 
 export interface NavMap {
   callSelected: () => boolean,
-  gotoFirst: () => void,
-  gotoPrev: () => void,
-  gotoNext: () => void,
-  gotoUp: () => void,
-  gotoDown: () => void,
-  gotoLeft: () => void,
-  gotoRight: () => void,
+  gotoFirst: () => boolean,
+  gotoPrev: () => boolean,
+  gotoNext: () => boolean,
+  gotoUp: () => boolean,
+  gotoDown: () => boolean,
+  gotoLeft: () => boolean,
+  gotoRight: () => boolean,
 }
 
 interface GroupedNavMapOptions {
@@ -76,7 +76,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     return null;
   }
 
-  private gotoVert = (direction: number, count = 1) => {
+  private gotoVert = (direction: number, count = 1): boolean => {
     const ORDER = this.ORDER;
     const element = this.getFocused();
     if (!element
@@ -85,8 +85,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
       || !ORDER[this.selectedGroup]
       || !ORDER[this.selectedGroup][this.selectedIndex]
     ) {
-      this.gotoFirst();
-      return;
+      return this.gotoFirst();
     }
     const currentGroupSize = ORDER[this.selectedGroup].length;
     const nextGroupIndex = (ORDER.length + this.selectedGroup + direction * count) % ORDER.length;
@@ -115,23 +114,23 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     }
     if (!didSelect(node)) {
       if (nextGroupIndex === this.selectedGroup) {
-        return;
+        return false;
       }
       if (count >= 100) {
         if (IS_DEV) console.warn("gotoVert: infinite loop was just prevented");
-        return;
+        return false;
       }
-      this.gotoVert(direction, count + 1);
-      return;
+      return this.gotoVert(direction, count + 1);
     }
     if (didSelect(node)) {
       this.selectedGroup = nextGroupIndex;
       this.selectedIndex = nextIndex;
-      return;
+      return true;
     }
+    return false;
   }
 
-  private gotoHoriz = (direction: number, count = 1) => {
+  private gotoHoriz = (direction: number, count = 1): boolean => {
     const ORDER = this.ORDER;
     const element = this.getFocused();
     if (!element
@@ -140,8 +139,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
       || !ORDER[this.selectedGroup]
       || !ORDER[this.selectedGroup][this.selectedIndex]
     ) {
-      this.gotoFirst();
-      return;
+      return this.gotoFirst();
     }
     const currentGroupSize = ORDER[this.selectedGroup].length;
     const nextIndex = (currentGroupSize + this.selectedIndex + direction * count) % currentGroupSize;
@@ -152,17 +150,18 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     if (!didSelect(node)) {
       if (count >= 100) {
         if (IS_DEV) console.warn("gotoHoriz: infinite loop was just prevented");
-        return;
+        return false;
       }
-      this.gotoHoriz(direction, count + 1);
-      return;
+      return this.gotoHoriz(direction, count + 1);
     }
     if (didSelect(node)) {
       this.selectedIndex = nextIndex;
+      return true;
     }
+    return false;
   }
 
-  gotoFirst = () => {
+  gotoFirst = (): boolean => {
     const didSelect = (elem: HTMLElement | null) => !!elem && elem === document.activeElement
     let node = document.getElementById(this.ORDER[0][0]);
     DOM.select(node, this.opts.preventScroll);
@@ -177,53 +176,53 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     if (didSelect(node)) {
       this.selectedGroup = 0;
       this.selectedIndex = 0;
+      return true;
     } else {
       this.selectedGroup = -1;
       this.selectedIndex = -1;
+      return false;
     }
   };
 
-  gotoCurrent = () => {
+  gotoCurrent = (): boolean => {
     const didSelect = (elem: HTMLElement) => !!elem && elem === document.activeElement
     if (
       !this.ORDER[this.selectedGroup] ||
       !this.ORDER[this.selectedGroup][this.selectedIndex]
     ) {
-      this.gotoFirst();
-      return;
+      return this.gotoFirst();
     }
     const group = this.ORDER[this.selectedGroup];
     const element = group[this.selectedIndex]
     const node = document.getElementById(element);
     if (!node) {
-      this.gotoFirst();
-      return;
+      return this.gotoFirst();
     }
     DOM.select(node, this.opts.preventScroll);
     if (!didSelect(node)) {
-      this.gotoFirst();
-      return;
+      return this.gotoFirst();
     }
+    return true;
   }
 
   gotoPrev = () => {
-    this.gotoHoriz(-1);
+    return this.gotoHoriz(-1);
   };
   gotoNext = () => {
-    this.gotoHoriz(1);
+    return this.gotoHoriz(1);
   };
 
   gotoUp = () => {
-    this.gotoVert(-1);
+    return this.gotoVert(-1);
   };
   gotoDown = () => {
-    this.gotoVert(1);
+    return this.gotoVert(1);
   };
   gotoLeft = () => {
-    this.gotoHoriz(-1);
+    return this.gotoHoriz(-1);
   };
   gotoRight = () => {
-    this.gotoHoriz(1);
+    return this.gotoHoriz(1);
   }
 }
 
@@ -324,12 +323,15 @@ export class MainMenuNavMap implements NavMap {
       this.selected = MAIN_MENU_BUTTON_ORDER[0];
       DOM.select(this.selectedTarget());
     }
+    return true;
   };
   gotoPrev = () => {
     this.goto(-1);
+    return true;
   };
   gotoNext = () => {
     this.goto(1);
+    return true;
   };
   gotoUp = this.gotoPrev;
   gotoDown = this.gotoNext;
@@ -423,12 +425,15 @@ export class SettingsMenuNavMap implements NavMap {
     if (!element || element !== document.activeElement) {
       this.goto(1);
     }
+    return true;
   };
   gotoPrev = () => {
     this.goto(-1);
+    return true;
   };
   gotoNext = () => {
     this.goto(1);
+    return true;
   };
   gotoUp = this.gotoPrev;
   gotoDown = this.gotoNext;

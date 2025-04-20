@@ -201,8 +201,8 @@ export function applyGamepadUIActions(
     return false;
   }
 
-  const isGameOverNormal = state.isLost && state.gameMode !== GameMode.Cobra && state.timeSinceHurt > 20;
-  const proceed = !state.isGameStarted || state.isPaused || isGameOverNormal || state.isGameWon
+  const isGameOver = state.isLost && state.timeSinceHurt > 20;
+  const proceed = !state.isGameStarted || state.isPaused || isGameOver || state.isGameWon
   if (!proceed) {
     return false;
   }
@@ -216,11 +216,6 @@ export function applyGamepadUIActions(
   if (wasPressedThisFrame(gamepad, Button.East)) {
     return onUICancel();
   }
-
-  if (state.isGameWon) {
-    return false;
-  }
-
   if (wasPressedThisFrame(gamepad, Button.DpadUp)) {
     return onUINavigate(UINavDir.Up);
   }
@@ -239,6 +234,7 @@ export function applyGamepadUIActions(
   if (wasPressedThisFrame(gamepad, Button.BumperRight)) {
     return onUINavigate(UINavDir.Next);
   }
+  return false;
 }
 
 export function updateGamepadState(): boolean {

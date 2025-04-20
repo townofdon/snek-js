@@ -334,25 +334,20 @@ export class UIBindings implements UIHandler {
     if (this.gameState.isLost) {
       switch (navDir) {
         case UINavDir.Prev:
-          this.gameOverMenuNavMap.gotoPrev();
-          break;
+          return this.gameOverMenuNavMap.gotoPrev();
         case UINavDir.Next:
-          this.gameOverMenuNavMap.gotoNext();
-          break;
+          return this.gameOverMenuNavMap.gotoNext();
         case UINavDir.Up:
-          this.gameOverMenuNavMap.gotoUp();
-          break;
+          return this.gameOverMenuNavMap.gotoUp();
         case UINavDir.Down:
-          this.gameOverMenuNavMap.gotoDown();
-          break;
+          return this.gameOverMenuNavMap.gotoDown();
         case UINavDir.Left:
-          this.gameOverMenuNavMap.gotoLeft();
-          break;
+          return this.gameOverMenuNavMap.gotoLeft();
         case UINavDir.Right:
-          this.gameOverMenuNavMap.gotoRight();
-          break;
+          return this.gameOverMenuNavMap.gotoRight();
+        default:
+          return false;
       }
-      return true;
     }
     if (this.gameState.isPaused) {
       switch (navDir) {

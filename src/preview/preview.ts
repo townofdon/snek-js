@@ -99,6 +99,7 @@ const state: GameState = {
   timeSinceSpawnedPickup: Infinity,
   hurtGraceTime: HURT_GRACE_TIME,
   lives: MAX_LIVES,
+  collisions: 0,
   targetSpeed: 1,
   currentSpeed: 1,
   steps: 0,

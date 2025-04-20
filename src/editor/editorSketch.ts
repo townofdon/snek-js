@@ -277,6 +277,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       timeSinceSpawnedPickup: 0,
       hurtGraceTime: 0,
       lives: 0,
+      collisions: 0,
       targetSpeed: 0,
       currentSpeed: 0,
       steps: 0,

@@ -114,6 +114,7 @@ const state: GameState = {
   timeSinceSpawnedPickup: Infinity,
   hurtGraceTime: HURT_GRACE_TIME,
   lives: MAX_LIVES,
+  collisions: 0,
   targetSpeed: 1,
   currentSpeed: 1,
   steps: 0,
@@ -413,16 +414,11 @@ export const sketch = (p5: P5) => {
     let handled = false;
     // check if can handle UI events
     if (!state.isGameStarting && state.appMode === AppMode.Game) {
-      // const isGameOverNormal = state.isLost && state.gameMode !== GameMode.Cobra && state.timeSinceHurt > 20;
-      // const isGameOverCobra = state.isLost && state.gameMode === GameMode.Cobra;
-      // if (!handled && (state.isGameWon || isGameOverCobra)) {
-      //   handled = winGameScene.keyPressed();
-      // }
-      const isGameOverNormal = state.isLost && state.gameMode !== GameMode.Cobra && state.timeSinceHurt > 20;
+      const isGameOver = state.isLost && state.timeSinceHurt > 20;
       if (!handled) {
         handled = winGameScene.keyPressed();
       }
-      if (!handled && (!state.isGameStarted || state.isPaused || isGameOverNormal)) {
+      if (!handled && (!state.isGameStarted || state.isPaused || isGameOver)) {
         handled = handleUIEvents(p5, onUINavigate, onUIInteract, onUICancel);
         if (handled) { ev?.preventDefault(); }
       }
@@ -440,7 +436,7 @@ export const sketch = (p5: P5) => {
     if (!handled) handled = uiBindings.handleUINavigation(navDir);
     if (handled) {
       sfx.play(Sound.uiBlip, 0.5);
-    } else {
+    } else if (!state.isGameWon) {
       sfx.play(Sound.hurt2, 0.4);
     }
     return handled;
@@ -520,6 +516,9 @@ export const sketch = (p5: P5) => {
     state.appMode = AppMode.Game;
     state.isGameStarted = false;
     state.isGameStarting = false;
+    if (state.gameMode === GameMode.Cobra) {
+      state.gameMode = GameMode.Normal;
+    }
     setLevel(MAIN_TITLE_SCREEN_LEVEL);
 
     musicPlayer.stopAllTracks();

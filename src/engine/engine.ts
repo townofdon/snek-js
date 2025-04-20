@@ -328,7 +328,7 @@ export function engine({
 
   function setLevel(incoming: Level) {
     level = incoming;
-    if (level === LEVEL_01) {
+    if (level === LEVEL_01 && replay.mode !== ReplayMode.Playback) {
       if (difficulty.index === 3) {
         level = LEVEL_01_HARD;
       } else if (difficulty.index === 4) {
@@ -437,6 +437,7 @@ export function engine({
     state.timeSinceInvincibleStart = Infinity;
     state.hurtGraceTime = HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0);
     state.lives = state.gameMode === GameMode.Cobra ? state.lives : MAX_LIVES;
+    state.collisions = 0;
     screenShake.timeSinceStarted = Infinity;
     screenShake.timeSinceLastStep = Infinity;
     screenShake.magnitude = 1;
@@ -716,7 +717,10 @@ export function engine({
     handleSetNextLevel();
 
     const didHit = checkHasHit(player.position);
-    if (didHit) player.directionLastHit = player.direction;
+    if (didHit) {
+      player.directionLastHit = player.direction;
+      state.collisions += 1;
+    }
     state.isLost = state.isLost || didHit;
     handleSnakeDamage(state.isLost && state.lives > 0);
 
@@ -791,7 +795,7 @@ export function engine({
   function renderLoop(gamepadInputHandled = false) {
     const timeFrameStart = performance.now();
 
-    if (!gamepadInputHandled && !state.isGameWon) {
+    if (!gamepadInputHandled) {
       applyGamepadMove(state, player.direction, moves, inputCallbacks, handleInputAction)
     }
 
@@ -1537,7 +1541,7 @@ export function engine({
       gotoNextLevel();
     } else {
       const levelIndex = LEVELS.indexOf(level.recordProgressAsLevel || level) + 1;
-      const isPerfect = apples.length === 0 && state.lives === 3;
+      const isPerfect = apples.length === 0 && state.collisions === 0;
       const hasAllApples = apples.length === 0;
 
       // saveDataStore.recordLevelProgress(levelIndex, difficulty);
@@ -1631,6 +1635,7 @@ export function engine({
       playSound(Sound.hurt3);
     } else {
       state.lives += 1;
+      state.collisions = Math.max(state.collisions - 1, 0);
     }
     moves.shift();
     player.direction = move;

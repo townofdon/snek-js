@@ -29,7 +29,7 @@ In every real snek a child is hidden that wants to play.
 
 When you stare into the snek, the snek also stares back at you.
 
-Whoever fights sneks should see to it that in the process
+Whoever plays snek should see to it that in the process
 he does not become a snek.
 
 We shall call every truth false which
