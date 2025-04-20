@@ -1095,7 +1095,7 @@ export function engine({
     screenShake.timeSinceStarted = normalizedTime * SCREEN_SHAKE_DURATION_MS;
     screenShake.magnitude = magnitude;
     screenShake.timeScale = timeScale;
-    const duration = Math.max(1 - normalizedTime, 0) * timeScale * SCREEN_SHAKE_DURATION_MS;
+    const duration = (Math.max(1 - normalizedTime, 0) * SCREEN_SHAKE_DURATION_MS) / Math.max(timeScale, 0.1);
     applyGamepadRumble(duration, magnitude / 3, magnitude / 3);
   }
 
@@ -1660,7 +1660,7 @@ export function engine({
       state.currentSpeed = 2;
     }
     flashScreen();
-    startScreenShake();
+    startScreenShake(1, 0.4);
     renderHeartsUI();
     spawnHurtParticles();
     reboundSnake(segments.length > 3 ? 2 : 1);
@@ -2225,7 +2225,7 @@ export function engine({
     if (state.gameMode !== GameMode.Cobra) {
       stats.score = parseInt(String(stats.score * 0.5), 10);
     }
-    startScreenShake();
+    startScreenShake(1, 0, 0.4);
     yield* coroutines.waitForTime(200);
     startScreenShake(3, -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, 0.1);
     state.isShowingDeathColours = true;
@@ -2237,7 +2237,7 @@ export function engine({
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
     renderer.invalidateStaticCache();
-    startScreenShake();
+    startScreenShake(1, 0.4);
     if (replay.mode === ReplayMode.Playback) {
       yield* coroutines.waitForTime(1000);
       proceedToNextReplayClip();

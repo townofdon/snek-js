@@ -52,14 +52,15 @@ const prev: Record<Button, boolean> = {
 
 export function applyGamepadRumble(duration: number, weakMagnitude: number, strongMagnitude: number) {
   const gamepad = navigator.getGamepads()?.[0];
-  if (!gamepad) return false;
-  if (!gamepad.connected) return false;
+  if (!gamepad) return;
+  if (!gamepad.connected) return;
+  if (!gamepad.vibrationActuator) return;
   gamepad.vibrationActuator.playEffect('dual-rumble', {
     startDelay: 0,
     duration,
     weakMagnitude: clamp(weakMagnitude, 0, 1),
     strongMagnitude: Easing.inCubic(clamp(strongMagnitude, 0, 1)),
-  })
+  }).catch(err => { console.warn(err); })
 }
 
 /**
