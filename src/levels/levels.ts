@@ -27,8 +27,6 @@ import { TUTORIAL_LEVEL_40 } from "./tutorialLevel40";
 import { LEVEL_WIN_GAME } from "./winGame";
 import { MAZE_01 } from "./mazes/maze01";
 import { MAZE_01_COBRA } from "./mazes/maze01-cobra";
-import { LEVEL_01_HARD } from "./level01hard";
-import { LEVEL_01_ULTRA } from "./level01ultra";
 import { SECRET_LEVEL_10 } from "./bonusLevels/secretLevel10";
 import { SECRET_LEVEL_20 } from "./bonusLevels/secretLevel20";
 import { SECRET_LEVEL_21 } from "./bonusLevels/secretLevel21";
@@ -53,6 +51,7 @@ import { X_QUANTUM_ENTANGLEMENT } from "./challenge/quantumEntanglement";
 import { X_SKILL_CHECK } from "./challenge/skillCheck";
 import { X_TOO_SIMPLE } from "./challenge/tooSimple";
 import { X_UNWIND } from "./challenge/unwind";
+import { X_UNDERGROUND } from "./challenge/underground";
 
 export const LEVELS: Level[] = [
     MAZE_01,
@@ -110,6 +109,7 @@ export const CHALLENGE_LEVELS: Level[] = [
     X_SKILL_CHECK,
     X_STONEMAZE,
     X_TOO_SIMPLE,
+    X_UNDERGROUND,
     X_UNWIND,
 ];
 
@@ -117,6 +117,3 @@ export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;
 
 export const START_LEVEL = MAZE_01;
 export const START_LEVEL_COBRA = MAZE_01_COBRA;
-export const LEVEL_AFTER_WIN = LEVEL_01;
-export const LEVEL_AFTER_WIN_HARD = LEVEL_01_HARD;
-export const LEVEL_AFTER_WIN_ULTRA = LEVEL_01_ULTRA;

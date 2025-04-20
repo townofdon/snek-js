@@ -10,7 +10,6 @@ import { WARP_ZONE_01 } from "../bonusLevels/warpZone01";
 type ChallengeLevel = Pick<Level, 'name' | 'layoutV2'> & Partial<Omit<Level, 'name' | 'layoutV2'>>
 
 export const challengeLevel =  (level: ChallengeLevel): Level => ({
-  ...level,
   name: level.name,
   timeToClear: 0,
   applesToClear: 0,
@@ -19,4 +18,5 @@ export const challengeLevel =  (level: ChallengeLevel): Level => ({
   colors: getExtendedPalette(PALETTE.default),
   showTitle: true,
   nextLevel: WARP_ZONE_01,
+  ...level,
 });

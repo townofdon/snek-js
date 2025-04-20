@@ -1096,7 +1096,9 @@ export function engine({
     screenShake.magnitude = magnitude;
     screenShake.timeScale = timeScale;
     const duration = (Math.max(1 - normalizedTime, 0) * SCREEN_SHAKE_DURATION_MS) / Math.max(timeScale, 0.1);
-    applyGamepadRumble(duration, magnitude / 3, magnitude / 3);
+    if (!state.isGameWon) {
+      applyGamepadRumble(duration, magnitude / 3, magnitude / 3);
+    }
   }
 
   function updateScreenShake() {
