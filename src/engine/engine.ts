@@ -136,7 +136,7 @@ import { Renderer } from './renderer';
 import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
 import { MusicPlayer } from './musicPlayer';
 import { InputCallbacks, handleKeyPressed, validateMove } from './controls';
-import { applyGamepadMove, getCurrentGamepadSprint } from './gamepad'
+import { applyGamepadRumble, applyGamepadMove, getCurrentGamepadSprint } from './gamepad'
 import { Easing } from '../easing';
 import { getExtendedPalette, PALETTE } from '../palettes';
 import { Coroutines } from './coroutines';
@@ -1095,6 +1095,8 @@ export function engine({
     screenShake.timeSinceStarted = normalizedTime * SCREEN_SHAKE_DURATION_MS;
     screenShake.magnitude = magnitude;
     screenShake.timeScale = timeScale;
+    const duration = Math.max(1 - normalizedTime, 0) * timeScale * SCREEN_SHAKE_DURATION_MS;
+    applyGamepadRumble(duration, magnitude / 3, magnitude / 3);
   }
 
   function updateScreenShake() {

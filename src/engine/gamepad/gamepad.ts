@@ -1,6 +1,7 @@
 import { HURT_STUN_TIME, MAX_MOVES_GAMEPAD } from "../../constants";
+import { Easing } from "../../easing";
 import { AppMode, DIR, GameMode, GameState, InputAction, MOVE, UINavDir } from "../../types";
-import { invertDirection, rotateDirection } from "../../utils";
+import { invertDirection, rotateDirection, clamp } from "../../utils";
 import { InputCallbacks, validateMove } from "../controls";
 import {
   Axis,
@@ -47,6 +48,18 @@ const prev: Record<Button, boolean> = {
   [Button.DpadLeft]: false,
   [Button.DpadRight]: false,
   [Button.XboxButton]: false
+}
+
+export function applyGamepadRumble(duration: number, weakMagnitude: number, strongMagnitude: number) {
+  const gamepad = navigator.getGamepads()?.[0];
+  if (!gamepad) return false;
+  if (!gamepad.connected) return false;
+  gamepad.vibrationActuator.playEffect('dual-rumble', {
+    startDelay: 0,
+    duration,
+    weakMagnitude: clamp(weakMagnitude, 0, 1),
+    strongMagnitude: Easing.inCubic(clamp(strongMagnitude, 0, 1)),
+  })
 }
 
 /**
