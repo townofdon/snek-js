@@ -266,6 +266,7 @@ export interface Level {
   colors: ExtendedPalette,
   numApplesStart?: number,
   growthMod?: number,
+  growthOverride?: number,
   extraHurtGraceTime?: number,
   snakeStartSizeOverride?: number,
   snakeStartDirectionOverride?: DIR,

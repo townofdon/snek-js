@@ -1,4 +1,4 @@
-
+import { Level } from "../types";
 import { LEVEL_01 } from "./level01";
 import { LEVEL_02 } from "./level02";
 import { LEVEL_03 } from "./level03";
@@ -23,7 +23,31 @@ import { TUTORIAL_LEVEL_10 } from "./tutorialLevel10";
 import { TUTORIAL_LEVEL_20 } from "./tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "./tutorialLevel40";
-import { Level } from "../types";
+import { SECRET_LEVEL_10 } from "./bonusLevels/secretLevel10";
+import { SECRET_LEVEL_20 } from "./bonusLevels/secretLevel20";
+import { SECRET_LEVEL_21 } from "./bonusLevels/secretLevel21";
+import { VARIANT_LEVEL_03 } from "./bonusLevels/variantLevel03";
+import { VARIANT_LEVEL_05 } from "./bonusLevels/variantLevel05";
+import { VARIANT_LEVEL_07 } from "./bonusLevels/variantLevel07";
+import { VARIANT_LEVEL_08 } from "./bonusLevels/variantLevel08";
+import { VARIANT_LEVEL_10 } from "./bonusLevels/variantLevel10";
+import { VARIANT_LEVEL_15 } from "./bonusLevels/variantLevel15";
+import { VARIANT_LEVEL_99 } from "./bonusLevels/variantLevel99";
+import { X_ACROPOLIS } from "./challenge/acropolis";
+import { X_BEACONS } from "./challenge/beacons";
+import { X_CASA } from "./challenge/casa";
+import { X_CATACOMBS } from "./challenge/catacombs";
+import { X_FORTITUDE } from "./challenge/fortitude";
+import { X_GUARDIAN } from "./challenge/guardian";
+import { X_KINGS_HALL } from "./challenge/kingsHall";
+import { X_STONEMAZE } from "./challenge/stonemaze";
+import { X_LAST_RITES } from "./challenge/lastRites";
+import { X_MAKEITOUTALIVE } from "./challenge/makeitoutalive";
+import { X_QUANTUM_ENTANGLEMENT } from "./challenge/quantumEntanglement";
+import { X_SKILL_CHECK } from "./challenge/skillCheck";
+import { X_TOO_SIMPLE } from "./challenge/tooSimple";
+import { X_UNDERGROUND } from "./challenge/underground";
+import { X_UNWIND } from "./challenge/unwind";
 
 export function getWarpLevelFromNum(levelNum: number): Level {
   switch (levelNum) {
@@ -67,6 +91,7 @@ export function getWarpLevelFromNum(levelNum: number): Level {
       return LEVEL_19;
     case 99:
       return LEVEL_99;
+
     case 110:
       return TUTORIAL_LEVEL_10;
     case 120:
@@ -75,6 +100,60 @@ export function getWarpLevelFromNum(levelNum: number): Level {
       return TUTORIAL_LEVEL_30;
     case 140:
       return TUTORIAL_LEVEL_40;
+
+    case 203:
+      return VARIANT_LEVEL_03;
+    case 205:
+      return VARIANT_LEVEL_05;
+    case 207:
+      return VARIANT_LEVEL_07;
+    case 208:
+      return VARIANT_LEVEL_08;
+    case 210:
+      return VARIANT_LEVEL_10;
+    case 215:
+      return VARIANT_LEVEL_15;
+    case 299:
+      return VARIANT_LEVEL_99;
+
+    case 310:
+      return SECRET_LEVEL_10;
+    case 320:
+      return SECRET_LEVEL_20;
+    case 321:
+      return SECRET_LEVEL_21;
+
+    case 401:
+      return X_ACROPOLIS;
+    case 402:
+      return X_BEACONS;
+    case 403:
+      return X_CASA;
+    case 404:
+      return X_CATACOMBS;
+    case 405:
+      return X_FORTITUDE;
+    case 406:
+      return X_GUARDIAN;
+    case 407:
+      return X_KINGS_HALL;
+    case 408:
+      return X_STONEMAZE;
+    case 409:
+      return X_LAST_RITES;
+    case 410:
+      return X_MAKEITOUTALIVE;
+    case 411:
+      return X_QUANTUM_ENTANGLEMENT;
+    case 412:
+      return X_SKILL_CHECK;
+    case 413:
+      return X_TOO_SIMPLE;
+    case 414:
+      return X_UNDERGROUND;
+    case 415:
+      return X_UNWIND;
+
     default:
       return LEVEL_01;
   }

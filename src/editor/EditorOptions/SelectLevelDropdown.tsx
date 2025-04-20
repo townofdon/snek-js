@@ -1,15 +1,6 @@
 import React, { useState } from "react";
 
-import { LEVELS, LEVEL_01, VARIANT_LEVEL_99 } from "../../levels";
-import { SECRET_LEVEL_10 } from "../../levels/bonusLevels/secretLevel10";
-import { SECRET_LEVEL_20 } from "../../levels/bonusLevels/secretLevel20";
-import { SECRET_LEVEL_21 } from "../../levels/bonusLevels/secretLevel21";
-import { VARIANT_LEVEL_03 } from "../../levels/bonusLevels/variantLevel03";
-import { VARIANT_LEVEL_05 } from "../../levels/bonusLevels/variantLevel05";
-import { VARIANT_LEVEL_07 } from "../../levels/bonusLevels/variantLevel07";
-import { VARIANT_LEVEL_08 } from "../../levels/bonusLevels/variantLevel08";
-import { VARIANT_LEVEL_10 } from "../../levels/bonusLevels/variantLevel10";
-import { VARIANT_LEVEL_15 } from "../../levels/bonusLevels/variantLevel15";
+import { CHALLENGE_LEVELS, LEVELS, LEVEL_01, SECRET_LEVELS } from "../../levels";
 
 import { Level } from "../../types";
 import { Stack } from "../components/Stack";
@@ -26,16 +17,8 @@ export const SelectLevelDropdown = ({ loadLevel }: SelectLevelDropdownProps) => 
 
   const levelsToInclude = [
     ...LEVELS,
-    SECRET_LEVEL_10,
-    SECRET_LEVEL_20,
-    SECRET_LEVEL_21,
-    VARIANT_LEVEL_03,
-    VARIANT_LEVEL_05,
-    VARIANT_LEVEL_07,
-    VARIANT_LEVEL_08,
-    VARIANT_LEVEL_10,
-    VARIANT_LEVEL_15,
-    VARIANT_LEVEL_99,
+    ...SECRET_LEVELS,
+    ...CHALLENGE_LEVELS,
   ];
 
   const handleSetLevel = (option: Option) => {

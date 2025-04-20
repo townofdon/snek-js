@@ -29,6 +29,30 @@ import { MAZE_01 } from "./mazes/maze01";
 import { MAZE_01_COBRA } from "./mazes/maze01-cobra";
 import { LEVEL_01_HARD } from "./level01hard";
 import { LEVEL_01_ULTRA } from "./level01ultra";
+import { SECRET_LEVEL_10 } from "./bonusLevels/secretLevel10";
+import { SECRET_LEVEL_20 } from "./bonusLevels/secretLevel20";
+import { SECRET_LEVEL_21 } from "./bonusLevels/secretLevel21";
+import { VARIANT_LEVEL_03 } from "./bonusLevels/variantLevel03";
+import { VARIANT_LEVEL_05 } from "./bonusLevels/variantLevel05";
+import { VARIANT_LEVEL_07 } from "./bonusLevels/variantLevel07";
+import { VARIANT_LEVEL_08 } from "./bonusLevels/variantLevel08";
+import { VARIANT_LEVEL_10 } from "./bonusLevels/variantLevel10";
+import { VARIANT_LEVEL_15 } from "./bonusLevels/variantLevel15";
+import { VARIANT_LEVEL_99 } from "./bonusLevels/variantLevel99";
+import { X_ACROPOLIS } from "./challenge/acropolis";
+import { X_BEACONS } from "./challenge/beacons";
+import { X_CASA } from "./challenge/casa";
+import { X_CATACOMBS } from "./challenge/catacombs";
+import { X_FORTITUDE } from "./challenge/fortitude";
+import { X_GUARDIAN } from "./challenge/guardian";
+import { X_KINGS_HALL } from "./challenge/kingsHall";
+import { X_STONEMAZE } from "./challenge/stonemaze";
+import { X_LAST_RITES } from "./challenge/lastRites";
+import { X_MAKEITOUTALIVE } from "./challenge/makeitoutalive";
+import { X_QUANTUM_ENTANGLEMENT } from "./challenge/quantumEntanglement";
+import { X_SKILL_CHECK } from "./challenge/skillCheck";
+import { X_TOO_SIMPLE } from "./challenge/tooSimple";
+import { X_UNWIND } from "./challenge/unwind";
 
 export const LEVELS: Level[] = [
     MAZE_01,
@@ -57,6 +81,36 @@ export const LEVELS: Level[] = [
     LEVEL_19,
     LEVEL_99,
     LEVEL_WIN_GAME,
+];
+
+export const SECRET_LEVELS = [
+    SECRET_LEVEL_10,
+    SECRET_LEVEL_20,
+    SECRET_LEVEL_21,
+    VARIANT_LEVEL_03,
+    VARIANT_LEVEL_05,
+    VARIANT_LEVEL_07,
+    VARIANT_LEVEL_08,
+    VARIANT_LEVEL_10,
+    VARIANT_LEVEL_15,
+    VARIANT_LEVEL_99,
+]
+
+export const CHALLENGE_LEVELS: Level[] = [
+    X_ACROPOLIS,
+    X_BEACONS,
+    X_CASA,
+    X_CATACOMBS,
+    X_FORTITUDE,
+    X_GUARDIAN,
+    X_KINGS_HALL,
+    X_LAST_RITES,
+    X_MAKEITOUTALIVE,
+    X_QUANTUM_ENTANGLEMENT,
+    X_SKILL_CHECK,
+    X_STONEMAZE,
+    X_TOO_SIMPLE,
+    X_UNWIND,
 ];
 
 export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;

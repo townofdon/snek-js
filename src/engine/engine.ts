@@ -138,7 +138,7 @@ import { MusicPlayer } from './musicPlayer';
 import { InputCallbacks, handleKeyPressed, validateMove } from './controls';
 import { applyGamepadMove, getCurrentGamepadSprint } from './gamepad'
 import { Easing } from '../easing';
-import { PALETTE } from '../palettes';
+import { getExtendedPalette, PALETTE } from '../palettes';
 import { Coroutines } from './coroutines';
 import { UI } from '../ui/ui';
 import { buildSceneActionFactory } from '../scenes/sceneUtils';
@@ -476,6 +476,39 @@ export function engine({
     particles.reset();
     particles10.reset();
 
+    if (level.layoutV2?.length) {
+      try {
+        // // NOTE TO FUTURE SELF: do NOT copy data directly from the URL. This is the path of pain and misery.
+        // // Instead, use "Copy dev link" in snek editor, or use this snippet below:
+        // const query = new URLSearchParams(`?data=${level.layoutV2}`);
+        // const queryData = query.get('data');
+        // const [data] = decodeMapData(queryData);
+        const [data, options] = decodeMapData(level.layoutV2);
+        level.colors = getExtendedPalette(options.palette);
+        level.layout = buildMapLayout(data);
+        level.snakeSpawnPointOverride = getCoordIndex(data.playerSpawnPosition);
+        // may decide to remove these overwrites later
+        level.disableAppleSpawn = options.disableAppleSpawn;
+        if (options.disableAppleSpawn) {
+          level.applesModOverride = 1;
+          level.growthOverride = level.growthOverride ?? 2;
+        }
+        level.numApplesStart = options.numApplesStart;
+        level.applesToClear = options.applesToClear;
+        level.timeToClear = options.timeToClear;
+        level.snakeStartSizeOverride = options.snakeStartSize;
+        level.extraHurtGraceTime = options.extraHurtGraceTime;
+        level.globalLight = options.globalLight;
+        if (!level.musicTrack || level.musicTrack === MusicTrack.None) {
+          level.musicTrack = options.musicTrack;
+        }
+        level.snakeStartDirectionOverride = data.startDirection;
+      } catch (err) {
+        console.error(err);
+        console.error(`Unable to parse layoutV2 data for level "${level.name}"`);
+      }
+    }
+
     renderer.reset();
     renderer.invalidateStaticCache();
     cacheGraphicalComponents();
@@ -535,37 +568,6 @@ export function engine({
       renderScoreUI();
       renderLevelName();
       UI.showGfxCanvas();
-    }
-
-    if (level.layoutV2?.length) {
-      try {
-        // // NOTE TO FUTURE SELF: do NOT copy data directly from the URL. This is the path of pain and misery.
-        // // Instead, use "Copy dev link" in snek editor, or use this snippet below:
-        // const query = new URLSearchParams(`?data=${level.layoutV2}`);
-        // const queryData = query.get('data');
-        // const [data] = decodeMapData(queryData);
-        const [data, options] = decodeMapData(level.layoutV2);
-        level.layout = buildMapLayout(data);
-        level.snakeSpawnPointOverride = getCoordIndex(data.playerSpawnPosition);
-        // may decide to remove these overwrites later
-        level.disableAppleSpawn = options.disableAppleSpawn;
-        if (options.disableAppleSpawn) {
-          level.applesModOverride = 1;
-        }
-        level.numApplesStart = options.numApplesStart;
-        level.applesToClear = options.applesToClear;
-        level.timeToClear = options.timeToClear;
-        level.snakeStartSizeOverride = options.snakeStartSize;
-        level.extraHurtGraceTime = options.extraHurtGraceTime;
-        level.globalLight = options.globalLight;
-        if (options.musicTrack && options.musicTrack !== MusicTrack.None) {
-          level.musicTrack = options.musicTrack;
-        }
-        level.snakeStartDirectionOverride = data.startDirection;
-      } catch (err) {
-        console.error(err);
-        console.error(`Unable to parse layoutV2 data for level "${level.name}"`);
-      }
     }
 
     const levelData = buildLevel(level);
@@ -1726,7 +1728,7 @@ export function engine({
     startScreenShake(0.25, 0.8);
     apples.removeByCoord(appleCoord);
     const numSegmentsToAdd = Math.max(
-      (difficulty.index - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
+      ((level.growthOverride ?? difficulty.index) - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
       1
     );
     const maxSize = level === LEVEL_WIN_GAME ? 0.25 : MAX_SNAKE_SIZE;
