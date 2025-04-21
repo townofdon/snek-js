@@ -6,6 +6,7 @@ import { VARIANT_LEVEL_03 } from "./bonusLevels/variantLevel03";
 const name = 'plaza'
 
 export const LEVEL_02: Level = {
+  id: 'C02',
   name,
   timeToClear: 1000 * 60 * 1.2,
   applesToClear: 40,

@@ -820,6 +820,9 @@ button.game-mode.back {
 .level-select-menu button.select-level.active {
   filter: brightness(1.05) grayscale(0) contrast(1.1);
 }
+.level-select-menu button.select-level:before {
+  display: none;
+}
 .level-select-menu button.select-level img {
   display: block;
   width: 300px;

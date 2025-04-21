@@ -8,6 +8,7 @@ import { VARIANT_LEVEL_08 } from "./variantLevel08";
 const name = 'factory subfloor';
 
 export const VARIANT_LEVEL_07: Level = {
+  id: 'C207',
   name,
   timeToClear: 1000 * 60 * 1.8,
   applesToClear: 60,

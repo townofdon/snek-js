@@ -4,6 +4,7 @@ import { Level, MusicTrack } from "../types";
 const name = 'INIT';
 
 export const LEVEL_00: Level = {
+  id: '',
   name,
   timeToClear: 1000 * 60 * 5,
   applesToClear: 43,

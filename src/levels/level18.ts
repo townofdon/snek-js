@@ -4,6 +4,7 @@ import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 const name = 'computer room'
 
 export const LEVEL_18: Level = {
+  id: 'C18',
   name,
   timeToClear: 1000 * 60 * 3.0,
   applesToClear: 60,

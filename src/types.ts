@@ -261,6 +261,7 @@ export enum LevelType {
 }
 
 export interface Level {
+  id: string,
   type?: LevelType,
   name: string,
   timeToClear: number,

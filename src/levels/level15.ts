@@ -5,6 +5,7 @@ import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../
 const name = 'quantum mirror'
 
 export const LEVEL_15: Level = {
+  id: 'C15',
   name,
   timeToClear: 1000 * 60 * 1.3,
   applesToClear: 60,

@@ -4,6 +4,7 @@ import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 const name = 'survive!';
 
 export const LEVEL_99: Level = {
+  id: 'C99',
   name,
   timeToClear: 1000 * 60 * 10,
   applesToClear: 200,

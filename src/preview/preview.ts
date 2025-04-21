@@ -506,6 +506,7 @@ async function loadLevel(queryData: string, loadMapImage = false): Promise<void>
     const [data, options] = decodeMapData(queryData);
     const layout = buildMapLayout(data);
     const loaded: Level = {
+      id: '',
       name: options.name,
       timeToClear: options.timeToClear,
       applesToClear: options.applesToClear,

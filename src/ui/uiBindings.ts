@@ -138,6 +138,51 @@ export class UIBindings implements UIHandler {
       case PauseMenuElement.ButtonWarpS4:
         this.callbacks.onWarpToLevel(140);
         break;
+      case PauseMenuElement.ButtonWarpX01:
+        this.callbacks.onWarpToLevel(401);
+        break;
+      case PauseMenuElement.ButtonWarpX02:
+        this.callbacks.onWarpToLevel(402);
+        break;
+      case PauseMenuElement.ButtonWarpX03:
+        this.callbacks.onWarpToLevel(403);
+        break;
+      case PauseMenuElement.ButtonWarpX04:
+        this.callbacks.onWarpToLevel(404);
+        break;
+      case PauseMenuElement.ButtonWarpX05:
+        this.callbacks.onWarpToLevel(405);
+        break;
+      case PauseMenuElement.ButtonWarpX06:
+        this.callbacks.onWarpToLevel(406);
+        break;
+      case PauseMenuElement.ButtonWarpX07:
+        this.callbacks.onWarpToLevel(407);
+        break;
+      case PauseMenuElement.ButtonWarpX08:
+        this.callbacks.onWarpToLevel(408);
+        break;
+      case PauseMenuElement.ButtonWarpX09:
+        this.callbacks.onWarpToLevel(409);
+        break;
+      case PauseMenuElement.ButtonWarpX10:
+        this.callbacks.onWarpToLevel(410);
+        break;
+      case PauseMenuElement.ButtonWarpX11:
+        this.callbacks.onWarpToLevel(411);
+        break;
+      case PauseMenuElement.ButtonWarpX12:
+        this.callbacks.onWarpToLevel(412);
+        break;
+      case PauseMenuElement.ButtonWarpX13:
+        this.callbacks.onWarpToLevel(413);
+        break;
+      case PauseMenuElement.ButtonWarpX14:
+        this.callbacks.onWarpToLevel(414);
+        break;
+      case PauseMenuElement.ButtonWarpX15:
+        this.callbacks.onWarpToLevel(415);
+        break;
     }
   }
   private callGameOverMenuAction = (element: GameOverMenuElement) => {

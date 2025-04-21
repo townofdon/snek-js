@@ -6,6 +6,7 @@ import { VARIANT_LEVEL_10 } from "./bonusLevels/variantLevel10";
 const name = 'labyrinth';
 
 export const LEVEL_09: Level = {
+  id: 'C09',
   name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 50,

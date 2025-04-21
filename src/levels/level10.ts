@@ -4,6 +4,7 @@ import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 const name = 'x-factor';
 
 export const LEVEL_10: Level = {
+  id: 'C10',
   name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 55,

@@ -4,6 +4,7 @@ import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 const name = 'snekadia'
 
 export const LEVEL_01: Level = {
+  id: 'C01',
   name,
   timeToClear: 1000 * 60 * 1,
   applesToClear: 30,

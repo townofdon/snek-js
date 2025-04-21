@@ -2,12 +2,8 @@ import { getExtendedPalette, PALETTE } from "../../palettes";
 import { Level } from "../../types";
 import { WARP_ZONE_01 } from "../bonusLevels/warpZone01";
 
-// interface ChallengeLevel {
-//   name: string
-//   layoutV2: string
-// }
-
-type ChallengeLevel = Pick<Level, 'name' | 'layoutV2'> & Partial<Omit<Level, 'name' | 'layoutV2'>>
+type ChallengeFields = 'id' | 'name' | 'layoutV2'
+type ChallengeLevel = Pick<Level, ChallengeFields> & Partial<Omit<Level, ChallengeFields>>
 
 export const challengeLevel =  (level: ChallengeLevel): Level => ({
   name: level.name,

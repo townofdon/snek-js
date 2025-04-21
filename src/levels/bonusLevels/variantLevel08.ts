@@ -8,6 +8,7 @@ import { SECRET_LEVEL_21 } from "./secretLevel21";
 const name = 'boneyard';
 
 export const VARIANT_LEVEL_08: Level = {
+  id: 'C208',
   name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 70,

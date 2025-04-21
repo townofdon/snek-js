@@ -4,6 +4,7 @@ import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../
 const name = 'SCI-LAB'
 
 export const LEVEL_13: Level = {
+  id: 'C13',
   name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 60,

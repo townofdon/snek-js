@@ -6,6 +6,7 @@ import { LEVEL_02 } from "./level02";
 const name = 'snekadia'
 
 export const LEVEL_01_ULTRA: Level = {
+  id: 'C01_U',
   name,
   timeToClear: 1000 * 60 * 2,
   applesToClear: 30,

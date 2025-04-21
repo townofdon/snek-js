@@ -6,6 +6,7 @@ import { WARP_ZONE_02 } from "./bonusLevels/warpZone02";
 const name = 'turnonadime';
 
 export const TUTORIAL_LEVEL_20: Level = {
+  id: 'C120',
   name,
   timeToClear: 1000 * 60 * 5,
   applesToClear: 43,

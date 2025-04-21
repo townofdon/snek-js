@@ -11,6 +11,7 @@ import { MAZE_02_SW } from "../mazes/maze02sw";
 const name = 'the diamond';
 
 export const VARIANT_LEVEL_05: Level = {
+  id: 'C205',
   name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 50,

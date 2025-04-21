@@ -26,6 +26,7 @@ import {
   shuffleArray,
 } from './utils';
 import {
+  getIsChallengeLevel,
   getWarpLevelFromNum,
 } from './levels/levelUtils';
 import {
@@ -766,7 +767,7 @@ export const sketch = (p5: P5) => {
     showPauseUI(uiElements, {
       isWarpDisabled: getIsStartLevel() || state.gameMode === GameMode.Cobra,
       hasWarpEnabledParam: queryParams.enableWarp,
-      levelProgress: saveDataStore.getLevelProgress(getDifficulty()),
+      isChallengeLevel: getIsChallengeLevel(getLevel()),
     }, {
       unpause,
       confirmShowMainMenu,

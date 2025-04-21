@@ -154,6 +154,7 @@ export function decodeMapData(encoded: string, debug = false): [EditorData, Edit
 
 export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vector | undefined, startDirection: DIR): EditorData {
   const level: Level = {
+    id: '',
     name: undefined,
     layout,
     timeToClear: undefined,

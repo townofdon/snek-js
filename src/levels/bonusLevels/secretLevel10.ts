@@ -5,6 +5,7 @@ import { TUTORIAL_LEVEL_10 } from "../tutorialLevel10";
 const name = 'secret area 1-1';
 
 export const SECRET_LEVEL_10: Level = {
+  id: 'C310',
   type: LevelType.Level,
   name,
   timeToClear: Infinity,

@@ -5,6 +5,7 @@ import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
 const name = 'bait&switch'
 
 export const LEVEL_16: Level = {
+  id: 'C16',
   name,
   timeToClear: 1000 * 60 * 3.0,
   applesToClear: 60,

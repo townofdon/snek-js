@@ -10,7 +10,10 @@ class EditorStore extends BaseStore<EditorStoreData> {
     author: '',
   };
 
-  private state: EditorStoreData = this.getStore() || { ...this.defaultValue };
+  private state: EditorStoreData = {
+    ...this.defaultValue,
+    ...this.getStore(),
+  };
 
   public getAuthor = () => this.state.author;
 

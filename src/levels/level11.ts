@@ -4,6 +4,7 @@ import { Level, MusicTrack } from "../types";
 const name = 'sneksqueeze';
 
 export const LEVEL_11: Level = {
+  id: 'C11',
   name,
   timeToClear: 1000 * 60 * 1.6,
   applesToClear: 60,

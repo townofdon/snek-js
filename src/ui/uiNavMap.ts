@@ -469,6 +469,21 @@ export enum PauseMenuElement {
   ButtonWarpS2 = 'pauseButtonWarpS2',
   ButtonWarpS3 = 'pauseButtonWarpS3',
   ButtonWarpS4 = 'pauseButtonWarpS4',
+  ButtonWarpX01 = 'pauseButtonWarpX01',
+  ButtonWarpX02 = 'pauseButtonWarpX02',
+  ButtonWarpX03 = 'pauseButtonWarpX03',
+  ButtonWarpX04 = 'pauseButtonWarpX04',
+  ButtonWarpX05 = 'pauseButtonWarpX05',
+  ButtonWarpX06 = 'pauseButtonWarpX06',
+  ButtonWarpX07 = 'pauseButtonWarpX07',
+  ButtonWarpX08 = 'pauseButtonWarpX08',
+  ButtonWarpX09 = 'pauseButtonWarpX09',
+  ButtonWarpX10 = 'pauseButtonWarpX10',
+  ButtonWarpX11 = 'pauseButtonWarpX11',
+  ButtonWarpX12 = 'pauseButtonWarpX12',
+  ButtonWarpX13 = 'pauseButtonWarpX13',
+  ButtonWarpX14 = 'pauseButtonWarpX14',
+  ButtonWarpX15 = 'pauseButtonWarpX15',
 }
 
 const PAUSE_MENU_ELEMENT_ORDER: [
@@ -477,6 +492,9 @@ const PAUSE_MENU_ELEMENT_ORDER: [
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
+  [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
+  [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
+  [PauseMenuElement, PauseMenuElement, PauseMenuElement],
 ] = [
     [
       PauseMenuElement.ButtonResume,
@@ -514,6 +532,27 @@ const PAUSE_MENU_ELEMENT_ORDER: [
       PauseMenuElement.ButtonWarpS2,
       PauseMenuElement.ButtonWarpS3,
       PauseMenuElement.ButtonWarpS4,
+    ],
+    [
+      PauseMenuElement.ButtonWarpX01,
+      PauseMenuElement.ButtonWarpX02,
+      PauseMenuElement.ButtonWarpX03,
+      PauseMenuElement.ButtonWarpX04,
+      PauseMenuElement.ButtonWarpX05,
+      PauseMenuElement.ButtonWarpX06,
+    ],
+    [
+      PauseMenuElement.ButtonWarpX07,
+      PauseMenuElement.ButtonWarpX08,
+      PauseMenuElement.ButtonWarpX09,
+      PauseMenuElement.ButtonWarpX10,
+      PauseMenuElement.ButtonWarpX11,
+      PauseMenuElement.ButtonWarpX12,
+    ],
+    [
+      PauseMenuElement.ButtonWarpX13,
+      PauseMenuElement.ButtonWarpX14,
+      PauseMenuElement.ButtonWarpX15,
     ],
   ]
 

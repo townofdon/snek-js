@@ -2313,7 +2313,7 @@ export function engine({
   }
 
   function getIsStartLevel() {
-    return level === START_LEVEL || level == START_LEVEL_COBRA
+    return level === START_LEVEL || level == START_LEVEL_COBRA;
   }
 
   return {

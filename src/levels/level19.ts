@@ -6,6 +6,7 @@ import { VARIANT_LEVEL_99 } from "./bonusLevels/variantLevel99";
 const name = 'escada';
 
 export const LEVEL_19: Level = {
+  id: 'C19',
   name,
   timeToClear: 1000 * 60 * 5,
   applesToClear: 70,

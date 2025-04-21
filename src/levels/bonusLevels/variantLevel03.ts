@@ -8,6 +8,7 @@ import { SECRET_LEVEL_10 } from "./secretLevel10";
 const name = 'metroteque'
 
 export const VARIANT_LEVEL_03: Level = {
+  id: 'C203',
   name,
   timeToClear: 1000 * 60 * 1.4,
   applesToClear: 70,

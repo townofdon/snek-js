@@ -48,6 +48,7 @@ import { X_SKILL_CHECK } from "./challenge/skillCheck";
 import { X_TOO_SIMPLE } from "./challenge/tooSimple";
 import { X_UNDERGROUND } from "./challenge/underground";
 import { X_UNWIND } from "./challenge/unwind";
+import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS, START_LEVEL, START_LEVEL_COBRA } from "./levels";
 
 export function getWarpLevelFromNum(levelNum: number): Level {
   switch (levelNum) {
@@ -159,10 +160,28 @@ export function getWarpLevelFromNum(levelNum: number): Level {
   }
 }
 
+export function validateLevelIds() {
+  const map: Record<string, Level> = {};
+  [
+    ...LEVELS,
+    ...SECRET_LEVELS,
+    ...CHALLENGE_LEVELS,
+  ].forEach(level => {
+    if (!level.id) return;
+    if (map[level.id]) {
+      throw new Error(`level id collision: "${level.name}" and "${map[level.id].name}" both have id "${level.id}"`);
+    }
+    map[level.id] = level;
+  });
+}
 
 export function findLevelWarpIndex(level: Level): number {
   for (let i = 1; i < 200; i++) {
     if (getWarpLevelFromNum(i) === level) return i;
   }
   return -1;
+}
+
+export function getIsChallengeLevel(level: Level) {
+  return level.id.length && level.id[0].toLowerCase() === 'x';
 }

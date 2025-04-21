@@ -6,6 +6,7 @@ import { TUTORIAL_LEVEL_20 } from "../tutorialLevel20";
 const name = 'security station';
 
 export const VARIANT_LEVEL_10: Level = {
+  id: 'C210',
   name,
   timeToClear: 1000 * 60 * 3,
   applesToClear: 100,

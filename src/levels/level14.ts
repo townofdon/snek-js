@@ -6,6 +6,7 @@ import { VARIANT_LEVEL_15 } from "./bonusLevels/variantLevel15";
 const name = 'test chamber'
 
 export const LEVEL_14: Level = {
+  id: 'C14',
   name,
   timeToClear: 1000 * 60 * 2.25,
   applesToClear: 60,

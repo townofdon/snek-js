@@ -4,6 +4,7 @@ import { Level, MusicTrack } from "../types";
 const name = 'gatekeeper';
 
 export const TUTORIAL_LEVEL_40: Level = {
+  id: 'C140',
   name,
   timeToClear: 1000 * 60 * 5,
   applesToClear: 50,

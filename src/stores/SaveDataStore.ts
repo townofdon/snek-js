@@ -16,7 +16,10 @@ export class SaveDataStore extends BaseStore<SaveData> {
     },
   };
 
-  private state: SaveData = this.getStore() || { ...this.defaultValue };
+  private state: SaveData = {
+    ...this.defaultValue,
+    ...this.getStore(),
+  };
 
   public getIsCobraModeUnlocked = (): boolean => {
     return this.state.isCobraModeUnlocked;

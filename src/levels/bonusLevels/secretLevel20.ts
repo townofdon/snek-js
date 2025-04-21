@@ -7,6 +7,7 @@ import { VARIANT_LEVEL_10 } from "./variantLevel10";
 const name = 'secret area 5-2';
 
 export const SECRET_LEVEL_20: Level = {
+  id: 'C320',
   type: LevelType.Level,
   name,
   timeToClear: Infinity,

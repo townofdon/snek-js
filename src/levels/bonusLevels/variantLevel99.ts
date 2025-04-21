@@ -5,6 +5,7 @@ import { LEVEL_WIN_GAME } from "../winGame";
 const name = 'endurance';
 
 export const VARIANT_LEVEL_99: Level = {
+  id: 'C299',
   name,
   timeToClear: 1000 * 60 * 10,
   applesToClear: 295,

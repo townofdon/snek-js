@@ -6,6 +6,7 @@ import { SECRET_LEVEL_20 } from "./bonusLevels/secretLevel20";
 const name = 'courtyard';
 
 export const LEVEL_08: Level = {
+  id: 'C08',
   name,
   timeToClear: 1000 * 60 * 1.5,
   applesToClear: 70,

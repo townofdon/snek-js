@@ -38,7 +38,10 @@ export class UnlockedMusicStore extends BaseStore<UnlockedMusicTracks> {
     [MusicTrack.slime_rollcredits]: false,
   };
 
-  private state: UnlockedMusicTracks = this.getStore() || { ...this.defaultValue };
+  private state: UnlockedMusicTracks = {
+    ...this.defaultValue,
+    ...this.getStore(),
+  };
 
   public getIsUnlocked = (track: MusicTrack): boolean => {
     return this.state[track];

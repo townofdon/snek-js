@@ -4,6 +4,7 @@ import { Level, MusicTrack, PickupType } from "../types";
 const name = 'boxed'
 
 export const LEVEL_12: Level = {
+  id: 'C12',
   name,
   timeToClear: 1000 * 60 * 1.7,
   applesToClear: 60,

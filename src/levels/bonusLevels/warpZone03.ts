@@ -7,6 +7,7 @@ import { TUTORIAL_LEVEL_40 } from "../tutorialLevel40";
 const name = 'warp zone 03';
 
 export const WARP_ZONE_03: Level = {
+  id: '',
   type: LevelType.WarpZone,
   name,
   timeToClear: Infinity,

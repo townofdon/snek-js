@@ -6,6 +6,7 @@ import { SECRET_LEVEL_10 } from "./bonusLevels/secretLevel10";
 const name = 'metro'
 
 export const LEVEL_03: Level = {
+  id: 'C03',
   name,
   timeToClear: 1000 * 60 * 1.3,
   applesToClear: 50,

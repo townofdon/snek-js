@@ -7,6 +7,7 @@ import { LEVEL_15 } from "../level15";
 const name = 'phased reality'
 
 export const VARIANT_LEVEL_15: Level = {
+  id: 'C215',
   name,
   timeToClear: 1000 * 60 * 1.3,
   applesToClear: 1,
