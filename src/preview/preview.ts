@@ -74,6 +74,8 @@ const settings: GameSettings = {
 const state: GameState = {
   appMode: AppMode.StartScreen,
   gameMode: GameMode.Normal,
+  mapset: 0,
+  isRandomizer: false,
   isPreloaded: false,
   isGameStarted: false,
   isGameStarting: false,

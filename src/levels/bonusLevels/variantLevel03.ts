@@ -50,7 +50,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   colors: getExtendedPalette(PALETTE.gravChamber),
   showTitle: true,
   showQuoteOnLevelWin: true,
-  musicTrack: MusicTrack.transient,
+  musicTrack: MusicTrack.woorb,
   titleVariant: TitleVariant.GrayBlue,
   portalExitConfig: {
     1: PortalExitMode.SameDirection,

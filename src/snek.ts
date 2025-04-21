@@ -5,6 +5,7 @@ import {
   START_LEVEL,
   START_LEVEL_COBRA,
   LEVELS,
+  FIRST_CHALLENGE_LEVEL,
 } from './levels';
 import {
   RECORD_REPLAY_STATE,
@@ -27,7 +28,9 @@ import {
 } from './utils';
 import {
   getIsChallengeLevel,
+  getNextRandomLevel,
   getWarpLevelFromNum,
+  hydrateRandomLevels,
 } from './levels/levelUtils';
 import {
   HitType,
@@ -50,6 +53,7 @@ import {
   ActionKey,
   Action,
   SNEKALYTICS_EVENT_TYPE,
+  Mapset,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -90,6 +94,8 @@ const settings: GameSettings = {
 const state: GameState = {
   appMode: AppMode.StartScreen,
   gameMode: GameMode.Normal,
+  mapset: Mapset.Campaign,
+  isRandomizer: false,
   isPreloaded: false,
   isGameStarted: false,
   isGameStarting: false,
@@ -360,6 +366,8 @@ export const sketch = (p5: P5) => {
   p5.setup = setup;
   function setup() {
     state.appMode = AppMode.StartScreen;
+    state.mapset = Mapset.Campaign;
+    state.isRandomizer = false;
     state.isGameStarted = false;
     state.isGameStarting = false;
     setLevel(MAIN_TITLE_SCREEN_LEVEL);
@@ -515,8 +523,10 @@ export const sketch = (p5: P5) => {
     document.body.requestFullscreen();
 
     state.appMode = AppMode.Game;
+    state.mapset = Mapset.Campaign;
     state.isGameStarted = false;
     state.isGameStarting = false;
+    state.isRandomizer = false;
     if (state.gameMode === GameMode.Cobra) {
       state.gameMode = GameMode.Normal;
     }
@@ -618,7 +628,13 @@ export const sketch = (p5: P5) => {
       yield null;
     }
     stopReplay();
+    if (state.isRandomizer) {
+      hydrateRandomLevels();
+    }
     state.nextLevel = levelNum >= 1 ? getWarpLevelFromNum(levelNum) : null;
+    if (getIsChallengeLevel(state.nextLevel)) {
+      state.mapset = Mapset.Challenge;
+    }
     setLevel(state.gameMode === GameMode.Cobra ? START_LEVEL_COBRA : START_LEVEL);
     setDifficulty(DIFFICULTY_EASY);
 
@@ -765,7 +781,7 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel || state.isExited) return;
     state.isPaused = true;
     showPauseUI(uiElements, {
-      isWarpDisabled: getIsStartLevel() || state.gameMode === GameMode.Cobra,
+      isWarpDisabled: getIsStartLevel() || state.gameMode === GameMode.Cobra || state.isRandomizer,
       hasWarpEnabledParam: queryParams.enableWarp,
       isChallengeLevel: getIsChallengeLevel(getLevel()),
     }, {
@@ -848,6 +864,9 @@ export const sketch = (p5: P5) => {
       setDifficulty(getDifficultyFromIndex(nextDifficultyIndex));
       setLevel(START_LEVEL_COBRA);
       setLevelIndexFromCurrentLevel();
+      if (state.mapset === Mapset.Challenge) {
+        state.nextLevel = FIRST_CHALLENGE_LEVEL;
+      }
       initLevel();
       return;
     }
@@ -877,7 +896,7 @@ export const sketch = (p5: P5) => {
     stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
 
-    const nextLevel = state.nextLevel || level.nextLevel;
+    const nextLevel = state.isRandomizer ? getNextRandomLevel() : (state.nextLevel || level.nextLevel);
     if (nextLevel) {
       setLevel(nextLevel)
       setLevelIndexFromCurrentLevel();

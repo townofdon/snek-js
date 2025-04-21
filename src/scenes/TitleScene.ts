@@ -4,13 +4,13 @@ import { BaseScene } from "./BaseScene";
 
 export class TitleScene extends BaseScene {
   private title: string = 'UNTITLED';
-  private author: string = '';
+  private annotation: string = '';
   private sfx: SFXInstance;
 
-  constructor(title: string, author: string | undefined, p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+  constructor(title: string, annotation: string, p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     super(p5, gfx, fonts, callbacks)
     this.title = title;
-    this.author = author || '';
+    this.annotation = annotation || '';
     this.sfx = sfx;
     this.bindActions();
   }
@@ -39,10 +39,10 @@ export class TitleScene extends BaseScene {
     p5.fill('#fff');
     p5.text(this.title, ...this.getPosition(0.5, 0.5));
 
-    if (this.author) {
+    if (this.annotation) {
       p5.textSize(2 * 12);
       p5.fill('#fff');
-      p5.text(`by ${this.author}`, ...this.getPosition(0.5, 0.575));
+      p5.text(`${this.annotation}`, ...this.getPosition(0.5, 0.575));
     }
 
     this.tick();

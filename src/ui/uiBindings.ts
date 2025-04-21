@@ -204,7 +204,7 @@ export class UIBindings implements UIHandler {
         this.callAction(InputAction.ShowLevelSelectMenu);
         break;
       case GameModeButton.Randomizer:
-        // TODO: IMPL
+        this.onSelectGameModeRandomizer();
         break;
       case GameModeButton.Back:
         this.callAction(InputAction.CancelChooseGameMode);
@@ -610,8 +610,14 @@ export class UIBindings implements UIHandler {
   }
 
   public setStartButtonVisibility = (visible: boolean, levelNum = -1) => {
-    this.gameModeMenuElements[GameModeButton.Campaign].style.visibility = visible ? 'visible' : 'hidden';
-    this.gameModeMenuElements[GameModeButton.Campaign].classList.add('active');
+    const { isRandomizer } = this.gameState;
+    if (isRandomizer) {
+      this.gameModeMenuElements[GameModeButton.Randomizer].style.visibility = visible ? 'visible' : 'hidden';
+      this.gameModeMenuElements[GameModeButton.Randomizer].classList.add('active');
+    } else {
+      this.gameModeMenuElements[GameModeButton.Campaign].style.visibility = visible ? 'visible' : 'hidden';
+      this.gameModeMenuElements[GameModeButton.Campaign].classList.add('active');
+    }
     if (levelNum > 0 && this.levelSelectMenu) {
       const elem = this.levelSelectMenu.querySelector(`button[data-level="${levelNum}"]`) as HTMLElement;
       if (elem) {
@@ -695,7 +701,8 @@ export class UIBindings implements UIHandler {
   }
 
   private onSelectGameModeRandomizer = () => {
-    // TODO: IMPL
+    this.gameState.isRandomizer = true;
+    this.callAction(InputAction.StartGame);
   }
 
   private onSelectGameModeBack = () => {

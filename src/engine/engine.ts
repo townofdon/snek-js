@@ -130,7 +130,7 @@ import {
   VARIANT_LEVEL_99,
 } from "../levels";
 import { WinLevelScene } from '../scenes/WinLevelScene';
-import { findLevelWarpIndex } from '../levels/levelUtils';
+import { findLevelWarpIndex, getNumRandomLevelsRemaining } from '../levels/levelUtils';
 import { SpriteRenderer } from './spriteRenderer';
 import { Renderer } from './renderer';
 import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
@@ -396,9 +396,16 @@ export function engine({
   }
 
   function getMaybeTitleScene() {
+      const annotation = (() => {
+        if (!level.id) return '';
+        const levelNum = (20 - getNumRandomLevelsRemaining()) || 20;
+        if (state.isRandomizer) return `${levelNum} / 20`;
+        if (level.author) return `by ${level.author}`;
+        return ''
+      })()
       const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts, state);
       return level.showTitle
-        ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(level.name, level.author, p5, gfx, sfx, fonts, callbacks))
+        ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(level.name, annotation, p5, gfx, sfx, fonts, callbacks))
         : () => Promise.resolve();
   }
 

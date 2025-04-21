@@ -48,7 +48,9 @@ import { X_SKILL_CHECK } from "./challenge/skillCheck";
 import { X_TOO_SIMPLE } from "./challenge/tooSimple";
 import { X_UNDERGROUND } from "./challenge/underground";
 import { X_UNWIND } from "./challenge/unwind";
-import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS, START_LEVEL, START_LEVEL_COBRA } from "./levels";
+import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from "./levels";
+import { shuffleArray } from "../utils";
+import { LEVEL_WIN_GAME } from "./winGame";
 
 export function getWarpLevelFromNum(levelNum: number): Level {
   switch (levelNum) {
@@ -183,5 +185,34 @@ export function findLevelWarpIndex(level: Level): number {
 }
 
 export function getIsChallengeLevel(level: Level) {
+  if (!level) return false;
   return level.id.length && level.id[0].toLowerCase() === 'x';
+}
+
+export function hydrateRandomLevels() {
+  let pool = [
+    ...LEVELS,
+    ...SECRET_LEVELS,
+    ...CHALLENGE_LEVELS,
+  ].filter(level => !!level.id);
+  for (let i = 0; i < 5; i++) {
+    pool = shuffleArray(pool);
+  }
+  randomLevels = pool.slice(0, 20);
+}
+
+let randomLevels: Level[] = [];
+hydrateRandomLevels();
+
+export function getNumRandomLevelsRemaining() {
+  return randomLevels.length;
+}
+
+export function getNextRandomLevel(): Level | null {
+  if (!randomLevels.length) {
+    hydrateRandomLevels();
+    return LEVEL_WIN_GAME;
+  }
+  const level = randomLevels.shift();
+  return level;
 }

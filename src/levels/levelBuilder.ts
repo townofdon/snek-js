@@ -3,7 +3,6 @@ import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
 import { KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./level01";
-import { buildMapLayout, decodeMapData } from "../editor/utils/editorUtils";
 
 export function buildLevel(level: Level): LevelData {
   const data: LevelData = {

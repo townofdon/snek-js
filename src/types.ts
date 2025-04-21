@@ -39,6 +39,11 @@ export enum AppMode {
   Leaderboard,
 }
 
+export enum Mapset {
+  Campaign,
+  Challenge,
+}
+
 export enum GameMode {
   Normal,
   Casual,
@@ -139,6 +144,8 @@ export interface Stats {
 export interface GameState {
   appMode: AppMode,
   gameMode: GameMode,
+  mapset: Mapset,
+  isRandomizer: boolean,
   isPreloaded: boolean,
   isGameStarted: boolean,
   isGameStarting: boolean,

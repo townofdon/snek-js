@@ -249,6 +249,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     const gameState: GameState = {
       appMode: AppMode.StartScreen,
       gameMode: GameMode.Normal,
+      mapset: 0,
+      isRandomizer: false,
       isPreloaded: false,
       isGameStarted: false,
       isGameStarting: false,
