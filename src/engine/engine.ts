@@ -53,6 +53,7 @@ import {
 import {
   Action,
   AppMode,
+  Area,
   ClickState,
   DIR,
   Difficulty,
@@ -120,6 +121,11 @@ import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParti
 import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
 import { buildLevel } from '../levels/levelBuilder';
 import {
+  AREA_01,
+  AREA_02,
+  AREA_03,
+  AREA_04,
+  AREA_05,
   LEVELS,
   LEVEL_01,
   LEVEL_99,
@@ -398,8 +404,24 @@ export function engine({
   function getMaybeTitleScene() {
       const annotation = (() => {
         if (!level.id) return '';
-        const levelNum = (20 - getNumRandomLevelsRemaining()) || 20;
-        if (state.isRandomizer) return `${levelNum} / 20`;
+        if (state.isRandomizer) {
+          const levelNum = (20 - getNumRandomLevelsRemaining()) || 20;
+          return `${levelNum} / 20`;
+        }
+        const getAreaText = (area: Area) => {
+          const levelIndex = area.levels.indexOf(level);
+          if (levelIndex < 0) return '';
+          return `${levelIndex + 1} / ${area.levels.length}    ${area.name}`
+        }
+        let areaText = '';
+        if (!areaText) areaText = getAreaText(AREA_01);
+        if (!areaText) areaText = getAreaText(AREA_02);
+        if (!areaText) areaText = getAreaText(AREA_03);
+        if (!areaText) areaText = getAreaText(AREA_04);
+        if (!areaText) areaText = getAreaText(AREA_05);
+        if (areaText) {
+          return areaText;
+        }
         if (level.author) return `by ${level.author}`;
         return ''
       })()
@@ -778,8 +800,9 @@ export function engine({
 
   const inputCallbacks: InputCallbacks = {
     onWarpToLevel: warpToLevel,
-    onAddMove: onAddMove,
-    onUINavigate: onUINavigate,
+    onAddMove,
+    onResetMoves,
+    onUINavigate,
   }
 
   function onKeyPressed( ev: KeyboardEvent ) {
@@ -922,6 +945,10 @@ export function engine({
         recentMoves[i] = currentMove;
       }
     }
+  }
+
+  function onResetMoves() {
+    moves = [];
   }
 
   const onChangePlayerDirection: (direction: DIR) => void = (dir) => {

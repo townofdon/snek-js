@@ -148,6 +148,9 @@ export function applyGamepadMove(
     return;
   }
 
+  if (state.timeSinceHurt < HURT_STUN_TIME) {
+    callbacks.onResetMoves();
+  }
   const disallowEqual = state.isMoving && (!!moves.length || state.timeSinceHurt >= HURT_STUN_TIME);
 
   let cancel = false

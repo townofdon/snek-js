@@ -267,6 +267,11 @@ export enum LevelType {
   WarpZone,
 }
 
+export interface Area {
+  name: string;
+  levels: Level[];
+}
+
 export interface Level {
   id: string,
   type?: LevelType,

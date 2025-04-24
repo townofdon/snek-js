@@ -16,6 +16,7 @@ import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDire
 export interface InputCallbacks {
   onWarpToLevel: (level: number) => void,
   onAddMove: (move: DIR) => void,
+  onResetMoves: () => void,
   onUINavigate: UINavEventHandler,
 }
 
@@ -115,7 +116,7 @@ export function handleKeyPressed(
     : playerDirection;
 
   // disallow same moves unless snake is currently stunned after hitting something
-  const disallowEqual = state.isMoving && state.timeSinceHurt >= HURT_STUN_TIME;
+  const disallowEqual = state.isMoving && (state.timeSinceHurt >= HURT_STUN_TIME);
 
   if (currentMove) {
     callAction(InputAction.StartMoving);
@@ -147,6 +148,9 @@ export function handleKeyPressed(
     return;
   }
 
+  if (state.timeSinceHurt < HURT_STUN_TIME && moves.length >= 2) {
+    callbacks.onResetMoves();
+  }
   callbacks.onAddMove(currentMove);
 }
 
