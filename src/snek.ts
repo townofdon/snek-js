@@ -34,7 +34,6 @@ import {
 } from './levels/levelUtils';
 import {
   HitType,
-  Difficulty,
   GameState,
   IEnumerator,
   Replay,
@@ -54,8 +53,6 @@ import {
   Action,
   SNEKALYTICS_EVENT_TYPE,
   Mapset,
-  LevelId,
-  DifficultyIndex,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -554,6 +551,7 @@ export const sketch = (p5: P5) => {
     tutorial.needsMoveControls = true;
     tutorial.needsRewindControls = true;
 
+    UI.renderLevelSelectMenuCompletion(saveDataStore);
     UI.enableScreenScroll();
     UI.hideGameModeMenu();
     showMainMenuUI();

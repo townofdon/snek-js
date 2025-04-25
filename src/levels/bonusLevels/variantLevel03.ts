@@ -69,7 +69,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     [getCoordIndex2(14, 0)]: SECRET_LEVEL_10,
     [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
   },
-  recordProgressAsLevel: LEVEL_03,
   pickupDrops: {
     35: { likelihood: 1, type: PickupType.Invincibility },
     60: { likelihood: 1, type: PickupType.Invincibility },

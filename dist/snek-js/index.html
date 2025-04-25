@@ -24,7 +24,7 @@
     <meta charset="utf-8" />
     <title>SNEK</title>
 
-    <script defer src="/snek-js/main.bundle-d76b1c718cd111b17adb.js"></script>
+    <script defer src="/snek-js/main.bundle-1c3947fd4d8a6f16fcb7.js"></script>
   </head>
   <body>
     <div class="center stretch">
@@ -148,7 +148,7 @@
         </div>
 
         <div id="select-game-mode-menu" class="settings-menu hidden">
-          <div class="background"></div>
+          <div class="background blur"></div>
           <div class="content gap">
             <h2>Game Mode</h2>
             <button id="button-game-mode-campaign" class="button game-mode campaign">campaign</button>
@@ -201,6 +201,11 @@
             </h3>
             <div id="level-select-levels" class="levels">
               <button id="select-level-snekadia" class="select-level" data-level="1">
+                <div class="completion-status">
+                  <div class="medium"></div>
+                  <div class="hard"></div>
+                  <div class="ultra"></div>
+                </div>
                 <img alt="Select level snekadia" src="assets/graphics/level-preview/snekadia.jpg" width="150" height="150" />
               </button>
               <button id="select-level-plaza" class="select-level" data-level="2">

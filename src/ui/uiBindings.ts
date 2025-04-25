@@ -28,7 +28,7 @@ import {
   SettingsMenuNavMap,
 } from './uiNavMap';
 import { UI } from './ui';
-import { requireElementById } from './uiUtils';
+import { parseElementLevelNum, requireElementById } from './uiUtils';
 import { gamepadPressed, getGamepad } from '../engine/gamepad';
 import { Button } from '../engine/gamepad/StandardGamepadMapping';
 import { offUIEvent, onUIEvent, UIAction } from './uiEvents';
@@ -303,7 +303,7 @@ export class UIBindings implements UIHandler {
           break;
       }
       const elem = this.levelSelectMenuNavMap.getActiveElement();
-      const levelNum = this.parseElementLevelNum(elem as HTMLButtonElement);
+      const levelNum = parseElementLevelNum(elem as HTMLButtonElement);
       const [, idx] = this.levelSelectMenuNavMap.getActiveIndex();
       if (!elem || idx < 0) {
         console.warn('active level or active index not found', elem, idx);
@@ -712,16 +712,11 @@ export class UIBindings implements UIHandler {
   private onLevelSelect = (ev: MouseEvent) => {
     ev.preventDefault();
     const element = ev.target as HTMLButtonElement
-    const level = this.parseElementLevelNum(element);
+    const level = parseElementLevelNum(element);
     if (level <= 0) {
       console.warn('could not parse level from dataset', element, element?.dataset);
       return;
     }
     this.callAction(InputAction.StartGame, level);
-  }
-
-  private parseElementLevelNum = (element: HTMLButtonElement) => {
-    if (!element?.dataset?.level) return -1;
-    return parseInt(element.dataset?.level || '', 10) || -1;
   }
 }

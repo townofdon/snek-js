@@ -53,5 +53,4 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   musicTrack: MusicTrack.dangerZone,
   titleVariant: TitleVariant.Red,
   nextLevel: TUTORIAL_LEVEL_20,
-  recordProgressAsLevel: LEVEL_10,
 };

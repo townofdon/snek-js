@@ -57,5 +57,4 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
     [getCoordIndex2(29, 16)]: SECRET_LEVEL_21,
     [getCoordIndex2(29, 17)]: SECRET_LEVEL_21,
   },
-  recordProgressAsLevel: LEVEL_08,
 };

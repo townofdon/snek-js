@@ -93,6 +93,15 @@ export interface ScreenShakeState {
   timeScale: number,
 }
 
+/**
+   * 1 => easy
+   *
+   * 2 => medium
+   *
+   * 3 => hard
+   *
+   * 4 => ultra
+   */
 export type DifficultyIndex = 1 | 2 | 3 | 4;
 
 export interface Difficulty {

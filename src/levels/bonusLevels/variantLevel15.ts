@@ -73,5 +73,4 @@ xxxxxxxxxxxxxxxDDDxxxxxxxxxxxx
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.5,
   nextLevel: TUTORIAL_LEVEL_40,
-  recordProgressAsLevel: LEVEL_15,
 };

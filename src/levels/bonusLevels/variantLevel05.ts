@@ -64,7 +64,6 @@ XXXXXXXXXXXXXxdxXXXXXXXXXXXXXX
     [getCoordIndex2(29, 21)]: MAZE_02_SE,
     [getCoordIndex2(29, 22)]: MAZE_02_SE,
   },
-  recordProgressAsLevel: LEVEL_05,
   pickupDrops: {
     49: { likelihood: 1, type: PickupType.Invincibility },
   },

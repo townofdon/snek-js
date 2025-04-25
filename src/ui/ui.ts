@@ -1,7 +1,10 @@
 import P5, { Element } from 'p5';
 
-import { DOM } from './uiUtils';
+import { DOM, parseElementLevelNum, requireElementById } from './uiUtils';
 import { emitUIEvent, UIAction } from './uiEvents';
+import { DifficultyIndex, LevelCompletion, LevelId } from '../types';
+import { getWarpLevelFromNum } from '../levels/levelUtils';
+import { SaveDataStore } from '../stores/SaveDataStore';
 
 const UI_LABEL_OFFSET = '36px';
 const UI_PARENT_ID = 'game';
@@ -509,6 +512,49 @@ export class UI {
     div.style('mix-blend-mode', 'hard-light');
     div.parent(UI_PARENT_ID);
     return div;
+  }
+
+  static renderLevelSelectMenuCompletion(store: SaveDataStore) {
+    const levelsContainer = requireElementById<HTMLDivElement>('level-select-levels');
+    const levels = levelsContainer.children;
+    for (const levelElem of levels) {
+      const levelNum = parseElementLevelNum(levelElem as HTMLButtonElement);
+      const level = getWarpLevelFromNum(levelNum);
+      const completed = (difficultyIndex: DifficultyIndex) => store.getLevelCompleted(level.id, difficultyIndex);
+      UI.renderLevelCompletion(levelElem as HTMLElement, completed);
+    }
+  }
+
+  static renderLevelCompletion(elem: HTMLElement, completed: (difficultyIndex: DifficultyIndex) => boolean) {
+    const newContainer = () => {
+      const outer = document.createElement('div');
+      const status = (difficulty: string, completed: boolean) => {
+        const el = document.createElement('div');
+        el.classList.add(difficulty);
+        if (completed) el.classList.add('completed');
+        return el;
+      }
+      outer.classList.add('completion-status')
+      outer.append(status('medium', completed(2)));
+      outer.append(status('hard', completed(3)));
+      outer.append(status('ultra', completed(4)));
+      return outer;
+    }
+    const existing = elem.querySelector('.completion-status');
+    if (!existing) {
+      elem.prepend(newContainer());
+      return;
+    }
+    const setStatus = (difficulty: string, completed: boolean) => {
+      if (completed) {
+        existing.querySelector(difficulty)?.classList.add('completed');
+      } else {
+        existing.querySelector(difficulty)?.classList.remove('completed');
+      }
+    }
+    setStatus('.medium', completed(2));
+    setStatus('.hard', completed(3));
+    setStatus('.ultra', completed(4));
   }
 
   static disableScreenScroll() {

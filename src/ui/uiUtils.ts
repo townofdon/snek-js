@@ -5,6 +5,11 @@ export function requireElementById<T>(id: string) {
   return element;
 }
 
+export const parseElementLevelNum = (element: HTMLButtonElement) => {
+  if (!element?.dataset?.level) return -1;
+  return parseInt(element.dataset?.level || '', 10) || -1;
+}
+
 export class DOM {
   private static prev: HTMLElement;
 
