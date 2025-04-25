@@ -52,6 +52,7 @@ import { X_SKILL_CHECK } from "./challenge/skillCheck";
 import { X_TOO_SIMPLE } from "./challenge/tooSimple";
 import { X_UNWIND } from "./challenge/unwind";
 import { X_UNDERGROUND } from "./challenge/underground";
+import { X_GAUNTLET } from "./challenge/gauntlet";
 
 export const LEVELS: Level[] = [
     MAZE_01,
@@ -157,6 +158,7 @@ export const CHALLENGE_LEVELS: Level[] = [
     X_TOO_SIMPLE,
     X_UNDERGROUND,
     X_UNWIND,
+    X_GAUNTLET,
 ];
 
 export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;

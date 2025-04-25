@@ -1218,26 +1218,30 @@ export function engine({
     if (state.isExited) return false;
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+    const coord = getCoordIndex(vec);
 
-    if (segments.containsCoord(getCoordIndex(vec)) && state.timeSinceInvincibleStart >= difficulty.invincibilityTime) {
+    if (segments.containsCoord(coord) && state.timeSinceInvincibleStart >= difficulty.invincibilityTime) {
       state.lastHurtBy = HitType.HitSelf;
       return true;
     }
 
     if (level.disableWallCollision) return false;
 
-    if (doorsMap[getCoordIndex(vec)]) {
+    if (doorsMap[coord]) {
       state.lastHurtBy = HitType.HitDoor;
       return true;
     }
 
-    const isPassableBarrier = state.isDoorsOpen && passablesMap[getCoordIndex(vec)];
-    if (!isPassableBarrier && barriersMap[getCoordIndex(vec)]) {
+    const isPassableBarrier = state.isDoorsOpen && passablesMap[coord];
+    if (!isPassableBarrier && barriersMap[coord]) {
       state.lastHurtBy = HitType.HitBarrier;
       return true;
     }
 
-    if (locksMap[getCoordIndex(vec)]) {
+    if (locksMap[coord]) {
+      if (locksMap[coord].channel === KeyChannel.Yellow && state.hasKeyYellow) return false;
+      if (locksMap[coord].channel === KeyChannel.Red && state.hasKeyRed) return false;
+      if (locksMap[coord].channel === KeyChannel.Blue && state.hasKeyBlue) return false;
       state.lastHurtBy = HitType.HitLock;
       return true;
     }

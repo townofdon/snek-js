@@ -51,6 +51,7 @@ import { X_UNWIND } from "./challenge/unwind";
 import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from "./levels";
 import { shuffleArray } from "../utils";
 import { LEVEL_WIN_GAME } from "./winGame";
+import { X_GAUNTLET } from "./challenge/gauntlet";
 
 export function getWarpLevelFromNum(levelNum: number): Level {
   switch (levelNum) {
@@ -156,6 +157,8 @@ export function getWarpLevelFromNum(levelNum: number): Level {
       return X_UNDERGROUND;
     case 415:
       return X_UNWIND;
+    case 416:
+      return X_GAUNTLET;
 
     default:
       return LEVEL_01;
