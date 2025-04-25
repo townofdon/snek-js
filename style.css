@@ -25,6 +25,11 @@
   --viz-sprite-width: 32px;
   --viz-sprite-height: 32px;
 
+  --lvl-status-sprite-img: url('assets/graphics/ui-check.png');
+  --lvl-status-background-size: 192px 48px;
+  --lvl-status-width: 48px;
+  --lvl-status-height: 48px;
+
   --ui-sprite-img-quote: url('assets/graphics/ui-quote.png');
   --ui-sprite-img-headphones: url('assets/graphics/ui-headphones.png');
   --ui-sprite-img-gear: url('assets/graphics/ui-gear3d.png');
@@ -798,6 +803,7 @@ button.game-mode.back {
   gap: 20px;
   transform: scale(3);
   color: #aac3c0;
+  margin-bottom: -90px;
 }
 .level-select-menu > .content > .level-name .num {
   color: #596974;
@@ -808,10 +814,11 @@ button.game-mode.back {
   overflow-x: auto;
   width: 100%;
   gap: 30px;
-  padding: 0 190px;
+  padding: 80px 190px;
   box-sizing: border-box;
 }
 .level-select-menu button.select-level {
+  position: relative;
   padding: 10px;
   display: inline-flex;
   flex-shrink: 0;
@@ -830,7 +837,44 @@ button.game-mode.back {
   aspect-ratio: 1 / 1;
   pointer-events: none;
 }
+.level-select-menu button.select-level > .completion-status {
+  position: absolute;
+  right: 0;
+  bottom: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 10px;
+  transform: translateX(4px);
+}
+.level-select-menu button.select-level > .completion-status > div {
+  background-image: var(--lvl-status-sprite-img);
+  width: var(--lvl-status-width);
+  height: var(--lvl-status-height);
+  background-size: var(--lvl-status-background-size);
+  background-position: calc(-3 * var(--lvl-status-width)) 0;
+  background-repeat: no-repeat;
+  background-color: #242b4a;
+  transform-origin: bottom right;
+  filter: brightness(0.5) saturate(0.5);
+}
+.level-select-menu button.select-level > .completion-status > .medium.completed,
+.level-select-menu button.select-level > .completion-status > .hard.completed,
+.level-select-menu button.select-level > .completion-status > .ultra.completed {
+  filter: none;
+}
 
+.level-select-menu button.select-level > .completion-status > .medium.completed {
+  background-position: calc(-2 * var(--lvl-status-width)) 0;
+}
+.level-select-menu button.select-level > .completion-status > .hard.completed {
+  background-position: calc(-1 * var(--lvl-status-width)) 0;
+}
+.level-select-menu button.select-level > .completion-status > .ultra.completed {
+  background-position: calc(0 * var(--lvl-status-width)) 0;
+}
 
 .modal {
   z-index: 50;
