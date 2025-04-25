@@ -1,6 +1,11 @@
+export enum StoreDatatype {
+  Json,
+  String,
+}
 
 export abstract class BaseStore<T> {
-  public abstract get key(): string;
+  protected abstract get key(): string;
+  protected get datatype() { return StoreDatatype.Json; }
 
   protected clearStore = () => {
     this.validate();
@@ -11,6 +16,9 @@ export abstract class BaseStore<T> {
     this.validate();
     try {
       const itemRaw = localStorage.getItem(this.key);
+      if (this.datatype === StoreDatatype.String) {
+        return itemRaw as T;
+      }
       if (!itemRaw) return null;
       return JSON.parse(itemRaw) as T
     } catch (err) {
@@ -22,7 +30,11 @@ export abstract class BaseStore<T> {
   protected setStore = (value: T) => {
     this.validate();
     try {
-      localStorage.setItem(this.key, JSON.stringify(value))
+      if (this.datatype === StoreDatatype.String && typeof value === 'string') {
+        localStorage.setItem(this.key, value)
+      } else {
+        localStorage.setItem(this.key, JSON.stringify(value))
+      }
     } catch (err) {
       console.warn(err);
     }
