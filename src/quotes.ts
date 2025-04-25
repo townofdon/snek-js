@@ -13,7 +13,8 @@ rather a condition of it.
 
 On the mountains of snek, you will never climb in vain.
 
-What is happiness? The feeling that power increases - that snek
+What is happiness?||
+The feeling that power increases - that snek
 is overcome.
 
 That which does not kill snek makes it stronger.
