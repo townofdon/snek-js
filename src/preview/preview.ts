@@ -121,7 +121,8 @@ const stats: Stats = {
   numApplesEverEaten: 0,
   score: 0,
   applesEatenThisLevel: 0,
-  totalTimeElapsed: 0,
+  totalGameTimeElapsed: 0,
+  totalLevelTimeElapsed: 0,
 }
 const tutorial: Tutorial = {
   needsMoveControls: false,

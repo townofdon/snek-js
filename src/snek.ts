@@ -54,6 +54,8 @@ import {
   Action,
   SNEKALYTICS_EVENT_TYPE,
   Mapset,
+  LevelId,
+  DifficultyIndex,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -141,7 +143,8 @@ const stats: Stats = {
   numApplesEverEaten: 0,
   score: 0,
   applesEatenThisLevel: 0,
-  totalTimeElapsed: 0,
+  totalGameTimeElapsed: 0,
+  totalLevelTimeElapsed: 0,
 }
 const replay: Replay = {
   mode: ReplayMode.Disabled,
@@ -250,7 +253,7 @@ export const sketch = (p5: P5) => {
     onUINavigate,
     onGameOver,
     onGameOverCobra,
-    onRecordLevelProgress,
+    onRecordLevelProgress: saveDataStore.recordLevelCompletion,
   });
 
   const mainTitleFader = new MainTitleFader(p5);
@@ -714,10 +717,6 @@ export const sketch = (p5: P5) => {
     if (state.isGameWon || isCobraGameOver) {
       winGameScene.draw();
     }
-  }
-
-  function onRecordLevelProgress(levelIndex: number, difficulty: Difficulty) {
-    saveDataStore.recordLevelProgress(levelIndex, difficulty);
   }
 
   function onGameOverCobra() {

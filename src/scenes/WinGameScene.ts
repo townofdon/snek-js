@@ -213,7 +213,7 @@ export class WinGameScene extends BaseScene {
     const { p5, coroutines } = this.props;
     const sfx = this.sfx;
     const isCasualModeEnabled = this.gameState.gameMode === GameMode.Casual
-    const { score, numApplesEverEaten, numDeaths, totalTimeElapsed } = this.stats;
+    const { score, numApplesEverEaten, numDeaths, totalGameTimeElapsed: totalTimeElapsed } = this.stats;
     let playingChipSound = ""
 
     this.hideAllFields();

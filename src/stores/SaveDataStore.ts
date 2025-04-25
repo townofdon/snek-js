@@ -1,19 +1,12 @@
-import { Difficulty, SaveData } from "../types";
+import { DifficultyIndex, LevelCompletion, LevelId, SaveData } from "../types";
 import { BaseStore } from "./BaseStore";
 
 export class SaveDataStore extends BaseStore<SaveData> {
-  public get key(): string {
-    return "save-data"
-  }
+  public get key(): string { return "save-data" }
 
   private readonly defaultValue: SaveData = {
     isCobraModeUnlocked: false,
-    levelProgress: {
-      1: 0,
-      2: 0,
-      3: 0,
-      4: 0,
-    },
+    completion: {},
   };
 
   private state: SaveData = {
@@ -25,14 +18,12 @@ export class SaveDataStore extends BaseStore<SaveData> {
     return this.state.isCobraModeUnlocked;
   }
 
-  public getLevelProgress = (difficulty: Difficulty): number => {
-    let difficultyIndex = difficulty.index;
-    let levelProgress = 0;
-    do {
-      levelProgress = Math.max(levelProgress, this.state.levelProgress[difficultyIndex] || 0)
-      difficultyIndex++;
-    } while (difficultyIndex < 5);
-    return levelProgress;
+  public getLevelCompleted = (levelId: LevelId | undefined, difficultyIndex: DifficultyIndex) => {
+    return !!this.state.completion[levelId]?.[difficultyIndex]?.completed
+  }
+
+  public getLevelPerfect = (levelId: LevelId | undefined, difficultyIndex: DifficultyIndex) => {
+    return !!this.state.completion[levelId]?.[difficultyIndex]?.perfect
   }
 
   public unlockCobraMode = () => {
@@ -40,15 +31,43 @@ export class SaveDataStore extends BaseStore<SaveData> {
     this.setStore(this.state);
   }
 
-  public recordLevelProgress = (levelIndex: number, difficulty: Difficulty) => {
-    if (levelIndex > this.state.levelProgress[difficulty.index]) {
-      this.state.levelProgress[difficulty.index] = levelIndex;
-      this.setStore(this.state);
+  public recordLevelCompletion = (levelId: LevelId | undefined, difficultyIndex: DifficultyIndex, perfect: boolean, time: number) => {
+    if (!levelId) return;
+    if (!this.state.completion[levelId]) {
+      this.state.completion[levelId] = newCompletionByDifficulty();
     }
+    if (!this.state.completion[levelId][difficultyIndex]) {
+      this.state.completion[levelId][difficultyIndex] = newLevelCompletion();
+    }
+    this.state.completion[levelId][difficultyIndex].completed = true;
+    if (!this.state.completion[levelId][difficultyIndex].perfect) {
+      this.state.completion[levelId][difficultyIndex].perfect = perfect;
+    }
+    if (!this.state.completion[levelId][difficultyIndex].bestTime || time < this.state.completion[levelId][difficultyIndex].bestTime) {
+      this.state.completion[levelId][difficultyIndex].bestTime = time;
+    }
+    this.setStore(this.state);
   }
 
   public reset = () => {
     this.clearStore();
     this.state = { ...this.defaultValue };
   }
+}
+
+function newCompletionByDifficulty() {
+  return {
+    1: newLevelCompletion(),
+    2: newLevelCompletion(),
+    3: newLevelCompletion(),
+    4: newLevelCompletion(),
+  } satisfies Record<DifficultyIndex, LevelCompletion>;
+}
+
+function newLevelCompletion() {
+  return {
+    completed: false,
+    perfect: false,
+    bestTime: 0,
+  } satisfies LevelCompletion;
 }

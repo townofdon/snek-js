@@ -13,7 +13,7 @@ import { Howl } from 'howler';
  * }
  * ```
  */
-export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, null | undefined>
+export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, null | undefined>;
 
 export enum Action {
   FadeMusic = 'FadeMusic',
@@ -134,11 +134,18 @@ export interface Stats {
   numDeaths: number
   numLevelsCleared: number,
   numLevelsEverCleared: number,
-  numPointsEverScored: number, // total points scored, regardless of deaths (resets on new game)
-  numApplesEverEaten: number, // total apples eaten, regardless of deaths (resets on new game)
+  /**
+   * total points scored, regardless of deaths (resets on new game)
+   */
+  numPointsEverScored: number,
+  /**
+   * total apples eaten, regardless of deaths (resets on new game)
+   */
+  numApplesEverEaten: number,
   score: number,
   applesEatenThisLevel: number,
-  totalTimeElapsed: number,
+  totalGameTimeElapsed: number,
+  totalLevelTimeElapsed: number,
 }
 
 export interface GameState {
@@ -217,9 +224,17 @@ export interface GameSettings {
   isScreenShakeDisabled: boolean,
 }
 
+export type LevelId = string;
+
 export interface SaveData {
   isCobraModeUnlocked: boolean,
-  levelProgress: Record<DifficultyIndex, number>,
+  completion: Record<LevelId, Record<DifficultyIndex, LevelCompletion>>
+}
+
+export interface LevelCompletion {
+  completed: boolean
+  perfect: boolean
+  bestTime: number
 }
 
 export interface EditorStoreData {
@@ -309,6 +324,7 @@ export interface Level {
   pickupDrops?: Record<number, PickupDrop>,
   recordProgressAsLevel?: Level,
   author?: string,
+  numLocks?: number;
 }
 
 export interface IRenderer {

@@ -15,9 +15,11 @@ interface TriggerLevelExitParams {
   livesLeftBonus: number,
   livesLeft: number,
   allApplesBonus: number,
+  allLocksBonus: number,
   perfectBonus: number,
   isPerfect: boolean,
   hasAllApples: boolean,
+  hasAllLocks: boolean,
   isCasualModeEnabled: boolean,
   levelMusicTrack?: MusicTrack,
   onApplyScore: () => void,
@@ -45,8 +47,10 @@ export class WinLevelScene extends BaseScene {
   private livesLeftBonus = 0;
   private livesLeft = 0;
   private allApplesBonus = 0;
+  private allLocksBonus = 0;
   private perfectBonus = 0;
   private hasAllApples = false;
+  private hasAllLocks = false;
   private isPerfect = false;
   private onApplyScore = () => { };
 
@@ -58,8 +62,10 @@ export class WinLevelScene extends BaseScene {
     livesLeftBonus,
     livesLeft,
     allApplesBonus,
+    allLocksBonus,
     perfectBonus,
     hasAllApples,
+    hasAllLocks,
     isPerfect,
     isCasualModeEnabled,
     levelMusicTrack,
@@ -72,8 +78,10 @@ export class WinLevelScene extends BaseScene {
     this.livesLeftBonus = livesLeftBonus;
     this.livesLeft = livesLeft;
     this.allApplesBonus = allApplesBonus;
+    this.allLocksBonus = allLocksBonus;
     this.perfectBonus = perfectBonus;
     this.hasAllApples = hasAllApples;
+    this.hasAllLocks = hasAllLocks;
     this.isPerfect = isPerfect;
     this.levelMusicTrack = levelMusicTrack || null;
     if (isCasualModeEnabled) {
@@ -113,14 +121,14 @@ export class WinLevelScene extends BaseScene {
 
     yield* coroutines.waitForTime(60, () => {
       this.drawScore(this.score);
-    });
+    }, true);
 
     // level clear bonus
     sfx.play(Sound.xplode);
     yield* coroutines.waitForTime(700, () => {
       this.drawLevelClearBonus(this.levelClearBonus);
       this.drawScore(this.score);
-    });
+    }, true);
 
     // lives left bonus
     sfx.play(Sound.xplode);
@@ -128,7 +136,18 @@ export class WinLevelScene extends BaseScene {
       this.drawLevelClearBonus(this.levelClearBonus);
       this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
       this.drawScore(this.score);
-    });
+    }, true);
+
+    // all locks bonus
+    if (this.hasAllLocks && !this.isPerfect && !this.hasAllApples) {
+      sfx.play(Sound.xplode);
+      yield* coroutines.waitForTime(700, () => {
+        this.drawAllLocksBonus(this.allLocksBonus, this.hasAllLocks, this.isPerfect || this.hasAllApples);
+        this.drawLevelClearBonus(this.levelClearBonus);
+        this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
+        this.drawScore(this.score);
+      }, true);
+    }
 
     // perfect bonus
     if (this.isPerfect) {
@@ -137,49 +156,59 @@ export class WinLevelScene extends BaseScene {
         // flash
         const freq = 0.2;
         const shouldShow = t % freq < freq * 0.5;
-        if (shouldShow) this.drawPerfectBonus(this.perfectBonus, this.isPerfect);
+        if (shouldShow) this.drawPerfectBonus(this.perfectBonus, this.isPerfect, this.hasAllLocks);
+        if (shouldShow) this.drawAllLocksBonus(this.allLocksBonus, this.hasAllLocks, this.isPerfect || this.hasAllApples);
         this.drawLevelClearBonus(this.levelClearBonus);
         this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
         this.drawScore(this.score);
-      });
+      }, true);
     } else if (this.hasAllApples) {
       sfx.play(Sound.xpound, 0.6);
       yield* coroutines.waitForTime(500, (t) => {
-        this.drawAllApplesBonus(this.allApplesBonus, this.hasAllApples);
+        this.drawAllApplesBonus(this.allApplesBonus, this.hasAllApples, this.hasAllLocks);
+        this.drawAllLocksBonus(this.allLocksBonus, this.hasAllLocks, this.isPerfect || this.hasAllApples);
         this.drawLevelClearBonus(this.levelClearBonus);
         this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
         this.drawScore(this.score);
-      });
+      }, true);
     }
 
     // pause before increment
-    yield* coroutines.waitForTime(200, () => {
+    yield* coroutines.waitForTime(500, () => {
       if (this.isPerfect) {
-        this.drawPerfectBonus(this.perfectBonus, this.isPerfect);
+        this.drawPerfectBonus(this.perfectBonus, this.isPerfect, this.hasAllLocks);
       } else if (this.hasAllApples) {
-        this.drawAllApplesBonus(this.allApplesBonus, this.hasAllApples);
+        this.drawAllApplesBonus(this.allApplesBonus, this.hasAllApples, this.hasAllLocks);
       }
+      this.drawAllLocksBonus(this.allLocksBonus, this.hasAllLocks, this.isPerfect || this.hasAllApples);
       this.drawLevelClearBonus(this.levelClearBonus);
       this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
       this.drawScore(this.score);
-    });
+    }, true);
 
     const perfectBonusCalc = this.isPerfect ? this.perfectBonus : 0;
     const allApplesBonusCalc = !this.isPerfect && this.hasAllApples ? this.allApplesBonus : 0;
-    const finalScore = this.score + this.levelClearBonus + this.livesLeftBonus * this.livesLeft + perfectBonusCalc + allApplesBonusCalc;
+    const allLocksBonusCalc = this.hasAllLocks ? this.allLocksBonus : 0;
+    const finalScore = this.score
+      + this.levelClearBonus
+      + this.livesLeftBonus * this.livesLeft
+      + perfectBonusCalc
+      + allApplesBonusCalc
+      + allLocksBonusCalc;
 
     // increment score
     const playingChipSound = this.startCoroutine(this.playChipSound());
     yield* coroutines.waitForTime(1000, (t) => {
       if (this.isPerfect) {
-        this.drawPerfectBonus(this.perfectBonus * (1 - t), this.isPerfect);
+        this.drawPerfectBonus(this.perfectBonus * (1 - t), this.isPerfect, this.hasAllLocks);
       } else if (this.hasAllApples) {
-        this.drawAllApplesBonus(this.allApplesBonus * (1 - t), this.hasAllApples);
+        this.drawAllApplesBonus(this.allApplesBonus * (1 - t), this.hasAllApples, this.hasAllLocks);
       }
+      this.drawAllLocksBonus(this.allLocksBonus * (1 - t), this.hasAllLocks, this.isPerfect || this.hasAllApples);
       this.drawLevelClearBonus(this.levelClearBonus * (1 - t));
       this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft * (1 - t));
       this.drawScore(p5.lerp(this.score, finalScore, t));
-    });
+    }, true);
     this.stopCoroutine(playingChipSound);
     sfx.stop(Sound.uiChipLoop);
     sfx.play(Sound.uiChip, 0.75);
@@ -188,14 +217,15 @@ export class WinLevelScene extends BaseScene {
 
     yield* coroutines.waitForTime(1000, () => {
       if (this.isPerfect) {
-        this.drawPerfectBonus(0, this.isPerfect);
+        this.drawPerfectBonus(0, this.isPerfect, this.hasAllLocks);
       } else if (this.hasAllApples) {
-        this.drawAllApplesBonus(0, this.hasAllApples);
+        this.drawAllApplesBonus(0, this.hasAllApples, this.hasAllLocks);
       }
+      this.drawAllLocksBonus(0, this.hasAllLocks, this.isPerfect || this.hasAllApples);
       this.drawLevelClearBonus(0);
       this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, 0);
       this.drawScore(finalScore);
-    });
+    }, true);
 
     // unlock music track
     if (this.levelMusicTrack && !this.unlockedMusicStore.getIsUnlocked(this.levelMusicTrack) && OST_MODE_TRACKS.includes(this.levelMusicTrack)) {
@@ -207,9 +237,11 @@ export class WinLevelScene extends BaseScene {
           const freq = 0.3;
           const shouldShow = t % freq < freq * 0.5;
           if (shouldShow) this.drawMusicTrackUnlocked(this.levelMusicTrack);
-        });
+        }, true);
       }
     }
+
+    sfx.stop(Sound.unlockAbility);
 
     this.cleanup();
     this.isTriggered = false;
@@ -255,7 +287,7 @@ export class WinLevelScene extends BaseScene {
   accentColor = "#FFDD99";
   accentColorBg = Color("#FFB41F").darken(0.4).hex();
 
-  drawPerfectBonus = (bonus: number, hasBonus: boolean) => {
+  drawPerfectBonus = (bonus: number, hasBonus: boolean, hasOtherBonus: boolean) => {
     if (!hasBonus) return;
     const { p5, gfx, fonts } = this.props;
     const accentColor = this.accentColor;
@@ -265,13 +297,19 @@ export class WinLevelScene extends BaseScene {
     gfx.stroke(accentColorBg)
     gfx.strokeWeight(2 * 3);
     gfx.textSize(2 * 16);
-    gfx.textAlign(p5.CENTER, p5.TOP);
-    gfx.text('PERFECT!', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
-    gfx.textAlign(p5.CENTER, p5.TOP);
-    gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
+    const text = 'PERFECT!';
+    if (hasOtherBonus) {
+      gfx.textAlign(p5.CENTER, p5.TOP);
+      gfx.text(text, ...this.getPosition(0.64, 0.6 + this.statOffsetY));
+      gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.64, 0.65 + this.statOffsetY));
+    } else {
+      gfx.textAlign(p5.CENTER, p5.TOP);
+      gfx.text(text, ...this.getPosition(0.5, 0.6 + this.statOffsetY));
+      gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
+    }
   }
 
-  drawAllApplesBonus = (bonus: number, hasBonus: boolean) => {
+  drawAllApplesBonus = (bonus: number, hasBonus: boolean, hasOtherBonus: boolean) => {
     if (!hasBonus) return;
     const { p5, gfx, fonts } = this.props;
     const accentColor = "#15C2CB";
@@ -281,10 +319,42 @@ export class WinLevelScene extends BaseScene {
     gfx.stroke(accentColorBg);
     gfx.strokeWeight(2 * 3);
     gfx.textSize(2 * 16);
-    gfx.textAlign(p5.CENTER, p5.TOP);
-    gfx.text('100% Apples', ...this.getPosition(0.5, 0.6 + this.statOffsetY));
-    gfx.textAlign(p5.CENTER, p5.TOP);
-    gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
+    const text = '100% Apples';
+    if (hasOtherBonus) {
+      gfx.textAlign(p5.CENTER, p5.TOP);
+      gfx.text(text, ...this.getPosition(0.64, 0.6 + this.statOffsetY));
+      gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.64, 0.65 + this.statOffsetY));
+    } else {
+      gfx.textAlign(p5.CENTER, p5.TOP);
+      gfx.text(text, ...this.getPosition(0.5, 0.6 + this.statOffsetY));
+      gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
+    }
+  }
+
+  drawAllLocksBonus = (bonus: number, hasBonus: boolean, hasOtherBonus: boolean) => {
+    if (!hasBonus) return;
+    const { p5, gfx, fonts } = this.props;
+    let accentColor = Color("#E76F51").lighten(0.3).desaturate(0.1).hex();
+    let accentColorBg = Color("#E76F51").darken(0.4).saturate(0.1).hex();
+    if (this.isPerfect) {
+      accentColor = this.accentColor;
+      accentColorBg = this.accentColorBg;
+    }
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.fill(accentColor);
+    gfx.stroke(accentColorBg);
+    gfx.strokeWeight(2 * 4);
+    gfx.textSize(2 * 14);
+    const text = '100% Locks';
+    if (hasOtherBonus) {
+      gfx.textAlign(p5.CENTER, p5.TOP);
+      gfx.text(text, ...this.getPosition(0.34, 0.6 + this.statOffsetY));
+      gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.34, 0.65 + this.statOffsetY));
+    } else {
+      gfx.textAlign(p5.CENTER, p5.TOP);
+      gfx.text(text, ...this.getPosition(0.5, 0.6 + this.statOffsetY));
+      gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
+    }
   }
 
   drawLevelClearBonus = (bonus: number) => {

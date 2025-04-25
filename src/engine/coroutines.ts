@@ -57,8 +57,8 @@ export class Coroutines {
     this._coroutines = this._coroutines.filter(c => !!c);
   }
 
-  waitForTime = (durationMs: number, callback?: (t: number) => void): IEnumerator => {
-    return this._waitForTime(durationMs, callback);
+  waitForTime = (durationMs: number, callback?: (t: number) => void, allowSkip = false): IEnumerator => {
+    return this._waitForTime(durationMs, callback, allowSkip);
   }
 
   waitForAnyKey = (callback?: () => void): IEnumerator => {
@@ -70,9 +70,17 @@ export class Coroutines {
   }
 
   // make private so that we can expose `waitForTime` as an arrow function, retaining `this` scope
-  private * _waitForTime(durationMs: number, callback?: (t: number) => void): IEnumerator {
+  private * _waitForTime(durationMs: number, callback?: (t: number) => void, allowSkip = false): IEnumerator {
+    if (!durationMs) return;
     let timeRemaining = durationMs;
-    while (timeRemaining > 0) {
+    while (
+      timeRemaining > 0 &&
+      ((allowSkip && timeRemaining < durationMs - 200)
+        ? !this._p5.keyIsDown(this._p5.ENTER) &&
+          !wasPressedThisFrame(getGamepad(), Button.Start) &&
+          !wasPressedThisFrame(getGamepad(), Button.East)
+        : true)
+    ) {
       timeRemaining -= this._p5.deltaTime;
       const t = clamp((durationMs - timeRemaining) / durationMs, 0, 1);
       if (callback) callback(t);

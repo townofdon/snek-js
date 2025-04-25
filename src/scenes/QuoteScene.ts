@@ -20,7 +20,7 @@ export class QuoteScene extends BaseScene {
   }
 
   *action() {
-    const { coroutines, fonts } = this.props;
+    const { p5, coroutines, fonts } = this.props;
     for (let i = 0; i < this._quotes.length; i++) {
       const isLastQuote = i === this._quotes.length - 1;
 
@@ -29,6 +29,14 @@ export class QuoteScene extends BaseScene {
       const quote = this._quotes[i];
       const numLetters = quote.length;
       for (let j = 1; j <= numLetters; j++) {
+        const skip = (
+          p5.keyIsDown(p5.ENTER) ||
+          wasPressedThisFrame(getGamepad(), Button.Start) ||
+          wasPressedThisFrame(getGamepad(), Button.East)
+        )
+        if (j > 10 && skip) {
+          break;
+        }
         yield* coroutines.waitForTime(15, () => {
           this.drawPartialQuote(quote, j);
         })

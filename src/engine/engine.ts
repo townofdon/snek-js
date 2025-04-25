@@ -2,6 +2,7 @@ import P5, { Vector } from 'p5';
 
 import {
   ALL_APPLES_BONUS,
+  ALL_LOCKS_BONUS,
   BLOCK_SIZE,
   CLEAR_BONUS,
   COBRA_SCORE_MOD,
@@ -57,6 +58,7 @@ import {
   ClickState,
   DIR,
   Difficulty,
+  DifficultyIndex,
   DrawSquareOptions,
   DrawState,
   FontsInstance,
@@ -71,6 +73,7 @@ import {
   Key,
   KeyChannel,
   Level,
+  LevelId,
   LevelType,
   Lock,
   LoopState,
@@ -105,7 +108,6 @@ import {
   getTraversalDistance,
   invertDirection,
   isOrthogonalDirection,
-  isValidPortalChannel,
   isWithinBlockDistance,
   lerp,
   } from "../utils";
@@ -153,6 +155,7 @@ import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 import { resumeAudioContext } from './audio';
 import { LEVEL_01_HARD } from '../levels/level01hard';
 import { LEVEL_01_ULTRA } from '../levels/level01ultra';
+import { SaveDataStore } from '../stores/SaveDataStore';
 
 interface EngineParams {
   p5: P5,
@@ -181,7 +184,7 @@ interface EngineParams {
   onUINavigate: UINavEventHandler,
   onGameOver: () => void,
   onGameOverCobra: () => void,
-  onRecordLevelProgress: (levelIndex: number, difficulty: Difficulty) => void,
+  onRecordLevelProgress: InstanceType<typeof SaveDataStore>['recordLevelCompletion'],
 }
 
 export function engine({
@@ -277,12 +280,12 @@ export function engine({
   let doors: Vector[] = []; // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
   let decoratives1: Vector[] = []; // bg decorative elements
   let decoratives2: Vector[] = []; // bg decorative elements
-  let keys: Key[] = []; // keys
-  let locks: Lock[] = []; // locks
-  let passablesMap: Record<number, boolean> = {};
-  let barriersMap: Record<number, boolean> = {};
-  let doorsMap: Record<number, boolean> = {};
-  let pickupsMap: Record<number, Pickup | null> = {};
+  let keys: Key[] = []; // unlock locks
+  let locks: Lock[] = []; // unlockable barriers
+  let passablesMap: Record<number, boolean> = {}; // map of barriers that become passable when doors open
+  let barriersMap: Record<number, boolean> = {}; // map of barriers (obstacles or walls that the snake can hit)
+  let doorsMap: Record<number, boolean> = {}; // map of doors - blocks that disappear once conditions are met
+  let pickupsMap: Record<number, Pickup | null> = {}; // map of pickup items, powerups, etc.
   let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
   let keysMap: Record<number, Key | null> = {};
   let locksMap: Record<number, Lock | null> = {};
@@ -439,6 +442,7 @@ export function engine({
   function resetLevel({ shouldShowTransitions = true, transition, onTriggerWinGame }: ResetLevelParams) {
     // init stats
     stats.applesEatenThisLevel = 0;
+    stats.totalLevelTimeElapsed = 0;
 
     // init state for new level
     drawState.shouldDrawApples = true;
@@ -620,6 +624,9 @@ export function engine({
     locks = levelData.locks;
     locksMap = levelData.locksMap;
     diffSelectMap = levelData.diffSelectMap;
+
+    // set level metadata
+    level.numLocks = locks.length;
 
     // create snake parts
     let x = player.position.x;
@@ -920,7 +927,6 @@ export function engine({
     state.actualTimeElapsed += p5.deltaTime;
 
     handleSnakeExitLevelUI();
-    // handleRenderWinGameScene();
 
     renderer.tick();
     metrics.gameLoopProcessingTime = performance.now() - timeFrameStart;
@@ -966,7 +972,8 @@ export function engine({
     stats.numApplesEverEaten = 0;
     stats.score = 0;
     stats.applesEatenThisLevel = 0;
-    stats.totalTimeElapsed = 0;
+    stats.totalGameTimeElapsed = 0;
+    stats.totalLevelTimeElapsed = 0;
   }
 
   function resetGraphics() {
@@ -1400,7 +1407,10 @@ export function engine({
       state.timeSinceLastMove += loopState.deltaTime;
     }
     updateCurrentMoveSpeed();
-    stats.totalTimeElapsed += loopState.deltaTime;
+    if (!state.isExitingLevel && !state.isExited && !state.isGameWon) {
+      stats.totalGameTimeElapsed += loopState.deltaTime;
+      stats.totalLevelTimeElapsed += loopState.deltaTime;
+    }
     return didMove;
   }
 
@@ -1574,29 +1584,38 @@ export function engine({
     } else if (level.type === LevelType.WarpZone) {
       gotoNextLevel();
     } else {
-      const levelIndex = LEVELS.indexOf(level.recordProgressAsLevel || level) + 1;
+      const levelToSave = level.recordProgressAsLevel || level;
       const isPerfect = apples.length === 0 && state.collisions === 0;
       const hasAllApples = apples.length === 0;
+      const hasAllLocks = !!level.numLocks && locks.length === 0;
 
-      // saveDataStore.recordLevelProgress(levelIndex, difficulty);
-      onRecordLevelProgress(levelIndex, difficulty);
+      if (!DEBUG_EASY_LEVEL_EXIT) {
+        onRecordLevelProgress(levelToSave.id, difficulty.index, isPerfect, stats.totalLevelTimeElapsed);
+      }
 
       winLevelScene.triggerLevelExit({
         score: stats.score,
         levelClearBonus: getLevelClearBonus(),
         livesLeftBonus: getLivesLeftBonus(),
         allApplesBonus: getAllApplesBonus(),
+        allLocksBonus: getAllLocksBonus(),
         perfectBonus: getPerfectBonus(),
         livesLeft: state.lives,
         isPerfect,
         hasAllApples,
+        hasAllLocks,
         isCasualModeEnabled: state.gameMode === GameMode.Casual,
         levelMusicTrack: getIsStartLevel() ? undefined : level.musicTrack,
         onApplyScore: () => {
           musicPlayer.stopAllTracks();
           const perfectBonus = isPerfect ? getPerfectBonus() : 0;
           const allApplesBonus = (!isPerfect && hasAllApples) ? getAllApplesBonus() : 0;
-          addPoints(getLevelClearBonus() + getLivesLeftBonus() * state.lives + perfectBonus + allApplesBonus);
+          const allLocksBonus = hasAllLocks ? getAllLocksBonus() : 0;
+          addPoints(getLevelClearBonus()
+            + getLivesLeftBonus() * state.lives
+            + perfectBonus
+            + allApplesBonus
+            + allLocksBonus);
           renderScoreUI();
         },
       });
@@ -1795,22 +1814,27 @@ export function engine({
 
   function getLevelClearBonus() {
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    return LEVEL_BONUS * difficulty.bonusMod * cobraMod;
+    return LEVEL_BONUS * difficulty.bonusMod * cobraMod || LEVEL_BONUS;
   }
 
   function getLivesLeftBonus() {
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    return LIVES_LEFT_BONUS * difficulty.bonusMod * cobraMod;
+    return LIVES_LEFT_BONUS * difficulty.bonusMod * cobraMod || LIVES_LEFT_BONUS;
   }
 
   function getAllApplesBonus() {
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    return ALL_APPLES_BONUS * difficulty.bonusMod * cobraMod;
+    return ALL_APPLES_BONUS * difficulty.bonusMod * cobraMod || ALL_APPLES_BONUS;
+  }
+
+  function getAllLocksBonus() {
+    const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
+    return ALL_LOCKS_BONUS * difficulty.bonusMod * cobraMod || ALL_LOCKS_BONUS;
   }
 
   function getPerfectBonus() {
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    return PERFECT_BONUS * difficulty.bonusMod * cobraMod;
+    return PERFECT_BONUS * difficulty.bonusMod * cobraMod || PERFECT_BONUS;
   }
 
   function incrementScore() {
