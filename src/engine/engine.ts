@@ -1729,9 +1729,16 @@ export function engine({
     renderHeartsUI();
     spawnHurtParticles();
     reboundSnake(segments.length > 3 ? 2 : 1);
-    // // set current direction to be the direction from the first segment towards the snake head
-    // player.direction = getDirectionSnakeForward();
     player.directionToFirstSegment = invertDirection(getDirectionSnakeForward());
+
+    // if snake will move backwards into itself:
+    // - set current direction to be: segments[0] --> snake head
+    const currentMove = dirToUnitVector(player.direction);
+    const futurePosition = player.position.copy().add(currentMove);
+    if (segments.length > 0 && futurePosition.equals(segments.get(0).x, segments.get(0).y)) {
+      player.direction = getDirectionSnakeForward();
+    }
+
     moves = [];
     startAction(duckMusicOnHurt(), Action.FadeMusic);
     switch (state.lives) {
