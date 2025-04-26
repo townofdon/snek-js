@@ -314,7 +314,6 @@ export const sketch = (p5: P5) => {
    */
   p5.keyPressed = keyPressed;
   function keyPressed(ev?: KeyboardEvent) {
-    state.timeSinceLastInput = 0;
     resumeAudioContext();
     let handled = false;
     // check if can handle UI events

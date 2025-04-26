@@ -9,6 +9,8 @@ import {
   KEYCODE_ALPHA_S,
   KEYCODE_ALPHA_W,
   HURT_STUN_TIME,
+  HURT_MOVE_RESET_INITIAL_DELAY,
+  HURT_MOVE_RESET_INPUT_DELAY,
 } from '../constants';
 import { AppMode, ClickState, DIR, GameMode, GameState, InputAction, RecentMoveTimings as RecentMoveTimes, RecentMoves, UINavDir, UINavEventHandler } from "../types";
 import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "../utils";
@@ -116,7 +118,7 @@ export function handleKeyPressed(
     : playerDirection;
 
   // disallow same moves unless snake is currently stunned after hitting something
-  const disallowEqual = state.isMoving && (state.timeSinceHurt >= HURT_STUN_TIME);
+  const disallowEqual = state.isMoving && (moves.length >= 2 || state.timeSinceHurt >= HURT_STUN_TIME);
 
   if (currentMove) {
     callAction(InputAction.StartMoving);
@@ -148,9 +150,16 @@ export function handleKeyPressed(
     return;
   }
 
-  if (state.timeSinceHurt < HURT_STUN_TIME && moves.length >= 2) {
+  // reset on hurt (might remove this later)
+  if (
+    !!moves.length &&
+    state.timeSinceHurt < HURT_STUN_TIME &&
+    state.timeSinceHurt > HURT_MOVE_RESET_INITIAL_DELAY &&
+    state.timeSinceLastInput > HURT_MOVE_RESET_INPUT_DELAY
+  ) {
     callbacks.onResetMoves();
   }
+
   callbacks.onAddMove(currentMove);
 }
 

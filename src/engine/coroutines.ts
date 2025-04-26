@@ -72,15 +72,19 @@ export class Coroutines {
   // make private so that we can expose `waitForTime` as an arrow function, retaining `this` scope
   private * _waitForTime(durationMs: number, callback?: (t: number) => void, allowSkip = false): IEnumerator {
     if (!durationMs) return;
+    if (allowSkip) {
+      this._p5.keyIsPressed = false;
+    }
     let timeRemaining = durationMs;
-    while (
-      timeRemaining > 0 &&
-      ((allowSkip && timeRemaining < durationMs - 200)
-        ? !this._p5.keyIsDown(this._p5.ENTER) &&
-          !wasPressedThisFrame(getGamepad(), Button.Start) &&
-          !wasPressedThisFrame(getGamepad(), Button.East)
-        : true)
-    ) {
+    const skip = () => {
+      if (!allowSkip) return false;
+      if (timeRemaining >= durationMs - 200) return false;
+      if (this._p5.keyIsPressed && this._p5.keyIsDown(this._p5.ENTER)) return true;
+      if (wasPressedThisFrame(getGamepad(), Button.Start)) return true;
+      if (wasPressedThisFrame(getGamepad(), Button.South)) return true;
+      return false;
+    }
+    while (timeRemaining > 0 && !skip()) {
       timeRemaining -= this._p5.deltaTime;
       const t = clamp((durationMs - timeRemaining) / durationMs, 0, 1);
       if (callback) callback(t);
@@ -97,7 +101,11 @@ export class Coroutines {
   }
 
   private * _waitForEnterKey(callback?: () => void): IEnumerator {
-    while (!this._p5.keyIsDown(this._p5.ENTER) && !wasPressedThisFrame(getGamepad(), Button.Start)) {
+    this._p5.keyIsPressed = false;
+    while (
+      (!this._p5.keyIsPressed || !this._p5.keyIsDown(this._p5.ENTER))
+      && !wasPressedThisFrame(getGamepad(), Button.Start)
+    ) {
       if (callback) callback();
       yield null;
     }

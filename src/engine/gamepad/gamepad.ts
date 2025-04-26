@@ -1,4 +1,4 @@
-import { HURT_STUN_TIME, MAX_MOVES_GAMEPAD } from "../../constants";
+import { HURT_MOVE_RESET_INITIAL_DELAY, HURT_MOVE_RESET_INPUT_DELAY, HURT_STUN_TIME, MAX_MOVES_GAMEPAD } from "../../constants";
 import { Easing } from "../../easing";
 import { AppMode, DIR, GameMode, GameState, InputAction, MOVE, UINavDir } from "../../types";
 import { invertDirection, rotateDirection, clamp } from "../../utils";
@@ -11,7 +11,7 @@ import {
 const TRIGGER_THRESHOLD = 0.05;
 const AXIS_DEADZONE = 0.33;
 
-const current: Record<Button, boolean> = {
+const waitingForRelease: Record<Button, boolean> = {
   [Button.South]: false,
   [Button.East]: false,
   [Button.West]: false,
@@ -28,26 +28,7 @@ const current: Record<Button, boolean> = {
   [Button.DpadDown]: false,
   [Button.DpadLeft]: false,
   [Button.DpadRight]: false,
-  [Button.XboxButton]: false
-}
-const prev: Record<Button, boolean> = {
-  [Button.South]: false,
-  [Button.East]: false,
-  [Button.West]: false,
-  [Button.North]: false,
-  [Button.BumperLeft]: false,
-  [Button.BumperRight]: false,
-  [Button.TriggerLeft]: false,
-  [Button.TriggerRight]: false,
-  [Button.Select]: false,
-  [Button.Start]: false,
-  [Button.StickLeft]: false,
-  [Button.StickRight]: false,
-  [Button.DpadUp]: false,
-  [Button.DpadDown]: false,
-  [Button.DpadLeft]: false,
-  [Button.DpadRight]: false,
-  [Button.XboxButton]: false
+  [Button.XboxButton]: false,
 }
 
 export function applyGamepadRumble(duration: number, weakMagnitude: number, strongMagnitude: number) {
@@ -148,9 +129,16 @@ export function applyGamepadMove(
     return;
   }
 
-  if (state.timeSinceHurt < HURT_STUN_TIME) {
+  // reset on hurt (might remove this later)
+  if (
+    !!moves.length &&
+    state.timeSinceHurt < HURT_STUN_TIME &&
+    state.timeSinceHurt > HURT_MOVE_RESET_INITIAL_DELAY &&
+    state.timeSinceLastInput > HURT_MOVE_RESET_INPUT_DELAY
+  ) {
     callbacks.onResetMoves();
   }
+
   const disallowEqual = state.isMoving && (!!moves.length || state.timeSinceHurt >= HURT_STUN_TIME);
 
   let cancel = false
@@ -158,6 +146,7 @@ export function applyGamepadMove(
     const valid = validateMove(i === 0 ? prevMove : desiredMoves[i - 1], desiredMove, disallowEqual || i > 0)
     if (!cancel && valid) {
       callbacks.onAddMove(desiredMove)
+      state.timeSinceLastInput = 0;
     } else {
       cancel = true
     }
@@ -240,22 +229,6 @@ export function applyGamepadUIActions(
   return false;
 }
 
-export function updateGamepadState(): boolean {
-  const gamepad = navigator.getGamepads()?.[0];
-  if (!gamepad) return false;
-  if (!gamepad.connected) return false;
-  let anyButtonPressed = false
-  gamepad.buttons.forEach((_, idx) => {
-    prev[idx as Button] = current[idx as Button];
-    const pressed = gamepadPressed(gamepad, idx);
-    current[idx as Button] = pressed;
-    if (pressed) {
-      anyButtonPressed = true
-    }
-  });
-  return anyButtonPressed;
-}
-
 export function getGamepad(): Gamepad | null {
   return navigator.getGamepads()?.[0];
 }
@@ -272,7 +245,16 @@ export function gamepadPressed(gamepad: Gamepad, id: Button) {
 export function wasPressedThisFrame(gamepad: Gamepad, id: Button) {
   if (!gamepad) return false;
   if (!gamepad.connected) return false;
-  return !!current[id] && !prev[id];
+  const pressed = gamepadPressed(gamepad, id);
+  if (!pressed) {
+    waitingForRelease[id] = false;
+    return false;
+  }
+  if (waitingForRelease[id]) {
+    return false;
+  }
+  waitingForRelease[id] = true;
+  return true;
 }
 
 export function anyButtonPressedThisFrame(gamepad: Gamepad) {

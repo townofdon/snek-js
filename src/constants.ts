@@ -190,6 +190,8 @@ export const SCREEN_SHAKE_MAGNITUDE_PX = 4;
 
 export const HURT_FORGIVENESS_TIME = 160;
 export const HURT_STUN_TIME = 600;
+export const HURT_MOVE_RESET_INITIAL_DELAY = 100;
+export const HURT_MOVE_RESET_INPUT_DELAY = 400;
 export const HURT_FLASH_RATE = 55;
 export const HURT_GRACE_TIME = 30;
 export const HURT_MUSIC_DUCK_TIME_MS = 1500;

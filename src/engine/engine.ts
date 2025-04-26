@@ -179,7 +179,6 @@ interface EngineParams {
   gotoNextLevel: () => void,
   proceedToNextReplayClip: () => void,
   warpToLevel: (levelNum?: number) => void,
-  // TODO: REFACTOR TO PREFER RETURN VALUE OVER CALLBACK
   handleInputAction: (action: InputAction) => void,
   onUINavigate: UINavEventHandler,
   onGameOver: () => void,
@@ -827,6 +826,7 @@ export function engine({
       handleInputAction,
       ev,
     );
+    state.timeSinceLastInput = 0;
   }
 
   function renderLoop(gamepadInputHandled = false) {
@@ -1592,8 +1592,11 @@ export function engine({
       const isPerfect = apples.length === 0 && state.collisions === 0;
       const hasAllApples = apples.length === 0;
       const hasAllLocks = !!level.numLocks && locks.length === 0;
+      const shouldRecordLevelCompletion = !DEBUG_EASY_LEVEL_EXIT &&
+        state.gameMode !== GameMode.Casual &&
+        !!levelToSave?.id;
 
-      if (!DEBUG_EASY_LEVEL_EXIT) {
+      if (shouldRecordLevelCompletion) {
         onRecordLevelProgress(levelToSave.id, difficulty.index, isPerfect, stats.totalLevelTimeElapsed);
       }
 
@@ -1728,9 +1731,9 @@ export function engine({
     renderHeartsUI();
     spawnHurtParticles();
     reboundSnake(segments.length > 3 ? 2 : 1);
-    // set current direction to be the direction from the first segment towards the snake head
-    player.direction = getDirectionSnakeForward();
-    player.directionToFirstSegment = invertDirection(player.direction);
+    // // set current direction to be the direction from the first segment towards the snake head
+    // player.direction = getDirectionSnakeForward();
+    player.directionToFirstSegment = invertDirection(getDirectionSnakeForward());
     moves = [];
     startAction(duckMusicOnHurt(), Action.FadeMusic);
     switch (state.lives) {

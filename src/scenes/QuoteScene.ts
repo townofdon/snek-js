@@ -1,7 +1,7 @@
 import P5 from "p5";
 import { FontsInstance, Quote, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
-import { getGamepad, updateGamepadState, wasPressedThisFrame } from "../engine/gamepad";
+import { getGamepad, wasPressedThisFrame } from "../engine/gamepad";
 import { Button } from "../engine/gamepad/StandardGamepadMapping";
 
 const AUTHOR_PADDING = 15;
@@ -24,15 +24,18 @@ export class QuoteScene extends BaseScene {
     for (let i = 0; i < this._quotes.length; i++) {
       const isLastQuote = i === this._quotes.length - 1;
 
+      // since we are overriding p5 input handlers, initialize input state before responding below
+      p5.keyIsPressed = false;
+
       // play sound as parallel coroutine to *action()
       const playingSound = this.startCoroutine(this.playSound());
       const quote = this._quotes[i];
       const numLetters = quote.length;
       for (let j = 1; j <= numLetters; j++) {
         const skip = (
-          p5.keyIsDown(p5.ENTER) ||
+          (p5.keyIsPressed && p5.keyIsDown(p5.ENTER)) ||
           wasPressedThisFrame(getGamepad(), Button.Start) ||
-          wasPressedThisFrame(getGamepad(), Button.East)
+          wasPressedThisFrame(getGamepad(), Button.South)
         )
         if (j > 10 && skip) {
           break;
@@ -115,15 +118,15 @@ export class QuoteScene extends BaseScene {
   }
 
   draw = () => {
-    updateGamepadState();
     this.drawBackground();
+    if (this.props.callbacks.onEscapePress && wasPressedThisFrame(getGamepad(), Button.East)) {
+      this.exitQuoteScene();
+      return;
+    }
     this.tick();
     if (this.props.callbacks.onEscapePress) {
       this.drawSceneTitle();
       this.drawExit();
-      if (wasPressedThisFrame(getGamepad(), Button.East)) {
-        this.exitQuoteScene();
-      }
     }
   };
 
