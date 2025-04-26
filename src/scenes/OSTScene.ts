@@ -14,7 +14,7 @@ import { DIMENSIONS, OST_MODE_TRACKS } from "../constants";
 import { UI } from "../ui/ui";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { SpriteRenderer } from "../engine/spriteRenderer";
-import { getGamepad, wasPressedThisFrame } from "../engine/gamepad";
+import { getGamepad, tickGamepad, wasPressedThisFrame } from "../engine/gamepad";
 import { Button } from "../engine/gamepad/StandardGamepadMapping";
 
 const VISUALIZER = {
@@ -143,6 +143,7 @@ export class OSTScene extends BaseScene {
     this.drawExit();
     this.tick();
     this.handleGamepadPress();
+    tickGamepad();
   };
 
   *action(): Generator<IEnumerator, void, unknown> { }

@@ -1,7 +1,7 @@
 import P5 from "p5";
 import { FontsInstance, Quote, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
-import { getGamepad, wasPressedThisFrame } from "../engine/gamepad";
+import { getGamepad, tickGamepad, wasPressedThisFrame } from "../engine/gamepad";
 import { Button } from "../engine/gamepad/StandardGamepadMapping";
 
 const AUTHOR_PADDING = 15;
@@ -37,7 +37,9 @@ export class QuoteScene extends BaseScene {
           wasPressedThisFrame(getGamepad(), Button.Start) ||
           wasPressedThisFrame(getGamepad(), Button.South)
         )
-        if (j > 10 && skip) {
+        if (j > 5 && skip) {
+          // wait one frame
+          yield null;
           break;
         }
         yield* coroutines.waitForTime(15, () => {
@@ -128,6 +130,7 @@ export class QuoteScene extends BaseScene {
       this.drawSceneTitle();
       this.drawExit();
     }
+    tickGamepad();
   };
 
   private _getQuoteRect = () => {

@@ -833,7 +833,7 @@ export function engine({
     const timeFrameStart = performance.now();
 
     if (!gamepadInputHandled) {
-      applyGamepadMove(state, player.direction, moves, inputCallbacks, handleInputAction)
+      applyGamepadMove(state, player.direction, player.directionToFirstSegment, moves, inputCallbacks, handleInputAction)
     }
 
     actions.tick();

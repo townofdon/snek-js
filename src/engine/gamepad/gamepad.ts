@@ -11,24 +11,40 @@ import {
 const TRIGGER_THRESHOLD = 0.05;
 const AXIS_DEADZONE = 0.33;
 
-const waitingForRelease: Record<Button, boolean> = {
-  [Button.South]: false,
-  [Button.East]: false,
-  [Button.West]: false,
-  [Button.North]: false,
-  [Button.BumperLeft]: false,
-  [Button.BumperRight]: false,
-  [Button.TriggerLeft]: false,
-  [Button.TriggerRight]: false,
-  [Button.Select]: false,
-  [Button.Start]: false,
-  [Button.StickLeft]: false,
-  [Button.StickRight]: false,
-  [Button.DpadUp]: false,
-  [Button.DpadDown]: false,
-  [Button.DpadLeft]: false,
-  [Button.DpadRight]: false,
-  [Button.XboxButton]: false,
+const waitingForRelease: Record<Button, number> = {
+  [Button.South]: -1,
+  [Button.East]: -1,
+  [Button.West]: -1,
+  [Button.North]: -1,
+  [Button.BumperLeft]: -1,
+  [Button.BumperRight]: -1,
+  [Button.TriggerLeft]: -1,
+  [Button.TriggerRight]: -1,
+  [Button.Select]: -1,
+  [Button.Start]: -1,
+  [Button.StickLeft]: -1,
+  [Button.StickRight]: -1,
+  [Button.DpadUp]: -1,
+  [Button.DpadDown]: -1,
+  [Button.DpadLeft]: -1,
+  [Button.DpadRight]: -1,
+  [Button.XboxButton]: -1,
+}
+
+const state = {
+  currentFrame: 0,
+}
+
+export function tickGamepad() {
+  state.currentFrame += 1;
+}
+
+export function resetGamepad() {
+  const gamepad = getGamepad();
+  if (!gamepad) return false;
+  if (!gamepad.connected) return false;
+  state.currentFrame = 0;
+  gamepad.buttons.forEach((_, id) => waitingForRelease[id as Button] = -1)
 }
 
 export function applyGamepadRumble(duration: number, weakMagnitude: number, strongMagnitude: number) {
@@ -50,6 +66,7 @@ export function applyGamepadRumble(duration: number, weakMagnitude: number, stro
 export function applyGamepadMove(
   state: GameState,
   playerDirection: DIR,
+  playerDirectionToFirstSegment: DIR,
   moves: DIR[],
   callbacks: InputCallbacks,
   callAction: (action: InputAction) => void,
@@ -79,7 +96,7 @@ export function applyGamepadMove(
 
   const prevMove = moves.length > 0
     ? moves[moves.length - 1]
-    : playerDirection;
+    : invertDirection(playerDirectionToFirstSegment);
 
   const desiredMoves: DIR[] = (() => {
     switch (desiredMove) {
@@ -247,13 +264,13 @@ export function wasPressedThisFrame(gamepad: Gamepad, id: Button) {
   if (!gamepad.connected) return false;
   const pressed = gamepadPressed(gamepad, id);
   if (!pressed) {
-    waitingForRelease[id] = false;
+    waitingForRelease[id] = -1;
     return false;
   }
-  if (waitingForRelease[id]) {
+  if (waitingForRelease[id] > 0 && waitingForRelease[id] <= state.currentFrame) {
     return false;
   }
-  waitingForRelease[id] = true;
+  waitingForRelease[id] = state.currentFrame + 1;
   return true;
 }
 

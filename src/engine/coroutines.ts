@@ -75,6 +75,7 @@ export class Coroutines {
     if (allowSkip) {
       this._p5.keyIsPressed = false;
     }
+    let didSkip = false;
     let timeRemaining = durationMs;
     const skip = () => {
       if (!allowSkip) return false;
@@ -84,10 +85,18 @@ export class Coroutines {
       if (wasPressedThisFrame(getGamepad(), Button.South)) return true;
       return false;
     }
-    while (timeRemaining > 0 && !skip()) {
+    const wrap = (val: boolean) => {
+      didSkip = val;
+      return val;
+    }
+    while (timeRemaining > 0 && !wrap(skip())) {
       timeRemaining -= this._p5.deltaTime;
       const t = clamp((durationMs - timeRemaining) / durationMs, 0, 1);
       if (callback) callback(t);
+      yield null;
+    }
+    if (allowSkip && didSkip) {
+      // wait one frame
       yield null;
     }
   }
@@ -98,6 +107,7 @@ export class Coroutines {
       if (callback) callback();
       yield null;
     }
+    yield null;
   }
 
   private * _waitForEnterKey(callback?: () => void): IEnumerator {
@@ -109,6 +119,7 @@ export class Coroutines {
       if (callback) callback();
       yield null;
     }
+    yield null;
   }
 
   private cleanupMappedEnumerator(enumerator: IEnumerator) {

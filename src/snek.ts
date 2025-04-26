@@ -79,7 +79,7 @@ import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
 import { SaveDataStore } from './stores/SaveDataStore';
 import { recordSnekalyticsEvent } from './api/snekalytics';
-import { applyGamepadUIActions } from './engine/gamepad';
+import { applyGamepadUIActions, getGamepad, resetGamepad, tickGamepad } from './engine/gamepad';
 
 const queryParams = parseUrlQueryParams();
 const unlockedMusicStore = new UnlockedMusicStore()
@@ -407,6 +407,7 @@ export const sketch = (p5: P5) => {
     renderLoop(handled);
     if (!state.isGameStarted) leaderboardScene.draw();
     handleRenderWinGameScene();
+    tickGamepad();
   }
 
   /**
@@ -538,6 +539,7 @@ export const sketch = (p5: P5) => {
     startLogicLoop();
     winLevelScene.reset();
     winGameScene.reset();
+    resetGamepad();
     resumeAudioContext().then(() => {
       musicPlayer.play(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
     });
