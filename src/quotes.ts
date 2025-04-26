@@ -77,11 +77,11 @@ Snek, too, has to be learned.
 `;
 
 const quotesByRWEmerson = `
-Always do what you are afraid to snek.
+Always snek what you are afraid to do.
 
-It is not length of life, but depth of snek.
+It is not length of life, but snek of life.
 
-Our greatest glory is not in never failing, but in rising up every time we snek.
+Our greatest snek is not in never failing, but in rising up every time we fail.
 
 A hero is no braver than an ordinary snek, but he is brave five minutes longer.
 
