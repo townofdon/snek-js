@@ -24,6 +24,10 @@ export class SpriteRenderer {
     [Image.ControlsMouseLeft]: null,
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
+    [Image.SnekSegmentDark]: null,
+    [Image.SnekSegmentB]: null,
+    [Image.SnekSegmentD]: null,
+    [Image.SnekSegmentE]: null,
     [Image.SnekButt]: null,
     [Image.KeyGrey]: null,
     [Image.KeyYellow]: null,
@@ -82,6 +86,10 @@ export class SpriteRenderer {
       this.loadImage(Image.ControlsMouseLeft);
       this.loadImage(Image.SnekHead);
       this.loadImage(Image.SnekHeadDead);
+      this.loadImage(Image.SnekSegmentDark);
+      this.loadImage(Image.SnekSegmentB);
+      this.loadImage(Image.SnekSegmentD);
+      this.loadImage(Image.SnekSegmentE);
       this.loadImage(Image.SnekButt);
       this.loadImage(Image.KeyGrey);
       this.loadImage(Image.KeyYellow);

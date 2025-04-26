@@ -589,6 +589,10 @@ export type UnlockedMusicTracks = Record<MusicTrack, boolean>
 export enum Image {
   SnekHead = 'snek-head.png',
   SnekHeadDead = 'snek-head-dead.png',
+  SnekSegmentDark = 'snek-segment-dark.png',
+  SnekSegmentB = 'snek-segment-b.png',
+  SnekSegmentD = 'snek-segment-d.png',
+  SnekSegmentE = 'snek-segment-e.png',
   SnekButt = 'snek-butt.png',
   ControlsKeyboardMove = 'controls-keyboard-move.png',
   ControlsKeyboardDelete = 'controls-keyboard-delete.png',

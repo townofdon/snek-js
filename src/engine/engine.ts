@@ -58,7 +58,6 @@ import {
   ClickState,
   DIR,
   Difficulty,
-  DifficultyIndex,
   DrawSquareOptions,
   DrawState,
   FontsInstance,
@@ -73,7 +72,6 @@ import {
   Key,
   KeyChannel,
   Level,
-  LevelId,
   LevelType,
   Lock,
   LoopState,
@@ -2079,6 +2077,23 @@ export function engine({
         renderer.drawSquare(vec.x, vec.y, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
       }
       // renderer.drawGraphicalComponent(graphicalComponents.snakeSegment, vec.x, vec.y);
+      const decoInterval = 9;
+      if (i === 0 && state.gameMode === GameMode.Cobra) {
+        const direction = invertDirection(player.directionToFirstSegment);
+        spriteRenderer.drawImage3x3(Image.SnekSegmentB, vec.x, vec.y, getRotationFromDirection(direction));
+      } else if (i === 1) {
+        const direction = getDirectionBetween(segments.get(0), segments.get(1));
+        spriteRenderer.drawImage3x3(Image.SnekSegmentE, vec.x, vec.y, getRotationFromDirection(direction));
+      } else if (i >= decoInterval && (i+2) % decoInterval === 0 && segments.length >= i+4) {
+        const direction = getDirectionBetween(segments.get(i + 1), segments.get(i));
+        spriteRenderer.drawImage3x3(Image.SnekSegmentE, vec.x, vec.y, getRotationFromDirection(direction));
+      } else if (i >= decoInterval && (i+2) % decoInterval === 1 && segments.length >= i+3) {
+        const direction = getDirectionBetween(segments.get(i), segments.get(i + 1));
+        spriteRenderer.drawImage3x3(Image.SnekSegmentDark, vec.x, vec.y, getRotationFromDirection(direction));
+      } else if (i >= decoInterval && (i+2) % decoInterval === 2 && segments.length >= i+2) {
+        const direction = getDirectionBetween(segments.get(i), segments.get(i + 1));
+        spriteRenderer.drawImage3x3(Image.SnekSegmentE, vec.x, vec.y, getRotationFromDirection(direction));
+      }
     }
   }
 
