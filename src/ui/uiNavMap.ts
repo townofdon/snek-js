@@ -1,5 +1,6 @@
 import { IS_DEV } from "../constants";
 import { InputAction } from "../types";
+import { GameModeMenuElement } from "./uiTypes";
 import { DOM } from "./uiUtils";
 
 
@@ -484,6 +485,8 @@ export enum PauseMenuElement {
   ButtonWarpX13 = 'pauseButtonWarpX13',
   ButtonWarpX14 = 'pauseButtonWarpX14',
   ButtonWarpX15 = 'pauseButtonWarpX15',
+  ButtonWarpX16 = 'pauseButtonWarpX16',
+  ButtonWarpX17 = 'pauseButtonWarpX17',
 }
 
 const PAUSE_MENU_ELEMENT_ORDER: [
@@ -494,7 +497,7 @@ const PAUSE_MENU_ELEMENT_ORDER: [
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
-  [PauseMenuElement, PauseMenuElement, PauseMenuElement],
+  [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
 ] = [
     [
       PauseMenuElement.ButtonResume,
@@ -534,25 +537,27 @@ const PAUSE_MENU_ELEMENT_ORDER: [
       PauseMenuElement.ButtonWarpS4,
     ],
     [
+      PauseMenuElement.ButtonWarpX17,
       PauseMenuElement.ButtonWarpX01,
       PauseMenuElement.ButtonWarpX02,
       PauseMenuElement.ButtonWarpX03,
       PauseMenuElement.ButtonWarpX04,
       PauseMenuElement.ButtonWarpX05,
-      PauseMenuElement.ButtonWarpX06,
     ],
     [
+      PauseMenuElement.ButtonWarpX06,
       PauseMenuElement.ButtonWarpX07,
       PauseMenuElement.ButtonWarpX08,
       PauseMenuElement.ButtonWarpX09,
       PauseMenuElement.ButtonWarpX10,
       PauseMenuElement.ButtonWarpX11,
-      PauseMenuElement.ButtonWarpX12,
     ],
     [
+      PauseMenuElement.ButtonWarpX12,
       PauseMenuElement.ButtonWarpX13,
       PauseMenuElement.ButtonWarpX14,
       PauseMenuElement.ButtonWarpX15,
+      PauseMenuElement.ButtonWarpX16,
     ],
   ]
 
@@ -581,12 +586,6 @@ export class GameOverMenuNavMap extends GroupedNavMap<GameOverMenuElement> {
 }
 
 
-export enum GameModeMenuElement {
-  Campaign = 'button-game-mode-campaign',
-  LevelSelect = 'button-game-mode-level-select',
-  Randomizer = 'button-game-mode-randomizer',
-  Back = 'button-game-mode-back',
-}
 
 const GAME_MODE_MENU_ELEMENT_ORDER = [
   [

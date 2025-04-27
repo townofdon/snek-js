@@ -14,8 +14,8 @@ export const LEVEL_08: Level = {
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXX~~~~~~~~~~~~~XX~~~XXXXXX
-DX~~~~                 ~~~~~XD
-DX~~~                     ~~XD
++X~~~~                 ~~~~~Xx
++X~~~                     ~~Xx
 XXX~                      ~XXX
 XXX~       _-             ~XXX
 XX~~     ~XX=-            ~XXX
@@ -28,8 +28,8 @@ X__                 -=-    ~~X
 X~_       -          -     ~XX
 X~~      -=-    ---  -    ~~XX
 X~~     -===- --===--=-   ~XXX
-X~~     -==-    -=-  -   ~xDDD
-X~~     -=-      -       ~xDDD
+X~~     -==-    -=-  -   ~xddd
+X~~     -=-      -       ~xddd
 X~~      -               ~~XXX
 X~~               ~       ~XXX
 X~~               XX~     ~XXX
@@ -37,8 +37,8 @@ X~~              ~XX      ~~XX
 XX~                ~      ~~XX
 XX~                       ~XXX
 XX~                      ~~XXX
-DDX~       ~~~~~~~~      ~XXXX
-DDX~~~   ~~~X~~~~X~~~   ~~XXXX
++dX~       ~~~~~~~~      ~XXXX
++dX~~~   ~~~X~~~~X~~~   ~~XXXX
 XX~~~~~~~~~XXDDDDXX~~~~~~~~XXX
 XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
 XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX

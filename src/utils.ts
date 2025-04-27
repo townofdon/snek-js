@@ -6,6 +6,8 @@ import {
   DIFFICULTY_MEDIUM,
   DIFFICULTY_ULTRA,
   GRIDCOUNT,
+  INVINCIBILITY_EXPIRE_FLASH_MS,
+  PICKUP_EXPIRE_WARN_MS,
 } from "./constants";
 import {
   DIR,
@@ -303,6 +305,23 @@ export function getLevelProgress(stats: Stats, level: Level, difficulty: Difficu
   return clamp(stats.applesEatenThisLevel / (level.applesToClear * (level.applesModOverride || difficulty.applesMod)), 0, 1);
 }
 
+/**
+ * produces an output continously going from -1 to 1, starting at 0
+ */
+export function sawtooth(t: number, offset = 0) {
+  const t0 = (t || 0) + (offset || 0);
+  return 2 * (t0 - Math.floor(t0) - 0.5);
+}
+
+/**
+ * produces an output oscilating between 0 and 1, linearly.
+ *
+ * highest point: t=1
+ */
+export function triangle(t: number) {
+  return Math.abs(sawtooth((t || 0) * 0.5, 0.5));
+}
+
 export function lerp(a: number, b: number, t: number) {
   return (1.0 - clamp(t, 0, 1)) * a + b * clamp(t, 0, 1);
 }
@@ -490,3 +509,5 @@ export function wait(duration: number) {
     }, duration);
   })
 }
+
+export const shouldBlinkExpiringPickup = (timeLeft: number) => !!timeLeft && timeLeft <= PICKUP_EXPIRE_WARN_MS && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0

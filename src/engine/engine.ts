@@ -108,6 +108,8 @@ import {
   isOrthogonalDirection,
   isWithinBlockDistance,
   lerp,
+  shouldBlinkExpiringPickup,
+  triangle,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -297,11 +299,13 @@ export function engine({
 
   // hack P5's "offscreen canvas" to layer multiple canvases for MAX PERF - see: https://p5js.org/reference/#/p5/createGraphics
   const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  const gfxExitLights: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxKeysLocks: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxApples: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   gfxBG.addClass('static-gfx-canvas').addClass('bg').parent('game').addClass('gfx-bg');
+  gfxExitLights.addClass('static-gfx-canvas').addClass('fg0').parent('game').addClass('gfx-exit-lights');
   gfxKeysLocks.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-keys-locks');
   gfxApples.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-apples');
   gfxFG.addClass('static-gfx-canvas').addClass('fg2').parent('game').addClass('gfx-fg');
@@ -326,6 +330,7 @@ export function engine({
   const portalParticleSystem = new PortalParticleSystem2(p5, emitters10, gradients);
   const portalVortexParticleSystem = new PortalVortexParticleSystem2(p5, emitters, gradients);
   const gateUnlockParticleSystem = new GateUnlockParticleSystem2(p5, emitters, gradients);
+  const exitLightParticleSystem = new PortalParticleSystem2(p5, emitters, gradients);
 
   const invincibleColorGradient = gradients.addMultiple(SNAKE_INVINCIBLE_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
 
@@ -650,6 +655,9 @@ export function engine({
 
     resetLightmap(lightMap, level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
     startPortalParticles();
+    if (level.type === LevelType.WarpZone || (level.type === LevelType.Maze && level !== START_LEVEL && level !== START_LEVEL_COBRA)) {
+      startExitParticles();
+    }
   }
 
   function startLogicLoop() {
@@ -857,6 +865,7 @@ export function engine({
       drawDecorative2(decoratives2[i]);
     }
 
+    drawExitLights();
     drawParticles(0);
     drawBarriers();
     drawDoors();
@@ -902,7 +911,7 @@ export function engine({
       !state.isShowingDeathColours &&
       state.timeSinceInvincibleStart >= difficulty.invincibilityTime
     ) {
-      updateLighting(lightMap, globalLight, player.position, portals);
+      updateLighting(lightMap, globalLight, player.position, portals, apples, pickupsMap);
       drawLighting(lightMap, renderer, gfxLighting);
     }
 
@@ -977,6 +986,7 @@ export function engine({
   function resetGraphics() {
     renderer.invalidateStaticCache();
     gfxBG.clear(0, 0, 0, 0);
+    gfxExitLights.clear(0, 0, 0, 0);
     gfxFG.clear(0, 0, 0, 0);
     gfxApples.clear(0, 0, 0, 0);
     gfxKeysLocks.clear(0, 0, 0, 0);
@@ -1180,9 +1190,10 @@ export function engine({
   function applyScreenShakeGfx(x: number, y: number) {
     const shake = (g: P5.Graphics, mul = 1) => { g.style('transform', `translate(${x * mul}px, ${y * mul}px)`); }
     shake(gfxBG, 0.5);
+    shake(gfxExitLights, 0.5);
     shake(gfxFG, 2);
-    shake(gfxKeysLocks, 2);
-    shake(gfxApples, 1.1);
+    shake(gfxKeysLocks, 1.8);
+    shake(gfxApples, 1.2);
   }
 
   function resetScreenShake() {
@@ -1538,6 +1549,7 @@ export function engine({
     sfx.stop(Sound.invincibleLoop);
     stopAction(Action.Invincibility);
     musicPlayer.setPlaybackRate(level.musicTrack, 1);
+    exitLightParticleSystem.reset();
     if (replay.mode !== ReplayMode.Playback) {
       startAction(fadeMusic(0, 1000), Action.FadeMusic);
       if (isStartLevel) {
@@ -1885,9 +1897,10 @@ export function engine({
   }
 
   function openDoors() {
+    state.isDoorsOpen = true;
+    startExitParticles();
     doors = [];
     doorsMap = {};
-    state.isDoorsOpen = true;
     renderer.invalidateStaticCache();
     drawState.shouldDrawKeysLocks = true;
   }
@@ -2022,6 +2035,7 @@ export function engine({
   function drawBackground() {
     const backgroundColor = state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
     renderer.drawBackground(backgroundColor, gfxBG, gfxFG);
+    gfxExitLights.clear(0, 0, 0, 0);
     gfxLighting.clear(0, 0, 0, 0);
     gfxPresentation.clear(0, 0, 0, 0);
     if (drawState.shouldDrawApples) {
@@ -2112,7 +2126,7 @@ export function engine({
         drawAppleOptions);
     } else if (pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility) {
       const timeLeft = pickupsMap[getCoordIndex2(x, y)].timeTillDeath;
-      if (timeLeft <= PICKUP_EXPIRE_WARN_MS && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0) {
+      if (shouldBlinkExpiringPickup(timeLeft)) {
         return;
       }
       const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
@@ -2121,6 +2135,40 @@ export function engine({
       spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
     } else if (drawState.shouldDrawApples) {
       renderer.drawGraphicalComponentCustom(gfxApples, graphicalComponents.apple, x, y, 1, 0);
+    }
+  }
+
+  function drawExitLights() {
+    if (state.appMode !== AppMode.Game) return;
+    if (replay.mode === ReplayMode.Playback) return;
+    if (!state.isDoorsOpen && (level.type || 0) === LevelType.Level) return;
+    if (state.isExitingLevel) return;
+    if (state.isExited) return;
+    if (state.isGameWon) return;
+
+    for (let y = 0; y < GRIDCOUNT.y; y++) {
+      for (let x = 0; x < GRIDCOUNT.x; x++) {
+        if (x !== 0 && y !== 0 && x !== GRIDCOUNT.x - 1 && y !== GRIDCOUNT.y - 1) continue;
+        const coord = getCoordIndex2(x, y);
+        if (barriersMap[coord] && !passablesMap[coord]) continue;
+        if (portalsMap[coord]) continue;
+        if (nospawnsMap[coord] && !locksMap[coord]) continue;
+        const lightIndex = (i: number) => {
+          return Math.round(lerp(0, 4, triangle((i + 6) / 4)))
+        }
+        if (x === 0) {
+          renderer.drawExitLight(gfxExitLights, x + 1, y, DIR.RIGHT, lightIndex(y));
+        }
+        if (x === GRIDCOUNT.x - 1) {
+          renderer.drawExitLight(gfxExitLights, x - 1, y, DIR.LEFT, lightIndex(y));
+        }
+        if (y === 0) {
+          renderer.drawExitLight(gfxExitLights, x, y + 1, DIR.DOWN, lightIndex(x));
+        }
+        if (y === GRIDCOUNT.y - 1) {
+          renderer.drawExitLight(gfxExitLights, x, y - 1, DIR.UP, lightIndex(x));
+        }
+      }
     }
   }
 
@@ -2277,6 +2325,27 @@ export function engine({
         if (!portal) continue;
         portalParticleSystem.emit(portal.position.x, portal.position.y, portal.channel);
         portalVortexParticleSystem.emit(portal.position.x, portal.position.y, portal.channel);
+      }
+    }
+  }
+
+  function startExitParticles() {
+    if (state.appMode !== AppMode.Game) return;
+    if (replay.mode === ReplayMode.Playback) return;
+    if (!state.isDoorsOpen && (level.type || 0) === LevelType.Level) return;
+    if (state.isExitingLevel) return;
+    if (state.isExited) return;
+    if (state.isGameWon) return;
+
+    for (let y = 0; y < GRIDCOUNT.y; y++) {
+      for (let x = 0; x < GRIDCOUNT.x; x++) {
+        if (x !== 0 && y !== 0 && x !== GRIDCOUNT.x - 1 && y !== GRIDCOUNT.y - 1) continue;
+        const coord = getCoordIndex2(x, y);
+        // if (barriersMap[coord] && !passablesMap[coord]) continue;
+        if (barriersMap[coord]) continue;
+        if (portalsMap[coord]) continue;
+        if (nospawnsMap[coord] && !locksMap[coord] && !doorsMap[coord]) continue;
+        exitLightParticleSystem.emit(x, y, 0);
       }
     }
   }

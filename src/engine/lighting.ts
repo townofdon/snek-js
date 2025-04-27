@@ -1,11 +1,12 @@
 import P5, { Vector } from "p5";
 import Color from "color";
 
-import { GRIDCOUNT, LIGHTMAP_RESOLUTION } from "../constants";
+import { GRIDCOUNT, INVINCIBILITY_EXPIRE_FLASH_MS, LIGHTMAP_RESOLUTION, PICKUP_EXPIRE_WARN_MS } from "../constants";
 import { Renderer } from "./renderer";
-import { clamp, lerp } from "../utils";
+import { clamp, lerp, shouldBlinkExpiringPickup } from "../utils";
 import { Easing } from "../easing";
-import { PortalChannel } from "../types";
+import { Pickup, PickupType, PortalChannel } from "../types";
+import { Apples } from "../collections/apples";
 
 const lightBuffer = createLightmap();
 
@@ -34,8 +35,16 @@ export function resetLightmap(lightMap: number[], globalLight: number) {
   }
 }
 
-export function updateLighting(lightMap: number[], globalLight: number, playerPosition: Vector, portals: Record<PortalChannel, Vector[]>) {
+export function updateLighting(
+  lightMap: number[],
+  globalLight: number,
+  playerPosition: Vector,
+  portals: Record<PortalChannel, Vector[]>,
+  apples: Apples | null,
+  pickupsMap: Record<number, Pickup> | null,
+) {
   resetLightmap(lightMap, globalLight);
+  if (globalLight >= 1) return;
   addSpotlight(lightMap, playerPosition.x, playerPosition.y, { radius: 2, falloff: 12 });
   for (let i = 0; i <= 9; i++) {
     for (let j = 0; j < portals[i as PortalChannel].length; j++) {
@@ -43,6 +52,21 @@ export function updateLighting(lightMap: number[], globalLight: number, playerPo
       if (!portalPosition) continue;
       // addBlocklight(lightMap, portalPosition.x, portalPosition.y, { strength: 1 });
       addSpotlight(lightMap, portalPosition.x, portalPosition.y, { strength: 0.5, radius: 0, falloff: 4 });
+    }
+  }
+  for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
+    if (
+      apples?.existsAtCoord(i) &&
+      pickupsMap[i]?.type === PickupType.Invincibility &&
+      !shouldBlinkExpiringPickup(pickupsMap[i]?.timeTillDeath)
+    ) {
+      const x = Math.floor(i % GRIDCOUNT.x);
+      const y = Math.floor(i / GRIDCOUNT.x);
+      addBlocklight(lightMap, x, y, { strength: 0.7 });
+      addBlocklight(lightMap, x, y + 1, { strength: 0.3 });
+      addBlocklight(lightMap, x, y - 1, { strength: 0.3 });
+      addBlocklight(lightMap, x + 1, y, { strength: 0.3 });
+      addBlocklight(lightMap, x - 1, y, { strength: 0.3 });
     }
   }
 }

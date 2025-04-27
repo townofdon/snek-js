@@ -8,6 +8,8 @@ export const INITIAL_POOL_SIZE = 2000;
 const ORIGIN_OFFSET_X = 0.33
 const ORIGIN_OFFSET_Y = 0.28
 
+const UINT8_MAX = 255;
+
 export class Emitters {
   // GLOBAL
   private p5: P5;
@@ -170,7 +172,8 @@ export class Emitters {
   private spawnBurst = (i: number) => {
     if (i < 0) return;
     if (this.free[i]) return;
-    if (!this.originX[i]) return;
+    if (this.originX[i] === UINT8_MAX) return;
+    if (this.originY[i] === UINT8_MAX) return;
     if (!this.options[i]) return;
     for (let n = 0; n < this.options[i].burst; n++) {
       this.spawnParticle(this.originX[i], this.originY[i], this.options[i]);
@@ -180,7 +183,8 @@ export class Emitters {
   private tickEmitter = (i: number, deltaTime: number) => {
     if (i < 0) return;
     if (this.free[i]) return;
-    if (!this.originX[i]) return;
+    if (this.originX[i] === UINT8_MAX) return;
+    if (this.originY[i] === UINT8_MAX) return;
     if (!this.options[i]) return;
     if (this.options[i].lifetime <= 0) return;
     if (!this.options[i].loop && this.timeElapsed[i] >= this.options[i].lifetime) return;
@@ -228,11 +232,13 @@ export class Emitters {
   }
 
   private doubleSize = () => {
-    const originX = new Uint8Array(this.maxLength).fill(0);
-    const originY = new Uint8Array(this.maxLength).fill(0);
+    const originX = new Uint8Array(this.maxLength).fill(UINT8_MAX);
+    const originY = new Uint8Array(this.maxLength).fill(UINT8_MAX);
     const timeElapsed = new Float32Array(this.maxLength).fill(0);
     const timeTillNextSpawn = new Float32Array(this.maxLength).fill(0);
-    const options: EmitterOptions[] = new Array(this.maxLength).fill(0).map(() => null)
+    const options: EmitterOptions[] = new Array(this.maxLength).fill(0)
+      // @ts-ignore
+      .map(() => null)
 
     const indices = new Int16Array(this.maxLength).fill(-1);
     const free = new Int8Array(this.maxLength).fill(1);

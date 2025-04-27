@@ -363,7 +363,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       if (state.dirty) {
         state.dirty = false;
         renderer.invalidateStaticCache();
-        updateLighting(lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap());
+        updateLighting(lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null);
         startPortalParticles();
       }
       renderElements();

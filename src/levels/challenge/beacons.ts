@@ -1,4 +1,4 @@
-import { MusicTrack, PortalExitMode } from "../../types";
+import { MusicTrack, PickupType, PortalExitMode } from "../../types";
 import { challengeLevel } from "./_challengeLevel";
 import { X_CASA } from "./casa";
 
@@ -7,7 +7,7 @@ const name = 'beacons';
 export const X_BEACONS = challengeLevel({
   id: 'X402',
   name,
-  layoutV2: `VnJmenRwUTAxUzQ1VVEyM1M2N1VpZnV1dSFaSk5YT2soZChoT1h5ISFaJ3V1THlOaVE3NlMzMlVRNTRTMTBVcGZ6enRyWFZ2fDMzN3xSSUdIVHxiZWFjb25zfDEyMDAwWTRZNXxZM3xsWTAubCNGMjA2eEYwNDQzakI5NkQ0MEtDQjhDNjdtajYxMkU1M21LRkZDRjlDS0ZGQjB4NEQ0QjRLNjZCNzgxSzgyQzQ5OHxXV1dsMiEoWidKTmZaIClYWFgqdlhKLS1LLSNMZGRkTSgod04hIE8KayFoClAhPT1RKj1KLV9TX0pKKUpKX1VfSko9VgpxcVhMcXFYVzEtMS0xLVkwfFooIGYqeSFnISdoTCBxWGRkaSpNIU53IWpLM0IxQzMyS2tkZHEgTGwxfG1LNTMyNzQ3cCpNKCgpTSFxKSlyKlAhTFBOdHopeU51TGd2WAp3ZF9fZHg1Q0tBeSFKeilnAXp5eHd2dXRycXBtbGtqaWhnZlpZV1ZVU1FQT05NTEtKKikoJyFf`,
+  layoutV2: `VnJnWXApdE5xUTAxUzQ1VVEyM1M2N1VoZ1lZWSFmS05YT2ooZCh5T1h0ISFmJ1lZSnROaFE3NlMzMlVRNTRTMTBVcWdwcHBKdE5yWFZ2fDMzN3xSSUdIVHxiZWFjb25zfDEyMDAwWjRaNXxaM3xrWjAuayNGMjA2eEYwNDQzaUI5NkQ0MExDQjhDNjdtaTYxMkU1M21MRkZDRjlDTEZGQjB4NEQ0QjRMNjZCNzgxTDgyQzQ5OHxXV1drMiEoZidLTmdmbFhYWCp2WEpkZGRLLS1MLSNNKCh3TiEgTwpqIXkKUCE9PVEqPUstX1NfS0spS0tfVV9LSz1WCnVKdVcxLTEtMS1ZSiEnWjB8ZiggZyp0IWgqTSFOdyFpTDNCMUMzMkxqSilYWCBKazF8bCApbUw1MzI3NDdwKSEncSpNKCgpTSFyKlAhSlBOdCFLdSkpKSlYdlgKd2RfX2R4NUNMQXlKbClKAXl4d3Z1dHJxcG1sa2ppaGdmWllXVlVTUVBPTk1MS0oqKSgnIV8%253D`,
   musicTrack: MusicTrack.slyguy,
   nextLevel: X_CASA,
   portalExitConfig: {
@@ -21,5 +21,21 @@ export const X_BEACONS = challengeLevel({
     8: PortalExitMode.SameDirection,
     9: PortalExitMode.SameDirection,
     0: PortalExitMode.SameDirection,
+  },
+  pickupDrops: {
+    10: { likelihood: 0.5, type: PickupType.Invincibility },
+    20: { likelihood: 1, type: PickupType.Invincibility },
+    30: { likelihood: 0.4, type: PickupType.Invincibility },
+    38: { likelihood: 1, type: PickupType.Invincibility },
+    50: { likelihood: .8, type: PickupType.Invincibility },
+    60: { likelihood: .4, type: PickupType.Invincibility },
+    70: { likelihood: .4, type: PickupType.Invincibility },
+    75: { likelihood: 1, type: PickupType.Invincibility },
+    90: { likelihood: .4, type: PickupType.Invincibility },
+    100: { likelihood: 0.8, type: PickupType.Invincibility },
+    125: { likelihood: 0.05, type: PickupType.Invincibility },
+    150: { likelihood: 0.8, type: PickupType.Invincibility },
+    175: { likelihood: 0.05, type: PickupType.Invincibility },
+    200: { likelihood: 0.8, type: PickupType.Invincibility },
   },
 });

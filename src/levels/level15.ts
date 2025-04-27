@@ -12,7 +12,7 @@ export const LEVEL_15: Level = {
   numApplesStart: 10,
   growthMod: 0.4,
   layout: `
-XXXXXXXXXXXXDDDXXXXXXXXXXXXXXX
+XXXXXXXXXXXX+++XXXXXXXXXXXXXXX
 XX1111111111DDDXXXXXXXXXXXXXXX
 XX  ------~~XXXX~~        ~~XX
 XX  ------~~XXXX~          ~XX
@@ -41,7 +41,7 @@ XX           --4X4- ======~ XX
 XX~          ~XXXX~~------~ XX
 XX~~~       ~~XXXX~~------~ XX
 XXXXXXXXXXXXXXXDDD1111111111XX
-XXXXXXXXXXXXXXXDDDXXXXXXXXXXXX
+XXXXXXXXXXXXXXX+++XXXXXXXXXXXX
   `,
   colors: getExtendedPalette({
     ...PALETTE.boxcar,

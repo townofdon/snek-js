@@ -5,6 +5,7 @@ import { emitUIEvent, UIAction } from './uiEvents';
 import { DifficultyIndex, LevelCompletion, LevelId } from '../types';
 import { getWarpLevelFromNum } from '../levels/levelUtils';
 import { SaveDataStore } from '../stores/SaveDataStore';
+import { GameModeMenuElement } from './uiTypes';
 
 const UI_LABEL_OFFSET = '36px';
 const UI_PARENT_ID = 'game';
@@ -92,12 +93,17 @@ export class UI {
     emitUIEvent(UIAction.HideMainMenu);
   }
 
-  static showGameModeMenu() {
+  static showGameModeMenu(isCobraMode: boolean) {
     if (UI.getIsGameModeMenuShowing()) {
       return;
     }
     UI.activeMenu = ActiveMenu.GameModeMenu;
     document.getElementById('select-game-mode-menu').classList.remove('hidden');
+    if (isCobraMode) {
+      document.getElementById(GameModeMenuElement.LevelSelect)?.classList.add('hidden');
+    } else {
+      document.getElementById(GameModeMenuElement.LevelSelect)?.classList.remove('hidden');
+    }
     emitUIEvent(UIAction.ShowGameModeMenu);
   }
 

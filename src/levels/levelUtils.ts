@@ -52,6 +52,7 @@ import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from "./levels";
 import { shuffleArray } from "../utils";
 import { LEVEL_WIN_GAME } from "./winGame";
 import { X_GAUNTLET } from "./challenge/gauntlet";
+import { X_SNEKCITY } from "./challenge/snekcity";
 
 export function getWarpLevelFromNum(levelNum: number): Level {
   switch (levelNum) {
@@ -159,6 +160,8 @@ export function getWarpLevelFromNum(levelNum: number): Level {
       return X_UNWIND;
     case 416:
       return X_GAUNTLET;
+    case 417:
+      return X_SNEKCITY;
 
     default:
       return LEVEL_01;

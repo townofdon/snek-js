@@ -15,7 +15,6 @@ import {
 } from '../types';
 import { InputAction } from '../types';
 import {
-  GameModeMenuElement as GameModeButton,
   GameModeMenuNavMap,
   GameOverMenuElement,
   GameOverMenuNavMap,
@@ -33,6 +32,7 @@ import { gamepadPressed, getGamepad } from '../engine/gamepad';
 import { Button } from '../engine/gamepad/StandardGamepadMapping';
 import { offUIEvent, onUIEvent, UIAction } from './uiEvents';
 import { getWarpLevelFromNum } from '../levels/levelUtils';
+import { GameModeMenuElement } from './uiTypes';
 
 interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
@@ -183,6 +183,12 @@ export class UIBindings implements UIHandler {
       case PauseMenuElement.ButtonWarpX15:
         this.callbacks.onWarpToLevel(415);
         break;
+      case PauseMenuElement.ButtonWarpX16:
+        this.callbacks.onWarpToLevel(416);
+        break;
+      case PauseMenuElement.ButtonWarpX17:
+        this.callbacks.onWarpToLevel(417);
+        break;
     }
   }
   private callGameOverMenuAction = (element: GameOverMenuElement) => {
@@ -195,18 +201,18 @@ export class UIBindings implements UIHandler {
         break;
     }
   }
-  private callGameModeMenuAction = (element: GameModeButton) => {
+  private callGameModeMenuAction = (element: GameModeMenuElement) => {
     switch (element) {
-      case GameModeButton.Campaign:
+      case GameModeMenuElement.Campaign:
         this.callAction(InputAction.StartGame);
         break;
-      case GameModeButton.LevelSelect:
+      case GameModeMenuElement.LevelSelect:
         this.callAction(InputAction.ShowLevelSelectMenu);
         break;
-      case GameModeButton.Randomizer:
+      case GameModeMenuElement.Randomizer:
         this.onSelectGameModeRandomizer();
         break;
-      case GameModeButton.Back:
+      case GameModeMenuElement.Back:
         this.callAction(InputAction.CancelChooseGameMode);
         break;
     }
@@ -243,11 +249,11 @@ export class UIBindings implements UIHandler {
   private pauseMenuNavMap: PauseMenuNavMap;
   private gameOverMenuNavMap: GameOverMenuNavMap;
   private gameModeMenuNavMap: GameModeMenuNavMap;
-  private gameModeMenuElements: Record<GameModeButton, HTMLButtonElement> = {
-    [GameModeButton.Campaign]: undefined,
-    [GameModeButton.LevelSelect]: undefined,
-    [GameModeButton.Randomizer]: undefined,
-    [GameModeButton.Back]: undefined
+  private gameModeMenuElements: Record<GameModeMenuElement, HTMLButtonElement> = {
+    [GameModeMenuElement.Campaign]: undefined,
+    [GameModeMenuElement.LevelSelect]: undefined,
+    [GameModeMenuElement.Randomizer]: undefined,
+    [GameModeMenuElement.Back]: undefined
   }
   private levelSelectMenuNavMap: LevelSelectMenuNavMap;
   private levelSelectMenu: HTMLElement;
@@ -515,6 +521,11 @@ export class UIBindings implements UIHandler {
     (this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] as HTMLInputElement).checked = this.gameState.gameMode === GameMode.Casual;
     (this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode] as HTMLInputElement).checked = this.gameState.gameMode === GameMode.Cobra;
     (this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake] as HTMLInputElement).checked = this.settings.isScreenShakeDisabled;
+    if (this.gameState.gameMode === GameMode.Cobra) {
+      this.gameModeMenuElements[GameModeMenuElement.LevelSelect].classList.add('hidden');
+    } else {
+      this.gameModeMenuElements[GameModeMenuElement.LevelSelect].classList.remove('hidden');
+    }
   }
 
   private assignElements = () => {
@@ -534,10 +545,10 @@ export class UIBindings implements UIHandler {
     this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume] = requireElementById<HTMLInputElement>('slider-volume-music');
     this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume] = requireElementById<HTMLInputElement>("slider-volume-sfx");
 
-    this.gameModeMenuElements[GameModeButton.Campaign] = requireElementById<HTMLButtonElement>('button-game-mode-campaign')
-    this.gameModeMenuElements[GameModeButton.LevelSelect] = requireElementById<HTMLButtonElement>('button-game-mode-level-select')
-    this.gameModeMenuElements[GameModeButton.Randomizer] = requireElementById<HTMLButtonElement>('button-game-mode-randomizer')
-    this.gameModeMenuElements[GameModeButton.Back] = requireElementById<HTMLButtonElement>('button-game-mode-back')
+    this.gameModeMenuElements[GameModeMenuElement.Campaign] = requireElementById<HTMLButtonElement>('button-game-mode-campaign')
+    this.gameModeMenuElements[GameModeMenuElement.LevelSelect] = requireElementById<HTMLButtonElement>('button-game-mode-level-select')
+    this.gameModeMenuElements[GameModeMenuElement.Randomizer] = requireElementById<HTMLButtonElement>('button-game-mode-randomizer')
+    this.gameModeMenuElements[GameModeMenuElement.Back] = requireElementById<HTMLButtonElement>('button-game-mode-back')
 
     this.levelSelectMenu = requireElementById<HTMLElement>('level-select-menu')
     this.levelSelectMapNum = requireElementById<HTMLElement>('level-select-map-number')
@@ -582,15 +593,15 @@ export class UIBindings implements UIHandler {
         this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].removeEventListener('input', this.onMusicSliderInput);
         this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].removeEventListener('input', this.onSfxSliderInput);
       } else if (action === UIAction.ShowGameModeMenu) {
-        this.gameModeMenuElements[GameModeButton.Campaign].addEventListener('click', this.onSelectGameModeCampaign);
-        this.gameModeMenuElements[GameModeButton.LevelSelect].addEventListener('click', this.onSelectGameModeLevelSelect);
-        this.gameModeMenuElements[GameModeButton.Randomizer].addEventListener('click', this.onSelectGameModeRandomizer);
-        this.gameModeMenuElements[GameModeButton.Back].addEventListener('click', this.onSelectGameModeBack);
+        this.gameModeMenuElements[GameModeMenuElement.Campaign].addEventListener('click', this.onSelectGameModeCampaign);
+        this.gameModeMenuElements[GameModeMenuElement.LevelSelect].addEventListener('click', this.onSelectGameModeLevelSelect);
+        this.gameModeMenuElements[GameModeMenuElement.Randomizer].addEventListener('click', this.onSelectGameModeRandomizer);
+        this.gameModeMenuElements[GameModeMenuElement.Back].addEventListener('click', this.onSelectGameModeBack);
       } else if (cleanup || action === UIAction.HideGameModeMenu) {
-        this.gameModeMenuElements[GameModeButton.Campaign].removeEventListener('click', this.onSelectGameModeCampaign);
-        this.gameModeMenuElements[GameModeButton.LevelSelect].removeEventListener('click', this.onSelectGameModeLevelSelect);
-        this.gameModeMenuElements[GameModeButton.Randomizer].removeEventListener('click', this.onSelectGameModeRandomizer);
-        this.gameModeMenuElements[GameModeButton.Back].removeEventListener('click', this.onSelectGameModeBack);
+        this.gameModeMenuElements[GameModeMenuElement.Campaign].removeEventListener('click', this.onSelectGameModeCampaign);
+        this.gameModeMenuElements[GameModeMenuElement.LevelSelect].removeEventListener('click', this.onSelectGameModeLevelSelect);
+        this.gameModeMenuElements[GameModeMenuElement.Randomizer].removeEventListener('click', this.onSelectGameModeRandomizer);
+        this.gameModeMenuElements[GameModeMenuElement.Back].removeEventListener('click', this.onSelectGameModeBack);
       } else if (action === UIAction.ShowLevelSelectMenu) {
         this.levelSelectMenu.addEventListener('click', this.onLevelSelect);
         this.levelSelectMenuNavMap.gotoFirst();
@@ -612,11 +623,11 @@ export class UIBindings implements UIHandler {
   public setStartButtonVisibility = (visible: boolean, levelNum = -1) => {
     const { isRandomizer } = this.gameState;
     if (isRandomizer) {
-      this.gameModeMenuElements[GameModeButton.Randomizer].style.visibility = visible ? 'visible' : 'hidden';
-      this.gameModeMenuElements[GameModeButton.Randomizer].classList.add('active');
+      this.gameModeMenuElements[GameModeMenuElement.Randomizer].style.visibility = visible ? 'visible' : 'hidden';
+      this.gameModeMenuElements[GameModeMenuElement.Randomizer].classList.add('active');
     } else {
-      this.gameModeMenuElements[GameModeButton.Campaign].style.visibility = visible ? 'visible' : 'hidden';
-      this.gameModeMenuElements[GameModeButton.Campaign].classList.add('active');
+      this.gameModeMenuElements[GameModeMenuElement.Campaign].style.visibility = visible ? 'visible' : 'hidden';
+      this.gameModeMenuElements[GameModeMenuElement.Campaign].classList.add('active');
     }
     if (levelNum > 0 && this.levelSelectMenu) {
       const elem = this.levelSelectMenu.querySelector(`button[data-level="${levelNum}"]`) as HTMLElement;

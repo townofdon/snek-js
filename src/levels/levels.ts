@@ -53,6 +53,7 @@ import { X_TOO_SIMPLE } from "./challenge/tooSimple";
 import { X_UNWIND } from "./challenge/unwind";
 import { X_UNDERGROUND } from "./challenge/underground";
 import { X_GAUNTLET } from "./challenge/gauntlet";
+import { X_SNEKCITY } from "./challenge/snekcity";
 
 export const LEVELS: Level[] = [
     MAZE_01,
@@ -143,6 +144,7 @@ export const SECRET_LEVELS = [
 ]
 
 export const CHALLENGE_LEVELS: Level[] = [
+    X_SNEKCITY,
     X_ACROPOLIS,
     X_BEACONS,
     X_CASA,
@@ -165,4 +167,4 @@ export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;
 
 export const START_LEVEL = MAZE_01;
 export const START_LEVEL_COBRA = MAZE_01_COBRA;
-export const FIRST_CHALLENGE_LEVEL = X_ACROPOLIS;
+export const FIRST_CHALLENGE_LEVEL = X_SNEKCITY;

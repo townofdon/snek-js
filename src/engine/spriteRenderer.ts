@@ -29,6 +29,11 @@ export class SpriteRenderer {
     [Image.SnekSegmentD]: null,
     [Image.SnekSegmentE]: null,
     [Image.SnekButt]: null,
+    [Image.SnekDoorLightA]: null,
+    [Image.SnekDoorLightB]: null,
+    [Image.SnekDoorLightC]: null,
+    [Image.SnekDoorLightD]: null,
+    [Image.SnekDoorLightE]: null,
     [Image.KeyGrey]: null,
     [Image.KeyYellow]: null,
     [Image.KeyRed]: null,
@@ -91,6 +96,11 @@ export class SpriteRenderer {
       this.loadImage(Image.SnekSegmentD);
       this.loadImage(Image.SnekSegmentE);
       this.loadImage(Image.SnekButt);
+      this.loadImage(Image.SnekDoorLightA);
+      this.loadImage(Image.SnekDoorLightB);
+      this.loadImage(Image.SnekDoorLightC);
+      this.loadImage(Image.SnekDoorLightD);
+      this.loadImage(Image.SnekDoorLightE);
       this.loadImage(Image.KeyGrey);
       this.loadImage(Image.KeyYellow);
       this.loadImage(Image.KeyRed);
@@ -150,16 +160,20 @@ export class SpriteRenderer {
       position.x,
       position.y,
     );
-    gfx.translate(
-      (widthX * 1.5 + offset) * IMAGE_SCALE,
-      (widthY * 1.5 + offset) * IMAGE_SCALE,
-    );
-    gfx.rotate(rotation);
-    gfx.translate(
-      (-widthX * 1.5 - offset) * IMAGE_SCALE,
-      (-widthY * 1.5 - offset) * IMAGE_SCALE,
-    );
-    gfx.tint(255, 255, 255, lerp(0, 255, alpha));
+    if (rotation) {
+      gfx.translate(
+        (widthX * 1.5 + offset) * IMAGE_SCALE,
+        (widthY * 1.5 + offset) * IMAGE_SCALE,
+      );
+      gfx.rotate(rotation);
+      gfx.translate(
+        (-widthX * 1.5 - offset) * IMAGE_SCALE,
+        (-widthY * 1.5 - offset) * IMAGE_SCALE,
+      );
+    }
+    if (alpha !== 1) {
+      gfx.tint(255, 255, 255, lerp(0, 255, alpha));
+    }
     gfx.image(
       loaded,
       0,
@@ -174,17 +188,19 @@ export class SpriteRenderer {
       this.p5.LEFT,
       this.p5.TOP
     );
-    gfx.tint(255, 255, 255, 255);
+    if (alpha !== 1) {
+      gfx.tint(255, 255, 255, 255);
+    }
     gfx.pop();
   }
 
-  drawImage = (image: Image, x: number, y: number, gfx: P5 | P5.Graphics = this.p5, alpha = 1, offset = MAP_OFFSET) => {
-    this.drawImageImpl(gfx, image, x, y, alpha, offset);
+  drawImage = (image: Image, x: number, y: number, gfx: P5 | P5.Graphics = this.p5, alpha = 1, offset = MAP_OFFSET, rotation = 0) => {
+    this.drawImageImpl(gfx, image, x, y, alpha, offset, rotation);
   }
 
   drawImageStatic = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha = 1, offset = MAP_OFFSET) => {
     if (this.isStaticCached) return;
-    this.drawImageImpl(gfx, image, x, y, alpha, offset);
+    this.drawImageImpl(gfx, image, x, y, alpha, offset, 0);
   }
 
   getImageWidth = (image: Image): number => {
@@ -199,15 +215,36 @@ export class SpriteRenderer {
     return loaded.height * 2;
   }
 
-  private drawImageImpl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha = 1, offset = MAP_OFFSET) => {
+  private drawImageImpl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha = 1, offset = MAP_OFFSET, rotation = 0) => {
     const loaded = this.images[image];
     if (!loaded) return;
+    // this is why you should use a dedicated game engine, to not have to deal with sub-pixel adjustments
+    // const adjustment = IMAGE_SCALE - (IMAGE_SCALE - 1) * 0.5;
+    const adjustment = 1;
     gfx.push();
-    gfx.tint(255, 255, 255, lerp(0, 255, alpha));
-    gfx.image(
-      loaded,
+    gfx.translate(
       Math.round(x + offset),
       Math.round(y + offset),
+    );
+    if (rotation) {
+      // translate 1 instead of 0.5 because we are doubling all image sizes
+      gfx.translate(
+        (loaded.width) * adjustment,
+        (loaded.height) * adjustment,
+      );
+      gfx.rotate(rotation);
+      gfx.translate(
+        (-loaded.width) * adjustment,
+        (-loaded.height) * adjustment,
+      );
+    }
+    if (alpha !== 1) {
+      gfx.tint(255, 255, 255, lerp(0, 255, alpha));
+    }
+    gfx.image(
+      loaded,
+      0,
+      0,
       Math.round(2 * loaded.width),
       Math.round(2 * loaded.height),
       0,
@@ -218,6 +255,9 @@ export class SpriteRenderer {
       this.p5.LEFT,
       this.p5.TOP
     );
+    if (alpha !== 1) {
+      gfx.tint(255, 255, 255, 255);
+    }
     gfx.pop();
   }
 }

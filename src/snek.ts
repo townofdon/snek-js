@@ -79,7 +79,7 @@ import { LeaderboardScene } from './scenes/LeaderboardScene';
 import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
 import { SaveDataStore } from './stores/SaveDataStore';
 import { recordSnekalyticsEvent } from './api/snekalytics';
-import { applyGamepadUIActions, getGamepad, resetGamepad, tickGamepad } from './engine/gamepad';
+import { applyGamepadUIActions, resetGamepad, tickGamepad } from './engine/gamepad';
 
 const queryParams = parseUrlQueryParams();
 const unlockedMusicStore = new UnlockedMusicStore()
@@ -590,7 +590,7 @@ export const sketch = (p5: P5) => {
   function showGameModeMenu() {
     playSound(Sound.unlock, 1, true);
     UI.hideLevelSelectMenu();
-    UI.showGameModeMenu();
+    UI.showGameModeMenu(state.gameMode === GameMode.Cobra);
     uiBindings.onSelectGameMode();
   }
 

@@ -32,8 +32,9 @@ import {
   SHOW_FPS,
   STROKE_SIZE,
 } from "../constants";
-import { clamp, lerp, oscilateLinear } from "../utils";
+import { clamp, getRotationFromDirection, lerp, oscilateLinear } from "../utils";
 import { SpriteRenderer } from "./spriteRenderer";
+import { Easing } from "../easing";
 
 interface RendererConstructorProps {
   p5: P5
@@ -641,9 +642,6 @@ export class Renderer implements IRenderer {
     }
   }
 
-  /**
-   * Draw portal
-   */
   drawPortal = (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions) => {
     if (!portal) return;
     const delay = portal.index * PORTAL_INDEX_DELAY;
@@ -653,6 +651,47 @@ export class Renderer implements IRenderer {
       ? [this.p5.lerpColor(this.p5.color("#ccc"), this.p5.color("#000"), t1).toString(), "#555"]
       : this.lookupPortalColors(portal.channel, t1, t2);
     this.drawSquare(portal.position.x, portal.position.y, background, color, options);
+  }
+
+  drawExitLight = (gfx: P5.Graphics, x: number, y: number, dir: DIR, idx: number) => {
+    const images = [
+      Image.SnekDoorLightD,
+      Image.SnekDoorLightD,
+      Image.SnekDoorLightC,
+      Image.SnekDoorLightB,
+      Image.SnekDoorLightA,
+      Image.SnekDoorLightA,
+      Image.SnekDoorLightA,
+      Image.SnekDoorLightB,
+      Image.SnekDoorLightC,
+      Image.SnekDoorLightD,
+      Image.SnekDoorLightD,
+    ]
+    const alphas = [
+      0.95,
+      0.8,
+      0.7,
+      0.8,
+      0.9,
+      0.95,
+      1,
+      0.8,
+      0.7,
+      0.8,
+      0.9,
+    ]
+    const duration = 200;
+    const totalDuration = duration * images.length;
+    const on = Math.floor(this.elapsed / totalDuration) % 2 === 0;
+    if (!on) {
+      this.spriteRenderer.drawImage3x3Custom(gfx, Image.SnekDoorLightD, x, y, getRotationFromDirection(dir), Easing.inCubic(alphas[0]), 0);
+      return;
+    }
+    const index = (Math.floor(this.elapsed / duration) + Math.round(idx)) % images.length;
+    // const index = Math.max((Math.floor(this.elapsed / duration) % images.length) + Math.round(idx), images.length - 1);
+    const img = images[index] || Image.SnekDoorLightE;
+    const alpha = Easing.inCubic(alphas[index] || alphas[0])
+    this.spriteRenderer.drawImage3x3Custom(gfx, img, x, y, getRotationFromDirection(dir), alpha, 0);
   }
 
   private fpsFrames: number[] = [];

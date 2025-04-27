@@ -16,12 +16,12 @@ export const TUTORIAL_LEVEL_20: Level = {
   growthMod: 0,
   extraHurtGraceTime: 30,
   layout: `
-XXXXXXXXXXXXX    XXX- ------- 
-Xaaaaaa    XXX  XXX - -=   =- 
-XaXXXXXXXX XXXXXXXXX- ------- 
-XaXXX--XXX XXX--XXX -         
-XaX-X--X-XaX X--X XX----------
-XaX-X--X-XaX X--X X X X X X X 
+XXXXXXXXXXXXX~~~~XXX_~_______~
+Xaaaaaa    XXX  XXX - -=   =_~
+XaXXXXXXXX XXXXXXXXX- ------_~
+XaXXX--XXX XXX--XXX -        ~
+XaX-X--X-XaX X--X XX---------_
+XaX-X--X-XaX X--X X X X X X X~
 X X-X--X-XaXXX--XXXXXXXXXXXXXX
 X X-XXXX-XaXXXXXXXXXXXXXXXXXXX
 X X-X--X-XaXXX--XXXXXXX--XXXXX
@@ -36,16 +36,16 @@ XXXXXXXXXX XXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXaXXXXXXXX aaaaaaaa X
 XXXXXXXXXXaXXX--XXX XXXXXXXX X
 XXXXXXXXXXaX-X--X-X XXXddXXX X
- X X XXXXXaX-X--X-X XddddddX X
-----XXXXXXaX-X--X-X XXXddXXXaX
-===- XXXXXaX-XXXX-X XXXddXXXaX
-===-XXXXXXaX-X--X-X XXX--XXXaX
----- XXXXXaX-X--X-X X-X--x-xDX
-   -XXXXXX X-X--X-XaX-X--x-xDX
-   - XXXXX XXX--XXXaXXX--XXXDX
-----XXXXXX XXXXXXXXaXXXxxXXXDX
-===- XXXXX     aaaaaXXX  XXXDX
-===-XXXXXXXXXXXXXXXXX      XDX
+~X X XXXXXaX-X--X-X XddddddX X
+_---XXXXXXaX-X--X-X XXXddXXXaX
++==- XXXXXaX-XXXX-X XXXddXXXaX
++==-XXXXXXaX-X--X-X XXX--XXXaX
+_--- XXXXXaX-X--X-X X-X--x-xDX
+~  -XXXXXX X-X--X-XaX-X--x-xDX
+~  - XXXXX XXX--XXXaXXX--XXXDX
+_---XXXXXX XXXXXXXXaXXXxxXXXDX
++==- XXXXX     aaaaaXXX  XXXDX
++++_XXXXXXXXXXXXXXXXX      XDX
   `,
   colors: getExtendedPalette({
     ...PALETTE.violetSunset,
