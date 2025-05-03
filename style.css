@@ -39,6 +39,11 @@
   --ui-sprite-width: 32px;
   --ui-sprite-height: 32px;
 
+  --ui-heart-img: url('assets/graphics/snek-heart.png');
+  --ui-heart-background-size: 64px 16px;
+  --ui-heart-width: 16px;
+  --ui-heart-height: 16px;
+
   --slider-track-color: #2196F3;
   --slider-thumb-color: #808080;
 
@@ -1066,21 +1071,39 @@ button.game-mode.back {
 }
 
 .ui-label.hearts-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   left: inherit;
   top: 0px;
   right: 39px;
   padding: 0px 5px;
+  gap: 4px;
   transform-origin: right top;
   transform: scale(2);
   font-size: 15px;
-  line-height: 18px;
+  line-height: 12px;
+  min-width: 69px;
 }
-.ui-label.hearts-container > p {
+.ui-heart {
   display: inline-block;
-  font-size: inherit;
-  text-shadow: 0px 3px 3px black;
-  text-align: center;
-  margin: 0 8px;
+  background-image: var(--ui-heart-img);
+  width: var(--ui-heart-width);
+  height: var(--ui-heart-height);
+  background-size: var(--ui-heart-background-size);
+  background-position: calc(0 * var(--ui-heart-width)) 0;
+  background-repeat: no-repeat;
+  transform-origin: top left;
+  padding: 1px;
+}
+.ui-heart.damaged {
+  background-position: calc(-1 * var(--ui-heart-width)) 0;
+}
+.hearts-container.no-lives-left .ui-heart {
+  background-position: calc(-2 * var(--ui-heart-width)) 0;
+}
+.hearts-container.death-inverted .ui-heart {
+  background-position: calc(-3 * var(--ui-heart-width)) 0;
 }
 
 .ui-label.casual {
