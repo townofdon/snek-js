@@ -2395,11 +2395,13 @@ export function engine({
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
     renderer.invalidateStaticCache();
+    // UI.renderHearts(0, true);
     yield* coroutines.waitForTime(HURT_STUN_TIME * 2.5);
     state.isShowingDeathColours = false;
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
     renderer.invalidateStaticCache();
+    // UI.renderHearts(0, false);
     startScreenShake(1, 0.4);
     if (replay.mode === ReplayMode.Playback) {
       yield* coroutines.waitForTime(1000);

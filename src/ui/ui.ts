@@ -310,55 +310,50 @@ export class UI {
 
   static renderHearts(numLives = 3, isShowingDeathColours: boolean) {
     const containerId = "hearts-container";
-    const className = "ui-label hearts-container";
-    const getLabelColor = (index: number) => {
-      if (isShowingDeathColours) return LABEL_COLOR_INVERTED;
-      if (numLives === 0) return '#f50';
-      if (index < numLives) return '#fff';
-      return '#888';
-    }
+    const classNameContainer = "ui-label hearts-container";
+    const classNameHeart = 'ui-heart';
+    const classNameDamaged = 'damaged';
+    const classNameNoLivesLeft = 'no-lives-left';
+    const classNameDeathInverted = 'death-inverted';
     const labelBackgroundColor = (() => {
-      if (isShowingDeathColours) return LABEL_COLOR_INVERTED;
-      // return numLives === 0 ? '#631705db' : 'rgb(7 11 15 / 52%)';
-      return numLives === 0 ? '#631705db' : LABEL_BG_COLOR;
+      if (isShowingDeathColours) return LABEL_BG_COLOR_INVERTED;
+      return numLives === 0 ? '#5c050ddb' : LABEL_BG_COLOR;
     })()
     const numHearts = 3;
-    const elem = document.getElementById(containerId);
-    if (elem) {
-      const children = elem.getElementsByTagName('p');
-      for (let i = 0; i < numHearts && i < children.length; i++) {
-        children[i].innerHTML = i < numLives ? "♥︎" : "♡";
-        children[i].style.color = getLabelColor(i);
+    let elem = document.getElementById(containerId);
+
+    if (!elem) {
+      let div = UI.p5.createDiv();
+      for (let i = 0; i < numHearts; i++) {
+        const element = UI.p5.createSpan();
+        element.class(classNameHeart);
+        element.parent(div);
       }
-      elem.style.backgroundColor = labelBackgroundColor;
-      return;
+      div.class(classNameContainer);
+      div.id(containerId);
+      div.parent(UI_PARENT_ID);
+      elem = document.getElementById(containerId);
     }
-    let div = UI.p5.createDiv();
-    const drawHeart = (index = 0) => {
-      const element = UI.p5.createP(index < numLives ? "♥︎" : "♡");
-      element.style('color', getLabelColor(index));
-      // element.style('display', 'inline-block');
-      // element.style('font-size', '15px');
-      // element.style('text-shadow', '0px 3px 3px black');
-      // element.style('text-align', 'center');
-      // element.style('margin', '0 8px');
-      // element.class
-      element.parent(div);
+
+    const children = elem.getElementsByTagName('span');
+    for (let i = 0; i < numHearts && i < children.length; i++) {
+      if (i < numLives) {
+        children[i].classList.remove(classNameDamaged);
+      } else {
+        children[i].classList.add(classNameDamaged);
+      }
     }
-    for (let i = 0; i < numHearts; i++) {
-      drawHeart(i);
+    elem.style.backgroundColor = labelBackgroundColor;
+    if (numLives === 0) {
+      elem.classList.add(classNameNoLivesLeft);
+    } else {
+      elem.classList.remove(classNameNoLivesLeft);
     }
-    // div.position(0, 0);
-    // div.style('left', 'inherit');
-    // div.style('right', UI_LABEL_OFFSET);
-    // div.style('padding', '0 5px');
-    div.style('background-color', labelBackgroundColor);
-    // div.style('z-index', '5');
-    // div.style('transform-origin', 'top right');
-    // div.style('transform', 'scale(2)');
-    div.class(className);
-    div.id(containerId);
-    div.parent(UI_PARENT_ID);
+    if (isShowingDeathColours) {
+      elem.classList.add(classNameDeathInverted);
+    } else {
+      elem.classList.remove(classNameDeathInverted);
+    }
   }
 
   static renderScore(score = 0, isShowingDeathColours: boolean) {
