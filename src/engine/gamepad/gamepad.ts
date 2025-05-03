@@ -44,7 +44,7 @@ export function resetGamepad() {
   if (!gamepad) return false;
   if (!gamepad.connected) return false;
   state.currentFrame = 0;
-  gamepad.buttons.forEach((_, id) => waitingForRelease[id as Button] = -1)
+  gamepad.buttons.forEach((_, id) => waitingForRelease[id as Button] = 0);
 }
 
 export function applyGamepadRumble(duration: number, weakMagnitude: number, strongMagnitude: number) {
@@ -272,7 +272,7 @@ export function wasPressedThisFrame(gamepad: Gamepad, id: Button) {
     waitingForRelease[id] = -1;
     return false;
   }
-  if (waitingForRelease[id] > 0 && waitingForRelease[id] <= state.currentFrame) {
+  if (waitingForRelease[id] > -1 && waitingForRelease[id] <= state.currentFrame) {
     return false;
   }
   waitingForRelease[id] = state.currentFrame + 1;
