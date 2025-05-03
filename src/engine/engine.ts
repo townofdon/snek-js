@@ -1741,7 +1741,7 @@ export function engine({
     renderHeartsUI();
     spawnHurtParticles();
     reboundSnake(segments.length > 3 ? 2 : 1);
-    player.directionToFirstSegment = invertDirection(getDirectionSnakeForward());
+    player.directionToFirstSegment = getDirectionSnakeBackward();
 
     // if snake will move backwards into itself:
     // - set current direction to be: segments[0] --> snake head

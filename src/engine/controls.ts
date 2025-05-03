@@ -244,12 +244,12 @@ function getSpecialMove(currentDirection: DIR, recentMoves: RecentMoves, recentI
   return null;
 }
 
-export function validateMove(prev: DIR, current: DIR | null, disallowEqual = true): boolean {
-  if (!current) return false;
-  if (disallowEqual && prev === current) return false;
-  if (prev === DIR.UP && current === DIR.DOWN) return false;
-  if (prev === DIR.DOWN && current === DIR.UP) return false;
-  if (prev === DIR.LEFT && current === DIR.RIGHT) return false;
-  if (prev === DIR.RIGHT && current === DIR.LEFT) return false;
+export function validateMove(prev: DIR, incoming: DIR | null, disallowEqual = true): boolean {
+  if (!incoming) return false;
+  if (disallowEqual && prev === incoming) return false;
+  if (prev === DIR.UP && incoming === DIR.DOWN) return false;
+  if (prev === DIR.DOWN && incoming === DIR.UP) return false;
+  if (prev === DIR.LEFT && incoming === DIR.RIGHT) return false;
+  if (prev === DIR.RIGHT && incoming === DIR.LEFT) return false;
   return true;
 }

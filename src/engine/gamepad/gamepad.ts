@@ -156,7 +156,12 @@ export function applyGamepadMove(
     callbacks.onResetMoves();
   }
 
-  const disallowEqual = state.isMoving && (!!moves.length || state.timeSinceHurt >= HURT_STUN_TIME);
+  const disallowEqual = (() => {
+    if (!state.isMoving) return false;
+    if (!!moves.length) return true;
+    if (playerDirection == prevMove && state.timeSinceHurt >= HURT_STUN_TIME) return true;
+    return false;
+  })()
 
   let cancel = false
   desiredMoves.forEach((desiredMove, i) => {
