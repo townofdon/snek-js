@@ -1,6 +1,7 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
+import { toTime } from "../utils";
 
 const name = 'bait&switch'
 
@@ -8,6 +9,7 @@ export const LEVEL_16: Level = {
   id: 'C16',
   name,
   timeToClear: 1000 * 60 * 3.0,
+  parTime: toTime({ minutes: 0, seconds: 53 }),
   applesToClear: 60,
   numApplesStart: 0,
   growthMod: 0.2,

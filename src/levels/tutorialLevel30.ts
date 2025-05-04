@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack } from "../types";
-import { getCoordIndex2 } from "../utils";
+import { getCoordIndex2, toTime } from "../utils";
 import { WARP_ZONE_03 } from "./bonusLevels/warpZone03";
 
 const name = 'portal';
@@ -9,6 +9,7 @@ export const TUTORIAL_LEVEL_30: Level = {
   id: 'C130',
   name,
   timeToClear: 1000 * 60 * 5,
+  parTime: toTime({ minutes: 0, seconds: 10 }),
   applesToClear: 49,
   numApplesStart: -1,
   disableAppleSpawn: true,

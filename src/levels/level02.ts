@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../types";
-import { getCoordIndex2 } from "../utils";
+import { getCoordIndex2, toTime } from "../utils";
 import { VARIANT_LEVEL_03 } from "./bonusLevels/variantLevel03";
 
 const name = 'plaza'
@@ -9,6 +9,7 @@ export const LEVEL_02: Level = {
   id: 'C02',
   name,
   timeToClear: 1000 * 60 * 1.2,
+  parTime: toTime({ minutes: 0, seconds: 50 }),
   applesToClear: 40,
   growthMod: 0.75,
   layout: `

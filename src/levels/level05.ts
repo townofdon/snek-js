@@ -1,5 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, TitleVariant } from "../types";
+import { toTime } from "../utils";
 
 const name = 'panopticon';
 
@@ -7,6 +8,7 @@ export const LEVEL_05: Level = {
   id: 'C05',
   name,
   timeToClear: 1000 * 60 * 1.5,
+  parTime: toTime({ minutes: 0, seconds: 50 }),
   applesToClear: 40,
   layout: `
 XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX

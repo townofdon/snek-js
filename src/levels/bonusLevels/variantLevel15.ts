@@ -2,7 +2,7 @@ import Color from "color";
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../../types";
 import { TUTORIAL_LEVEL_40 } from "../tutorialLevel40";
-import { LEVEL_15 } from "../level15";
+import { toTime } from "../../utils";
 
 const name = 'phased reality'
 
@@ -10,6 +10,7 @@ export const VARIANT_LEVEL_15: Level = {
   id: 'C215',
   name,
   timeToClear: 1000 * 60 * 1.3,
+  parTime: toTime({ minutes: 0, seconds: 5 }),
   applesToClear: 1,
   numApplesStart: 30,
   growthMod: 0.8,

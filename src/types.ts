@@ -334,6 +334,10 @@ export interface Level {
   recordProgressAsLevel?: Level,
   author?: string,
   numLocks?: number;
+  /**
+   * Par level finish time in milliseconds
+   */
+  parTime?: number;
 }
 
 export interface IRenderer {

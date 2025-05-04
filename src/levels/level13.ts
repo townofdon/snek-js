@@ -1,5 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../types";
+import { toTime } from "../utils";
 
 const name = 'SCI-LAB'
 
@@ -7,6 +8,7 @@ export const LEVEL_13: Level = {
   id: 'C13',
   name,
   timeToClear: 1000 * 60 * 1.5,
+  parTime: toTime({ minutes: 1, seconds: 0 }),
   applesToClear: 60,
   numApplesStart: 10,
   growthMod: 0.25,

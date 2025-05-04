@@ -1,7 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, TitleVariant } from "../../types";
-import { getCoordIndex2 } from "../../utils";
-import { LEVEL_08 } from "../level08";
+import { getCoordIndex2, toTime } from "../../utils";
 import { SECRET_LEVEL_20 } from "./secretLevel20";
 import { SECRET_LEVEL_21 } from "./secretLevel21";
 
@@ -11,6 +10,7 @@ export const VARIANT_LEVEL_08: Level = {
   id: 'C208',
   name,
   timeToClear: 1000 * 60 * 1.5,
+  parTime: toTime({ minutes: 1, seconds: 18 }),
   applesToClear: 70,
   numApplesStart: 10,
   layout: `

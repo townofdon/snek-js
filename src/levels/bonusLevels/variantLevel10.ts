@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, TitleVariant } from "../../types";
-import { LEVEL_10 } from "../level10";
+import { toTime } from "../../utils";
 import { TUTORIAL_LEVEL_20 } from "../tutorialLevel20";
 
 const name = 'security station';
@@ -9,6 +9,7 @@ export const VARIANT_LEVEL_10: Level = {
   id: 'C210',
   name,
   timeToClear: 1000 * 60 * 3,
+  parTime: toTime({ minutes: 1, seconds: 18 }),
   applesToClear: 100,
   numApplesStart: 20,
   growthMod: 0.1,

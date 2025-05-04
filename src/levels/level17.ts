@@ -1,6 +1,7 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
+import { toTime } from "../utils";
 
 const name = 'ruins'
 
@@ -8,6 +9,7 @@ export const LEVEL_17: Level = {
   id: 'C17',
   name,
   timeToClear: 1000 * 60 * 1.3,
+  parTime: toTime({ minutes: 0, seconds: 25 }),
   applesToClear: 20,
   numApplesStart: 0,
   growthMod: 0.01,

@@ -1,7 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
-import { getCoordIndex2 } from "../../utils";
-import { LEVEL_05 } from "../level05";
+import { getCoordIndex2, toTime } from "../../utils";
 import { LEVEL_06 } from "../level06";
 import { MAZE_02_NE } from "../mazes/maze02ne";
 import { MAZE_02_NW } from "../mazes/maze02nw";
@@ -14,6 +13,7 @@ export const VARIANT_LEVEL_05: Level = {
   id: 'C205',
   name,
   timeToClear: 1000 * 60 * 1.5,
+  parTime: toTime({ minutes: 0, seconds: 45 }),
   applesToClear: 50,
   numApplesStart: 8,
   growthMod: 0.75,

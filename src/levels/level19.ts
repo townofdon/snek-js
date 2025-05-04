@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PickupType, PortalExitMode } from "../types";
-import { getCoordIndex2 } from "../utils";
+import { getCoordIndex2, toTime } from "../utils";
 import { VARIANT_LEVEL_99 } from "./bonusLevels/variantLevel99";
 
 const name = 'escada';
@@ -9,6 +9,7 @@ export const LEVEL_19: Level = {
   id: 'C19',
   name,
   timeToClear: 1000 * 60 * 5,
+  parTime: toTime({ minutes: 1, seconds: 25 }),
   applesToClear: 70,
   numApplesStart: 10,
   growthMod: 0.25,

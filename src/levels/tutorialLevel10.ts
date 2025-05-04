@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, TitleVariant } from "../types";
-import { getCoordIndex2 } from "../utils";
+import { getCoordIndex2, toTime } from "../utils";
 import { WARP_ZONE_01 } from "./bonusLevels/warpZone01";
 
 const name = 'turnaround';
@@ -9,6 +9,7 @@ export const TUTORIAL_LEVEL_10: Level = {
   id: 'C110',
   name,
   timeToClear: Infinity,
+  parTime: toTime({ minutes: 0, seconds: 5 }),
   applesToClear: 10,
   numApplesStart: -1,
   disableAppleSpawn: true,

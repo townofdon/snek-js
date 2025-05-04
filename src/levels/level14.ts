@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../types";
-import { getCoordIndex2 } from "../utils";
+import { getCoordIndex2, toTime } from "../utils";
 import { VARIANT_LEVEL_15 } from "./bonusLevels/variantLevel15";
 
 const name = 'test chamber'
@@ -9,6 +9,7 @@ export const LEVEL_14: Level = {
   id: 'C14',
   name,
   timeToClear: 1000 * 60 * 2.25,
+  parTime: toTime({ minutes: 0, seconds: 50 }),
   applesToClear: 60,
   numApplesStart: 10,
   growthMod: 0.5,

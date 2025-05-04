@@ -1,5 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
+import { toTime } from "../utils";
 
 const name = 'survive!';
 
@@ -7,6 +8,7 @@ export const LEVEL_99: Level = {
   id: 'C99',
   name,
   timeToClear: 1000 * 60 * 10,
+  parTime: toTime({ minutes: 2, seconds: 30 }),
   applesToClear: 200,
   numApplesStart: 20,
   growthMod: 0.5,

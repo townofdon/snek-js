@@ -1,6 +1,7 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../types";
+import { toTime } from "../utils";
 
 const name = 'quantum mirror'
 
@@ -8,6 +9,7 @@ export const LEVEL_15: Level = {
   id: 'C15',
   name,
   timeToClear: 1000 * 60 * 1.3,
+  parTime: toTime({ minutes: 1, seconds: 5 }),
   applesToClear: 60,
   numApplesStart: 10,
   growthMod: 0.4,

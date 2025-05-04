@@ -1,5 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PickupType } from "../types";
+import { toTime } from "../utils";
 
 const name = 'boxed'
 
@@ -7,6 +8,7 @@ export const LEVEL_12: Level = {
   id: 'C12',
   name,
   timeToClear: 1000 * 60 * 1.7,
+  parTime: toTime({ minutes: 1, seconds: 23 }),
   applesToClear: 60,
   growthMod: 0.75,
   layout: `

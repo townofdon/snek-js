@@ -1,5 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { toTime } from "../../utils";
 import { LEVEL_WIN_GAME } from "../winGame";
 
 const name = 'endurance';
@@ -8,6 +9,7 @@ export const VARIANT_LEVEL_99: Level = {
   id: 'C299',
   name,
   timeToClear: 1000 * 60 * 10,
+  parTime: toTime({ minutes: 3, seconds: 45 }),
   applesToClear: 295,
   numApplesStart: 20,
   growthMod: 0.18,

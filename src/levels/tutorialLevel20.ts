@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, TitleVariant } from "../types";
-import { getCoordIndex2 } from "../utils";
+import { getCoordIndex2, toTime } from "../utils";
 import { WARP_ZONE_02 } from "./bonusLevels/warpZone02";
 
 const name = 'turnonadime';
@@ -9,6 +9,7 @@ export const TUTORIAL_LEVEL_20: Level = {
   id: 'C120',
   name,
   timeToClear: 1000 * 60 * 5,
+  parTime: toTime({ minutes: 1, seconds: 10 }),
   applesToClear: 43,
   numApplesStart: -1,
   disableAppleSpawn: true,

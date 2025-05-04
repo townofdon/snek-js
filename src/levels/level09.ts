@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, TitleVariant } from "../types";
-import { getCoordIndex2 } from "../utils";
+import { getCoordIndex2, toTime } from "../utils";
 import { VARIANT_LEVEL_10 } from "./bonusLevels/variantLevel10";
 
 const name = 'labyrinth';
@@ -9,6 +9,7 @@ export const LEVEL_09: Level = {
   id: 'C09',
   name,
   timeToClear: 1000 * 60 * 1.5,
+  parTime: toTime({ minutes: 1, seconds: 10 }),
   applesToClear: 50,
   numApplesStart: 10,
   layout: `

@@ -1,4 +1,5 @@
 import { MusicTrack } from "../../types";
+import { toTime } from "../../utils";
 import { challengeLevel } from "./_challengeLevel";
 import { X_TOO_SIMPLE } from "./tooSimple";
 
@@ -7,6 +8,7 @@ const name = 'stonemaze';
 export const X_STONEMAZE= challengeLevel({
   id: 'X408',
   name,
+  parTime: toTime({ minutes: 0, seconds: 30 }),
   layoutV2: `WlB3UVFNT1ZQVUpQWE1wbUFPT1NnWCpWV1VYbVVYU0FVKlggQXApbUEpZ1gqVlcobyl4d01XT28pIVhNVy1Vb1NWTW1BJ1NPby1TJ01XbVUpU1hTJ01XKU9PWC1XTXdTJyktUC1Xd2tfeE5OQUVYRX4qPV8oRUVfUFh4eEV%252Ba0VOTk5FeCh%252BKlZVJ21VWClXelhnIScpLS1vLT0nTVBvKS0oJ01PT29vIEFNVT0oKW0oV00hJ08tKU9YLS1XTWpWUD1VWEEoUyd3KiFYUSdPT09WeidWUFU9UCgneidYUSdRJ3onUFVWVUFQVionWCEgbGcnUWd6Z1VnUFBVWFp8ODUyfFJJR0hUfGxhYnlyaW50aHMwMDAwMHw1c3VzMDB1fDI2fDAuNzl8IzkyMTRjY0s3MDEwYTNxMkMyQzYzSzMzMzM3MXZxMTkxOTM4dks0QjNGNzJLNTY0ODg0SzU1NzQ4OUsyYTNkNGRLMWYzMjNlfFlZWTF1MCEgICcgWFV3KVNTKgpYX1hLLSNNelZOPT1PLS0tUCgoUWdnIW1YVShYVlgnVyknWTEtMS0xLVoKUFBQUFAKX0U9ZyEhayo9RU5FRUVtUy1vKSlwKSA9T3FLMEQwRDFDS3N8M3V8MXZLMTMxMzJBd1hYeicqfkVkTAF%252Bend2dXNxcG9ta2dfWllXVlVTUVBPTk1LRSopKCchXw%253D%253D`,
   musicTrack: MusicTrack.creeplord,
   nextLevel: X_TOO_SIMPLE,

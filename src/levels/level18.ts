@@ -1,5 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
+import { toTime } from "../utils";
 
 const name = 'computer room'
 
@@ -7,6 +8,7 @@ export const LEVEL_18: Level = {
   id: 'C18',
   name,
   timeToClear: 1000 * 60 * 3.0,
+  parTime: toTime({ minutes: 1, seconds: 10 }),
   applesToClear: 60,
   numApplesStart: 10,
   growthMod: 0.15,

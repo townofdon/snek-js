@@ -511,3 +511,12 @@ export function wait(duration: number) {
 }
 
 export const shouldBlinkExpiringPickup = (timeLeft: number) => !!timeLeft && timeLeft <= PICKUP_EXPIRE_WARN_MS && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0
+
+interface ToTimeParams {
+  minutes: number,
+  seconds: number,
+  ms?: number,
+}
+export const toTime = ({ minutes = 0, seconds = 0, ms = 0}: ToTimeParams) => {
+  return (minutes || 0) * 1000 * 60 + (seconds || 0) * 1000 + ms;
+}

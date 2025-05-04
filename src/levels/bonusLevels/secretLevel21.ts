@@ -1,5 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
+import { toTime } from "../../utils";
 import { VARIANT_LEVEL_10 } from "./variantLevel10";
 
 const name = 'secret area 5-1';
@@ -9,6 +10,7 @@ export const SECRET_LEVEL_21: Level = {
   type: LevelType.Level,
   name,
   timeToClear: Infinity,
+  parTime: toTime({ minutes: 0, seconds: 20 }),
   applesToClear: 12,
   applesModOverride: 1,
   disableAppleSpawn: true,

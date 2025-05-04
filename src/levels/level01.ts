@@ -1,10 +1,12 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
+import { toTime } from "../utils";
 
 export const LEVEL_01: Level = {
   id: 'C01',
   name: 'snekadia',
   timeToClear: 1000 * 60 * 1,
+  parTime: toTime({ minutes: 0, seconds: 40 }),
   applesToClear: 30,
   layout: `
 XXXXXXXXXXXXXdddXXXXXXXXXXXXXX

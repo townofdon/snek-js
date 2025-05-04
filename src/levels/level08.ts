@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
-import { getCoordIndex2 } from "../utils";
+import { getCoordIndex2, toTime } from "../utils";
 import { SECRET_LEVEL_20 } from "./bonusLevels/secretLevel20";
 
 const name = 'courtyard';
@@ -9,6 +9,7 @@ export const LEVEL_08: Level = {
   id: 'C08',
   name,
   timeToClear: 1000 * 60 * 1.5,
+  parTime: toTime({ minutes: 0, seconds: 50 }),
   applesToClear: 70,
   numApplesStart: 10,
   layout: `

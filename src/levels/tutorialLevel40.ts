@@ -1,5 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack } from "../types";
+import { toTime } from "../utils";
 
 const name = 'gatekeeper';
 
@@ -7,6 +8,7 @@ export const TUTORIAL_LEVEL_40: Level = {
   id: 'C140',
   name,
   timeToClear: 1000 * 60 * 5,
+  parTime: toTime({ minutes: 0, seconds: 12 }),
   applesToClear: 50,
   numApplesStart: -1,
   disableAppleSpawn: true,
