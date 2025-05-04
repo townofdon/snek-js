@@ -229,6 +229,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
 
 export enum MainMenuButton {
   StartGame,
+  QuitGame,
   Settings,
   Leaderboard,
   QuoteMode,
@@ -241,6 +242,7 @@ export enum MainMenuButton {
  */
 export const MAIN_MENU_BUTTON_ORDER: MainMenuButton[] = [
   MainMenuButton.StartGame,
+  MainMenuButton.QuitGame,
   MainMenuButton.OSTMode,
   MainMenuButton.QuoteMode,
   MainMenuButton.Community,
@@ -317,6 +319,12 @@ export class MainMenuNavMap implements NavMap {
     }
   }
 
+  private gotoElem = (button: MainMenuButton) => {
+    this.selected = button;
+    DOM.select(this.selectedTarget());
+    return true;
+  }
+
   gotoFirst = () => {
     const nextElement = this.lookupElement(MAIN_MENU_BUTTON_ORDER[0]);
     if (nextElement) {
@@ -334,10 +342,66 @@ export class MainMenuNavMap implements NavMap {
     this.goto(1);
     return true;
   };
-  gotoUp = this.gotoPrev;
-  gotoDown = this.gotoNext;
-  gotoLeft = this.gotoPrev;
-  gotoRight = this.gotoNext;
+  gotoUp = () => {
+    const focused = this.getFocused()
+    if (focused !== null) {
+      switch (focused) {
+        case MainMenuButton.Community:
+        case MainMenuButton.Leaderboard:
+        case MainMenuButton.OSTMode:
+        case MainMenuButton.QuoteMode:
+        case MainMenuButton.Settings:
+          return this.gotoElem(MainMenuButton.QuitGame);
+        case MainMenuButton.StartGame:
+          return this.gotoElem(MainMenuButton.OSTMode);
+      }
+    }
+    return this.gotoPrev()
+  };
+  gotoDown = () => {
+    const focused = this.getFocused()
+    if (focused !== null) {
+      switch (focused) {
+        case MainMenuButton.Community:
+        case MainMenuButton.Leaderboard:
+        case MainMenuButton.OSTMode:
+        case MainMenuButton.QuoteMode:
+        case MainMenuButton.Settings:
+          return this.gotoElem(MainMenuButton.StartGame);
+        case MainMenuButton.QuitGame:
+          return this.gotoElem(MainMenuButton.OSTMode);
+      }
+    }
+    return this.gotoNext()
+  };
+  gotoLeft = () => {
+    const focused = this.getFocused()
+    if (focused !== null) {
+      switch (focused) {
+        case MainMenuButton.OSTMode:
+            return this.gotoElem(MainMenuButton.Settings);
+        case MainMenuButton.StartGame:
+          return false;
+        case MainMenuButton.QuitGame:
+          return false;
+      }
+    }
+    return this.gotoPrev()
+  };
+  gotoRight = () => {
+    const focused = this.getFocused()
+    if (focused !== null) {
+      switch (focused) {
+        case MainMenuButton.Settings:
+          return this.gotoElem(MainMenuButton.OSTMode);
+        case MainMenuButton.StartGame:
+          return false;
+        case MainMenuButton.QuitGame:
+          return false;
+      }
+    }
+    return this.gotoNext()
+  };
 }
 
 export enum SettingsMenuElement {

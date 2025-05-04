@@ -284,6 +284,9 @@ export const sketch = (p5: P5) => {
         if (!state.isGameStarted) UI.showMainMenu();
         if (state.isPaused) uiBindings.onPauseCancelModal();
         break;
+      case InputAction.ConfirmQuitGame:
+        confirmQuitGame()
+        break;
       case InputAction.ConfirmShowMainMenu:
         confirmShowMainMenu();
         break;
@@ -683,11 +686,10 @@ export const sketch = (p5: P5) => {
       replay.difficulty = { ...difficulty };
       replay.applesToSpawn = [];
       replay.positions = {};
+      modal.hide();
+      winLevelScene.reset();
+      winGameScene.reset();
     }
-
-    modal.hide();
-    winLevelScene.reset();
-    winGameScene.reset();
 
     const titleScene = getMaybeTitleScene();
     resetLevel({ shouldShowTransitions, transition: titleScene, onTriggerWinGame });
@@ -826,6 +828,38 @@ export const sketch = (p5: P5) => {
       }
     }
     modal.show('Goto Main Menu?', 'Current score will be lost.', handleYes, handleNo);
+    sfx.play(Sound.unlock);
+  }
+
+  function confirmQuitGame() {
+    const handleYes = () => {
+      modal.hide();
+      sfx.play(Sound.xpound);
+      setTimeout(() => window.location.reload(), 500)
+    }
+    const handleNo = () => {
+      modal.hide();
+      sfx.play(Sound.doorOpen);
+      UI.showMainMenu();
+    }
+    UI.hideMainMenu();
+    const sayings = [
+      'SNEKness awaits.',
+      'To SNEK, or not to SNEK - that is the question.',
+      'SNEK back to reality.',
+      'Try to SNEK a little.',
+      'SNEK \'em while they\'re hot!',
+      'A SNEK in time saves nine.',
+      'You\'re on a roll — don\'t SNEK it up now!',
+      'The SNEK must go on.',
+      'Keep calm and SNEK on.',
+      'Keep your friends close, but SNEK closer.',
+      'It\'s a SNEK-tacular day!',
+      'A SNEK-ing suspicion tells me you\'re good at this.',
+      'Sss-urvival of the SNEK-est.',
+    ]
+    const saying = sayings[Math.floor(p5.random(0, sayings.length))] || sayings[0] || 'Something has gone horribly wrong.';
+    modal.show('Quit Game?', saying, handleYes, handleNo);
     sfx.play(Sound.unlock);
   }
 

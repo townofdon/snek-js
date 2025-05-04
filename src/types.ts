@@ -393,6 +393,7 @@ export enum InputAction {
   HideStartScreen,
   ShowMainMenu,
   ConfirmShowMainMenu,
+  ConfirmQuitGame,
   ShowSettingsMenu,
   HideSettingsMenu,
   ShowLevelSelectMenu,

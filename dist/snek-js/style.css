@@ -440,9 +440,10 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: calc(-3 *
 }
 
 .main-ui-buttons .button-start-game {
-  position: relative;
+  position: absolute;
   z-index: 10;
-  transform: translateY(calc(-145px * 2)) scale(2);
+  min-width: 150px;
+  transform: translateY(calc(-195px * 2)) scale(2);
 }
 .main-ui-buttons .button-start-game:focus,
 .main-ui-buttons .button-start-game:active,
@@ -452,6 +453,22 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: calc(-3 *
   color: #242C4A;
   border-color: #DFEDED;
   /* --button-filter: brightness(1) grayscale(0); */
+}
+
+.main-ui-buttons .button-quit-game {
+  position: absolute;
+  z-index: 10;
+  min-width: 150px;
+  transform: translateY(calc(-145px * 2)) scale(2);
+}
+.main-ui-buttons .button-quit-game:focus,
+.main-ui-buttons .button-quit-game:active,
+.main-ui-buttons .button-quit-game.active {
+  outline: none;
+  background-color: #c4d5d5;
+  color: #242C4A;
+  border-color: #DFEDED;
+  --button-filter: brightness(1) grayscale(0);
 }
 
 .button:focus:before,
@@ -525,11 +542,16 @@ button:focus:before,
   animation-delay: calc(var(--hover-duration) * 0.5);
 }
 
+.main-ui-buttons .button:nth-child(7),
+.main-ui-buttons button:nth-child(7) {
+  animation-delay: calc(var(--hover-duration) * 0.6);
+}
+
 .main-menu-label-casual-mode, .main-menu-label-cobra-mode {
   z-index: 20;
   position: absolute;
   left: calc(2 * 303px);
-  top: calc(2 * 460px);
+  top: calc(2 * 320px);
   display: flex;
   justify-content: center;
   transform: scale(2);
@@ -903,6 +925,9 @@ button.game-mode.back {
   color: #fff;
   font-family: MiniMOOD, 'VT323', monospace;
   transform: scale(2);
+}
+.modal > form {
+  max-width: 500px;
 }
 .modal .buttons > button {
   margin: 5px;

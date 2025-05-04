@@ -231,6 +231,7 @@ export class UIBindings implements UIHandler {
   private mainMenuNavMap: MainMenuNavMap;
   private mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
     [MainMenuButton.StartGame]: null,
+    [MainMenuButton.QuitGame]: null,
     [MainMenuButton.OSTMode]: null,
     [MainMenuButton.QuoteMode]: null,
     [MainMenuButton.Leaderboard]: null,
@@ -274,6 +275,7 @@ export class UIBindings implements UIHandler {
       this.mainMenuButtons,
       {
         [MainMenuButton.StartGame]: InputAction.ChooseGameMode,
+        [MainMenuButton.QuitGame]: InputAction.ConfirmQuitGame,
         [MainMenuButton.OSTMode]: InputAction.EnterOstMode,
         [MainMenuButton.QuoteMode]: InputAction.EnterQuoteMode,
         [MainMenuButton.Leaderboard]: InputAction.ShowLeaderboard,
@@ -355,17 +357,20 @@ export class UIBindings implements UIHandler {
     if (UI.getIsMainMenuShowing()) {
       switch (navDir) {
         case UINavDir.Prev:
+          return this.mainMenuNavMap.gotoPrev();
         case UINavDir.Up:
+          return this.mainMenuNavMap.gotoUp();
         case UINavDir.Left:
-          this.mainMenuNavMap.gotoPrev();
-          break;
+          return this.mainMenuNavMap.gotoLeft();
         case UINavDir.Next:
+          return this.mainMenuNavMap.gotoNext();
         case UINavDir.Down:
+          return this.mainMenuNavMap.gotoDown();
         case UINavDir.Right:
-          this.mainMenuNavMap.gotoNext();
-          break;
+          return this.mainMenuNavMap.gotoRight();
+        default:
+          return false;
       }
-      return true;
     }
     if (UI.getIsGameModeMenuShowing()) {
       switch (navDir) {
@@ -532,6 +537,7 @@ export class UIBindings implements UIHandler {
     this.main = requireElementById<HTMLElement>('main');
 
     this.mainMenuButtons[MainMenuButton.StartGame] = requireElementById<HTMLButtonElement>('ui-button-start');
+    this.mainMenuButtons[MainMenuButton.QuitGame] = requireElementById<HTMLButtonElement>('ui-button-quit');
     this.mainMenuButtons[MainMenuButton.OSTMode] = requireElementById<HTMLButtonElement>('ui-button-ost-mode');
     this.mainMenuButtons[MainMenuButton.QuoteMode] = requireElementById<HTMLButtonElement>('ui-button-quote-mode');
     this.mainMenuButtons[MainMenuButton.Leaderboard] = requireElementById<HTMLButtonElement>('ui-button-leaderboard');
@@ -568,12 +574,14 @@ export class UIBindings implements UIHandler {
       const cleanup = action === UIAction.Cleanup;
       if (action === UIAction.ShowMainMenu) {
         this.mainMenuButtons[MainMenuButton.StartGame].addEventListener('click', this.handleStartGame);
+        this.mainMenuButtons[MainMenuButton.QuitGame].addEventListener('click', this.handleQuitGame);
         this.mainMenuButtons[MainMenuButton.OSTMode].addEventListener('click', this.handleEnterOstMode);
         this.mainMenuButtons[MainMenuButton.QuoteMode].addEventListener('click', this.handleEnterQuoteMode);
         this.mainMenuButtons[MainMenuButton.Leaderboard].addEventListener('click', this.handleShowLeaderboard);
         this.mainMenuButtons[MainMenuButton.Settings].addEventListener('click', this.handleShowSettingsMenu);
       } else if (cleanup || action === UIAction.HideMainMenu) {
         this.mainMenuButtons[MainMenuButton.StartGame].removeEventListener('click', this.handleStartGame);
+        this.mainMenuButtons[MainMenuButton.QuitGame].removeEventListener('click', this.handleQuitGame);
         this.mainMenuButtons[MainMenuButton.OSTMode].removeEventListener('click', this.handleEnterOstMode);
         this.mainMenuButtons[MainMenuButton.QuoteMode].removeEventListener('click', this.handleEnterQuoteMode);
         this.mainMenuButtons[MainMenuButton.Leaderboard].removeEventListener('click', this.handleShowLeaderboard);
@@ -685,6 +693,10 @@ export class UIBindings implements UIHandler {
 
   private handleStartGame = () => {
     this.callAction(InputAction.ChooseGameMode);
+  }
+
+  private handleQuitGame = () => {
+    this.callAction(InputAction.ConfirmQuitGame);
   }
 
   private handleEnterOstMode = () => {
