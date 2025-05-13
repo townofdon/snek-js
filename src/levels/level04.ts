@@ -2,7 +2,6 @@ import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 import { getCoordIndex2, toTime } from "../utils";
 import { VARIANT_LEVEL_05 } from "./bonusLevels/variantLevel05";
-import { TUTORIAL_LEVEL_11 } from "./tutorialLevel11";
 
 const name = 'the facility';
 
@@ -56,7 +55,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.conquerer,
   titleVariant: TitleVariant.Yellow,
-  nextLevel: TUTORIAL_LEVEL_11,
   nextLevelMap: {
     [getCoordIndex2(0, 28)]: VARIANT_LEVEL_05,
   },

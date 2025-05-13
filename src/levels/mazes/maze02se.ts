@@ -47,9 +47,6 @@ DDDDDXXXXXXXXXXXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.gravChamber),
-  renderInstructions: (gfx, renderer, state, palette) => {
-    renderer.drawSprintControls(gfx, 6, 19);
-  },
   showQuoteOnLevelWin: false,
   portalExitConfig: {
     1: PortalExitMode.SameDirection,
