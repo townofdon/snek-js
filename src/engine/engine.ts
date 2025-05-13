@@ -378,11 +378,8 @@ export function engine({
     if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    if (state.gameMode === GameMode.Casual) {
-      UI.renderCasualRewindTip();
-    } else {
-      UI.renderHearts(state.lives, state.isShowingDeathColours);
-    }
+    if (state.gameMode === GameMode.Casual) return;
+    UI.renderHearts(state.lives, state.isShowingDeathColours);
   }
 
   function renderScoreUI(score = stats.score) {
