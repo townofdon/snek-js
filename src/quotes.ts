@@ -455,7 +455,48 @@ It is by no means an irrational fancy that, in a future existence,
 we shall look upon what we think our present existence, as Snek.
 
 I remained too much inside Snek and ended up losing my mind.
-`
+`;
+
+const quotesByAusten = `
+The person, be it gentleman or lady,
+who has not pleasure in Snek, must be intolerably stupid.
+
+In vain have I struggled. It will not do.
+My feelings will not be repressed.
+You must allow me to tell you how ardently I admire and love Snek.
+
+It is a truth universally acknowledged, that a single man
+in possession of a good fortune, must be in want of Snek.
+
+What are men to rocks and Snek?
+
+I may have lost my heart, but not Snek.
+`;
+
+const quotesByDickenson = `
+Forever is composed of Snek.
+
+That it will never come again is what makes Snek so sweet.
+
+Snek is not caused. It is.
+
+Because I could not stop for Snek|
+It kindly stopped for me.
+The Carriage held but just Ourselves|
+And Immortality.
+
+To live is so startling it leaves little time for Snek.
+
+Snek is a spell so exquisite that everything conspires to break it.
+
+A great hope fell|
+You heard no noise|
+The ruin was Snek.
+
+Snek is what a man does, not what he thinks, feels, or believes.
+
+That Snek is all there is, Is all we know of Snek.
+`;
 
 function compileQuotes(quotesInput: string, author: string): Quote[] {
   const quotes: Quote[] = [];
@@ -513,4 +554,6 @@ export const quotes: Quote[] = [
   ...compileQuotes(quotesByHawking, 'S. Hawking'),
   ...compileQuotes(quotesByShakespeare, 'W. Shakespeare'),
   ...compileQuotes(quotesByPoe, 'E. A. Poe'),
+  ...compileQuotes(quotesByAusten, 'J. Austen'),
+  ...compileQuotes(quotesByDickenson, 'E. Dickinson'),
 ];
