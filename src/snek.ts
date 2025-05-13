@@ -53,6 +53,7 @@ import {
   Action,
   SNEKALYTICS_EVENT_TYPE,
   Mapset,
+  InputType,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -131,6 +132,7 @@ const state: GameState = {
   hasKeyRed: false,
   hasKeyBlue: false,
   nextLevel: null,
+  inputType: InputType.Keyboard,
 };
 const stats: Stats = {
   numDeaths: 0,
@@ -407,6 +409,9 @@ export const sketch = (p5: P5) => {
     let handled = false;
     if (!handled) handled = winGameScene.gamepadButtonPressed()
     if (!handled) handled = applyGamepadUIActions(state, handleInputAction, onUINavigate, onUIInteract, onUICancel);
+    if (handled) {
+      state.inputType = InputType.Gamepad;
+    }
     renderLoop(handled);
     if (!state.isGameStarted) leaderboardScene.draw();
     handleRenderWinGameScene();
@@ -432,6 +437,7 @@ export const sketch = (p5: P5) => {
       }
     }
     if (handled) {
+      state.inputType = InputType.Keyboard;
       ev?.stopPropagation();
       return;
     }

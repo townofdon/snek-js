@@ -31,6 +31,7 @@ import {
   Action,
   Level,
   Palette,
+  InputType,
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI } from '../ui/ui';
@@ -112,6 +113,7 @@ const state: GameState = {
   hasKeyRed: false,
   hasKeyBlue: false,
   nextLevel: null,
+  inputType: InputType.Keyboard,
 };
 const stats: Stats = {
   numDeaths: 0,

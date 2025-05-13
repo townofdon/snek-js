@@ -69,6 +69,7 @@ import {
   IEnumerator,
   Image,
   InputAction,
+  InputType,
   Key,
   KeyChannel,
   Level,
@@ -833,13 +834,17 @@ export function engine({
       ev,
     );
     state.timeSinceLastInput = 0;
+    state.inputType = InputType.Keyboard;
   }
 
   function renderLoop(gamepadInputHandled = false) {
     const timeFrameStart = performance.now();
 
     if (!gamepadInputHandled) {
-      applyGamepadMove(state, player.direction, player.directionToFirstSegment, moves, inputCallbacks, handleInputAction)
+      const handled = applyGamepadMove(state, player.direction, player.directionToFirstSegment, moves, inputCallbacks, handleInputAction)
+      if (handled) {
+        state.inputType = InputType.Gamepad;
+      }
     }
 
     actions.tick();

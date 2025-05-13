@@ -72,26 +72,26 @@ export function applyGamepadMove(
   callAction: (action: InputAction) => void,
 ): boolean {
   if (state.appMode !== AppMode.Game) {
-    return;
+    return false;
   }
 
   if (!state.isGameStarted) {
-    return;
+    return false;
   }
 
   if (state.isExitingLevel || state.isExited) {
-    return;
+    return false;
   }
   if (state.isPaused) {
-    return;
+    return false;
   }
   if (state.isLost) {
-    return;
+    return false;
   }
 
   const desiredMove = getCurrentGamepadMove()
   if (!desiredMove) {
-    return;
+    return false;
   }
 
   const prevMove = moves.length > 0
@@ -138,12 +138,12 @@ export function applyGamepadMove(
   if (desiredMoves.length) {
     callAction(InputAction.StartMoving);
   } else {
-    return;
+    return false;
   }
 
   // validate current move
   if (moves.length > MAX_MOVES_GAMEPAD) {
-    return;
+    return false;
   }
 
   // reset on hurt (might remove this later)
@@ -163,7 +163,7 @@ export function applyGamepadMove(
     return false;
   })()
 
-  let cancel = false
+  let cancel = false;
   desiredMoves.forEach((desiredMove, i) => {
     const valid = validateMove(i === 0 ? prevMove : desiredMoves[i - 1], desiredMove, disallowEqual || i > 0)
     if (!cancel && valid) {
@@ -172,7 +172,9 @@ export function applyGamepadMove(
     } else {
       cancel = true
     }
-  })
+  });
+
+  return true;
 }
 
 export function applyGamepadUIActions(

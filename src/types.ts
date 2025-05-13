@@ -135,6 +135,11 @@ export enum HitType {
   QuantumEntanglement,
 }
 
+export enum InputType {
+  Keyboard,
+  Gamepad,
+}
+
 export type RecentMove = DIR | null
 export type RecentMoves = [RecentMove, RecentMove, RecentMove, RecentMove];
 export type RecentMoveTimings = [number, number, number, number];
@@ -207,6 +212,7 @@ export interface GameState {
   numTeleports: number,
   lastHurtBy: HitType,
   nextLevel: Level | null,
+  inputType: InputType,
 }
 
 export interface DrawState {

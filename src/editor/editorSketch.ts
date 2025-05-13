@@ -21,6 +21,7 @@ import {
   ReplayMode,
   ScreenShakeState,
   Tutorial,
+  InputType,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -287,6 +288,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       numTeleports: 0,
       lastHurtBy: HitType.Unknown,
       nextLevel: undefined,
+      inputType: InputType.Keyboard,
     }
 
     const gfx: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
