@@ -1,0 +1,67 @@
+import { PALETTE, getExtendedPalette } from "../palettes";
+import { Level, MusicTrack, TitleVariant } from "../types";
+import { toTime } from "../utils";
+import { LEVEL_05 } from "./level05";
+
+const name = 'turnaround';
+
+export const TUTORIAL_LEVEL_11: Level = {
+  id: 'C111',
+  name: 'sprint',
+  timeToClear: Infinity,
+  parTime: toTime({ minutes: 0, seconds: 15 }),
+  applesToClear: 4,
+  numApplesStart: -1,
+  disableAppleSpawn: true,
+  snakeStartSizeOverride: 50,
+  growthMod: 0,
+  layout: `
+XXXXXXXXX++X++XX++X++XXXXXXXXX
+XXXXXXXXXXXXDDXXDDXXXXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXXXXDDXXDDXXXXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+XX~~~O~~~~~aaaaaaaaaaaaaaaaaaX
+D~~~~~~~~~~~~~~~~~~~~~~~~~~~~X
+XXxxXXXXXxxXxxXXxxXxxXXXXXXXXX
+XXxxXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXxxXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXxxXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXxxXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXxxXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXxxxxxxxxxXDDXXDDXxxXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
+XXXXXXXXXxxXDDXXDDXxxXXXXXXXXX
+XXXXXXXXX==X++XX++X++XXXXXXXXX
+  `,
+  layoutV2: 'RUplZShOZWFYVydBQVBBQSchISEhUyEhISEhTWNLTihVQUFVKE5LY0tOTkxOTktNISEhISFTISFNKCkpV0plYU5hWAp8ODEyfFJJR0hUfHNwcmludHwxNDA3MTV8NHwtWVk1MHwwfDI4fDAuNXwjMTVDMkNCKjExOURBNFYyQzJDNjMqMzMzMzcxWlYxOTE5MzhaKjRCM0Y3Mio1NjQ4ODRiQjQxRmJDODU3YkREOTl8T09PWTQhYycoUCgnZiAoWFgpClhfLVUnUVEnX1FmVV8gZCotI0UKKGEoKEtfKF9MVShVTWMnKCdKYScoJ054eE8xLTEtMS1QJ1hVWExYVVgnUSBfU2NLKChMKChLVWRkViowRDBEMUMqV0VhKExKSkVZMXxaKjEzMTMyQV8tLWFKKGIqRkZjKEVlWE5mJyABZmVjYmFfWllXVlVTUVBPTk1MS0pFKikoJyFf',
+  colors: getExtendedPalette(PALETTE.hospital),
+  renderInstructions: (gfx, renderer, state, palette) => {
+    renderer.drawSprintControls(gfx, 11, 19);
+  },
+  showTitle: true,
+  extraLoseMessages: [
+    ["Pst... Holding the shift key helps."],
+    ["How the snek did you mess this one up?"],
+    ["I am shocked. Almost too shocked for words."],
+    ["Your lack of skill disturbs me."],
+  ],
+  disableNormalLoseMessages: true,
+  musicTrack: MusicTrack.aqueduct,
+  titleVariant: TitleVariant.Gray,
+  globalLight: 0.5,
+  nextLevel: LEVEL_05,
+};

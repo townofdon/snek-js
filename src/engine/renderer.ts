@@ -10,6 +10,7 @@ import {
   HitType,
   IRenderer,
   Image,
+  InputType,
   Portal,
   PortalChannel,
   Replay,
@@ -473,7 +474,12 @@ export class Renderer implements IRenderer {
     // image
     const imgX = x0 + BLOCK_SIZE.x * 0.5;
     const imgY = y0 + BLOCK_SIZE.y * 0.1;
-    this.spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY, gfx);
+    const { inputType } = this.gameState;
+    if (inputType === InputType.Keyboard) {
+      this.spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY, gfx);
+    } else {
+      this.spriteRenderer.drawImage(Image.ControlsGamepadMove, imgX + BLOCK_SIZE.x * 0.75, imgY, gfx);
+    }
   }
 
   drawTutorialRewindControls = (gfx: P5 | P5.Graphics, playerPosition: Vector, canRewind: () => boolean) => {
@@ -530,10 +536,58 @@ export class Renderer implements IRenderer {
     // image
     const imgX = BLOCK_SIZE.x * (bannerPosition.x + 0.6);
     const imgY = BLOCK_SIZE.y * (bannerPosition.y + 0.6);
-    this.spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY, gfx);
+    const { inputType } = this.gameState;
+    if (inputType === InputType.Keyboard) {
+      this.spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY, gfx);
+    } else {
+      this.spriteRenderer.drawImage(Image.ControlsGamepadRewind, imgX, imgY, gfx);
+    }
+  }
+
+  drawTutorialTurnControls = (gfx: P5 | P5.Graphics, x: number, y: number) => {
+    const { inputType } = this.gameState;
+    const isKeyboard = inputType === InputType.Keyboard;
+    // banner background
+    const bannerWidth = isKeyboard ? 5.8 : 7.8;
+    const bannerHeight = isKeyboard ? 5.8 : 2.8;
+    const x0 = MAP_OFFSET + BLOCK_SIZE.x * (x);
+    const x1 = MAP_OFFSET + BLOCK_SIZE.x * (x + bannerWidth);
+    const y0 = MAP_OFFSET + BLOCK_SIZE.y * (y);
+    const y1 = MAP_OFFSET + BLOCK_SIZE.y * (y + bannerHeight);
+    gfx.fill('#000000aa');
+    gfx.stroke("#000");
+    gfx.strokeWeight(STROKE_SIZE);
+    gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    // text
+    const textX = isKeyboard
+     ? MAP_OFFSET + BLOCK_SIZE.x * (x + bannerWidth * 0.5)
+     : MAP_OFFSET + BLOCK_SIZE.x * (x + 3.5);
+    const textY = isKeyboard
+     ? MAP_OFFSET + BLOCK_SIZE.y * (y + 4.5)
+     : MAP_OFFSET + BLOCK_SIZE.y * (y + bannerHeight * 0.5);
+    gfx.fill(ACCENT_COLOR);
+    gfx.stroke("#111");
+    gfx.strokeWeight(2 * 4);
+    gfx.textSize(2 * 12);
+    gfx.textAlign(isKeyboard ? this.p5.CENTER : this.p5.LEFT, this.p5.CENTER);
+    gfx.textFont(this.fonts.variants.miniMood);
+    gfx.text("U-TURN", textX, textY);
+    // image
+    const imgX = isKeyboard
+      ? BLOCK_SIZE.x * (x + 0.6)
+      : BLOCK_SIZE.x * (x + 0.6);
+    const imgY = isKeyboard
+     ? BLOCK_SIZE.y * (y + 0.4)
+     : BLOCK_SIZE.y * (y + bannerHeight * 0.5) - 48;
+    if (inputType === InputType.Keyboard) {
+      this.spriteRenderer.drawImage(Image.ControlsKeyboardTurn, imgX, imgY, gfx);
+    } else {
+      this.spriteRenderer.drawImage(Image.ControlsGamepadTurn, imgX, imgY, gfx);
+    }
   }
 
   drawSprintControls = (gfx: P5 | P5.Graphics, x: number, y: number) => {
+    const { inputType } = this.gameState;
     // banner background
     const bannerWidth = 7.8;
     const bannerHeight = 2.8;
@@ -559,7 +613,11 @@ export class Renderer implements IRenderer {
     // image
     const imgX = BLOCK_SIZE.x * (bannerPosition.x + 0.6);
     const imgY = BLOCK_SIZE.y * (bannerPosition.y + 0.6);
-    this.spriteRenderer.drawImage(Image.ControlsKeyboardSprint, imgX, imgY, gfx);
+    if (inputType === InputType.Keyboard) {
+      this.spriteRenderer.drawImage(Image.ControlsKeyboardSprint, imgX, imgY, gfx);
+    } else {
+      this.spriteRenderer.drawImage(Image.ControlsGamepadSprint, imgX, imgY, gfx);
+    }
   }
 
   drawDifficultySelect = (gfx: P5 | P5.Graphics, backgroundColor: string) => {

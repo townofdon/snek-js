@@ -48,6 +48,9 @@ XXXXXXXXXxxXDDXXDDXxxXXXXXXXXX
 XXXXXXXXX==X++XX++X++XXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.hospital),
+  renderInstructions: (gfx, renderer, state, palette) => {
+    renderer.drawTutorialTurnControls(gfx, 21, 17);
+  },
   showTitle: true,
   extraLoseMessages: [
     ["Pst... Press down-left real fast next time.", (state, stats) => stats.applesEatenThisLevel >= 5],

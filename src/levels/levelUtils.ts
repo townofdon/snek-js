@@ -20,6 +20,7 @@ import { LEVEL_18 } from "./level18";
 import { LEVEL_19 } from "./level19";
 import { LEVEL_99 } from "./level99";
 import { TUTORIAL_LEVEL_10 } from "./tutorialLevel10";
+import { TUTORIAL_LEVEL_11 } from "./tutorialLevel11";
 import { TUTORIAL_LEVEL_20 } from "./tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "./tutorialLevel40";
@@ -99,6 +100,8 @@ export function getWarpLevelFromNum(levelNum: number): Level {
 
     case 110:
       return TUTORIAL_LEVEL_10;
+    case 111:
+      return TUTORIAL_LEVEL_11;
     case 120:
       return TUTORIAL_LEVEL_20;
     case 130:

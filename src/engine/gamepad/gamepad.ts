@@ -90,9 +90,6 @@ export function applyGamepadMove(
   }
 
   const desiredMove = getCurrentGamepadMove()
-  if (!desiredMove) {
-    return false;
-  }
 
   const prevMove = moves.length > 0
     ? moves[moves.length - 1]
@@ -130,10 +127,19 @@ export function applyGamepadMove(
         const move0 = invertDirection(rotateDirection(prevMove));
         return [move0, rotateDirection(move0)];
       }
+      case MOVE.Nil:
+        // fallthrough
       default:
         return [];
     }
   })();
+
+  // casual mode rewind
+  const didPressBackwards = desiredMoves.length === 1 && desiredMoves[0] === playerDirectionToFirstSegment;
+  if (state.gameMode === GameMode.Casual && (wasPressedThisFrame(getGamepad(), Button.TriggerRight) || didPressBackwards)) {
+    callAction(InputAction.StartRewinding);
+    return;
+  }
 
   if (desiredMoves.length) {
     callAction(InputAction.StartMoving);
@@ -263,7 +269,7 @@ export function gamepadPressed(gamepad: Gamepad, id: Button) {
   if (id === Button.TriggerLeft || id === Button.TriggerRight) {
     return gamepad.buttons[id]?.value > TRIGGER_THRESHOLD;
   }
-  return !!gamepad.buttons[id]?.pressed;
+  return !!gamepad.buttons[id]?.pressed || !!gamepad.buttons[id]?.touched;
 }
 
 export function wasPressedThisFrame(gamepad: Gamepad, id: Button) {

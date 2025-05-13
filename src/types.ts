@@ -369,6 +369,7 @@ export interface IRenderer {
   drawPlayerMoveArrows: (gfx: P5 | P5.Graphics, vec: Vector, currentMove: DIR) => void
   drawTutorialMoveControls: (gfx: P5 | P5.Graphics) => void
   drawTutorialRewindControls: (gfx: P5 | P5.Graphics, playerPosition: Vector, canRewind: () => boolean) => void
+  drawTutorialTurnControls: (gfx: P5 | P5.Graphics, x: number, y: number) => void
   drawSprintControls: (gfx: P5 | P5.Graphics, x: number, y: number) => void
   drawDifficultySelect: (gfx: P5 | P5.Graphics, backgroundColor: string) => void
   drawDifficultySelectCobra: (gfx: P5 | P5.Graphics, backgroundColor: string) => void
@@ -611,8 +612,13 @@ export enum Image {
   SnekDoorLightD = 'snek-door-light-4.png',
   SnekDoorLightE = 'snek-door-light-5.png',
   ControlsKeyboardMove = 'controls-keyboard-move.png',
+  ControlsKeyboardTurn = 'controls-keyboard-turn.png',
   ControlsKeyboardDelete = 'controls-keyboard-delete.png',
   ControlsKeyboardSprint = 'controls-keyboard-sprint.png',
+  ControlsGamepadMove = 'controls-gamepad-move.png',
+  ControlsGamepadTurn = 'controls-gamepad-turn.png',
+  ControlsGamepadRewind = 'controls-gamepad-rewind.png',
+  ControlsGamepadSprint = 'controls-gamepad-sprint.png',
   ControlsMouseLeft = 'controls-mouse-left.png',
   KeyGrey = 'snek-key2-grey.png',
   KeyYellow = 'snek-key2-yellow.png',

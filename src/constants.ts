@@ -32,12 +32,12 @@ export const FRAME_DUR_MS = (1 / FRAMERATE) * 1000;
 /**
  * BLOCK SIZE IS TYPICALLY 20x20
  */
-export const DIMENSIONS = IS_EDITOR ? { x: 600, y: 600 } : { x: 1200, y: 1200 };
+export const DIMENSIONS = IS_EDITOR ? { x: 600, y: 600 } as const : { x: 1200, y: 1200 } as const;
 export const GRIDCOUNT = { x: 30, y: 30 };
 export const STROKE_SIZE = IS_EDITOR ? 4 : 8;
 // export const STRANGELY_NEEDED_OFFSET = { x: STROKE_SIZE / GRIDCOUNT.x, y: STROKE_SIZE / GRIDCOUNT.y };
-export const STRANGELY_NEEDED_OFFSET = { x: 0, y: 0 };
-export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x + STRANGELY_NEEDED_OFFSET.x, y: DIMENSIONS.y / GRIDCOUNT.y + STRANGELY_NEEDED_OFFSET.y };
+export const STRANGELY_NEEDED_OFFSET = { x: 0, y: 0 } as const;
+export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x + STRANGELY_NEEDED_OFFSET.x, y: DIMENSIONS.y / GRIDCOUNT.y + STRANGELY_NEEDED_OFFSET.y } as const;
 export const MAP_OFFSET = IS_EDITOR ? 2 : 4;
 
 export const MAX_MOVES_GAMEPAD = 8;
@@ -115,7 +115,7 @@ export const DIFFICULTY_EASY: Difficulty = {
   speedSteps: SPEED_STEPS_EASY,
   sprintLimit: SPEED_LIMIT_MEDIUM,
   invincibilityTime: INVINCIBILITY_TIME_EASY,
-}
+} as const
 export const DIFFICULTY_MEDIUM: Difficulty = {
   index: 2,
   applesMod: NUM_APPLES_MOD_MEDIUM,
@@ -126,7 +126,7 @@ export const DIFFICULTY_MEDIUM: Difficulty = {
   speedSteps: SPEED_STEPS_MEDIUM,
   sprintLimit: SPEED_LIMIT_HARD,
   invincibilityTime: INVINCIBILITY_TIME_MEDIUM,
-}
+} as const
 export const DIFFICULTY_HARD: Difficulty = {
   index: 3,
   applesMod: NUM_APPLES_MOD_HARD,
@@ -137,7 +137,7 @@ export const DIFFICULTY_HARD: Difficulty = {
   speedSteps: SPEED_STEPS_HARD,
   sprintLimit: SPEED_LIMIT_ULTRA,
   invincibilityTime: INVINCIBILITY_TIME_HARD,
-}
+} as const
 export const DIFFICULTY_ULTRA: Difficulty = {
   index: 4,
   applesMod: NUM_APPLES_MOD_ULTRA,
@@ -148,7 +148,7 @@ export const DIFFICULTY_ULTRA: Difficulty = {
   speedSteps: SPEED_STEPS_ULTRA,
   sprintLimit: SPEED_LIMIT_ULTRA_SPRINT,
   invincibilityTime: INVINCIBILITY_TIME_ULTRA,
-}
+} as const
 
 export const KEYCODE_ALPHA_0 = 48;
 export const KEYCODE_ALPHA_1 = 49;
@@ -225,7 +225,7 @@ export const PORTAL_CHANNEL_COLORS: Record<PortalChannel, string> = {
   8: filter("#ba00ff", 0.5, 0.7),
   9: filter("#aafbd6", 0.1, 0.1),
   0: filter("#fbecaa"), // #fff
-};
+} as const;
 export const NUM_PORTAL_GRADIENT_COLORS = 4;
 export const INVALID_PORTAL_COLOR = "#FFC0CB";
 export const SNAKE_INVINCIBLE_COLORS = [
@@ -233,7 +233,7 @@ export const SNAKE_INVINCIBLE_COLORS = [
   "#FCB045",
   "#FD1D1D",
   "#833AB4",
-];
+] as const;
 export const NUM_SNAKE_INVINCIBLE_COLORS = 20;
 
 export const OST_MODE_TRACKS: MusicTrack[] = [

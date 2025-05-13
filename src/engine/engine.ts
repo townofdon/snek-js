@@ -920,7 +920,7 @@ export function engine({
       drawLighting(lightMap, renderer, gfxLighting);
     }
 
-    if (level.renderInstructions) {
+    if (level.renderInstructions && !state.isDoorsOpen) {
       level.renderInstructions(gfxPresentation, renderer, state, level.colors);
     }
     renderer.drawUIKeys(gfxPresentation);
@@ -1457,7 +1457,9 @@ export function engine({
       state.hurtGraceTime -= loopState.deltaTime;
       return false;
     }
-    if (willHitSomething && state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
+    const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    const canRewind = isInvincible || state.gameMode === GameMode.Casual;
+    if (willHitSomething && canRewind) {
       startRewinding();
       return false;
     }
