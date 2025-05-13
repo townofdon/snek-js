@@ -334,13 +334,13 @@ There is only one corner of the universe you can be certain of improving, and th
 
 Uncontrolled, the hunger and thirst after Snek may become an obstacle, cutting off the soul from what it desires.
 
-Ironically enough, the only people who can hold up indefinitely under the stress of modern snek are psychotics.
+Ironically enough, the only people who can hold up indefinitely under the stress of snek are psychotics.
 `
 
 const quotesByDarwin = `
 Snek tends to increase at a greater rate than his means of subsistence.
 
-It is not the strongest of the species that survives, not the most intelligent...||
+It is not the strongest of the species that survives, nor the most intelligent...||
 It is the one that is the most adaptable to snek.
 
 The very essence of snek is that it's followed independently of reason.
@@ -393,7 +393,7 @@ The past, like Snek, is indefinite and exists only as a spectrum of possibilitie
 
 Snek would be tragic if it weren't funny.
 
-There is nothing bigger or older than the snekverse.
+There is nothing bigger or older than snek.
 
 It is not clear that snek has any long-term survival value.
 
@@ -420,7 +420,42 @@ The fault, dear Brutus, is not in our stars, but in snek.
 
 To snek, perchance to dream;|
 Aye, there's the rub.
+
+Beware the Ides of Snek.
+
+Once more unto the snek, dear friends,|
+Once more!
+
+By the pricking of my thumbs,|
+Something snekky this way comes.
+
+Though this be madness,|
+Yet there is snek in't.
 `;
+
+const quotesByPoe = `
+Once upon a midnight dreary,|
+while I pondered, weak and weary,|
+Over many a quaint and curious volume of forgotten Snek.
+
+All that we see or seem|
+Is but a snek within a snek.
+
+The boundaries which divide Life from Death are at best shadowy and Snek.
+
+I became insane, with long intervals of horrible Snek.
+
+Believe nothing you hear, and only one half that you snek.
+
+Words have no power to impress the mind without the exquisite horror of Snek.
+
+And all I loved, I loved Snek.
+
+It is by no means an irrational fancy that, in a future existence,
+we shall look upon what we think our present existence, as Snek.
+
+I remained too much inside Snek and ended up losing my mind.
+`
 
 function compileQuotes(quotesInput: string, author: string): Quote[] {
   const quotes: Quote[] = [];
@@ -477,4 +512,5 @@ export const quotes: Quote[] = [
   ...compileQuotes(quotesByBohr, 'N. Bohr'),
   ...compileQuotes(quotesByHawking, 'S. Hawking'),
   ...compileQuotes(quotesByShakespeare, 'W. Shakespeare'),
+  ...compileQuotes(quotesByPoe, 'E. A. Poe'),
 ];
