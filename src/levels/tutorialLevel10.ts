@@ -32,7 +32,7 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 XX~~~O~~~~~aaaaaaaaaaaaaaaaaaX
 D~~~~~~~~~~~~~~~~~~~~~~~~~~~~X
-XXxxXXXXXxxXxxXXxxXxxXXXXXXXXX
+XXddXXXXXxxXxxXXxxXxxXXXXXXXXX
 XXxxXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXxxXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXxxXXXXXDDXDDXXDDXDDXXXXXXXXX
@@ -54,7 +54,7 @@ XXXXXXXXX==X++XX++X++XXXXXXXXX
   showTitle: true,
   extraLoseMessages: [
     ["Pst... Press down-left real fast next time.", (state, stats) => stats.applesEatenThisLevel >= 5],
-    ["Need to eat more apples, dawg.", (state, stats) => stats.applesEatenThisLevel < 5],
+    ["You might... need to eat more apples.", (state, stats) => stats.applesEatenThisLevel < 5],
   ],
   disableNormalLoseMessages: true,
   musicTrack: MusicTrack.aqueduct,

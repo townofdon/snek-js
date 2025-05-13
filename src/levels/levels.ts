@@ -21,6 +21,7 @@ import { LEVEL_18 } from "./level18";
 import { LEVEL_19 } from "./level19";
 import { LEVEL_99 } from "./level99";
 import { TUTORIAL_LEVEL_10 } from "./tutorialLevel10";
+import { TUTORIAL_LEVEL_11 } from "./tutorialLevel11";
 import { TUTORIAL_LEVEL_20 } from "./tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "./tutorialLevel40";
@@ -58,9 +59,10 @@ import { X_SNEKCITY } from "./challenge/snekcity";
 export const LEVELS: Level[] = [
     MAZE_01,
     LEVEL_01,
+    TUTORIAL_LEVEL_10,
     LEVEL_02,
     LEVEL_03,
-    TUTORIAL_LEVEL_10,
+    TUTORIAL_LEVEL_11,
     LEVEL_04,
     LEVEL_05,
     LEVEL_06,

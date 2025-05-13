@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { getCoordIndex2 } from "../../utils";
-import { LEVEL_04 } from "../level04";
+import { LEVEL_02 } from "../level02";
 import { TUTORIAL_LEVEL_20 } from "../tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "../tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "../tutorialLevel40";
@@ -68,7 +68,7 @@ XXXXXXXXXXXXXXXXXJD DKXXXXXXXX
   },
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.5,
-  nextLevel: LEVEL_04,
+  nextLevel: LEVEL_02,
   nextLevelMap: {
     [getCoordIndex2(29, 14)]: TUTORIAL_LEVEL_20,
     [getCoordIndex2(19, 0)]: TUTORIAL_LEVEL_30,

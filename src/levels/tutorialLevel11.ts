@@ -1,13 +1,10 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
 import { Level, MusicTrack, TitleVariant } from "../types";
 import { toTime } from "../utils";
-import { LEVEL_05 } from "./level05";
-
-const name = 'turnaround';
 
 export const TUTORIAL_LEVEL_11: Level = {
   id: 'C111',
-  name: 'sprint',
+  name: 'dashoutahere',
   timeToClear: Infinity,
   parTime: toTime({ minutes: 0, seconds: 15 }),
   applesToClear: 4,
@@ -63,5 +60,4 @@ XXXXXXXXX==X++XX++X++XXXXXXXXX
   musicTrack: MusicTrack.aqueduct,
   titleVariant: TitleVariant.Gray,
   globalLight: 0.5,
-  nextLevel: LEVEL_05,
 };
