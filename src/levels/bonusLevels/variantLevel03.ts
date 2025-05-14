@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
-import { TUTORIAL_LEVEL_10 } from "../tutorialLevel10";
+import { TUTORIAL_LEVEL_11 } from "../tutorialLevel11";
 import { SECRET_LEVEL_10 } from "./secretLevel10";
 
 const name = 'metroteque'
@@ -64,7 +64,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     9: PortalExitMode.SameDirection,
     0: PortalExitMode.SameDirection,
   },
-  nextLevel: TUTORIAL_LEVEL_10,
+  nextLevel: TUTORIAL_LEVEL_11,
   nextLevelMap: {
     [getCoordIndex2(14, 0)]: SECRET_LEVEL_10,
     [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,

@@ -86,51 +86,20 @@ export const LEVELS: Level[] = [
     LEVEL_WIN_GAME,
 ];
 
-export const AREA_01: Area = {
-    name: 'zone 01',
-    levels: [
-        LEVEL_01,
-        LEVEL_02,
-        LEVEL_03,
-    ],
-}
-export const AREA_02: Area = {
-    name: 'zone 02', // metropolis
-    levels: [
-        LEVEL_04,
-        LEVEL_05,
-        LEVEL_06,
-        LEVEL_07,
-        LEVEL_08,
-        LEVEL_09,
-        LEVEL_10,
-    ]
-}
-export const AREA_03: Area = {
-    name: 'zone 03',
-    levels: [
-        LEVEL_11,
-        LEVEL_12,
-    ]
-}
-export const AREA_04: Area = {
-    name: 'zone 04', // lab zone
-    levels: [
-        LEVEL_13,
-        LEVEL_14,
-        LEVEL_15,
-    ]
-}
-export const AREA_05: Area = {
-    name: 'zone 05', // ultimate zone
-    levels: [
-        LEVEL_16,
-        LEVEL_17,
-        LEVEL_18,
-        LEVEL_19,
-        LEVEL_99,
-    ]
-}
+export const CAMPAIGN_LEVELS = LEVELS.filter(level => {
+    switch (level) {
+        case MAZE_01:
+        case TUTORIAL_LEVEL_10:
+        case TUTORIAL_LEVEL_11:
+        case TUTORIAL_LEVEL_20:
+        case TUTORIAL_LEVEL_30:
+        case TUTORIAL_LEVEL_40:
+        case LEVEL_WIN_GAME:
+            return false;
+        default:
+            return true;
+    }
+});
 
 export const SECRET_LEVELS = [
     SECRET_LEVEL_10,

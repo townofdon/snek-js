@@ -34,7 +34,6 @@ import {
   NUM_SNAKE_INVINCIBLE_COLORS,
   PERFECT_BONUS,
   PICKUP_DROP_LIKELIHOOD,
-  PICKUP_EXPIRE_WARN_MS,
   PICKUP_INVINCIBILITY_BONUS,
   PICKUP_LIFETIME_MS,
   PICKUP_SPAWN_COOLDOWN,
@@ -124,11 +123,8 @@ import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParti
 import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
 import { buildLevel } from '../levels/levelBuilder';
 import {
-  AREA_01,
-  AREA_02,
-  AREA_03,
-  AREA_04,
-  AREA_05,
+  CAMPAIGN_LEVELS,
+  CHALLENGE_LEVELS,
   LEVELS,
   LEVEL_01,
   LEVEL_99,
@@ -411,19 +407,13 @@ export function engine({
           const levelNum = (20 - getNumRandomLevelsRemaining()) || 20;
           return `${levelNum} / 20`;
         }
-        const getAreaText = (area: Area) => {
-          const levelIndex = area.levels.indexOf(level);
-          if (levelIndex < 0) return '';
-          return `${levelIndex + 1} / ${area.levels.length}    ${area.name}`
+        {
+          const levelIndex = CAMPAIGN_LEVELS.indexOf(level);
+          if (levelIndex >= 0) return `${levelIndex + 1} / ${CAMPAIGN_LEVELS.length}`;
         }
-        let areaText = '';
-        if (!areaText) areaText = getAreaText(AREA_01);
-        if (!areaText) areaText = getAreaText(AREA_02);
-        if (!areaText) areaText = getAreaText(AREA_03);
-        if (!areaText) areaText = getAreaText(AREA_04);
-        if (!areaText) areaText = getAreaText(AREA_05);
-        if (areaText) {
-          return areaText;
+        {
+          const levelIndex = CHALLENGE_LEVELS.indexOf(level);
+          if (levelIndex >= 0) return `${levelIndex + 1} / ${CHALLENGE_LEVELS.length}`;
         }
         if (level.author) return `by ${level.author}`;
         return ''

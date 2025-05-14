@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { toTime } from "../../utils";
-import { TUTORIAL_LEVEL_10 } from "../tutorialLevel10";
+import { TUTORIAL_LEVEL_11 } from "../tutorialLevel11";
 
 const name = 'secret area 1-1';
 
@@ -67,5 +67,5 @@ XXXXXX  XXXXXX  XXXXXX  XXXXXX
   },
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.2,
-  nextLevel: TUTORIAL_LEVEL_10,
+  nextLevel: TUTORIAL_LEVEL_11,
 };
