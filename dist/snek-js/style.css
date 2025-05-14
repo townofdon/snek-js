@@ -127,6 +127,17 @@ html, body, main {
   background: #181A1B;
 }
 
+main div {
+  cursor: none;
+}
+canvas {
+  cursor: none;
+}
+.show-cursor main div,
+.show-cursor canvas {
+  cursor: crosshair;
+}
+
 p, button, .button {
   z-index: 9;
 }
@@ -200,7 +211,6 @@ p, button, .button {
 
 canvas {
   display: block;
-  cursor: crosshair;
 }
 
 .center {
@@ -236,10 +246,6 @@ main {
   z-index: 10;
   overflow: hidden;
   /* padding: 0 120px; */
-}
-
-main div {
-  cursor: crosshair;
 }
 
 .minimood {
@@ -828,6 +834,7 @@ button.game-mode.back {
   transform: scale(1);
   height: 100%;
   justify-content: space-evenly;
+  user-select: none;
 }
 .level-select-menu > .content > h2 {
   transform: scale(3);
@@ -838,9 +845,22 @@ button.game-mode.back {
   transform: scale(3);
   color: #aac3c0;
   margin-bottom: -90px;
+  text-align: center;
 }
 .level-select-menu > .content > .level-name .num {
   color: #596974;
+}
+.level-select-menu > .content > .level-name .name {
+  align-self: flex-start;
+  margin-top: 10px;
+}
+.level-select-menu > .content > .challenge-heading {
+  position: absolute;
+  color: #E76F51;
+  top: 300px;
+  transform: scale(2);
+  font-style: italic;
+  margin-left: 130px;
 }
 .level-select-menu > .content > .levels {
   display: flex;

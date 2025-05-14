@@ -31,8 +31,9 @@ import { parseElementLevelNum, requireElementById } from './uiUtils';
 import { gamepadPressed, getGamepad } from '../engine/gamepad';
 import { Button } from '../engine/gamepad/StandardGamepadMapping';
 import { offUIEvent, onUIEvent, UIAction } from './uiEvents';
-import { getWarpLevelFromNum } from '../levels/levelUtils';
+import { getIsChallengeLevel, getWarpLevelFromNum } from '../levels/levelUtils';
 import { GameModeMenuElement } from './uiTypes';
+import { CHALLENGE_LEVELS } from '../levels';
 
 interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
@@ -267,6 +268,7 @@ export class UIBindings implements UIHandler {
   }
   private levelSelectMenuNavMap: LevelSelectMenuNavMap;
   private levelSelectMenu: HTMLElement;
+  private levelSelectChallengeHeading: HTMLElement;
   private levelSelectMapNum: HTMLElement;
   private levelSelectMapName: HTMLElement;
   private levelSelectScroll: HTMLElement;
@@ -321,6 +323,7 @@ export class UIBindings implements UIHandler {
       }
       const elem = this.levelSelectMenuNavMap.getActiveElement();
       const levelNum = parseElementLevelNum(elem as HTMLButtonElement);
+      const level = getWarpLevelFromNum(levelNum);
       const [, idx] = this.levelSelectMenuNavMap.getActiveIndex();
       if (!elem || idx < 0) {
         console.warn('active level or active index not found', elem, idx);
@@ -331,8 +334,15 @@ export class UIBindings implements UIHandler {
       const diff = this.levelSelectItems[1].getBoundingClientRect().x - this.levelSelectItems[0].getBoundingClientRect().x;
       const maxScroll = (diff / scale) * this.levelSelectItems.length;
       const scrollAmt = idx / this.levelSelectItems.length;
-      this.levelSelectMapNum.innerText = String(idx + 1).padStart(2, '0');
-      this.levelSelectMapName.innerText = getWarpLevelFromNum(levelNum).name;
+      if (getIsChallengeLevel(level)) {
+        const challengeLevelIndex = CHALLENGE_LEVELS.indexOf(level);
+        this.levelSelectChallengeHeading.classList.remove('hidden');
+        this.levelSelectMapNum.innerText = String(challengeLevelIndex + 1).padStart(2, '0');
+      } else {
+        this.levelSelectChallengeHeading.classList.add('hidden');
+        this.levelSelectMapNum.innerText = String(idx + 1).padStart(2, '0');
+      }
+      this.levelSelectMapName.innerText = level.name;
       this.levelSelectScroll.scrollTo({ left: scrollAmt * maxScroll });
       return true;
     }
@@ -566,6 +576,7 @@ export class UIBindings implements UIHandler {
     this.gameModeMenuElements[GameModeMenuElement.Back] = requireElementById<HTMLButtonElement>('button-game-mode-back')
 
     this.levelSelectMenu = requireElementById<HTMLElement>('level-select-menu')
+    this.levelSelectChallengeHeading = requireElementById<HTMLElement>('level-select-challenge-heading')
     this.levelSelectMapNum = requireElementById<HTMLElement>('level-select-map-number')
     this.levelSelectMapName = requireElementById<HTMLElement>('level-select-map-name')
     this.levelSelectScroll = requireElementById<HTMLElement>('level-select-levels')
@@ -625,6 +636,7 @@ export class UIBindings implements UIHandler {
         this.levelSelectScroll.scrollTo({ left: 0 });
         this.levelSelectMapNum.innerText = '01';
         this.levelSelectMapName.innerText = 'Snekadia';
+        this.levelSelectChallengeHeading.classList.add('hidden');
       } else if (cleanup || action === UIAction.HideLevelSelectMenu) {
         this.levelSelectMenu.removeEventListener('click', this.onLevelSelect);
       }
