@@ -852,19 +852,21 @@ export const sketch = (p5: P5) => {
     UI.hideMainMenu();
     const sayings = [
       'SNEKness awaits.',
-      'To SNEK, or not to SNEK - that is the question.',
+      'To SNEK, or not to SNEK -\nthat is the question.',
       'SNEK back to reality.',
       'Try to SNEK a little.',
       'SNEK \'em while they\'re hot!',
       'A SNEK in time saves nine.',
-      'You\'re on a roll — don\'t SNEK it up now!',
+      'You\'re on a roll —\ndon\'t SNEK it up now!',
       'The SNEK must go on.',
       'Keep calm and SNEK on.',
-      'Keep your friends close, but SNEK closer.',
+      'Keep your friends close,\nbut SNEK closer.',
       'It\'s a SNEK-tacular day!',
-      'A SNEK-ing suspicion tells me you\'re good at this.',
-      'Sss-urvival of the SNEK-est.',
-    ]
+      'SNEK will always be here for you.',
+      'May the SNEK be with you.',
+      'SNEK long and prosper.',
+      'To boldly SNEK where\nno one has SNEKed before.',
+    ];
     const saying = sayings[Math.floor(p5.random(0, sayings.length))] || sayings[0] || 'Something has gone horribly wrong.';
     modal.show('Quit Game?', saying, handleYes, handleNo);
     sfx.play(Sound.unlock);
