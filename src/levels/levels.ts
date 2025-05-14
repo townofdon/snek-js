@@ -55,6 +55,9 @@ import { X_UNWIND } from "./challenge/unwind";
 import { X_UNDERGROUND } from "./challenge/underground";
 import { X_GAUNTLET } from "./challenge/gauntlet";
 import { X_SNEKCITY } from "./challenge/snekcity";
+import { X_CUBISM } from "./challenge/cubism";
+import { X_DIGIN } from "./challenge/digIn";
+import { X_DATACENTER } from "./challenge/dataCenter";
 
 export const LEVELS: Level[] = [
     MAZE_01,
@@ -118,7 +121,9 @@ export const CHALLENGE_LEVELS: Level[] = [
     X_SNEKCITY,
     X_ACROPOLIS,
     X_BEACONS,
+    X_CUBISM,
     X_CASA,
+    X_DIGIN,
     X_CATACOMBS,
     X_FORTITUDE,
     X_GUARDIAN,
@@ -129,6 +134,7 @@ export const CHALLENGE_LEVELS: Level[] = [
     X_SKILL_CHECK,
     X_STONEMAZE,
     X_TOO_SIMPLE,
+    X_DATACENTER,
     X_UNDERGROUND,
     X_UNWIND,
     X_GAUNTLET,

@@ -189,6 +189,15 @@ export class UIBindings implements UIHandler {
       case PauseMenuElement.ButtonWarpX17:
         this.callbacks.onWarpToLevel(417);
         break;
+      case PauseMenuElement.ButtonWarpX18:
+        this.callbacks.onWarpToLevel(418);
+        break;
+      case PauseMenuElement.ButtonWarpX19:
+        this.callbacks.onWarpToLevel(419);
+        break;
+      case PauseMenuElement.ButtonWarpX20:
+        this.callbacks.onWarpToLevel(420);
+        break;
     }
   }
   private callGameOverMenuAction = (element: GameOverMenuElement) => {

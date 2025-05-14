@@ -1,0 +1,11 @@
+import { MusicTrack } from "../../types";
+import { toTime } from "../../utils";
+import { challengeLevel } from "./_challengeLevel";
+
+export const X_DATACENTER = challengeLevel({
+  id: 'X420',
+  name: 'datacenter',
+  parTime: toTime({ minutes: 1, seconds: 15 }),
+  layoutV2: `CkdHWExMTExHRylWKFohPVlZIVYoIEgsJywndysrSFhkd2RYSFhkaVlwdSBZaWRYSFhkSmxkWHBNWFlpKiBYZGtKZFhIR3BNMVQ5eCBHSFgxMTExWHBNMXE5eCBYejNYIFdWKFotTTFUOXgoKFpXUypNMXE5eFIqLVMhWVMhZ1d2R0lHdikoTXozWElYOTk5OVhWKSg9ZEFUIGRJZEFUIGRWKSg9ZFRUZElkVFRkVikoTTk5OTlYSVgwMDAwWFYpdkdJR3YpKi1TIVl2UlMqTTlxMHhTVyEoKCpNOVQweG8hIFlZc005cTBRamRzTTlUMFFZc01YWVhRWXN1aCgoKk9vUypPU1dTdllZU3YpR0dMTExMR0dYCnw3OWJVUHxkYXRhY2VudGVyfjIwMDBiNmJiYjN%252BfjJ8MC44MXwjREJBRTk1TkMyN0E1MHk4Mjk4YWFONzQ5ZmQwTjFGMnp5MjcyQzNGTjFGMnpOMzc1MzZhTjNhNTM3ME43MjlGQzBONDY3NzlCTjRDODJBOXxtbW0xfDMhPVZaIClYCng9LUdpaWlIIFc9IEk9Xy1ZLV89TT1YTi0jTy0rWVkrZ1F4aCBZUlNXKmdnZ2dNWFlpKmdnZ2dXU3Z2VCBBVj0oVz0pWWRkWiAgYjB8Zy0taD1LQUFBQUshKSFpWFhtMS0xLTEtbz1LS0tLS0shKXAgLXFBIHMgKnUhK1krIS12ISF3aVhfZ08tX2lYeFgqeU4xNjE5MjVOejMzM358MQF%252Benl4d3Z1c3Fwb21paGdiWllXVlRTUlFPTk1JSEcqKSghXw%253D%253D`,
+  musicTrack: MusicTrack.simpleTime,
+});

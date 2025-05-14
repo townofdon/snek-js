@@ -1,7 +1,6 @@
 import { MusicTrack } from "../../types";
 import { toTime } from "../../utils";
 import { challengeLevel } from "./_challengeLevel";
-import { X_STONEMAZE } from "./stonemaze";
 
 const name = 'skill check';
 
@@ -11,5 +10,4 @@ export const X_SKILL_CHECK = challengeLevel({
   parTime: toTime({ minutes: 2, seconds: 30 }),
   layoutV2: `ClpaS09YIVhmZnYhdCkpYiFObm5uIVFkU1hkU29MU1hkYiFRZGJubm4hdCkpYiEgZmYqWCFYT1pacFgqWihacAp8NjY3fFJJR0hUfHNraWxsY2hlY2t8MTUwMDBhMTBhamFqMXxhMC40aiMxNUMyQ0JNMTE5REE0ZzIzNzU4TTJFNEE3Nm1nNzJDM0ZtTTRDODJBOU0zRjZDOERNRkZGNkYxTTBBMEUxNE1FOUVGRkZ8WVlZMXw2IUpVVihWVUonUV9VdF8odF9VUV8oVz0pUD1xcVUtKHFxcVgwKnBQViAgdXBwTS0jTiB2TypLIFdWKFZXdSpQClhRIFhTUHJyclUtLVZKIFc9PVkxLTEtMS1aS0tLX1ggYTB8YlAgZipYJ1hnTTE2MTkyNU0yajN8bU0xRjIzMzNuJ05wWFhxVVVyKCgodFFYdSBLdiogAXZ1dHJxcG5tamdmYmFfWllXVlVTUVBPTk1LSiopKCchXw%253D%253DClpaS09YIVhmZnYhdCkpYiFObm5uIVFkU1hkU29MU1hkYiFRZGJubm4hdCkpYiEgZmYqWCFYT1pacFgqWisrK1pwCnw2Njd8UklHSFR8c2tpbGxjaGVja3wxNTAwMGExMGFqYWoxfGEwLjRqIzE1QzJDQk0xMTlEQTRnMjM3NThNMkU0QTc2bWc3MkMzRm1NNEM4MkE5TTNGNkM4RE1GRkY2RjFNMEEwRTE0TUU5RUZGRnxZWVkxfDYhSlVWKFZVSidRX1V0Xyh0X1VRXyhXPSlQPXFxVS0ocXFxWDAqcFBWICB1cHBNLSNOIHZPKksgV1YoVld1KlAKWFEgWFNQcnJyVS0tVkogVz09WTEtMS0xLVpLS0tfWCBhMHxiUCBmKlgnWGdNMTYxOTI1TTJqM3xtTTFGMjMzM24nTnBYWHFVVXIoKCh0UVh1IEt2KiABdnV0cnFwbm1qZ2ZiYV9aWVdWVVNRUE9OTUtKKikoJyFf`,
   musicTrack: MusicTrack.observer,
-  nextLevel: X_STONEMAZE,
 });

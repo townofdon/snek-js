@@ -54,6 +54,9 @@ import { shuffleArray } from "../utils";
 import { LEVEL_WIN_GAME } from "./winGame";
 import { X_GAUNTLET } from "./challenge/gauntlet";
 import { X_SNEKCITY } from "./challenge/snekcity";
+import { X_CUBISM } from "./challenge/cubism";
+import { X_DIGIN } from "./challenge/digIn";
+import { X_DATACENTER } from "./challenge/dataCenter";
 
 export function getWarpLevelFromNum(levelNum: number): Level {
   switch (levelNum) {
@@ -165,7 +168,12 @@ export function getWarpLevelFromNum(levelNum: number): Level {
       return X_GAUNTLET;
     case 417:
       return X_SNEKCITY;
-
+    case 418:
+      return X_CUBISM;
+    case 419:
+      return X_DIGIN;
+    case 420:
+      return X_DATACENTER;
     default:
       return LEVEL_01;
   }

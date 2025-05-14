@@ -6,6 +6,7 @@ import {
   START_LEVEL_COBRA,
   LEVELS,
   FIRST_CHALLENGE_LEVEL,
+  CHALLENGE_LEVELS,
 } from './levels';
 import {
   RECORD_REPLAY_STATE,
@@ -925,6 +926,7 @@ export const sketch = (p5: P5) => {
     }
 
     const level = getLevel();
+    const challengeLevelIndex = CHALLENGE_LEVELS.indexOf(level);
     const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !DISABLE_TRANSITIONS;
     stats.numLevelsCleared += 1;
     stats.numLevelsEverCleared += 1;
@@ -934,6 +936,8 @@ export const sketch = (p5: P5) => {
     if (nextLevel) {
       setLevel(nextLevel)
       setLevelIndexFromCurrentLevel();
+    } else if (getIsChallengeLevel(level) && challengeLevelIndex > -1) {
+      setLevel(CHALLENGE_LEVELS[(challengeLevelIndex + 1) % CHALLENGE_LEVELS.length]);
     } else {
       state.levelIndex++;
       setLevel(LEVELS[state.levelIndex % LEVELS.length]);

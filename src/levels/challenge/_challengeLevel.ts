@@ -13,6 +13,5 @@ export const challengeLevel =  (level: ChallengeLevel): Level => ({
   layoutV2: level.layoutV2,
   colors: getExtendedPalette(PALETTE.default),
   showTitle: true,
-  nextLevel: WARP_ZONE_01,
   ...level,
 });

@@ -551,6 +551,9 @@ export enum PauseMenuElement {
   ButtonWarpX15 = 'pauseButtonWarpX15',
   ButtonWarpX16 = 'pauseButtonWarpX16',
   ButtonWarpX17 = 'pauseButtonWarpX17',
+  ButtonWarpX18 = 'pauseButtonWarpX18',
+  ButtonWarpX19 = 'pauseButtonWarpX19',
+  ButtonWarpX20 = 'pauseButtonWarpX20',
 }
 
 const PAUSE_MENU_ELEMENT_ORDER: [
@@ -559,8 +562,9 @@ const PAUSE_MENU_ELEMENT_ORDER: [
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
-  [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
-  [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
+  [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
+  [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
+  [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
   [PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement, PauseMenuElement],
 ] = [
     [
@@ -604,21 +608,26 @@ const PAUSE_MENU_ELEMENT_ORDER: [
       PauseMenuElement.ButtonWarpX17,
       PauseMenuElement.ButtonWarpX01,
       PauseMenuElement.ButtonWarpX02,
+      PauseMenuElement.ButtonWarpX18,
       PauseMenuElement.ButtonWarpX03,
-      PauseMenuElement.ButtonWarpX04,
-      PauseMenuElement.ButtonWarpX05,
     ],
     [
+      PauseMenuElement.ButtonWarpX19,
+      PauseMenuElement.ButtonWarpX04,
+      PauseMenuElement.ButtonWarpX05,
       PauseMenuElement.ButtonWarpX06,
       PauseMenuElement.ButtonWarpX07,
-      PauseMenuElement.ButtonWarpX08,
+    ],
+    [
       PauseMenuElement.ButtonWarpX09,
       PauseMenuElement.ButtonWarpX10,
       PauseMenuElement.ButtonWarpX11,
+      PauseMenuElement.ButtonWarpX12,
+      PauseMenuElement.ButtonWarpX08,
     ],
     [
-      PauseMenuElement.ButtonWarpX12,
       PauseMenuElement.ButtonWarpX13,
+      PauseMenuElement.ButtonWarpX20,
       PauseMenuElement.ButtonWarpX14,
       PauseMenuElement.ButtonWarpX15,
       PauseMenuElement.ButtonWarpX16,

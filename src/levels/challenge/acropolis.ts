@@ -1,7 +1,6 @@
 import { MusicTrack } from "../../types";
 import { toTime } from "../../utils";
 import { challengeLevel } from "./_challengeLevel";
-import { X_BEACONS } from "./beacons";
 
 const name = 'acropolis';
 
@@ -11,5 +10,4 @@ export const X_ACROPOLIS = challengeLevel({
   parTime: toTime({ minutes: 0, seconds: 57 }),
   layoutV2: `CnRPayhOLmshKHkoZGQoUylqayEha3kuayhWfjBWSlAtISFnZ0otKG4oSikpK1UrTylqX25VYikhIUtnZ1hfbi4tWiEuPSBPWFFfbihObWUhPV9YZ3hfbi4tVWIhYi1qUUFYX25OIVohLmItanhMbmttIS4rKS1qQVhRTG4ubS5Vai1fKXgoKFgwKihObXc9ZVhQKVEtVil%252BQSkhLVouS0pQSlhRQVdsKFghLT0hIUstSkpRLSlXQVZKSy5LLSlQUUFRV0FYay1aLkstKUpleCgpKi5td0tKUEopeChYMCpOIUsudlApZXhma20uS1BlUUF4Zi5tLitQSlBRLSlRZihObS5YLSBPUUFRZi4tWmtYSmdQUS1WWCgqTkopLk8palEoZiBVYkpnZ2dRTG4odik9T09qTFZ%252BMCl2KUpnSmdnKFZTKWooSi15eS5rIShWU08oTk55eXlOKGRkKFN0fDYwOXxSSUdIVHxhY3JvcG9saXN8MzAwMDBZM1lZWTFZdVl1I0YyMDY1Q01BRjA0NDNxQjk2RDQwTUNCOEM2N3pxNjEyRTUzek1GRkNGOUNNRkZCMDVDTUE0RDRCNE02NkI3ODFNODJDNDk4fGhoaHUxMy5OLCdqWCp%252BQVguISBKIG09LU0tI3coTykpKVAtLVEtWH4KVT09VikoV1EoKChkClhZMHxaKy1iPSllIClmKFgoKmdQUGgxLTEtMS1qKVhrKCFtLUtuVipxTTNCMUMzMk10T09PT08KdTF8dj1Kd04geFFReS4oek01MzI3NDd%252BU1gBfnp5eHd2dXRxbm1ramhnZmViWllXVlVTUVBPTk1LSi4qKSghXw%253D%253D`,
   musicTrack: MusicTrack.shopkeeper,
-  nextLevel: X_BEACONS,
 });
