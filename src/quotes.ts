@@ -38,8 +38,7 @@ was not accompanied by at least one snek.
 
 Without snek, life would be a mistake.
 
-In individuals, insanity is rare; but in groups, parties,
-and snek, it is the rule.
+In individuals, insanity is rare; but in snek, it is the rule.
 
 Is man merely a mistake of Snek? Or Snek merely a mistake of man?
 
@@ -482,8 +481,6 @@ Snek is not caused. It is.
 
 Because I could not stop for Snek|
 It kindly stopped for me.
-The Carriage held but just Ourselves|
-And Immortality.
 
 To live is so startling it leaves little time for Snek.
 

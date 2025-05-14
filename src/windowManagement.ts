@@ -45,3 +45,14 @@ const disableFullscreen = query.get('disableFullscreen') === 'true';
 if (!disableFullscreen) {
   handleWindowResize();
 }
+
+// show/hide mouse cursor
+let mouseTimeout: NodeJS.Timeout;
+window.addEventListener('mousemove', handleMouseMove)
+function handleMouseMove() {
+  clearTimeout(mouseTimeout);
+  document.body.classList.add('show-cursor');
+  mouseTimeout = setTimeout(() => {
+    document.body.classList.remove('show-cursor');
+  }, 3000);
+}
