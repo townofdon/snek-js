@@ -8,7 +8,7 @@ import {
   Button,
 } from "./StandardGamepadMapping";
 
-const TRIGGER_THRESHOLD = 0.05;
+const TRIGGER_THRESHOLD = 0.25;
 const AXIS_DEADZONE = 0.33;
 
 const waitingForRelease: Record<Button, number> = {
