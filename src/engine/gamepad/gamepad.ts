@@ -89,7 +89,7 @@ export function applyGamepadMove(
     return false;
   }
 
-  const desiredMove = getCurrentGamepadMove()
+  const desiredMove = getCurrentGamepadMove(playerDirection)
 
   const prevMove = moves.length > 0
     ? moves[moves.length - 1]
@@ -149,6 +149,9 @@ export function applyGamepadMove(
 
   // validate current move
   if (moves.length > MAX_MOVES_GAMEPAD) {
+    return false;
+  }
+  if (moves.length > 0 && (desiredMove === MOVE.STRAFE_L || desiredMove === MOVE.STRAFE_R)) {
     return false;
   }
 
@@ -296,7 +299,7 @@ export function anyButtonPressedThisFrame(gamepad: Gamepad) {
 /**
  * Process gamepad buttons and axes and return the desired direction
  */
-function getCurrentGamepadMove(): MOVE {
+function getCurrentGamepadMove(playerDirection: DIR): MOVE {
   const gamepad = navigator.getGamepads()?.[0];
   if (!gamepad) return MOVE.Nil;
   if (!gamepad.connected) return MOVE.Nil;
@@ -314,31 +317,26 @@ function getCurrentGamepadMove(): MOVE {
     return MOVE.STRAFE_R;
   }
 
-  // if (gamepadPressed(gamepad, Button.TriggerRight)) {
-  //   if (playerDirection === DIR.RIGHT && wasPressedThisFrame(gamepad, Button.DpadUp)) return MOVE.STRAFE_L;
-  //   if (playerDirection === DIR.RIGHT && wasPressedThisFrame(gamepad, Button.DpadDown)) return MOVE.STRAFE_R;
-  //   if (playerDirection === DIR.LEFT && wasPressedThisFrame(gamepad, Button.DpadUp)) return MOVE.STRAFE_R;
-  //   if (playerDirection === DIR.LEFT && wasPressedThisFrame(gamepad, Button.DpadDown)) return MOVE.STRAFE_L;
-  //   if (playerDirection === DIR.UP && wasPressedThisFrame(gamepad, Button.DpadLeft)) return MOVE.STRAFE_L;
-  //   if (playerDirection === DIR.UP && wasPressedThisFrame(gamepad, Button.DpadRight)) return MOVE.STRAFE_R;
-  //   if (playerDirection === DIR.DOWN && wasPressedThisFrame(gamepad, Button.DpadLeft)) return MOVE.STRAFE_R;
-  //   if (playerDirection === DIR.DOWN && wasPressedThisFrame(gamepad, Button.DpadRight)) return MOVE.STRAFE_L;
-  // }
+  if (gamepadPressed(gamepad, Button.TriggerRight)) {
+    if (playerDirection === DIR.RIGHT && wasPressedThisFrame(gamepad, Button.DpadUp)) return MOVE.STRAFE_L;
+    if (playerDirection === DIR.RIGHT && wasPressedThisFrame(gamepad, Button.DpadDown)) return MOVE.STRAFE_R;
+    if (playerDirection === DIR.LEFT && wasPressedThisFrame(gamepad, Button.DpadUp)) return MOVE.STRAFE_R;
+    if (playerDirection === DIR.LEFT && wasPressedThisFrame(gamepad, Button.DpadDown)) return MOVE.STRAFE_L;
+    if (playerDirection === DIR.UP && wasPressedThisFrame(gamepad, Button.DpadLeft)) return MOVE.STRAFE_L;
+    if (playerDirection === DIR.UP && wasPressedThisFrame(gamepad, Button.DpadRight)) return MOVE.STRAFE_R;
+    if (playerDirection === DIR.DOWN && wasPressedThisFrame(gamepad, Button.DpadLeft)) return MOVE.STRAFE_R;
+    if (playerDirection === DIR.DOWN && wasPressedThisFrame(gamepad, Button.DpadRight)) return MOVE.STRAFE_L;
+  } else {
+    if (gamepadPressed(gamepad, Button.DpadUp)) return MOVE.UP;
+    if (gamepadPressed(gamepad, Button.DpadRight)) return MOVE.RIGHT;
+    if (gamepadPressed(gamepad, Button.DpadDown)) return MOVE.DOWN;
+    if (gamepadPressed(gamepad, Button.DpadLeft)) return MOVE.LEFT;
+  }
 
   if (wasPressedThisFrame(gamepad, Button.North)) return MOVE.UP;
-  if (wasPressedThisFrame(gamepad, Button.South)) return MOVE.DOWN;
   if (wasPressedThisFrame(gamepad, Button.West)) return MOVE.LEFT;
+  if (wasPressedThisFrame(gamepad, Button.South)) return MOVE.DOWN;
   if (wasPressedThisFrame(gamepad, Button.East)) return MOVE.RIGHT;
-
-  if (wasPressedThisFrame(gamepad, Button.DpadUp)) return MOVE.UP;
-  if (wasPressedThisFrame(gamepad, Button.DpadDown)) return MOVE.DOWN;
-  if (wasPressedThisFrame(gamepad, Button.DpadLeft)) return MOVE.LEFT;
-  if (wasPressedThisFrame(gamepad, Button.DpadRight)) return MOVE.RIGHT;
-
-  // if (gamepad.buttons[Button.DpadUp]?.pressed) return MOVE.UP;
-  // if (gamepad.buttons[Button.DpadDown]?.pressed) return MOVE.DOWN;
-  // if (gamepad.buttons[Button.DpadLeft]?.pressed) return MOVE.LEFT;
-  // if (gamepad.buttons[Button.DpadRight]?.pressed) return MOVE.RIGHT;
 
   const x0 = gamepad.axes[Axis.LeftX]?.valueOf() || 0;
   const y0 = gamepad.axes[Axis.LeftY]?.valueOf() || 0;
