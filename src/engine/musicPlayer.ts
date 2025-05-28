@@ -112,7 +112,7 @@ export class MusicPlayer {
     try {
       this.tracksPlaying[track] = true;
       this.state.currentTrack = track;
-      await playMusic(this.fullPath(track), { volume, loop: this.shouldLoop(track), createAnalyser, trackElapsed });
+      await playMusic(this.fullPath(track), { volume, loop: this.shouldLoop(track), createAnalyser, trackElapsed, specialEq: true });
     } catch (err) {
       console.error(err);
     }

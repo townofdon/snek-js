@@ -1,10 +1,10 @@
 import { DEFAULT_VOLUME_SFX, MAX_GAIN_MUSIC } from "../constants";
-import { SfxSound } from "../types";
+import { MusicTrack, SfxSound } from "../types";
 import { requireElementById } from "../ui/uiUtils";
 import { inverseLerp, lerp } from "../utils";
 
 const DEBUG_AUDIO = false;
-const DEBUG_COMPRESSOR = false;
+const DEBUG_MIXRACK = false;
 
 const audioBufferMap: Record<string, AudioBuffer> = {}
 const audioSourceMap: Record<string, AudioBufferSourceNode> = {}
@@ -23,6 +23,21 @@ const sfxGainNode = audioContext.createGain();
 const musicGainNode = audioContext.createGain();
 const musicFilter = audioContext.createBiquadFilter();
 
+const TREBLE_NORMAL = 2.5;
+const TREBLE_BOOST = 6.1;
+const eqLow = audioContext.createBiquadFilter();
+const eqMid = audioContext.createBiquadFilter();
+const eqHigh = audioContext.createBiquadFilter();
+eqLow.frequency.value = 212;
+eqMid.frequency.value = 852;
+eqHigh.frequency.value = 15100;
+eqLow.gain.value = 2;
+eqMid.gain.value = 1.3;
+eqHigh.gain.value = TREBLE_NORMAL;
+eqLow.type = 'peaking';
+eqMid.type = 'peaking';
+eqHigh.type = 'peaking';
+
 // compressor
 const compressorState = {
   attack: 0.005,
@@ -37,7 +52,10 @@ const compressorNode = new DynamicsCompressorNode(audioContext, {
 
 // wiring
 compressorNode.connect(audioContext.destination);
-masterGainNode.connect(compressorNode);
+eqHigh.connect(compressorNode);
+eqMid.connect(eqHigh);
+eqLow.connect(eqMid);
+masterGainNode.connect(eqLow);
 sfxGainNode.connect(masterGainNode);
 musicGainNode.connect(musicFilter);
 musicFilter.connect(masterGainNode);
@@ -114,9 +132,17 @@ interface AudioSourceOptions {
   loopStart?: number,
   createAnalyser?: boolean,
   trackElapsed?: boolean,
+  specialEq?: boolean
 }
 
 async function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOptions) {
+  if (options.specialEq) {
+    if (path.includes(MusicTrack.moneymaker) || path.includes(MusicTrack.lostcolony)) {
+      eqHigh.gain.value = TREBLE_BOOST;
+    } else {
+      eqHigh.gain.value = TREBLE_NORMAL;
+    }
+  }
   if (audioContext.state === 'suspended') {
     console.warn(`[Audio] could not play "${path}" due to audio context being suspended`);
     return;
@@ -261,41 +287,81 @@ export function unloadAudio(path: string) {
     COMPRESSOR CONTROLS
 ******************************/
 
-if (DEBUG_COMPRESSOR) {
+if (DEBUG_MIXRACK) {
   const container = requireElementById<HTMLDivElement>('compressor-controls');
-  const attackInput = container.querySelector('#compressor-attack > input[type=number]') as HTMLInputElement
-  const attackSlider = container.querySelector('#compressor-attack > input[type=range]') as HTMLInputElement
-  const kneeInput = container.querySelector('#compressor-knee > input[type=number]') as HTMLInputElement
-  const kneeSlider = container.querySelector('#compressor-knee > input[type=range]') as HTMLInputElement
-  const ratioInput = container.querySelector('#compressor-ratio > input[type=number]') as HTMLInputElement
-  const ratioSlider = container.querySelector('#compressor-ratio > input[type=range]') as HTMLInputElement
-  const releaseInput = container.querySelector('#compressor-release > input[type=number]') as HTMLInputElement
-  const releaseSlider = container.querySelector('#compressor-release > input[type=range]') as HTMLInputElement
-  const thresholdInput = container.querySelector('#compressor-threshold > input[type=number]') as HTMLInputElement
-  const thresholdSlider = container.querySelector('#compressor-threshold > input[type=range]') as HTMLInputElement
+  const attackInput = container.querySelector('#compressor-attack > input[type=number]') as HTMLInputElement;
+  const attackSlider = container.querySelector('#compressor-attack > input[type=range]') as HTMLInputElement;
+  const kneeInput = container.querySelector('#compressor-knee > input[type=number]') as HTMLInputElement;
+  const kneeSlider = container.querySelector('#compressor-knee > input[type=range]') as HTMLInputElement;
+  const ratioInput = container.querySelector('#compressor-ratio > input[type=number]') as HTMLInputElement;
+  const ratioSlider = container.querySelector('#compressor-ratio > input[type=range]') as HTMLInputElement;
+  const releaseInput = container.querySelector('#compressor-release > input[type=number]') as HTMLInputElement;
+  const releaseSlider = container.querySelector('#compressor-release > input[type=range]') as HTMLInputElement;
+  const thresholdInput = container.querySelector('#compressor-threshold > input[type=number]') as HTMLInputElement;
+  const thresholdSlider = container.querySelector('#compressor-threshold > input[type=range]') as HTMLInputElement;
 
-  setValue(attackInput, compressorState.attack)
-  setValue(attackSlider, compressorState.attack)
-  setValue(kneeInput, compressorState.knee)
-  setValue(kneeSlider, compressorState.knee)
-  setValue(ratioInput, compressorState.ratio)
-  setValue(ratioSlider, compressorState.ratio)
-  setValue(releaseInput, compressorState.release)
-  setValue(releaseSlider, compressorState.release)
-  setValue(thresholdInput, compressorState.threshold)
-  setValue(thresholdSlider, compressorState.threshold)
+  const eqLowFreqInput = container.querySelector('#eq-low-freq > input[type=number]') as HTMLInputElement;
+  const eqLowFreqSlider = container.querySelector('#eq-low-freq > input[type=range]') as HTMLInputElement;
+  const eqLowGainInput = container.querySelector('#eq-low-gain > input[type=number]') as HTMLInputElement;
+  const eqLowGainSlider = container.querySelector('#eq-low-gain > input[type=range]') as HTMLInputElement;
+  const eqMidFreqInput = container.querySelector('#eq-mid-freq > input[type=number]') as HTMLInputElement;
+  const eqMidFreqSlider = container.querySelector('#eq-mid-freq > input[type=range]') as HTMLInputElement;
+  const eqMidGainInput = container.querySelector('#eq-mid-gain > input[type=number]') as HTMLInputElement;
+  const eqMidGainSlider = container.querySelector('#eq-mid-gain > input[type=range]') as HTMLInputElement;
+  const eqHighFreqInput = container.querySelector('#eq-hi-freq > input[type=number]') as HTMLInputElement;
+  const eqHighFreqSlider = container.querySelector('#eq-hi-freq > input[type=range]') as HTMLInputElement;
+  const eqHighGainInput = container.querySelector('#eq-hi-gain > input[type=number]') as HTMLInputElement;
+  const eqHighGainSlider = container.querySelector('#eq-hi-gain > input[type=range]') as HTMLInputElement;
 
-  container.classList.remove('hidden')
-  attackInput.addEventListener('change', onAttackChange)
-  attackSlider.addEventListener('change', onAttackChange)
-  kneeInput.addEventListener('change', onKneeChange)
-  kneeSlider.addEventListener('change', onKneeChange)
-  ratioInput.addEventListener('change', onRatioChange)
-  ratioSlider.addEventListener('change', onRatioChange)
-  releaseInput.addEventListener('change', onReleaseChange)
-  releaseSlider.addEventListener('change', onReleaseChange)
-  thresholdInput.addEventListener('change', onThresholdChange)
-  thresholdSlider.addEventListener('change', onThresholdChange)
+  setValue(attackInput, compressorState.attack);
+  setValue(attackSlider, compressorState.attack);
+  setValue(kneeInput, compressorState.knee);
+  setValue(kneeSlider, compressorState.knee);
+  setValue(ratioInput, compressorState.ratio);
+  setValue(ratioSlider, compressorState.ratio);
+  setValue(releaseInput, compressorState.release);
+  setValue(releaseSlider, compressorState.release);
+  setValue(thresholdInput, compressorState.threshold);
+  setValue(thresholdSlider, compressorState.threshold);
+
+  setValue(eqLowFreqInput, eqLow.frequency.value);
+  setValue(eqLowFreqSlider, eqLow.frequency.value);
+  setValue(eqLowGainInput, eqLow.gain.value);
+  setValue(eqLowGainSlider, eqLow.gain.value);
+  setValue(eqMidFreqInput, eqMid.frequency.value);
+  setValue(eqMidFreqSlider, eqMid.frequency.value);
+  setValue(eqMidGainInput, eqMid.gain.value);
+  setValue(eqMidGainSlider, eqMid.gain.value);
+  setValue(eqHighFreqInput, eqHigh.frequency.value);
+  setValue(eqHighFreqSlider, eqHigh.frequency.value);
+  setValue(eqHighGainInput, eqHigh.gain.value);
+  setValue(eqHighGainSlider, eqHigh.gain.value);
+
+  container.classList.remove('hidden');
+
+  attackInput.addEventListener('change', onAttackChange);
+  attackSlider.addEventListener('input', onAttackChange);
+  kneeInput.addEventListener('change', onKneeChange);
+  kneeSlider.addEventListener('input', onKneeChange);
+  ratioInput.addEventListener('change', onRatioChange);
+  ratioSlider.addEventListener('input', onRatioChange);
+  releaseInput.addEventListener('change', onReleaseChange);
+  releaseSlider.addEventListener('input', onReleaseChange);
+  thresholdInput.addEventListener('change', onThresholdChange);
+  thresholdSlider.addEventListener('input', onThresholdChange);
+
+  eqLowFreqInput.addEventListener('change', onLowEqFreqChange);
+  eqLowFreqSlider.addEventListener('input', onLowEqFreqChange);
+  eqLowGainInput.addEventListener('change', onLowEqGainChange);
+  eqLowGainSlider.addEventListener('input', onLowEqGainChange);
+  eqMidFreqInput.addEventListener('change', onMidEqFreqChange);
+  eqMidFreqSlider.addEventListener('input', onMidEqFreqChange);
+  eqMidGainInput.addEventListener('change', onMidEqGainChange);
+  eqMidGainSlider.addEventListener('input', onMidEqGainChange);
+  eqHighFreqInput.addEventListener('change', onHighEqFreqChange);
+  eqHighFreqSlider.addEventListener('input', onHighEqFreqChange);
+  eqHighGainInput.addEventListener('change', onHighEqGainChange);
+  eqHighGainSlider.addEventListener('input', onHighEqGainChange);
 
   function parseEventValue(ev: InputEvent) {
     return parseFloat((ev.target as HTMLInputElement).value || '0')
@@ -346,5 +412,41 @@ if (DEBUG_COMPRESSOR) {
     setValue(thresholdInput, compressorState.threshold)
     setValue(thresholdSlider, compressorState.threshold)
     updateCompressor()
+  }
+
+  function onLowEqFreqChange(ev: InputEvent) {
+    eqLow.frequency.value = parseEventValue(ev)
+    setValue(eqLowFreqInput, eqLow.frequency.value)
+    setValue(eqLowFreqSlider, eqLow.frequency.value)
+  }
+
+  function onLowEqGainChange(ev: InputEvent) {
+    eqLow.gain.value = parseEventValue(ev)
+    setValue(eqLowGainInput, eqLow.gain.value)
+    setValue(eqLowGainSlider, eqLow.gain.value)
+  }
+
+  function onMidEqFreqChange(ev: InputEvent) {
+    eqMid.frequency.value = parseEventValue(ev)
+    setValue(eqMidFreqInput, eqMid.frequency.value)
+    setValue(eqMidFreqSlider, eqMid.frequency.value)
+  }
+
+  function onMidEqGainChange(ev: InputEvent) {
+    eqMid.gain.value = parseEventValue(ev)
+    setValue(eqMidGainInput, eqMid.gain.value)
+    setValue(eqMidGainSlider, eqMid.gain.value)
+  }
+
+  function onHighEqFreqChange(ev: InputEvent) {
+    eqHigh.frequency.value = parseEventValue(ev)
+    setValue(eqHighFreqInput, eqHigh.frequency.value)
+    setValue(eqHighFreqSlider, eqHigh.frequency.value)
+  }
+
+  function onHighEqGainChange(ev: InputEvent) {
+    eqHigh.gain.value = parseEventValue(ev)
+    setValue(eqHighGainInput, eqHigh.gain.value)
+    setValue(eqHighGainSlider, eqHigh.gain.value)
   }
 }
