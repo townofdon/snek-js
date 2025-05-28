@@ -561,7 +561,16 @@ export enum Sound {
   xpound = 'xpound',
 }
 
-export type SoundVariants = Record<keyof typeof Sound, Howl>
+export interface SfxSound {
+  play: () => void
+  stop: () => void
+  volume: ((volume?: number) => number)
+  loop: ((val?: boolean) => boolean)
+  playing: () => boolean
+}
+
+// export type SoundVariants = Record<keyof typeof Sound, Howl>
+export type SoundVariants = Record<keyof typeof Sound, SfxSound>
 
 
 export enum MusicTrack {

@@ -1,7 +1,7 @@
-import { Howl } from 'howler';
+// import { Howl } from 'howler';
 
 import { SFXInstance, SoundVariants } from "../types";
-import { setSfxVolume } from '../engine/audio';
+import { loadSfxAudio, setSfxVolume } from '../engine/audio';
 import { getRelativeDir } from '../utils';
 
 /**
@@ -83,8 +83,8 @@ export class SFX implements SFXInstance {
         console.warn(`Sound not loaded: ${sound}`);
         return;
       }
-      this.play(sound, volume);
       this.sounds[sound].loop(true);
+      this.play(sound, volume);
     } catch (err) {
       console.error(err);
     }
@@ -98,37 +98,38 @@ export class SFX implements SFXInstance {
     this.sounds[sound].stop();
   }
 
-  load() {
+  async load() {
     try {
       const relativeDir = getRelativeDir();
-      const loadSound = (soundFile: string) => new Howl({ src: [`${relativeDir}assets/sounds/${soundFile}`] });
-      this.sounds.death = loadSound('death.wav');
-      this.sounds.doorOpen = loadSound('door-open.wav');
-      this.sounds.doorOpenHuge = loadSound('door-open-huge.wav');
-      this.sounds.eat = loadSound('eat.wav');
-      this.sounds.hurt1 = loadSound('hurt-1.wav');
-      this.sounds.hurt2 = loadSound('hurt-2.wav');
-      this.sounds.hurt3 = loadSound('hurt-3.wav');
-      this.sounds.hurtSave = loadSound('hurt-save.wav');
-      this.sounds.invincibleLoop = loadSound('invincible-loop.wav');
-      this.sounds.moveStart = loadSound('move-start.wav');
-      this.sounds.pickup = loadSound('pickup.wav');
-      this.sounds.pickupInvincibility = loadSound('pickup-invincibility.wav');
-      this.sounds.rewindLoop = loadSound('rewind-loop.wav');
-      this.sounds.step1 = loadSound('step-1.wav');
-      this.sounds.step2 = loadSound('step-2.wav');
-      this.sounds.uiBlip = loadSound('ui-blip.wav');
-      this.sounds.uiChip = loadSound('ui-chip.wav');
-      this.sounds.uiChipLoop = loadSound('ui-chip-loop.wav');
-      this.sounds.uiConfirm = loadSound('ui-confirm.wav');
-      this.sounds.unlock = loadSound('unlock.wav');
-      this.sounds.unlockAbility = loadSound('unlock-ability.wav');
-      this.sounds.warp = loadSound('warp.wav');
-      this.sounds.winLevel = loadSound('winlevel.wav');
-      this.sounds.winGame = loadSound('wingame.wav');
-      this.sounds.xplode = loadSound('xplode.wav');
-      this.sounds.xplodeLong = loadSound('xplode-long.wav');
-      this.sounds.xpound = loadSound('xpound.wav');
+      // const loadSound = (soundFile: string) => new Howl({ src: [`${relativeDir}assets/sounds/${soundFile}`] });
+      const loadSound = (soundFile: string) => loadSfxAudio({src: [`${relativeDir}assets/sounds/${soundFile}`] })
+      this.sounds.death = await loadSound('death.wav');
+      this.sounds.doorOpen = await loadSound('door-open.wav');
+      this.sounds.doorOpenHuge = await loadSound('door-open-huge.wav');
+      this.sounds.eat = await loadSound('eat.wav');
+      this.sounds.hurt1 = await loadSound('hurt-1.wav');
+      this.sounds.hurt2 = await loadSound('hurt-2.wav');
+      this.sounds.hurt3 = await loadSound('hurt-3.wav');
+      this.sounds.hurtSave = await loadSound('hurt-save.wav');
+      this.sounds.invincibleLoop = await loadSound('invincible-loop.wav');
+      this.sounds.moveStart = await loadSound('move-start.wav');
+      this.sounds.pickup = await loadSound('pickup.wav');
+      this.sounds.pickupInvincibility = await loadSound('pickup-invincibility.wav');
+      this.sounds.rewindLoop = await loadSound('rewind-loop.wav');
+      this.sounds.step1 = await loadSound('step-1.wav');
+      this.sounds.step2 = await loadSound('step-2.wav');
+      this.sounds.uiBlip = await loadSound('ui-blip.wav');
+      this.sounds.uiChip = await loadSound('ui-chip.wav');
+      this.sounds.uiChipLoop = await loadSound('ui-chip-loop.wav');
+      this.sounds.uiConfirm = await loadSound('ui-confirm.wav');
+      this.sounds.unlock = await loadSound('unlock.wav');
+      this.sounds.unlockAbility = await loadSound('unlock-ability.wav');
+      this.sounds.warp = await loadSound('warp.wav');
+      this.sounds.winLevel = await loadSound('winlevel.wav');
+      this.sounds.winGame = await loadSound('wingame.wav');
+      this.sounds.xplode = await loadSound('xplode.wav');
+      this.sounds.xplodeLong = await loadSound('xplode-long.wav');
+      this.sounds.xpound = await loadSound('xpound.wav');
     } catch (err) {
       console.error(err);
     }

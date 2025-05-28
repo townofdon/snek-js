@@ -1518,3 +1518,22 @@ input[type="range"]:disabled::-moz-range-thumb {
   letter-spacing: 1px;
   font-size: 1.5em;
 }
+
+.compressor-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: absolute;
+  left: 77%;
+  z-index: 1000;
+  color: white;
+}
+
+.compressor-controls > label > span {
+  display: inline-block;
+  min-width: 60px;
+}
+
+.compressor-controls > label > input[type="number"] {
+  width: 50px;
+}

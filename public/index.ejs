@@ -383,7 +383,37 @@
         </div>
 
         <div id="loader" class="loader-container hidden"><span class="loader"></span></div>
+
       </main>
+
+      <div id="compressor-controls" class="compressor-controls hidden">
+        <h3 class="fullwidth center minimood">Compressor</h3>
+        <label id="compressor-attack">
+          <span>attack</span>
+          <input type="number" name="attack" value=".005" />
+          <input type="range" name="attack" min="0" max="1" step="0.001" value=".005" />
+        </label>
+        <label id="compressor-knee">
+          <span>knee</span>
+          <input type="number" name="knee" value="30" />
+          <input type="range" name="knee" min="0" max="60" step="0.1" value="30" />
+        </label>
+        <label id="compressor-ratio">
+          <span>ratio</span>
+          <input type="number" name="ratio" value="12" />
+          <input type="range" name="ratio" min="0" max="24" step="0.1" value="12" />
+        </label>
+        <label id="compressor-release">
+          <span>release</span>
+          <input type="number" name="release" value="0.250" />
+          <input type="range" name="release" min="0" max="4" step="0.001" value="0.250" />
+        </label>
+        <label id="compressor-threshold">
+          <span>threshold</span>
+          <input type="number" name="threshold" value="-24" />
+          <input type="range" name="threshold" min="-60" max="0" step="0.1" value="-24" />
+        </label>
+      </div>
     </div>
   </body>
 </html>

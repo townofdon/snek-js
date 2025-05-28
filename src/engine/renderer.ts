@@ -545,6 +545,8 @@ export class Renderer implements IRenderer {
   }
 
   drawTutorialTurnControls = (gfx: P5 | P5.Graphics, x: number, y: number) => {
+    if (this.replay.mode === ReplayMode.Playback) return;
+
     const { inputType } = this.gameState;
     const isKeyboard = inputType === InputType.Keyboard;
     // banner background
@@ -587,6 +589,8 @@ export class Renderer implements IRenderer {
   }
 
   drawSprintControls = (gfx: P5 | P5.Graphics, x: number, y: number) => {
+    if (this.replay.mode === ReplayMode.Playback) return;
+
     const { inputType } = this.gameState;
     // banner background
     const bannerWidth = 7.8;
