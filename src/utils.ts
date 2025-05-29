@@ -278,6 +278,19 @@ export function getTrackName(track?: MusicTrack) {
   }
 }
 
+export function shouldTrackPlayToEnd(track?: MusicTrack) {
+  if (!track) return false;
+  switch(track) {
+    case MusicTrack.simpleTime:
+    case MusicTrack.conquerer:
+    case MusicTrack.transient:
+    case MusicTrack.moneymaker:
+      return true;
+    default:
+      return false;
+  }
+}
+
 export function getElementPosition(el: HTMLElement) {
   var xPosition = 0;
   var yPosition = 0;

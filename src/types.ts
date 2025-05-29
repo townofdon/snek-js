@@ -569,6 +569,13 @@ export interface SfxSound {
   playing: () => boolean
 }
 
+export interface AudioInfo {
+  /**
+   * duration in seconds
+   */
+  duration: number,
+}
+
 // export type SoundVariants = Record<keyof typeof Sound, Howl>
 export type SoundVariants = Record<keyof typeof Sound, SfxSound>
 

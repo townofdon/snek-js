@@ -1,5 +1,5 @@
 import { DEFAULT_VOLUME_SFX, MAX_GAIN_MUSIC } from "../constants";
-import { MusicTrack, SfxSound } from "../types";
+import { AudioInfo, MusicTrack, SfxSound } from "../types";
 import { requireElementById } from "../ui/uiUtils";
 import { inverseLerp, lerp } from "../utils";
 
@@ -135,7 +135,7 @@ interface AudioSourceOptions {
   specialEq?: boolean
 }
 
-async function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOptions) {
+async function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOptions): Promise<AudioInfo | null> {
   if (options.specialEq) {
     if (path.includes(MusicTrack.moneymaker) || path.includes(MusicTrack.lostcolony)) {
       eqHigh.gain.value = TREBLE_BOOST;
@@ -145,7 +145,7 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
   }
   if (audioContext.state === 'suspended') {
     console.warn(`[Audio] could not play "${path}" due to audio context being suspended`);
-    return;
+    return null;
   }
   // create gain node
   const gainNode = audioContext.createGain();
@@ -183,10 +183,15 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
   }
   const onended = (source.onended ? source.onended : undefined) as (() => void | undefined);
   source.onended = () => {
-    stopAudio(path);
     if (onended) onended()
+    stopAudio(path);
   }
-  if (DEBUG_AUDIO) console.log(`[Audio] playing audio file=${path},gainNode=${gainNode},buffer=${buffer},source=${source}`)
+  if (DEBUG_AUDIO) {
+    console.log(`[Audio] playing audio file=${path},gainNode=${gainNode},buffer=${buffer},source=${source}`)
+  }
+  return {
+    duration: buffer.duration,
+  } satisfies AudioInfo
 }
 
 export async function loadSfxAudio({ src }: { src: [string] }) {
@@ -208,11 +213,19 @@ export async function loadSfxAudio({ src }: { src: [string] }) {
   }
 
   const play = () => {
-    state.playing = true;
-    setTimeout(() => playSfx(path, { volume: state.volume, loop: source.loop }), 0)
-    source.onended = () => {
-      state.playing = false;
-    }
+    setTimeout(() => {
+      if (state.playing) stop();
+      state.playing = true;
+      try {
+        playAudio(path, sfxGainNode, { volume: state.volume, loop: source.loop });
+      } catch (err) {
+        console.warn(`err on playSfx(${path}): ${err}`);
+        state.playing = false;
+      }
+      source.onended = () => {
+        state.playing = false;
+      }
+    }, 0)
   }
   const stop = () => {
     if (!state.playing) return;
@@ -239,10 +252,6 @@ export async function loadSfxAudio({ src }: { src: [string] }) {
   } satisfies SfxSound
 }
 
-async function playSfx(path: string, options: AudioSourceOptions) {
-  return playAudio(path, sfxGainNode, options);
-}
-
 export async function playMusic(path: string, options: AudioSourceOptions) {
   return playAudio(path, musicGainNode, options);
 }
@@ -265,17 +274,26 @@ export function getTimeElapsed(path: string): number {
 }
 
 export function stopAudio(path: string) {
-  if (audioSourceMap[path]) {
-    audioSourceMap[path].onended = undefined;
-    audioSourceMap[path].stop();
-    audioSourceMap[path].disconnect();
+  try {
+    if (audioSourceMap[path]) {
+      audioSourceMap[path].onended = undefined;
+      try {
+        audioSourceMap[path].stop();
+      } catch (err) {
+        console.warn(`err on stopAudio(${path}): ${err}`);
+      }
+      audioSourceMap[path].disconnect();
+    }
+    if (audioTimeStartedMap[path]) {
+      audioTimeStartedMap[path] = -1;
+    }
+    audioGainNodeMap[path]?.disconnect();
+  } catch (err) {
+    console.warn(`err on stopAudio(${path}): ${err}`);
+  } finally {
+    audioSourceMap[path] = null;
+    audioGainNodeMap[path] = null;
   }
-  if (audioTimeStartedMap[path]) {
-    audioTimeStartedMap[path] = -1;
-  }
-  audioGainNodeMap[path]?.disconnect();
-  audioSourceMap[path] = null;
-  audioGainNodeMap[path] = null;
 }
 
 export function unloadAudio(path: string) {
