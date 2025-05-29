@@ -190,7 +190,9 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
     console.log(`[Audio] playing audio file=${path},gainNode=${gainNode},buffer=${buffer},source=${source}`)
   }
   return {
-    duration: buffer.duration,
+    path,
+    durationMs: buffer.duration * 1000,
+    loop: source.loop,
   } satisfies AudioInfo
 }
 

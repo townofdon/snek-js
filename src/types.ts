@@ -570,10 +570,12 @@ export interface SfxSound {
 }
 
 export interface AudioInfo {
+  path: string,
   /**
    * duration in seconds
    */
-  duration: number,
+  durationMs: number,
+  loop: boolean,
 }
 
 // export type SoundVariants = Record<keyof typeof Sound, Howl>
@@ -605,6 +607,12 @@ export enum MusicTrack {
   slyguy = '21-slyguy.wav',
   overture = '22-snek-overture.wav',
   drone = '00-drone.wav',
+  full_simpleTime = '01-simpletime4-full.wav',
+  full_transient = '03-transient-4-FULL.wav',
+  full_dangerZone = '06-dangerzone-FULL.wav',
+  full_creeplord = '08-creeplord-FULL-2.wav',
+  full_slyguy = '21-slyguy-FULL.wav',
+  full_moneymaker = '09-snekmoney-FULL3.wav',
   slime_dangerman = '90-dangerman_180.mp3',
   slime_exitmusic = '91-exitmusic_245.mp3',
   slime_megacreep = '92-megacreep_120.mp3',

@@ -1,6 +1,8 @@
+import P5 from "p5";
 import { getAnalyser, getMusicLowpassFrequency, getMusicVolume, getTimeElapsed, loadAudioToBuffer, playMusic, setMusicLowpassFrequency, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
-import { GameSettings, MusicTrack } from "../types";
-import { getRelativeDir } from "../utils";
+import { AudioInfo, GameSettings, IEnumerator, MusicTrack } from "../types";
+import { clamp, getRelativeDir, lerp } from "../utils";
+import { Easing } from "../easing";
 
 const DEBUG_MUSIC = false;
 const USE_MP3 = true;
@@ -60,6 +62,12 @@ export class MusicPlayer {
     [MusicTrack.slime_megacreep]: false,
     [MusicTrack.slime_monsterdance]: false,
     [MusicTrack.slime_rollcredits]: false,
+    [MusicTrack.full_simpleTime]: false,
+    [MusicTrack.full_transient]: false,
+    [MusicTrack.full_dangerZone]: false,
+    [MusicTrack.full_creeplord]: false,
+    [MusicTrack.full_slyguy]: false,
+    [MusicTrack.full_moneymaker]: false
   };
   private settings: GameSettings;
 
@@ -90,31 +98,38 @@ export class MusicPlayer {
     return getAnalyser(this.fullPath(track));
   }
 
-  async play(track?: MusicTrack, volume = 1, createAnalyser = false, trackElapsed = false) {
+  async play(track?: MusicTrack, volume = 1, createAnalyser = false, trackElapsed = false): Promise<AudioInfo> {
+    const nilInfo = {
+      path: "",
+      durationMs: 0,
+      loop: false,
+    } satisfies AudioInfo
     if (!navigator.userActivation.hasBeenActive) {
       if (DEBUG_MUSIC) console.warn(`[MusicPlayer][play] user not yet active when trying to play track=${track}`);
-      return;
+      return nilInfo;
     }
     if (!track) {
       console.warn("[MusicPlayer][play] Track was undefined");
-      return;
+      return nilInfo;
     }
     this.normalSpeed(track);
     this.setLowpassFrequency(1);
     if (this.tracksPlaying[track] && track === this.state.currentTrack) {
       if (DEBUG_MUSIC) console.warn(`[MusicPlayer][play] already playing track=${track}`);
-      return;
+      return nilInfo;
     }
     if (track === MusicTrack.None) {
-      return;
+      return nilInfo;
     }
     if (DEBUG_MUSIC) console.log(`[MusicPlayer] playing track=${track},volume=${volume}`);
     try {
       this.tracksPlaying[track] = true;
       this.state.currentTrack = track;
-      await playMusic(this.fullPath(track), { volume, loop: this.shouldLoop(track), createAnalyser, trackElapsed, specialEq: true });
+      const info = await playMusic(this.fullPath(track), { volume, loop: this.shouldLoop(track), createAnalyser, trackElapsed, specialEq: true });
+      return info;
     } catch (err) {
       console.error(err);
+      return nilInfo;
     }
   }
 
@@ -225,7 +240,37 @@ export class MusicPlayer {
   }
 
   private shouldLoop(track: MusicTrack) {
-    if (track === MusicTrack.overture) return false;
-    return true;
+    switch (track) {
+      case MusicTrack.overture:
+      case MusicTrack.full_creeplord:
+      case MusicTrack.full_dangerZone:
+      case MusicTrack.full_moneymaker:
+      case MusicTrack.full_simpleTime:
+      case MusicTrack.full_slyguy:
+      case MusicTrack.full_transient:
+        return false;
+      default:
+        return true;
+    }
   }
+}
+
+interface FadeMusicArgs {
+  musicPlayer: MusicPlayer,
+  p5: P5,
+  toVolume: number,
+  durationMs: number,
+  onFadeComplete?: () => void,
+}
+export function* fadeMusic({ musicPlayer, p5, toVolume, durationMs, onFadeComplete }: FadeMusicArgs): IEnumerator {
+  yield null;
+  const startVolume = musicPlayer.getVolume();
+  let t = 0;
+  while (durationMs > 0 && t < 1) {
+    musicPlayer.setVolume(p5.lerp(startVolume, toVolume, Easing.inOutCubic(clamp(t, 0, 1))));
+    t += p5.deltaTime / durationMs;
+    yield null;
+  }
+  musicPlayer.setVolume(toVolume);
+  onFadeComplete?.()
 }

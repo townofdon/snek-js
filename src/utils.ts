@@ -218,22 +218,27 @@ export function getTrackName(track?: MusicTrack) {
     case MusicTrack.None:
       return 'None';
     case MusicTrack.simpleTime:
+    case MusicTrack.full_simpleTime:
       return "Adventurer";
     case MusicTrack.conquerer:
       return "Conquerer";
     case MusicTrack.transient:
+    case MusicTrack.full_transient:
       return "Transit";
     case MusicTrack.lordy:
       return "Hotline";
     case MusicTrack.champion:
       return "Snekmaster";
     case MusicTrack.dangerZone:
+    case MusicTrack.full_dangerZone:
       return "Sidewinder";
     case MusicTrack.aqueduct:
       return "Aqueduct";
     case MusicTrack.creeplord:
+    case MusicTrack.full_creeplord:
       return "Underlair";
     case MusicTrack.moneymaker:
+    case MusicTrack.full_moneymaker:
       return "Outlast";
     case MusicTrack.factorio:
       return "Manufactory";
@@ -258,9 +263,10 @@ export function getTrackName(track?: MusicTrack) {
     case MusicTrack.backrooms:
       return "Backrooms";
     case MusicTrack.slyguy:
+    case MusicTrack.full_slyguy:
       return "Resolute";
     case MusicTrack.overture:
-      return "Overture";
+      return "Victory!";
     case MusicTrack.drone:
       return "Drone";
     case MusicTrack.slime_dangerman:
@@ -275,19 +281,6 @@ export function getTrackName(track?: MusicTrack) {
       return "SC_Roll Credits";
     default:
       return "Unknown";
-  }
-}
-
-export function shouldTrackPlayToEnd(track?: MusicTrack) {
-  if (!track) return false;
-  switch(track) {
-    case MusicTrack.simpleTime:
-    case MusicTrack.conquerer:
-    case MusicTrack.transient:
-    case MusicTrack.moneymaker:
-      return true;
-    default:
-      return false;
   }
 }
 
@@ -530,6 +523,9 @@ interface ToTimeParams {
   seconds: number,
   ms?: number,
 }
+/**
+ * Convert to milliseconds
+ */
 export const toTime = ({ minutes = 0, seconds = 0, ms = 0}: ToTimeParams) => {
   return (minutes || 0) * 1000 * 60 + (seconds || 0) * 1000 + ms;
 }

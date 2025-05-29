@@ -1,5 +1,6 @@
 import P5 from "p5";
 import {
+  AudioInfo,
   FontsInstance,
   IEnumerator,
   Image,
@@ -8,14 +9,15 @@ import {
   Sound,
 } from "../types";
 import { BaseScene } from "./BaseScene";
-import { MusicPlayer } from "../engine/musicPlayer";
+import { fadeMusic, MusicPlayer } from "../engine/musicPlayer";
 import { clamp, getTrackName } from "../utils";
-import { DIMENSIONS, OST_MODE_TRACKS } from "../constants";
+import { DIMENSIONS, OST_MODE_TRACKS, OST_TRACK_FADE_DURATION_MS } from "../constants";
 import { UI } from "../ui/ui";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { SpriteRenderer } from "../engine/spriteRenderer";
 import { getGamepad, tickGamepad, wasPressedThisFrame } from "../engine/gamepad";
 import { Button } from "../engine/gamepad/StandardGamepadMapping";
+import { musicTrackFadeoutOverride } from "../editor/utils/musicTrackUtils";
 
 const VISUALIZER = {
   width: 2 * 360,
@@ -191,25 +193,70 @@ export class OSTScene extends BaseScene {
     return this.musicPlayer.stopAllTracks({ unload: false });
   }
 
-  private playTrack() {
+  transition: {
+    timeout: NodeJS.Timeout,
+    coroutineId: string,
+  } = {
+    timeout: null,
+    coroutineId: "",
+  }
+
+  private clearTransition() {
+    this.stopCoroutine(this.transition.coroutineId);
+    clearTimeout(this.transition.timeout);
+  }
+
+  private playTrack(autoAdvanceIfLocked = false) {
+    this.clearTransition();
     const sfx = this.sfx;
     sfx.play(Sound.unlock, 0.8);
     const track = OST_MODE_TRACKS[this.state.trackIndex];
     const isUnlocked = this.unlockedMusicStore.getIsUnlocked(track);
     this.state.locked = !isUnlocked;
     if (isUnlocked) {
-      this.musicPlayer.play(track, 1, true, true);
+      this.transition.timeout = setTimeout(() => {
+        this.musicPlayer.setVolume(1);
+        this.musicPlayer.play(track, 1, true, true).then((info) => this.enqueueAutoAdvance(info));
+      }, 80)
+    } else if (autoAdvanceIfLocked) {
+      this.transition.timeout = setTimeout(() => {
+        this.advanceTrack(1, true);
+      }, 800);
+    }
+    return isUnlocked;
+  }
+
+  private enqueueAutoAdvance(info: AudioInfo) {
+    this.clearTransition();
+    if (info.loop) {
+      const track = OST_MODE_TRACKS[this.state.trackIndex];
+      const triggerTime = musicTrackFadeoutOverride[track] || (info.durationMs - OST_TRACK_FADE_DURATION_MS - 10);
+      this.transition.timeout = setTimeout(() => {
+        this.transition.coroutineId = this.startCoroutine(fadeMusic({
+          musicPlayer: this.musicPlayer,
+          p5: this.props.p5,
+          durationMs: OST_TRACK_FADE_DURATION_MS,
+          toVolume: 0,
+          onFadeComplete: () => {
+            this.advanceTrack(1, true);
+          },
+        }));
+      }, triggerTime);
+    } else {
+      this.transition.timeout = setTimeout(() => {
+        this.advanceTrack(1, true);
+      }, info.durationMs);
     }
   }
 
-  private advanceTrack(step: number) {
+  private advanceTrack(step: number, autoAdvanceIfLocked = false) {
     this.stopTrack();
     this.state.timeStarted = Date.now();
     this.state.trackIndex += OST_MODE_TRACKS.length;
     this.state.trackIndex += step;
     this.state.trackIndex %= OST_MODE_TRACKS.length
     this.frequencySweep.t = 0;
-    this.playTrack();
+    return this.playTrack(autoAdvanceIfLocked);
   }
 
   private drawSceneTitle = () => {
@@ -394,7 +441,7 @@ export class OSTScene extends BaseScene {
     for (let i = 0; i < bufferLength; i++) {
       const t = i / (bufferLength - 1)
       const v = dataArray[i] * 0.0078125 - 1; // convert 0..256 to -1..1 range
-      const y = v * (VISUALIZER.height * 0.5) + VISUALIZER.height * 0.5 + VISUALIZER.y;
+      const y = v * this.musicPlayer.getVolume() * (VISUALIZER.height * 0.5) + VISUALIZER.height * 0.5 + VISUALIZER.y;
 
       if (i === 0) {
         points[0].x = x;
@@ -437,8 +484,8 @@ export class OSTScene extends BaseScene {
       const t = i / (bufferLength - 1);
       const radians = t * 2 * Math.PI;
 
-      const x = centerX + Math.cos(radians) * radius * v;
-      const y = centerY + Math.sin(radians) * radius * v;
+      const x = centerX + Math.cos(radians) * radius * v * this.musicPlayer.getVolume();
+      const y = centerY + Math.sin(radians) * radius * v * this.musicPlayer.getVolume();
 
       if (i === 0) {
         points[0].x = x;
@@ -499,7 +546,7 @@ export class OSTScene extends BaseScene {
     for (let i = 0; i < numSamples; i++) {
       const t = i / (numSamples - 1);
       const v = logValues[i] / 256;
-      const barHeight = (VISUALIZER.height - baselineY * 2) * v;
+      const barHeight = (VISUALIZER.height - baselineY * 2) * v * this.musicPlayer.getVolume();
 
       const x0 = x;
       const x1 = x + sliceWidth - 4;
@@ -554,7 +601,7 @@ export class OSTScene extends BaseScene {
     const bottomEdge = VISUALIZER.y + VISUALIZER.height - baselineY;
 
     for (let i = 0; i < numSamples; i++) {
-      const v = (logValues[i] / 256) * 1.2;
+      const v = (logValues[i] / 256) * 1.2 * this.musicPlayer.getVolume();
       const x = leftEdge + (i / (numSamples - 1)) * (VISUALIZER.width - 6 * 2);
       const y = p5.lerp(topEdge, bottomEdge, this.frequencySweep.t % 1);
       const wrapY = (val: number) => (val - topEdge) % (VISUALIZER.height - baselineY) + topEdge;

@@ -228,7 +228,7 @@ export class WinLevelScene extends BaseScene {
     }, true);
 
     // unlock music track
-    if (this.levelMusicTrack && !this.unlockedMusicStore.getIsUnlocked(this.levelMusicTrack) && OST_MODE_TRACKS.includes(this.levelMusicTrack)) {
+    if (this.levelMusicTrack && !this.unlockedMusicStore.getIsUnlocked(this.levelMusicTrack)) {
       this.unlockedMusicStore.unlockTrack(this.levelMusicTrack);
       if (OST_MODE_TRACKS_NOTIFY_UNLOCK.includes(this.levelMusicTrack)) {
         sfx.play(Sound.unlockAbility, 1);
