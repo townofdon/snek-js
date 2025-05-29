@@ -607,7 +607,7 @@ export enum MusicTrack {
   slyguy = '21-slyguy.wav',
   overture = '22-snek-overture.wav',
   drone = '00-drone.wav',
-  full_simpleTime = '01-simpletime4-full.wav',
+  full_simpleTime = '01-simpletime5-full.wav',
   full_transient = '03-transient-4-FULL.wav',
   full_dangerZone = '06-dangerzone-FULL.wav',
   full_creeplord = '08-creeplord-FULL-2.wav',
