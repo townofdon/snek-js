@@ -238,6 +238,31 @@ export const NUM_SNAKE_INVINCIBLE_COLORS = 20;
 
 export const OST_TRACK_FADE_DURATION_MS = 10000;
 
+export const CAMPAIGN_TRACKS: MusicTrack[] = [
+  MusicTrack.champion,
+  MusicTrack.simpleTime,
+  MusicTrack.transient,
+  MusicTrack.aqueduct,
+  MusicTrack.conquerer,
+  MusicTrack.observer,
+  MusicTrack.lordy,
+  MusicTrack.factorio,
+  MusicTrack.skycastle,
+  MusicTrack.creeplord,
+  MusicTrack.dangerZone,
+  MusicTrack.stonemaze,
+  MusicTrack.shopkeeper,
+  MusicTrack.woorb,
+  MusicTrack.gravy,
+  MusicTrack.lostcolony,
+  MusicTrack.backrooms,
+  MusicTrack.slyguy,
+  MusicTrack.reconstitute,
+  MusicTrack.ascension,
+  MusicTrack.moneymaker,
+  MusicTrack.overture,
+]
+
 export const OST_MODE_TRACKS: MusicTrack[] = [
   MusicTrack.champion,
   MusicTrack.full_simpleTime,

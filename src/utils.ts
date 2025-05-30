@@ -5,6 +5,7 @@ import {
   DIFFICULTY_HARD,
   DIFFICULTY_MEDIUM,
   DIFFICULTY_ULTRA,
+  FRAME_DUR_MS,
   GRIDCOUNT,
   INVINCIBILITY_EXPIRE_FLASH_MS,
   PICKUP_EXPIRE_WARN_MS,
@@ -12,6 +13,7 @@ import {
 import {
   DIR,
   Difficulty,
+  IEnumerator,
   KeyChannel,
   Level,
   MusicTrack,
@@ -529,3 +531,30 @@ interface ToTimeParams {
 export const toTime = ({ minutes = 0, seconds = 0, ms = 0}: ToTimeParams) => {
   return (minutes || 0) * 1000 * 60 + (seconds || 0) * 1000 + ms;
 }
+
+// see: https://gist.github.com/townofdon/1ef62e3eabddf347aa2f1f86aecc83ba
+export const performAction = (action: IEnumerator, signal?: AbortSignal): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    try {
+      const res = action.next();
+      if (res.done) {
+        return resolve();
+      }
+      // use setInterval instead of requestAnimationFrame to continue running even if the browser tab is inactive.
+      const interval = setInterval(() => {
+        if (signal?.aborted) {
+          action.return();
+          // see: https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort#:~:text=with%20name%20AbortError.
+          return reject(new DOMException('aborted', 'AbortError'));
+        }
+        const res = action.next();
+        if (res.done) {
+          clearInterval(interval);
+          return resolve();
+        }
+      }, FRAME_DUR_MS);
+    } catch (err) {
+      return reject(err);
+    }
+  });
+};

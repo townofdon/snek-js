@@ -4,13 +4,14 @@ import {
   FontsInstance,
   IEnumerator,
   Image,
+  MusicTrack,
   SFXInstance,
   SceneCallbacks,
   Sound,
 } from "../types";
 import { BaseScene } from "./BaseScene";
 import { fadeMusic, MusicPlayer } from "../engine/musicPlayer";
-import { clamp, getTrackName } from "../utils";
+import { clamp, getTrackName, performAction } from "../utils";
 import { DIMENSIONS, OST_MODE_TRACKS, OST_TRACK_FADE_DURATION_MS } from "../constants";
 import { UI } from "../ui/ui";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
@@ -195,68 +196,78 @@ export class OSTScene extends BaseScene {
 
   transition: {
     timeout: NodeJS.Timeout,
-    coroutineId: string,
+    controller: AbortController | null,
   } = {
     timeout: null,
-    coroutineId: "",
+    controller: null,
   }
 
   private clearTransition() {
-    this.stopCoroutine(this.transition.coroutineId);
     clearTimeout(this.transition.timeout);
+    if (this.transition.controller) {
+      this.transition.controller.abort();
+      this.transition.controller = null;
+    }
   }
 
-  private playTrack(autoAdvanceIfLocked = false) {
+  private playTrack() {
     this.clearTransition();
     const sfx = this.sfx;
     sfx.play(Sound.unlock, 0.8);
     const track = OST_MODE_TRACKS[this.state.trackIndex];
     const isUnlocked = this.unlockedMusicStore.getIsUnlocked(track);
     this.state.locked = !isUnlocked;
-    if (isUnlocked) {
+    const shouldPlay = track !== MusicTrack.overture || isUnlocked;
+    if (shouldPlay) {
       this.transition.timeout = setTimeout(() => {
         this.musicPlayer.setVolume(1);
         this.musicPlayer.play(track, 1, true, true).then((info) => this.enqueueAutoAdvance(info));
       }, 80)
-    } else if (autoAdvanceIfLocked) {
-      this.transition.timeout = setTimeout(() => {
-        this.advanceTrack(1, true);
-      }, 800);
     }
     return isUnlocked;
   }
 
   private enqueueAutoAdvance(info: AudioInfo) {
     this.clearTransition();
-    if (info.loop) {
-      const track = OST_MODE_TRACKS[this.state.trackIndex];
+    const track = OST_MODE_TRACKS[this.state.trackIndex];
+    if (info.loop || this.state.locked) {
       const triggerTime = musicTrackFadeoutOverride[track] || (info.durationMs - OST_TRACK_FADE_DURATION_MS - 10);
       this.transition.timeout = setTimeout(() => {
-        this.transition.coroutineId = this.startCoroutine(fadeMusic({
-          musicPlayer: this.musicPlayer,
-          p5: this.props.p5,
-          durationMs: OST_TRACK_FADE_DURATION_MS,
-          toVolume: 0,
-          onFadeComplete: () => {
-            this.advanceTrack(1, true);
-          },
-        }));
-      }, triggerTime);
+        this.transition.controller = new AbortController();
+        performAction(
+          fadeMusic({
+            musicPlayer: this.musicPlayer,
+            durationMs: OST_TRACK_FADE_DURATION_MS,
+            toVolume: 0,
+          }),
+          this.transition.controller.signal
+        )
+          .then(() => {
+            this.advanceTrack(1);
+          })
+          .catch((err) => {
+            // ignore abort signal
+            if (err instanceof DOMException && err.name === "AbortError") { return; }
+            console.error(err);
+          });
+      }, this.state.locked ? 5000 : triggerTime);
     } else {
       this.transition.timeout = setTimeout(() => {
-        this.advanceTrack(1, true);
+        if (track !== MusicTrack.overture) {
+          this.advanceTrack(1);
+        }
       }, info.durationMs);
     }
   }
 
-  private advanceTrack(step: number, autoAdvanceIfLocked = false) {
+  private advanceTrack(step: number) {
     this.stopTrack();
     this.state.timeStarted = Date.now();
     this.state.trackIndex += OST_MODE_TRACKS.length;
     this.state.trackIndex += step;
     this.state.trackIndex %= OST_MODE_TRACKS.length
     this.frequencySweep.t = 0;
-    return this.playTrack(autoAdvanceIfLocked);
+    return this.playTrack();
   }
 
   private drawSceneTitle = () => {
@@ -311,9 +322,7 @@ export class OSTScene extends BaseScene {
     p5.fill('#ccc');
     p5.textSize(2 * 12);
 
-    if (!this.state.locked) {
-      this.drawTimeElapsed();
-    }
+    this.drawTimeElapsed();
     this.drawTrackNumber();
   }
 

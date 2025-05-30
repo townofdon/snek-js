@@ -257,20 +257,21 @@ export class MusicPlayer {
 
 interface FadeMusicArgs {
   musicPlayer: MusicPlayer,
-  p5: P5,
   toVolume: number,
   durationMs: number,
-  onFadeComplete?: () => void,
 }
-export function* fadeMusic({ musicPlayer, p5, toVolume, durationMs, onFadeComplete }: FadeMusicArgs): IEnumerator {
-  yield null;
+export function* fadeMusic({ musicPlayer, toVolume, durationMs }: FadeMusicArgs): IEnumerator {
   const startVolume = musicPlayer.getVolume();
-  let t = 0;
-  while (durationMs > 0 && t < 1) {
-    musicPlayer.setVolume(p5.lerp(startVolume, toVolume, Easing.inOutCubic(clamp(t, 0, 1))));
-    t += p5.deltaTime / durationMs;
+  let time = performance.now()
+  let timeRemaining = durationMs;
+  yield null;
+  while (timeRemaining > 0) {
+    const delta = performance.now() - time;
+    timeRemaining -= delta;
+    time = performance.now();
+    const t = 1 - clamp(timeRemaining / durationMs, 0, 1);
+    musicPlayer.setVolume(lerp(startVolume, toVolume, Easing.inOutCubic(t)));
     yield null;
   }
   musicPlayer.setVolume(toVolume);
-  onFadeComplete?.()
 }

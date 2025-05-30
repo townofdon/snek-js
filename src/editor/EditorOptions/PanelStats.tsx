@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 
-import { OST_MODE_TRACKS, SLIME_CONTROL_TRACKS } from "../../constants";
+import { CAMPAIGN_TRACKS, SLIME_CONTROL_TRACKS } from "../../constants";
 import { EditorOptions, GameSettings, Level, MusicTrack } from "../../types";
 import { SetStateValue } from "../editorTypes";
 import { getRelativeDir, getTrackName } from "../../utils";
@@ -53,7 +53,7 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions, loadLevel }:
     }
   }, [isPreviewShowing]);
 
-  const includedTracks: MusicTrack[] = [MusicTrack.None, ...OST_MODE_TRACKS, MusicTrack.drone, ...SLIME_CONTROL_TRACKS];
+  const includedTracks: MusicTrack[] = [MusicTrack.None, ...CAMPAIGN_TRACKS, MusicTrack.drone, ...SLIME_CONTROL_TRACKS];
 
   const getNumberedTrackName = (track: MusicTrack) => {
     if (track === MusicTrack.None) return 'None';
