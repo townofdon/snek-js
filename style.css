@@ -130,7 +130,7 @@ html, body, main {
 main div {
   cursor: none;
 }
-canvas {
+canvas:not('#editor-canvas') {
   cursor: none;
 }
 .show-cursor main div,
