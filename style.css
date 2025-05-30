@@ -865,11 +865,14 @@ button.game-mode.back {
 .level-select-menu > .content > .levels {
   display: flex;
   flex-direction: row;
-  overflow-x: auto;
+  overflow-x: hidden;
   width: 100%;
   gap: 30px;
   padding: 80px 190px;
   box-sizing: border-box;
+}
+.show-cursor .level-select-menu > .content > .levels {
+  overflow-x: auto;
 }
 .level-select-menu button.select-level {
   position: relative;
