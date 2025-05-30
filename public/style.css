@@ -725,6 +725,9 @@ button.game-mode {
 button.game-mode.campaign {
   color: #E9C46A;
 }
+button.game-mode.challenge {
+  color: #8e6ced;
+}
 button.game-mode.level-select {
   color: #E76F51;
 }
@@ -856,7 +859,8 @@ button.game-mode.back {
 }
 .level-select-menu > .content > .challenge-heading {
   position: absolute;
-  color: #E76F51;
+  /* color: #E76F51; */
+  color: #8e6ced;
   top: 300px;
   transform: scale(2);
   font-style: italic;

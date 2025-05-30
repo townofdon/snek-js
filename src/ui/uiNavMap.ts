@@ -663,6 +663,7 @@ export class GameOverMenuNavMap extends GroupedNavMap<GameOverMenuElement> {
 const GAME_MODE_MENU_ELEMENT_ORDER = [
   [
     GameModeMenuElement.Campaign,
+    GameModeMenuElement.Challenge,
     GameModeMenuElement.LevelSelect,
     GameModeMenuElement.Randomizer,
     GameModeMenuElement.Back,

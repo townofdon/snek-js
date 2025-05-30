@@ -179,6 +179,8 @@ export function getWarpLevelFromNum(levelNum: number): Level {
   }
 }
 
+export const START_CHALLENGE_LEVEL_NUM = findLevelWarpIndex(X_SNEKCITY);
+
 export function validateLevelIds() {
   const map: Record<string, Level> = {};
   [
@@ -195,7 +197,7 @@ export function validateLevelIds() {
 }
 
 export function findLevelWarpIndex(level: Level): number {
-  for (let i = 1; i < 200; i++) {
+  for (let i = 1; i < 420; i++) {
     if (getWarpLevelFromNum(i) === level) return i;
   }
   return -1;
