@@ -16,7 +16,14 @@ export interface NavMap {
 }
 
 interface GroupedNavMapOptions {
+  /**
+   * prevent scroll on navigation (useful for manually controlling scroll)
+   */
   preventScroll?: boolean
+  /**
+   * disable grid navigation - e.g. when navigating vertically, don't try to maintain horizontal position
+   */
+  disableGridNav?: boolean
 }
 
 export abstract class GroupedNavMap<ElementType extends string> implements NavMap {
@@ -91,7 +98,9 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     const currentGroupSize = ORDER[this.selectedGroup].length;
     const nextGroupIndex = (ORDER.length + this.selectedGroup + direction * count) % ORDER.length;
     const nextGroupSize = ORDER[nextGroupIndex].length;
-    const nextIndex = Math.round(this.selectedIndex * ((nextGroupSize - 1) / (currentGroupSize - 1)));
+    const nextIndex = this.opts.disableGridNav
+      ? 0
+      : Math.round(this.selectedIndex * ((nextGroupSize - 1) / (currentGroupSize - 1)));
     const nextElement = ORDER[nextGroupIndex][nextIndex];
     const didSelect = (elem: HTMLElement | null) => !!elem && elem === document.activeElement
     let node = document.getElementById(nextElement);
@@ -677,7 +686,7 @@ export class GameModeMenuNavMap extends GroupedNavMap<GameModeMenuElement> {
 }
 
 export class LevelSelectMenuNavMap extends GroupedNavMap<string> {
-  constructor(callAction: (id: string) => void, order: string[]) {
-    super(callAction, [order], { preventScroll: true })
+  constructor(callAction: (id: string) => void, levelSelectIds: string[]) {
+    super(callAction, [levelSelectIds, ['button-level-select-back']], { preventScroll: true, disableGridNav: true })
   }
 }

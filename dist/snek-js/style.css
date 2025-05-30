@@ -866,6 +866,12 @@ button.game-mode.back {
   font-style: italic;
   margin-left: 130px;
 }
+.level-select-menu > .content > button.back {
+  position: absolute;
+  transform: scale(2);
+  bottom: 150px;
+  left: 270px;
+}
 .level-select-menu > .content > .levels {
   display: flex;
   flex-direction: row;
