@@ -25,7 +25,7 @@ const formatNumber = formatNumberFn({
 const STATE_CLEAR_Y_START = -1; // normalized position
 const COL_LEFT = 0.48;
 const COL_RIGHT = 0.52;
-const NUM_DEATHS_TO_LOOP_SOUND = 15;
+const NUM_ITEMS_TO_LOOP_SOUND = 15;
 
 const LEADERBOARD_COLORS = [
   "#FFB41F",
@@ -40,6 +40,7 @@ enum FIELD {
   HAS_HIGHSCORE = 11,
   APPLES = 20,
   DEATHS = 30,
+  LEVELS_CLEARED = 31,
   TIME = 40,
   HIGHSCORE_ENTRY = 50,
   LEADERBOARD = 60,
@@ -206,7 +207,7 @@ export class WinGameScene extends BaseScene {
     const { p5, coroutines } = this.props;
     const sfx = this.sfx;
     const isCasualModeEnabled = this.gameState.gameMode === GameMode.Casual
-    const { score, numApplesEverEaten, numDeaths, totalGameTimeElapsed: totalTimeElapsed } = this.stats;
+    const { score, numApplesEverEaten, numDeaths, totalGameTimeElapsed: totalTimeElapsed, numLevelsCleared } = this.stats;
     let playingChipSound = ""
 
     this.hideAllFields();
@@ -252,35 +253,20 @@ export class WinGameScene extends BaseScene {
     this.fieldVisible[FIELD.APPLES] = true;
     sfx.play(Sound.xplode);
     yield* coroutines.waitForTime(200);
-    if (numApplesEverEaten > 0) {
-      playingChipSound = this.startCoroutine(this.playChipSound());
-      yield* coroutines.waitForTime(700, (t) => {
-        this.fieldValue[FIELD.APPLES] = p5.lerp(0, numApplesEverEaten, t);
-      });
-      this.stopCoroutine(playingChipSound);
-    }
+    yield* this.incrementField(FIELD.APPLES, numApplesEverEaten, 700);
     yield* coroutines.waitForTime(500);
 
     if (!isCasualModeEnabled) {
       this.fieldVisible[FIELD.DEATHS] = true;
       sfx.play(Sound.xplode);
       yield* coroutines.waitForTime(200);
-      if (numDeaths > 0) {
-        if (numDeaths >= NUM_DEATHS_TO_LOOP_SOUND) {
-          playingChipSound = this.startCoroutine(this.playChipSound());
-        }
-        let prevVal = 0;
-        yield* coroutines.waitForTime(700, (t) => {
-          const val = Math.floor(p5.lerp(0, numDeaths, t));
-          this.fieldValue[FIELD.DEATHS] = val;
-          const didChange = val != prevVal;
-          if (didChange && numDeaths < NUM_DEATHS_TO_LOOP_SOUND) {
-            sfx.play(Sound.uiChip, 0.75);
-          }
-          prevVal = val;
-        });
-        this.stopCoroutine(playingChipSound);
-      }
+      yield* this.incrementField(FIELD.DEATHS, numDeaths, 700);
+      yield* coroutines.waitForTime(500);
+
+      this.fieldVisible[FIELD.LEVELS_CLEARED] = true;
+      sfx.play(Sound.xplode);
+      yield* coroutines.waitForTime(200);
+      yield* this.incrementField(FIELD.LEVELS_CLEARED, numLevelsCleared, 700);
       yield* coroutines.waitForTime(500);
     }
 
@@ -361,6 +347,28 @@ export class WinGameScene extends BaseScene {
     });
 
     this.cleanup();
+  }
+
+  *incrementField(field: FIELD, num: number, duration: number): IEnumerator {
+    const { p5, coroutines } = this.props;
+    const sfx = this.sfx;
+    let playingChipSound = '';
+    if (num > 0) {
+      if (num >= NUM_ITEMS_TO_LOOP_SOUND) {
+        playingChipSound = this.startCoroutine(this.playChipSound());
+      }
+      let prevVal = 0;
+      yield* coroutines.waitForTime(duration, (t) => {
+        const val = Math.floor(p5.lerp(0, num, t));
+        this.fieldValue[field] = val;
+        const didChange = val != prevVal;
+        if (didChange && num < NUM_ITEMS_TO_LOOP_SOUND) {
+          sfx.play(Sound.uiChip, 0.75);
+        }
+        prevVal = val;
+      });
+      this.stopCoroutine(playingChipSound);
+    }
   }
 
   *playChipSound(): IEnumerator {
@@ -466,6 +474,11 @@ export class WinGameScene extends BaseScene {
 
     if (this.fieldVisible[FIELD.DEATHS]) {
       this.drawField("DEATHS", this.fieldValue[FIELD.DEATHS], y);
+      y += fieldPadding;
+    }
+
+    if (this.fieldVisible[FIELD.LEVELS_CLEARED]) {
+      this.drawField("STREAK", this.fieldValue[FIELD.LEVELS_CLEARED], y);
       y += fieldPadding;
     }
 

@@ -145,7 +145,7 @@ export type RecentMoves = [RecentMove, RecentMove, RecentMove, RecentMove];
 export type RecentMoveTimings = [number, number, number, number];
 
 export interface Stats {
-  numDeaths: number
+  numDeaths: number,
   numLevelsCleared: number,
   numLevelsEverCleared: number,
   /**

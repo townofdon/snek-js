@@ -930,9 +930,11 @@ export const sketch = (p5: P5) => {
     const level = getLevel();
     const challengeLevelIndex = CHALLENGE_LEVELS.indexOf(level);
     const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !DISABLE_TRANSITIONS;
-    stats.numLevelsCleared += 1;
-    stats.numLevelsEverCleared += 1;
     stats.applesEatenThisLevel = 0;
+    if (!getIsStartLevel()) {
+      stats.numLevelsCleared += 1;
+      stats.numLevelsEverCleared += 1;
+    }
 
     const nextLevel = state.isRandomizer ? getNextRandomLevel() : (state.nextLevel || level.nextLevel);
     if (nextLevel) {
