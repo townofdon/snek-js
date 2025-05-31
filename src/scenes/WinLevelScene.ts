@@ -6,8 +6,17 @@ import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { OST_MODE_TRACKS_NOTIFY_UNLOCK } from "../constants";
-import { getTrackName } from "../utils";
+import { getTrackName, shuffleArray } from "../utils";
 import { SpriteRenderer } from "../engine/spriteRenderer";
+
+const PHRASES = [
+  'tubular!',
+  'snek-tacular!',
+  'radical!',
+  'far out!',
+  'wicked!',
+  'awesome!',
+];
 
 interface TriggerLevelExitParams {
   score: number,
@@ -61,6 +70,7 @@ export class WinLevelScene extends BaseScene {
   private onApplyScore = () => { };
 
   private isTriggered = false;
+  private phrases: string[] = shuffleArray([...PHRASES]);
 
   triggerLevelExit({
     score,
@@ -102,6 +112,7 @@ export class WinLevelScene extends BaseScene {
       this.onApplyScore = onApplyScore;
       this.startActionsNoBind();
     }
+    this.phrases = shuffleArray([...PHRASES]);
   }
 
   reset = (titleText: string = 'SNEK CLEAR!') => {
@@ -162,6 +173,11 @@ export class WinLevelScene extends BaseScene {
     // perfect bonus
     if (this.isPerfect) {
       sfx.play(Sound.xplodeLong, 0.7);
+      if (this.clearTime <= this.parTime - 20000) {
+        sfx.play(Sound.guitarRiff2, 0.6);
+      } else if (this.clearTime <= this.parTime) {
+        sfx.play(Sound.guitarRiff1, 0.6);
+      }
       yield* coroutines.waitForTime(700, (t) => {
         // flash
         const freq = 0.2;
@@ -316,6 +332,12 @@ export class WinLevelScene extends BaseScene {
       gfx.textAlign(p5.CENTER, p5.TOP);
       gfx.text(text, ...this.getPosition(0.5, 0.6 + this.statOffsetY));
       gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.5, 0.65 + this.statOffsetY));
+    }
+    if (this.clearTime <= this.parTime) {
+      this.drawTubularRight(hasOtherBonus);
+    }
+    if (this.clearTime <= this.parTime - 20000) {
+      this.drawTubularLeft(hasOtherBonus);
     }
   }
 
@@ -484,6 +506,48 @@ export class WinLevelScene extends BaseScene {
     gfx.textSize(2 * 28);
     gfx.strokeWeight(2 * 4);
     gfx.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY));
+  }
+
+  private drawTubularLeft = (hasOtherBonus: boolean) => {
+    const text = this.phrases[0];
+    const { p5, gfx, fonts } = this.props;
+    const accentColor = "#15C2CB";
+    const accentColorBg = Color("#119DA4").darken(0.4).hex();
+    const y = hasOtherBonus ? 0.55 : 0.65;
+    gfx.push();
+    gfx.translate(...this.getPosition(0.35, y + this.statOffsetY));
+    gfx.rotate(0.05 * Math.PI);
+    gfx.fill(accentColor);
+    gfx.stroke(Color(accentColorBg).darken(0.8).hex());
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.strokeWeight(2 * 5);
+    gfx.textSize(2 * 12);
+    gfx.textAlign(p5.RIGHT, p5.TOP);
+    gfx.textStyle(p5.BOLD);
+    gfx.text(text, 0, 0);
+    gfx.textStyle(p5.NORMAL);
+    gfx.pop();
+  }
+
+  private drawTubularRight = (hasOtherBonus: boolean) => {
+    const text = this.phrases[1];
+    const { p5, gfx, fonts } = this.props;
+    const accentColor = "#8e6ced";
+    const accentColorBg = Color("#533c93").darken(0.4).hex();
+    const y = hasOtherBonus ? 0.55 : 0.65;
+    gfx.push();
+    gfx.translate(...this.getPosition(0.65, y + this.statOffsetY));
+    gfx.rotate(-0.05 * Math.PI);
+    gfx.fill(accentColor);
+    gfx.stroke(Color(accentColorBg).darken(0.8).hex());
+    gfx.textFont(fonts.variants.miniMood);
+    gfx.strokeWeight(2 * 5);
+    gfx.textSize(2 * 12);
+    gfx.textAlign(p5.LEFT, p5.TOP);
+    gfx.textStyle(p5.BOLD);
+    gfx.text(text, 0, 0);
+    gfx.textStyle(p5.NORMAL);
+    gfx.pop();
   }
 
   private getTimeDisplay = (valueMs: number): string => {

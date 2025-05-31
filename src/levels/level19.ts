@@ -9,7 +9,7 @@ export const LEVEL_19: Level = {
   id: 'C19',
   name,
   timeToClear: 1000 * 60 * 5,
-  parTime: toTime({ minutes: 1, seconds: 25 }),
+  parTime: toTime({ minutes: 1, seconds: 30 }),
   applesToClear: 70,
   numApplesStart: 10,
   growthMod: 0.25,

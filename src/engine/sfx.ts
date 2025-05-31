@@ -28,6 +28,8 @@ export class SFX implements SFXInstance {
     doorOpen: null,
     doorOpenHuge: null,
     eat: null,
+    guitarRiff1: null,
+    guitarRiff2: null,
     hurt1: null,
     hurt2: null,
     hurt3: null,
@@ -46,8 +48,8 @@ export class SFX implements SFXInstance {
     unlock: null,
     unlockAbility: null,
     warp: null,
-    winLevel: null,
     winGame: null,
+    winLevel: null,
     xplode: null,
     xplodeLong: null,
     xpound: null,
@@ -107,6 +109,8 @@ export class SFX implements SFXInstance {
       this.sounds.doorOpen = await loadSound('door-open.wav');
       this.sounds.doorOpenHuge = await loadSound('door-open-huge.wav');
       this.sounds.eat = await loadSound('eat.wav');
+      this.sounds.guitarRiff1 = await loadSound('guitar-riff-1.wav');
+      this.sounds.guitarRiff2 = await loadSound('guitar-riff-2.wav');
       this.sounds.hurt1 = await loadSound('hurt-1.wav');
       this.sounds.hurt2 = await loadSound('hurt-2.wav');
       this.sounds.hurt3 = await loadSound('hurt-3.wav');

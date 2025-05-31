@@ -177,7 +177,11 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
     source.connect(gainNode);
   }
   // start audio
-  source.start();
+  try {
+    source.start();
+  } catch (err) {
+    console.warn(`err on source.start(${path}): ${err}`);
+  }
   if (options.trackElapsed) {
     audioTimeStartedMap[path] = audioContext.currentTime;
   }
