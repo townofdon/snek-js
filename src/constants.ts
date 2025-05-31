@@ -56,8 +56,9 @@ export const LIVES_LEFT_BONUS = 1000;
 export const ALL_APPLES_BONUS = 2500;
 export const ALL_LOCKS_BONUS = 2500;
 export const PERFECT_BONUS = 5000;
-export const COBRA_SCORE_MOD = 1.5;
+export const COBRA_SCORE_MOD = 1.2;
 export const PICKUP_INVINCIBILITY_BONUS = 200;
+export const DEFAULT_PAR_TIME = 60000;
 
 export const PICKUP_DROP_LIKELIHOOD = 0.04;
 export const PICKUP_LIFETIME_MS = 8000;
@@ -236,8 +237,15 @@ export const SNAKE_INVINCIBLE_COLORS = [
 ] as const;
 export const NUM_SNAKE_INVINCIBLE_COLORS = 20;
 
-export const OST_TRACK_FADE_DURATION_MS = 10000;
+export const HIGHSCORE_GRADIENT_CYCLE_TIME_MS = 500;
+export const NEW_HIGHSCORE_COLORS = [
+  "#833AB4",
+  "#FD1D1D",
+  "#FCB045",
+  "#15C2CB",
+];
 
+export const OST_TRACK_FADE_DURATION_MS = 10000;
 export const CAMPAIGN_TRACKS: MusicTrack[] = [
   MusicTrack.champion,
   MusicTrack.simpleTime,
@@ -261,8 +269,7 @@ export const CAMPAIGN_TRACKS: MusicTrack[] = [
   MusicTrack.ascension,
   MusicTrack.moneymaker,
   MusicTrack.overture,
-]
-
+];
 export const OST_MODE_TRACKS: MusicTrack[] = [
   MusicTrack.champion,
   MusicTrack.full_simpleTime,
@@ -287,7 +294,6 @@ export const OST_MODE_TRACKS: MusicTrack[] = [
   MusicTrack.full_moneymaker,
   MusicTrack.overture,
 ];
-
 export const OST_MODE_TRACKS_NOTIFY_UNLOCK: MusicTrack[] = [
   MusicTrack.simpleTime,
   MusicTrack.transient,
@@ -309,11 +315,10 @@ export const OST_MODE_TRACKS_NOTIFY_UNLOCK: MusicTrack[] = [
   MusicTrack.moneymaker,
   MusicTrack.overture,
 ];
-
 export const SLIME_CONTROL_TRACKS: MusicTrack[] = [
   MusicTrack.slime_dangerman,
   MusicTrack.slime_megacreep,
   MusicTrack.slime_monsterdance,
   MusicTrack.slime_exitmusic,
   MusicTrack.slime_rollcredits,
-]
+];

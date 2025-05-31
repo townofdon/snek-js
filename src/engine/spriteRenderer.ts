@@ -53,6 +53,7 @@ export class SpriteRenderer {
     [Image.UIKeyRed]: null,
     [Image.UIKeyBlue]: null,
     [Image.UILocked]: null,
+    [Image.UIFlamesheet]: null,
     [Image.Darken]: null,
     [Image.EditorSelection]: null,
     [Image.EditorSelectionBlue]: null,
@@ -125,6 +126,7 @@ export class SpriteRenderer {
       this.loadImage(Image.UIKeyRed);
       this.loadImage(Image.UIKeyBlue);
       this.loadImage(Image.UILocked);
+      this.loadImage(Image.UIFlamesheet);
       this.loadImage(Image.Darken);
     } catch (err) {
       console.error(err)
@@ -269,5 +271,27 @@ export class SpriteRenderer {
       gfx.tint(255, 255, 255, 255);
     }
     gfx.pop();
+  }
+
+  public drawSpritesheetAnim = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, frames: number, timePerFrame: number, elapsed: number) => {
+    const loaded = this.images[image];
+    if (!loaded) return;
+
+    const frame = Math.floor(elapsed / timePerFrame) % frames;
+    const frameWidth = loaded.width / frames;
+    gfx.image(
+      loaded,
+      Math.round(x),
+      Math.round(y),
+      Math.round(frameWidth),
+      Math.round(loaded.height),
+      frame * frameWidth,
+      0,
+      frameWidth,
+      loaded.height,
+      this.p5.COVER,
+      this.p5.LEFT,
+      this.p5.TOP
+    );
   }
 }

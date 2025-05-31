@@ -9,7 +9,7 @@ export const TUTORIAL_LEVEL_20: Level = {
   id: 'C120',
   name,
   timeToClear: 1000 * 60 * 5,
-  parTime: toTime({ minutes: 1, seconds: 10 }),
+  parTime: toTime({ minutes: 0, seconds: 10 }),
   applesToClear: 43,
   numApplesStart: -1,
   disableAppleSpawn: true,

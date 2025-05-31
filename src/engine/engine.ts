@@ -7,6 +7,7 @@ import {
   CLEAR_BONUS,
   COBRA_SCORE_MOD,
   DEBUG_EASY_LEVEL_EXIT,
+  DEFAULT_PAR_TIME,
   DEFAULT_PORTALS,
   DIFFICULTY_EASY,
   DIFFICULTY_MEDIUM,
@@ -1617,6 +1618,8 @@ export function engine({
         hasAllLocks,
         isCasualModeEnabled: state.gameMode === GameMode.Casual,
         levelMusicTrack: getIsStartLevel() ? undefined : level.musicTrack,
+        parTime: level.parTime || DEFAULT_PAR_TIME,
+        clearTime: Math.floor(stats.totalLevelTimeElapsed / 1000) * 1000,
         onApplyScore: () => {
           musicPlayer.stopAllTracks();
           const perfectBonus = isPerfect ? getPerfectBonus() : 0;
@@ -1830,9 +1833,21 @@ export function engine({
     stats.numPointsEverScored += points;
   }
 
+  function getParTimeBonusMultiplier() {
+    const parTime = level.parTime || DEFAULT_PAR_TIME;
+    const clearTime = Math.floor(stats.totalLevelTimeElapsed / 1000) * 1000;
+    if (parTime <= 0) return 1;
+    if (clearTime > parTime) return 1;
+    // if (clearTime <= parTime - 30000) return 3;
+    if (clearTime <= parTime - 20000) return 2.5;
+    if (clearTime <= parTime - 10000) return 2;
+    if (clearTime <= parTime) return 1.5;
+    return 1;
+  }
+
   function getLevelClearBonus() {
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    return LEVEL_BONUS * difficulty.bonusMod * cobraMod || LEVEL_BONUS;
+    return (LEVEL_BONUS * difficulty.bonusMod * cobraMod || LEVEL_BONUS) * getParTimeBonusMultiplier();
   }
 
   function getLivesLeftBonus() {

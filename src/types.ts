@@ -658,6 +658,7 @@ export enum Image {
   UIKeyRed = 'snek-smkey2-red.png',
   UIKeyBlue = 'snek-smkey2-blue.png',
   UILocked = 'ui-locked.png',
+  UIFlamesheet = 'ui-flame-sheet-2.png',
   Darken = 'darken2.png',
   EditorSelection = 'editor-selection.png',
   EditorSelectionBlue = 'editor-selection-blue.png',

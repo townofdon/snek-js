@@ -9,7 +9,7 @@ export const VARIANT_LEVEL_10: Level = {
   id: 'C210',
   name,
   timeToClear: 1000 * 60 * 3,
-  parTime: toTime({ minutes: 1, seconds: 18 }),
+  parTime: toTime({ minutes: 1, seconds: 20 }),
   applesToClear: 100,
   numApplesStart: 20,
   growthMod: 0.1,

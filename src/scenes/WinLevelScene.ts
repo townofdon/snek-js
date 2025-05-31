@@ -1,11 +1,11 @@
 import P5 from "p5";
 import Color from "color";
 
-import { FontsInstance, Image, MusicTrack, SFXInstance, SceneCallbacks, Sound } from "../types";
+import { FontsInstance, GameState, Image, MusicTrack, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
-import { OST_MODE_TRACKS, OST_MODE_TRACKS_NOTIFY_UNLOCK } from "../constants";
+import { OST_MODE_TRACKS_NOTIFY_UNLOCK } from "../constants";
 import { getTrackName } from "../utils";
 import { SpriteRenderer } from "../engine/spriteRenderer";
 
@@ -22,20 +22,24 @@ interface TriggerLevelExitParams {
   hasAllLocks: boolean,
   isCasualModeEnabled: boolean,
   levelMusicTrack?: MusicTrack,
+  parTime: number,
+  clearTime: number,
   onApplyScore: () => void,
 }
 
 export class WinLevelScene extends BaseScene {
   private sfx: SFXInstance;
   private spriteRenderer: SpriteRenderer;
+  private gameState: GameState;
   private titleText: string = 'SNEK CLEAR!';
   private unlockedMusicStore: UnlockedMusicStore;
   private levelMusicTrack: MusicTrack | null = null;
 
-  constructor(p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, spriteRenderer: SpriteRenderer, callbacks: SceneCallbacks = {}) {
+  constructor(p5: P5, gfx: P5.Graphics, gameState: GameState, sfx: SFXInstance, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, spriteRenderer: SpriteRenderer, callbacks: SceneCallbacks = {}) {
     super(p5, gfx, fonts, callbacks)
     this.sfx = sfx;
     this.spriteRenderer = spriteRenderer;
+    this.gameState = gameState;
     this.unlockedMusicStore = unlockedMusicStore;
   }
 
@@ -52,6 +56,8 @@ export class WinLevelScene extends BaseScene {
   private hasAllApples = false;
   private hasAllLocks = false;
   private isPerfect = false;
+  private parTime = 0;
+  private clearTime = 0;
   private onApplyScore = () => { };
 
   private isTriggered = false;
@@ -69,6 +75,8 @@ export class WinLevelScene extends BaseScene {
     isPerfect,
     isCasualModeEnabled,
     levelMusicTrack,
+    parTime,
+    clearTime,
     onApplyScore,
   }: TriggerLevelExitParams) {
     if (this.isTriggered) return;
@@ -84,6 +92,8 @@ export class WinLevelScene extends BaseScene {
     this.hasAllLocks = hasAllLocks;
     this.isPerfect = isPerfect;
     this.levelMusicTrack = levelMusicTrack || null;
+    this.parTime = parTime;
+    this.clearTime = clearTime;
     if (isCasualModeEnabled) {
       onApplyScore();
       this.cleanup();
@@ -363,15 +373,53 @@ export class WinLevelScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
     gfx.textSize(2 * 14);
-    gfx.textAlign(p5.LEFT, p5.TOP);
+    gfx.textAlign(p5.RIGHT, p5.TOP);
+    // shadow
     gfx.fill('#000');
     gfx.strokeWeight(2 * 3);
-    gfx.text('Level Clear Bonus', ...this.getPosition(0.15, 0.4 + this.statOffsetY + shadowOffset));
-    gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.15, 0.45 + this.statOffsetY + shadowOffset));
+    gfx.text('Stage Bonus', ...this.getPosition(0.4, 0.4 + this.statOffsetY + shadowOffset));
+    gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.4, 0.5 + this.statOffsetY + shadowOffset));
+    // overlay
     gfx.fill('#fff');
     gfx.strokeWeight(2 * 2);
-    gfx.text('Level Clear Bonus', ...this.getPosition(0.15, 0.4 + this.statOffsetY));
-    gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.15, 0.45 + this.statOffsetY));
+    gfx.text('Stage Bonus', ...this.getPosition(0.4, 0.4 + this.statOffsetY));
+    gfx.text(bonus.toFixed(0).padStart(4, '0'), ...this.getPosition(0.4, 0.5 + this.statOffsetY));
+    // par time shadow
+    const parTime = this.parTime;
+    const clearTime = this.clearTime;
+    const timeText = this.getTimeDisplay(clearTime);
+    const separator = "  >>  ";
+    const parText = `Par ${this.getTimeDisplay(parTime)}`;
+    {
+      const [x, y] = this.getPosition(0.4, 0.45 + this.statOffsetY + shadowOffset);
+      const w0 = gfx.textWidth(timeText);
+      const w1 = gfx.textWidth(separator);
+      gfx.fill("#000");
+      gfx.strokeWeight(2 * 3);
+      gfx.text(timeText, x, y);
+      gfx.text(separator, x - w0, y);
+      gfx.text(parText, x - w0 - w1, y);
+    }
+    // par time overlay
+    {
+      const [x, y] = this.getPosition(0.4, 0.45 + this.statOffsetY);
+      const w0 = gfx.textWidth(timeText);
+      const w1 = gfx.textWidth(separator);
+      gfx.strokeWeight(2 * 2);
+      gfx.fill(this.accentColor);
+      gfx.text(parText, x - w0 - w1, y);
+      gfx.fill("#fff");
+      gfx.text(separator, x - w0, y);
+      gfx.text(timeText, x, y);
+      const offset = 42;
+      let compareTime = parTime;
+      let i = 0;
+      while (compareTime > 0 && clearTime <= compareTime && i < 3) {
+        this.spriteRenderer.drawSpritesheetAnim(gfx, Image.UIFlamesheet, x + 5 + offset * i, y - 15, 3, 200, this.gameState.timeElapsed);
+        compareTime -= 10000;
+        i++;
+      }
+    }
   }
 
   drawLivesLeftBonus = (bonus: number, lives: number, calcBonus: number) => {
@@ -436,5 +484,12 @@ export class WinLevelScene extends BaseScene {
     gfx.textSize(2 * 28);
     gfx.strokeWeight(2 * 4);
     gfx.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY));
+  }
+
+  private getTimeDisplay = (valueMs: number): string => {
+    const seconds = Math.floor(valueMs / 1000) % 60;
+    const minutes = Math.floor(valueMs / 1000 / 60);
+    const pad = (value: number, numberOfDigits = 2) => String(value).padStart(numberOfDigits, "0");
+    return `${pad(minutes)}:${pad(seconds)}`;
   }
 }

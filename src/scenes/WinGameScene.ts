@@ -5,7 +5,7 @@ import formatNumberFn from 'format-number'
 import { DIR, FontsInstance, GameMode, GameState, IEnumerator, Image, SFXInstance, SceneCallbacks, Sound, Stats, UINavDir } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
-import { ACCENT_COLOR, DIMENSIONS, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "../constants";
+import { ACCENT_COLOR, DIMENSIONS, HIGHSCORE_GRADIENT_CYCLE_TIME_MS, NEW_HIGHSCORE_COLORS, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "../constants";
 import { indexToDir } from "../utils";
 import { HighScoreEntry, postLeaderboardResult, getLeaderboard, getToken } from "../api/leaderboard";
 // import { HighscoreEntryModal, Modal } from "../ui/ui";
@@ -23,17 +23,10 @@ const formatNumber = formatNumberFn({
 });
 
 const STATE_CLEAR_Y_START = -1; // normalized position
-const HIGHSCORE_GRADIENT_CYCLE_TIME_MS = 500;
 const COL_LEFT = 0.48;
 const COL_RIGHT = 0.52;
 const NUM_DEATHS_TO_LOOP_SOUND = 15;
 
-const NEW_HIGHSCORE_COLORS = [
-  "#833AB4",
-  "#FD1D1D",
-  "#FCB045",
-  "#15C2CB",
-]
 const LEADERBOARD_COLORS = [
   "#FFB41F",
   "#24E3AF",
@@ -619,18 +612,6 @@ export class WinGameScene extends BaseScene {
     gfx.textAlign(align, p5.TOP);
     // gfx.text(align === p5.RIGHT ? ">>>" : "<<<", ...this.getPosition(x, y));
     gfx.text("NEW!", ...this.getPosition(x, y));
-  }
-
-  /**
-   * Interpolate between an array of colors, where t[0-1] maps to [color0, color1, ... colorN]
-   */
-  private getColor = (t: number, colors: string[]) => {
-    if (colors.length === 0) return "pink";
-    const { p5 } = this.props;
-    const c0 = Math.floor(t * colors.length) % colors.length;
-    const c1 = (c0 + 1) % colors.length;
-    const t1 = (t - (c0 / colors.length)) * colors.length;
-    return p5.lerpColor(p5.color(colors[c0]), p5.color(colors[c1]), t1).toString();
   }
 
   private drawLeaderboard = () => {

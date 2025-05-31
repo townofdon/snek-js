@@ -8,7 +8,7 @@ export const LEVEL_11: Level = {
   id: 'C11',
   name,
   timeToClear: 1000 * 60 * 1.6,
-  parTime: toTime({ minutes: 0, seconds: 48 }),
+  parTime: toTime({ minutes: 0, seconds: 50 }),
   applesToClear: 60,
   numApplesStart: 20,
   // disableAppleSpawn: true,

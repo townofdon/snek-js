@@ -139,4 +139,16 @@ export abstract class BaseScene implements Scene {
   protected stopAllCoroutines = () => {
     this.props.coroutines.stopAll();
   }
+
+  /**
+   * Interpolate between an array of colors, where t[0-1] maps to [color0, color1, ... colorN]
+   */
+  protected getColor = (t: number, colors: string[]) => {
+    if (colors.length === 0) return "pink";
+    const { p5 } = this.props;
+    const c0 = Math.floor(t * colors.length) % colors.length;
+    const c1 = (c0 + 1) % colors.length;
+    const t1 = (t - (c0 / colors.length)) * colors.length;
+    return p5.lerpColor(p5.color(colors[c0]), p5.color(colors[c1]), t1).toString();
+  }
 }

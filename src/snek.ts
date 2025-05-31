@@ -203,7 +203,7 @@ export const sketch = (p5: P5) => {
   gfxPresentation.addClass('static-gfx-canvas').addClass('fg4').parent('game').addClass('gfx-presentation');
 
   const spriteRenderer = new SpriteRenderer({ p5 });
-  const winLevelScene = new WinLevelScene(p5, gfxPresentation, sfx, fonts, unlockedMusicStore, spriteRenderer, { onSceneEnded: gotoNextLevel });
+  const winLevelScene = new WinLevelScene(p5, gfxPresentation, state, sfx, fonts, unlockedMusicStore, spriteRenderer, { onSceneEnded: gotoNextLevel });
 
   const {
     setLevel,
