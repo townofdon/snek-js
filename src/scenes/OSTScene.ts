@@ -11,7 +11,7 @@ import {
 } from "../types";
 import { BaseScene } from "./BaseScene";
 import { fadeMusic, MusicPlayer } from "../engine/musicPlayer";
-import { clamp, getTrackName, performAction } from "../utils";
+import { clamp, getTrackName, lerp, performAction } from "../utils";
 import { DIMENSIONS, OST_MODE_TRACKS, OST_TRACK_FADE_DURATION_MS } from "../constants";
 import { UI } from "../ui/ui";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
@@ -490,8 +490,20 @@ export class OSTScene extends BaseScene {
     const radius = Math.min(VISUALIZER.width * 0.25, VISUALIZER.height * 0.25);
 
     for (let i = 0; i < bufferLength; i++) {
-      const v = dataArray[i] * 0.0078125; // (1 / 256) >>> convert 0..256 to 0..2 range
+      const v1 = dataArray[i] * 0.0078125; // (1 / 256) >>> convert 0..256 to 0..2 range
+      const v2 = dataArray[bufferLength - 1 - i] * 0.0078125; // sample opposite point
+      const v3 = Math.max(v1, v2);
       const t = i / (bufferLength - 1);
+      const v = (() => {
+        // at the edges, lerp towards the value at the opposite end of the signal, taking the max
+        if (t < 0.05) {
+          return lerp(v3, v1, t * 20);
+        }
+        if (t > 0.95) {
+          return lerp(v1, v3, (t - 0.95) * 20);
+        }
+        return v1
+      })()
       const radians = t * 2 * Math.PI;
 
       const x = centerX + Math.cos(radians) * radius * v * this.musicPlayer.getVolume();
