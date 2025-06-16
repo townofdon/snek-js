@@ -173,7 +173,7 @@ export class WinLevelScene extends BaseScene {
     // perfect bonus
     if (this.isPerfect) {
       sfx.play(Sound.xplodeLong, 0.7);
-      if (this.clearTime <= this.parTime - 20000) {
+      if (this.clearTime <= this.parTime - 10000) {
         sfx.play(Sound.guitarRiff2, 0.6);
       } else if (this.clearTime <= this.parTime) {
         sfx.play(Sound.guitarRiff1, 0.6);
