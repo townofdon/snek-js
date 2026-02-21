@@ -1,10 +1,10 @@
 import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
-import { KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
+import { Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./level01";
 
-export function buildLevel(level: Level): LevelData {
+export function buildLevel(level: Level, isEditor = false): LevelData {
   const data: LevelData = {
     barriers: [],
     barriersMap: {},
@@ -26,6 +26,12 @@ export function buildLevel(level: Level): LevelData {
     locks: [],
     locksMap: {},
     diffSelectMap: {},
+  }
+
+  const keyCandidates: Record<KeyChannel, Key[]> = {
+    [KeyChannel.Yellow]: [],
+    [KeyChannel.Red]: [],
+    [KeyChannel.Blue]: [],
   }
 
   const passables: Vector[] = []
@@ -119,30 +125,30 @@ export function buildLevel(level: Level): LevelData {
 
         // keys / locks
         case 'u':
-          data.keys.push({ position: vec, channel: KeyChannel.Yellow });
+          keyCandidates[KeyChannel.Yellow].push({ position: vec, channel: KeyChannel.Yellow });
           passables.push(vec);
           data.barriers.push(vec);
           break;
         case 'i':
-          data.keys.push({ position: vec, channel: KeyChannel.Red });
+          keyCandidates[KeyChannel.Red].push({ position: vec, channel: KeyChannel.Red });
           passables.push(vec);
           data.barriers.push(vec);
           break;
         case 'o':
-          data.keys.push({ position: vec, channel: KeyChannel.Blue });
+          keyCandidates[KeyChannel.Blue].push({ position: vec, channel: KeyChannel.Blue });
           passables.push(vec);
           data.barriers.push(vec);
           break;
         case 'j':
-          data.keys.push({ position: vec, channel: KeyChannel.Yellow });
+          keyCandidates[KeyChannel.Yellow].push({ position: vec, channel: KeyChannel.Yellow });
           data.nospawns.push(vec);
           break;
         case 'k':
-          data.keys.push({ position: vec, channel: KeyChannel.Red });
+          keyCandidates[KeyChannel.Red].push({ position: vec, channel: KeyChannel.Red });
           data.nospawns.push(vec);
           break;
         case 'l':
-          data.keys.push({ position: vec, channel: KeyChannel.Blue });
+          keyCandidates[KeyChannel.Blue].push({ position: vec, channel: KeyChannel.Blue });
           data.nospawns.push(vec);
           break;
         case 'J':
@@ -183,6 +189,31 @@ export function buildLevel(level: Level): LevelData {
       }
     }
     if (y >= GRIDCOUNT.y) { console.warn("level layout is too tall"); break; }
+  }
+
+  if (isEditor) {
+    data.keys.push(
+      ...keyCandidates[KeyChannel.Yellow],
+      ...keyCandidates[KeyChannel.Red],
+      ...keyCandidates[KeyChannel.Blue],
+    )
+  } else {
+    // choose one key from each key candidate
+    const randomIdx = <T>(items: T[]) => {
+      return Math.floor(Math.random() * items.length)
+    }
+    if (keyCandidates[KeyChannel.Yellow].length) {
+      const i = randomIdx(keyCandidates[KeyChannel.Yellow]);
+      data.keys.push(keyCandidates[KeyChannel.Yellow][i]);
+    }
+    if (keyCandidates[KeyChannel.Red].length) {
+      const i = randomIdx(keyCandidates[KeyChannel.Red]);
+      data.keys.push(keyCandidates[KeyChannel.Red][i]);
+    }
+    if (keyCandidates[KeyChannel.Blue].length) {
+      const i = randomIdx(keyCandidates[KeyChannel.Blue]);
+      data.keys.push(keyCandidates[KeyChannel.Blue][i]);
+    }
   }
 
   passables.forEach(vec => { data.passablesMap[getCoordIndex(vec)] = true; })

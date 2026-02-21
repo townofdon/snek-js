@@ -1,0 +1,13 @@
+import { MusicTrack } from "../../types";
+import { toTime } from "../../utils";
+import { challengeLevel } from "./_challengeLevel";
+
+const name = 'searchlight';
+
+export const X_SEARCHLIGHT = challengeLevel({
+  id: 'X421',
+  name,
+  parTime: toTime({ minutes: 1, seconds: 30 }),
+  layoutV2: `https://townofdon.github.io/snek-js/preview/?data=CnBwTU1YKUFKLWpXISt4S0sra0tLeCRKTVhfLVZRdkxMdS1NZFghVigoK1hkZFh6alhkWDQgKm84WGRYaik9X1g0WCohTlg4WF89KU4hKnFOIVYpbypxIW9WU1VZWk9YYk1tbCJtSiIKTWJYT1pZVVNvKnEhb1YpTiEqcU4hVik9X1g3WCohTlgzWF89KWpYZFg3ICpvM1hkWGopLU1kWCFWKCh2TXpKTVhfLVZRdjAwdUFKLWpXIXZYS0tNWCRwWExMcE0KbjYzfFJJR0hUfHNlYXJjaGxpZ2h0Mm4yMDAwMHw4MHwwfDB8NW5uNHwwLjJ8IzY4QjJBOVA0ODhDODRQMUQyMDIwUDZkYTVlOFA0Zjg1ZTNQMjYyQTJCUDFEMjAyMFAzMDM0MzZQMjYyQTJCUDk3ODc4RlA2MjU2NUNQRkZGNkYxUDBBMEUxNFBFOUVGRkZuLTEtMS0xLTEtMS0xLTEtMS0xbjIhIFEsJylYClgqVnFxcU1YWE49LU8pWCFRIEpNK35%2BPX4rdkpRISBYKVAtI1EgKFMpIE49cVF3LS13KHEgTj0gKVUhPSFReXdBQXd5KCEgPSFWLT1XPT09WSlxIXlYdy0td1h5cSEpWnEhSkpNX18tLS0tX19NSkpxIWJxKE1YKFF3ZChRTVgocW0KKChNeVhfWF8tLWRKbnwxb04gcE1NTU1NTXEhIXVNKyggTi1fTVhKKXYrTXdkZGR5SkpKeisoKE4hWGRNLSl%2BKz0iZC0tX0swWHlNKCgkKyFXai1KQSkBJCJ%2Benl3dnVxcG9ubWJaWVdWVVNRUE9OTSopKCFf`,
+  musicTrack: MusicTrack.stonemaze,
+});

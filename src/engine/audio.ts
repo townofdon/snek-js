@@ -236,6 +236,7 @@ export async function loadSfxAudio({ src }: { src: [string] }) {
   const stop = () => {
     if (!state.playing) return;
     stopAudio(path);
+    state.playing = false;
   }
   const volume = (val?: number): number => {
     if (val !== undefined) {

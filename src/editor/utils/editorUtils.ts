@@ -161,7 +161,7 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     applesToClear: undefined,
     colors: undefined,
   }
-  const levelData = buildLevel(level)
+  const levelData = buildLevel(level, true)
   const data: EditorData = {
     barriersMap: { ...levelData.barriersMap },
     passablesMap: { ...levelData.passablesMap },

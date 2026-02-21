@@ -1,6 +1,5 @@
 import { getExtendedPalette, PALETTE } from "../../palettes";
 import { Level } from "../../types";
-import { WARP_ZONE_01 } from "../bonusLevels/warpZone01";
 
 type ChallengeFields = 'id' | 'name' | 'layoutV2'
 type ChallengeLevel = Pick<Level, ChallengeFields> & Partial<Omit<Level, ChallengeFields>>
