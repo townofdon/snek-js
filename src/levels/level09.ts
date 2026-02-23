@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { Level, MusicTrack, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 import { getCoordIndex2, toTime } from "../utils";
 import { VARIANT_LEVEL_10 } from "./bonusLevels/variantLevel10";
 
@@ -53,5 +53,6 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   nextLevelMap: {
     [getCoordIndex2(29, 14)]: VARIANT_LEVEL_10,
   },
+  pickupTypes: [PickupType.Invincibility, PickupType.Mine],
   pickupDrops: {},
 };

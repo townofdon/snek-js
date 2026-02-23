@@ -104,6 +104,7 @@ import {
   getDifficultyFromIndex,
   getDirectionBetween,
   getLevelProgress,
+  getNextPickupType,
   getRotationFromDirection,
   getTraversalDistance,
   invertDirection,
@@ -1995,23 +1996,62 @@ export function engine({
   function spawnPickupDrops() {
     if (stats.applesEatenThisLevel === 0) return;
     if (!level.pickupDrops) return;
-    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return;
+    // TODO: ADD MORE PICKUP TYPES THAT CAN SPAWN AT ALL TIMES
+    // const basePickupTypes: PickupType[] = [
+    //   // watermelon,
+    //   // strawberry,
+    //   // grapes,
+    //   // kiwi,
+    //   // health,
+    //   // ...etc.
+    // ];
+
     const progress = getLevelProgress(stats, level, difficulty);
     const baseLikelihood = PICKUP_DROP_LIKELIHOOD * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0);
-    const type = level.pickupDrops[stats.applesEatenThisLevel]?.type || PickupType.Invincibility;
-    const likelihood = level.pickupDrops[stats.applesEatenThisLevel]?.likelihood || baseLikelihood;
+    let type = level.pickupDrops?.[stats.applesEatenThisLevel]?.type || getNextPickupType(level.pickupTypes);
+    const likelihood = level.pickupDrops?.[stats.applesEatenThisLevel]?.likelihood || baseLikelihood;
+    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN && type === PickupType.Invincibility) {
+      type = getNextPickupType(level.pickupTypes?.filter(t => t !== PickupType.Invincibility));
+    }
     const r = Math.random() + likelihood;
-    if (r < 1) return;
+    if (r < 1) {
+      return;
+    }
     switch (type) {
       case PickupType.Invincibility:
         spawnInvincibilityPickup()
         break;
+      case PickupType.Mine:
+        spawnMine()
+        break;
+    }
+  }
+
+  function spawnMine(numTries = 0) {
+    if (level.disableAppleSpawn) return;
+    if (replay.mode === ReplayMode.Playback) return;
+    const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
+    const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
+    const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
+      || doorsMap[getCoordIndex2(x, y)]
+      || nospawnsMap[getCoordIndex2(x, y)]
+      || mines.existsAt(x, y)
+      || apples.existsAt(x, y)
+      || segments.containsCoord(getCoordIndex2(x, y))
+      || player.position.equals(x, y);
+    const spawnedTooCloseToPlayer = getTraversalDistance(x, y, player.position.x, player.position.y) < 5;
+    if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
+      if (numTries < 30) spawnMine(numTries + 1);
+    } else {
+      const { frames, timePerFrame } = ANIMATIONS[Image.MineSheet];
+      mines.add(x, y, PICKUP_LIFETIME_MS, frames, timePerFrame);
     }
   }
 
   function spawnInvincibilityPickup(numTries = 0) {
     if (level.disableAppleSpawn) return;
     if (replay.mode === ReplayMode.Playback) return;
+    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return;
     const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
     const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
@@ -2210,10 +2250,8 @@ export function engine({
           const x = Math.floor(coord % GRIDCOUNT.x);
           const y = Math.floor(coord / GRIDCOUNT.x);
           const elapsed = mines.getElapsedByCoord(coord);
-          const lifetime = mines.getLifetime(x, y);
-          const timeLeft = lifetime - elapsed;
-          if (timeLeft <= 0 || shouldBlinkExpiringPickup(timeLeft)) {
-            return;
+          if (shouldBlinkExpiringPickup(mines.getTimeRemaining(x, y))) {
+            continue;
           }
           spriteRenderer.drawSpritesheetAnim3x3(gfxApples, Image.MineSheet, x, y, elapsed);
         }

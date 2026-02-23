@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, TitleVariant } from "../../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { SECRET_LEVEL_20 } from "./secretLevel20";
 import { SECRET_LEVEL_21 } from "./secretLevel21";
@@ -56,5 +56,13 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
   nextLevelMap: {
     [getCoordIndex2(29, 16)]: SECRET_LEVEL_21,
     [getCoordIndex2(29, 17)]: SECRET_LEVEL_21,
+  },
+  pickupTypes: [PickupType.Mine],
+  pickupDrops: {
+    30: { likelihood: .1, type: PickupType.Mine },
+    60: { likelihood: .2, type: PickupType.Mine },
+    69: { likelihood: .3, type: PickupType.Mine },
+    99: { likelihood: .3, type: PickupType.Mine },
+    104: { likelihood: .4, type: PickupType.Mine },
   },
 };

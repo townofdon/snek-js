@@ -339,6 +339,7 @@ export interface Level {
   appleSlowdownMod?: number,
   applesModOverride?: number,
   pickupDrops?: Record<number, PickupDrop>,
+  pickupTypes?: PickupType[],
   recordProgressAsLevel?: Level,
   author?: string,
   numLocks?: number;
@@ -797,6 +798,7 @@ export interface EmitterOptions {
 export enum PickupType {
   None = 0,
   Invincibility,
+  Mine,
 }
 
 export interface Pickup {

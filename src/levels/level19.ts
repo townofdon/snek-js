@@ -63,9 +63,10 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   },
   extraLoseMessages: [
     ["I've teleported so much my neurons are scrambled."],
-    ["I'm curious - does consciousness transfer over when teleporting?"],
-    ["Teleportation, molecular decimation, breakdown, reformation, is inherently purging. It makes a snek a king."],
+    ["Curious - does consciousness transfer over when teleporting?"],
+    ["Teleportation, molecular decimation, breakdown, reformation, is inherently snek."],
     ["I hear playing SNEK rewires your brain..."],
+    ["Snek was not meant to meddle in the ways of science."],
   ],
   musicTrack: MusicTrack.ascension,
   nextLevelMap: {

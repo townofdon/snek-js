@@ -17,6 +17,7 @@ import {
   KeyChannel,
   Level,
   MusicTrack,
+  PickupType,
   Portal,
   PortalChannel,
   PortalExitMode,
@@ -311,6 +312,15 @@ export function getElementPosition(el: HTMLElement) {
 
 export function getLevelProgress(stats: Stats, level: Level, difficulty: Difficulty) {
   return clamp(stats.applesEatenThisLevel / (level.applesToClear * (level.applesModOverride || difficulty.applesMod)), 0, 1);
+}
+
+export function getNextPickupType(pickupTypes?: PickupType[]): PickupType {
+  if (!pickupTypes) return PickupType.Invincibility;
+  if (!pickupTypes.length) {
+    pickupTypes = [PickupType.Invincibility];
+  }
+  const idx = Math.floor(Math.random() * pickupTypes.length);
+  return pickupTypes[idx] || PickupType.None;
 }
 
 /**

@@ -74,11 +74,18 @@ XXXXXXXXXXXXXXX+++XXXXXXXXXXXX
     ["Quantum snekanics confounds even the brightest minds."],
     ["I daresay that was one teleport too many."],
   ],
+  pickupTypes: [PickupType.Invincibility, PickupType.Mine],
   pickupDrops: {
     20: { likelihood: .2, type: PickupType.Invincibility },
     30: { likelihood: .2, type: PickupType.Invincibility },
+    35: { likelihood: .5, type: PickupType.Mine },
     40: { likelihood: .3, type: PickupType.Invincibility },
+    45: { likelihood: .5, type: PickupType.Mine },
     50: { likelihood: .3, type: PickupType.Invincibility },
+    55: { likelihood: .5, type: PickupType.Mine },
     59: { likelihood: .4, type: PickupType.Invincibility },
+    65: { likelihood: .5, type: PickupType.Mine },
+    70: { likelihood: .5, type: PickupType.Mine },
+    75: { likelihood: .5, type: PickupType.Mine },
   },
 };

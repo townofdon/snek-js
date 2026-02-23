@@ -1,6 +1,6 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../types";
 import { toTime } from "../utils";
 
 const name = 'bait&switch'
@@ -72,5 +72,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   showTitle: true,
   titleVariant: TitleVariant.GrayBlue,
   musicTrack: MusicTrack.slyguy,
+  pickupTypes: [PickupType.Invincibility, PickupType.Mine],
   pickupDrops: {},
 };

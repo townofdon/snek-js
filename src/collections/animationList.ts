@@ -1,6 +1,6 @@
 import { Vector } from "p5";
 import { GRIDCOUNT, IS_DEV } from "../constants";
-import { getCoordIndex2, getTraversalDistance } from "../utils";
+import { getCoordIndex2, getTraversalDistance, shouldBlinkExpiringPickup } from "../utils";
 
 export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
 
@@ -62,7 +62,7 @@ export class AnimationList {
    * Tick animations. Returns `true` if any animation frame just changed.
    */
   public tick = (deltaTime: number): boolean => {
-    let didAnyFrameChange = false;
+    let didChange = false;
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) {
         continue;
@@ -72,14 +72,17 @@ export class AnimationList {
       const framePrev = Math.floor(prevElapsed / this.timePerFrame[i]) % this.frames[i];
       const frameCurrent = Math.floor(this.elapsed[i] / this.timePerFrame[i]) % this.frames[i];
       if (framePrev !== frameCurrent) {
-        didAnyFrameChange = true;
+        didChange = true;
+      }
+      if (shouldBlinkExpiringPickup(this.lifetime[i] - prevElapsed) !== shouldBlinkExpiringPickup(this.lifetime[i] - this.elapsed[i])) {
+        didChange = true;
       }
       if (this.elapsed[i] > this.lifetime[i] || !this.lifetime[i]) {
         this.removeByIndex(i);
-        didAnyFrameChange = true;
+        didChange = true;
       }
     }
-    return didAnyFrameChange;
+    return didChange;
   }
 
   public add = (x: number, y: number, lifetime: number, frames: number, timePerFrame: number) => {

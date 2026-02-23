@@ -66,6 +66,7 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   showQuoteOnLevelWin: false,
   titleVariant: TitleVariant.Red,
   musicTrack: MusicTrack.moneymaker,
+  pickupTypes: [PickupType.Invincibility, PickupType.Mine],
   pickupDrops: {
     100: { likelihood: .2, type: PickupType.Invincibility },
     150: { likelihood: .1, type: PickupType.Invincibility },

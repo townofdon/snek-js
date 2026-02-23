@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, TitleVariant } from "../../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 import { TUTORIAL_LEVEL_20 } from "../tutorialLevel20";
 
@@ -54,4 +54,12 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   musicTrack: MusicTrack.dangerZone,
   titleVariant: TitleVariant.Red,
   nextLevel: TUTORIAL_LEVEL_20,
+  pickupTypes: [PickupType.Mine],
+  pickupDrops: {
+    15: { likelihood: .8, type: PickupType.Mine },
+    30: { likelihood: .8, type: PickupType.Mine },
+    50: { likelihood: .8, type: PickupType.Mine },
+    65: { likelihood: .8, type: PickupType.Mine },
+    70: { likelihood: .8, type: PickupType.Mine },
+  },
 };
