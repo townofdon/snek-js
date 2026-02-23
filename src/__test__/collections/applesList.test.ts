@@ -1,12 +1,12 @@
 import assert from "assert";
 
-import { Apples, INITIAL_APPLE_POOL_SIZE } from "../../collections/apples";
+import { AppleList, INITIAL_APPLE_POOL_SIZE } from "../../collections/appleList";
 import { getCoordIndex2 } from "../../utils";
 
 describe("Collections", () => {
-  describe("Apples", () => {
+  describe("AppleList", () => {
     it("should initialize apples", () => {
-      const apples = new Apples();
+      const apples = new AppleList();
       assert.strictEqual(apples.getLength(), 0);
       assert.strictEqual(apples.existsAt(0, 0), false);
       assert.strictEqual(apples.existsAt(1, 1), false);
@@ -15,7 +15,7 @@ describe("Collections", () => {
       assert.strictEqual(apples.existsAt(4, 4), false);
     });
     it("should add apples", () => {
-      const apples = new Apples();
+      const apples = new AppleList();
       assert.strictEqual(apples.length, 0);
       assert.strictEqual(apples.existsAt(3, 3), false);
       assert.strictEqual(apples.existsAt(4, 4), false);
@@ -26,7 +26,7 @@ describe("Collections", () => {
       assert.strictEqual(apples.existsAt(4, 4), true);
     });
     it("should remove apples", () => {
-      const apples = new Apples();
+      const apples = new AppleList();
       apples.add(10, 1);
       apples.add(1, 10);
       assert.strictEqual(apples.getLength(), 2);
@@ -39,7 +39,7 @@ describe("Collections", () => {
       assert.strictEqual(apples.existsAt(1, 10), false);
     });
     it("should reset apples", () => {
-      const apples = new Apples();
+      const apples = new AppleList();
       apples.add(1, 1);
       apples.add(2, 2);
       apples.add(3, 3);
@@ -57,7 +57,7 @@ describe("Collections", () => {
       assert.strictEqual(apples.existsAt(5, 5), false);
     });
     it("should allow overlapping apples", () => {
-      const apples = new Apples();
+      const apples = new AppleList();
       apples.add(5, 5);
       apples.add(5, 5);
       apples.add(5, 5);
@@ -82,7 +82,7 @@ describe("Collections", () => {
       assert.strictEqual(apples.existsAt(5, 5), false);
     });
     it("should remove apple by coord", () => {
-      const apples = new Apples();
+      const apples = new AppleList();
       apples.add(1, 1);
       apples.add(2, 2);
       apples.add(3, 3);
@@ -103,7 +103,7 @@ describe("Collections", () => {
       assert.strictEqual(apples.existsAt(5, 5), true);
     });
     it("should get apple by coord", () => {
-      const apples = new Apples();
+      const apples = new AppleList();
       apples.add(1, 1);
       apples.add(2, 2);
       apples.add(3, 3);
@@ -120,7 +120,7 @@ describe("Collections", () => {
     });
 
     it("should double array size when adding too many items", () => {
-      const apples = new Apples();
+      const apples = new AppleList();
       assert.strictEqual(apples.getLength(), 0);
       assert.strictEqual(apples.getMaxLength(), INITIAL_APPLE_POOL_SIZE);
       for (let i = 0; i < INITIAL_APPLE_POOL_SIZE; i++) {
@@ -134,7 +134,7 @@ describe("Collections", () => {
     });
 
     it("should get closest traversal distance", () => {
-      const apples = new Apples();
+      const apples = new AppleList();
       apples.add(1, 1);
       apples.add(2, 2);
       apples.add(3, 3);

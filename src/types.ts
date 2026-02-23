@@ -498,11 +498,6 @@ export interface LevelData {
   diffSelectMap: Record<number, number>,
 }
 
-export interface DynamicLevelData {
-  segmentsMap: Record<number, boolean>,
-  applesMap: Record<string, number>,
-}
-
 export type LoseMessage = [string] | [string, GetShouldShowLoseMessage];
 export type GetShouldShowLoseMessage = (state: GameState, stats: Stats, difficulty: Difficulty) => boolean;
 
@@ -624,6 +619,11 @@ export enum MusicTrack {
 
 export type UnlockedMusicTracks = Record<MusicTrack, boolean>
 
+export interface AnimationData {
+  frames: number,
+  timePerFrame: number,
+}
+
 export enum Image {
   Apple = '__apple-rendered-at-runtime__',
   AppleTemplate = 'snek-apple-template.png',
@@ -667,7 +667,11 @@ export enum Image {
   EditorSelection = 'editor-selection.png',
   EditorSelectionBlue = 'editor-selection-blue.png',
   EditorSelectionRed = 'editor-selection-red.png',
+  MineSheet = 'snek-mine-sheet.png',
+  ExplosionSheet = 'snek-explosion-sheet.png',
 }
+
+export type SpritesheetImage = Image.MineSheet | Image.ExplosionSheet;
 
 export interface Scene {
   draw: () => void

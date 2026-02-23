@@ -6,7 +6,7 @@ import { ScreenShakeState } from "../../types";
 import { Gradients } from "../../collections/gradients";
 import { fakeP5 } from "../helpers/FakeP5";
 
-const getParticle = (num: number) => {
+const buildParticle = (num: number) => {
   const options: Omit<ParticleOptions, "birthtime"> = {
     originX: num,
     originY: num,
@@ -43,9 +43,9 @@ describe("Collections", () => {
       const particles = new Particles(p5, gradients, screenShake);
       assert.strictEqual(particles.length, 0);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE);
-      particles.spawn(getParticle(1));
-      particles.spawn(getParticle(2));
-      particles.spawn(getParticle(3));
+      particles.spawn(buildParticle(1));
+      particles.spawn(buildParticle(2));
+      particles.spawn(buildParticle(3));
       assert.strictEqual(particles.length, 3);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE);
       for (let i = 0; i < particles.getLength(); i++) {
@@ -59,10 +59,10 @@ describe("Collections", () => {
       const particles = new Particles(p5, gradients, screenShake);
       assert.strictEqual(particles.length, 0);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE);
-      particles.spawn(getParticle(0));
-      particles.spawn(getParticle(1));
-      particles.spawn(getParticle(2));
-      particles.spawn(getParticle(3));
+      particles.spawn(buildParticle(0));
+      particles.spawn(buildParticle(1));
+      particles.spawn(buildParticle(2));
+      particles.spawn(buildParticle(3));
       assert.strictEqual(particles.length, 4);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE);
       assert.strictEqual(particles.get(2).lifetime, 2);
@@ -92,16 +92,16 @@ describe("Collections", () => {
       const particles = new Particles(p5, gradients, screenShake);
       assert.strictEqual(particles.length, 0);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE);
-      particles.spawn(getParticle(0));
-      particles.spawn(getParticle(1));
-      particles.spawn(getParticle(2));
-      particles.spawn(getParticle(3));
-      particles.spawn(getParticle(4));
-      particles.spawn(getParticle(5));
-      particles.spawn(getParticle(6));
-      particles.spawn(getParticle(7));
-      particles.spawn(getParticle(8));
-      particles.spawn(getParticle(9));
+      particles.spawn(buildParticle(0));
+      particles.spawn(buildParticle(1));
+      particles.spawn(buildParticle(2));
+      particles.spawn(buildParticle(3));
+      particles.spawn(buildParticle(4));
+      particles.spawn(buildParticle(5));
+      particles.spawn(buildParticle(6));
+      particles.spawn(buildParticle(7));
+      particles.spawn(buildParticle(8));
+      particles.spawn(buildParticle(9));
       assert.strictEqual(particles.length, 10);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE);
       assert.strictEqual(particles.get(0).positionStartX, 0);
@@ -118,11 +118,11 @@ describe("Collections", () => {
       assert.strictEqual(particles.length, 0);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE);
       for (let i = 0; i < INITIAL_POOL_SIZE; i++) {
-        particles.spawn(getParticle(Math.floor(Math.random() * 30)));
+        particles.spawn(buildParticle(Math.floor(Math.random() * 30)));
       }
       assert.strictEqual(particles.length, INITIAL_POOL_SIZE);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE);
-      particles.spawn(getParticle(Math.floor(Math.random() * 30)));
+      particles.spawn(buildParticle(Math.floor(Math.random() * 30)));
       assert.strictEqual(particles.length, INITIAL_POOL_SIZE + 1);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE * 2);
     });
@@ -130,16 +130,16 @@ describe("Collections", () => {
       const particles = new Particles(p5, gradients, screenShake);
       assert.strictEqual(particles.length, 0);
       assert.strictEqual(particles._internalLength, INITIAL_POOL_SIZE);
-      particles.spawn(getParticle(0));
-      particles.spawn(getParticle(1));
-      particles.spawn(getParticle(2));
-      particles.spawn(getParticle(3));
-      particles.spawn(getParticle(4));
-      particles.spawn(getParticle(5));
-      particles.spawn(getParticle(6));
-      particles.spawn(getParticle(7));
-      particles.spawn(getParticle(8));
-      particles.spawn(getParticle(9));
+      particles.spawn(buildParticle(0));
+      particles.spawn(buildParticle(1));
+      particles.spawn(buildParticle(2));
+      particles.spawn(buildParticle(3));
+      particles.spawn(buildParticle(4));
+      particles.spawn(buildParticle(5));
+      particles.spawn(buildParticle(6));
+      particles.spawn(buildParticle(7));
+      particles.spawn(buildParticle(8));
+      particles.spawn(buildParticle(9));
       particles.tick(1);
       assert.strictEqual(particles._timeElapsed, 1);
       assert.strictEqual(particles.length, 9);

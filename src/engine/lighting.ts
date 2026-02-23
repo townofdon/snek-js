@@ -6,7 +6,7 @@ import { Renderer } from "./renderer";
 import { clamp, lerp, shouldBlinkExpiringPickup } from "../utils";
 import { Easing } from "../easing";
 import { Pickup, PickupType, PortalChannel } from "../types";
-import { Apples } from "../collections/apples";
+import { AppleList } from "../collections/appleList";
 
 const lightBuffer = createLightmap();
 
@@ -40,7 +40,7 @@ export function updateLighting(
   globalLight: number,
   playerPosition: Vector,
   portals: Record<PortalChannel, Vector[]>,
-  apples: Apples | null,
+  apples: AppleList | null,
   pickupsMap: Record<number, Pickup> | null,
 ) {
   resetLightmap(lightMap, globalLight);

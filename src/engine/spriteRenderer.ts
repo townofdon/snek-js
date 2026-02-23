@@ -1,8 +1,8 @@
 import P5, { Vector } from "p5";
 import Color from "color";
 
-import { ScreenShakeState, Image, Palette, ExtendedPalette } from "../types";
-import { BLOCK_SIZE, MAP_OFFSET, STROKE_SIZE } from "../constants";
+import { ScreenShakeState, Image, Palette, ExtendedPalette, AnimationData, SpritesheetImage } from "../types";
+import { ANIMATIONS, BLOCK_SIZE, MAP_OFFSET, STROKE_SIZE } from "../constants";
 import { getRelativeDir, lerp } from "../utils";
 
 const IMAGE_SCALE = 1.01;
@@ -61,6 +61,8 @@ export class SpriteRenderer {
     [Image.EditorSelection]: null,
     [Image.EditorSelectionBlue]: null,
     [Image.EditorSelectionRed]: null,
+    [Image.MineSheet]: null,
+    [Image.ExplosionSheet]: null,
   }
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -92,6 +94,11 @@ export class SpriteRenderer {
     this.isStaticCached = value;
   }
 
+  /**
+   * Set the apple image from a template based on the level theme colors (palette).
+   *
+   * NOTE - must be called after `loadImages()`.
+   */
   setAppleImage = (palette: ExtendedPalette) => {
     const r_colorDark = Color(palette.appleStroke).darken(0.2).saturate(0.1).hex();
     const r_colorLight = Color(palette.appleStroke).lighten(0.2).desaturate(0.1).hex();
@@ -139,6 +146,9 @@ export class SpriteRenderer {
     this.images[Image.Apple] = img;
   }
 
+  /**
+   * Load all images / spritesheets into memory
+   */
   loadImages() {
     try {
       this.loadImage(Image.ControlsKeyboardDelete);
@@ -179,6 +189,8 @@ export class SpriteRenderer {
       this.loadImage(Image.UILocked);
       this.loadImage(Image.UIFlamesheet);
       this.loadImage(Image.Darken);
+      this.loadImage(Image.MineSheet);
+      this.loadImage(Image.ExplosionSheet);
     } catch (err) {
       console.error(err)
     }
@@ -194,22 +206,57 @@ export class SpriteRenderer {
     }
   }
 
+  /**
+   * Imperatively draw a 3x3 image (normally 48x48 px)
+   */
   drawImage3x3 = (image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 1) => {
     this.drawImage3x3Impl(this.p5, image, x, y, rotation, alpha, screenshakeMul);
   }
 
+  /**
+   * Imperatively draw a 3x3 image (normally 48x48 px) providing a P5 or Graphics instant on which to draw
+   */
   drawImage3x3Custom = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 0) => {
     this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, screenshakeMul);
   }
 
+  /**
+   * Draw a 3x3 image if not cached.
+   */
   drawImage3x3Static = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 0) => {
     if (this.isStaticCached) return;
     this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, screenshakeMul);
   }
 
-  private drawImage3x3Impl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 1) => {
+  /**
+   * Draw an animation from a 3x3 (48x48) spritesheet
+   */
+  drawSpritesheetAnim3x3 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, elapsed = 0) => {
+    if (!ANIMATIONS[image]) {
+      throw new Error(`no animation data found for image "${image}"`);
+    }
+    const { frames, timePerFrame } = ANIMATIONS[image];
+    this.drawImage3x3Impl(gfx, image, x, y, 0, 1, 0, frames, timePerFrame, elapsed);
+  }
+
+  private drawImage3x3Impl = (
+    gfx: P5 | P5.Graphics,
+    image: Image,
+    x: number,
+    y: number,
+    rotation: number = 0,
+    alpha = 1,
+    screenshakeMul = 1,
+    frames = 1,
+    timePerFrame = 1000,
+    elapsed = 0,
+  ) => {
+    if (!frames) throw new Error(`frames cannot be zero. val=${frames},img=${image}`);
+    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${image}`);
     const loaded = this.images[image];
-    if (!loaded) return;
+    if (!loaded) {
+      return;
+    }
     const widthX = Math.floor(BLOCK_SIZE.x);
     const widthY = Math.floor(BLOCK_SIZE.y);
     const position = {
@@ -237,15 +284,19 @@ export class SpriteRenderer {
     if (alpha !== 1) {
       gfx.tint(255, 255, 255, lerp(0, 255, alpha));
     }
+    const frame = Math.floor(elapsed / timePerFrame) % frames;
+    const frameWidth = loaded.width / frames;
     gfx.image(
       loaded,
+      // destination (x, y, w, h)
       0,
       0,
       (widthX * 3 - STROKE_SIZE) * IMAGE_SCALE,
       (widthY * 3 - STROKE_SIZE) * IMAGE_SCALE,
+      // source (x, y, w, h)
+      frame * frameWidth,
       0,
-      0,
-      loaded.width,
+      frameWidth,
       loaded.height,
       this.p5.COVER,
       this.p5.LEFT,
@@ -278,9 +329,24 @@ export class SpriteRenderer {
     return loaded.height * 2;
   }
 
-  private drawImageImpl = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha = 1, offset = MAP_OFFSET, rotation = 0) => {
+  private drawImageImpl = (
+    gfx: P5 | P5.Graphics,
+    image: Image,
+    x: number,
+    y: number,
+    alpha = 1,
+    offset = MAP_OFFSET,
+    rotation = 0,
+    frames = 1,
+    timePerFrame = 1000,
+    elapsed = 0,
+  ) => {
+    if (!frames) throw new Error(`frames cannot be zero. val=${frames}`);
+    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame}`);
     const loaded = this.images[image];
-    if (!loaded) return;
+    if (!loaded) {
+      return;
+    }
     // this is why you should use a dedicated game engine, to not have to deal with sub-pixel adjustments
     // const adjustment = IMAGE_SCALE - (IMAGE_SCALE - 1) * 0.5;
     const adjustment = 1;
@@ -304,15 +370,19 @@ export class SpriteRenderer {
     if (alpha !== 1) {
       gfx.tint(255, 255, 255, lerp(0, 255, alpha));
     }
+    const frame = Math.floor(elapsed / timePerFrame) % frames;
+    const frameWidth = loaded.width / frames;
     gfx.image(
       loaded,
+      // destination (x, y, w, h)
       0,
       0,
       Math.round(2 * loaded.width),
       Math.round(2 * loaded.height),
+      // source (x, y, w, h)
+      frame * frameWidth,
       0,
-      0,
-      loaded.width,
+      frameWidth,
       loaded.height,
       this.p5.COVER,
       this.p5.LEFT,
@@ -326,16 +396,19 @@ export class SpriteRenderer {
 
   public drawSpritesheetAnim = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, frames: number, timePerFrame: number, elapsed: number) => {
     const loaded = this.images[image];
-    if (!loaded) return;
-
+    if (!loaded) {
+      return;
+    }
     const frame = Math.floor(elapsed / timePerFrame) % frames;
     const frameWidth = loaded.width / frames;
     gfx.image(
       loaded,
+      // destination (x, y, w, h)
       Math.round(x),
       Math.round(y),
       Math.round(frameWidth),
       Math.round(loaded.height),
+      // source (x, y, w, h)
       frame * frameWidth,
       0,
       frameWidth,

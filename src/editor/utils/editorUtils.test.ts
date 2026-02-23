@@ -9,7 +9,7 @@ import { DIR, EditorData, EditorOptions, Key, KeyChannel, Level, LevelType, Lock
 import { coordToVec, getCoordIndex2 } from "../../utils";
 
 import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "./editorUtils"
-import { GRIDCOUNT, OST_MODE_TRACKS } from "../../constants";
+import { CAMPAIGN_TRACKS, GRIDCOUNT, SLIME_CONTROL_TRACKS } from "../../constants";
 import { PALETTE } from "../../palettes";
 import { EDITOR_DEFAULTS } from "../editorConstants";
 
@@ -247,7 +247,7 @@ describe('editorUtils', () => {
         expect(decodedOptions.musicTrack).toEqual(track);
       }
       test(MusicTrack.None);
-      OST_MODE_TRACKS.forEach(track => test(track));
+      [MusicTrack.None, ...CAMPAIGN_TRACKS, MusicTrack.drone, ...SLIME_CONTROL_TRACKS].forEach(track => test(track));
     });
 
     it('should decode old data lacking music track', () => {

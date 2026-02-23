@@ -351,6 +351,9 @@ export function isWithinBlockDistance(a: Vector, b: Vector, distance: number = 1
   return Math.abs(a.x - b.x) <= distance && Math.abs(a.y - b.y) <= distance;
 }
 
+/**
+ * Return the Manhattan Distance between (x0, y0) and (x1, y1)
+ */
 export function getTraversalDistance(x0: number, y0: number, x1: number, y1: number): number {
   return Math.abs(x0 - x1) + Math.abs(y0 - y1);
 }

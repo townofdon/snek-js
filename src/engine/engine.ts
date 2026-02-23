@@ -116,7 +116,7 @@ import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
 import { Emitters } from '../collections/emitters';
-import { Apples } from '../collections/apples';
+import { AppleList } from '../collections/appleList';
 import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
 import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
@@ -289,7 +289,7 @@ export function engine({
   let diffSelectMap: Record<number, number> = {};
 
   const segments = new VectorList(); // snake segments
-  const apples = new Apples(); // food that the snake can eat to grow and score points
+  const apples = new AppleList(); // food that the snake can eat to grow and score points
   const lightMap = createLightmap();
 
   let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };

@@ -1,7 +1,7 @@
 import P5 from "p5";
 import Color from "color";
 
-import { Difficulty, MusicTrack, PortalChannel } from "./types";
+import { AnimationData, Difficulty, Image, MusicTrack, PortalChannel, SpritesheetImage } from "./types";
 
 export const TITLE = 'SNEK';
 
@@ -322,3 +322,14 @@ export const SLIME_CONTROL_TRACKS: MusicTrack[] = [
   MusicTrack.slime_exitmusic,
   MusicTrack.slime_rollcredits,
 ];
+
+export const ANIMATIONS: Record<SpritesheetImage, AnimationData> = {
+    [Image.MineSheet]: {
+      frames: 2,
+      timePerFrame: 200,
+    } satisfies AnimationData,
+    [Image.ExplosionSheet]: {
+      frames: 4,
+      timePerFrame: 200,
+    } satisfies AnimationData,
+  };
