@@ -314,7 +314,7 @@ export function engine({
     barrier: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     barrierPassable: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     door: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-    apple: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
+    apple: null,
     snakeHead: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     snakeSegment: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
   }
@@ -536,6 +536,7 @@ export function engine({
 
     renderer.reset();
     renderer.invalidateStaticCache();
+    spriteRenderer.setAppleImage(level.colors);
     cacheGraphicalComponents();
     appleParticleSystem.setColorsFromLevel(level);
     UI.disableScreenScroll();
@@ -2024,9 +2025,6 @@ export function engine({
       renderer.drawSquareCustom(graphicalComponents.snakeSegment, 1, 1, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
     }
 
-    renderer.clearGraphicalComponent(graphicalComponents.apple);
-    renderer.drawSquareCustom(graphicalComponents.apple, 1, 1, level.colors.apple, level.colors.appleStroke, drawAppleOptions);
-
     renderer.clearGraphicalComponent(graphicalComponents.deco1);
     renderer.drawSquareCustom(graphicalComponents.deco1, 1, 1, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptionsNoShake);
 
@@ -2143,7 +2141,7 @@ export function engine({
       renderer.drawSquare(x, y, color.toString(), color.toString(), drawInvincibilityPickupOptions);
       spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
     } else if (drawState.shouldDrawApples) {
-      renderer.drawGraphicalComponentCustom(gfxApples, graphicalComponents.apple, x, y, 1, 0);
+      spriteRenderer.drawImage3x3Custom(gfxApples, Image.Apple, x, y, 0, 1, 0);
     }
   }
 

@@ -625,6 +625,8 @@ export enum MusicTrack {
 export type UnlockedMusicTracks = Record<MusicTrack, boolean>
 
 export enum Image {
+  Apple = '__apple-rendered-at-runtime__',
+  AppleTemplate = 'snek-apple-template.png',
   SnekHead = 'snek-head.png',
   SnekHeadDead = 'snek-head-dead.png',
   SnekSegmentDark = 'snek-segment-dark.png',

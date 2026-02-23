@@ -58,6 +58,7 @@ import { X_SNEKCITY } from "./challenge/snekcity";
 import { X_CUBISM } from "./challenge/cubism";
 import { X_DIGIN } from "./challenge/digIn";
 import { X_DATACENTER } from "./challenge/dataCenter";
+import { X_SEARCHLIGHT } from "./challenge/searchlight";
 
 export const LEVELS: Level[] = [
     MAZE_01,
@@ -127,6 +128,7 @@ export const CHALLENGE_LEVELS: Level[] = [
     X_CATACOMBS,
     X_FORTITUDE,
     X_GUARDIAN,
+    X_SEARCHLIGHT,
     X_KINGS_HALL,
     X_LAST_RITES,
     X_MAKEITOUTALIVE,

@@ -57,6 +57,7 @@ import { X_SNEKCITY } from "./challenge/snekcity";
 import { X_CUBISM } from "./challenge/cubism";
 import { X_DIGIN } from "./challenge/digIn";
 import { X_DATACENTER } from "./challenge/dataCenter";
+import { X_SEARCHLIGHT } from "./challenge/searchlight";
 
 export function getWarpLevelFromNum(levelNum: number): Level {
   switch (levelNum) {
@@ -174,6 +175,8 @@ export function getWarpLevelFromNum(levelNum: number): Level {
       return X_DIGIN;
     case 420:
       return X_DATACENTER;
+    case 421:
+      return X_SEARCHLIGHT;
     default:
       return LEVEL_01;
   }

@@ -1,6 +1,7 @@
 import P5, { Vector } from "p5";
+import Color from "color";
 
-import { ScreenShakeState, Image } from "../types";
+import { ScreenShakeState, Image, Palette, ExtendedPalette } from "../types";
 import { BLOCK_SIZE, MAP_OFFSET, STROKE_SIZE } from "../constants";
 import { getRelativeDir, lerp } from "../utils";
 
@@ -27,6 +28,8 @@ export class SpriteRenderer {
     [Image.ControlsGamepadTurn]: null,
     [Image.ControlsGamepadSprint]: null,
     [Image.ControlsMouseLeft]: null,
+    [Image.Apple]: null,
+    [Image.AppleTemplate]: null,
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
     [Image.SnekSegmentDark]: null,
@@ -89,6 +92,53 @@ export class SpriteRenderer {
     this.isStaticCached = value;
   }
 
+  setAppleImage = (palette: ExtendedPalette) => {
+    const r_colorDark = Color(palette.appleStroke).darken(0.2).saturate(0.1).hex();
+    const r_colorLight = Color(palette.appleStroke).lighten(0.2).desaturate(0.1).hex();
+    const r_colorMain = palette.apple;
+    const colors = {
+      dark: this.p5.color(r_colorDark),
+      light: this.p5.color(r_colorLight),
+      main: this.p5.color(r_colorMain),
+    };
+    const img = this.p5.createImage(48, 48);
+    // copy apple template image pixels to new image
+    img.copy(this.images[Image.AppleTemplate], 0, 0, 48, 48, 0, 0, 48, 48);
+    // iterate through all pixels, replacing with theme colors
+    img.loadPixels();
+    for (let x = 0; x < img.width; x += 1) {
+      for (let y = 0; y < img.height; y += 1) {
+        const pixel = img.get(x, y);
+        const r = pixel[0];
+        const g = pixel[1];
+        const b = pixel[2];
+        const a = pixel[3];
+        // transparent pixel => pass
+        if (a <= 5) {
+          continue;
+        }
+        // black pixel => pass
+        if (r <= 5 && g <= 5 && b <= 5 && a >= 250) {
+          continue;
+        }
+        // red => dark
+        if (r >= 250) {
+          img.set(x, y, colors.dark);
+        }
+        // green => main
+        if (g >= 250) {
+          img.set(x, y, colors.main);
+        }
+        // blue => light
+        if (b >= 250) {
+          img.set(x, y, colors.light);
+        }
+      }
+    }
+    img.updatePixels();
+    this.images[Image.Apple] = img;
+  }
+
   loadImages() {
     try {
       this.loadImage(Image.ControlsKeyboardDelete);
@@ -100,6 +150,7 @@ export class SpriteRenderer {
       this.loadImage(Image.ControlsGamepadTurn);
       this.loadImage(Image.ControlsGamepadSprint);
       this.loadImage(Image.ControlsMouseLeft);
+      this.loadImage(Image.AppleTemplate);
       this.loadImage(Image.SnekHead);
       this.loadImage(Image.SnekHeadDead);
       this.loadImage(Image.SnekSegmentDark);
