@@ -165,6 +165,9 @@ p, button, .button {
 .static-gfx-canvas.fg4 {
   z-index: 5;
 }
+.static-gfx-canvas.fg5 {
+  z-index: 6;
+}
 .static-gfx-canvas.gfx-exit-lights {
   mix-blend-mode: lighten;
   opacity: 0.20;

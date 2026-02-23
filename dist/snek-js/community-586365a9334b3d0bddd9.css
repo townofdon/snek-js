@@ -990,6 +990,9 @@ button:hover,
 .editorTileSprite--BOwAf1aHSgWsPsNAsMH5.spawn--yiI5twIbN4c1RfklRKIw {
   background-position-x: calc(-10 * var(--editor-tile-sprite-width));
 }
+.editorTileSprite--BOwAf1aHSgWsPsNAsMH5.mine--jG6yOTFLdJeN9HkXfI31 {
+  background-position-x: calc(-15 * var(--editor-tile-sprite-width));
+}
 
 .editorTools--Fu76dOpda_BOyhBLRQfj {
   position: relative;
