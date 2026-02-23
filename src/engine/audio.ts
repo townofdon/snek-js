@@ -135,7 +135,7 @@ interface AudioSourceOptions {
   specialEq?: boolean
 }
 
-async function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOptions): Promise<AudioInfo | null> {
+async function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOptions, onended?: () => void): Promise<AudioInfo | null> {
   if (options.specialEq) {
     if (path.includes(MusicTrack.moneymaker) || path.includes(MusicTrack.lostcolony)) {
       eqHigh.gain.value = TREBLE_BOOST;
@@ -185,10 +185,14 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
   if (options.trackElapsed) {
     audioTimeStartedMap[path] = audioContext.currentTime;
   }
-  const onended = (source.onended ? source.onended : undefined) as (() => void | undefined);
+  const onended_orig = (source.onended ? source.onended : undefined) as (() => void | undefined);
   source.onended = () => {
+    if (onended_orig) onended_orig()
     if (onended) onended()
     stopAudio(path);
+    if (DEBUG_AUDIO) {
+      console.log(`[Audio] onended() called - file=${path},gainNode=${gainNode},buffer=${buffer},source=${source}`)
+    }
   }
   if (DEBUG_AUDIO) {
     console.log(`[Audio] playing audio file=${path},gainNode=${gainNode},buffer=${buffer},source=${source}`)
@@ -222,13 +226,13 @@ export async function loadSfxAudio({ src }: { src: [string] }) {
     setTimeout(() => {
       if (state.playing) stop();
       state.playing = true;
-      try {
-        playAudio(path, sfxGainNode, { volume: state.volume, loop: source.loop });
-      } catch (err) {
-        console.warn(`err on playSfx(${path}): ${err}`);
+      const onended = () => {
         state.playing = false;
       }
-      source.onended = () => {
+      try {
+        playAudio(path, sfxGainNode, { volume: state.volume, loop: source.loop }, onended);
+      } catch (err) {
+        console.warn(`err on playSfx(${path}): ${err}`);
         state.playing = false;
       }
     }, 0)

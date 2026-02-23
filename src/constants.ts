@@ -326,7 +326,7 @@ export const SLIME_CONTROL_TRACKS: MusicTrack[] = [
 export const ANIMATIONS: Record<SpritesheetImage, AnimationData> = {
     [Image.MineSheet]: {
       frames: 2,
-      timePerFrame: 200,
+      timePerFrame: 400,
     } satisfies AnimationData,
     [Image.ExplosionSheet]: {
       frames: 4,

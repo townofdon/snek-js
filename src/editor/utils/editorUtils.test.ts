@@ -65,6 +65,7 @@ describe('editorUtils', () => {
         decoratives2Map: {},
         nospawnsMap: {},
         applesMap: {},
+        minesMap: {},
         keysMap: {},
         locksMap: {},
         portalsMap: {},
@@ -122,6 +123,7 @@ describe('editorUtils', () => {
         decoratives2Map: { 9: true, 10: true },
         nospawnsMap: { 11: true, 12: true },
         applesMap: { 13: true, 14: true },
+        minesMap: {},
         keysMap: { 15: KeyChannel.Yellow, 16: KeyChannel.Red, 17: KeyChannel.Blue },
         locksMap: { 18: KeyChannel.Yellow, 19: KeyChannel.Red, 20: KeyChannel.Blue },
         portalsMap: {
@@ -213,6 +215,7 @@ describe('editorUtils', () => {
         decoratives2Map: {},
         nospawnsMap: {},
         applesMap: {},
+        minesMap: {},
         keysMap: {},
         locksMap: {},
         portalsMap: {},
@@ -303,6 +306,7 @@ describe('editorUtils', () => {
     it('should build a map layout correctly for all possible types', () => {
       const data: EditorData = {
         applesMap: { 0: true },
+        minesMap: {},
         barriersMap: { 1: true, 2: true, 100: true, 101: true, 102: true },
         passablesMap: { 2: true },
         doorsMap: { 3: true },
@@ -380,6 +384,7 @@ describe('editorUtils', () => {
           const expectedLayout = level.layout;
           const data: EditorData = {
             applesMap: {},
+            minesMap: {},
             barriersMap: { ...levelData.barriersMap },
             passablesMap: { ...levelData.passablesMap },
             doorsMap: { ...levelData.doorsMap },

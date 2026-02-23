@@ -59,6 +59,7 @@ import { X_CUBISM } from "./challenge/cubism";
 import { X_DIGIN } from "./challenge/digIn";
 import { X_DATACENTER } from "./challenge/dataCenter";
 import { X_SEARCHLIGHT } from "./challenge/searchlight";
+import { TUTORIAL_LEVEL_50 } from "./tutorialLevel50";
 
 export const LEVELS: Level[] = [
     MAZE_01,
@@ -70,6 +71,7 @@ export const LEVELS: Level[] = [
     LEVEL_04,
     LEVEL_05,
     LEVEL_06,
+    TUTORIAL_LEVEL_50,
     LEVEL_07,
     LEVEL_08,
     LEVEL_09,

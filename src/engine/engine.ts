@@ -3,6 +3,7 @@ import P5, { Vector } from 'p5';
 import {
   ALL_APPLES_BONUS,
   ALL_LOCKS_BONUS,
+  ANIMATIONS,
   BLOCK_SIZE,
   CLEAR_BONUS,
   COBRA_SCORE_MOD,
@@ -117,6 +118,7 @@ import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
 import { Emitters } from '../collections/emitters';
 import { AppleList } from '../collections/appleList';
+import { AnimationList } from '../collections/animationList';
 import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
 import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
@@ -224,6 +226,7 @@ export function engine({
   const drawState: DrawState = {
     shouldDrawApples: true,
     shouldDrawKeysLocks: true,
+    shouldDrawExplosions: true,
   };
   const metrics = {
     gameLoopProcessingTime: 0,
@@ -290,6 +293,8 @@ export function engine({
 
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
+  const mines = new AnimationList();
+  const explosions = new AnimationList();
   const lightMap = createLightmap();
 
   let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };
@@ -301,13 +306,15 @@ export function engine({
   const gfxKeysLocks: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxApples: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  const gfxFGAction: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   gfxBG.addClass('static-gfx-canvas').addClass('bg').parent('game').addClass('gfx-bg');
   gfxExitLights.addClass('static-gfx-canvas').addClass('fg0').parent('game').addClass('gfx-exit-lights');
   gfxKeysLocks.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-keys-locks');
   gfxApples.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-apples');
   gfxFG.addClass('static-gfx-canvas').addClass('fg2').parent('game').addClass('gfx-fg');
-  gfxLighting.addClass('static-gfx-canvas').addClass('fg3').parent('game').addClass('gfx-lighting');
+  gfxFGAction.addClass('static-gfx-canvas').addClass('fg3').parent('game').addClass('gfx-fg-action');
+  gfxLighting.addClass('static-gfx-canvas').addClass('fg4').parent('game').addClass('gfx-lighting');
   const graphicalComponents: GraphicalComponents = {
     deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     deco2: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -438,6 +445,7 @@ export function engine({
     // init state for new level
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
+    drawState.shouldDrawExplosions = true;
     player.position = p5.createVector(15, 15);
     player.direction = DIR.RIGHT;
     player.directionToFirstSegment = DIR.LEFT;
@@ -495,6 +503,8 @@ export function engine({
     portalsMap = {};
     keysMap = {};
     apples.reset();
+    mines.reset();
+    explosions.reset();
     segments.reset();
     emitters.reset();
     emitters10.reset();
@@ -634,6 +644,14 @@ export function engine({
       segments.addVec(segment);
     }
 
+    // add initial mines
+    for (let i = 0; i < levelData.mines.length; i++) {
+      const x = levelData.mines[i].x;
+      const y = levelData.mines[i].y;
+      const lifetime = 99999999; // improbably high lifetime = never despawn
+      mines.add(x, y, lifetime, ANIMATIONS[Image.MineSheet].frames, ANIMATIONS[Image.MineSheet].timePerFrame);
+    }
+
     // add initial apples
     for (let i = 0; i < levelData.apples.length; i++) {
       apples.add(levelData.apples[i].x, levelData.apples[i].y);
@@ -747,7 +765,7 @@ export function engine({
     handleDifficultySelect();
     handleSetNextLevel();
 
-    const didHit = checkHasHit(player.position);
+    const didHit = checkHasHit(player.position) || checkMineHit(player.position);
     if (didHit) {
       player.directionLastHit = player.direction;
       state.collisions += 1;
@@ -882,6 +900,9 @@ export function engine({
       }
     }
 
+    drawMines();
+    drawExplosions();
+
     renderer.drawPlayerMoveArrows(p5, player.position, moves.length > 0 ? moves[0] : player.direction);
 
     for (let i = 0; i < segments.length; i++) {
@@ -895,8 +916,17 @@ export function engine({
     drawParticles(10);
     renderer.drawCaptureMode();
     renderer.setStaticCacheFlags();
+
     drawState.shouldDrawApples = false;
+    drawState.shouldDrawExplosions = false;
     drawState.shouldDrawKeysLocks = false;
+
+    if (mines.tick(p5.deltaTime)) {
+      drawState.shouldDrawApples = true;
+    }
+    if (explosions.tick(p5.deltaTime)) {
+      drawState.shouldDrawExplosions = true;
+    }
 
     if (
       state.isGameStarted &&
@@ -934,7 +964,7 @@ export function engine({
 
     return true;
   }
-  
+
 
   function playSound(sound: Sound, volume = 1, force = false) {
     if (state.isGameWon) return;
@@ -982,6 +1012,7 @@ export function engine({
     gfxBG.clear(0, 0, 0, 0);
     gfxExitLights.clear(0, 0, 0, 0);
     gfxFG.clear(0, 0, 0, 0);
+    gfxFGAction.clear(0, 0, 0, 0);
     gfxApples.clear(0, 0, 0, 0);
     gfxKeysLocks.clear(0, 0, 0, 0);
     gfxLighting.clear(0, 0, 0, 0);
@@ -1186,7 +1217,8 @@ export function engine({
     shake(gfxBG, 0.5);
     shake(gfxExitLights, 0.5);
     shake(gfxFG, 2);
-    shake(gfxKeysLocks, 1.8);
+    shake(gfxFGAction, 1.7);
+    shake(gfxKeysLocks, 1.5);
     shake(gfxApples, 1.2);
   }
 
@@ -1216,7 +1248,27 @@ export function engine({
     );
   }
 
-  function checkHasHit(vec: Vector) {
+  function checkMineHit(vec: Vector): boolean {
+    if (state.isExitingLevel) return false;
+    if (state.isExited) return false;
+    if (state.isGameWon) return false;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+    const coord = getCoordIndex(vec);
+    if (mines.existsAtCoord(coord)) {
+      mines.removeByCoord(coord);
+      const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
+      explosions.add(vec.x, vec.y, frames * timePerFrame, frames, timePerFrame);
+      state.lastHurtBy = HitType.HitMine;
+      playSound(Sound.xpound);
+      drawState.shouldDrawApples = true;
+      drawState.shouldDrawExplosions = true;
+      const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+      return !isInvincible;
+    }
+    return false;
+  }
+
+  function checkHasHit(vec: Vector): boolean {
     if (state.isExitingLevel) return false;
     if (state.isExited) return false;
     if (state.isGameWon) return false;
@@ -1672,6 +1724,7 @@ export function engine({
     if (replay.mode === ReplayMode.Playback) return;
     if (moves.length <= 0) return;
     if (segments.length <= 0) return;
+    if (state.lastHurtBy === HitType.HitMine) return;
 
     const isGameOver = state.isLost && state.lives === 0;
     const move = moves[0];
@@ -1737,7 +1790,7 @@ export function engine({
     flashScreen();
     startScreenShake(1, 0.4);
     renderHeartsUI();
-    spawnHurtParticles();
+    if (state.lastHurtBy !== HitType.HitMine) { spawnHurtParticles(); }
     reboundSnake(segments.length > 3 ? 2 : 1);
     player.directionToFirstSegment = getDirectionSnakeBackward();
 
@@ -1926,7 +1979,8 @@ export function engine({
     const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
     const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
       || doorsMap[getCoordIndex2(x, y)]
-      || nospawnsMap[getCoordIndex2(x, y)];
+      || nospawnsMap[getCoordIndex2(x, y)]
+      || mines.existsAt(x, y);
     if (spawnedInsideOfSomething) {
       if (numTries < 30) spawnApple(numTries + 1);
       return;
@@ -1963,6 +2017,7 @@ export function engine({
     const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
       || doorsMap[getCoordIndex2(x, y)]
       || nospawnsMap[getCoordIndex2(x, y)]
+      || mines.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
     const spawnedTooCloseToPlayer = getTraversalDistance(x, y, player.position.x, player.position.y) < 20;
@@ -2050,6 +2105,9 @@ export function engine({
     }
     if (drawState.shouldDrawKeysLocks) {
       gfxKeysLocks.clear(0, 0, 0, 0);
+    }
+    if (drawState.shouldDrawExplosions) {
+      gfxFGAction.clear(0, 0, 0, 0);
     }
   }
 
@@ -2142,6 +2200,37 @@ export function engine({
       spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
     } else if (drawState.shouldDrawApples) {
       spriteRenderer.drawImage3x3Custom(gfxApples, Image.Apple, x, y, 0, 1, 0);
+    }
+  }
+
+  function drawMines() {
+    if (drawState.shouldDrawApples) {
+      for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
+        if (mines.existsAtCoord(coord)) {
+          const x = Math.floor(coord % GRIDCOUNT.x);
+          const y = Math.floor(coord / GRIDCOUNT.x);
+          const elapsed = mines.getElapsedByCoord(coord);
+          const lifetime = mines.getLifetime(x, y);
+          const timeLeft = lifetime - elapsed;
+          if (timeLeft <= 0 || shouldBlinkExpiringPickup(timeLeft)) {
+            return;
+          }
+          spriteRenderer.drawSpritesheetAnim3x3(gfxApples, Image.MineSheet, x, y, elapsed);
+        }
+      }
+    }
+  }
+
+  function drawExplosions() {
+    if (drawState.shouldDrawExplosions) {
+      for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
+        if (explosions.existsAtCoord(coord)) {
+          const x = Math.floor(coord % GRIDCOUNT.x);
+          const y = Math.floor(coord / GRIDCOUNT.x);
+          const elapsed = explosions.getElapsedByCoord(coord);
+          spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.ExplosionSheet, x, y, elapsed);
+        }
+      }
     }
   }
 
@@ -2400,12 +2489,14 @@ export function engine({
     startScreenShake(3, -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, 0.1);
     state.isShowingDeathColours = true;
     drawState.shouldDrawApples = true;
+    drawState.shouldDrawExplosions = true;
     drawState.shouldDrawKeysLocks = true;
     renderer.invalidateStaticCache();
     // UI.renderHearts(0, true);
     yield* coroutines.waitForTime(HURT_STUN_TIME * 2.5);
     state.isShowingDeathColours = false;
     drawState.shouldDrawApples = true;
+    drawState.shouldDrawExplosions = true;
     drawState.shouldDrawKeysLocks = true;
     renderer.invalidateStaticCache();
     // UI.renderHearts(0, false);

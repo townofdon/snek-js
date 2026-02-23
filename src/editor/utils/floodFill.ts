@@ -1,9 +1,8 @@
 import { GRIDCOUNT } from "../../constants";
-import { DIR, EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../../types";
+import { EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../../types";
 import { Tile } from "../editorTypes";
 import { getCoordIndex2, isValidKeyChannel, isValidPortalChannel } from "../../utils";
 import { deepCloneData } from "./editorUtils";
-import { Vector } from "p5";
 
 
 enum FloodFillTile {
@@ -31,6 +30,7 @@ enum FloodFillTile {
   LockRed,
   LockBlue,
   Nospawn,
+  Mine,
 }
 
 interface GetTileArgs {
@@ -43,6 +43,7 @@ function getTile({ tile, portalChannel, keyChannel }: GetTileArgs) {
   if (tile === Tile.Barrier) return FloodFillTile.Barrier;
   if (tile === Tile.Door) return FloodFillTile.Door;
   if (tile === Tile.Apple) return FloodFillTile.Apple;
+  if (tile === Tile.Mine) return FloodFillTile.Mine;
   if (tile === Tile.Deco2) return FloodFillTile.Deco2;
   if (tile === Tile.Deco1) return FloodFillTile.Deco1;
   if (tile === Tile.Portal && isValidPortalChannel(portalChannel)) {
@@ -104,6 +105,7 @@ function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
   if (data.barriersMap[coord]) return getTile({ tile: Tile.Barrier });
   if (data.doorsMap[coord]) return getTile({ tile: Tile.Door });
   if (data.applesMap[coord]) return getTile({ tile: Tile.Apple });
+  if (data.minesMap[coord]) return getTile({ tile: Tile.Mine });
   const portalChannel = data.portalsMap[coord];
   const keyChannel = data.keysMap[coord];
   const lockChannel = data.locksMap[coord];
@@ -126,6 +128,7 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
   const slice: EditorDataSlice = {
     coord,
     apple: undefined,
+    mine: undefined,
     barrier: undefined,
     deco1: undefined,
     deco2: undefined,
@@ -159,6 +162,9 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
       break;
     case FloodFillTile.Apple:
       slice.apple = true;
+      break;
+    case FloodFillTile.Mine:
+      slice.mine = true;
       break;
     case FloodFillTile.Portal0:
       slice.portal = 0;
@@ -221,6 +227,7 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
       break;
   }
   data.applesMap[coord] = slice.apple;
+  data.minesMap[coord] = slice.mine;
   data.barriersMap[coord] = slice.barrier;
   data.decoratives1Map[coord] = slice.deco1;
   data.decoratives2Map[coord] = slice.deco2;

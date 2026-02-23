@@ -20,8 +20,8 @@ describe("Collections", () => {
       assert.strictEqual(items.existsAt(2, 2), false);
       assert.strictEqual(items.existsAt(3, 3), false);
       assert.strictEqual(items.existsAt(4, 4), false);
-      items.add(3, 3, 1000);
-      items.add(4, 4, 1000);
+      items.add(3, 3, 1000, 1, 1);
+      items.add(4, 4, 1000, 1, 1);
       assert.strictEqual(items.length, 2);
       assert.strictEqual(items.existsAt(2, 2), false);
       assert.strictEqual(items.existsAt(3, 3), true);
@@ -29,8 +29,8 @@ describe("Collections", () => {
     });
     it("should remove items", () => {
       const items = new AnimationList();
-      items.add(10, 1, 9999);
-      items.add(1, 10, 9999);
+      items.add(10, 1, 9999, 1, 1);
+      items.add(1, 10, 9999, 1, 1);
       assert.strictEqual(items.getLength(), 2);
       assert.strictEqual(items.existsAt(10, 1), true);
       assert.strictEqual(items.existsAt(1, 10), true);
@@ -44,16 +44,16 @@ describe("Collections", () => {
     });
     it("should reset apples", () => {
       const items = new AnimationList();
-      items.add(1, 1, 9999);
-      items.add(2, 2, 9999);
-      items.add(3, 3, 9999);
-      items.add(4, 4, 9999);
-      items.add(5, 5, 9999);
-      items.add(6, 6, 9999);
-      items.add(7, 7, 9999);
-      items.add(8, 8, 9999);
-      items.add(9, 9, 9999);
-      items.add(10, 10, 9999);
+      items.add(1, 1, 9999, 1, 1);
+      items.add(2, 2, 9999, 1, 1);
+      items.add(3, 3, 9999, 1, 1);
+      items.add(4, 4, 9999, 1, 1);
+      items.add(5, 5, 9999, 1, 1);
+      items.add(6, 6, 9999, 1, 1);
+      items.add(7, 7, 9999, 1, 1);
+      items.add(8, 8, 9999, 1, 1);
+      items.add(9, 9, 9999, 1, 1);
+      items.add(10, 10, 9999, 1, 1);
       assert.strictEqual(items.length, 10);
       assert.strictEqual(items.existsAt(5, 5), true);
       items.reset();
@@ -62,16 +62,16 @@ describe("Collections", () => {
     });
     it("should ignore adding duplicates", () => {
       const items = new AnimationList();
-      items.add(1, 1, 9999);
-      items.add(1, 1, 8888);
-      items.add(1, 1, 7777);
-      items.add(1, 1, 6666);
-      items.add(1, 1, 5555);
-      items.add(10, 10, 9999);
-      items.add(10, 10, 8888);
-      items.add(10, 10, 7777);
-      items.add(10, 10, 6666);
-      items.add(10, 10, 5555);
+      items.add(1, 1, 9999, 1, 1);
+      items.add(1, 1, 8888, 1, 1);
+      items.add(1, 1, 7777, 1, 1);
+      items.add(1, 1, 6666, 1, 1);
+      items.add(1, 1, 5555, 1, 1);
+      items.add(10, 10, 9999, 1, 1);
+      items.add(10, 10, 8888, 1, 1);
+      items.add(10, 10, 7777, 1, 1);
+      items.add(10, 10, 6666, 1, 1);
+      items.add(10, 10, 5555, 1, 1);
       assert.strictEqual(items.length, 2);
       assert.strictEqual(items.existsAt(1, 1), true);
       assert.strictEqual(items.existsAt(10, 10), true);
@@ -80,11 +80,11 @@ describe("Collections", () => {
     });
     it("should remove item by coord", () => {
       const items = new AnimationList();
-      items.add(1, 1, 9999);
-      items.add(2, 2, 9999);
-      items.add(3, 3, 9999);
-      items.add(4, 4, 9999);
-      items.add(5, 5, 9999);
+      items.add(1, 1, 9999, 1, 1);
+      items.add(2, 2, 9999, 1, 1);
+      items.add(3, 3, 9999, 1, 1);
+      items.add(4, 4, 9999, 1, 1);
+      items.add(5, 5, 9999, 1, 1);
       assert.strictEqual(items.getLength(), 5);
       assert.strictEqual(items.existsAt(1, 1), true);
       assert.strictEqual(items.existsAt(2, 2), true);
@@ -101,11 +101,11 @@ describe("Collections", () => {
     });
     it("should get item exists by coord", () => {
       const items = new AnimationList();
-      items.add(1, 1, 9999);
-      items.add(2, 2, 9999);
-      items.add(3, 3, 9999);
-      items.add(4, 4, 9999);
-      items.add(5, 5, 9999);
+      items.add(1, 1, 9999, 1, 1);
+      items.add(2, 2, 9999, 1, 1);
+      items.add(3, 3, 9999, 1, 1);
+      items.add(4, 4, 9999, 1, 1);
+      items.add(5, 5, 9999, 1, 1);
       assert.strictEqual(items.getLength(), 5);
       assert.strictEqual(items.existsAtCoord(getCoordIndex2(0, 0)), false);
       assert.strictEqual(items.existsAtCoord(getCoordIndex2(1, 1)), true);
@@ -122,7 +122,7 @@ describe("Collections", () => {
       for (let i = 0; i < INITIAL_ANIMATIONS_POOL_SIZE; i++) {
         const x = Math.floor(i % GRIDCOUNT.x);
         const y = Math.floor(i / GRIDCOUNT.x);
-        items.add(x, y, 9999);
+        items.add(x, y, 9999, 1, 1);
         assert.strictEqual(items.getLength(), i + 1);
         assert.strictEqual(items.existsAt(x, y), true);
       }
@@ -131,11 +131,11 @@ describe("Collections", () => {
     });
     it("should get closest traversal distance", () => {
       const items = new AnimationList();
-      items.add(1, 1, 9999);
-      items.add(2, 2, 9999);
-      items.add(3, 3, 9999);
-      items.add(4, 4, 9999);
-      items.add(5, 5, 9999);
+      items.add(1, 1, 9999, 1, 1);
+      items.add(2, 2, 9999, 1, 1);
+      items.add(3, 3, 9999, 1, 1);
+      items.add(4, 4, 9999, 1, 1);
+      items.add(5, 5, 9999, 1, 1);
       assert(items.getClosestTraversalDistance(0, 0) === 2);
       assert(items.getClosestTraversalDistance(0, 1) === 1);
       assert(items.getClosestTraversalDistance(1, 1) === 0);
@@ -171,14 +171,14 @@ describe("Collections", () => {
       assert(items.getClosestTraversalDistance(7, 7) === Infinity);
       assert(items.getClosestTraversalDistance(15, 15) === Infinity);
     });
-    it("should handle tick correctly", () => {
+    it("should tick items", () => {
       const items = new AnimationList();
-      items.add(0, 0, 0);
-      items.add(1, 1, 1);
-      items.add(2, 2, 2);
-      items.add(3, 3, 3);
-      items.add(4, 4, 4);
-      items.add(5, 5, 5);
+      items.add(0, 0, 0, 1, 1);
+      items.add(1, 1, 1, 1, 1);
+      items.add(2, 2, 2, 1, 1);
+      items.add(3, 3, 3, 1, 1);
+      items.add(4, 4, 4, 1, 1);
+      items.add(5, 5, 5, 1, 1);
       assert.strictEqual(items.getLength(), 6);
       assert.strictEqual(items.getLifetime(0, 0), 0);
       assert.strictEqual(items.getLifetime(1, 1), 1);
@@ -245,8 +245,8 @@ describe("Collections", () => {
       assert.strictEqual(items.getElapsed(6, 6), -1);
       assert.strictEqual(items.getElapsed(7, 7), -1);
 
-      items.add(6, 6, 6);
-      items.add(7, 7, 7);
+      items.add(6, 6, 6, 1, 1);
+      items.add(7, 7, 7, 1, 1);
       items.remove(4, 4);
       assert.strictEqual(items.getLength(), 5);
       assert.strictEqual(items.getLifetime(6, 6), 6);
@@ -352,6 +352,42 @@ describe("Collections", () => {
       assert.strictEqual(items.getElapsed(5, 5), -1);
       assert.strictEqual(items.getElapsed(6, 6), -1);
       assert.strictEqual(items.getElapsed(7, 7), -1);
+    });
+    it("should tick true when any item frame changes", () => {
+      const items = new AnimationList();
+      items.add(1, 1, 1000, 3, 200);
+      items.add(2, 2, 1000, 4, 150);
+      items.add(3, 3, 1000, 5, 300);
+
+      assert.strictEqual(items.tick(50), false);
+      assert.strictEqual(items.getElapsed(1, 1), 50);
+
+      assert.strictEqual(items.tick(50), false);
+      assert.strictEqual(items.getElapsed(1, 1), 100);
+
+      assert.strictEqual(items.tick(49), false);
+      assert.strictEqual(items.getElapsed(1, 1), 149);
+
+      assert.strictEqual(items.tick(1), true); // item(2,2) frame changed
+      assert.strictEqual(items.getElapsed(1, 1), 150);
+
+      assert.strictEqual(items.tick(1), false);
+      assert.strictEqual(items.getElapsed(1, 1), 151);
+
+      assert.strictEqual(items.tick(48), false);
+      assert.strictEqual(items.getElapsed(1, 1), 199);
+
+      assert.strictEqual(items.tick(1), true); // item(1,1) frame changed
+      assert.strictEqual(items.getElapsed(1, 1), 200);
+
+      assert.strictEqual(items.tick(50), false);
+      assert.strictEqual(items.getElapsed(1, 1), 250);
+
+      assert.strictEqual(items.tick(49), false);
+      assert.strictEqual(items.getElapsed(1, 1), 299);
+
+      assert.strictEqual(items.tick(1), true);
+      assert.strictEqual(items.getElapsed(1, 1), 300); // item(2,2) and item(3,3) frame changed
     });
   });
 });

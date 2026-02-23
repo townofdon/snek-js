@@ -40,6 +40,7 @@ abstract class SetElementCommand implements Command {
     this.initial = {
       coord: this.coord,
       apple: data.applesMap[this.coord],
+      mine: data.minesMap[this.coord],
       barrier: data.barriersMap[this.coord],
       deco1: data.decoratives1Map[this.coord],
       deco2: data.decoratives2Map[this.coord],
@@ -55,6 +56,7 @@ abstract class SetElementCommand implements Command {
     this.newData = {
       coord: this.coord,
       apple: false,
+      mine: false,
       barrier: false,
       deco1: false,
       deco2: false,
@@ -111,6 +113,7 @@ export class DeleteElementCommand extends SetElementCommand {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (
       !data.applesMap[this.coord] &&
+      !data.minesMap[this.coord] &&
       !data.barriersMap[this.coord] &&
       !data.decoratives1Map[this.coord] &&
       !data.decoratives2Map[this.coord] &&
@@ -134,6 +137,18 @@ export class SetAppleCommand extends SetElementCommand {
       this.newData = null;
     } else {
       this.newData.apple = true;
+    }
+  }
+}
+
+export class SetMineCommand extends SetElementCommand {
+  public readonly name = 'Draw Mine';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (data.minesMap[this.coord]) {
+      this.newData = null;
+    } else {
+      this.newData.mine = true;
     }
   }
 }
@@ -293,6 +308,7 @@ abstract class SetBatchElementsCommand implements Command {
     this.newData = {
       coord: -1,
       apple: false,
+      mine: false,
       barrier: false,
       deco1: false,
       deco2: false,
@@ -422,6 +438,17 @@ export class SetLineAppleCommand extends SetLineCommand {
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.applesMap[coord];
+  };
+}
+
+export class SetLineMineCommand extends SetLineCommand {
+  public readonly name = 'Draw Mine';
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.newData.mine = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.minesMap[coord];
   };
 }
 
@@ -610,6 +637,17 @@ export class SetRectangleAppleCommand extends SetRectangleCommand {
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.applesMap[coord];
+  };
+}
+
+export class SetRectangleMineCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Mine';
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.mine = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.minesMap[coord];
   };
 }
 
@@ -817,6 +855,7 @@ export class ClearAllCommand implements Command {
     try {
       const newData: EditorData = {
         applesMap: {},
+        minesMap: {},
         barriersMap: {},
         decoratives1Map: {},
         decoratives2Map: {},

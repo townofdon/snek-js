@@ -10,6 +10,7 @@ describe('commands', () => {
   const getTestData = (overrides: Partial<EditorData> = {}): EditorData => {
     const data: EditorData = {
       applesMap: {},
+      minesMap: {},
       barriersMap: {},
       decoratives1Map: {},
       decoratives2Map: {},

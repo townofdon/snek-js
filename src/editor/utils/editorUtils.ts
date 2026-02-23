@@ -169,6 +169,7 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     decoratives1Map: { ...levelData.decoratives1Map },
     decoratives2Map: { ...levelData.decoratives2Map },
     nospawnsMap: { ...levelData.nospawnsMap },
+    minesMap: {},
     applesMap: {},
     keysMap: {},
     locksMap: {},
@@ -193,6 +194,10 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
   levelData.apples.forEach(apple => {
     const coord = getCoordIndex2(apple.x, apple.y);
     data.applesMap[coord] = true;
+  });
+  levelData.mines.forEach(mine => {
+    const coord = getCoordIndex2(mine.x, mine.y);
+    data.minesMap[coord] = true;
   });
   return data;
 }
@@ -307,6 +312,9 @@ export function buildMapLayout(data: EditorData): string {
     if (data.applesMap[coord]) {
       return 'A';
     }
+    if (data.minesMap[coord]) {
+      return '*';
+    }
     if (data.decoratives1Map[coord]) {
       if (data.nospawnsMap[coord]) {
         return '_';
@@ -362,6 +370,7 @@ export function deepCloneData(data: EditorData): EditorData {
     decoratives2Map: getMapSliceWithDefaults(data.decoratives2Map),
     nospawnsMap: getMapSliceWithDefaults(data.nospawnsMap),
     applesMap: getMapSliceWithDefaults(data.applesMap),
+    minesMap: getMapSliceWithDefaults(data.minesMap),
     keysMap: getMapSliceWithDefaults(data.keysMap),
     locksMap: getMapSliceWithDefaults(data.locksMap),
     portalsMap: getMapSliceWithDefaults(data.portalsMap),
@@ -379,6 +388,7 @@ export function mergeData(data: EditorData, incoming: Partial<EditorData>): Edit
     decoratives2Map: { ...data.decoratives2Map, ...incoming.decoratives2Map },
     nospawnsMap: { ...data.nospawnsMap, ...incoming.nospawnsMap },
     applesMap: { ...data.applesMap, ...incoming.applesMap },
+    minesMap: { ...data.minesMap, ...incoming.minesMap },
     keysMap: { ...data.keysMap, ...incoming.keysMap },
     locksMap: { ...data.locksMap, ...incoming.locksMap },
     portalsMap: { ...data.portalsMap, ...incoming.portalsMap },
@@ -390,6 +400,7 @@ export function mergeData(data: EditorData, incoming: Partial<EditorData>): Edit
 export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coord?: number): EditorData {
   const newData: EditorData = {
     applesMap: { [coord ?? incoming.coord]: incoming.apple },
+    minesMap: { [coord ?? incoming.coord]: incoming.mine },
     barriersMap: { [coord ?? incoming.coord]: incoming.barrier },
     decoratives1Map: { [coord ?? incoming.coord]: incoming.deco1 },
     decoratives2Map: { [coord ?? incoming.coord]: incoming.deco2 },
@@ -404,6 +415,7 @@ export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coor
   }
   return {
     applesMap: { ...data.applesMap, ...newData.applesMap },
+    minesMap: { ...data.minesMap, ...newData.minesMap },
     barriersMap: { ...data.barriersMap, ...newData.barriersMap },
     decoratives1Map: { ...data.decoratives1Map, ...newData.decoratives1Map },
     decoratives2Map: { ...data.decoratives2Map, ...newData.decoratives2Map },

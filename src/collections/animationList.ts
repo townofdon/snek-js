@@ -17,6 +17,8 @@ export class AnimationList {
   private free: Uint8Array;
   private lifetime: Float32Array;
   private elapsed: Float32Array;
+  private frames: Uint8Array;
+  private timePerFrame: Float32Array;
   private activeLength: number;
   private maxLength: number;
   private coordMap: Record<number, boolean>;
@@ -29,6 +31,8 @@ export class AnimationList {
     this.free = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(1);
     this.lifetime = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.elapsed = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
+    this.frames = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(1);
+    this.timePerFrame = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.activeLength = 0;
     this.coordMap = {};
     this.reset();
@@ -54,20 +58,34 @@ export class AnimationList {
     return this.activeLength;
   }
 
-  public tick = (deltaTime: number) => {
+  /**
+   * Tick animations. Returns `true` if any animation frame just changed.
+   */
+  public tick = (deltaTime: number): boolean => {
+    let didAnyFrameChange = false;
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) {
         continue;
       }
+      const prevElapsed = this.elapsed[i];
       this.elapsed[i] += deltaTime;
+      const framePrev = Math.floor(prevElapsed / this.timePerFrame[i]) % this.frames[i];
+      const frameCurrent = Math.floor(this.elapsed[i] / this.timePerFrame[i]) % this.frames[i];
+      if (framePrev !== frameCurrent) {
+        didAnyFrameChange = true;
+      }
       if (this.elapsed[i] > this.lifetime[i] || !this.lifetime[i]) {
         this.removeByIndex(i);
+        didAnyFrameChange = true;
       }
     }
+    return didAnyFrameChange;
   }
 
-  public add = (x: number, y: number, lifetime: number) => {
+  public add = (x: number, y: number, lifetime: number, frames: number, timePerFrame: number) => {
     this.validate();
+    if (!frames) throw new Error(`invalid frames value. val=${frames}`)
+    if (!timePerFrame) throw new Error(`invalid timePerFrame value. val=${timePerFrame}`)
     const coord = getCoordIndex2(x, y);
     if (this.existsAt(x, y)) {
       return;
@@ -80,6 +98,8 @@ export class AnimationList {
         this.elapsed[i] = 0;
         this.coordMap[coord] = true;
         this.lifetime[i] = lifetime;
+        this.frames[i] = frames;
+        this.timePerFrame[i] = timePerFrame;
         this.recalculateLength();
         return;
       }
@@ -93,6 +113,8 @@ export class AnimationList {
     this.elapsed[i] = 0;
     this.coordMap[coord] = true;
     this.lifetime[i] = lifetime;
+    this.frames[i] = frames;
+    this.timePerFrame[i] = timePerFrame;
     this.recalculateLength();
   }
 
@@ -182,6 +204,16 @@ export class AnimationList {
     return -1;
   }
 
+  public getTimeRemaining = (x: number, y: number): number => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        return Math.max(this.lifetime[i] - this.elapsed[i], 0);
+      }
+    }
+    return -1;
+  }
+
   public getClosestTraversalDistance = (x: number, y: number): number => {
     this.validate();
     let min = Infinity;
@@ -211,6 +243,8 @@ export class AnimationList {
     const free = new Uint8Array(this.maxLength).fill(1);
     const lifetime = new Float32Array(this.maxLength).fill(0);
     const elapsed = new Float32Array(this.maxLength).fill(0);
+    const frames = new Uint8Array(this.maxLength).fill(1);
+    const timePerFrame = new Float32Array(this.maxLength).fill(0);
 
     for (let i = 0; i < this.free.length; i++) {
       x[i] = this.x[i];
@@ -218,12 +252,16 @@ export class AnimationList {
       free[i] = this.free[i];
       lifetime[i] = this.lifetime[i];
       elapsed[i] = this.elapsed[i];
+      frames[i] = this.frames[i];
+      timePerFrame[i] = this.timePerFrame[i];
     }
     this.x = x;
     this.y = y;
     this.free = free;
     this.lifetime = lifetime;
     this.elapsed = elapsed;
+    this.frames = frames;
+    this.timePerFrame = timePerFrame;
   }
 
   private validate() {
@@ -232,6 +270,8 @@ export class AnimationList {
       if (this.x.length !== this.free.length) throw new Error(`lengths diverged: x.length=${this.x.length},free.length=${this.free.length}`);
       if (this.x.length !== this.lifetime.length) throw new Error(`lengths diverged: x.length=${this.x.length},lifetime.length=${this.lifetime.length}`);
       if (this.x.length !== this.elapsed.length) throw new Error(`lengths diverged: x.length=${this.x.length},elapsed.length=${this.elapsed.length}`);
+      if (this.x.length !== this.frames.length) throw new Error(`lengths diverged: x.length=${this.x.length},frames.length=${this.frames.length}`);
+      if (this.x.length !== this.timePerFrame.length) throw new Error(`lengths diverged: x.length=${this.x.length},timePerFrame.length=${this.timePerFrame.length}`);
     }
   }
 }

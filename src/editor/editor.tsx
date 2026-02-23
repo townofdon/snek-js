@@ -31,10 +31,12 @@ import {
   SetLineDoorCommand,
   SetLineKeyCommand,
   SetLineLockCommand,
+  SetLineMineCommand,
   SetLineNospawnCommand,
   SetLinePassableCommand,
   SetLinePortalCommand,
   SetLockCommand,
+  SetMineCommand,
   SetNospawnCommand,
   SetPassableCommand,
   SetPlayerSpawnCommand,
@@ -46,6 +48,7 @@ import {
   SetRectangleDoorCommand,
   SetRectangleKeyCommand,
   SetRectangleLockCommand,
+  SetRectangleMineCommand,
   SetRectangleNospawnCommand,
   SetRectanglePassableCommand,
   SetRectanglePortalCommand,
@@ -102,9 +105,9 @@ export const Editor = () => {
   useLoadMapData({ setData, setOptions, setPastCommands, setFutureCommands, setInitialized });
   useUpdateUrl({ initialized, data, options });
 
-  const setTile = (tile: Tile) => {
+  const setTile = (_tile: Tile) => {
     if (toolRef.current === EditorTool.Eraser) setTool(EditorTool.Pencil);
-    _setTile(tile);
+    _setTile(_tile);
   }
 
   const setChannelTo = (num: number) => {
@@ -150,7 +153,7 @@ export const Editor = () => {
     if (direction < 0) {
       setTile({
         [Tile.None]: Tile.Barrier,
-        [Tile.Barrier]: Tile.Spawn,
+        [Tile.Barrier]: Tile.Mine,
         [Tile.Passable]: Tile.Barrier,
         [Tile.Door]: Tile.Passable,
         [Tile.Deco1]: Tile.Door,
@@ -161,6 +164,7 @@ export const Editor = () => {
         [Tile.Key]: Tile.Lock,
         [Tile.Portal]: Tile.Key,
         [Tile.Spawn]: Tile.Portal,
+        [Tile.Mine]: Tile.Spawn,
       }[tileRef.current]);
     } else {
       setTile({
@@ -175,7 +179,8 @@ export const Editor = () => {
         [Tile.Lock]: Tile.Key,
         [Tile.Key]: Tile.Portal,
         [Tile.Portal]: Tile.Spawn,
-        [Tile.Spawn]: Tile.Barrier,
+        [Tile.Spawn]: Tile.Mine,
+        [Tile.Mine]: Tile.Barrier,
       }[tileRef.current]);
     }
   }
@@ -192,6 +197,8 @@ export const Editor = () => {
     switch (tileRef.current) {
       case Tile.Apple:
         return new SetAppleCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.Mine:
+        return new SetMineCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
         return new SetBarrierCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Door:
@@ -225,6 +232,8 @@ export const Editor = () => {
     switch (tileRef.current) {
       case Tile.Apple:
         return new SetLineAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Mine:
+        return new SetLineMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
         return new SetLineBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Door:
@@ -258,6 +267,8 @@ export const Editor = () => {
     switch (tileRef.current) {
       case Tile.Apple:
         return new SetRectangleAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Mine:
+        return new SetRectangleMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
         return new SetRectangleBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Door:

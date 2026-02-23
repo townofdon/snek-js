@@ -83,6 +83,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     decoratives2Map: {},
     nospawnsMap: {},
     applesMap: {},
+    minesMap: {},
     keysMap: {},
     locksMap: {},
     portalsMap: {},
@@ -141,6 +142,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         case 'keysMap':
         case 'locksMap':
         case 'portalsMap':
+        case 'minesMap':
           if (getIsDiff(key)) {
             // @ts-ignore
             data[key] = { ...incoming[key] };
@@ -466,6 +468,10 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
           if (data.applesMap[coord]) {
             renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.apple, x, y);
+          }
+
+          if (data.minesMap[coord]) {
+            spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.MineSheet, x, y, 0);
           }
 
           if (hasSegmentAt(x, y)) {

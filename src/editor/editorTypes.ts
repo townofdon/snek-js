@@ -14,4 +14,5 @@ export enum Tile {
   Spawn,
   Nospawn,
   Passable,
+  Mine,
 }

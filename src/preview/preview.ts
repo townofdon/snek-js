@@ -162,7 +162,7 @@ export const sketch = (p5: P5) => {
   const musicPlayer = new MusicPlayer(settings);
 
   const gfxPresentation: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  gfxPresentation.addClass('static-gfx-canvas').addClass('fg4').parent('game').addClass('gfx-presentation');
+  gfxPresentation.addClass('static-gfx-canvas').addClass('fg5').parent('game').addClass('gfx-presentation');
 
   const spriteRenderer = new SpriteRenderer({ p5 });
   const winLevelScene = new WinLevelScene(p5, gfxPresentation, state, sfx, fonts, NoOpUnlockedMusicStore, spriteRenderer, { onSceneEnded: gotoNextLevel });

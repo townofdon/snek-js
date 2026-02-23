@@ -239,6 +239,11 @@ export class SpriteRenderer {
     this.drawImage3x3Impl(gfx, image, x, y, 0, 1, 0, frames, timePerFrame, elapsed);
   }
 
+  drawSpritesheetAnim3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, elapsed = 0) => {
+    if (this.isStaticCached) return;
+    this.drawSpritesheetAnim3x3(gfx, image, x, y, elapsed);
+  }
+
   private drawImage3x3Impl = (
     gfx: P5 | P5.Graphics,
     image: Image,
