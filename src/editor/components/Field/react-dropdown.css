@@ -15,6 +15,7 @@
 
   background-color: var(--menu-bg)!important;
   color: var(--menu-fg);
+  z-index: 99!important;
 
   & :global(.react-select__option) {
     color: var(--menu-fg);

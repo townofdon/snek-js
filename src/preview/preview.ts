@@ -12,6 +12,7 @@ import {
 } from '../constants';
 import {
   getCoordIndex,
+  getDifficultyFromIndex,
   preloadImage,
   wait,
 } from '../utils';
@@ -32,6 +33,7 @@ import {
   Level,
   Palette,
   InputType,
+  Difficulty,
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI } from '../ui/ui';
@@ -379,11 +381,13 @@ export const sketch = (p5: P5) => {
     if (!state.isPreloaded) return;
     if (state.isGameStarting) return;
 
+    const query = new URLSearchParams(window.location.search);
     state.appMode = AppMode.Game;
     state.gameMode = GameMode.Normal;
     state.isGameStarted = false;
     state.isGameStarting = false;
-    setDifficulty(DIFFICULTY_MEDIUM);
+    const difficultyIndex = parseInt(query.get('difficulty')) || DIFFICULTY_MEDIUM.index
+    setDifficulty(getDifficultyFromIndex(difficultyIndex));
 
     musicPlayer.stopAllTracks();
     musicPlayer.setVolume(1);
@@ -399,7 +403,6 @@ export const sketch = (p5: P5) => {
     tutorial.needsMoveControls = false;
     tutorial.needsRewindControls = false;
 
-    const query = new URLSearchParams(window.location.search);
     const disableFullscreen = query.get('disableFullscreen') === 'true';
     if (!disableFullscreen) {
       document.body.requestFullscreen();

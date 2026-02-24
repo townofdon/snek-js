@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef } from "react"
 
-import { EditorData, EditorOptions } from "../types";
+import { DifficultyIndex, EditorData, EditorOptions } from "../types";
 
 import { encodeMapData } from "./utils/editorUtils";
 import { getRelativeDir } from "../utils";
@@ -10,17 +10,18 @@ import * as styles from './Editor.css';
 interface MapPreviewProps {
   data: EditorData,
   options: EditorOptions,
+  difficulty: DifficultyIndex,
   isPreviewShowing: boolean,
   setPreviewShowing: (val: boolean) => void,
 }
 
-export const MapPreview = ({ data, options, isPreviewShowing, setPreviewShowing }: MapPreviewProps) => {
+export const MapPreview = ({ data, options, difficulty, isPreviewShowing, setPreviewShowing }: MapPreviewProps) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
   const url = useMemo(() => {
     if (!isPreviewShowing) return '';
     const encoded = encodeMapData(data, options);
-    return `/snek-js/preview/?disableFullscreen=true&editorPreview=true&data=${encoded}`;
+    return `/snek-js/preview/?disableFullscreen=true&editorPreview=true&difficulty=${difficulty}&data=${encoded}`;
   }, [data, options, isPreviewShowing]);
 
   useEffect(() => {

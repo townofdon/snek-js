@@ -6,7 +6,7 @@ import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, getRelativeDir, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
 import { EDITOR_DEFAULTS } from "./editorConstants";
-import { DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
+import { DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
 import { Tile } from "./editorTypes";
 import { useRefState } from "./hooks/useRefState";
 import { useLoadMapData } from "./hooks/useLoadMapData";
@@ -66,6 +66,7 @@ import { SidebarPortalChannels } from "./SidebarPortalChannels";
 
 import * as styles from "./Editor.css";
 import { useUpdateUrl } from "./hooks/useUpdateUrl";
+import { DropdownField, Option } from "./components/Field";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -83,6 +84,7 @@ export const Editor = () => {
   const [mapId, setMapId] = useState('');
   const [initialized, setInitialized] = useState(false);
   const [isPreviewShowing, setPreviewShowing] = useState(false);
+  const [difficulty, setDifficulty] = useState<DifficultyIndex>(2);
   const [options, optionsRef, setOptions] = useRefState<EditorOptions>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
   const [pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
@@ -567,6 +569,14 @@ export const Editor = () => {
     }
   }, [])
 
+  const difficultyOptions = [
+    { id: "1", value: "1", label: "Easy" },
+    { id: "2", value: "2", label: "Medium" },
+    { id: "3", value: "3", label: "Hard" },
+    { id: "4", value: "4", label: "Ultra" },
+  ] satisfies Option[]
+  const selectedDifficultyOption = difficultyOptions.find(option => option.value === String(difficulty)) || difficultyOptions[1];
+
   return (
     <div className={cx(styles.layout)}>
       <a href={`${getRelativeDir()}community`} className={cx("button minimood", styles.allMapsButton)}>
@@ -587,6 +597,12 @@ export const Editor = () => {
           >
             ▶️ Preview
           </button>
+          <DropdownField
+            // label="Preview Difficulty"
+            options={difficultyOptions}
+            value={selectedDifficultyOption}
+            onChange={(option: Option) => setDifficulty(parseInt(option.value, 10) as DifficultyIndex)}
+          />
         </Stack>
       </div>
       <div className={styles.editorContainer}>
@@ -654,6 +670,7 @@ export const Editor = () => {
       <MapPreview
         data={data}
         options={options}
+        difficulty={difficulty}
         isPreviewShowing={isPreviewShowing}
         setPreviewShowing={setPreviewShowing}
       />
