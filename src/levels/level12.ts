@@ -46,8 +46,11 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   colors: getExtendedPalette(PALETTE.plumsea),
   showTitle: true,
   musicTrack: MusicTrack.shopkeeper,
-  pickupTypes: [PickupType.Mine],
   pickupDrops: {
+    [PickupType.Invincibility]: false,
+    [PickupType.Mine]: true,
+  },
+  pickupDropsByFrame: {
     30: { likelihood: .1, type: PickupType.Invincibility },
     35: { likelihood: .1, type: PickupType.Invincibility },
     40: { likelihood: .2, type: PickupType.Invincibility },

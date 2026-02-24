@@ -338,8 +338,8 @@ export interface Level {
   nextLevel?: Level,
   appleSlowdownMod?: number,
   applesModOverride?: number,
-  pickupDrops?: Record<number, PickupDrop>,
-  pickupTypes?: PickupType[],
+  pickupDropsByFrame?: Record<number, PickupDrop>,
+  pickupDrops?: Partial<Record<PickupType, boolean | number | Record<DifficultyIndex, boolean | number>>>,
   recordProgressAsLevel?: Level,
   author?: string,
   numLocks?: number;

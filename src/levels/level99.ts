@@ -15,8 +15,8 @@ export const LEVEL_99: Level = {
   extraHurtGraceTime: 15,
   layout: `
 XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
-X~~~~~__~~~~XXddXX~~~~__~~~~~X
-X~~   --  ~~~~__~~~~  --   k~X
+X**~~~__~~~~XXddXX~~~~__~~~**X
+X**   --  ~~~~__~~~~  --   k*X
 X~    --    ~~__~~    --    ~X
 X~    --      KK      --    ~X
 X~    --      KK      --    ~X
@@ -29,7 +29,7 @@ X~~           --           ~~X
 XX~           KK           ~XX
 XX~~        -_dd_-        ~~XX
 Ld__KK------KdladK------KK__dL
-Ld__KK------KdaadK------KK__dL
+Ld__KK------Kda!dK------KK__dL
 XX~~        -_dd_-        ~~XX
 XX~           KK           ~XX
 X~~           --           ~~X
@@ -41,8 +41,8 @@ X~    --      --      --    ~X
 X~    --      KK      --    ~X
 X~    --      KK      --    ~X
 X~    --    ~~__~~    --    ~X
-X~~   --  ~~~~__~~~~  --   ~~X
-X~~~~~__~~~~XXddXX~~~~__~~~~~X
+X**   --  ~~~~__~~~~  --   **X
+X**~~~__~~~~XXddXX~~~~__~~~**X
 XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.darkStar),
@@ -66,8 +66,11 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   showQuoteOnLevelWin: false,
   titleVariant: TitleVariant.Red,
   musicTrack: MusicTrack.moneymaker,
-  pickupTypes: [PickupType.Invincibility, PickupType.Mine],
   pickupDrops: {
+    [PickupType.Invincibility]: true,
+    [PickupType.Mine]: 3,
+  },
+  pickupDropsByFrame: {
     100: { likelihood: .2, type: PickupType.Invincibility },
     150: { likelihood: .1, type: PickupType.Invincibility },
     175: { likelihood: .05, type: PickupType.Invincibility },

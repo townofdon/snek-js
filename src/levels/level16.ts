@@ -72,6 +72,8 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   showTitle: true,
   titleVariant: TitleVariant.GrayBlue,
   musicTrack: MusicTrack.slyguy,
-  pickupTypes: [PickupType.Invincibility, PickupType.Mine],
-  pickupDrops: {},
+  pickupDrops: {
+    [PickupType.Invincibility]: true,
+    [PickupType.Mine]: true,
+  },
 };

@@ -35,7 +35,8 @@ import {
   NUM_APPLES_START,
   NUM_SNAKE_INVINCIBLE_COLORS,
   PERFECT_BONUS,
-  PICKUP_DROP_LIKELIHOOD,
+  DROP_LIKELIHOOD_INVINCIBILITY,
+  DROP_LIKELIHOOD_MINE,
   PICKUP_INVINCIBILITY_BONUS,
   PICKUP_LIFETIME_MS,
   PICKUP_SPAWN_COOLDOWN,
@@ -103,6 +104,7 @@ import {
   getCoordIndex2,
   getDifficultyFromIndex,
   getDirectionBetween,
+  getDropLikelihood,
   getLevelProgress,
   getNextPickupType,
   getRotationFromDirection,
@@ -193,7 +195,7 @@ export function engine({
   state,
   stats,
   settings,
-  replay,
+  replay: engineReplay,
   tutorial,
   fonts,
   sfx,
@@ -251,18 +253,16 @@ export function engine({
     magnitude: 1,
     timeScale: 1,
   };
-  if (!replay) {
-    replay = {
-      mode: ReplayMode.Disabled,
-      levelIndex: -1,
-      levelName: 'no-level',
-      difficulty: { ...DIFFICULTY_MEDIUM },
-      applesToSpawn: [],
-      positions: {},
-      timeCaptureStarted: 'no-date',
-      shouldProceedToNextClip: false,
-      lastFrame: 0,
-    }
+  const replay = engineReplay || {
+    mode: ReplayMode.Disabled,
+    levelIndex: -1,
+    levelName: 'no-level',
+    difficulty: { ...DIFFICULTY_MEDIUM },
+    applesToSpawn: [],
+    positions: {},
+    timeCaptureStarted: 'no-date',
+    shouldProceedToNextClip: false,
+    lastFrame: 0,
   }
 
   const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true };
@@ -322,6 +322,7 @@ export function engine({
     barrier: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     barrierPassable: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     door: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
+    // @ts-ignore
     apple: null,
     snakeHead: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     snakeSegment: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -1990,12 +1991,67 @@ export function engine({
     if (replay.mode === ReplayMode.Capture) {
       replay.applesToSpawn.push([x, y]);
     }
-    spawnPickupDrops();
+    let spawned = false;
+    if (maybeSpawnInvincibilityPickup()) { spawned = true; }
+    if (maybeSpawnMine()) { spawned = true; }
+    if (!spawned) { maybeSpawnOtherPickup(); }
   }
 
-  function spawnPickupDrops() {
-    if (stats.applesEatenThisLevel === 0) return;
-    if (!level.pickupDrops) return;
+  function maybeSpawnMine() {
+    if (level.disableAppleSpawn) return false;
+    if (replay.mode === ReplayMode.Playback) return false;
+    if (stats.applesEatenThisLevel === 0) return false;
+    if (!level.pickupDropsByFrame && !level.pickupDrops?.[PickupType.Mine]) return false;
+
+    const progress = getLevelProgress(stats, level, difficulty);
+    const frameLikelihood = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === PickupType.Mine
+      ? level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
+      : undefined
+    const baseLikelihood = getDropLikelihood(
+      level.pickupDrops?.[PickupType.Mine] ?? false,
+      DROP_LIKELIHOOD_MINE,
+      difficulty.index
+    ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
+    const likelihood = frameLikelihood ?? baseLikelihood;
+    const r = Math.random() + likelihood;
+    if (r < 1) {
+      return false;
+    }
+    spawnMine()
+    return true;
+  }
+
+  function maybeSpawnInvincibilityPickup(): boolean {
+    if (level.disableAppleSpawn) return false;
+    if (replay.mode === ReplayMode.Playback) return false;
+    if (stats.applesEatenThisLevel === 0) return false;
+    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return false;
+    if (!level.pickupDropsByFrame && !level.pickupDrops?.[PickupType.Invincibility]) return false;
+
+    const type = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type || PickupType.Invincibility;
+    if (type !== PickupType.Invincibility) {
+      return false;
+    }
+    const progress = getLevelProgress(stats, level, difficulty);
+    const baseLikelihood = getDropLikelihood(
+      level.pickupDrops?.[PickupType.Invincibility] ?? true,
+      DROP_LIKELIHOOD_INVINCIBILITY,
+      difficulty.index
+    ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
+    const likelihood = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood || baseLikelihood;
+    const r = Math.random() + likelihood;
+    if (r < 1) {
+      return false;
+    }
+    spawnInvincibilityPickup()
+    return true;
+  }
+
+  function maybeSpawnOtherPickup(): boolean {
+    if (level.disableAppleSpawn) return false;
+    if (replay.mode === ReplayMode.Playback) return false;
+    if (stats.applesEatenThisLevel === 0) return false;
+
     // TODO: ADD MORE PICKUP TYPES THAT CAN SPAWN AT ALL TIMES
     // const basePickupTypes: PickupType[] = [
     //   // watermelon,
@@ -2006,30 +2062,28 @@ export function engine({
     //   // ...etc.
     // ];
 
+    // create array of pickup items, e.g. [Watermelon, Kiwi, Orange, Grapes, ...]
+    // get array of weights for the same items e.g. [0.1, 0.2, 0.05, 0.4, ...]
+    // sort array
+    // r0 = random number * totalWeights
+    // iterate through items util floor(r0) === item's weight
+
     const progress = getLevelProgress(stats, level, difficulty);
-    const baseLikelihood = PICKUP_DROP_LIKELIHOOD * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0);
-    let type = level.pickupDrops?.[stats.applesEatenThisLevel]?.type || getNextPickupType(level.pickupTypes);
-    const likelihood = level.pickupDrops?.[stats.applesEatenThisLevel]?.likelihood || baseLikelihood;
-    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN && type === PickupType.Invincibility) {
-      type = getNextPickupType(level.pickupTypes?.filter(t => t !== PickupType.Invincibility));
-    }
+    const baseLikelihood = getDropLikelihood(
+      level.pickupDrops?.[PickupType.Mine] ?? false,
+      DROP_LIKELIHOOD_MINE,
+      difficulty.index
+    ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
+    const likelihood = baseLikelihood;
     const r = Math.random() + likelihood;
     if (r < 1) {
-      return;
+      return false;
     }
-    switch (type) {
-      case PickupType.Invincibility:
-        spawnInvincibilityPickup()
-        break;
-      case PickupType.Mine:
-        spawnMine()
-        break;
-    }
+    // spawnPickup(pickupType);
+    return true;
   }
 
   function spawnMine(numTries = 0) {
-    if (level.disableAppleSpawn) return;
-    if (replay.mode === ReplayMode.Playback) return;
     const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
     const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
@@ -2049,9 +2103,6 @@ export function engine({
   }
 
   function spawnInvincibilityPickup(numTries = 0) {
-    if (level.disableAppleSpawn) return;
-    if (replay.mode === ReplayMode.Playback) return;
-    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return;
     const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
     const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
@@ -2164,7 +2215,7 @@ export function engine({
     } else {
       renderer.drawGraphicalComponent(graphicalComponents.snakeHead, vec.x, vec.y);
     }
-    const direction = (!state.isLost && moves.length > 0) ? moves[0] : player.direction;
+    const direction: DIR = (!state.isLost && moves.length > 0) ? (moves[0] as DIR) : player.direction;
     if (state.isLost) {
       spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction), 1, -1);
     } else if (state.isShowingDeathColours) {
@@ -2230,7 +2281,7 @@ export function engine({
         PALETTE.deathInvert.appleStroke,
         drawAppleOptions);
     } else if (pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility) {
-      const timeLeft = pickupsMap[getCoordIndex2(x, y)].timeTillDeath;
+      const timeLeft = pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
       if (shouldBlinkExpiringPickup(timeLeft)) {
         return;
       }

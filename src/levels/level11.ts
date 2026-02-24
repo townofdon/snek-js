@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { Level, MusicTrack } from "../types";
+import { Level, MusicTrack, PickupType } from "../types";
 import { toTime } from "../utils";
 
 const name = 'sneksqueeze';
@@ -54,5 +54,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   showQuoteOnLevelWin: true,
   musicTrack: MusicTrack.stonemaze,
   globalLight: 0.4,
-  pickupDrops: {},
+  pickupDrops: {
+    [PickupType.Invincibility]: true,
+  },
 };

@@ -58,7 +58,7 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
     [getCoordIndex2(14, 0)]: VARIANT_LEVEL_08,
     [getCoordIndex2(15, 0)]: VARIANT_LEVEL_08,
   },
-  pickupDrops: {
+  pickupDropsByFrame: {
     50: { likelihood: 1, type: PickupType.Invincibility },
   },
 };

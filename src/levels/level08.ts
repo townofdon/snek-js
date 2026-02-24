@@ -54,8 +54,11 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
     [getCoordIndex2(29, 16)]: SECRET_LEVEL_20,
     [getCoordIndex2(29, 17)]: SECRET_LEVEL_20,
   },
-  pickupTypes: [PickupType.Invincibility, PickupType.Mine, PickupType.Mine],
   pickupDrops: {
+    [PickupType.Invincibility]: true,
+    [PickupType.Mine]: 2,
+  },
+  pickupDropsByFrame: {
     30: { likelihood: .1, type: PickupType.Invincibility },
     60: { likelihood: .2, type: PickupType.Invincibility },
     69: { likelihood: .3, type: PickupType.Invincibility },

@@ -1,6 +1,6 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../types";
 import { toTime } from "../utils";
 
 const name = 'ruins'
@@ -69,5 +69,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   titleVariant: TitleVariant.GrayBlue,
   musicTrack: MusicTrack.stonemaze,
   globalLight: 0.5,
-  pickupDrops: {},
+  pickupDrops: {
+    [PickupType.Invincibility]: true,
+  },
 };

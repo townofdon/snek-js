@@ -58,7 +58,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
   ],
   musicTrack: MusicTrack.woorb,
   titleVariant: TitleVariant.GrayBlue,
-  pickupDrops: {
+  pickupDropsByFrame: {
     54: { likelihood: .4, type: PickupType.Invincibility },
     99: { likelihood: .4, type: PickupType.Invincibility },
   },

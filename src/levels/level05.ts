@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { Level, MusicTrack, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 import { toTime } from "../utils";
 
 const name = 'panopticon';
@@ -46,5 +46,7 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
   showTitle: true,
   musicTrack: MusicTrack.observer,
   titleVariant: TitleVariant.GrayBlue,
-  pickupDrops: {},
+  pickupDrops: {
+    [PickupType.Invincibility]: true,
+  },
 };

@@ -71,8 +71,11 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   titleVariant: TitleVariant.Red,
   musicTrack: MusicTrack.slyguy,
   nextLevel: LEVEL_WIN_GAME,
-  pickupTypes: [PickupType.Invincibility, PickupType.Mine],
   pickupDrops: {
+    [PickupType.Invincibility]: true,
+    [PickupType.Mine]: true,
+  },
+  pickupDropsByFrame: {
     50: { likelihood: 0.8, type: PickupType.Invincibility },
     75: { likelihood: 0.05, type: PickupType.Invincibility },
     100: { likelihood: 0.8, type: PickupType.Invincibility },

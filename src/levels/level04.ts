@@ -58,7 +58,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   nextLevelMap: {
     [getCoordIndex2(0, 28)]: VARIANT_LEVEL_05,
   },
-  pickupDrops: {
+  pickupDropsByFrame: {
     45: { likelihood: .5, type: PickupType.Invincibility },
     65: { likelihood: 1, type: PickupType.Invincibility },
   },

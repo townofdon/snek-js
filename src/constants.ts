@@ -60,7 +60,8 @@ export const COBRA_SCORE_MOD = 1.2;
 export const PICKUP_INVINCIBILITY_BONUS = 200;
 export const DEFAULT_PAR_TIME = 60000;
 
-export const PICKUP_DROP_LIKELIHOOD = 0.04;
+export const DROP_LIKELIHOOD_INVINCIBILITY = 0.04;
+export const DROP_LIKELIHOOD_MINE = 0.08;
 export const PICKUP_LIFETIME_MS = 8000;
 export const PICKUP_EXPIRE_WARN_MS = 3500;
 export const PICKUP_SPAWN_COOLDOWN = 15000;

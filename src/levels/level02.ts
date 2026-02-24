@@ -55,5 +55,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   portalExitConfig: {
     8: PortalExitMode.InvertDirection,
   },
-  pickupDrops: {},
+  pickupDrops: {
+    [PickupType.Invincibility]: true,
+  },
 };

@@ -61,7 +61,7 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   titleVariant: TitleVariant.Yellow,
   nextLevel: LEVEL_02,
   recordProgressAsLevel: LEVEL_01,
-  pickupDrops: {
+  pickupDropsByFrame: {
     40: { likelihood: 1, type: PickupType.Invincibility },
   },
 };

@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../palettes";
-import { Level, MusicTrack, TitleVariant } from "../types";
+import { Level, MusicTrack, PickupType, TitleVariant } from "../types";
 import { getCoordIndex2, toTime } from "../utils";
 import { SECRET_LEVEL_10 } from "./bonusLevels/secretLevel10";
 
@@ -53,5 +53,7 @@ XXXXXXXXXXXXXXJXXXXXXXXXXXXXXX
     [getCoordIndex2(14, 0)]: SECRET_LEVEL_10,
     [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
   },
-  pickupDrops: {},
+  pickupDrops: {
+    [PickupType.Invincibility]: true,
+  },
 };

@@ -1,7 +1,7 @@
 
 :root {
   --editor-tile-sprite-img: url('assets/graphics/editor-tiles.png');
-  --editor-tile-sprite-background-size: 800px 32px;
+  --editor-tile-sprite-background-size: 832px 32px;
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url('assets/graphics/editor-tools-200.png');

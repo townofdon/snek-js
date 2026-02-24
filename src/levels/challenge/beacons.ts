@@ -22,7 +22,7 @@ export const X_BEACONS = challengeLevel({
     9: PortalExitMode.SameDirection,
     0: PortalExitMode.SameDirection,
   },
-  pickupDrops: {
+  pickupDropsByFrame: {
     10: { likelihood: 0.5, type: PickupType.Invincibility },
     20: { likelihood: 1, type: PickupType.Invincibility },
     30: { likelihood: 0.4, type: PickupType.Invincibility },

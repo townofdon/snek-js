@@ -57,7 +57,7 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   ],
   musicTrack: MusicTrack.champion,
   titleVariant: TitleVariant.Yellow,
-  pickupDrops: {
+  pickupDropsByFrame: {
     24: { likelihood: 1, type: PickupType.Invincibility },
   },
 };

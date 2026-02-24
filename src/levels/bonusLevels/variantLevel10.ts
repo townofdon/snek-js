@@ -54,8 +54,11 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   musicTrack: MusicTrack.dangerZone,
   titleVariant: TitleVariant.Red,
   nextLevel: TUTORIAL_LEVEL_20,
-  pickupTypes: [PickupType.Mine],
   pickupDrops: {
+    [PickupType.Invincibility]: false,
+    [PickupType.Mine]: true,
+  },
+  pickupDropsByFrame: {
     15: { likelihood: .8, type: PickupType.Mine },
     30: { likelihood: .8, type: PickupType.Mine },
     50: { likelihood: .8, type: PickupType.Mine },

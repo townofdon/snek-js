@@ -8,15 +8,18 @@ import {
   FRAME_DUR_MS,
   GRIDCOUNT,
   INVINCIBILITY_EXPIRE_FLASH_MS,
+  IS_DEV,
   PICKUP_EXPIRE_WARN_MS,
 } from "./constants";
 import {
   DIR,
   Difficulty,
+  DifficultyIndex,
   IEnumerator,
   KeyChannel,
   Level,
   MusicTrack,
+  PickupDrop,
   PickupType,
   Portal,
   PortalChannel,
@@ -64,8 +67,8 @@ export function shuffleArray<T>(array: T[]) {
   const copy = array.slice()
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    const temp = copy[i];
-    copy[i] = copy[j];
+    const temp = copy[i] as T;
+    copy[i] = copy[j] as T;
     copy[j] = temp;
   }
   return copy;
@@ -122,7 +125,7 @@ export function rotateDirection(dir: DIR) {
   return dir;
 }
 
-export function getDirectionBetween(from: Vector, to: Vector) {
+export function getDirectionBetween(from: Vector | undefined, to: Vector | undefined) {
   if (!from || !to) return DIR.RIGHT;
   const diffX = clamp(from.x - to.x, -1, 1);
   const diffY = clamp(from.y - to.y, -1, 1);
@@ -321,6 +324,26 @@ export function getNextPickupType(pickupTypes?: PickupType[]): PickupType {
   }
   const idx = Math.floor(Math.random() * pickupTypes.length);
   return pickupTypes[idx] || PickupType.None;
+}
+
+export function getDropLikelihood(
+  dropConf: number | boolean | Record<DifficultyIndex, number | boolean>,
+  baseLikelihood: number,
+  difficultyIndex: DifficultyIndex,
+): number {
+  if (IS_DEV && dropConf === undefined) {
+    throw new Error(`drop config param was undefined in getDropLikelihood()`);
+  }
+  if (typeof dropConf === 'number') {
+    return dropConf * baseLikelihood;
+  }
+  if (typeof dropConf === 'boolean') {
+    return dropConf ? baseLikelihood : 0;
+  }
+  if (typeof dropConf?.[difficultyIndex] === 'number') {
+    return (dropConf[difficultyIndex] as number) * baseLikelihood;
+  }
+  return dropConf?.[difficultyIndex] ? baseLikelihood : 0;
 }
 
 /**

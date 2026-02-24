@@ -53,6 +53,8 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   nextLevelMap: {
     [getCoordIndex2(29, 14)]: VARIANT_LEVEL_10,
   },
-  pickupTypes: [PickupType.Invincibility, PickupType.Mine],
-  pickupDrops: {},
+  pickupDrops: {
+    [PickupType.Invincibility]: true,
+    [PickupType.Mine]: true,
+  },
 };

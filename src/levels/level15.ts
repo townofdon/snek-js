@@ -74,8 +74,11 @@ XXXXXXXXXXXXXXX+++XXXXXXXXXXXX
     ["Quantum snekanics confounds even the brightest minds."],
     ["I daresay that was one teleport too many."],
   ],
-  pickupTypes: [PickupType.Invincibility, PickupType.Mine],
   pickupDrops: {
+    [PickupType.Invincibility]: true,
+    [PickupType.Mine]: true,
+  },
+  pickupDropsByFrame: {
     20: { likelihood: .2, type: PickupType.Invincibility },
     30: { likelihood: .2, type: PickupType.Invincibility },
     35: { likelihood: .5, type: PickupType.Mine },

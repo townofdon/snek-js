@@ -55,8 +55,11 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   nextLevelMap: {
     [getCoordIndex2(29, 13)]: VARIANT_LEVEL_08,
   },
-  pickupTypes: [PickupType.Invincibility, PickupType.Mine, PickupType.Mine],
   pickupDrops: {
+    [PickupType.Invincibility]: true,
+    [PickupType.Mine]: 2,
+  },
+  pickupDropsByFrame: {
     11: { likelihood: .9, type: PickupType.Mine },
     15: { likelihood: .1, type: PickupType.Invincibility },
     17: { likelihood: .8, type: PickupType.Mine },
