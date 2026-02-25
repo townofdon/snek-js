@@ -1608,6 +1608,7 @@ export function engine({
     winLevelScene.reset(isStartLevel ? 'GET PSYCHED!' : 'SNEK CLEAR!');
     if (isStartLevel) startScreenShake(1.5, -1);
     sfx.stop(Sound.invincibleLoop);
+    sfx.stop(Sound.rewindLoop);
     stopAction(Action.Invincibility);
     musicPlayer.setPlaybackRate(level.musicTrack, 1);
     exitLightParticleSystem.reset();
@@ -1620,6 +1621,34 @@ export function engine({
       } else {
         playSound(Sound.winLevel);
       }
+    }
+    // blow up all mines currently on the level
+    const numMinesAtLevelExitStart = mines.length;
+    for (let x = 0; x < GRIDCOUNT.x; x++) {
+      for (let y = 0; y < GRIDCOUNT.y; y++) {
+        const coord = getCoordIndex2(x, y);
+        if (mines.existsAtCoord(coord)) {
+          mines.removeByCoord(coord);
+          const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
+          explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
+          drawState.shouldDrawApples = true;
+          drawState.shouldDrawExplosions = true;
+        }
+      }
+    }
+    // play several explosion sounds (but staggered)
+    if (numMinesAtLevelExitStart) {
+      const callbacks: (() => void)[] = [];
+      for (let i = 0; i < numMinesAtLevelExitStart && i < 6; i++) {
+        callbacks.push(() => playSound(Sound.xpound));
+      }
+      const chain = callbacks.reduce((acc, cur) => {
+        return () => setTimeout(() => {
+          cur();
+          acc();
+        }, 50);
+      }, () => {});
+      chain();
     }
   }
 

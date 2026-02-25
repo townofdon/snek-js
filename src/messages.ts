@@ -98,6 +98,7 @@ export const LOSE_MESSAGES: LoseMessage[] = [
     ["Maybe your grampa wants to play...", (state, stats, difficulty) => difficulty.index >= 3 && stats.numLevelsCleared <= 0],
 
     ["Hey, this ain't pokemon.", (state, stats, difficulty) => difficulty.index >= 4],
+    ["Hey, this ain't farmville.", (state, stats, difficulty) => difficulty.index >= 4],
     ["Playing Snek is a slippery slope.", (state, stats, difficulty) => difficulty.index >= 4],
     ["Are you starting to question your life decisions?", (state, stats, difficulty) => difficulty.index >= 4],
     ["Fate, it seems, has finally caught up with you.", (state, stats, difficulty) => difficulty.index >= 4 && stats.numLevelsCleared >= 2],

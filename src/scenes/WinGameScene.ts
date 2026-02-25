@@ -449,7 +449,7 @@ export class WinGameScene extends BaseScene {
     if (this.fieldVisible[FIELD.TITLE]) {
       const title = (() => {
         if (this.gameState.isLost) return 'GAME OVER';
-        if (this.gameState.isGameWon) return 'YOU WIN!';
+        if (this.gameState.isGameWon) return 'VICTORY!';
         return 'GAME STATS';
       })()
       this.drawTitle(title);
