@@ -301,6 +301,9 @@ button:hover,
 .editorTileSprite--BOwAf1aHSgWsPsNAsMH5.mine--jG6yOTFLdJeN9HkXfI31 {
   background-position-x: calc(-15 * var(--editor-tile-sprite-width));
 }
+.editorTileSprite--BOwAf1aHSgWsPsNAsMH5.invincibility--rgNkeOW9gu86rOqrfr4F {
+  background-position-x: calc(-25 * var(--editor-tile-sprite-width));
+}
 
 .editorTools--Fu76dOpda_BOyhBLRQfj {
   position: relative;
