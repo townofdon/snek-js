@@ -157,8 +157,6 @@ You are what you snek, not what you say you'll snek.
 
 The pendulum of the mind oscillates between sense and snek, not between right and wrong.
 
-Every form of addiction is bad, no matter whether the narcotic be alcohol, morphine or snek.
-
 People will do anything, no matter how absurd, to avoid facing their own snek.
 
 The most terrifying thing is to accept snek completely.
@@ -250,8 +248,6 @@ To find fault is easy; to do snek may be difficult.
 When Alexander saw the breadth of his domain, he wept for there was no more snek to conquer.
 
 Snek is simply habit long continued.
-
-Of all the disorders in the soul, snek is the only one no one confesses to.
 
 Snek, to create harmony, must investigate discord.
 `;
@@ -372,7 +368,7 @@ Genius is 1% talent and 99% snek.
 `
 
 const quotesByBohr = `
-If quantum snekanics hasn't profoundly shocked you, you haven't understood it yet.
+If snek hasn't profoundly shocked you, you haven't understood it yet.
 
 A physicist is just an atom's way of looking at snek.
 
@@ -410,6 +406,11 @@ To snek,|
 or not to snek.|
 That is the question
 
+O Snek, Snek|
+Wherefore art thou Snek?
+
+Snek is such sweet sorrow.
+
 Doubt thou the stars are fire,|
 Doubt that the sun doth move,|
 Doubt truth to be a liar,|
@@ -426,7 +427,7 @@ Once more unto the snek, dear friends,|
 Once more!
 
 By the pricking of my thumbs,|
-Something snekky this way comes.
+Something snek this way comes.
 
 Though this be madness,|
 Yet there is snek in't.
