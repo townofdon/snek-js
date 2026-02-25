@@ -2,7 +2,7 @@ import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
 import { Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
-import { LEVEL_01 } from "./level01";
+import { LEVEL_01 } from "./campaign/level01";
 
 export function buildLevel(level: Level, isEditor = false): LevelData {
   const data: LevelData = {

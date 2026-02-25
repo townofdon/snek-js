@@ -8,7 +8,7 @@ import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../../utils';
 import { GRIDCOUNT, START_SNAKE_SIZE } from '../../constants';
 import { bton, ntob } from './Base64';
 import { buildLevel } from '../../levels/levelBuilder';
-import { LEVEL_01 } from '../../levels';
+import { LEVEL_01 } from '../../levels/campaign/level01';
 import { EDITOR_DEFAULTS } from '../editorConstants';
 import { indexToMusicTrack, musicTracktoIndex } from './musicTrackUtils';
 

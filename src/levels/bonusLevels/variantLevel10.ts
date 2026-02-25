@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
-import { TUTORIAL_LEVEL_20 } from "../tutorialLevel20";
+import { TUTORIAL_LEVEL_20 } from "../campaign/tutorialLevel20";
 
 const name = 'security station';
 

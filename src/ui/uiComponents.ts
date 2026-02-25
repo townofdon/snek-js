@@ -3,7 +3,7 @@ import { UI } from "./ui";
 import { ACCENT_COLOR } from '../constants';
 import { GameMode, GameState } from '../types';
 import { getWarpLevelFromNum } from '../levels/levelUtils';
-import { CHALLENGE_LEVELS, LEVELS } from '../levels';
+import { CHALLENGE_LEVELS, LEVELS } from '../levels/levelConstants';
 
 interface GameOverCallbacks {
   confirmShowMainMenu: () => void

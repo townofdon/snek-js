@@ -1,7 +1,7 @@
 import { DIR, EditorData, EditorOptions, MusicTrack, PortalExitMode } from '../types'
 import { PALETTE } from '../palettes';
 import { buildLevel } from '../levels/levelBuilder';
-import { LEVEL_01 } from '../levels';
+import { LEVEL_01 } from '../levels/campaign/level01';
 
 const levelData = buildLevel(LEVEL_01);
 

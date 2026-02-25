@@ -1,5 +1,4 @@
 import P5, { Vector } from "p5";
-import { Howl } from 'howler';
 
 /**
  * USAGE:

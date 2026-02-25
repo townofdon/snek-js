@@ -33,7 +33,7 @@ import { Button } from '../engine/gamepad/StandardGamepadMapping';
 import { offUIEvent, onUIEvent, UIAction } from './uiEvents';
 import { getIsChallengeLevel, getWarpLevelFromNum, START_CHALLENGE_LEVEL_NUM } from '../levels/levelUtils';
 import { GameModeMenuElement } from './uiTypes';
-import { CHALLENGE_LEVELS } from '../levels';
+import { CHALLENGE_LEVELS } from '../levels/levelConstants';
 
 interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,

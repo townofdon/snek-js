@@ -33,7 +33,6 @@ import {
   Level,
   Palette,
   InputType,
-  Difficulty,
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI } from '../ui/ui';
@@ -54,7 +53,8 @@ import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 import { getEditorUrl, getPreviewUrl } from '../editor/utils/publishUtils';
 import { GetMapByDataResponse, getMapByData } from '../api/map';
 import { getExtendedPalette } from '../palettes';
-import { LEVEL_01, LEVEL_02 } from '../levels';
+import { LEVEL_01 } from '../levels/campaign/level01';
+import { LEVEL_02 } from '../levels/campaign/level02';
 import { requireElementById } from '../ui/uiUtils';
 
 interface PreviewLevel {

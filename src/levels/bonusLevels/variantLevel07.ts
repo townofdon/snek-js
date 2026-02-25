@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, PickupType } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
-import { LEVEL_08 } from "../level08";
+import { LEVEL_08 } from "../campaign/level08";
 import { VARIANT_LEVEL_08 } from "./variantLevel08";
 
 const name = 'factory subfloor';

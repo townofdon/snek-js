@@ -2,10 +2,10 @@ import { Vector } from "p5"
 import expect from "expect"
 
 import { buildLevel } from "../../levels/levelBuilder";
-import { LEVEL_01 } from "../../levels/level01";
-import { LEVEL_10 } from "../../levels/level10";
-import { LEVELS } from "../../levels";
-import { DIR, EditorData, EditorOptions, Key, KeyChannel, Level, LevelType, Lock, MusicTrack, PortalChannel, PortalExitMode } from "../../types"
+import { LEVEL_01 } from "../../levels/campaign/level01";
+import { LEVEL_10 } from "../../levels/campaign/level10";
+import { LEVELS } from "../../levels/levelConstants";
+import { DIR, EditorData, EditorOptions, KeyChannel, Level, LevelType, MusicTrack, PortalExitMode } from "../../types"
 import { coordToVec, getCoordIndex2 } from "../../utils";
 
 import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "./editorUtils"

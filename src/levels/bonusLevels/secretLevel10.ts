@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { toTime } from "../../utils";
-import { TUTORIAL_LEVEL_11 } from "../tutorialLevel11";
+import { TUTORIAL_LEVEL_11 } from "../campaign/tutorialLevel11";
 
 const name = 'secret area 1-1';
 

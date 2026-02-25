@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
-import { LEVEL_06 } from "../level06";
+import { LEVEL_06 } from "../campaign/level06";
 import { MAZE_02_NE } from "../mazes/maze02ne";
 import { MAZE_02_NW } from "../mazes/maze02nw";
 import { MAZE_02_SE } from "../mazes/maze02se";

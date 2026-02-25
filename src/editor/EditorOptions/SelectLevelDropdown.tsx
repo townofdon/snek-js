@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 
-import { CHALLENGE_LEVELS, LEVELS, LEVEL_01, SECRET_LEVELS } from "../../levels";
+import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from "../../levels/levelConstants";
+import { LEVEL_01 } from "../../levels/campaign/level01";
 
 import { Level } from "../../types";
 import { Stack } from "../components/Stack";

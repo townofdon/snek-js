@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
-import { LEVEL_06 } from "../level06";
+import { LEVEL_06 } from "../campaign/level06";
 
 const name = 'maze-02-nw';
 

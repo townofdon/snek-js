@@ -7,7 +7,7 @@ import {
   LEVELS,
   FIRST_CHALLENGE_LEVEL,
   CHALLENGE_LEVELS,
-} from './levels';
+} from './levels/levelConstants';
 import {
   RECORD_REPLAY_STATE,
   FRAMERATE,

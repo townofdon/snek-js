@@ -1,8 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
-import { getCoordIndex2 } from "../../utils";
-import { LEVEL_01_HARD } from "../level01hard";
-import { LEVEL_01_ULTRA } from "../level01ultra";
 
 const name = 'maze-01';
 

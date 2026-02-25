@@ -132,14 +132,14 @@ import {
   CAMPAIGN_LEVELS,
   CHALLENGE_LEVELS,
   LEVELS,
-  LEVEL_01,
-  LEVEL_99,
-  LEVEL_WIN_GAME,
   MAIN_TITLE_SCREEN_LEVEL,
   START_LEVEL,
   START_LEVEL_COBRA,
-  VARIANT_LEVEL_99,
-} from "../levels";
+} from "../levels/levelConstants";
+import { LEVEL_01 } from '../levels/campaign/level01';
+import { LEVEL_99 } from '../levels/campaign/level99';
+import { LEVEL_WIN_GAME } from '../levels/winGame';
+import { VARIANT_LEVEL_99 } from '../levels/bonusLevels/variantLevel99';
 import { WinLevelScene } from '../scenes/WinLevelScene';
 import { findLevelWarpIndex, getNumRandomLevelsRemaining } from '../levels/levelUtils';
 import { SpriteRenderer } from './spriteRenderer';
@@ -156,8 +156,8 @@ import { buildSceneActionFactory } from '../scenes/sceneUtils';
 import { TitleScene } from '../scenes/TitleScene';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 import { resumeAudioContext } from './audio';
-import { LEVEL_01_HARD } from '../levels/level01hard';
-import { LEVEL_01_ULTRA } from '../levels/level01ultra';
+import { LEVEL_01_HARD } from '../levels/campaign/level01hard';
+import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
 
 interface EngineParams {

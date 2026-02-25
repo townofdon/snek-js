@@ -1,7 +1,7 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, PortalExitMode, TitleVariant } from "../../types";
-import { TUTORIAL_LEVEL_40 } from "../tutorialLevel40";
+import { TUTORIAL_LEVEL_40 } from "../campaign/tutorialLevel40";
 import { toTime } from "../../utils";
 
 const name = 'phased reality'

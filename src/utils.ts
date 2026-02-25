@@ -19,7 +19,6 @@ import {
   KeyChannel,
   Level,
   MusicTrack,
-  PickupDrop,
   PickupType,
   Portal,
   PortalChannel,

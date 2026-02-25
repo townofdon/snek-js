@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
-import { LEVEL_10 } from "../level10";
+import { LEVEL_10 } from "../campaign/level10";
 import { VARIANT_LEVEL_10 } from "./variantLevel10";
 
 const name = 'secret area 5-2';
