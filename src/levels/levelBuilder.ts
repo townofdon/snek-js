@@ -13,6 +13,7 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
     doorsMap: {},
     apples: [],
     mines: [],
+    invincibilities: [],
     decoratives1: [],
     decoratives1Map: {},
     decoratives2: [],
@@ -128,6 +129,11 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
         // mines
         case '*':
           data.mines.push(vec);
+          break;
+
+        // invincibility pickups
+        case '!':
+          data.invincibilities.push(vec);
           break;
 
         // keys / locks

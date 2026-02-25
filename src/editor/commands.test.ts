@@ -11,6 +11,7 @@ describe('commands', () => {
     const data: EditorData = {
       applesMap: {},
       minesMap: {},
+      invincibilitiesMap: {},
       barriersMap: {},
       decoratives1Map: {},
       decoratives2Map: {},

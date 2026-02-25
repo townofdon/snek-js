@@ -191,6 +191,19 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions, loadLevel }:
         )}
       </Stack>
       <hr />
+      <ToggleField
+        label="Spawn invincibility pickups"
+        name="spawnInvincibilityPickups"
+        checked={options.spawnInvincibilityPickups}
+        onChange={(val) => setOptions({ ...options, spawnInvincibilityPickups: val })}
+      />
+      <ToggleField
+        label="Spawn mines"
+        name="spawnMines"
+        checked={options.spawnMines}
+        onChange={(val) => setOptions({ ...options, spawnMines: val })}
+      />
+      <hr />
       <SelectLevelDropdown loadLevel={loadLevel} />
     </div>
   );

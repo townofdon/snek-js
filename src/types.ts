@@ -435,6 +435,8 @@ export interface EditorOptions {
   applesToClear: number, // default: 20
   numApplesStart: number, // default: 3
   disableAppleSpawn: boolean, // default: false
+  spawnInvincibilityPickups: boolean, // default: false
+  spawnMines: boolean, // default: false
   snakeStartSize: number, // default: START_SNAKE_SIZE
   growthMod: number, // default: 1
   extraHurtGraceTime: number, // default: 0
@@ -449,6 +451,7 @@ export type Maybe<T> = T | null | undefined;
 export interface EditorData {
   applesMap: Record<number, Maybe<boolean>>,
   minesMap: Record<number, Maybe<boolean>>,
+  invincibilitiesMap: Record<number, Maybe<boolean>>,
   barriersMap: Record<number, Maybe<boolean>>,
   decoratives1Map: Record<number, Maybe<boolean>>,
   decoratives2Map: Record<number, Maybe<boolean>>,
@@ -466,6 +469,7 @@ export interface EditorDataSlice {
   coord: number,
   apple: Maybe<boolean>,
   mine: Maybe<boolean>,
+  invincibility: Maybe<boolean>,
   barrier: Maybe<boolean>,
   deco1: Maybe<boolean>,
   deco2: Maybe<boolean>,
@@ -484,6 +488,7 @@ export interface LevelData {
   doors: Vector[],
   apples: Vector[],
   mines: Vector[],
+  invincibilities: Vector[],
   decoratives1: Vector[],
   decoratives2: Vector[],
   nospawns: Vector[],

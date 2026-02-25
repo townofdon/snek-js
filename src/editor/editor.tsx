@@ -23,12 +23,14 @@ import {
   SetDecorative1Command,
   SetDecorative2Command,
   SetDoorCommand,
+  SetInvincibilityCommand,
   SetKeyCommand,
   SetLineAppleCommand,
   SetLineBarrierCommand,
   SetLineDeco1Command,
   SetLineDeco2Command,
   SetLineDoorCommand,
+  SetLineInvincibilityCommand,
   SetLineKeyCommand,
   SetLineLockCommand,
   SetLineMineCommand,
@@ -46,6 +48,7 @@ import {
   SetRectangleDeco1Command,
   SetRectangleDeco2Command,
   SetRectangleDoorCommand,
+  SetRectangleInvincibilityCommand,
   SetRectangleKeyCommand,
   SetRectangleLockCommand,
   SetRectangleMineCommand,
@@ -203,6 +206,8 @@ export const Editor = () => {
         return new SetAppleCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Mine:
         return new SetMineCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.Invincibility:
+        return new SetInvincibilityCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
         return new SetBarrierCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Door:
@@ -238,6 +243,8 @@ export const Editor = () => {
         return new SetLineAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Mine:
         return new SetLineMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Invincibility:
+        return new SetLineInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
         return new SetLineBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Door:
@@ -273,6 +280,8 @@ export const Editor = () => {
         return new SetRectangleAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Mine:
         return new SetRectangleMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Invincibility:
+        return new SetRectangleInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
         return new SetRectangleBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Door:

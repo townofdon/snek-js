@@ -1,6 +1,6 @@
 import P5, { Vector } from 'p5';
 
-import { BLOCK_SIZE, DIMENSIONS, GRIDCOUNT } from '../constants';
+import { BLOCK_SIZE, DIMENSIONS, GRIDCOUNT, INVINCIBILITY_COLOR_CYCLE_MS, NUM_SNAKE_INVINCIBLE_COLORS, SNAKE_INVINCIBLE_COLORS } from '../constants';
 import {
   AppMode,
   DIR,
@@ -84,6 +84,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     nospawnsMap: {},
     applesMap: {},
     minesMap: {},
+    invincibilitiesMap: {},
     keysMap: {},
     locksMap: {},
     portalsMap: {},
@@ -143,6 +144,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         case 'locksMap':
         case 'portalsMap':
         case 'minesMap':
+        case 'invincibilitiesMap':
           if (getIsDiff(key)) {
             // @ts-ignore
             data[key] = { ...incoming[key] };
@@ -211,6 +213,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           }
           break;
         case 'applesToClear':
+        case 'disableAppleSpawn':
+        case 'spawnInvincibilityPickups':
+        case 'spawnMines':
         case 'disableAppleSpawn':
         case 'extraHurtGraceTime':
         case 'name':
@@ -317,10 +322,13 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     const renderer = new Renderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
     const lightMap = createLightmap();
 
+    const invincibleColorGradient = gradients.addMultiple(SNAKE_INVINCIBLE_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
+
     const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true }
     const drawAppleOptions: DrawSquareOptions = { size: 0.8, is3d: true, optimize: true }
     const drawBasicOptions: DrawSquareOptions = { optimize: true }
     const drawPortalOptions: DrawSquareOptions = {}
+    const drawInvincibilityPickupOptions: DrawSquareOptions = { size: 0.5, is3d: true, optimize: true };
 
     /**
      * https://p5js.org/reference/#/p5/preload
@@ -474,6 +482,10 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.MineSheet, x, y, 0);
           }
 
+          if (data.invincibilitiesMap[coord]) {
+            drawInvincibilityPickup(x, y);
+          }
+
           if (hasSegmentAt(x, y)) {
             renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.snakeSegment, x, y, snakeAlpha);
           }
@@ -499,6 +511,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       drawEditorSelection();
 
       renderer.tick();
+      gameState.timeElapsed += p5.deltaTime;
+      gameState.actualTimeElapsed += p5.deltaTime;
     }
 
     function drawParticles(zIndexPass = 0) {
@@ -549,6 +563,12 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           }
         }
       }
+    }
+
+    function drawInvincibilityPickup(x: number, y: number) {
+      const cycle = Math.floor(gameState.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
+      const color = gradients.calc(invincibleColorGradient, (cycle % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
+      renderer.drawSquare(x, y, color.toString(), color.toString(), drawInvincibilityPickupOptions);
     }
 
     function drawEditorSelection() {

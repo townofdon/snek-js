@@ -49,6 +49,8 @@ describe('editorUtils', () => {
         applesToClear: 0,
         numApplesStart: 0,
         disableAppleSpawn: false,
+        spawnInvincibilityPickups: false,
+        spawnMines: false,
         snakeStartSize: 0,
         growthMod: 0,
         extraHurtGraceTime: 0,
@@ -66,6 +68,7 @@ describe('editorUtils', () => {
         nospawnsMap: {},
         applesMap: {},
         minesMap: {},
+        invincibilitiesMap: {},
         keysMap: {},
         locksMap: {},
         portalsMap: {},
@@ -96,6 +99,8 @@ describe('editorUtils', () => {
         applesToClear: 999,
         numApplesStart: 20,
         disableAppleSpawn: true,
+        spawnInvincibilityPickups: true,
+        spawnMines: true,
         snakeStartSize: 50,
         growthMod: 2,
         extraHurtGraceTime: 40,
@@ -124,6 +129,7 @@ describe('editorUtils', () => {
         nospawnsMap: { 11: true, 12: true },
         applesMap: { 13: true, 14: true },
         minesMap: {},
+        invincibilitiesMap: {},
         keysMap: { 15: KeyChannel.Yellow, 16: KeyChannel.Red, 17: KeyChannel.Blue },
         locksMap: { 18: KeyChannel.Yellow, 19: KeyChannel.Red, 20: KeyChannel.Blue },
         portalsMap: {
@@ -199,6 +205,8 @@ describe('editorUtils', () => {
         applesToClear: 0,
         numApplesStart: 0,
         disableAppleSpawn: false,
+        spawnInvincibilityPickups: false,
+        spawnMines: false,
         snakeStartSize: 0,
         growthMod: 0,
         extraHurtGraceTime: 0,
@@ -216,6 +224,7 @@ describe('editorUtils', () => {
         nospawnsMap: {},
         applesMap: {},
         minesMap: {},
+        invincibilitiesMap: {},
         keysMap: {},
         locksMap: {},
         portalsMap: {},
@@ -269,6 +278,8 @@ describe('editorUtils', () => {
         applesToClear: 0,
         numApplesStart: 0,
         disableAppleSpawn: false,
+        spawnInvincibilityPickups: false,
+        spawnMines: false,
         snakeStartSize: 0,
         growthMod: 0,
         extraHurtGraceTime: 0,
@@ -306,7 +317,8 @@ describe('editorUtils', () => {
     it('should build a map layout correctly for all possible types', () => {
       const data: EditorData = {
         applesMap: { 0: true },
-        minesMap: {},
+        minesMap: { 60: true },
+        invincibilitiesMap: { 61: true },
         barriersMap: { 1: true, 2: true, 100: true, 101: true, 102: true },
         passablesMap: { 2: true },
         doorsMap: { 3: true },
@@ -345,7 +357,7 @@ describe('editorUtils', () => {
       const expected = `
       |AXxD-=~_+...........jkl.......|
       |JKL.................0123456789|
-      |..............................|
+      |*!............................|
       |..........uio.................|
       |..............................|
       |..............................|
@@ -385,6 +397,7 @@ describe('editorUtils', () => {
           const data: EditorData = {
             applesMap: {},
             minesMap: {},
+            invincibilitiesMap: {},
             barriersMap: { ...levelData.barriersMap },
             passablesMap: { ...levelData.passablesMap },
             doorsMap: { ...levelData.doorsMap },
@@ -414,6 +427,14 @@ describe('editorUtils', () => {
           levelData.apples.forEach(apple => {
             const coord = getCoordIndex2(apple.x, apple.y);
             data.applesMap[coord] = true;
+          })
+          levelData.mines.forEach(mine => {
+            const coord = getCoordIndex2(mine.x, mine.y);
+            data.minesMap[coord] = true;
+          })
+          levelData.invincibilities.forEach(item => {
+            const coord = getCoordIndex2(item.x, item.y);
+            data.invincibilitiesMap[coord] = true;
           })
           const layout = buildMapLayout(data);
           expectLayoutMatches(layout, expectedLayout);

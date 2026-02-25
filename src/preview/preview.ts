@@ -33,6 +33,7 @@ import {
   Level,
   Palette,
   InputType,
+  PickupType,
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI } from '../ui/ui';
@@ -533,7 +534,12 @@ async function loadLevel(queryData: string, loadMapImage = false): Promise<void>
       playWinSound: isEditorPreview,
       portalExitConfig: options.portalExitConfig,
       author: res?.map?.author,
+      pickupDrops: {
+        [PickupType.Invincibility]: options.spawnInvincibilityPickups,
+        [PickupType.Mine]: options.spawnMines,
+      },
     };
+
     level.current = loaded;
     if (!isEditorPreview) {
       level.nextMap = res?.next?.data;

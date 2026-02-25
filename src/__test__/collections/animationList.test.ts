@@ -1,7 +1,7 @@
 import assert from "assert";
 import { AnimationList, INITIAL_ANIMATIONS_POOL_SIZE } from "../../collections/animationList";
 import { getCoordIndex2 } from "../../utils";
-import { GRIDCOUNT } from "../../constants";
+import { GRIDCOUNT, PICKUP_EXPIRE_WARN_MS } from "../../constants";
 
 describe("Collections", () => {
   describe("AnimationList", () => {
@@ -355,9 +355,9 @@ describe("Collections", () => {
     });
     it("should tick true when any item frame changes", () => {
       const items = new AnimationList();
-      items.add(1, 1, 1000, 3, 200);
-      items.add(2, 2, 1000, 4, 150);
-      items.add(3, 3, 1000, 5, 300);
+      items.add(1, 1, 10000, 3, 200);
+      items.add(2, 2, 10000, 4, 150);
+      items.add(3, 3, 10000, 5, 300);
 
       assert.strictEqual(items.tick(50), false);
       assert.strictEqual(items.getElapsed(1, 1), 50);
@@ -386,8 +386,19 @@ describe("Collections", () => {
       assert.strictEqual(items.tick(49), false);
       assert.strictEqual(items.getElapsed(1, 1), 299);
 
-      assert.strictEqual(items.tick(1), true);
-      assert.strictEqual(items.getElapsed(1, 1), 300); // item(2,2) and item(3,3) frame changed
+      assert.strictEqual(items.tick(1), true); // item(2,2) and item(3,3) frame changed
+      assert.strictEqual(items.getElapsed(1, 1), 300);
+    });
+    it("should tick true when item is blinking due to expiring soon", () => {
+      const items = new AnimationList();
+      const lifetime = 10000;
+      items.add(1, 1, lifetime, 3, 200);
+
+      assert.strictEqual(items.tick(50), false);
+      assert.strictEqual(items.getElapsed(1, 1), 50);
+
+      assert.strictEqual(items.tick(lifetime - PICKUP_EXPIRE_WARN_MS - 50), true);
+      assert.strictEqual(items.getElapsed(1, 1), lifetime - PICKUP_EXPIRE_WARN_MS);
     });
   });
 });

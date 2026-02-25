@@ -9,6 +9,7 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
   data: {
     applesMap: {},
     minesMap: {},
+    invincibilitiesMap: {},
     barriersMap: { ...levelData.barriersMap },
     decoratives1Map: { ...levelData.decoratives1Map },
     decoratives2Map: { ...levelData.decoratives2Map },
@@ -27,6 +28,8 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
     applesToClear: 20,
     numApplesStart: 3,
     disableAppleSpawn: false,
+    spawnInvincibilityPickups: false,
+    spawnMines: false,
     snakeStartSize: 3,
     growthMod: 1,
     extraHurtGraceTime: 0,

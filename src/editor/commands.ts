@@ -41,6 +41,7 @@ abstract class SetElementCommand implements Command {
       coord: this.coord,
       apple: data.applesMap[this.coord],
       mine: data.minesMap[this.coord],
+      invincibility: data.invincibilitiesMap[this.coord],
       barrier: data.barriersMap[this.coord],
       deco1: data.decoratives1Map[this.coord],
       deco2: data.decoratives2Map[this.coord],
@@ -57,6 +58,7 @@ abstract class SetElementCommand implements Command {
       coord: this.coord,
       apple: false,
       mine: false,
+      invincibility: false,
       barrier: false,
       deco1: false,
       deco2: false,
@@ -114,6 +116,7 @@ export class DeleteElementCommand extends SetElementCommand {
     if (
       !data.applesMap[this.coord] &&
       !data.minesMap[this.coord] &&
+      !data.invincibilitiesMap[this.coord] &&
       !data.barriersMap[this.coord] &&
       !data.decoratives1Map[this.coord] &&
       !data.decoratives2Map[this.coord] &&
@@ -149,6 +152,18 @@ export class SetMineCommand extends SetElementCommand {
       this.newData = null;
     } else {
       this.newData.mine = true;
+    }
+  }
+}
+
+export class SetInvincibilityCommand extends SetElementCommand {
+  public readonly name = 'Draw Invincibility';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (data.invincibilitiesMap[this.coord]) {
+      this.newData = null;
+    } else {
+      this.newData.invincibility = true;
     }
   }
 }
@@ -309,6 +324,7 @@ abstract class SetBatchElementsCommand implements Command {
       coord: -1,
       apple: false,
       mine: false,
+      invincibility: false,
       barrier: false,
       deco1: false,
       deco2: false,
@@ -417,6 +433,8 @@ export class DeleteLineCommand extends SetLineCommand {
   protected test = (coord: number) => {
     return (
       this.dataRef.current.applesMap[coord] ||
+      this.dataRef.current.minesMap[coord] ||
+      this.dataRef.current.invincibilitiesMap[coord] ||
       this.dataRef.current.barriersMap[coord] ||
       this.dataRef.current.decoratives1Map[coord] ||
       this.dataRef.current.decoratives2Map[coord] ||
@@ -449,6 +467,17 @@ export class SetLineMineCommand extends SetLineCommand {
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.minesMap[coord];
+  };
+}
+
+export class SetLineInvincibilityCommand extends SetLineCommand {
+  public readonly name = 'Draw Invincibility';
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.newData.invincibility = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.invincibilitiesMap[coord];
   };
 }
 
@@ -616,6 +645,8 @@ export class DeleteRectangleCommand extends SetRectangleCommand {
   protected test = (coord: number) => {
     return (
       this.dataRef.current.applesMap[coord] ||
+      this.dataRef.current.minesMap[coord] ||
+      this.dataRef.current.invincibilitiesMap[coord] ||
       this.dataRef.current.barriersMap[coord] ||
       this.dataRef.current.decoratives1Map[coord] ||
       this.dataRef.current.decoratives2Map[coord] ||
@@ -648,6 +679,17 @@ export class SetRectangleMineCommand extends SetRectangleCommand {
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.minesMap[coord];
+  };
+}
+
+export class SetRectangleInvincibilityCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Invincibility';
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.invincibility = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.invincibilitiesMap[coord];
   };
 }
 
@@ -856,6 +898,7 @@ export class ClearAllCommand implements Command {
       const newData: EditorData = {
         applesMap: {},
         minesMap: {},
+        invincibilitiesMap: {},
         barriersMap: {},
         decoratives1Map: {},
         decoratives2Map: {},

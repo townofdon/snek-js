@@ -654,6 +654,17 @@ export function engine({
       mines.add(x, y, lifetime, ANIMATIONS[Image.MineSheet].frames, ANIMATIONS[Image.MineSheet].timePerFrame);
     }
 
+    // add initial invincibility pickups
+    for (let i = 0; i < levelData.invincibilities.length; i++) {
+      const x = levelData.invincibilities[i].x;
+      const y = levelData.invincibilities[i].y;
+      if (!apples.existsAt(x, y)) apples.add(x, y);
+      pickupsMap[getCoordIndex2(x, y)] = {
+        timeTillDeath: 99999999, // improbably high lifetime = never despawn
+        type: PickupType.Invincibility,
+      };
+    }
+
     // add initial apples
     for (let i = 0; i < levelData.apples.length; i++) {
       apples.add(levelData.apples[i].x, levelData.apples[i].y);
@@ -2288,7 +2299,9 @@ export function engine({
       const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
       const color = gradients.calc(invincibleColorGradient, (cycle % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
       renderer.drawSquare(x, y, color.toString(), color.toString(), drawInvincibilityPickupOptions);
-      spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
+      if (timeLeft <= PICKUP_LIFETIME_MS) {
+        spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
+      }
     } else if (drawState.shouldDrawApples) {
       spriteRenderer.drawImage3x3Custom(gfxApples, Image.Apple, x, y, 0, 1, 0);
     }
