@@ -297,6 +297,9 @@ button,
   &.mine {
     background-position-x: calc(-15 * var(--editor-tile-sprite-width));
   }
+  &.invincibility {
+    background-position-x: calc(-25 * var(--editor-tile-sprite-width));
+  }
 }
 
 .editorTools {

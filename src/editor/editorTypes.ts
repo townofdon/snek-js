@@ -15,4 +15,5 @@ export enum Tile {
   Nospawn,
   Passable,
   Mine,
+  Invincibility,
 }

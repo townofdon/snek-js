@@ -28,6 +28,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Portal]: styles.portal,
       [Tile.Spawn]: styles.spawn,
       [Tile.Mine]: styles.mine,
+      [Tile.Invincibility]: styles.invincibility,
     }[tile]
     const tileShortcut = {
       [Tile.None]: null,
@@ -43,6 +44,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Portal]: 0,
       [Tile.Spawn]: '~',
       [Tile.Mine]: null,
+      [Tile.Invincibility]: null,
     }[tile]
     return (
       <div className={cx(styles.stack, styles.justifyEnd)}>
@@ -70,6 +72,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       {renderTile(Tile.Portal)}
       {renderTile(Tile.Spawn)}
       {renderTile(Tile.Mine)}
+      {renderTile(Tile.Invincibility)}
     </div>
   )
 }

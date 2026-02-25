@@ -155,7 +155,7 @@ export const Editor = () => {
     if (direction < 0) {
       setTile({
         [Tile.None]: Tile.Barrier,
-        [Tile.Barrier]: Tile.Mine,
+        [Tile.Barrier]: Tile.Invincibility,
         [Tile.Passable]: Tile.Barrier,
         [Tile.Door]: Tile.Passable,
         [Tile.Deco1]: Tile.Door,
@@ -167,6 +167,7 @@ export const Editor = () => {
         [Tile.Portal]: Tile.Key,
         [Tile.Spawn]: Tile.Portal,
         [Tile.Mine]: Tile.Spawn,
+        [Tile.Invincibility]: Tile.Mine,
       }[tileRef.current]);
     } else {
       setTile({
@@ -182,7 +183,8 @@ export const Editor = () => {
         [Tile.Key]: Tile.Portal,
         [Tile.Portal]: Tile.Spawn,
         [Tile.Spawn]: Tile.Mine,
-        [Tile.Mine]: Tile.Barrier,
+        [Tile.Mine]: Tile.Invincibility,
+        [Tile.Invincibility]: Tile.Barrier,
       }[tileRef.current]);
     }
   }

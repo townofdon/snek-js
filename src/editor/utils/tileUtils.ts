@@ -15,6 +15,7 @@ export const getTileLabel = (tile: Tile): string | null => {
     [Tile.Portal]: 'portal',
     [Tile.Spawn]: 'snek spawn',
     [Tile.Mine]: 'landmine',
+    [Tile.Invincibility]: 'invincibility',
   }[tile];
 }
 
@@ -33,5 +34,6 @@ export const getTileExplanation = (tile: Tile): string => {
     [Tile.Portal]: 'warp to portal with same channel',
     [Tile.Spawn]: 'spawn snek at location on map start',
     [Tile.Mine]: 'explodes when collided with',
+    [Tile.Invincibility]: 'makes the player invincible for a short time',
   }[tile];
 }
