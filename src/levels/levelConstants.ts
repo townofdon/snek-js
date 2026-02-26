@@ -26,6 +26,7 @@ import { TUTORIAL_LEVEL_20 } from "./campaign/tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./campaign/tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "./campaign/tutorialLevel40";
 import { TUTORIAL_LEVEL_50 } from "./campaign/tutorialLevel50";
+import { TUTORIAL_LEVEL_51 } from "./campaign/tutorialLevel51";
 import { LEVEL_WIN_GAME } from "./winGame";
 import { MAZE_01 } from "./mazes/maze01";
 import { MAZE_01_COBRA } from "./mazes/maze01-cobra";
@@ -100,6 +101,8 @@ export const CAMPAIGN_LEVELS = LEVELS.filter(level => {
         case TUTORIAL_LEVEL_20:
         case TUTORIAL_LEVEL_30:
         case TUTORIAL_LEVEL_40:
+        case TUTORIAL_LEVEL_50:
+        case TUTORIAL_LEVEL_51:
         case LEVEL_WIN_GAME:
             return false;
         default:

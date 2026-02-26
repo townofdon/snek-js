@@ -25,14 +25,14 @@ X   LXX_XXXXLL  LLXXXX_XXLL  X
 X   LLXX_XXXXD  DXXXX_XXLL   X
 X    LXXX_XXXDKKDXXX_XXXL    X
 X~   LLXXX_XXD  DXX_XXXLL   ~X
-X~~   LXXXX~~~==~~~XXXXL    ~X
+X~~   LXXXX*~~==~~*XXXXL    ~X
 XX~=- LLXXX~~ -- ~~XXXLL -=~~X
 XX~_=- LDDD~  --  ~DDDL -=_~XX
 DDD_=-   K =--==--= K   -=_DDD
 DDD_=- O K =--==--= K   -=_DDD
 XX~_=- LDDD~  --  ~DDDL -=_~XX
 XX~=- LLXXX~~ ==  ~XXXLL -=~~X
-X~~   LXXXX~~~--~~~XXXXL    ~X
+X~~   LXXXX*~~--~~*XXXXL    ~X
 X~   LLXXX_XXD  DXX_XXXLL   ~X
 X    LXXX_XXXDKKDXXX_XXXL    X
 X   LLXX_XXXXD  DXXXX_XXLL   X

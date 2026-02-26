@@ -34,10 +34,10 @@ X  XXX XXXXXX XX XXXXX X  X  X
 X  X L X AAAA XX AAA X Xx X  X
 XA X XLX XXXXXXXXXXX X Xx XX X
 XA XlXLX X AAA AAA X XLXx  XAX
-X  X J X X XXXXXXX X ALXxXAXAX
-X  XXX X X X   O X XXALXAXAXAX
-X   XXAX X XXXXX X XXALXAXAXAX
-X X  XAX X  AAA  X X ALXxXAXAX
+X  X J X X XXXXXXX X ALXxXAXAx
+X  XXX X X X   O X XXALXAXAXAD
+X   XXAX X XXXXX X XXALXAXAXAD
+X X  XAX X  AAA  X X ALXxXAXAx
 XLXXAXAX XXXXXXXXX X XLXx  XAX
 XAXXAXAX AAAA  AAA X X Xx XX-X
 XAXXAXAXXXXXXXXXXXXX X Xx X-=X
@@ -47,9 +47,9 @@ XA X AAAA   LLLLLL     X X=-=X
 XA XXXXXXXXXXXXXXXXXXXXX X=-=X
 X  AAA AA AAA XX AAA AAA X=-=X
 XXXXXXXXXXXXd-XX-dXXXXXXXX=-=X
--==K=-      d----d     -=K- -x
--==K=-  AAA dddddd AAA -=K- -x
--==K=-      AAAAAA     -=K- -x
+-==K=-      d----d     -=K- -X
+-==K=-  AAA dddddd AAA -=K- -X
+-==K=-      AAAAAA     -=K- -X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.hospital),
@@ -68,9 +68,10 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     0: PortalExitMode.SameDirection,
   },
   nextLevelMap: {
-    [getCoordIndex2(29, 26)]: VARIANT_LEVEL_10,
-    [getCoordIndex2(29, 27)]: VARIANT_LEVEL_10,
-    [getCoordIndex2(29, 28)]: VARIANT_LEVEL_10,
+    [getCoordIndex2(29, 13)]: VARIANT_LEVEL_10,
+    [getCoordIndex2(29, 14)]: VARIANT_LEVEL_10,
+    [getCoordIndex2(29, 15)]: VARIANT_LEVEL_10,
+    [getCoordIndex2(29, 16)]: VARIANT_LEVEL_10,
   },
   musicTrack: MusicTrack.creeplord,
   globalLight: 0.2,

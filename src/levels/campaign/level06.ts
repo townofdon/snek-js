@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, PickupType, PortalExitMode } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
-import { VARIANT_LEVEL_07 } from "../bonusLevels/variantLevel07";
+import { TUTORIAL_LEVEL_51 } from "./tutorialLevel51";
 
 const name = 'lobby';
 
@@ -53,8 +53,8 @@ XxXXXXXXXXXXXXXXXXXXXXXXXXXXxX
     1: PortalExitMode.InvertDirection,
   },
   nextLevelMap: {
-    [getCoordIndex2(1, 29)]: VARIANT_LEVEL_07,
-    [getCoordIndex2(28, 29)]: VARIANT_LEVEL_07,
+    [getCoordIndex2(1, 29)]: TUTORIAL_LEVEL_51,
+    [getCoordIndex2(28, 29)]: TUTORIAL_LEVEL_51,
   },
   pickupDropsByFrame: {
     39: { likelihood: 1, type: PickupType.Invincibility },

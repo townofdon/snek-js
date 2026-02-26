@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { toTime } from "../../utils";
-import { VARIANT_LEVEL_10 } from "./variantLevel10";
+import { SECRET_LEVEL_20 } from "./secretLevel20";
 
 const name = 'secret area 5-1';
 
@@ -51,6 +51,7 @@ X--O   Xx            xXKKK----
 XDDD   XXXX11111111XXXXKKK==xx
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
+  layoutV2: `ClVVKFpNQUF4YihnZzMzKGJ4QXBBWmJYeFZWeFhiWnBBWmJYTGJacHhaaFdoWnhYTVZXVlhNKlh1THUnWH5YeCFveFh%252BWCdYTlUodVFvKSlQIVFWISFQISdYTnZabW1aUCpYKk1BZFVVZHBBZFVVZHAqWE52WmdnMzNaUCpRViEhKSlQIVFvUCEnWE5VKHUnWEpKSlh4IW94WEpKSlgnWHVMdVgqTSEtdVlWWE14eFBYWWgoTWRkUFhMaFN4eE1fISFYeFZWeFhoX19NYk4obW0oaFN4eApVVShaCnw4MXdSSUdIVHxzZWNyZXQgYXJlYSA1LTF8SW5maW5pdHl8MTJ8dzF8d3ozejAuMnwjMTVDMkNCTzExOURBNHEyMzc1OE8yRTRBNzZPMUYyZ3E3MkMzRk8xRjJnTzRDODJBOU8zRjZDOERPRkZGNkYxTzBBMEUxNE9FOUVGRkZ8bGxsejI3fDBOICdYKk0qKFpaKVAhUSFBU0EhdSBYTCBfX19fX18qTQpYTiEgTy0jUD0tIVEnISF2IX49VSgoKFYhISFXWCAta2tra2tra2tray0qWSAtampqampqampqai0qWlhYXy0tYmRkZGczMzNoS0tLbDAtMC0wLW0xMTExb05fIU5wQVhNcU8xNjE5MjVPMnUhKnYtPXczfHowfH5TPQF%252Bend2dXFwb21saGdiX1pZV1ZVU1FQT05NTCopKCchXw%253D%253D`,
   colors: getExtendedPalette(PALETTE.panopticon),
   showTitle: true,
   showQuoteOnLevelWin: false,
@@ -68,5 +69,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   },
   musicTrack: MusicTrack.slime_exitmusic,
   globalLight: 0.2,
-  nextLevel: VARIANT_LEVEL_10,
+  nextLevel: SECRET_LEVEL_20,
 };
