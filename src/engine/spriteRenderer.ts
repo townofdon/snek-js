@@ -1,7 +1,7 @@
 import P5, { Vector } from "p5";
 import Color from "color";
 
-import { ScreenShakeState, Image, Palette, ExtendedPalette, AnimationData, SpritesheetImage } from "../types";
+import { ScreenShakeState, Image, Palette, ExtendedPalette, AnimationData, SpritesheetImage, ThemedImage, ColorReplacementPalette } from "../types";
 import { ANIMATIONS, BLOCK_SIZE, MAP_OFFSET, STROKE_SIZE } from "../constants";
 import { getRelativeDir, lerp } from "../utils";
 
@@ -28,7 +28,9 @@ export class SpriteRenderer {
     [Image.ControlsGamepadTurn]: null,
     [Image.ControlsGamepadSprint]: null,
     [Image.ControlsMouseLeft]: null,
-    [Image.Apple]: null,
+    [Image.ThemedApple]: null,
+    [Image.ThemedBarrierSkull]: null,
+    [Image.ThemedBarrierIndent]: null,
     [Image.AppleTemplate]: null,
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
@@ -63,6 +65,8 @@ export class SpriteRenderer {
     [Image.EditorSelectionRed]: null,
     [Image.MineSheet]: null,
     [Image.ExplosionSheet]: null,
+    [Image.FireSheet]: null,
+    [Image.TileSheet]: null,
   }
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -99,7 +103,7 @@ export class SpriteRenderer {
    *
    * NOTE - must be called after `loadImages()`.
    */
-  setAppleImage = (palette: ExtendedPalette) => {
+  setThemedAppleImage = (palette: ExtendedPalette) => {
     const r_colorDark = Color(palette.appleStroke).darken(0.2).saturate(0.1).hex();
     const r_colorLight = Color(palette.appleStroke).lighten(0.2).desaturate(0.1).hex();
     const r_colorMain = palette.apple;
@@ -108,9 +112,29 @@ export class SpriteRenderer {
       light: this.p5.color(r_colorLight),
       main: this.p5.color(r_colorMain),
     };
+    this.setThemedImageFromSprite(colors, Image.ThemedApple, Image.AppleTemplate, 0, 1);
+  }
+
+  setThemedBorderImages = (palette: ExtendedPalette) => {
+    const r_colorDark = Color(palette.barrierBorderDark).darken(0.2).saturate(0.1).hex();
+    const r_colorLight = Color(palette.barrierBorderLight).lighten(0.2).desaturate(0.1).hex();
+    const r_colorMain = palette.barrierStroke;
+    const colors = {
+      dark: this.p5.color(r_colorDark),
+      light: this.p5.color(r_colorLight),
+      main: this.p5.color(r_colorMain),
+    };
+    this.setThemedImageFromSprite(colors, Image.ThemedBarrierSkull, Image.TileSheet, 1, ANIMATIONS[Image.TileSheet].frames);
+    this.setThemedImageFromSprite(colors, Image.ThemedBarrierIndent, Image.TileSheet, 3, ANIMATIONS[Image.TileSheet].frames);
+  }
+
+  private setThemedImageFromSprite(colors: ColorReplacementPalette, dest: ThemedImage, sourceSprite: Image, frame: number, totalFrames: number) {
+    if (!this.images[sourceSprite]) {
+      throw new Error(`source image is not loaded: ${sourceSprite}`);
+    }
     const img = this.p5.createImage(48, 48);
-    // copy apple template image pixels to new image
-    img.copy(this.images[Image.AppleTemplate], 0, 0, 48, 48, 0, 0, 48, 48);
+    // copy template image pixels to new image
+    img.copy(this.images[sourceSprite], 48 * frame, 0, 48, 48, 0, 0, 48, 48);
     // iterate through all pixels, replacing with theme colors
     img.loadPixels();
     for (let x = 0; x < img.width; x += 1) {
@@ -129,21 +153,22 @@ export class SpriteRenderer {
           continue;
         }
         // red => dark
-        if (r >= 250) {
+        if (r >= 250 && g <= 5 && b <= 5) {
           img.set(x, y, colors.dark);
         }
         // green => main
-        if (g >= 250) {
+        if (g >= 250 && r <= 5 && b <= 5) {
           img.set(x, y, colors.main);
         }
         // blue => light
-        if (b >= 250) {
+        if (b >= 250 && r <= 5 && g <= 5) {
           img.set(x, y, colors.light);
         }
+        // else, keep same color
       }
     }
     img.updatePixels();
-    this.images[Image.Apple] = img;
+    this.images[dest] = img;
   }
 
   /**
@@ -191,6 +216,8 @@ export class SpriteRenderer {
       this.loadImage(Image.Darken);
       this.loadImage(Image.MineSheet);
       this.loadImage(Image.ExplosionSheet);
+      this.loadImage(Image.FireSheet);
+      this.loadImage(Image.TileSheet);
     } catch (err) {
       console.error(err)
     }
@@ -242,6 +269,22 @@ export class SpriteRenderer {
   drawSpritesheetAnim3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, elapsed = 0) => {
     if (this.isStaticCached) return;
     this.drawSpritesheetAnim3x3(gfx, image, x, y, elapsed);
+  }
+
+  /**
+   * Draw a sprite from a spritesheet
+   */
+  drawSprite3x3 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {
+    if (!ANIMATIONS[image]) {
+      throw new Error(`no animation data found for image "${image}"`);
+    }
+    const { frames, timePerFrame } = ANIMATIONS[image];
+    this.drawImage3x3Impl(gfx, image, x, y, 0, 1, 0, frames, timePerFrame, timePerFrame * frame);
+  }
+
+  drawSprite3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {
+    if (this.isStaticCached) return;
+    this.drawSprite3x3(gfx, image, x, y, frame);
   }
 
   private drawImage3x3Impl = (

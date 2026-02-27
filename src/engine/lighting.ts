@@ -7,6 +7,7 @@ import { clamp, lerp, shouldBlinkExpiringPickup } from "../utils";
 import { Easing } from "../easing";
 import { Pickup, PickupType, PortalChannel } from "../types";
 import { AppleList } from "../collections/appleList";
+import { AnimationList } from "../collections/animationList";
 
 const lightBuffer = createLightmap();
 
@@ -17,6 +18,8 @@ const LIGHT_ANGLE_STEP = TAU / NUM_ANGLE_STEPS;
 
 const numUniqLightColors = 1000;
 let lightColorLookup: P5.Color[] = [];
+let flickerVal = 0.5; // value in range [0,1)
+let flickerCounter = -1;
 
 export function initLighting(p5: P5) {
   lightColorLookup = initLightColorLookup(p5, numUniqLightColors);
@@ -42,6 +45,8 @@ export function updateLighting(
   portals: Record<PortalChannel, Vector[]>,
   apples: AppleList | null,
   pickupsMap: Record<number, Pickup> | null,
+  explosions: AnimationList | null,
+  fireTiles: AnimationList | null,
 ) {
   resetLightmap(lightMap, globalLight);
   if (globalLight >= 1) return;
@@ -55,11 +60,12 @@ export function updateLighting(
     }
   }
   for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
-    if (
+    const isInvincibilityAtCoord = (
       apples?.existsAtCoord(i) &&
       pickupsMap[i]?.type === PickupType.Invincibility &&
       !shouldBlinkExpiringPickup(pickupsMap[i]?.timeTillDeath)
-    ) {
+    );
+    if (isInvincibilityAtCoord || explosions?.existsAtCoord(i)) {
       const x = Math.floor(i % GRIDCOUNT.x);
       const y = Math.floor(i / GRIDCOUNT.x);
       addBlocklight(lightMap, x, y, { strength: 0.7 });
@@ -67,6 +73,21 @@ export function updateLighting(
       addBlocklight(lightMap, x, y - 1, { strength: 0.3 });
       addBlocklight(lightMap, x + 1, y, { strength: 0.3 });
       addBlocklight(lightMap, x - 1, y, { strength: 0.3 });
+    }
+  }
+  if (fireTiles) {
+    for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
+      if (fireTiles.existsAtCoord(i)) {
+        const x = Math.floor(i % GRIDCOUNT.x);
+        const y = Math.floor(i / GRIDCOUNT.x);
+        // simulate a flicker effect
+        let t = flickerVal;
+        if (flickerCounter < 0 || flickerCounter !== fireTiles.getNumTimesDidChange()) {
+          t = flickerVal = Math.random();
+          flickerCounter = fireTiles.getNumTimesDidChange();
+        }
+        addSpotlight(lightMap, x, y, { strength: lerp(0.35, 0.5, t), radius: lerp(0, 0.25, t), falloff: lerp(2.25, 2.75, t) });
+      }
     }
   }
 }

@@ -3,7 +3,7 @@ import { Buffer } from 'buffer'
 
 import JSONCrush from './JSONCrush/JSONCrush';
 
-import { DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PortalChannel, PortalExitMode } from '../../types'
+import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PortalChannel, PortalExitMode } from '../../types'
 import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../../utils';
 import { GRIDCOUNT, START_SNAKE_SIZE } from '../../constants';
 import { bton, ntob } from './Base64';
@@ -324,7 +324,21 @@ export function buildMapLayout(data: EditorData): string {
       if (data.passablesMap[coord]) {
         return 'x';
       }
-      return 'X';
+      switch (data.barriersMap[coord]) {
+        case BarrierType.Skull:
+          return 'Z';
+        case BarrierType.ThemedSkull:
+          return 'z';
+        case BarrierType.Indent:
+          return 'C';
+        case BarrierType.ThemedIndent:
+          return 'c';
+        case BarrierType.FireTile:
+          return 'F';
+        case BarrierType.Default:
+        default:
+          return 'X';
+      }
     }
     if (data.doorsMap[coord]) {
       return 'd';

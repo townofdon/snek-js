@@ -6,7 +6,7 @@ import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, getRelativeDir, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
 import { EDITOR_DEFAULTS } from "./editorConstants";
-import { DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
+import { BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
 import { Tile } from "./editorTypes";
 import { useRefState } from "./hooks/useRefState";
 import { useLoadMapData } from "./hooks/useLoadMapData";
@@ -70,6 +70,7 @@ import { SidebarPortalChannels } from "./SidebarPortalChannels";
 import * as styles from "./Editor.css";
 import { useUpdateUrl } from "./hooks/useUpdateUrl";
 import { DropdownField, Option } from "./components/Field";
+import { SidebarBarrierTypes } from "./SidebarBarrierTypes";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -101,6 +102,7 @@ export const Editor = () => {
   const [, altPressedRef, setAltPressed] = useRefState(false);
   const [tool, toolRef, setTool] = useRefState(EditorTool.Pencil);
   const [tile, tileRef, _setTile] = useRefState(Tile.Barrier);
+  const [barrierType, barrierTypeRef, setBarrierType] = useRefState(BarrierType.Default);
   const [keyChannel, keyChannelRef, setKeyChannel] = useRefState(KeyChannel.Yellow);
   const [portalChannel, portalChannelRef, setPortalChannel] = useRefState<PortalChannel>(0);
 
@@ -209,7 +211,7 @@ export const Editor = () => {
       case Tile.Invincibility:
         return new SetInvincibilityCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
-        return new SetBarrierCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+        return new SetBarrierCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, barrierTypeRef.current);
       case Tile.Door:
         return new SetDoorCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Deco1:
@@ -246,7 +248,7 @@ export const Editor = () => {
       case Tile.Invincibility:
         return new SetLineInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
-        return new SetLineBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+        return new SetLineBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, barrierTypeRef.current);
       case Tile.Door:
         return new SetLineDoorCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Deco1:
@@ -283,7 +285,7 @@ export const Editor = () => {
       case Tile.Invincibility:
         return new SetRectangleInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
-        return new SetRectangleBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+        return new SetRectangleBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, barrierTypeRef.current);
       case Tile.Door:
         return new SetRectangleDoorCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Deco1:
@@ -350,9 +352,9 @@ export const Editor = () => {
       const x = Math.floor(mouseAtRef.current % GRIDCOUNT.x);
       const y = Math.floor(mouseAtRef.current / GRIDCOUNT.x);
       if (operation === Operation.Remove) {
-        return new FloodFillEmptyCommand(x, y, portalChannelRef.current, keyChannelRef.current, dataRef, setData);
+        return new FloodFillEmptyCommand(x, y, portalChannelRef.current, keyChannelRef.current, barrierTypeRef.current, dataRef, setData);
       } else {
-        return new FloodFillCommand(tileRef.current, x, y, portalChannelRef.current, keyChannelRef.current, dataRef, setData);
+        return new FloodFillCommand(tileRef.current, x, y, portalChannelRef.current, keyChannelRef.current, barrierTypeRef.current, dataRef, setData);
       }
     }
     throw Error('not implemented');
@@ -657,6 +659,12 @@ export const Editor = () => {
                 <SidebarPortalChannels
                   activeChannel={portalChannel}
                   setChannel={setPortalChannel}
+                />
+              }
+              sidebarBarrierTypes={
+                <SidebarBarrierTypes
+                  activeBarrierType={barrierType}
+                  setBarrierType={setBarrierType}
                 />
               }
             />

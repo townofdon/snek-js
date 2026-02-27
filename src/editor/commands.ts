@@ -1,8 +1,8 @@
 import { Vector } from "p5";
 
 import { SetStateValue, Tile } from "./editorTypes";
-import { DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PortalChannel } from "../types";
-import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
+import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PortalChannel } from "../types";
+import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidBarrierType, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
 import { deepCloneData, getEditorDataFromLevel, mergeData, mergeDataSlice } from "./utils/editorUtils";
 import { tileFloodFill } from "./utils/floodFill";
 
@@ -59,7 +59,7 @@ abstract class SetElementCommand implements Command {
       apple: false,
       mine: false,
       invincibility: false,
-      barrier: false,
+      barrier: 0,
       deco1: false,
       deco2: false,
       door: false,
@@ -170,12 +170,12 @@ export class SetInvincibilityCommand extends SetElementCommand {
 
 export class SetBarrierCommand extends SetElementCommand {
   public readonly name = 'Draw Barrier';
-  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, barrierType: BarrierType) {
     super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.barriersMap[this.coord] && !data.passablesMap[this.coord]) {
+    if (isValidBarrierType(data.barriersMap[this.coord]) && data.barriersMap[this.coord] === barrierType && !data.passablesMap[this.coord]) {
       this.newData = null;
     } else {
-      this.newData.barrier = true;
+      this.newData.barrier = barrierType;
     }
   }
 }
@@ -235,7 +235,7 @@ export class SetKeyCommand extends SetElementCommand {
     } else {
       this.newData.key = channel;
       if (data.barriersMap[this.coord]) {
-        this.newData.barrier = true;
+        this.newData.barrier = BarrierType.Default;
         this.newData.passable = true;
       }
     }
@@ -287,7 +287,7 @@ export class SetPassableCommand extends SetElementCommand {
     if (data.passablesMap[this.coord] && data.barriersMap[this.coord]) {
       this.newData = null;
     } else {
-      this.newData.barrier = true;
+      this.newData.barrier = BarrierType.Default;
       this.newData.passable = true;
     }
   }
@@ -325,7 +325,7 @@ abstract class SetBatchElementsCommand implements Command {
       apple: false,
       mine: false,
       invincibility: false,
-      barrier: false,
+      barrier: 0,
       deco1: false,
       deco2: false,
       door: false,
@@ -435,7 +435,7 @@ export class DeleteLineCommand extends SetLineCommand {
       this.dataRef.current.applesMap[coord] ||
       this.dataRef.current.minesMap[coord] ||
       this.dataRef.current.invincibilitiesMap[coord] ||
-      this.dataRef.current.barriersMap[coord] ||
+      !!this.dataRef.current.barriersMap[coord] ||
       this.dataRef.current.decoratives1Map[coord] ||
       this.dataRef.current.decoratives2Map[coord] ||
       this.dataRef.current.doorsMap[coord] ||
@@ -483,12 +483,16 @@ export class SetLineInvincibilityCommand extends SetLineCommand {
 
 export class SetLineBarrierCommand extends SetLineCommand {
   public readonly name = 'Draw Barrier';
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+  private barrierType: BarrierType;
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined, barrierType: BarrierType) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
-    this.newData.barrier = true;
+    this.newData.barrier = barrierType;
+    this.barrierType = barrierType;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.barriersMap[coord] || this.dataRef.current.passablesMap[coord];
+    return !this.dataRef.current.barriersMap[coord]
+      || this.dataRef.current.barriersMap[coord] !== this.barrierType
+      || this.dataRef.current.passablesMap[coord];
   };
 }
 
@@ -543,7 +547,7 @@ export class SetLineKeyCommand extends SetLineCommand {
     this.resolveNewData = (coord: number) => {
       const newData: Partial<EditorDataSlice> = {};
       if (data.current.barriersMap[coord]) {
-        newData.barrier = true;
+        newData.barrier = BarrierType.Default;
         newData.passable = true;
       }
       return newData;
@@ -601,7 +605,7 @@ export class SetLinePassableCommand extends SetLineCommand {
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.newData.passable = true;
-    this.newData.barrier = true;
+    this.newData.barrier = BarrierType.Default;
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.passablesMap[coord] || !this.dataRef.current.barriersMap[coord];
@@ -647,7 +651,7 @@ export class DeleteRectangleCommand extends SetRectangleCommand {
       this.dataRef.current.applesMap[coord] ||
       this.dataRef.current.minesMap[coord] ||
       this.dataRef.current.invincibilitiesMap[coord] ||
-      this.dataRef.current.barriersMap[coord] ||
+      !!this.dataRef.current.barriersMap[coord] ||
       this.dataRef.current.decoratives1Map[coord] ||
       this.dataRef.current.decoratives2Map[coord] ||
       this.dataRef.current.doorsMap[coord] ||
@@ -695,13 +699,17 @@ export class SetRectangleInvincibilityCommand extends SetRectangleCommand {
 
 export class SetRectangleBarrierCommand extends SetRectangleCommand {
   public readonly name = 'Draw Barrier';
-  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+  private barrierType: BarrierType;
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, barrierType: BarrierType) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.newData.barrier = true;
+    this.newData.barrier = barrierType;
+    this.barrierType = barrierType;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.barriersMap[coord] || this.dataRef.current.passablesMap[coord];
-  };
+    return !this.dataRef.current.barriersMap[coord]
+      || this.dataRef.current.barriersMap[coord] !== this.barrierType
+      || this.dataRef.current.passablesMap[coord];
+  }
 }
 
 export class SetRectangleDeco1Command extends SetRectangleCommand {
@@ -755,7 +763,7 @@ export class SetRectangleKeyCommand extends SetRectangleCommand {
     this.resolveNewData = (coord: number) => {
       const newData: Partial<EditorDataSlice> = {};
       if (this.dataRef.current.barriersMap[coord]) {
-        newData.barrier = true;
+        newData.barrier = BarrierType.Default;
         newData.passable = true;
       }
       return newData;
@@ -812,7 +820,7 @@ export class SetRectanglePassableCommand extends SetRectangleCommand {
   public readonly name = 'Draw Passable';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.newData.barrier = true;
+    this.newData.barrier = BarrierType.Default;
     this.newData.passable = true;
   }
   protected test = (coord: number) => {
@@ -931,6 +939,7 @@ export class FloodFillCommand implements Command {
   private y: number;
   private portalChannel: PortalChannel;
   private keyChannel: KeyChannel;
+  private barrierType: BarrierType;
   private dataRef: React.MutableRefObject<EditorData>;
   private initialData: EditorData;
   private setData: (val: EditorData) => void;
@@ -941,6 +950,7 @@ export class FloodFillCommand implements Command {
     y: number,
     portalChannel: PortalChannel,
     keyChannel: KeyChannel,
+    barrierType: BarrierType,
     dataRef: React.MutableRefObject<EditorData>,
     setData: (val: EditorData) => void,
   ) {
@@ -949,6 +959,7 @@ export class FloodFillCommand implements Command {
     this.y = y;
     this.portalChannel = portalChannel;
     this.keyChannel = keyChannel;
+    this.barrierType = barrierType;
     this.dataRef = dataRef;
     this.initialData = dataRef.current;
     this.setData = setData;
@@ -961,6 +972,7 @@ export class FloodFillCommand implements Command {
         this.y,
         this.portalChannel,
         this.keyChannel,
+        this.barrierType,
         this.dataRef.current
       );
       if (!updates) {
@@ -986,9 +998,10 @@ export class FloodFillEmptyCommand extends FloodFillCommand {
     y: number,
     portalChannel: PortalChannel,
     keyChannel: KeyChannel,
+    barrierType: BarrierType,
     dataRef: React.MutableRefObject<EditorData>,
     setData: (val: EditorData) => void,
   ) {
-    super(Tile.None, x, y, portalChannel, keyChannel, dataRef, setData);
+    super(Tile.None, x, y, portalChannel, keyChannel, barrierType, dataRef, setData);
   }
 }

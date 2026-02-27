@@ -22,6 +22,7 @@ export class AnimationList {
   private activeLength: number;
   private maxLength: number;
   private coordMap: Record<number, boolean>;
+  private numTimesDidChange: number;
 
 
   constructor() {
@@ -35,6 +36,7 @@ export class AnimationList {
     this.timePerFrame = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.activeLength = 0;
     this.coordMap = {};
+    this.numTimesDidChange = 0;
     this.reset();
   }
 
@@ -49,10 +51,12 @@ export class AnimationList {
       this.lifetime[i] = 0;
     }
     this.activeLength = 0;
+    this.numTimesDidChange = 0;
   }
 
   public getLength = () => this.activeLength;
   public getMaxLength = () => this.maxLength;
+  public getNumTimesDidChange = () => this.numTimesDidChange;
 
   public get length() {
     return this.activeLength;
@@ -81,6 +85,9 @@ export class AnimationList {
         this.removeByIndex(i);
         didChange = true;
       }
+    }
+    if (didChange) {
+      this.numTimesDidChange++;
     }
     return didChange;
   }

@@ -56,7 +56,8 @@ import {
 import {
   Action,
   AppMode,
-  Area,
+  Barrier,
+  BarrierType,
   ClickState,
   DIR,
   Difficulty,
@@ -229,7 +230,7 @@ export function engine({
   const drawState: DrawState = {
     shouldDrawApples: true,
     shouldDrawKeysLocks: true,
-    shouldDrawExplosions: true,
+    shouldDrawActionFG: true,
   };
   const metrics = {
     gameLoopProcessingTime: 0,
@@ -277,14 +278,14 @@ export function engine({
   let recentMoves: RecentMoves = [null, null, null, null]; // most recent moves that the snake has performed
   let recentInputs: RecentMoves = [null, null, null, null]; // most recent inputs that the player has performed
   let recentInputTimes: RecentMoveTimings = [Infinity, Infinity, Infinity, Infinity]; // timing of the most recent inputs that the player has performed
-  let barriers: Vector[] = []; // permanent structures that damage the snake
+  let barriers: Barrier[] = []; // permanent structures that damage the snake
   let doors: Vector[] = []; // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
   let decoratives1: Vector[] = []; // bg decorative elements
   let decoratives2: Vector[] = []; // bg decorative elements
   let keys: Key[] = []; // unlock locks
   let locks: Lock[] = []; // unlockable barriers
   let passablesMap: Record<number, boolean> = {}; // map of barriers that become passable when doors open
-  let barriersMap: Record<number, boolean> = {}; // map of barriers (obstacles or walls that the snake can hit)
+  let barriersMap: Record<number, BarrierType> = {}; // map of barriers (obstacles or walls that the snake can hit)
   let doorsMap: Record<number, boolean> = {}; // map of doors - blocks that disappear once conditions are met
   let pickupsMap: Record<number, Pickup | null> = {}; // map of pickup items, powerups, etc.
   let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
@@ -295,6 +296,7 @@ export function engine({
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
   const mines = new AnimationList();
+  const fireTiles = new AnimationList();
   const explosions = new AnimationList();
   const lightMap = createLightmap();
 
@@ -447,7 +449,7 @@ export function engine({
     // init state for new level
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
-    drawState.shouldDrawExplosions = true;
+    drawState.shouldDrawActionFG = true;
     player.position = p5.createVector(15, 15);
     player.direction = DIR.RIGHT;
     player.directionToFirstSegment = DIR.LEFT;
@@ -507,6 +509,7 @@ export function engine({
     apples.reset();
     mines.reset();
     explosions.reset();
+    fireTiles.reset();
     segments.reset();
     emitters.reset();
     emitters10.reset();
@@ -548,7 +551,8 @@ export function engine({
 
     renderer.reset();
     renderer.invalidateStaticCache();
-    spriteRenderer.setAppleImage(level.colors);
+    spriteRenderer.setThemedAppleImage(level.colors);
+    spriteRenderer.setThemedBorderImages(level.colors);
     cacheGraphicalComponents();
     appleParticleSystem.setColorsFromLevel(level);
     UI.disableScreenScroll();
@@ -645,6 +649,15 @@ export function engine({
       const segment = p5.createVector(x, y);
       segments.addVec(segment);
     }
+
+    // add fire tiles
+    barriers.filter(barrier => barrier.type === BarrierType.FireTile).forEach(barrier => {
+      const x = barrier.vec.x;
+      const y = barrier.vec.y;
+      const lifetime = 99999999; // improbably high lifetime = never despawn
+      fireTiles.add(x, y, lifetime, ANIMATIONS[Image.FireSheet].frames, ANIMATIONS[Image.FireSheet].timePerFrame);
+    });
+    barriers = barriers.filter(barrier => barrier.type !== BarrierType.FireTile);
 
     // add initial mines
     for (let i = 0; i < levelData.mines.length; i++) {
@@ -914,6 +927,7 @@ export function engine({
     }
 
     drawMines();
+    drawFireTiles();
     drawExplosions();
 
     renderer.drawPlayerMoveArrows(p5, player.position, moves.length > 0 ? moves[0] : player.direction);
@@ -931,14 +945,17 @@ export function engine({
     renderer.setStaticCacheFlags();
 
     drawState.shouldDrawApples = false;
-    drawState.shouldDrawExplosions = false;
+    drawState.shouldDrawActionFG = false;
     drawState.shouldDrawKeysLocks = false;
 
     if (mines.tick(p5.deltaTime)) {
       drawState.shouldDrawApples = true;
     }
+    if (fireTiles.tick(p5.deltaTime)) {
+      drawState.shouldDrawActionFG = true;
+    }
     if (explosions.tick(p5.deltaTime)) {
-      drawState.shouldDrawExplosions = true;
+      drawState.shouldDrawActionFG = true;
     }
 
     if (
@@ -948,7 +965,7 @@ export function engine({
       !state.isShowingDeathColours &&
       state.timeSinceInvincibleStart >= difficulty.invincibilityTime
     ) {
-      updateLighting(lightMap, globalLight, player.position, portals, apples, pickupsMap);
+      updateLighting(lightMap, globalLight, player.position, portals, apples, pickupsMap, explosions, fireTiles);
       drawLighting(lightMap, renderer, gfxLighting);
     }
 
@@ -1274,7 +1291,7 @@ export function engine({
       state.lastHurtBy = HitType.HitMine;
       playSound(Sound.xpound);
       drawState.shouldDrawApples = true;
-      drawState.shouldDrawExplosions = true;
+      drawState.shouldDrawActionFG = true;
       const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
       return !isInvincible;
     }
@@ -1632,7 +1649,7 @@ export function engine({
           const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
           explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
           drawState.shouldDrawApples = true;
-          drawState.shouldDrawExplosions = true;
+          drawState.shouldDrawActionFG = true;
         }
       }
     }
@@ -2237,7 +2254,7 @@ export function engine({
     if (drawState.shouldDrawKeysLocks) {
       gfxKeysLocks.clear(0, 0, 0, 0);
     }
-    if (drawState.shouldDrawExplosions) {
+    if (drawState.shouldDrawActionFG) {
       gfxFGAction.clear(0, 0, 0, 0);
     }
   }
@@ -2332,7 +2349,7 @@ export function engine({
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
     } else if (drawState.shouldDrawApples) {
-      spriteRenderer.drawImage3x3Custom(gfxApples, Image.Apple, x, y, 0, 1, 0);
+      spriteRenderer.drawImage3x3Custom(gfxApples, Image.ThemedApple, x, y, 0, 1, 0);
     }
   }
 
@@ -2352,8 +2369,21 @@ export function engine({
     }
   }
 
+  function drawFireTiles() {
+    if (drawState.shouldDrawActionFG) {
+      for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
+        if (fireTiles.existsAtCoord(coord)) {
+          const x = Math.floor(coord % GRIDCOUNT.x);
+          const y = Math.floor(coord / GRIDCOUNT.x);
+          const elapsed = fireTiles.getElapsedByCoord(coord);
+          spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.FireSheet, x, y, elapsed);
+        }
+      }
+    }
+  }
+
   function drawExplosions() {
-    if (drawState.shouldDrawExplosions) {
+    if (drawState.shouldDrawActionFG) {
       for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
         if (explosions.existsAtCoord(coord)) {
           const x = Math.floor(coord % GRIDCOUNT.x);
@@ -2402,27 +2432,47 @@ export function engine({
   function drawBarriers() {
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < barriers.length; i++) {
-        if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrier, barriers[i].x, barriers[i].y, 1, 0);
+        if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
+        switch (barriers[i].type) {
+          case BarrierType.FireTile:
+            // handled by drawFireTiles()
+            break;
+          case BarrierType.Skull:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 0);
+            break;
+          case BarrierType.ThemedSkull:
+            spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedBarrierSkull, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+            break;
+          case BarrierType.Indent:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 2);
+            break;
+          case BarrierType.ThemedIndent:
+            spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedBarrierIndent, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+            break;
+          default:
+          case BarrierType.Default:
+            renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrier, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
+            break;
+        }
       }
       return;
     }
 
     for (let i = 0; i < barriers.length; i++) {
-      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareStatic(gfxFG, barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptionsNoShake);
+      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
+      renderer.drawSquareStatic(gfxFG, barriers[i].vec.x, barriers[i].vec.y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptionsNoShake);
     }
     for (let i = 0; i < barriers.length; i++) {
-      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareBorderStatic(gfxFG, barriers[i].x, barriers[i].y, 'light', PALETTE.deathInvert.barrierStroke, false, 0);
+      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
+      renderer.drawSquareBorderStatic(gfxFG, barriers[i].vec.x, barriers[i].vec.y, 'light', PALETTE.deathInvert.barrierStroke, false, 0);
     }
     for (let i = 0; i < barriers.length; i++) {
-      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareBorderStatic(gfxFG, barriers[i].x, barriers[i].y, 'dark', PALETTE.deathInvert.barrierStroke, false, 0);
+      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
+      renderer.drawSquareBorderStatic(gfxFG, barriers[i].vec.x, barriers[i].vec.y, 'dark', PALETTE.deathInvert.barrierStroke, false, 0);
     }
     for (let i = 0; i < barriers.length; i++) {
-      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawXStatic(gfxFG, barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrierStroke, 5, 0);
+      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
+      renderer.drawXStatic(gfxFG, barriers[i].vec.x, barriers[i].vec.y, PALETTE.deathInvert.barrierStroke, 5, 0);
     }
   }
 
@@ -2430,22 +2480,22 @@ export function engine({
     if (!state.isDoorsOpen) return;
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < barriers.length; i++) {
-        if (!passablesMap[getCoordIndex(barriers[i])]) continue;
-        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrierPassable, barriers[i].x, barriers[i].y, 1, 0);
+        if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
+        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrierPassable, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
       }
       return;
     }
     for (let i = 0; i < barriers.length; i++) {
-      if (!passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquare(barriers[i].x, barriers[i].y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptions);
+      if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
+      renderer.drawSquare(barriers[i].vec.x, barriers[i].vec.y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptions);
     }
     for (let i = 0; i < barriers.length; i++) {
-      if (!passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareBorder(barriers[i].x, barriers[i].y, 'light', PALETTE.deathInvert.barrierStroke, true);
+      if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
+      renderer.drawSquareBorder(barriers[i].vec.x, barriers[i].vec.y, 'light', PALETTE.deathInvert.barrierStroke, true);
     }
     for (let i = 0; i < barriers.length; i++) {
-      if (!passablesMap[getCoordIndex(barriers[i])]) continue;
-      renderer.drawSquareBorder(barriers[i].x, barriers[i].y, 'dark', PALETTE.deathInvert.barrierStroke, true);
+      if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
+      renderer.drawSquareBorder(barriers[i].vec.x, barriers[i].vec.y, 'dark', PALETTE.deathInvert.barrierStroke, true);
     }
   }
 
@@ -2620,14 +2670,14 @@ export function engine({
     startScreenShake(3, -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, 0.1);
     state.isShowingDeathColours = true;
     drawState.shouldDrawApples = true;
-    drawState.shouldDrawExplosions = true;
+    drawState.shouldDrawActionFG = true;
     drawState.shouldDrawKeysLocks = true;
     renderer.invalidateStaticCache();
     // UI.renderHearts(0, true);
     yield* coroutines.waitForTime(HURT_STUN_TIME * 2.5);
     state.isShowingDeathColours = false;
     drawState.shouldDrawApples = true;
-    drawState.shouldDrawExplosions = true;
+    drawState.shouldDrawActionFG = true;
     drawState.shouldDrawKeysLocks = true;
     renderer.invalidateStaticCache();
     // UI.renderHearts(0, false);

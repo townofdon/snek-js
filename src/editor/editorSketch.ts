@@ -22,6 +22,7 @@ import {
   ScreenShakeState,
   Tutorial,
   InputType,
+  BarrierType,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -375,7 +376,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       if (state.dirty) {
         state.dirty = false;
         renderer.invalidateStaticCache();
-        updateLighting(lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null);
+        spriteRenderer.setThemedAppleImage(state.extendedPalette);
+        spriteRenderer.setThemedBorderImages(state.extendedPalette);
+        updateLighting(lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, null, null);
         startPortalParticles();
       }
       renderElements();
@@ -449,7 +452,27 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           }
 
           if (data.barriersMap[coord] && !data.passablesMap[coord]) {
-            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);
+            switch (data.barriersMap[coord]) {
+              case BarrierType.FireTile:
+                spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.FireSheet, x, y, 0);
+                break;
+              case BarrierType.Skull:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 0);
+                break;
+              case BarrierType.ThemedSkull:
+                spriteRenderer.drawImage3x3Static(gfx, Image.ThemedBarrierSkull, x, y, 0, 1, 0);
+                break;
+              case BarrierType.Indent:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 2);
+                break;
+              case BarrierType.ThemedIndent:
+                spriteRenderer.drawImage3x3Static(gfx, Image.ThemedBarrierIndent, x, y, 0, 1, 0);
+                break;
+              case BarrierType.Default:
+              default:
+                renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);
+                break;
+            }
           }
 
           if (isValidKeyChannel(data.locksMap[coord])) {

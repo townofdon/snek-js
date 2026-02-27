@@ -12,6 +12,8 @@ import {
   PICKUP_EXPIRE_WARN_MS,
 } from "./constants";
 import {
+  BARRIER_TYPE_MAX,
+  BarrierType,
   DIR,
   Difficulty,
   DifficultyIndex,
@@ -403,6 +405,11 @@ export const getGraphicsDir = (appendPath = '') => {
 export const isValidPortalChannel = (portalChannel: number): portalChannel is PortalChannel => {
   if (portalChannel === null || portalChannel === undefined) return false;
   return Number.isInteger(portalChannel) && portalChannel >= 0 && portalChannel <= 9
+}
+
+export const isValidBarrierType = (barrierType: number): barrierType is BarrierType => {
+  if (barrierType === null || barrierType === undefined) return false;
+  return Number.isInteger(barrierType) && barrierType >= 0 && barrierType <= BARRIER_TYPE_MAX;
 }
 
 export const isValidKeyChannel = (channel: number): channel is KeyChannel => {

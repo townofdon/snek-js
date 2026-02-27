@@ -7,12 +7,14 @@ interface EditorSidebarProps {
   tile: Tile,
   sidebarKeyChannels: React.ReactNode,
   sidebarPortalChannels: React.ReactNode,
+  sidebarBarrierTypes: React.ReactNode,
 }
 
 export const EditorSidebar = ({
   tile,
   sidebarKeyChannels,
   sidebarPortalChannels,
+  sidebarBarrierTypes,
 }: EditorSidebarProps) => {
 
   const renderContent = () => {
@@ -21,6 +23,9 @@ export const EditorSidebar = ({
     }
     if (tile === Tile.Portal) {
       return sidebarPortalChannels;
+    }
+    if (tile === Tile.Barrier) {
+      return sidebarBarrierTypes;
     }
     return null;
   }

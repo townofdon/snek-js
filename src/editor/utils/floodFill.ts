@@ -1,7 +1,7 @@
 import { GRIDCOUNT } from "../../constants";
-import { EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../../types";
+import { Barrier, BarrierType, EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../../types";
 import { Tile } from "../editorTypes";
-import { getCoordIndex2, isValidKeyChannel, isValidPortalChannel } from "../../utils";
+import { getCoordIndex2, isValidBarrierType, isValidKeyChannel, isValidPortalChannel } from "../../utils";
 import { deepCloneData } from "./editorUtils";
 
 
@@ -9,6 +9,11 @@ enum FloodFillTile {
   None,
   Passable,
   Barrier,
+  BarrierSkull,
+  BarrierSkullThemed,
+  BarrierIndent,
+  BarrierIndentThemed,
+  BarrierFireTile,
   Door,
   Deco1,
   Deco2,
@@ -38,16 +43,33 @@ interface GetTileArgs {
   tile: Tile;
   portalChannel?: PortalChannel;
   keyChannel?: KeyChannel;
+  barrierType?: BarrierType
 }
-function getTile({ tile, portalChannel, keyChannel }: GetTileArgs) {
+function getTile({ tile, portalChannel, keyChannel, barrierType }: GetTileArgs) {
   if (tile === Tile.Passable) return FloodFillTile.Passable;
-  if (tile === Tile.Barrier) return FloodFillTile.Barrier;
   if (tile === Tile.Door) return FloodFillTile.Door;
   if (tile === Tile.Apple) return FloodFillTile.Apple;
   if (tile === Tile.Mine) return FloodFillTile.Mine;
   if (tile === Tile.Invincibility) return FloodFillTile.Invincibility;
   if (tile === Tile.Deco2) return FloodFillTile.Deco2;
   if (tile === Tile.Deco1) return FloodFillTile.Deco1;
+  if (tile === Tile.Barrier && isValidBarrierType(barrierType)) {
+    switch (barrierType) {
+      case BarrierType.FireTile:
+        return FloodFillTile.BarrierFireTile;
+      case BarrierType.Skull:
+        return FloodFillTile.BarrierSkull;
+      case BarrierType.ThemedSkull:
+        return FloodFillTile.BarrierSkullThemed;
+      case BarrierType.Indent:
+        return FloodFillTile.BarrierIndent;
+      case BarrierType.ThemedIndent:
+        return FloodFillTile.BarrierIndentThemed;
+      case BarrierType.Default:
+      default:
+        return FloodFillTile.Barrier;
+    }
+  }
   if (tile === Tile.Portal && isValidPortalChannel(portalChannel)) {
     switch (portalChannel) {
       case 0:
@@ -103,8 +125,9 @@ function getTile({ tile, portalChannel, keyChannel }: GetTileArgs) {
 }
 
 function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
+  const barrierType = data.barriersMap[coord];
   if (data.passablesMap[coord]) return getTile({ tile: Tile.Passable });
-  if (data.barriersMap[coord]) return getTile({ tile: Tile.Barrier });
+  if (data.barriersMap[coord] && isValidBarrierType(barrierType)) return getTile({ tile: Tile.Barrier, barrierType });
   if (data.doorsMap[coord]) return getTile({ tile: Tile.Door });
   if (data.applesMap[coord]) return getTile({ tile: Tile.Apple });
   if (data.minesMap[coord]) return getTile({ tile: Tile.Mine });
@@ -150,10 +173,25 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
       break;
     case FloodFillTile.Passable:
       slice.passable = true;
-      slice.barrier = true;
+      slice.barrier = BarrierType.Default;
       break;
     case FloodFillTile.Barrier:
-      slice.barrier = true;
+      slice.barrier = BarrierType.Default;
+      break;
+    case FloodFillTile.BarrierSkull:
+      slice.barrier = BarrierType.Skull;
+      break;
+    case FloodFillTile.BarrierSkullThemed:
+      slice.barrier = BarrierType.ThemedSkull;
+      break;
+    case FloodFillTile.BarrierIndent:
+      slice.barrier = BarrierType.Indent;
+      break;
+    case FloodFillTile.BarrierIndentThemed:
+      slice.barrier = BarrierType.ThemedIndent;
+      break;
+    case FloodFillTile.BarrierFireTile:
+      slice.barrier = BarrierType.FireTile;
       break;
     case FloodFillTile.Door:
       slice.door = true;
@@ -254,10 +292,11 @@ export function tileFloodFill(
   y: number,
   portalChannel: PortalChannel,
   keyChannel: KeyChannel,
+  barrierType: BarrierType,
   data: EditorData,
 ): EditorData | null {
   const prev = getTileAtLocation(getCoordIndex2(x, y), data);
-  const next = getTile({ tile: tileToSet, portalChannel, keyChannel });
+  const next = getTile({ tile: tileToSet, portalChannel, keyChannel, barrierType });
   const newData = deepCloneData(data);
 
   if (prev === next) {

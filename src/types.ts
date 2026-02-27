@@ -218,7 +218,7 @@ export interface GameState {
 export interface DrawState {
   shouldDrawApples: boolean,
   shouldDrawKeysLocks: boolean,
-  shouldDrawExplosions: boolean,
+  shouldDrawActionFG: boolean,
 }
 
 export interface LoopState {
@@ -281,6 +281,12 @@ export interface ExtendedPalette extends Palette {
   passableStroke: string,
   passableBorderLight: string,
   passableBorderDark: string,
+}
+
+export interface ColorReplacementPalette {
+  dark: P5.Color,
+  main: P5.Color,
+  light: P5.Color,
 }
 
 export enum TitleVariant {
@@ -402,6 +408,22 @@ export interface Lock extends Key {
   coord: number,
 }
 
+export enum BarrierType {
+  Unset = 0,
+  Default = 1,
+  Skull = 2,
+  ThemedSkull = 3,
+  Indent = 4,
+  ThemedIndent = 5,
+  FireTile = 6,
+}
+export const BARRIER_TYPE_MAX = 6;
+
+export interface Barrier {
+  type: BarrierType,
+  vec: Vector,
+}
+
 export enum InputAction {
   HideStartScreen,
   ShowMainMenu,
@@ -452,7 +474,7 @@ export interface EditorData {
   applesMap: Record<number, Maybe<boolean>>,
   minesMap: Record<number, Maybe<boolean>>,
   invincibilitiesMap: Record<number, Maybe<boolean>>,
-  barriersMap: Record<number, Maybe<boolean>>,
+  barriersMap: Record<number, Maybe<BarrierType>>,
   decoratives1Map: Record<number, Maybe<boolean>>,
   decoratives2Map: Record<number, Maybe<boolean>>,
   doorsMap: Record<number, Maybe<boolean>>,
@@ -470,7 +492,7 @@ export interface EditorDataSlice {
   apple: Maybe<boolean>,
   mine: Maybe<boolean>,
   invincibility: Maybe<boolean>,
-  barrier: Maybe<boolean>,
+  barrier: Maybe<BarrierType>,
   deco1: Maybe<boolean>,
   deco2: Maybe<boolean>,
   door: Maybe<boolean>,
@@ -484,11 +506,12 @@ export interface EditorDataSlice {
 }
 
 export interface LevelData {
-  barriers: Vector[],
+  barriers: Barrier[],
   doors: Vector[],
   apples: Vector[],
   mines: Vector[],
   invincibilities: Vector[],
+  fireTiles: Vector[],
   decoratives1: Vector[],
   decoratives2: Vector[],
   nospawns: Vector[],
@@ -496,7 +519,7 @@ export interface LevelData {
   playerSpawnPosition: Vector,
   keys: Key[],
   locks: Lock[],
-  barriersMap: Record<number, boolean>,
+  barriersMap: Record<number, BarrierType>,
   passablesMap: Record<number, boolean>,
   doorsMap: Record<number, boolean>,
   decoratives1Map: Record<number, boolean>,
@@ -635,7 +658,9 @@ export interface AnimationData {
 }
 
 export enum Image {
-  Apple = '__apple-rendered-at-runtime__',
+  ThemedApple = '__apple-rendered-at-runtime__',
+  ThemedBarrierSkull = '__barrier-skull-rendered-at-runtime__',
+  ThemedBarrierIndent = '__barrier-indent-rendered-at-runtime__',
   AppleTemplate = 'snek-apple-template.png',
   SnekHead = 'snek-head.png',
   SnekHeadDead = 'snek-head-dead.png',
@@ -679,9 +704,22 @@ export enum Image {
   EditorSelectionRed = 'editor-selection-red.png',
   MineSheet = 'snek-mine-sheet.png',
   ExplosionSheet = 'snek-explosion-sheet.png',
+  FireSheet = 'snek-fire4.png',
+  TileSheet = 'snek-tiles.png',
 }
 
-export type SpritesheetImage = Image.MineSheet | Image.ExplosionSheet;
+export type ThemedImage =
+  | Image.ThemedApple
+  | Image.ThemedBarrierIndent
+  | Image.ThemedBarrierSkull
+;
+
+export type SpritesheetImage =
+  | Image.MineSheet
+  | Image.ExplosionSheet
+  | Image.FireSheet
+  | Image.TileSheet
+;
 
 export interface Scene {
   draw: () => void

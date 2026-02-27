@@ -5,7 +5,7 @@ import { buildLevel } from "../../levels/levelBuilder";
 import { LEVEL_01 } from "../../levels/campaign/level01";
 import { LEVEL_10 } from "../../levels/campaign/level10";
 import { LEVELS } from "../../levels/levelConstants";
-import { DIR, EditorData, EditorOptions, KeyChannel, Level, LevelType, MusicTrack, PortalExitMode } from "../../types"
+import { BarrierType, DIR, EditorData, EditorOptions, KeyChannel, Level, LevelType, MusicTrack, PortalExitMode } from "../../types"
 import { coordToVec, getCoordIndex2 } from "../../utils";
 
 import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "./editorUtils"
@@ -120,8 +120,9 @@ describe('editorUtils', () => {
         },
         musicTrack: MusicTrack.None,
       }
+      const B1 = BarrierType.Default;
       const data: EditorData = {
-        barriersMap: { 1: true, 2: true, 3: true, 4: true },
+        barriersMap: { 1: B1, 2: B1, 3: B1, 4: B1 },
         passablesMap: { 3: true, 4: true },
         doorsMap: { 5: true, 6: true },
         decoratives1Map: { 7: true, 8: true },
@@ -231,14 +232,15 @@ describe('editorUtils', () => {
         playerSpawnPosition: new Vector(13, 13),
         startDirection: DIR.DOWN,
       }
+      const B1 = BarrierType.Default;
       for (let i = 0; i < 29; i++) {
         if (i === 14 || i === 15) continue;
-        data.barriersMap[getCoordIndex2(0, i)] = true;
-        data.barriersMap[getCoordIndex2(29, i)] = true;
-        data.barriersMap[getCoordIndex2(i, 0)] = true;
-        data.barriersMap[getCoordIndex2(i, 29)] = true;
+        data.barriersMap[getCoordIndex2(0, i)] = B1;
+        data.barriersMap[getCoordIndex2(29, i)] = B1;
+        data.barriersMap[getCoordIndex2(i, 0)] = B1;
+        data.barriersMap[getCoordIndex2(i, 29)] = B1;
       }
-      data.barriersMap[getCoordIndex2(29, 29)] = true;
+      data.barriersMap[getCoordIndex2(29, 29)] = B1;
       const encoded = encodeMapData(data, options);
       const [decodedData, decodedOptions] = decodeMapData(encoded);
 
@@ -319,7 +321,17 @@ describe('editorUtils', () => {
         applesMap: { 0: true },
         minesMap: { 60: true },
         invincibilitiesMap: { 61: true },
-        barriersMap: { 1: true, 2: true, 100: true, 101: true, 102: true },
+        barriersMap: {
+          1: BarrierType.Default,
+          2: BarrierType.Default,
+          100: BarrierType.Default,
+          101: BarrierType.Default,
+          102: BarrierType.Default,
+          120: BarrierType.Skull,
+          121: BarrierType.ThemedSkull,
+          122: BarrierType.Indent,
+          123: BarrierType.ThemedIndent,
+        },
         passablesMap: { 2: true },
         doorsMap: { 3: true },
         decoratives1Map: { 4: true, 7: true },
@@ -359,8 +371,8 @@ describe('editorUtils', () => {
       |JKL.................0123456789|
       |*!............................|
       |..........uio.................|
-      |..............................|
-      |..............................|
+      |ZzCc..........................|
+      |F.............................|
       |..............................|
       |..............................|
       |..............................|

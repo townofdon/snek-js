@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
-import { Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
+import { BarrierType, Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./campaign/level01";
 
@@ -14,6 +14,7 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
     apples: [],
     mines: [],
     invincibilities: [],
+    fireTiles: [],
     decoratives1: [],
     decoratives1Map: {},
     decoratives2: [],
@@ -79,8 +80,24 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
           if (char === 'x') {
             passables.push(vec);
           }
-          data.barriers.push(vec);
+          data.barriers.push({ vec, type: BarrierType.Default });
           break;
+        case 'Z':
+          data.barriers.push({ vec, type: BarrierType.Skull });
+          break;
+        case 'z':
+          data.barriers.push({ vec, type: BarrierType.ThemedSkull });
+          break;
+        case 'C':
+          data.barriers.push({ vec, type: BarrierType.Indent });
+          break;
+        case 'c':
+          data.barriers.push({ vec, type: BarrierType.ThemedIndent });
+          break;
+        case 'F':
+          data.barriers.push({ vec, type: BarrierType.FireTile });
+          break;
+
         case 'D':
         case 'd':
           data.doors.push(vec);
@@ -93,6 +110,7 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
             }
           }
           break;
+
         case 'O':
           data.playerSpawnPosition = vec;
           break;
@@ -129,6 +147,7 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
         // mines
         case '*':
           data.mines.push(vec);
+          data.decoratives2.push(vec);
           break;
 
         // invincibility pickups
@@ -140,17 +159,17 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
         case 'u':
           keyCandidates[KeyChannel.Yellow].push({ position: vec, channel: KeyChannel.Yellow });
           passables.push(vec);
-          data.barriers.push(vec);
+          data.barriers.push({ vec, type: BarrierType.Default });
           break;
         case 'i':
           keyCandidates[KeyChannel.Red].push({ position: vec, channel: KeyChannel.Red });
           passables.push(vec);
-          data.barriers.push(vec);
+          data.barriers.push({ vec, type: BarrierType.Default });
           break;
         case 'o':
           keyCandidates[KeyChannel.Blue].push({ position: vec, channel: KeyChannel.Blue });
           passables.push(vec);
-          data.barriers.push(vec);
+          data.barriers.push({ vec, type: BarrierType.Default });
           break;
         case 'j':
           keyCandidates[KeyChannel.Yellow].push({ position: vec, channel: KeyChannel.Yellow });
@@ -231,7 +250,7 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
 
   passables.forEach(vec => { data.passablesMap[getCoordIndex(vec)] = true; })
   data.nospawns.forEach(vec => { data.nospawnsMap[getCoordIndex(vec)] = true; });
-  data.barriers.forEach(vec => { data.barriersMap[getCoordIndex(vec)] = true; });
+  data.barriers.forEach(bar => { data.barriersMap[getCoordIndex(bar.vec)] = bar.type; });
   data.doors.forEach(vec => { data.doorsMap[getCoordIndex(vec)] = true; });
   data.decoratives1.forEach(vec => { data.decoratives1Map[getCoordIndex(vec)] = true; });
   data.decoratives2.forEach(vec => { data.decoratives2Map[getCoordIndex(vec)] = true; });
