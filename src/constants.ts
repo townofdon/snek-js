@@ -1,7 +1,7 @@
 import P5 from "p5";
 import Color from "color";
 
-import { AnimationData, Difficulty, Image, MusicTrack, PortalChannel, SpritesheetImage } from "./types";
+import { AnimationData, BarrierType, Difficulty, Image, MusicTrack, PortalChannel, SpritesheetImage } from "./types";
 
 export const TITLE = 'SNEK';
 
@@ -245,6 +245,16 @@ export const NEW_HIGHSCORE_COLORS = [
   "#FCB045",
   "#15C2CB",
 ];
+
+export const EDITOR_BARRIER_TYPE_COLORS: Record<BarrierType, string> = {
+  [BarrierType.Unset]: '#666',
+  [BarrierType.Default]: '#ffffff',
+  [BarrierType.Skull]: '#6fabb3',
+  [BarrierType.ThemedSkull]: '#6fabb3',
+  [BarrierType.Indent]: '#cbc8b2',
+  [BarrierType.ThemedIndent]: '#cbc8b2',
+  [BarrierType.FireTile]: '#fb873a'
+} as const
 
 export const OST_TRACK_FADE_DURATION_MS = 10000;
 export const CAMPAIGN_TRACKS: MusicTrack[] = [

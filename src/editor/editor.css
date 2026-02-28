@@ -356,7 +356,6 @@ button,
   }
   &:hover .tooltip {
     display: block!important;
-    filter: none;
   }
   &.pencil.active {
     background-position-x: calc(0 * var(--editor-tool-sprite-width));
@@ -472,6 +471,15 @@ button,
   & .portalChannelSelect,
   & .keyChannelSelect {
     position: relative;
+
+    & .tooltip {
+      right: 100%;
+      left: inherit;
+      top: 4px;
+      bottom: inherit;
+      margin-right: 4px;
+      filter: none;
+    }
   }
   & .portalChannelColorPreview,
   & .keyChannelColorPreview {

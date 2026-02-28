@@ -1053,7 +1053,6 @@ button:hover,
 }
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT:hover .tooltip--hhnwyl4eDqRe7BPHpfod {
   display: block !important;
-  filter: none;
 }
 .editorToolSprite--rrVuT_GoHCoa28eSjhhT.pencil--q_wv12mnGW9ldaRJ2HtS.active--Rx0uKlzWxhXt775otXDz {
   background-position-x: calc(0 * var(--editor-tool-sprite-width));
@@ -1188,6 +1187,14 @@ button:hover,
 }
 .editorTileSidebar--uuBQITMXZKkc6enfJglp .portalChannelSelect--X4ZQlBKi5hRstqq7CJgT, .editorTileSidebar--uuBQITMXZKkc6enfJglp .keyChannelSelect--uJO08ugv7fMOjt5ah3uA {
   position: relative;
+}
+.editorTileSidebar--uuBQITMXZKkc6enfJglp .portalChannelSelect--X4ZQlBKi5hRstqq7CJgT .tooltip--hhnwyl4eDqRe7BPHpfod, .editorTileSidebar--uuBQITMXZKkc6enfJglp .keyChannelSelect--uJO08ugv7fMOjt5ah3uA .tooltip--hhnwyl4eDqRe7BPHpfod {
+  right: 100%;
+  left: inherit;
+  top: 4px;
+  bottom: inherit;
+  margin-right: 4px;
+  filter: none;
 }
 .editorTileSidebar--uuBQITMXZKkc6enfJglp .portalChannelColorPreview--i7T4LHCWLNg9a1wmy6IC, .editorTileSidebar--uuBQITMXZKkc6enfJglp .keyChannelColorPreview--Gx27TptNDff0efwHFwTX {
   position: absolute;
