@@ -6,7 +6,7 @@ import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, getRelativeDir, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT } from "../constants";
 import { EDITOR_DEFAULTS } from "./editorConstants";
-import { BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
+import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
 import { Tile } from "./editorTypes";
 import { useRefState } from "./hooks/useRefState";
 import { useLoadMapData } from "./hooks/useLoadMapData";
@@ -151,6 +151,12 @@ export const Editor = () => {
     } else if (tileRef.current === Tile.Portal) {
       const channel: PortalChannel = ((portalChannelRef.current + 10 + direction) % 10) as PortalChannel;
       setPortalChannel(channel);
+    } else if (tileRef.current === Tile.Barrier) {
+      let btype: BarrierType = ((barrierTypeRef.current + BARRIER_TYPE_MAX + direction) % BARRIER_TYPE_MAX) as BarrierType;
+      if (btype === BarrierType.Unset) {
+        btype = direction > 0 ? BarrierType.Default : (BARRIER_TYPE_MAX - 1)
+      }
+      setBarrierType(btype);
     }
   }
 

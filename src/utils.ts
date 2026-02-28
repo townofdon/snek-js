@@ -409,7 +409,7 @@ export const isValidPortalChannel = (portalChannel: number): portalChannel is Po
 
 export const isValidBarrierType = (barrierType: number): barrierType is BarrierType => {
   if (barrierType === null || barrierType === undefined) return false;
-  return Number.isInteger(barrierType) && barrierType >= 0 && barrierType <= BARRIER_TYPE_MAX;
+  return Number.isInteger(barrierType) && barrierType >= 0 && barrierType < BARRIER_TYPE_MAX;
 }
 
 export const isValidKeyChannel = (channel: number): channel is KeyChannel => {

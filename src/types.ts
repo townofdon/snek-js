@@ -422,7 +422,7 @@ export enum BarrierType {
   Pyramid = 9,
   ThemedPyramid = 10,
 }
-export const BARRIER_TYPE_MAX = 10;
+export const BARRIER_TYPE_MAX = 11;
 
 export interface Barrier {
   type: BarrierType,
