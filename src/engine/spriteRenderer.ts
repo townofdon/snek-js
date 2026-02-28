@@ -31,6 +31,7 @@ export class SpriteRenderer {
     [Image.ThemedApple]: null,
     [Image.ThemedBarrierSkull]: null,
     [Image.ThemedBarrierIndent]: null,
+    [Image.ThemedDoor]: null,
     [Image.AppleTemplate]: null,
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
@@ -111,8 +112,8 @@ export class SpriteRenderer {
       dark: this.p5.color(r_colorDark),
       light: this.p5.color(r_colorLight),
       main: this.p5.color(r_colorMain),
-    };
-    this.setThemedImageFromSprite(colors, Image.ThemedApple, Image.AppleTemplate, 0, 1);
+    } satisfies ColorReplacementPalette;
+    this.setThemedImageFromSprite(colors, Image.ThemedApple, Image.AppleTemplate, 0);
   }
 
   setThemedBorderImages = (palette: ExtendedPalette) => {
@@ -123,17 +124,29 @@ export class SpriteRenderer {
       dark: this.p5.color(r_colorDark),
       light: this.p5.color(r_colorLight),
       main: this.p5.color(r_colorMain),
-    };
-    this.setThemedImageFromSprite(colors, Image.ThemedBarrierSkull, Image.TileSheet, 1, ANIMATIONS[Image.TileSheet].frames);
-    this.setThemedImageFromSprite(colors, Image.ThemedBarrierIndent, Image.TileSheet, 3, ANIMATIONS[Image.TileSheet].frames);
+    } satisfies ColorReplacementPalette;
+    this.setThemedImageFromSprite(colors, Image.ThemedBarrierSkull, Image.TileSheet, 1);
+    this.setThemedImageFromSprite(colors, Image.ThemedBarrierIndent, Image.TileSheet, 3);
   }
 
-  private setThemedImageFromSprite(colors: ColorReplacementPalette, dest: ThemedImage, sourceSprite: Image, frame: number, totalFrames: number) {
+  setThemedDoorImage = (palette: ExtendedPalette) => {
+    const r_colorDark = Color(palette.doorStroke).darken(0.2).saturate(0.1).hex();
+    const r_colorLight = Color(palette.doorStroke).lighten(0.2).desaturate(0.1).hex();
+    const r_colorMain = palette.door;
+    const colors = {
+      dark: this.p5.color(r_colorDark),
+      light: this.p5.color(r_colorLight),
+      main: this.p5.color(r_colorMain),
+    } satisfies ColorReplacementPalette;
+    this.setThemedImageFromSprite(colors, Image.ThemedDoor, Image.TileSheet, 9);
+  }
+
+  private setThemedImageFromSprite(colors: ColorReplacementPalette, dest: ThemedImage, sourceSprite: Image, frame: number) {
     if (!this.images[sourceSprite]) {
       throw new Error(`source image is not loaded: ${sourceSprite}`);
     }
     const img = this.p5.createImage(48, 48);
-    // copy template image pixels to new image
+    // copy template image pixels to new image (assumes 48x48 dest img dims, as well as 48x48 src rect)
     img.copy(this.images[sourceSprite], 48 * frame, 0, 48, 48, 0, 0, 48, 48);
     // iterate through all pixels, replacing with theme colors
     img.loadPixels();

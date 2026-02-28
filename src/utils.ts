@@ -435,6 +435,31 @@ export function isOutsideMap(location: Vector) {
   return location.x < 0 || location.x >= GRIDCOUNT.x || location.y < 0 || location.y >= GRIDCOUNT.y;
 }
 
+export function isAtMapEdge(x: number, y: number, distanceTolerance: number = 1) {
+  return Math.abs(x) < distanceTolerance
+    || Math.abs(GRIDCOUNT.x - 1 - x) < distanceTolerance
+    || Math.abs(y) < distanceTolerance
+    || Math.abs(GRIDCOUNT.y - 1 - y) < distanceTolerance
+}
+
+export function hasNeighborEdgeDoor(dir: DIR, doorsMap: Record<number, any>, x: number, y: number, distanceTolerance: number = 1) {
+  let t = 1;
+  const vec = dirToUnitVector(dir);
+  while (t <= distanceTolerance) {
+    const dx = t * vec.x;
+    const dy = t * vec.y;
+    const result = doorsMap[getCoordIndex2(x + dx, y + dy)];
+    if (result === false || result === undefined || result === null) {
+      return false;
+    }
+    if (isAtMapEdge(x + dx, y + dy, 1)) {
+      return true
+    }
+    t++;
+  }
+  return false;
+}
+
 export function checkHasPortalAtLocation(location: Vector, portalsMap: Record<number, Portal>) {
   return !!portalsMap[getCoordIndex(location)];
 }

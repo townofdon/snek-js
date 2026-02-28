@@ -110,7 +110,9 @@ import {
   getNextPickupType,
   getRotationFromDirection,
   getTraversalDistance,
+  hasNeighborEdgeDoor,
   invertDirection,
+  isAtMapEdge,
   isOrthogonalDirection,
   isWithinBlockDistance,
   lerp,
@@ -553,6 +555,7 @@ export function engine({
     renderer.invalidateStaticCache();
     spriteRenderer.setThemedAppleImage(level.colors);
     spriteRenderer.setThemedBorderImages(level.colors);
+    spriteRenderer.setThemedDoorImage(level.colors);
     cacheGraphicalComponents();
     appleParticleSystem.setColorsFromLevel(level);
     UI.disableScreenScroll();
@@ -657,7 +660,6 @@ export function engine({
       const lifetime = 99999999; // improbably high lifetime = never despawn
       fireTiles.add(x, y, lifetime, ANIMATIONS[Image.FireSheet].frames, ANIMATIONS[Image.FireSheet].timePerFrame);
     });
-    barriers = barriers.filter(barrier => barrier.type !== BarrierType.FireTile);
 
     // add initial mines
     for (let i = 0; i < levelData.mines.length; i++) {
@@ -2370,7 +2372,7 @@ export function engine({
   }
 
   function drawFireTiles() {
-    if (drawState.shouldDrawActionFG) {
+    if (drawState.shouldDrawActionFG && !state.isShowingDeathColours) {
       for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
         if (fireTiles.existsAtCoord(coord)) {
           const x = Math.floor(coord % GRIDCOUNT.x);
@@ -2502,7 +2504,20 @@ export function engine({
   function drawDoors() {
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < doors.length; i++) {
-        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.door, doors[i].x, doors[i].y, 1, 0);
+        const x = doors[i].x;
+        const y = doors[i].y;
+        const combinedMap = { ...doorsMap, ...locksMap }
+        const hasAdjacentDoor = false
+          || hasNeighborEdgeDoor(DIR.LEFT, combinedMap, x, y, 3)
+          || hasNeighborEdgeDoor(DIR.RIGHT, combinedMap, x, y, 3)
+          || hasNeighborEdgeDoor(DIR.UP, combinedMap, x, y, 3)
+          || hasNeighborEdgeDoor(DIR.DOWN, combinedMap, x, y, 3);
+        const isThemedDoor = isAtMapEdge(x, y, 1) || isAtMapEdge(x, y, 3) && hasAdjacentDoor;
+        if (isThemedDoor && level !== START_LEVEL && level !== START_LEVEL_COBRA) {
+          spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedDoor, x, y, 0, 1, 0);
+        } else {
+          renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.door, x, y, 1, 0);
+        }
       }
       return;
     }

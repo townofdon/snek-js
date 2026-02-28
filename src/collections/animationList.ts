@@ -54,6 +54,18 @@ export class AnimationList {
     this.numTimesDidChange = 0;
   }
 
+  public fillFromMap = (map: Record<number, boolean>, lifetime: number, frames: number, timePerFrame: number) => {
+    this.reset();
+    for (let y = 0; y < GRIDCOUNT.y; y++) {
+      for (let x = 0; x < GRIDCOUNT.x; x++) {
+        const coord = getCoordIndex2(x, y);
+        if (map[coord]) {
+          this.add(x, y, lifetime, frames, timePerFrame)
+        }
+      }
+    }
+  }
+
   public getLength = () => this.activeLength;
   public getMaxLength = () => this.maxLength;
   public getNumTimesDidChange = () => this.numTimesDidChange;

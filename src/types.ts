@@ -661,6 +661,7 @@ export enum Image {
   ThemedApple = '__apple-rendered-at-runtime__',
   ThemedBarrierSkull = '__barrier-skull-rendered-at-runtime__',
   ThemedBarrierIndent = '__barrier-indent-rendered-at-runtime__',
+  ThemedDoor = 'door-rendered-at-runtime__',
   AppleTemplate = 'snek-apple-template.png',
   SnekHead = 'snek-head.png',
   SnekHeadDead = 'snek-head-dead.png',
@@ -704,7 +705,7 @@ export enum Image {
   EditorSelectionRed = 'editor-selection-red.png',
   MineSheet = 'snek-mine-sheet.png',
   ExplosionSheet = 'snek-explosion-sheet.png',
-  FireSheet = 'snek-fire4.png',
+  FireSheet = 'snek-fire5.png',
   TileSheet = 'snek-tiles.png',
 }
 
@@ -712,6 +713,7 @@ export type ThemedImage =
   | Image.ThemedApple
   | Image.ThemedBarrierIndent
   | Image.ThemedBarrierSkull
+  | Image.ThemedDoor
 ;
 
 export type SpritesheetImage =

@@ -1,6 +1,6 @@
 import P5, { Vector } from 'p5';
 
-import { BLOCK_SIZE, DIMENSIONS, GRIDCOUNT, INVINCIBILITY_COLOR_CYCLE_MS, NUM_SNAKE_INVINCIBLE_COLORS, SNAKE_INVINCIBLE_COLORS } from '../constants';
+import { ANIMATIONS, BLOCK_SIZE, DIMENSIONS, GRIDCOUNT, INVINCIBILITY_COLOR_CYCLE_MS, NUM_SNAKE_INVINCIBLE_COLORS, SNAKE_INVINCIBLE_COLORS } from '../constants';
 import {
   AppMode,
   DIR,
@@ -33,9 +33,10 @@ import { SpriteRenderer } from '../engine/spriteRenderer';
 import { Renderer } from '../engine/renderer';
 import { Fonts } from '../fonts';
 import { PALETTE, getExtendedPalette } from '../palettes';
-import { coordToVec, getCoordIndex2, getRotationFromDirection, isValidKeyChannel, isValidPortalChannel } from '../utils';
+import { coordToVec, getCoordIndex2, getRotationFromDirection, hasNeighborEdgeDoor, isAtMapEdge, isValidKeyChannel, isValidPortalChannel } from '../utils';
 import { EDITOR_DEFAULTS } from './editorConstants';
 import { createLightmap, drawLighting, initLighting, updateLighting } from '../engine/lighting';
+import { AnimationList } from '../collections/animationList';
 
 export enum EditorTool {
   Pencil,
@@ -322,6 +323,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
     const renderer = new Renderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
     const lightMap = createLightmap();
+    const fireTiles = new AnimationList();
 
     const invincibleColorGradient = gradients.addMultiple(SNAKE_INVINCIBLE_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
 
@@ -370,15 +372,24 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       if (state.colorsDirty) {
         state.colorsDirty = false;
         state.extendedPalette = getExtendedPalette(options.palette);
+        spriteRenderer.setThemedAppleImage(state.extendedPalette);
+        spriteRenderer.setThemedBorderImages(state.extendedPalette);
+        spriteRenderer.setThemedDoorImage(state.extendedPalette);
         cacheGraphicalComponents();
         state.dirty = true;
       }
       if (state.dirty) {
         state.dirty = false;
         renderer.invalidateStaticCache();
-        spriteRenderer.setThemedAppleImage(state.extendedPalette);
-        spriteRenderer.setThemedBorderImages(state.extendedPalette);
-        updateLighting(lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, null, null);
+        // come on baby, light my fire
+        const fireBarriersMap = Object.keys(data.barriersMap).reduce((acc, key) => {
+          const coord = parseInt(key, 10);
+          const barrierType = data.barriersMap[coord];
+          if (barrierType === BarrierType.FireTile) { acc[coord] = true; }
+          return acc;
+        }, {} as Record<number, boolean>);
+        fireTiles.fillFromMap(fireBarriersMap, 99999999, ANIMATIONS[Image.FireSheet].frames, ANIMATIONS[Image.FireSheet].timePerFrame);
+        updateLighting(lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, null, fireTiles);
         startPortalParticles();
       }
       renderElements();
@@ -447,8 +458,19 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.nospawn, x, y, alpha);
           }
 
+          const combinedMap = { ...data.doorsMap, ...data.locksMap }
+          const hasAdjacentDoor = false
+            || hasNeighborEdgeDoor(DIR.LEFT, combinedMap, x, y, 3)
+            || hasNeighborEdgeDoor(DIR.RIGHT, combinedMap, x, y, 3)
+            || hasNeighborEdgeDoor(DIR.UP, combinedMap, x, y, 3)
+            || hasNeighborEdgeDoor(DIR.DOWN, combinedMap, x, y, 3);
+
           if (data.doorsMap[coord]) {
-            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.door, x, y);
+            if (isAtMapEdge(x, y, 1) || isAtMapEdge(x, y, 3) && hasAdjacentDoor) {
+              spriteRenderer.drawImage3x3Static(gfx, Image.ThemedDoor, x, y, 0, 1, 0);
+            } else {
+              renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.door, x, y);
+            }
           }
 
           if (data.barriersMap[coord] && !data.passablesMap[coord]) {
@@ -498,7 +520,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           }
 
           if (data.applesMap[coord]) {
-            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.apple, x, y);
+            spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedApple, x, y, 0, 1, 0);
           }
 
           if (data.minesMap[coord]) {
