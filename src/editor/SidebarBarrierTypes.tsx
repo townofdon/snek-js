@@ -21,6 +21,10 @@ export const SidebarBarrierTypes = ({ activeBarrierType, setBarrierType }: Sideb
       [BarrierType.Indent]: '4',
       [BarrierType.ThemedIndent]: '5',
       [BarrierType.FireTile]: '6',
+      [BarrierType.Flat]: '7',
+      [BarrierType.ThemedFlat]: '8',
+      [BarrierType.Pyramid]: '9',
+      [BarrierType.ThemedPyramid]: '10',
     }[barrierType];
     const tooltipText = {
       [BarrierType.Unset]: 'None',
@@ -30,6 +34,10 @@ export const SidebarBarrierTypes = ({ activeBarrierType, setBarrierType }: Sideb
       [BarrierType.Indent]: 'Indent',
       [BarrierType.ThemedIndent]: 'Themed Indent',
       [BarrierType.FireTile]: 'Fire',
+      [BarrierType.Flat]: 'Flat',
+      [BarrierType.ThemedFlat]: 'Themed Flat',
+      [BarrierType.Pyramid]: 'Pyramid',
+      [BarrierType.ThemedPyramid]: 'Themed Pyramid',
     }[barrierType];
     const color = barrierType === activeBarrierType ? EDITOR_BARRIER_TYPE_COLORS[barrierType] : '#444'
     const colorPreview = barrierType === activeBarrierType ? 'rgb(17 17 17 / 10%)' : EDITOR_BARRIER_TYPE_COLORS[barrierType];
@@ -49,13 +57,17 @@ export const SidebarBarrierTypes = ({ activeBarrierType, setBarrierType }: Sideb
   }
   return (
     <div>
-      <span>style</span>
+      <label>style</label>
       {renderButton(BarrierType.Default)}
       {renderButton(BarrierType.Skull)}
       {renderButton(BarrierType.ThemedSkull)}
       {renderButton(BarrierType.Indent)}
       {renderButton(BarrierType.ThemedIndent)}
       {renderButton(BarrierType.FireTile)}
+      {renderButton(BarrierType.Flat)}
+      {renderButton(BarrierType.ThemedFlat)}
+      {renderButton(BarrierType.Pyramid)}
+      {renderButton(BarrierType.ThemedPyramid)}
     </div>
   );
 }

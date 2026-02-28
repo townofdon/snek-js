@@ -490,6 +490,18 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
               case BarrierType.ThemedIndent:
                 spriteRenderer.drawImage3x3Static(gfx, Image.ThemedBarrierIndent, x, y, 0, 1, 0);
                 break;
+              case BarrierType.Flat:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 4);
+                break;
+              case BarrierType.ThemedFlat:
+                spriteRenderer.drawImage3x3Static(gfx, Image.ThemedBarrierFlat, x, y, 0, 1, 0);
+                break;
+              case BarrierType.Pyramid:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 6);
+                break;
+              case BarrierType.ThemedPyramid:
+                spriteRenderer.drawImage3x3Static(gfx, Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
+                break;
               case BarrierType.Default:
               default:
                 renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);

@@ -287,6 +287,7 @@ export interface ColorReplacementPalette {
   dark: P5.Color,
   main: P5.Color,
   light: P5.Color,
+  alt: P5.Color,
 }
 
 export enum TitleVariant {
@@ -416,8 +417,12 @@ export enum BarrierType {
   Indent = 4,
   ThemedIndent = 5,
   FireTile = 6,
+  Flat = 7,
+  ThemedFlat = 8,
+  Pyramid = 9,
+  ThemedPyramid = 10,
 }
-export const BARRIER_TYPE_MAX = 6;
+export const BARRIER_TYPE_MAX = 10;
 
 export interface Barrier {
   type: BarrierType,
@@ -661,6 +666,8 @@ export enum Image {
   ThemedApple = '__apple-rendered-at-runtime__',
   ThemedBarrierSkull = '__barrier-skull-rendered-at-runtime__',
   ThemedBarrierIndent = '__barrier-indent-rendered-at-runtime__',
+  ThemedBarrierFlat = '__barrier-flat-rendered-at-runtime__',
+  ThemedBarrierPyramid = '__barrier-pyramid-rendered-at-runtime__',
   ThemedDoor = 'door-rendered-at-runtime__',
   AppleTemplate = 'snek-apple-template.png',
   SnekHead = 'snek-head.png',
@@ -713,6 +720,8 @@ export type ThemedImage =
   | Image.ThemedApple
   | Image.ThemedBarrierIndent
   | Image.ThemedBarrierSkull
+  | Image.ThemedBarrierFlat
+  | Image.ThemedBarrierPyramid
   | Image.ThemedDoor
 ;
 

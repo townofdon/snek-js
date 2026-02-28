@@ -335,6 +335,14 @@ export function buildMapLayout(data: EditorData): string {
           return 'c';
         case BarrierType.FireTile:
           return 'F';
+        case BarrierType.Flat:
+          return 'V';
+        case BarrierType.ThemedFlat:
+          return 'v';
+        case BarrierType.Pyramid:
+          return 'B';
+        case BarrierType.ThemedPyramid:
+          return 'b';
         case BarrierType.Default:
         default:
           return 'X';

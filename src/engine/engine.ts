@@ -2451,6 +2451,18 @@ export function engine({
           case BarrierType.ThemedIndent:
             spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedBarrierIndent, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
             break;
+          case BarrierType.Flat:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 4);
+            break;
+          case BarrierType.ThemedFlat:
+            spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedBarrierFlat, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+            break;
+          case BarrierType.Pyramid:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 6);
+            break;
+          case BarrierType.ThemedPyramid:
+            spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedBarrierPyramid, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+            break;
           default:
           case BarrierType.Default:
             renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrier, barriers[i].vec.x, barriers[i].vec.y, 1, 0);

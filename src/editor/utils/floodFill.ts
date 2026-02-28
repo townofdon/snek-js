@@ -14,6 +14,10 @@ enum FloodFillTile {
   BarrierIndent,
   BarrierIndentThemed,
   BarrierFireTile,
+  BarrierFlat,
+  BarrierFlatThemed,
+  BarrierPyramid,
+  BarrierPyramidThemed,
   Door,
   Deco1,
   Deco2,
@@ -65,6 +69,14 @@ function getTile({ tile, portalChannel, keyChannel, barrierType }: GetTileArgs) 
         return FloodFillTile.BarrierIndent;
       case BarrierType.ThemedIndent:
         return FloodFillTile.BarrierIndentThemed;
+      case BarrierType.Flat:
+        return FloodFillTile.BarrierFlat;
+      case BarrierType.ThemedFlat:
+        return FloodFillTile.BarrierFlatThemed
+      case BarrierType.Pyramid:
+        return FloodFillTile.BarrierPyramid
+      case BarrierType.ThemedPyramid:
+        return FloodFillTile.BarrierPyramidThemed
       case BarrierType.Default:
       default:
         return FloodFillTile.Barrier;
@@ -192,6 +204,18 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
       break;
     case FloodFillTile.BarrierFireTile:
       slice.barrier = BarrierType.FireTile;
+      break;
+    case FloodFillTile.BarrierFlat:
+      slice.barrier = BarrierType.Flat;
+      break;
+    case FloodFillTile.BarrierFlatThemed:
+      slice.barrier = BarrierType.ThemedFlat;
+      break;
+    case FloodFillTile.BarrierPyramid:
+      slice.barrier = BarrierType.Pyramid;
+      break;
+    case FloodFillTile.BarrierPyramidThemed:
+      slice.barrier = BarrierType.ThemedPyramid;
       break;
     case FloodFillTile.Door:
       slice.door = true;

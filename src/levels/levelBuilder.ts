@@ -97,6 +97,18 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
         case 'F':
           data.barriers.push({ vec, type: BarrierType.FireTile });
           break;
+        case 'V':
+          data.barriers.push({ vec, type: BarrierType.Flat });
+          break;
+        case 'v':
+          data.barriers.push({ vec, type: BarrierType.ThemedFlat });
+          break;
+        case 'B':
+          data.barriers.push({ vec, type: BarrierType.Pyramid });
+          break;
+        case 'b':
+          data.barriers.push({ vec, type: BarrierType.ThemedPyramid });
+          break;
 
         case 'D':
         case 'd':
