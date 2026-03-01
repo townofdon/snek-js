@@ -10,6 +10,10 @@ export const X_CATACOMBS = challengeLevel({
   parTime: toTime({ minutes: 1, seconds: 30 }),
   layoutV2: `TVhraylKSlhQWFBYKipGRmVaT2UoVVFPRkZwcEZGS25PS25PRkYqKlBYUEpKWFdraylYTXwzNzJ8UklHSFR8Y2F0YWNvbWJzUzkwOTY1UzA1fDJoaDN8MFNoMC4xOHwjQkE0Qzc2TDg0MzM1MmdFNzZEODNMRTI1MDZBamczMDM0MzZqTGEyYzFkMUw2NTliYzhMZjJmZGZmTDZiOTJhZkw5NmJmY2NTVlZWUzYhIE4gKE5RKVVVKktOWVluTllZKHFGCmRsbCFkSlhyZGRabk5kZCBLclFMLSNNClFRUWlpaWlRUVFRCk49PU9ucVBXbGwhUVhYU3wxVSAgVi0xLTEtMVcKWFksJ24oZUsgPVFnTDFEMjAyMExoMHxpUWRkakwyNjJBMkJrKSkpbCEhIW5aKHBLWk5fX09xIFhyVyABcnFwbmxramloZ2VaWVdWVVNRUE9OTUxLSkYqKSghXw%253D%253D`,
   musicTrack: MusicTrack.lostcolony,
+  pickupDrops: {
+    [PickupType.Invincibility]: false,
+    [PickupType.Mine]: false,
+  },
   pickupDropsByFrame: {
     25: { likelihood: 0.5, type: PickupType.Invincibility },
     50: { likelihood: 0.8, type: PickupType.Invincibility },

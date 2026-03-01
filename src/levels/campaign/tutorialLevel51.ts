@@ -1,4 +1,4 @@
-import { MusicTrack } from "../../types";
+import { MusicTrack, PickupType } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { VARIANT_LEVEL_07 } from "../bonusLevels/variantLevel07";
 import { MAZE_03_STORAGE } from "../mazes/maze03-storage";
@@ -16,5 +16,9 @@ export const TUTORIAL_LEVEL_51 = challengeLevel({
   nextLevelMap: {
     [getCoordIndex2(19, 29)]: MAZE_03_STORAGE,
     [getCoordIndex2(20, 29)]: MAZE_03_STORAGE,
+  },
+  pickupDrops: {
+    [PickupType.Invincibility]: false,
+    [PickupType.Mine]: false,
   },
 });

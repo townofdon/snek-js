@@ -61,7 +61,7 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
     ["This is nail-biting drama at its finest"],
     ["There never was much hope, only a snek's hope"],
     ["Tales of your deeds shall resound across the lands."],
-    ["This tragedy reminds us that life is fragile.<br/><br/>And also not to run into things."],
+    ["This reminds us that life is fragile.<br/><br/>And also not to run into things."],
   ],
   disableNormalLoseMessages: true,
   showQuoteOnLevelWin: false,

@@ -59,7 +59,7 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
     ["Yours will be an epic tale told for centuries."],
     ["This is nail-biting drama at its finest"],
     ["Tales of your deeds shall resound across the lands."],
-    ["This tragedy reminds us that life is fragile.<br/><br/>And also not to run into things."],
+    ["This reminds us that life is fragile.<br/><br/>And also not to run into things."],
     ["A thin line exists<br/>between the stout-hearted<br/>and the foolhardy."],
     ["Way to snatch defeat from the jaws of victory..."],
     ["Aw snap, just when it was beginning to get interesting..."],

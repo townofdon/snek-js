@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack } from "../../types";
+import { Level, MusicTrack, PickupType } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { WARP_ZONE_03 } from "../bonusLevels/warpZone03";
 
@@ -51,6 +51,10 @@ XXXXXXXXX++X++XX++X==XXXXXXXXX
   showTitle: true,
   musicTrack: MusicTrack.aqueduct,
   globalLight: 0.6,
+  pickupDrops: {
+    [PickupType.Invincibility]: false,
+    [PickupType.Mine]: false,
+  },
   nextLevelMap: {
     [getCoordIndex2(9, 29)]: WARP_ZONE_03,
     [getCoordIndex2(10, 29)]: WARP_ZONE_03,

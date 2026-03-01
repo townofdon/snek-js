@@ -50,15 +50,16 @@ export const SPRINT_INCREMENT_SPEED_MS = 250;
 export const NUM_APPLES_START = 3;
 
 export const SCORE_INCREMENT = 10;
-export const CLEAR_BONUS = 100;
+export const CLEAR_BONUS = 40;
 export const LEVEL_BONUS = 500;
 export const LIVES_LEFT_BONUS = 1000;
 export const ALL_APPLES_BONUS = 2500;
 export const ALL_LOCKS_BONUS = 2500;
 export const PERFECT_BONUS = 5000;
 export const COBRA_SCORE_MOD = 1.2;
-export const PICKUP_INVINCIBILITY_BONUS = 200;
 export const DEFAULT_PAR_TIME = 60000;
+
+export const PICKUP_INVINCIBILITY_BONUS = 200;
 
 export const DROP_LIKELIHOOD_INVINCIBILITY = 0.04;
 export const DROP_LIKELIHOOD_MINE = 0.08;
@@ -94,14 +95,14 @@ const NUM_APPLES_MOD_ULTRA = 1.5;
 const SPEED_START_EASY = 300;
 const SPEED_START_MEDIUM = 260;
 const SPEED_START_HARD = 190;
-const SPEED_START_ULTRA = 110;
+const SPEED_START_ULTRA = 88;
 
 const SPEED_STEPS_EASY = 20;
 const SPEED_STEPS_MEDIUM = 20;
-const SPEED_STEPS_HARD = 10;
-const SPEED_STEPS_ULTRA = 4;
+const SPEED_STEPS_HARD = 15;
+const SPEED_STEPS_ULTRA = 6;
 
-export const SPEED_LIMIT_EASY = 110;
+export const SPEED_LIMIT_EASY = 88;
 export const SPEED_LIMIT_MEDIUM = 56;
 export const SPEED_LIMIT_HARD = 38;
 export const SPEED_LIMIT_ULTRA = 25;

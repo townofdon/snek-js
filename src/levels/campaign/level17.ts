@@ -71,5 +71,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   globalLight: 0.5,
   pickupDrops: {
     [PickupType.Invincibility]: true,
+    [PickupType.Mine]: false,
   },
 };

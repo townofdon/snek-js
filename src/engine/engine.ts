@@ -1089,7 +1089,12 @@ export function engine({
   }
 
   function canRewind(): boolean {
-    if (state.gameMode !== GameMode.Casual && state.timeSinceInvincibleStart >= difficulty.invincibilityTime) return false;
+    if (
+      state.gameMode !== GameMode.Casual
+      && state.timeSinceInvincibleStart >= difficulty.invincibilityTime
+      && level !== START_LEVEL
+      && level !== START_LEVEL_COBRA
+    ) return false;
     if (state.isLost) return false;
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
@@ -1149,13 +1154,8 @@ export function engine({
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       return Infinity;
     }
-    if (difficulty.index === 4) {
-      if (state.isSprinting) return difficulty.sprintLimit;
-      if (state.currentSpeed <= 1) return SPEED_LIMIT_EASY;
-      if (state.currentSpeed <= 2) return p5.lerp(SPEED_LIMIT_EASY, SPEED_LIMIT_MEDIUM, state.currentSpeed - 1);
-      if (state.currentSpeed <= 3) return p5.lerp(SPEED_LIMIT_MEDIUM, SPEED_LIMIT_HARD, state.currentSpeed - 2);
-      if (state.currentSpeed <= 4) return p5.lerp(SPEED_LIMIT_HARD, SPEED_LIMIT_ULTRA, state.currentSpeed - 3);
-      return SPEED_LIMIT_ULTRA;
+    if (difficulty.index === 4 && state.isSprinting) {
+      return difficulty.sprintLimit;
     }
     return lerp(difficulty.speedStart,
       state.isSprinting ? difficulty.sprintLimit : difficulty.speedLimit,
@@ -1531,7 +1531,7 @@ export function engine({
       return false;
     }
     const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
-    const canRewind = isInvincible || state.gameMode === GameMode.Casual;
+    const canRewind = isInvincible || state.gameMode === GameMode.Casual || level === START_LEVEL || level === START_LEVEL_COBRA;
     if (willHitSomething && canRewind) {
       startRewinding();
       return false;
@@ -1541,6 +1541,9 @@ export function engine({
     moveSegments();
     player.position.add(currentMove);
     state.hurtGraceTime = HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0);
+    if (difficulty.index === 4) {
+      state.hurtGraceTime += 12;
+    }
 
     // play step sfx
     const volume = p5.lerp(1, 0.5, normalizedSpeed);
@@ -2060,14 +2063,15 @@ export function engine({
     if (level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
-    if (!level.pickupDropsByFrame && !level.pickupDrops?.[PickupType.Mine]) return false;
+    if (!level.pickupDropsByFrame && !level.pickupDrops?.[PickupType.Mine] && state.gameMode !== GameMode.Cobra) return false;
 
     const progress = getLevelProgress(stats, level, difficulty);
     const frameLikelihood = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === PickupType.Mine
       ? level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
       : undefined
+    const shouldSpawnDefault = state.gameMode === GameMode.Cobra;
     const baseLikelihood = getDropLikelihood(
-      level.pickupDrops?.[PickupType.Mine] ?? false,
+      level.pickupDrops?.[PickupType.Mine] ?? shouldSpawnDefault,
       DROP_LIKELIHOOD_MINE,
       difficulty.index
     ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)

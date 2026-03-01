@@ -1,5 +1,5 @@
 
-import { MusicTrack } from "../../types";
+import { MusicTrack, PickupType } from "../../types";
 import { toTime } from "../../utils";
 import { challengeLevel } from "./_challengeLevel";
 
@@ -11,4 +11,8 @@ export const X_SNEKCITY = challengeLevel({
   parTime: toTime({ minutes: 1, seconds: 5 }),
   layoutV2: `Cm9vKVgoWVlZWScnKFkuWVlZJygqLictLictVlhZWSgqLioqLlZKWSctJ2UqIS0hUS52KiEtIVFpdlZnLSFRaVZnUVllVmchWHpYLS5YZ1FZZVZYKj16QVhmS0shJyctJygtWFgqPUx%252BWGZ%252BWGkuLicoLVhYVlcpZkFsWGkuLidhWFZjPScnZktLWGkhLidhWGp5USouaSoqIWkuYVd5ZyouaS0hKiFpLmFYa3lnUSctLiEtX3hnaWFYa3lXKScnLSEtX0xnaShqSkpqeVdMQXpyd3dLS1hMZyEoPUpXSlF6QUxyY35Mc3hnIShfeWcgKT0nY0F6c0FnIShqWHlnJ3I9J2N6WHNBV2goSnd3IS0qKiBMKnNBV2goVnlYWFgtKiEhTCohWHhnIShtKSlRbF9MV2haYm13d3dDMyFRWExXdCApWFdvY1h4V3RqSkpKISFDM3h%252Bfn54eiFRdFZKWFYhbyFRaFpiJ2onZyFRa2shIUohISEhKG9vKVgKfDQwMnxSSUdIVHxNRUdBU05FS09QT0xJU3AycTY3fHFxM3BwMnB8IzE1QzJDQlUxMTlEQTR1MjM3NThVMkU0QTc2VTFGMjMzM3U3MkMzRlUxRjIzMzNVNEM4MkE5VTNGNkM4RFVGRkY2RjFVMEEwRTE0VUU5RUZGRnxubm5xN3wwUT1yZVhiKVhYWFgqICEuIC1RIT1VLSNWIFhXWD1ZJycnXz1YYSg9Y2IKWGUgKGZpLXdYZ1ghaGRkPWktLW0gZHh%252BeGQgbjAtMC0wLW8pKSlwfDFxMHxyJyBzIF90ZGQtZGJ1VTE2MTkyNVUydiBKSiEqWWV3Y2N5WGN6TEx%252BQUEBfnp5d3Z1dHNycXBvbm1paGdmZWJhX1lXVlVRLiopKCchXw%253D%253D`,
   musicTrack: MusicTrack.lordy,
+  pickupDrops: {
+    [PickupType.Invincibility]: true,
+    [PickupType.Mine]: false,
+  },
 });
