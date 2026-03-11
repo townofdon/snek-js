@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType } from "../../types";
+import { Level, MusicTrack, ItemDropType } from "../../types";
 import { toTime } from "../../utils";
 
 const name = 'gatekeeper';
@@ -53,7 +53,7 @@ XXXXXXXXXxxXxxXXxxXxxXXXXXXXXX
   musicTrack: MusicTrack.aqueduct,
   globalLight: 0.6,
   pickupDrops: {
-    [PickupType.Invincibility]: false,
-    [PickupType.Mine]: false,
+    [ItemDropType.Invincibility]: false,
+    [ItemDropType.Mine]: false,
   },
 };

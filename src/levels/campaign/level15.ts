@@ -1,6 +1,6 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, PortalExitMode, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 
 const name = 'quantum mirror'
@@ -75,20 +75,20 @@ XXXXXXXXXXXXXXX+++XXXXXXXXXXXX
     ["I daresay that was one teleport too many."],
   ],
   pickupDrops: {
-    [PickupType.Invincibility]: true,
-    [PickupType.Mine]: true,
+    [ItemDropType.Invincibility]: true,
+    [ItemDropType.Mine]: true,
   },
   pickupDropsByFrame: {
-    20: { likelihood: .2, type: PickupType.Invincibility },
-    30: { likelihood: .2, type: PickupType.Invincibility },
-    35: { likelihood: .5, type: PickupType.Mine },
-    40: { likelihood: .3, type: PickupType.Invincibility },
-    45: { likelihood: .5, type: PickupType.Mine },
-    50: { likelihood: .3, type: PickupType.Invincibility },
-    55: { likelihood: .5, type: PickupType.Mine },
-    59: { likelihood: .4, type: PickupType.Invincibility },
-    65: { likelihood: .5, type: PickupType.Mine },
-    70: { likelihood: .5, type: PickupType.Mine },
-    75: { likelihood: .5, type: PickupType.Mine },
+    20: { likelihood: .2, type: ItemDropType.Invincibility },
+    30: { likelihood: .2, type: ItemDropType.Invincibility },
+    35: { likelihood: .5, type: ItemDropType.Mine },
+    40: { likelihood: .3, type: ItemDropType.Invincibility },
+    45: { likelihood: .5, type: ItemDropType.Mine },
+    50: { likelihood: .3, type: ItemDropType.Invincibility },
+    55: { likelihood: .5, type: ItemDropType.Mine },
+    59: { likelihood: .4, type: ItemDropType.Invincibility },
+    65: { likelihood: .5, type: ItemDropType.Mine },
+    70: { likelihood: .5, type: ItemDropType.Mine },
+    75: { likelihood: .5, type: ItemDropType.Mine },
   },
 };

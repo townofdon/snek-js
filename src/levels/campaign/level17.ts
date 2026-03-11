@@ -1,6 +1,6 @@
 import Color from "color";
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, PortalExitMode, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 
 const name = 'ruins'
@@ -70,7 +70,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   musicTrack: MusicTrack.stonemaze,
   globalLight: 0.5,
   pickupDrops: {
-    [PickupType.Invincibility]: true,
-    [PickupType.Mine]: false,
+    [ItemDropType.Invincibility]: true,
+    [ItemDropType.Mine]: false,
   },
 };

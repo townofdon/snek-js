@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 import { LEVEL_WIN_GAME } from "../winGame";
 
@@ -74,27 +74,27 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   musicTrack: MusicTrack.slyguy,
   nextLevel: LEVEL_WIN_GAME,
   pickupDrops: {
-    [PickupType.Invincibility]: true,
-    [PickupType.Mine]: true,
+    [ItemDropType.Invincibility]: true,
+    [ItemDropType.Mine]: true,
   },
   pickupDropsByFrame: {
-    50: { likelihood: 0.8, type: PickupType.Invincibility },
-    75: { likelihood: 0.05, type: PickupType.Invincibility },
-    100: { likelihood: 0.8, type: PickupType.Invincibility },
-    125: { likelihood: 0.05, type: PickupType.Invincibility },
-    150: { likelihood: 0.8, type: PickupType.Invincibility },
-    175: { likelihood: 0.05, type: PickupType.Invincibility },
-    200: { likelihood: 0.8, type: PickupType.Invincibility },
-    225: { likelihood: 0.05, type: PickupType.Invincibility },
-    250: { likelihood: 0.8, type: PickupType.Invincibility },
-    275: { likelihood: 0.05, type: PickupType.Invincibility },
-    300: { likelihood: 0.8, type: PickupType.Invincibility },
-    325: { likelihood: 0.05, type: PickupType.Invincibility },
-    350: { likelihood: 0.8, type: PickupType.Invincibility },
-    375: { likelihood: 0.05, type: PickupType.Invincibility },
-    400: { likelihood: 0.8, type: PickupType.Invincibility },
-    425: { likelihood: 0.05, type: PickupType.Invincibility },
-    450: { likelihood: 0.8, type: PickupType.Invincibility },
-    460: { likelihood: 1, type: PickupType.Invincibility },
+    50: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    75: { likelihood: 0.05, type: ItemDropType.Invincibility },
+    100: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    125: { likelihood: 0.05, type: ItemDropType.Invincibility },
+    150: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    175: { likelihood: 0.05, type: ItemDropType.Invincibility },
+    200: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    225: { likelihood: 0.05, type: ItemDropType.Invincibility },
+    250: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    275: { likelihood: 0.05, type: ItemDropType.Invincibility },
+    300: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    325: { likelihood: 0.05, type: ItemDropType.Invincibility },
+    350: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    375: { likelihood: 0.05, type: ItemDropType.Invincibility },
+    400: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    425: { likelihood: 0.05, type: ItemDropType.Invincibility },
+    450: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    460: { likelihood: 1, type: ItemDropType.Invincibility },
   },
 }; 

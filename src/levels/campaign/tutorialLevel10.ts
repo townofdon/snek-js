@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { WARP_ZONE_01 } from "../bonusLevels/warpZone01";
 
@@ -61,8 +61,8 @@ XXXXXXXXX==X++XX++X++XXXXXXXXX
   titleVariant: TitleVariant.Gray,
   globalLight: 0.5,
   pickupDrops: {
-    [PickupType.Invincibility]: false,
-    [PickupType.Mine]: false,
+    [ItemDropType.Invincibility]: false,
+    [ItemDropType.Mine]: false,
   },
   nextLevelMap: {
     [getCoordIndex2(9, 29)]: WARP_ZONE_01,

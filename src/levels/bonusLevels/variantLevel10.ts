@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 import { TUTORIAL_LEVEL_20 } from "../campaign/tutorialLevel20";
 
@@ -55,14 +55,14 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   titleVariant: TitleVariant.Red,
   nextLevel: TUTORIAL_LEVEL_20,
   pickupDrops: {
-    [PickupType.Invincibility]: false,
-    [PickupType.Mine]: true,
+    [ItemDropType.Invincibility]: false,
+    [ItemDropType.Mine]: true,
   },
   pickupDropsByFrame: {
-    15: { likelihood: .8, type: PickupType.Mine },
-    30: { likelihood: .8, type: PickupType.Mine },
-    50: { likelihood: .8, type: PickupType.Mine },
-    65: { likelihood: .8, type: PickupType.Mine },
-    70: { likelihood: .8, type: PickupType.Mine },
+    15: { likelihood: .8, type: ItemDropType.Mine },
+    30: { likelihood: .8, type: ItemDropType.Mine },
+    50: { likelihood: .8, type: ItemDropType.Mine },
+    65: { likelihood: .8, type: ItemDropType.Mine },
+    70: { likelihood: .8, type: ItemDropType.Mine },
   },
 };

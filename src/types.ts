@@ -345,7 +345,7 @@ export interface Level {
   appleSlowdownMod?: number,
   applesModOverride?: number,
   pickupDropsByFrame?: Record<number, PickupDrop>,
-  pickupDrops?: Partial<Record<PickupType, boolean | number | Record<DifficultyIndex, boolean | number>>>,
+  pickupDrops?: Partial<Record<ItemDropType, boolean | number | Record<DifficultyIndex, boolean | number>>>,
   recordProgressAsLevel?: Level,
   author?: string,
   numLocks?: number;
@@ -714,6 +714,7 @@ export enum Image {
   ExplosionSheet = 'snek-explosion-sheet.png',
   FireSheet = 'snek-fire5.png',
   TileSheet = 'snek-tiles.png',
+  PickupsSheet = 'snek-pickups.png',
 }
 
 export type ThemedImage =
@@ -730,6 +731,7 @@ export type SpritesheetImage =
   | Image.ExplosionSheet
   | Image.FireSheet
   | Image.TileSheet
+  | Image.PickupsSheet
 ;
 
 export interface Scene {
@@ -848,10 +850,64 @@ export interface EmitterOptions {
   easingFnc?: (x: number) => number,
 }
 
-export enum PickupType {
+export enum ItemDropType {
   None = 0,
   Invincibility,
   Mine,
+  HealthPack,
+  Pickup,
+}
+
+export enum PickupType {
+  None = 0,
+  Invincibility,
+  HealthPack,
+  // common items
+  Cheese,
+  Carrot,
+  Potato,
+  Tomato,
+  Onion,
+  Cabbage,
+  Broccoli,
+  Mushroom,
+  BreadLoaf,
+  Cucumber,
+  // rare items
+  Pretzel,
+  Taco,
+  Drumstick,
+  Burger,
+  PizzaSlice,
+  HotDog,
+  Egg,
+  Fries,
+  Candy,
+  ChocolateBar,
+  Popsicle,
+  Lollipop,
+  Muffin,
+  Croisant,
+  Cupcake,
+  Donut,
+  // epic items
+  Banana,
+  Watermelon,
+  Mango,
+  Grapes,
+  Strawberry,
+  Kiwi,
+  Orange,
+  Cherries,
+  Pear,
+  Peach,
+  Lemon,
+  // legendary items
+  GoldenApple,
+  RainbowCake,
+  Sushi,
+  Milkshake,
+  ChiliPepper,
 }
 
 export interface Pickup {
@@ -861,7 +917,7 @@ export interface Pickup {
 
 export interface PickupDrop {
   likelihood: number,
-  type: PickupType,
+  type: ItemDropType,
 }
 
 export enum SNEKALYTICS_EVENT_TYPE {

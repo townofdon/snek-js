@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 
 const name = 'x-factor';
@@ -53,11 +53,11 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   musicTrack: MusicTrack.dangerZone,
   titleVariant: TitleVariant.Red,
   pickupDrops: {
-    [PickupType.Invincibility]: false,
-    [PickupType.Mine]: true,
+    [ItemDropType.Invincibility]: false,
+    [ItemDropType.Mine]: true,
   },
   pickupDropsByFrame: {
-    30: { likelihood: .1, type: PickupType.Invincibility },
-    50: { likelihood: .3, type: PickupType.Invincibility },
+    30: { likelihood: .1, type: ItemDropType.Invincibility },
+    50: { likelihood: .3, type: ItemDropType.Invincibility },
   },
 };

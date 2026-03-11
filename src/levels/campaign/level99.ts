@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 
 const name = 'survive!';
@@ -68,16 +68,16 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   titleVariant: TitleVariant.Red,
   musicTrack: MusicTrack.moneymaker,
   pickupDrops: {
-    [PickupType.Invincibility]: true,
-    [PickupType.Mine]: 3,
+    [ItemDropType.Invincibility]: true,
+    [ItemDropType.Mine]: 3,
   },
   pickupDropsByFrame: {
-    100: { likelihood: .2, type: PickupType.Invincibility },
-    150: { likelihood: .1, type: PickupType.Invincibility },
-    175: { likelihood: .05, type: PickupType.Invincibility },
-    200: { likelihood: .3, type: PickupType.Invincibility },
-    225: { likelihood: .05, type: PickupType.Invincibility },
-    250: { likelihood: .8, type: PickupType.Invincibility },
-    275: { likelihood: .05, type: PickupType.Invincibility },
+    100: { likelihood: .2, type: ItemDropType.Invincibility },
+    150: { likelihood: .1, type: ItemDropType.Invincibility },
+    175: { likelihood: .05, type: ItemDropType.Invincibility },
+    200: { likelihood: .3, type: ItemDropType.Invincibility },
+    225: { likelihood: .05, type: ItemDropType.Invincibility },
+    250: { likelihood: .8, type: ItemDropType.Invincibility },
+    275: { likelihood: .05, type: ItemDropType.Invincibility },
   },
 };

@@ -1,4 +1,4 @@
-import { MusicTrack, PickupType } from "../../types";
+import { MusicTrack, ItemDropType } from "../../types";
 import { challengeLevel } from "./_challengeLevel";
 import { LEVEL_WIN_GAME } from "../winGame";
 import { toTime } from "../../utils";
@@ -14,8 +14,8 @@ export const X_GAUNTLET = challengeLevel({
   nextLevel: LEVEL_WIN_GAME,
   playWinSound: true,
   pickupDrops: {
-    [PickupType.Invincibility]: false,
-    [PickupType.Mine]: false,
+    [ItemDropType.Invincibility]: false,
+    [ItemDropType.Mine]: false,
   },
 });
 

@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 
 export const TUTORIAL_LEVEL_11: Level = {
@@ -57,8 +57,8 @@ XXXXXXXXX==X++XX++X++XXXXXXXXX
     ["Your lack of skill disturbs me."],
   ],
   pickupDrops: {
-    [PickupType.Invincibility]: false,
-    [PickupType.Mine]: false,
+    [ItemDropType.Invincibility]: false,
+    [ItemDropType.Mine]: false,
   },
   disableNormalLoseMessages: true,
   musicTrack: MusicTrack.aqueduct,

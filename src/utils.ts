@@ -21,7 +21,7 @@ import {
   KeyChannel,
   Level,
   MusicTrack,
-  PickupType,
+  ItemDropType,
   Portal,
   PortalChannel,
   PortalExitMode,
@@ -318,13 +318,13 @@ export function getLevelProgress(stats: Stats, level: Level, difficulty: Difficu
   return clamp(stats.applesEatenThisLevel / (level.applesToClear * (level.applesModOverride || difficulty.applesMod)), 0, 1);
 }
 
-export function getNextPickupType(pickupTypes?: PickupType[]): PickupType {
-  if (!pickupTypes) return PickupType.Invincibility;
+export function getNextPickupType(pickupTypes?: ItemDropType[]): ItemDropType {
+  if (!pickupTypes) return ItemDropType.Invincibility;
   if (!pickupTypes.length) {
-    pickupTypes = [PickupType.Invincibility];
+    pickupTypes = [ItemDropType.Invincibility];
   }
   const idx = Math.floor(Math.random() * pickupTypes.length);
-  return pickupTypes[idx] || PickupType.None;
+  return pickupTypes[idx] || ItemDropType.None;
 }
 
 export function getDropLikelihood(

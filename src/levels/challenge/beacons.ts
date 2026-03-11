@@ -1,4 +1,4 @@
-import { MusicTrack, PickupType, PortalExitMode } from "../../types";
+import { MusicTrack, ItemDropType, PortalExitMode } from "../../types";
 import { toTime } from "../../utils";
 import { challengeLevel } from "./_challengeLevel";
 
@@ -23,19 +23,19 @@ export const X_BEACONS = challengeLevel({
     0: PortalExitMode.SameDirection,
   },
   pickupDropsByFrame: {
-    10: { likelihood: 0.5, type: PickupType.Invincibility },
-    20: { likelihood: 1, type: PickupType.Invincibility },
-    30: { likelihood: 0.4, type: PickupType.Invincibility },
-    38: { likelihood: 1, type: PickupType.Invincibility },
-    50: { likelihood: .8, type: PickupType.Invincibility },
-    60: { likelihood: .4, type: PickupType.Invincibility },
-    70: { likelihood: .4, type: PickupType.Invincibility },
-    75: { likelihood: 1, type: PickupType.Invincibility },
-    90: { likelihood: .4, type: PickupType.Invincibility },
-    100: { likelihood: 0.8, type: PickupType.Invincibility },
-    125: { likelihood: 0.05, type: PickupType.Invincibility },
-    150: { likelihood: 0.8, type: PickupType.Invincibility },
-    175: { likelihood: 0.05, type: PickupType.Invincibility },
-    200: { likelihood: 0.8, type: PickupType.Invincibility },
+    10: { likelihood: 0.5, type: ItemDropType.Invincibility },
+    20: { likelihood: 1, type: ItemDropType.Invincibility },
+    30: { likelihood: 0.4, type: ItemDropType.Invincibility },
+    38: { likelihood: 1, type: ItemDropType.Invincibility },
+    50: { likelihood: .8, type: ItemDropType.Invincibility },
+    60: { likelihood: .4, type: ItemDropType.Invincibility },
+    70: { likelihood: .4, type: ItemDropType.Invincibility },
+    75: { likelihood: 1, type: ItemDropType.Invincibility },
+    90: { likelihood: .4, type: ItemDropType.Invincibility },
+    100: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    125: { likelihood: 0.05, type: ItemDropType.Invincibility },
+    150: { likelihood: 0.8, type: ItemDropType.Invincibility },
+    175: { likelihood: 0.05, type: ItemDropType.Invincibility },
+    200: { likelihood: 0.8, type: ItemDropType.Invincibility },
   },
 });

@@ -52,6 +52,7 @@ import {
   SPEED_LIMIT_ULTRA_SPRINT,
   SPRINT_INCREMENT_SPEED_MS,
   START_SNAKE_SIZE,
+  PICKUP_SPRITE_FRAME_MAP,
 } from "../constants";
 import {
   Action,
@@ -81,7 +82,7 @@ import {
   LoopState,
   MusicTrack,
   Pickup,
-  PickupType,
+  ItemDropType,
   PlayerState,
   Portal,
   PortalChannel,
@@ -95,6 +96,7 @@ import {
   Stats,
   Tutorial,
   UINavEventHandler,
+  PickupType,
 } from "../types";
 import {
   checkHasPortalAtLocation,
@@ -2056,22 +2058,22 @@ export function engine({
     let spawned = false;
     if (maybeSpawnInvincibilityPickup()) { spawned = true; }
     if (maybeSpawnMine()) { spawned = true; }
-    if (!spawned) { maybeSpawnOtherPickup(); }
+    if (!spawned) { maybeSpawnOtherPickup(x, y); }
   }
 
   function maybeSpawnMine() {
     if (level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
-    if (!level.pickupDropsByFrame && !level.pickupDrops?.[PickupType.Mine] && state.gameMode !== GameMode.Cobra) return false;
+    if (!level.pickupDropsByFrame && !level.pickupDrops?.[ItemDropType.Mine] && state.gameMode !== GameMode.Cobra) return false;
 
     const progress = getLevelProgress(stats, level, difficulty);
-    const frameLikelihood = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === PickupType.Mine
+    const frameLikelihood = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.Mine
       ? level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
       : undefined
     const shouldSpawnDefault = state.gameMode === GameMode.Cobra;
     const baseLikelihood = getDropLikelihood(
-      level.pickupDrops?.[PickupType.Mine] ?? shouldSpawnDefault,
+      level.pickupDrops?.[ItemDropType.Mine] ?? shouldSpawnDefault,
       DROP_LIKELIHOOD_MINE,
       difficulty.index
     ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
@@ -2089,15 +2091,15 @@ export function engine({
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
     if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return false;
-    if (!level.pickupDropsByFrame && !level.pickupDrops?.[PickupType.Invincibility]) return false;
+    if (!level.pickupDropsByFrame && !level.pickupDrops?.[ItemDropType.Invincibility]) return false;
 
-    const type = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type || PickupType.Invincibility;
-    if (type !== PickupType.Invincibility) {
+    const type = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type || ItemDropType.Invincibility;
+    if (type !== ItemDropType.Invincibility) {
       return false;
     }
     const progress = getLevelProgress(stats, level, difficulty);
     const baseLikelihood = getDropLikelihood(
-      level.pickupDrops?.[PickupType.Invincibility] ?? true,
+      level.pickupDrops?.[ItemDropType.Invincibility] ?? true,
       DROP_LIKELIHOOD_INVINCIBILITY,
       difficulty.index
     ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
@@ -2110,10 +2112,28 @@ export function engine({
     return true;
   }
 
-  function maybeSpawnOtherPickup(): boolean {
+  function maybeSpawnOtherPickup(x: number, y: number): boolean {
     if (level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
+
+    const pool: PickupType[] = [
+      PickupType.Cheese,
+      PickupType.Carrot,
+      PickupType.Potato,
+      PickupType.Tomato,
+      PickupType.Onion,
+      PickupType.Cabbage,
+      PickupType.Broccoli,
+      PickupType.Mushroom,
+    ]
+    const pickup = pool[Math.floor(Math.random() * pool.length)]
+    pickupsMap[getCoordIndex2(x, y)] = {
+      timeTillDeath: 999999999999,
+      type: pickup,
+    };
+
+    return;
 
     // TODO: ADD MORE PICKUP TYPES THAT CAN SPAWN AT ALL TIMES
     // const basePickupTypes: PickupType[] = [
@@ -2133,7 +2153,7 @@ export function engine({
 
     const progress = getLevelProgress(stats, level, difficulty);
     const baseLikelihood = getDropLikelihood(
-      level.pickupDrops?.[PickupType.Mine] ?? false,
+      level.pickupDrops?.[ItemDropType.Mine] ?? false,
       DROP_LIKELIHOOD_MINE,
       difficulty.index
     ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
@@ -2142,7 +2162,7 @@ export function engine({
     if (r < 1) {
       return false;
     }
-    // spawnPickup(pickupType);
+    // spawnPickup(pickupType, x, y);
     return true;
   }
 
@@ -2355,7 +2375,12 @@ export function engine({
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
     } else if (drawState.shouldDrawApples) {
-      spriteRenderer.drawImage3x3Custom(gfxApples, Image.ThemedApple, x, y, 0, 1, 0);
+      const specialPickupType = pickupsMap[getCoordIndex2(x, y)]?.type;
+      if (specialPickupType) {
+        spriteRenderer.drawSprite3x3(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+      } else {
+        spriteRenderer.drawImage3x3Custom(gfxApples, Image.ThemedApple, x, y, 0, 1, 0);
+      }
     }
   }
 

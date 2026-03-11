@@ -70,6 +70,7 @@ export class SpriteRenderer {
     [Image.ExplosionSheet]: null,
     [Image.FireSheet]: null,
     [Image.TileSheet]: null,
+    [Image.PickupsSheet]: null,
   }
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -239,6 +240,7 @@ export class SpriteRenderer {
       this.loadImage(Image.ExplosionSheet);
       this.loadImage(Image.FireSheet);
       this.loadImage(Image.TileSheet);
+      this.loadImage(Image.PickupsSheet);
     } catch (err) {
       console.error(err)
     }

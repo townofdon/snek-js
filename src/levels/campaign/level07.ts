@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType } from "../../types";
+import { Level, MusicTrack, ItemDropType } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { VARIANT_LEVEL_08 } from "../bonusLevels/variantLevel08";
 
@@ -56,23 +56,23 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
     [getCoordIndex2(29, 13)]: VARIANT_LEVEL_08,
   },
   pickupDrops: {
-    [PickupType.Invincibility]: true,
-    [PickupType.Mine]: 2,
+    [ItemDropType.Invincibility]: true,
+    [ItemDropType.Mine]: 2,
   },
   pickupDropsByFrame: {
-    11: { likelihood: .9, type: PickupType.Mine },
-    15: { likelihood: .1, type: PickupType.Invincibility },
-    17: { likelihood: .8, type: PickupType.Mine },
-    20: { likelihood: .2, type: PickupType.Invincibility },
-    21: { likelihood: .9, type: PickupType.Mine },
-    25: { likelihood: .8, type: PickupType.Mine },
-    27: { likelihood: .8, type: PickupType.Mine },
-    30: { likelihood: .3, type: PickupType.Invincibility },
-    32: { likelihood: .8, type: PickupType.Mine },
-    35: { likelihood: .8, type: PickupType.Mine },
-    36: { likelihood: .8, type: PickupType.Mine },
-    42: { likelihood: .8, type: PickupType.Mine },
-    48: { likelihood: .9, type: PickupType.Mine },
-    50: { likelihood: .8, type: PickupType.Invincibility },
+    11: { likelihood: .9, type: ItemDropType.Mine },
+    15: { likelihood: .1, type: ItemDropType.Invincibility },
+    17: { likelihood: .8, type: ItemDropType.Mine },
+    20: { likelihood: .2, type: ItemDropType.Invincibility },
+    21: { likelihood: .9, type: ItemDropType.Mine },
+    25: { likelihood: .8, type: ItemDropType.Mine },
+    27: { likelihood: .8, type: ItemDropType.Mine },
+    30: { likelihood: .3, type: ItemDropType.Invincibility },
+    32: { likelihood: .8, type: ItemDropType.Mine },
+    35: { likelihood: .8, type: ItemDropType.Mine },
+    36: { likelihood: .8, type: ItemDropType.Mine },
+    42: { likelihood: .8, type: ItemDropType.Mine },
+    48: { likelihood: .9, type: ItemDropType.Mine },
+    50: { likelihood: .8, type: ItemDropType.Invincibility },
   },
 };

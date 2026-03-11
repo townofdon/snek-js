@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { LEVEL_01 } from "./level01";
 import { LEVEL_02 } from "./level02";
 
@@ -62,6 +62,6 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   nextLevel: LEVEL_02,
   recordProgressAsLevel: LEVEL_01,
   pickupDropsByFrame: {
-    40: { likelihood: 1, type: PickupType.Invincibility },
+    40: { likelihood: 1, type: ItemDropType.Invincibility },
   },
 };

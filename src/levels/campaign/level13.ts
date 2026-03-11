@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, PortalExitMode, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 
 const name = 'SCI-LAB'
@@ -59,7 +59,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXddXXX
   musicTrack: MusicTrack.woorb,
   titleVariant: TitleVariant.GrayBlue,
   pickupDropsByFrame: {
-    54: { likelihood: .4, type: PickupType.Invincibility },
-    99: { likelihood: .4, type: PickupType.Invincibility },
+    54: { likelihood: .4, type: ItemDropType.Invincibility },
+    99: { likelihood: .4, type: ItemDropType.Invincibility },
   },
 };

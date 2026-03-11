@@ -143,7 +143,7 @@ export abstract class BaseScene implements Scene {
   /**
    * Interpolate between an array of colors, where t[0-1] maps to [color0, color1, ... colorN]
    */
-  protected getColor = (t: number, colors: string[]) => {
+  protected getColor = (t: number, colors: readonly string[]) => {
     if (colors.length === 0) return "pink";
     const { p5 } = this.props;
     const c0 = Math.floor(t * colors.length) % colors.length;

@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType } from "../../types";
+import { Level, MusicTrack, ItemDropType } from "../../types";
 import { toTime } from "../../utils";
 
 const name = 'boxed'
@@ -47,15 +47,15 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   showTitle: true,
   musicTrack: MusicTrack.shopkeeper,
   pickupDrops: {
-    [PickupType.Invincibility]: false,
-    [PickupType.Mine]: true,
+    [ItemDropType.Invincibility]: false,
+    [ItemDropType.Mine]: true,
   },
   pickupDropsByFrame: {
-    30: { likelihood: .1, type: PickupType.Invincibility },
-    35: { likelihood: .1, type: PickupType.Invincibility },
-    40: { likelihood: .2, type: PickupType.Invincibility },
-    45: { likelihood: .2, type: PickupType.Invincibility },
-    50: { likelihood: .8, type: PickupType.Invincibility },
-    55: { likelihood: .3, type: PickupType.Invincibility },
+    30: { likelihood: .1, type: ItemDropType.Invincibility },
+    35: { likelihood: .1, type: ItemDropType.Invincibility },
+    40: { likelihood: .2, type: ItemDropType.Invincibility },
+    45: { likelihood: .2, type: ItemDropType.Invincibility },
+    50: { likelihood: .8, type: ItemDropType.Invincibility },
+    55: { likelihood: .3, type: ItemDropType.Invincibility },
   },
 };

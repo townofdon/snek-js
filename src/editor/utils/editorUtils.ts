@@ -3,7 +3,7 @@ import { Buffer } from 'buffer'
 
 import JSONCrush from './JSONCrush/JSONCrush';
 
-import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PortalChannel, PortalExitMode } from '../../types'
+import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, ItemDropType, PortalChannel, PortalExitMode } from '../../types'
 import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../../utils';
 import { GRIDCOUNT, START_SNAKE_SIZE } from '../../constants';
 import { bton, ntob } from './Base64';
@@ -256,8 +256,8 @@ export function getEditorDataFromLevel(level: Level): [EditorData, EditorOptions
       ...level.portalExitConfig,
     },
     musicTrack: level.musicTrack,
-    spawnInvincibilityPickups: !!level.pickupDrops?.[PickupType.Invincibility],
-    spawnMines: !!level.pickupDrops?.[PickupType.Mine]
+    spawnInvincibilityPickups: !!level.pickupDrops?.[ItemDropType.Invincibility],
+    spawnMines: !!level.pickupDrops?.[ItemDropType.Mine]
   };
   return [data, options];
 }

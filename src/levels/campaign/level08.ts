@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { SECRET_LEVEL_20 } from "../bonusLevels/secretLevel20";
 
@@ -55,14 +55,14 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
     [getCoordIndex2(29, 17)]: SECRET_LEVEL_20,
   },
   pickupDrops: {
-    [PickupType.Invincibility]: true,
-    [PickupType.Mine]: 2,
+    [ItemDropType.Invincibility]: true,
+    [ItemDropType.Mine]: 2,
   },
   pickupDropsByFrame: {
-    30: { likelihood: .1, type: PickupType.Invincibility },
-    60: { likelihood: .2, type: PickupType.Invincibility },
-    69: { likelihood: .3, type: PickupType.Invincibility },
-    99: { likelihood: .3, type: PickupType.Invincibility },
-    104: { likelihood: .4, type: PickupType.Invincibility },
+    30: { likelihood: .1, type: ItemDropType.Invincibility },
+    60: { likelihood: .2, type: ItemDropType.Invincibility },
+    69: { likelihood: .3, type: ItemDropType.Invincibility },
+    99: { likelihood: .3, type: ItemDropType.Invincibility },
+    104: { likelihood: .4, type: ItemDropType.Invincibility },
   },
 };

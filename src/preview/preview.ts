@@ -33,7 +33,7 @@ import {
   Level,
   Palette,
   InputType,
-  PickupType,
+  ItemDropType,
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI } from '../ui/ui';
@@ -535,8 +535,8 @@ async function loadLevel(queryData: string, loadMapImage = false): Promise<void>
       portalExitConfig: options.portalExitConfig,
       author: res?.map?.author,
       pickupDrops: {
-        [PickupType.Invincibility]: options.spawnInvincibilityPickups,
-        [PickupType.Mine]: options.spawnMines,
+        [ItemDropType.Invincibility]: options.spawnInvincibilityPickups,
+        [ItemDropType.Mine]: options.spawnMines,
       },
     };
 

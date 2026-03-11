@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, PortalExitMode, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, PortalExitMode, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { VARIANT_LEVEL_03 } from "../bonusLevels/variantLevel03";
 
@@ -56,6 +56,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     8: PortalExitMode.InvertDirection,
   },
   pickupDrops: {
-    [PickupType.Invincibility]: true,
+    [ItemDropType.Invincibility]: true,
   },
 };

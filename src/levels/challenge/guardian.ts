@@ -1,4 +1,4 @@
-import { MusicTrack, PickupType } from "../../types";
+import { MusicTrack, ItemDropType } from "../../types";
 import { toTime } from "../../utils";
 import { challengeLevel } from "./_challengeLevel";
 
@@ -11,8 +11,8 @@ export const X_GUARDIAN = challengeLevel({
   layoutV2: `ek9oVlZzTihFU04oeVYhcSFsa1hGRkZrIWxLb1dxVnNOKEVTTihMQWpYKlZWWGhYaFhPegp8NDI2fFJJR0hUfGd1YXJkaWFuVTIwMDB%252BNH4zfDBVMHAwcCMxNUMyQ0JNMTE5REE0bTJjNjM1Mk0zMjUxNzB0bTE5MTkzOHRNMmMzODRhTTIxMjk0M01lMDY1NGZNYmY2NjcwTWZmYWY5OVVfX19VMCFYS3hXKCBZTk4gKU5OUCk9PT0qLCcuWFhYU1lZWVlZKVlZWVlGS2R2KykpKSkpKT12SioqKksKWE0tI04gIE9LWngqd3dBKnFYUCBZIFFsbGxsU0V5c3AxViEuWHhXLlAuICkgLlBZLS1xeF8tMS0xLTFoS3hRWFh4a0t4WCoqKCoqLmwuLm1NMEQwRDFDTXBVfHFaeHhzWEsqWHRNMTMxMzJBdisrd0FBKloqQXlMQUFYKnoKUWx%252BMHwBfnp5d3Z0c3FwbWxraF9aWVdWVVNRUE9OTUtGRS4qKSghXw%253D%253D`,
   musicTrack: MusicTrack.ascension,
   pickupDrops: {
-    [PickupType.Invincibility]: false,
-    [PickupType.Mine]: false,
+    [ItemDropType.Invincibility]: false,
+    [ItemDropType.Mine]: false,
   },
 });
 

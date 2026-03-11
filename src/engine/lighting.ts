@@ -5,7 +5,7 @@ import { GRIDCOUNT, INVINCIBILITY_EXPIRE_FLASH_MS, LIGHTMAP_RESOLUTION, PICKUP_E
 import { Renderer } from "./renderer";
 import { clamp, lerp, shouldBlinkExpiringPickup } from "../utils";
 import { Easing } from "../easing";
-import { Pickup, PickupType, PortalChannel } from "../types";
+import { Pickup, ItemDropType, PortalChannel, PickupType } from "../types";
 import { AppleList } from "../collections/appleList";
 import { AnimationList } from "../collections/animationList";
 

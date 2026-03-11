@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 
 export const LEVEL_01: Level = {
@@ -58,6 +58,6 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   musicTrack: MusicTrack.champion,
   titleVariant: TitleVariant.Yellow,
   pickupDropsByFrame: {
-    24: { likelihood: 1, type: PickupType.Invincibility },
+    24: { likelihood: 1, type: ItemDropType.Invincibility },
   },
 };

@@ -1,7 +1,7 @@
 import P5 from "p5";
 import Color from "color";
 
-import { AnimationData, BarrierType, Difficulty, Image, MusicTrack, PortalChannel, SpritesheetImage } from "./types";
+import { AnimationData, BarrierType, Difficulty, Image, MusicTrack, PickupType, PortalChannel, SpritesheetImage } from "./types";
 
 export const TITLE = 'SNEK';
 
@@ -59,10 +59,20 @@ export const PERFECT_BONUS = 5000;
 export const COBRA_SCORE_MOD = 1.2;
 export const DEFAULT_PAR_TIME = 60000;
 
-export const PICKUP_INVINCIBILITY_BONUS = 200;
+export const PICKUP_INVINCIBILITY_BONUS = 100;
+export const PICKUP_COMMON_BONUS = 100;
+export const PICKUP_RARE_BONUS = 500;
+export const PICKUP_EPIC_BONUS = 2000;
+export const PICKUP_LEGENDARY_BONUS = 10000;
 
 export const DROP_LIKELIHOOD_INVINCIBILITY = 0.04;
 export const DROP_LIKELIHOOD_MINE = 0.08;
+export const DROP_LIKELIHOOD_ITEM_BASE = 0.2;
+export const DROP_LIKELIHOOD_ITEM_COMMON = 0.6; // applied on top of base
+export const DROP_LIKELIHOOD_ITEM_RARE = 0.03; // applied on top of base
+export const DROP_LIKELIHOOD_ITEM_EPIC = 0.09; // applied on top of base
+export const DROP_LIKELIHOOD_ITEM_LEGENDARY = 0.001; // applied on top of base
+
 export const PICKUP_LIFETIME_MS = 8000;
 export const PICKUP_EXPIRE_WARN_MS = 3500;
 export const PICKUP_SPAWN_COOLDOWN = 15000;
@@ -245,7 +255,7 @@ export const NEW_HIGHSCORE_COLORS = [
   "#FD1D1D",
   "#FCB045",
   "#15C2CB",
-];
+] as const;
 
 export const EDITOR_BARRIER_TYPE_COLORS: Record<BarrierType, string> = {
   [BarrierType.Unset]: '#666',
@@ -356,4 +366,108 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> = {
     frames: 10,
     timePerFrame: 200,
   } satisfies AnimationData,
-};
+  [Image.PickupsSheet]: {
+    frames: 8,
+    timePerFrame: 200,
+  } satisfies AnimationData,
+} as const;
+
+export const PICKUP_COMMON_ITEMS: PickupType[] = [
+  PickupType.Cheese,
+  PickupType.Carrot,
+  PickupType.Potato,
+  PickupType.Tomato,
+  PickupType.Onion,
+  PickupType.Cabbage,
+  PickupType.Broccoli,
+  PickupType.Mushroom,
+  PickupType.BreadLoaf,
+  PickupType.Cucumber,
+];
+export const PICKUP_RARE_ITEMS: PickupType[] = [
+  PickupType.Pretzel,
+  PickupType.Taco,
+  PickupType.Drumstick,
+  PickupType.Burger,
+  PickupType.PizzaSlice,
+  PickupType.HotDog,
+  PickupType.Egg,
+  PickupType.Fries,
+  PickupType.Candy,
+  PickupType.ChocolateBar,
+  PickupType.Popsicle,
+  PickupType.Lollipop,
+  PickupType.Muffin,
+  PickupType.Croisant,
+  PickupType.Cupcake,
+  PickupType.Donut,
+];
+export const PICKUP_EPIC_ITEMS: PickupType[] = [
+  PickupType.Banana,
+  PickupType.Watermelon,
+  PickupType.Mango,
+  PickupType.Grapes,
+  PickupType.Strawberry,
+  PickupType.Kiwi,
+  PickupType.Orange,
+  PickupType.Cherries,
+  PickupType.Pear,
+  PickupType.Peach,
+  PickupType.Lemon,
+];
+export const PICKUP_LEGENDARY_ITEMS: PickupType[] = [
+  PickupType.GoldenApple,
+  PickupType.RainbowCake,
+  PickupType.Sushi,
+  PickupType.Milkshake,
+  PickupType.ChiliPepper,
+];
+// NOTE - this is 1-indexed!!! This is a 1:1 lookup from spritesheet in Aseprite.
+export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
+  [PickupType.None]: 0,
+  [PickupType.Invincibility]: 0,
+  [PickupType.HealthPack]: 0,
+  [PickupType.Cheese]: 1,
+  [PickupType.Carrot]: 2,
+  [PickupType.Potato]: 3,
+  [PickupType.Tomato]: 4,
+  [PickupType.Onion]: 5,
+  [PickupType.Cabbage]: 6,
+  [PickupType.Broccoli]: 7,
+  [PickupType.Mushroom]: 8,
+  [PickupType.BreadLoaf]: 0,
+  [PickupType.Cucumber]: 0,
+  [PickupType.Pretzel]: 0,
+  [PickupType.Taco]: 0,
+  [PickupType.Drumstick]: 0,
+  [PickupType.Burger]: 0,
+  [PickupType.PizzaSlice]: 0,
+  [PickupType.HotDog]: 0,
+  [PickupType.Egg]: 0,
+  [PickupType.Fries]: 0,
+  [PickupType.Candy]: 0,
+  [PickupType.ChocolateBar]: 0,
+  [PickupType.Popsicle]: 0,
+  [PickupType.Lollipop]: 0,
+  [PickupType.Muffin]: 0,
+  [PickupType.Croisant]: 0,
+  [PickupType.Cupcake]: 0,
+  [PickupType.Donut]: 0,
+  [PickupType.Banana]: 0,
+  [PickupType.Watermelon]: 0,
+  [PickupType.Mango]: 0,
+  [PickupType.Grapes]: 0,
+  [PickupType.Strawberry]: 0,
+  [PickupType.Kiwi]: 0,
+  [PickupType.Orange]: 0,
+  [PickupType.Cherries]: 0,
+  [PickupType.Pear]: 0,
+  [PickupType.Peach]: 0,
+  [PickupType.Lemon]: 0,
+  [PickupType.GoldenApple]: 0,
+  [PickupType.RainbowCake]: 0,
+  [PickupType.Sushi]: 0,
+  [PickupType.Milkshake]: 0,
+  [PickupType.ChiliPepper]: 0,
+} as const satisfies Record<PickupType, number>)
+

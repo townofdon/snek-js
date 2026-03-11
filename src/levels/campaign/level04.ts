@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, PickupType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { VARIANT_LEVEL_05 } from "../bonusLevels/variantLevel05";
 
@@ -59,7 +59,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     [getCoordIndex2(0, 28)]: VARIANT_LEVEL_05,
   },
   pickupDropsByFrame: {
-    45: { likelihood: .5, type: PickupType.Invincibility },
-    65: { likelihood: 1, type: PickupType.Invincibility },
+    45: { likelihood: .5, type: ItemDropType.Invincibility },
+    65: { likelihood: 1, type: ItemDropType.Invincibility },
   },
 };
