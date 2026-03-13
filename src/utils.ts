@@ -43,10 +43,10 @@ export function getCoordIndex2(x: number, y: number): number {
   return clamp(Math.floor(x), 0, GRIDCOUNT.x - 1) + clamp(Math.floor(y), 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
 }
 
-export function coordToVec(index: number): Vector {
-  index = Math.floor(index);
-  const x = Math.floor(index % GRIDCOUNT.x);
-  const y = Math.floor(index / GRIDCOUNT.x);
+export function coordToVec(coord: number): Vector {
+  coord = Math.floor(coord);
+  const x = Math.floor(coord % GRIDCOUNT.x);
+  const y = Math.floor(coord / GRIDCOUNT.x);
   return new Vector(x, y);
 }
 
