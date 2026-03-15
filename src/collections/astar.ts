@@ -1,18 +1,23 @@
 import { GRIDCOUNT, IS_DEV } from "../constants";
 import { getCoordIndex2, getTraversalDistance } from "../utils";
+import { AnimationList } from "./animationList";
 
 export const ASTAR_WALL = Infinity;
+const THREAT_COST_MINE = 4;
+const THREAT_COST_SNEK = 6;
+const DIAG_COST = 1.41421;
 
 export const INITIAL_ASTAR_LIST_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
 
 interface AStarOptions {
   allowDiagonals: boolean,
   allowClosest: boolean,
+  mines?: AnimationList,
 }
 
 const DEFAULT_OPTIONS = {
   allowDiagonals: false,
-  allowClosest: false
+  allowClosest: false,
 } satisfies AStarOptions;
 
 /**
@@ -58,10 +63,15 @@ export class AStar {
   private dirtyList: Uint16Array;
   private dirtyListLength: number;
 
+  // threats
+  private mines: AnimationList;
+  private snekCoord: number;
+
   private closest: number;
 
   constructor(_options?: Partial<AStarOptions>) {
     this.options = { ...DEFAULT_OPTIONS, ..._options};
+    this.mines = _options?.mines;
     this.openList = new Uint16Array(INITIAL_ASTAR_LIST_SIZE);
     this.openListLength = 0;
     this.parent = new Int16Array(INITIAL_ASTAR_LIST_SIZE);
@@ -100,6 +110,11 @@ export class AStar {
     this.bestPathCost = 0;
     this.dirtyListLength = 0;
     this.closest = -1;
+    this.snekCoord = -1;
+  }
+
+  public setSnekCoord(coord: number) {
+    this.snekCoord = coord;
   }
 
   public setWall(x: number, y: number) {
@@ -196,17 +211,41 @@ export class AStar {
         ? [left, right, up, down, upleft, upright, downleft, downright]
         : [left, right, up, down];
 
+      // check neighbors
       for (let idx = 0; idx < neighbors.length; idx++) {
         const neighbor = neighbors[idx];
         if (neighbor < 0 || this.closed[neighbor] || this.weight[neighbor] === ASTAR_WALL) {
           continue;
         }
+        const nx = Math.floor(neighbor % GRIDCOUNT.x);
+        const ny = Math.floor(neighbor / GRIDCOUNT.x);
+        // calculate threat costs
+        const distToClosestMine = this.mines?.getClosestTraversalDistance(nx, ny) ?? Infinity;
+        const distToSnekHead = (() => {
+          if (this.snekCoord < 0) return Infinity
+          const sx = Math.floor(this.snekCoord % GRIDCOUNT.x);
+          const sy = Math.floor(this.snekCoord / GRIDCOUNT.x);
+          return getTraversalDistance(nx, ny, sx, sy);
+        })()
         const isDiagonal = idx >= 4;
-        const costMultiplier = isDiagonal ? 1.41421 : 1;
-        const gScore = this.gScore[current] + (this.weight[neighbor] || 1) * costMultiplier;
+        const diagCostMultiplier = isDiagonal ? DIAG_COST : 1;
+        // see: https://www.desmos.com/calculator/w2r2szwtmz
+        const threatCostMine = distToClosestMine <= 2
+          ? (THREAT_COST_MINE / (distToClosestMine + 1)) || 0
+          : 0;
+        const threatCostSnek = distToSnekHead <= 5
+          ? (THREAT_COST_SNEK / (distToSnekHead + 1)) || 0
+          : 0;
+        const threatCost = Math.max(
+          threatCostMine,
+          threatCostSnek,
+        );
+        // calculate traversal cost (g)
+        const gScore = this.gScore[current]
+          + (this.weight[neighbor] || 1) * diagCostMultiplier
+          + threatCost;
+        // set neighbor fields, add to open list
         if (!this.visited[neighbor] || gScore < this.gScore[neighbor]) {
-          const nx = Math.floor(neighbor % GRIDCOUNT.x);
-          const ny = Math.floor(neighbor / GRIDCOUNT.x);
           const visited = this.visited[neighbor];
           const hScore = getTraversalDistance(nx, ny, endx, endy);
           this.visited[neighbor] = 1;
@@ -214,8 +253,7 @@ export class AStar {
           this.gScore[neighbor] = gScore;
           this.hScore[neighbor] = hScore;
           this.addToDirtyList(neighbor);
-
-          // compute closest
+          // set closest node
           const closest = this.closest;
           if (
             allowClosest && (
@@ -226,7 +264,6 @@ export class AStar {
           ){
             this.closest = neighbor;
           }
-
           if (!visited) {
             this.addToOpenList(neighbor);
           } else {
@@ -295,6 +332,8 @@ export class AStar {
       for (let x = 0; x < GRIDCOUNT.x; x++) {
         const coord = getCoordIndex2(x, y);
         const isWall = this.weight[coord] === ASTAR_WALL;
+        const isSnekThreat = coord === this.snekCoord;
+        const isMineThreat = this.mines?.existsAtCoord(coord) || false;
         const isPathNode = (() => {
           for (let i = 0; i < this.pathLength; i++) {
             if (this.path[i] === coord) return true;
@@ -308,8 +347,9 @@ export class AStar {
           if (isEnd) return '+';
           if (isWall && isPathNode) return '!';
           if (isWall) return 'X';
+          if (isSnekThreat) return 'S';
+          if (isMineThreat) return '*';
           if (isPathNode) return 'o'
-          // return Math.floor(Math.min(this.weight[coord], 9));
           return '_';
         })()
         str += char;

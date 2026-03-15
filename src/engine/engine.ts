@@ -244,7 +244,7 @@ export function engine({
     direction: DIR.RIGHT,
     directionToFirstSegment: DIR.RIGHT,
     directionLastHit: DIR.RIGHT,
-  };
+  } as const;
   const clickState: ClickState = {
     x: 0,
     y: 0,

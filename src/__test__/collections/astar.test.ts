@@ -2,6 +2,8 @@ import assert from "assert";
 
 import { AStar } from '../../collections/astar'
 import { GRIDCOUNT } from "../../constants";
+import { getCoordIndex2 } from "../../utils";
+import { AnimationList } from "../../collections/animationList";
 
 const DEBUG = process.env.DEBUG;
 
@@ -299,6 +301,148 @@ describe("Collections", () => {
           '[26,26]', '[27,27]', '[28,27]',
           '[29,27]'
         ]);
+      });
+
+      it("should search and avoid snek threat", () => {
+        const astar = new AStar();
+        const snek = getCoordIndex2(15, 15);
+        astar.setSnekCoord(snek);
+        assert(astar.search(1, 1, 28, 28));
+        if (DEBUG) astar.debugPrint();
+        const path = astar.getLatestPath();
+        assert(!path.includes(snek), `snek exists at coord(15, 15)!`);
+      });
+
+      it("should search and avoid snek threat with diagonals", () => {
+        const astar = new AStar({ allowDiagonals: true });
+        const snek = getCoordIndex2(15, 15);
+        astar.setSnekCoord(snek);
+        assert(astar.search(1, 1, 28, 28));
+        if (DEBUG) astar.debugPrint();
+        const path = astar.getLatestPath();
+        assert(!path.includes(snek), `snek exists at coord(15, 15)!`);
+      });
+
+      it("should search and avoid mine threats", () => {
+        const mines = new AnimationList();
+        const astar = new AStar({ mines });
+        mines.add(3, 3, 999999, 1, 1);
+        mines.add(2, 5, 999999, 1, 1);
+        mines.add(0, 6, 999999, 1, 1);
+        mines.add(6, 0, 999999, 1, 1);
+        mines.add(9, 9, 999999, 1, 1);
+        mines.add(6, 12, 999999, 1, 1);
+        mines.add(12, 6, 999999, 1, 1);
+        mines.add(15, 3, 999999, 1, 1);
+        mines.add(15, 2, 999999, 1, 1);
+        mines.add(15, 1, 999999, 1, 1);
+        mines.add(3, 20, 999999, 1, 1);
+        mines.add(28, 20, 999999, 1, 1);
+        assert(astar.search(1, 1, 28, 28));
+        if (DEBUG) astar.debugPrint();
+        const path = astar.getLatestPath();
+        path.forEach((coord, idx) => {
+          const x = Math.floor(coord % GRIDCOUNT.x);
+          const y = Math.floor(coord / GRIDCOUNT.x);
+          assert(!mines.existsAtCoord(coord), `mine exists at coord(${x}, ${y})! path_index=${idx}`);
+        });
+      });
+
+      it("should search and avoid mine threats with diagonals", () => {
+        const mines = new AnimationList();
+        const astar = new AStar({ mines, allowDiagonals: true });
+        mines.add(3, 3, 999999, 1, 1);
+        mines.add(2, 5, 999999, 1, 1);
+        mines.add(0, 6, 999999, 1, 1);
+        mines.add(6, 0, 999999, 1, 1);
+        mines.add(9, 9, 999999, 1, 1);
+        mines.add(6, 12, 999999, 1, 1);
+        mines.add(12, 6, 999999, 1, 1);
+        mines.add(15, 3, 999999, 1, 1);
+        mines.add(15, 2, 999999, 1, 1);
+        mines.add(15, 1, 999999, 1, 1);
+        mines.add(3, 20, 999999, 1, 1);
+        mines.add(28, 20, 999999, 1, 1);
+        mines.add(15, 15, 999999, 1, 1);
+        mines.add(16, 14, 999999, 1, 1);
+        mines.add(17, 13, 999999, 1, 1);
+        mines.add(18, 12, 999999, 1, 1);
+        mines.add(19, 11, 999999, 1, 1);
+        mines.add(20, 10, 999999, 1, 1);
+        mines.add(21, 9, 999999, 1, 1);
+        mines.add(22, 8, 999999, 1, 1);
+        mines.add(23, 7, 999999, 1, 1);
+        mines.add(24, 6, 999999, 1, 1);
+        mines.add(25, 5, 999999, 1, 1);
+        mines.add(16, 15, 999999, 1, 1);
+        mines.add(17, 14, 999999, 1, 1);
+        mines.add(18, 13, 999999, 1, 1);
+        mines.add(19, 12, 999999, 1, 1);
+        mines.add(20, 11, 999999, 1, 1);
+        mines.add(21, 10, 999999, 1, 1);
+        mines.add(22, 9, 999999, 1, 1);
+        mines.add(23, 8, 999999, 1, 1);
+        mines.add(24, 7, 999999, 1, 1);
+        mines.add(25, 6, 999999, 1, 1);
+        mines.add(26, 5, 999999, 1, 1);
+        assert(astar.search(1, 1, 28, 28));
+        if (DEBUG) astar.debugPrint();
+        const path = astar.getLatestPath();
+        path.forEach((coord, idx) => {
+          const x = Math.floor(coord % GRIDCOUNT.x);
+          const y = Math.floor(coord / GRIDCOUNT.x);
+          assert(!mines.existsAtCoord(coord), `mine exists at coord(${x}, ${y})! path_index=${idx}`);
+        });
+      });
+
+      it("should search with all manner of threats", () => {
+        const mines = new AnimationList();
+        const astar = new AStar({ mines, allowDiagonals: true });
+        const snek = getCoordIndex2(15, 15);
+        astar.setSnekCoord(snek);
+        mines.add(3, 3, 999999, 1, 1);
+        mines.add(2, 5, 999999, 1, 1);
+        mines.add(0, 6, 999999, 1, 1);
+        mines.add(6, 0, 999999, 1, 1);
+        mines.add(9, 9, 999999, 1, 1);
+        mines.add(6, 12, 999999, 1, 1);
+        mines.add(12, 6, 999999, 1, 1);
+        mines.add(15, 3, 999999, 1, 1);
+        mines.add(15, 2, 999999, 1, 1);
+        mines.add(15, 1, 999999, 1, 1);
+        mines.add(3, 20, 999999, 1, 1);
+        mines.add(28, 20, 999999, 1, 1);
+        mines.add(15, 15, 999999, 1, 1);
+        mines.add(16, 14, 999999, 1, 1);
+        mines.add(17, 13, 999999, 1, 1);
+        mines.add(18, 12, 999999, 1, 1);
+        mines.add(19, 11, 999999, 1, 1);
+        mines.add(20, 10, 999999, 1, 1);
+        mines.add(21, 9, 999999, 1, 1);
+        mines.add(22, 8, 999999, 1, 1);
+        mines.add(23, 7, 999999, 1, 1);
+        mines.add(24, 6, 999999, 1, 1);
+        mines.add(25, 5, 999999, 1, 1);
+        mines.add(16, 15, 999999, 1, 1);
+        mines.add(17, 14, 999999, 1, 1);
+        mines.add(18, 13, 999999, 1, 1);
+        mines.add(19, 12, 999999, 1, 1);
+        mines.add(20, 11, 999999, 1, 1);
+        mines.add(21, 10, 999999, 1, 1);
+        mines.add(22, 9, 999999, 1, 1);
+        mines.add(23, 8, 999999, 1, 1);
+        mines.add(24, 7, 999999, 1, 1);
+        mines.add(25, 6, 999999, 1, 1);
+        mines.add(26, 5, 999999, 1, 1);
+        assert(astar.search(1, 1, 28, 28));
+        if (DEBUG) astar.debugPrint();
+        const path = astar.getLatestPath();
+        path.forEach((coord, idx) => {
+          const x = Math.floor(coord % GRIDCOUNT.x);
+          const y = Math.floor(coord / GRIDCOUNT.x);
+          assert(!mines.existsAtCoord(coord), `mine exists at coord(${x}, ${y})! path_index=${idx}`);
+        });
+        assert(!path.includes(snek), `snek exists at coord(15, 15)!`);
       });
 
       const benchmark = (astar: AStar, runs: number) => {

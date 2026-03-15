@@ -75,6 +75,18 @@ export class AnimationList {
   }
 
   /**
+   * forEach iterator. Use only for tests.
+   */
+  public forEach(iteratee: (coord: number) => void) {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) {
+        const coord = getCoordIndex2(this.x[i], this.y[i]);
+        iteratee(coord);
+      }
+    }
+  }
+
+  /**
    * Tick animations. Returns `true` if any animation frame just changed.
    */
   public tick = (deltaTime: number): boolean => {
