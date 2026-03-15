@@ -3,6 +3,8 @@ import assert from "assert";
 import { AStar } from '../../collections/astar'
 import { GRIDCOUNT } from "../../constants";
 
+const DEBUG = process.env.DEBUG;
+
 describe("Collections", () => {
   describe("AStar", () => {
     describe("BinaryHeap", () => {
@@ -139,6 +141,7 @@ describe("Collections", () => {
         const astar = new AStar();
         assert(astar.search(1, 1, 15, 29));
         const path = astar.getBestPath();
+        if (DEBUG) astar.debugPrint();
         assert.deepStrictEqual(humanify(path), [
           "[1,1]", "[2,1]", "[3,1]", "[3,2]",
           "[4,2]", "[4,3]", "[4,4]", "[4,5]",
@@ -161,24 +164,179 @@ describe("Collections", () => {
             astar.setWall(x, y);
           }
         }
-        const t0 = performance.now();
         assert(astar.search(1, 15, 29, 15));
+        if (DEBUG) astar.debugPrint();
         const path = astar.getBestPath();
-        const t1 = performance.now();
-        console.log(`${t1 - t0}ms`);
         assert.deepStrictEqual(humanify(path), [
-          '[1,15]',  '[2,15]',  '[3,15]',  '[4,15]',
-          '[5,15]',  '[6,15]',  '[7,15]',  '[8,15]',
-          '[9,15]',  '[9,16]',  '[9,17]',  '[9,18]',
-          '[9,19]',  '[9,20]',  '[9,21]',  '[10,21]',
-          '[11,21]', '[12,21]', '[13,21]', '[14,21]',
-          '[15,21]', '[16,21]', '[17,21]', '[18,21]',
-          '[19,21]', '[20,21]', '[21,21]', '[22,21]',
-          '[23,21]', '[24,21]', '[25,21]', '[26,21]',
-          '[26,20]', '[26,19]', '[26,18]', '[26,17]',
-          '[27,17]', '[27,16]', '[27,15]', '[28,15]',
-          '[29,15]'
+            '[1,15]',  '[2,15]',  '[3,15]',  '[4,15]',
+            '[5,15]',  '[6,15]',  '[7,15]',  '[8,15]',
+            '[9,15]',  '[9,14]',  '[9,13]',  '[9,12]',
+            '[9,11]',  '[9,10]',  '[9,9]',   '[10,9]',
+            '[11,9]',  '[12,9]',  '[13,9]',  '[14,9]',
+            '[15,9]',  '[16,9]',  '[17,9]',  '[18,9]',
+            '[19,9]',  '[20,9]',  '[21,9]',  '[22,9]',
+            '[23,9]',  '[24,9]',  '[25,9]',  '[26,9]',
+            '[27,9]',  '[28,9]',  '[28,10]', '[28,11]',
+            '[28,12]', '[28,13]', '[29,13]', '[29,14]',
+            '[29,15]'
         ]);
+      });
+
+      it("should return false if no valid path found", () => {
+        const astar = new AStar();
+        astar.setWall(28, 29);
+        astar.setWall(28, 28);
+        astar.setWall(29, 28);
+        astar.search(1, 1, 29, 29);
+        assert.strictEqual(astar.search(1, 1, 29, 29), false);
+      });
+
+      it("should search with diagonals", () => {
+        const astar = new AStar({ allowDiagonals: true });
+        assert(astar.search(1, 1, 29, 29));
+        if (DEBUG) astar.debugPrint();
+        const path = astar.getBestPath();
+        assert.deepStrictEqual(humanify(path), [
+          '[1,1]',
+          '[2,2]',
+          '[3,3]',
+          '[4,4]',
+          '[5,5]',
+          '[6,6]',
+          '[7,7]',
+          '[8,8]',
+          '[9,9]',
+          '[10,10]',
+          '[11,11]',
+          '[12,12]',
+          '[13,13]',
+          '[14,14]',
+          '[15,15]',
+          '[16,16]',
+          '[17,17]',
+          '[18,18]',
+          '[19,19]',
+          '[20,20]',
+          '[21,21]',
+          '[22,22]',
+          '[23,23]',
+          '[24,24]',
+          '[25,25]',
+          '[26,26]',
+          '[27,27]',
+          '[28,28]',
+          '[29,29]',
+        ]);
+      });
+
+      it("should search with diagonals past walls", () => {
+        const astar = new AStar({ allowDiagonals: true });
+        for (let x = 10; x <= 20; x++) {
+          for (let y = 10; y <= 20; y++) {
+            astar.setWall(x, y);
+          }
+        }
+        assert(astar.search(1, 15, 29, 15));
+        if (DEBUG) astar.debugPrint();
+        const path = astar.getBestPath();
+        assert.deepStrictEqual(humanify(path), [
+          '[1,15]',  '[2,15]',  '[3,15]',
+          '[4,15]',  '[5,16]',  '[6,17]',
+          '[7,18]',  '[8,19]',  '[9,20]',
+          '[10,21]', '[11,21]', '[12,21]',
+          '[13,21]', '[14,21]', '[15,21]',
+          '[16,21]', '[17,21]', '[18,21]',
+          '[19,21]', '[20,21]', '[21,20]',
+          '[22,19]', '[23,18]', '[24,17]',
+          '[25,16]', '[26,15]', '[27,15]',
+          '[28,15]', '[29,15]'
+        ]);
+      });
+
+      it("should search and return closest path", () => {
+        const astar = new AStar({ allowClosest: true });
+        astar.setWall(28, 29);
+        astar.setWall(28, 28);
+        astar.setWall(29, 28);
+        assert(astar.search(2, 2, 29, 29));
+        if (DEBUG) astar.debugPrint();
+        const path = astar.getLatestPath();
+        assert.deepStrictEqual(humanify(path), [
+          '[2,2]',   '[3,2]',   '[4,2]',   '[4,3]',
+          '[5,3]',   '[6,3]',   '[7,3]',   '[8,3]',
+          '[9,3]',   '[10,3]',  '[11,3]',  '[12,3]',
+          '[13,3]',  '[14,3]',  '[15,3]',  '[16,3]',
+          '[17,3]',  '[18,3]',  '[18,4]',  '[19,4]',
+          '[19,5]',  '[20,5]',  '[20,6]',  '[20,7]',
+          '[20,8]',  '[21,8]',  '[22,8]',  '[23,8]',
+          '[23,9]',  '[23,10]', '[23,11]', '[23,12]',
+          '[23,13]', '[23,14]', '[23,15]', '[23,16]',
+          '[23,17]', '[23,18]', '[23,19]', '[23,20]',
+          '[23,21]', '[23,22]', '[23,23]', '[23,24]',
+          '[23,25]', '[23,26]', '[23,27]', '[23,28]',
+          '[23,29]', '[24,29]', '[25,29]', '[26,29]',
+          '[27,29]'
+        ]);
+      });
+
+      it("should search and return closest path with diagonals", () => {
+        const astar = new AStar({ allowClosest: true, allowDiagonals: true });
+        astar.setWall(28, 29);
+        astar.setWall(28, 28);
+        astar.setWall(29, 28);
+        assert(astar.search(2, 2, 29, 29));
+        if (DEBUG) astar.debugPrint();
+        const path = astar.getLatestPath();
+        assert.deepStrictEqual(humanify(path), [
+          '[2,2]',   '[3,3]',   '[4,4]',
+          '[5,5]',   '[6,6]',   '[7,7]',
+          '[8,8]',   '[9,9]',   '[10,10]',
+          '[11,11]', '[12,12]', '[13,13]',
+          '[14,14]', '[15,15]', '[16,16]',
+          '[17,17]', '[18,18]', '[19,19]',
+          '[20,20]', '[21,21]', '[22,22]',
+          '[23,23]', '[24,24]', '[25,25]',
+          '[26,26]', '[27,27]', '[28,27]',
+          '[29,27]'
+        ]);
+      });
+
+      const benchmark = (astar: AStar, runs: number) => {
+        for (let x = 10; x <= 20; x++) {
+          for (let y = 10; y <= 20; y++) {
+            astar.setWall(x, y);
+          }
+        }
+        let total = 0;
+        let max = 0;
+        let min = Number.MAX_SAFE_INTEGER;
+        for (let i = 0; i < runs; i++) {
+          const t0 = performance.now();
+          astar.search(1, 1, 29, 29);
+          const t1 = performance.now();
+          const time = t1 - t0;
+          total += time;
+          if (time > max) max = time;
+          if (time < min) min = time;
+        }
+        const avg = total / runs;
+        console.log(`R${runs}:total=${total.toFixed(4)},avg=${avg.toFixed(4)},max=${max.toFixed(4)},min=${min.toFixed(4)}`);
+      };
+
+      it("benchmark manhattan", () => {
+        console.log("benchmark(manhattan)");
+        const astar = new AStar();
+        benchmark(astar, 10);
+        benchmark(astar, 100);
+        benchmark(astar, 1000);
+      });
+
+      it("benchmark diagonal", () => {
+        console.log("benchmark(diagonal)");
+        const astar = new AStar({ allowDiagonals: true });
+        benchmark(astar, 10);
+        benchmark(astar, 100);
+        benchmark(astar, 1000);
       });
     });
   });

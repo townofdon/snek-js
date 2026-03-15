@@ -1,15 +1,27 @@
 import { GRIDCOUNT, IS_DEV } from "../constants";
 import { getCoordIndex2, getTraversalDistance } from "../utils";
 
-export const ASTAR_WALL = Number.MAX_SAFE_INTEGER; // this works for 32-bit floats
+export const ASTAR_WALL = Infinity;
 
 export const INITIAL_ASTAR_LIST_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
+
+interface AStarOptions {
+  allowDiagonals: boolean,
+  allowClosest: boolean,
+}
+
+const DEFAULT_OPTIONS = {
+  allowDiagonals: false,
+  allowClosest: false
+} satisfies AStarOptions;
 
 /**
  * Non-allocating A-Star search algorithm.
  * Uses a Binary Heap internally for performance.
  */
 export class AStar {
+  private options: AStarOptions;
+
   // binary heap that keeps track of indices on the open list. mapping: index => coord
   private openList: Uint16Array;
   // keeps track of list length, since lists are always filled to capacity
@@ -46,7 +58,10 @@ export class AStar {
   private dirtyList: Uint16Array;
   private dirtyListLength: number;
 
-  constructor() {
+  private closest: number;
+
+  constructor(_options?: Partial<AStarOptions>) {
+    this.options = { ...DEFAULT_OPTIONS, ..._options};
     this.openList = new Uint16Array(INITIAL_ASTAR_LIST_SIZE);
     this.openListLength = 0;
     this.parent = new Int16Array(INITIAL_ASTAR_LIST_SIZE);
@@ -84,6 +99,7 @@ export class AStar {
     this.bestPathLength = 0;
     this.bestPathCost = 0;
     this.dirtyListLength = 0;
+    this.closest = -1;
   }
 
   public setWall(x: number, y: number) {
@@ -111,7 +127,17 @@ export class AStar {
     return best;
   }
 
+  public getLatestPath() {
+    const latest: number[] = new Array(this.pathLength).fill(0);
+    for (let i = 0; i < this.pathLength; i++) {
+      latest[i] = this.path[i];
+    }
+    return latest;
+  }
+
   public search(startx: number, starty: number, endx: number, endy: number): boolean {
+    const allowClosest = this.options.allowClosest;
+    const allowDiagonals = this.options.allowDiagonals;
     const startCoord = getCoordIndex2(startx, starty);
     const endCoord = getCoordIndex2(endx, endy);
     this.openListLength = 0;
@@ -123,6 +149,7 @@ export class AStar {
       this.parent[i] = -1;
     }
     this.dirtyListLength = 0;
+    this.closest = -1;
 
     this.hScore[0] = getTraversalDistance(startx, starty, endx, endy);
     this.addToOpenList(startCoord);
@@ -139,7 +166,10 @@ export class AStar {
       if (current === endCoord) {
         this.pathCost = this.gScore[current] + this.hScore[current];
         this.constructPath(current);
-        if (!this.bestPathLength || this.pathCost <= this.bestPathCost || startCoord !== this.bestPath[0] || endCoord !== this.bestPath[this.bestPathLength - 1]) {
+        // maybe set best path
+        if (this.path.length && (
+          !this.bestPathLength || this.pathCost <= this.bestPathCost || startCoord !== this.bestPath[0]
+        )) {
           this.bestPathLength = this.pathLength;
           for (let i = 0; i < this.pathLength; i++) {
             this.bestPath[i] = this.path[i];
@@ -150,26 +180,52 @@ export class AStar {
 
       const x = Math.floor(current % GRIDCOUNT.x);
       const y = Math.floor(current / GRIDCOUNT.x);
-      const left = x > 0 ? getCoordIndex2(x - 1, y) : -1;
-      const right = x < GRIDCOUNT.x - 1 ? getCoordIndex2(x + 1, y) : -1;
-      const up = y > 0 ? getCoordIndex2(x, y - 1) : -1;
-      const down = y < GRIDCOUNT.y - 1 ? getCoordIndex2(x, y + 1) : -1;
-      [left, right, up, down].forEach(neighbor => {
+      const okleft = x > 0;
+      const okright = x < GRIDCOUNT.x - 1;
+      const okup = y > 0;
+      const okdown = y < GRIDCOUNT.y - 1;
+      const left = okleft ? getCoordIndex2(x - 1, y) : -1;
+      const right = okright ? getCoordIndex2(x + 1, y) : -1;
+      const up = okup ? getCoordIndex2(x, y - 1) : -1;
+      const down = okdown ? getCoordIndex2(x, y + 1) : -1;
+      const upleft = (okup && okleft) ? getCoordIndex2(x - 1, y - 1) : -1;
+      const upright = (okup && okright) ? getCoordIndex2(x + 1, y - 1) : -1;
+      const downleft = (okdown && okleft) ? getCoordIndex2(x - 1, y + 1) : -1;
+      const downright = (okdown && okright) ? getCoordIndex2(x + 1, y + 1) : -1;
+      const neighbors = allowDiagonals
+        ? [left, right, up, down, upleft, upright, downleft, downright]
+        : [left, right, up, down];
+
+      for (let idx = 0; idx < neighbors.length; idx++) {
+        const neighbor = neighbors[idx];
         if (neighbor < 0 || this.closed[neighbor] || this.weight[neighbor] === ASTAR_WALL) {
-          return;
+          continue;
         }
-        const gScore = this.gScore[current] + (this.weight[neighbor] || 1);
+        const isDiagonal = idx >= 4;
+        const costMultiplier = isDiagonal ? 1.41421 : 1;
+        const gScore = this.gScore[current] + (this.weight[neighbor] || 1) * costMultiplier;
         if (!this.visited[neighbor] || gScore < this.gScore[neighbor]) {
           const nx = Math.floor(neighbor % GRIDCOUNT.x);
           const ny = Math.floor(neighbor / GRIDCOUNT.x);
           const visited = this.visited[neighbor];
+          const hScore = getTraversalDistance(nx, ny, endx, endy);
           this.visited[neighbor] = 1;
           this.parent[neighbor] = current;
           this.gScore[neighbor] = gScore;
-          this.hScore[neighbor] = getTraversalDistance(nx, ny, endx, endy);
+          this.hScore[neighbor] = hScore;
           this.addToDirtyList(neighbor);
 
-          // TODO: ADD CLOSEST BEHAVIOR
+          // compute closest
+          const closest = this.closest;
+          if (
+            allowClosest && (
+              closest < 0 ||
+              this.hScore[neighbor] < this.hScore[closest] ||
+              (this.hScore[neighbor] === this.hScore[closest] && this.gScore[neighbor] < this.gScore[closest])
+            )
+          ){
+            this.closest = neighbor;
+          }
 
           if (!visited) {
             this.addToOpenList(neighbor);
@@ -177,8 +233,17 @@ export class AStar {
             this.bhRescoreElement(neighbor);
           }
         }
-      })
+      }
     }
+
+    // build path to closest node if it exists
+    if (allowClosest && this.closest >= 0) {
+      const current = this.closest;
+      this.pathCost = this.gScore[current] + this.hScore[current];
+      this.constructPath(current);
+      return true;
+    }
+
     return false;
   }
 
@@ -221,6 +286,35 @@ export class AStar {
           );
         }
       });
+    }
+  }
+
+  public debugPrint() {
+    for (let y = 0; y < GRIDCOUNT.y; y++) {
+      let str = "";
+      for (let x = 0; x < GRIDCOUNT.x; x++) {
+        const coord = getCoordIndex2(x, y);
+        const isWall = this.weight[coord] === ASTAR_WALL;
+        const isPathNode = (() => {
+          for (let i = 0; i < this.pathLength; i++) {
+            if (this.path[i] === coord) return true;
+          }
+          return false;
+        })()
+        const isStart = this.pathLength > 0 && coord === this.path[0];
+        const isEnd = this.pathLength > 0 && coord === this.path[this.pathLength - 1];
+        const char = (() => {
+          if (isStart) return '@';
+          if (isEnd) return '+';
+          if (isWall && isPathNode) return '!';
+          if (isWall) return 'X';
+          if (isPathNode) return 'o'
+          // return Math.floor(Math.min(this.weight[coord], 9));
+          return '_';
+        })()
+        str += char;
+      }
+      console.log(str);
     }
   }
 
