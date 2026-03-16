@@ -1,6 +1,6 @@
 import assert from "assert";
 
-import { INITIAL_ASTAR_LIST_SIZE } from "../../collections/astar";
+import { ASTAR_GRID_SIZE } from "../../collections/astar";
 import { Grid } from "../../collections/grid";
 import { lerp } from "../../utils";
 
@@ -14,17 +14,17 @@ import { lerp } from "../../utils";
 describe("Collections", () => {
   describe("Grid", () => {
     it("should get and set coord", () => {
-      const grid = new Grid(INITIAL_ASTAR_LIST_SIZE);
-      for (let i = 0; i < INITIAL_ASTAR_LIST_SIZE; i++) {
-        const val = INITIAL_ASTAR_LIST_SIZE - 1 - i;
+      const grid = new Grid(ASTAR_GRID_SIZE);
+      for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
+        const val = ASTAR_GRID_SIZE - 1 - i;
         grid.setCoord(i, val);
         assert.strictEqual(grid.getCoord(i), val, `grid coord did not match at idx=${i}: actual=${grid.getCoord(i)},expected=${val}`);
       }
     });
 
     it("should get and set flags", () => {
-      const grid = new Grid(INITIAL_ASTAR_LIST_SIZE);
-      for (let i = 0; i < INITIAL_ASTAR_LIST_SIZE; i++) {
+      const grid = new Grid(ASTAR_GRID_SIZE);
+      for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
         const val = i % 20;
         grid.setFlags(i, val);
         assert.strictEqual(grid.getFlags(i), val, `grid flags did not match at idx=${i}: actual=${grid.getFlags(i)},expected=${val}`);
@@ -32,8 +32,8 @@ describe("Collections", () => {
     });
 
     it("should get and set gscore", () => {
-      const grid = new Grid(INITIAL_ASTAR_LIST_SIZE);
-      for (let i = 0; i < INITIAL_ASTAR_LIST_SIZE; i++) {
+      const grid = new Grid(ASTAR_GRID_SIZE);
+      for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
         const val = lerp(0, 100, i / 899);
         grid.setGScore(i, val);
         assertApproxEquals(grid.getGScore(i), val, 0.1);
@@ -41,8 +41,8 @@ describe("Collections", () => {
     });
 
     it("should get and set hscore", () => {
-      const grid = new Grid(INITIAL_ASTAR_LIST_SIZE);
-      for (let i = 0; i < INITIAL_ASTAR_LIST_SIZE; i++) {
+      const grid = new Grid(ASTAR_GRID_SIZE);
+      for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
         const val = lerp(0, 100, i / 899);
         grid.setHScore(i, val);
         assertApproxEquals(grid.getHScore(i), val, 0.1);
@@ -50,17 +50,17 @@ describe("Collections", () => {
     });
 
     it("should get and set parent", () => {
-      const grid = new Grid(INITIAL_ASTAR_LIST_SIZE);
-      for (let i = 0; i < INITIAL_ASTAR_LIST_SIZE; i++) {
-        const val = i + 50 % INITIAL_ASTAR_LIST_SIZE;
+      const grid = new Grid(ASTAR_GRID_SIZE);
+      for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
+        const val = i + 50 % ASTAR_GRID_SIZE;
         grid.setParent(i, val);
         assert.strictEqual(grid.getParent(i), val, `grid parent did not match at idx=${i}: actual=${grid.getParent(i)},expected=${val}`);
       }
     });
 
     it("should get and set flags correctly", () => {
-      const grid = new Grid(INITIAL_ASTAR_LIST_SIZE);
-      for (let i = 0; i < INITIAL_ASTAR_LIST_SIZE; i++) {
+      const grid = new Grid(ASTAR_GRID_SIZE);
+      for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
         const msg = `idx=${i}`;
         assert.strictEqual(grid.getFlagWall(i), false, msg);
         assert.strictEqual(grid.getFlagClosed(i), false, msg);

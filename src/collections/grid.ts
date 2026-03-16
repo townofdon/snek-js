@@ -13,26 +13,28 @@ const BYTE_OFFSET_HSCORE = 6;
 const BYTE_OFFSET_PARENT = 8;
 
 
-export class Grid {
+export class Grid implements ArrayLike<ArrayBuffer> {
   // C-like structs in JavaScript!
   // See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Typed_arrays#working_with_complex_data_structures
   // Note that Uint16Array and Float16Array offsets must be a multiple of 2, and Float32Array offsets must be a multiple of 4
   private buffer: ArrayBuffer;
-  private length;
+  private _length;
 
   constructor(length: number) {
     this.buffer = new ArrayBuffer(GRID_NODE_BYTELENGTH * length);
-    this.length = length;
+    this._length = length;
   }
+  readonly [n: number]: ArrayBuffer;
+  public get length() { return this._length; }
 
   public reset() {
-    const length = this.length;
+    const length = this._length;
     for (let i = 0; i < length; i++) {
       this.setCoord(i, 0);
       this.setFlags(i, 0);
       this.setGScore(i, 0);
       this.setHScore(i, 0);
-      this.setParent(i, 0);
+      this.setParent(i, -1);
     }
   }
 
@@ -111,12 +113,16 @@ export class Grid {
     view[0] = val;
   }
 
+  public getFScore(idx: number) {
+    return this.getGScore(idx) + this.getHScore(idx);
+  }
+
   public getParent(idx: number) {
-    const view = new Uint16Array(this.buffer, idx * GRID_NODE_BYTELENGTH + BYTE_OFFSET_PARENT, 1);
+    const view = new Int16Array(this.buffer, idx * GRID_NODE_BYTELENGTH + BYTE_OFFSET_PARENT, 1);
     return view[0];
   }
   public setParent(idx: number, val: number) {
-    const view = new Uint16Array(this.buffer, idx * GRID_NODE_BYTELENGTH + BYTE_OFFSET_PARENT, 1);
+    const view = new Int16Array(this.buffer, idx * GRID_NODE_BYTELENGTH + BYTE_OFFSET_PARENT, 1);
     view[0] = val;
   }
 }

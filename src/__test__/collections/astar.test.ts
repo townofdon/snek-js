@@ -141,9 +141,10 @@ describe("Collections", () => {
       }
       it("should build correct path for empty map", () => {
         const astar = new AStar();
-        assert(astar.search(1, 1, 15, 29));
-        const path = astar.getBestPath();
+        const result = astar.search(1, 1, 15, 29);
         if (DEBUG) astar.debugPrint();
+        assert(result);
+        const path = astar.getBestPath();
         assert.deepStrictEqual(humanify(path), [
           "[1,1]", "[2,1]", "[3,1]", "[3,2]",
           "[4,2]", "[4,3]", "[4,4]", "[4,5]",
@@ -166,8 +167,9 @@ describe("Collections", () => {
             astar.setWall(x, y);
           }
         }
-        assert(astar.search(1, 15, 29, 15));
+        const result = astar.search(1, 15, 29, 15);
         if (DEBUG) astar.debugPrint();
+        assert(result);
         const path = astar.getBestPath();
         assert.deepStrictEqual(humanify(path), [
             '[1,15]',  '[2,15]',  '[3,15]',  '[4,15]',
@@ -189,14 +191,14 @@ describe("Collections", () => {
         astar.setWall(28, 29);
         astar.setWall(28, 28);
         astar.setWall(29, 28);
-        astar.search(1, 1, 29, 29);
         assert.strictEqual(astar.search(1, 1, 29, 29), false);
       });
 
       it("should search with diagonals", () => {
         const astar = new AStar({ allowDiagonals: true });
-        assert(astar.search(1, 1, 29, 29));
+        const result = astar.search(1, 1, 29, 29);
         if (DEBUG) astar.debugPrint();
+        assert(result);
         const path = astar.getBestPath();
         assert.deepStrictEqual(humanify(path), [
           '[1,1]',
@@ -238,8 +240,9 @@ describe("Collections", () => {
             astar.setWall(x, y);
           }
         }
-        assert(astar.search(1, 15, 29, 15));
+        const result = astar.search(1, 15, 29, 15);
         if (DEBUG) astar.debugPrint();
+        assert(result);
         const path = astar.getBestPath();
         assert.deepStrictEqual(humanify(path), [
           '[1,15]',  '[2,15]',  '[3,15]',
@@ -260,8 +263,9 @@ describe("Collections", () => {
         astar.setWall(28, 29);
         astar.setWall(28, 28);
         astar.setWall(29, 28);
-        assert(astar.search(2, 2, 29, 29));
+        const result = astar.search(2, 2, 29, 29);
         if (DEBUG) astar.debugPrint();
+        assert(result);
         const path = astar.getLatestPath();
         assert.deepStrictEqual(humanify(path), [
           '[2,2]',   '[3,2]',   '[4,2]',   '[4,3]',
@@ -286,8 +290,9 @@ describe("Collections", () => {
         astar.setWall(28, 29);
         astar.setWall(28, 28);
         astar.setWall(29, 28);
-        assert(astar.search(2, 2, 29, 29));
+        const result = astar.search(2, 2, 29, 29);
         if (DEBUG) astar.debugPrint();
+        assert(result);
         const path = astar.getLatestPath();
         assert.deepStrictEqual(humanify(path), [
           '[2,2]',   '[3,3]',   '[4,4]',
@@ -307,8 +312,9 @@ describe("Collections", () => {
         const astar = new AStar();
         const snek = getCoordIndex2(15, 15);
         astar.setSnekCoord(snek);
-        assert(astar.search(1, 1, 28, 28));
+        const result = astar.search(1, 1, 28, 28);
         if (DEBUG) astar.debugPrint();
+        assert(result);
         const path = astar.getLatestPath();
         assert(!path.includes(snek), `snek exists at coord(15, 15)!`);
       });
@@ -317,8 +323,9 @@ describe("Collections", () => {
         const astar = new AStar({ allowDiagonals: true });
         const snek = getCoordIndex2(15, 15);
         astar.setSnekCoord(snek);
-        assert(astar.search(1, 1, 28, 28));
+        const result = astar.search(1, 1, 28, 28);
         if (DEBUG) astar.debugPrint();
+        assert(result);
         const path = astar.getLatestPath();
         assert(!path.includes(snek), `snek exists at coord(15, 15)!`);
       });
@@ -338,8 +345,9 @@ describe("Collections", () => {
         mines.add(15, 1, 999999, 1, 1);
         mines.add(3, 20, 999999, 1, 1);
         mines.add(28, 20, 999999, 1, 1);
-        assert(astar.search(1, 1, 28, 28));
+        const result = astar.search(1, 1, 28, 28);
         if (DEBUG) astar.debugPrint();
+        assert(result);
         const path = astar.getLatestPath();
         path.forEach((coord, idx) => {
           const x = Math.floor(coord % GRIDCOUNT.x);
@@ -385,8 +393,9 @@ describe("Collections", () => {
         mines.add(24, 7, 999999, 1, 1);
         mines.add(25, 6, 999999, 1, 1);
         mines.add(26, 5, 999999, 1, 1);
-        assert(astar.search(1, 1, 28, 28));
+        const result = astar.search(1, 1, 28, 28);
         if (DEBUG) astar.debugPrint();
+        assert(result);
         const path = astar.getLatestPath();
         path.forEach((coord, idx) => {
           const x = Math.floor(coord % GRIDCOUNT.x);
@@ -434,8 +443,9 @@ describe("Collections", () => {
         mines.add(24, 7, 999999, 1, 1);
         mines.add(25, 6, 999999, 1, 1);
         mines.add(26, 5, 999999, 1, 1);
-        assert(astar.search(1, 1, 28, 28));
+        const result = astar.search(1, 1, 28, 28);
         if (DEBUG) astar.debugPrint();
+        assert(result);
         const path = astar.getLatestPath();
         path.forEach((coord, idx) => {
           const x = Math.floor(coord % GRIDCOUNT.x);

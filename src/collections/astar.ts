@@ -2,12 +2,14 @@ import { GRIDCOUNT, IS_DEV } from "../constants";
 import { getCoordIndex2, getTraversalDistance } from "../utils";
 import { AnimationList } from "./animationList";
 
-export const ASTAR_WALL = Infinity;
 const THREAT_COST_MINE = 4;
 const THREAT_COST_SNEK = 6;
 const DIAG_COST = 1.41421;
+const FLAG_WALL = 1;
+const FLAG_CLOSED = 2;
+const FLAG_VISITED = 4;
 
-export const INITIAL_ASTAR_LIST_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
+export const ASTAR_GRID_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
 
 interface AStarOptions {
   allowDiagonals: boolean,
@@ -35,20 +37,14 @@ export class AStar {
   // maps node (coord) to its parent node (coord)
   private parent: Int16Array;
 
-  // boolean (0, 1) map to keep track of node closed state
-  private closed: Uint8Array;
-
-  // boolean (0, 1) map to keep track of node visited state
-  private visited: Uint8Array;
+  // track states: closed, visited, etc.
+  private flags: Uint8Array;
 
   // g score lookup for coord
   private gScore: Float32Array;
 
   // h score lookup for coord
   private hScore: Float32Array;
-
-  // cell weight. less=preferred, INFINITY=unnavigable (e.g. wall)
-  private weight: Float32Array;
 
   // result of a-star search()
   private path: Uint16Array;
@@ -59,10 +55,6 @@ export class AStar {
   private bestPathLength: number;
   private bestPathCost: number;
 
-  // dirty items to be cleaned up on next search() call
-  private dirtyList: Uint16Array;
-  private dirtyListLength: number;
-
   // threats
   private mines: AnimationList;
   private snekCoord: number;
@@ -72,22 +64,19 @@ export class AStar {
   constructor(_options?: Partial<AStarOptions>) {
     this.options = { ...DEFAULT_OPTIONS, ..._options};
     this.mines = _options?.mines;
-    this.openList = new Uint16Array(INITIAL_ASTAR_LIST_SIZE);
+
+    this.openList = new Uint16Array(ASTAR_GRID_SIZE);
     this.openListLength = 0;
-    this.parent = new Int16Array(INITIAL_ASTAR_LIST_SIZE);
-    this.closed = new Uint8Array(INITIAL_ASTAR_LIST_SIZE);
-    this.visited = new Uint8Array(INITIAL_ASTAR_LIST_SIZE);
-    this.gScore = new Float32Array(INITIAL_ASTAR_LIST_SIZE);
-    this.hScore = new Float32Array(INITIAL_ASTAR_LIST_SIZE);
-    this.weight = new Float32Array(INITIAL_ASTAR_LIST_SIZE);
-    this.path = new Uint16Array(INITIAL_ASTAR_LIST_SIZE);
+    this.parent = new Int16Array(ASTAR_GRID_SIZE);
+    this.flags = new Uint8Array(ASTAR_GRID_SIZE);
+    this.gScore = new Float32Array(ASTAR_GRID_SIZE);
+    this.hScore = new Float32Array(ASTAR_GRID_SIZE);
+    this.path = new Uint16Array(ASTAR_GRID_SIZE);
     this.pathLength = 0;
     this.pathCost = 0;
-    this.bestPath = new Uint16Array(INITIAL_ASTAR_LIST_SIZE);
+    this.bestPath = new Uint16Array(ASTAR_GRID_SIZE);
     this.bestPathLength = 0;
     this.bestPathCost = 0;
-    this.dirtyList = new Uint16Array(INITIAL_ASTAR_LIST_SIZE);
-    this.dirtyListLength = 0;
     this.reset();
   }
 
@@ -95,20 +84,16 @@ export class AStar {
     this.validate();
     this.openList.fill(0);
     this.parent.fill(-1);
-    this.closed.fill(0);
-    this.visited.fill(0);
+    this.flags.fill(0);
     this.gScore.fill(0);
     this.hScore.fill(0);
-    this.weight.fill(1);
     this.path.fill(0);
     this.bestPath.fill(0);
-    this.dirtyList.fill(0);
     this.openListLength = 0;
     this.pathLength = 0;
     this.pathCost = 0;
     this.bestPathLength = 0;
     this.bestPathCost = 0;
-    this.dirtyListLength = 0;
     this.closest = -1;
     this.snekCoord = -1;
   }
@@ -118,20 +103,11 @@ export class AStar {
   }
 
   public setWall(x: number, y: number) {
-    this.weight[getCoordIndex2(x, y)] = ASTAR_WALL;
+    this.flags[getCoordIndex2(x, y)] |= FLAG_WALL;
   }
 
   public setWallByCoord(coord: number) {
-    this.weight[coord] = ASTAR_WALL;
-  }
-
-  public setWeight(x: number, y: number, weight: number) {
-    const coord = getCoordIndex2(x, y);
-    this.setWeightByCoord(coord, weight);
-  }
-
-  public setWeightByCoord(coord: number, weight: number) {
-    this.weight[coord] = Math.max(weight, 1);
+    this.flags[coord] |= FLAG_WALL;
   }
 
   public getBestPath() {
@@ -155,35 +131,43 @@ export class AStar {
     const allowDiagonals = this.options.allowDiagonals;
     const startCoord = getCoordIndex2(startx, starty);
     const endCoord = getCoordIndex2(endx, endy);
-    this.openListLength = 0;
-    for (let i = 0; i < this.dirtyListLength; i++) {
+    for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
       this.gScore[i] = 0;
       this.hScore[i] = 0;
-      this.visited[i] = 0;
-      this.closed[i] = 0;
+      this.flags[i] &= ~FLAG_CLOSED;
+      this.flags[i] &= ~FLAG_VISITED;
       this.parent[i] = -1;
     }
-    this.dirtyListLength = 0;
+    this.openListLength = 0;
     this.closest = -1;
 
+    const snekx = Math.floor(this.snekCoord % GRIDCOUNT.x);
+    const sneky = Math.floor(this.snekCoord / GRIDCOUNT.x);
+    const snekCoord = this.snekCoord;
+    const flags = this.flags;
+    const parents = this.parent;
+    const gScores = this.gScore;
+    const hScores = this.hScore;
+    const mines = this.mines;
+
     this.hScore[0] = getTraversalDistance(startx, starty, endx, endy);
-    this.addToOpenList(startCoord);
-    this.addToDirtyList(startCoord);
+    this.addToOpenList(startCoord, gScores, hScores);
 
     while (this.openListLength > 0) {
-      const current = this.extractMinFromOpenList();
+      const current = this.extractMinFromOpenList(gScores, hScores);
       if (current < 0) break;
 
-      this.addToDirtyList(current);
-      this.closed[current] = 1;
+      flags[current] |= FLAG_CLOSED;
 
       // build path if we have arrived at the target
       if (current === endCoord) {
-        this.pathCost = this.gScore[current] + this.hScore[current];
+        this.pathCost = gScores[current] + hScores[current];
         this.constructPath(current);
         // maybe set best path
         if (this.path.length && (
-          !this.bestPathLength || this.pathCost <= this.bestPathCost || startCoord !== this.bestPath[0]
+          !this.bestPathLength ||
+          this.pathCost <= this.bestPathCost ||
+          startCoord !== this.bestPath[0]
         )) {
           this.bestPathLength = this.pathLength;
           for (let i = 0; i < this.pathLength; i++) {
@@ -207,25 +191,35 @@ export class AStar {
       const upright = (okup && okright) ? getCoordIndex2(x + 1, y - 1) : -1;
       const downleft = (okdown && okleft) ? getCoordIndex2(x - 1, y + 1) : -1;
       const downright = (okdown && okright) ? getCoordIndex2(x + 1, y + 1) : -1;
-      const neighbors = allowDiagonals
-        ? [left, right, up, down, upleft, upright, downleft, downright]
-        : [left, right, up, down];
+      const numNeighbors = allowDiagonals ? 8 : 4
 
       // check neighbors
-      for (let idx = 0; idx < neighbors.length; idx++) {
-        const neighbor = neighbors[idx];
-        if (neighbor < 0 || this.closed[neighbor] || this.weight[neighbor] === ASTAR_WALL) {
+      for (let idx = 0; idx < numNeighbors; idx++) {
+        let neighbor = -1;
+        if (idx === 0) neighbor = left;
+        if (idx === 1) neighbor = right;
+        if (idx === 2) neighbor = up;
+        if (idx === 3) neighbor = down;
+        if (idx === 4) neighbor = upleft;
+        if (idx === 5) neighbor = upright;
+        if (idx === 6) neighbor = downleft;
+        if (idx === 7) neighbor = downright;
+        if (neighbor < 0) {
+          continue;
+        }
+        const isWall = !!(flags[neighbor] & FLAG_WALL);
+        const isClosed = !!(flags[neighbor] & FLAG_CLOSED);
+        const isVisited = !!(flags[neighbor] & FLAG_VISITED);
+        if (isClosed || isWall) {
           continue;
         }
         const nx = Math.floor(neighbor % GRIDCOUNT.x);
         const ny = Math.floor(neighbor / GRIDCOUNT.x);
         // calculate threat costs
-        const distToClosestMine = this.mines?.getClosestTraversalDistance(nx, ny) ?? Infinity;
+        const distToClosestMine = mines?.getClosestTraversalDistance(nx, ny) ?? Infinity;
         const distToSnekHead = (() => {
-          if (this.snekCoord < 0) return Infinity
-          const sx = Math.floor(this.snekCoord % GRIDCOUNT.x);
-          const sy = Math.floor(this.snekCoord / GRIDCOUNT.x);
-          return getTraversalDistance(nx, ny, sx, sy);
+          if (snekCoord < 0) return Infinity;
+          return getTraversalDistance(nx, ny, snekx, sneky);
         })()
         const isDiagonal = idx >= 4;
         const diagCostMultiplier = isDiagonal ? DIAG_COST : 1;
@@ -241,33 +235,31 @@ export class AStar {
           threatCostSnek,
         );
         // calculate traversal cost (g)
-        const gScore = this.gScore[current]
-          + (this.weight[neighbor] || 1) * diagCostMultiplier
+        const gScore = gScores[current]
+          + diagCostMultiplier
           + threatCost;
         // set neighbor fields, add to open list
-        if (!this.visited[neighbor] || gScore < this.gScore[neighbor]) {
-          const visited = this.visited[neighbor];
+        if (!isVisited || gScore < gScores[neighbor]) {
           const hScore = getTraversalDistance(nx, ny, endx, endy);
-          this.visited[neighbor] = 1;
-          this.parent[neighbor] = current;
-          this.gScore[neighbor] = gScore;
-          this.hScore[neighbor] = hScore;
-          this.addToDirtyList(neighbor);
+          flags[neighbor] |= FLAG_VISITED;
+          parents[neighbor] = current;
+          gScores[neighbor] = gScore;
+          hScores[neighbor] = hScore;
           // set closest node
           const closest = this.closest;
           if (
             allowClosest && (
               closest < 0 ||
-              this.hScore[neighbor] < this.hScore[closest] ||
-              (this.hScore[neighbor] === this.hScore[closest] && this.gScore[neighbor] < this.gScore[closest])
+              hScores[neighbor] < hScores[closest] ||
+              (hScores[neighbor] === hScores[closest] && gScores[neighbor] < gScores[closest])
             )
           ){
             this.closest = neighbor;
           }
-          if (!visited) {
-            this.addToOpenList(neighbor);
+          if (!isVisited) {
+            this.addToOpenList(neighbor, gScores, hScores);
           } else {
-            this.bhRescoreElement(neighbor);
+            this.bhRescoreElement(neighbor, gScores, hScores);
           }
         }
       }
@@ -276,7 +268,7 @@ export class AStar {
     // build path to closest node if it exists
     if (allowClosest && this.closest >= 0) {
       const current = this.closest;
-      this.pathCost = this.gScore[current] + this.hScore[current];
+      this.pathCost = gScores[current] + hScores[current];
       this.constructPath(current);
       return true;
     }
@@ -297,24 +289,16 @@ export class AStar {
     });
   }
 
-  private addToDirtyList(coord: number) {
-    this.dirtyList[this.dirtyListLength] = coord;
-    this.dirtyListLength++;
-  }
-
   private validate() {
     if (IS_DEV) {
       type ValidationTest = [ArrayLike<any>, ArrayLike<any>, string];
       const tests: ValidationTest[] = [
         [this.openList, this.parent, "openList, parent"],
-        [this.openList, this.closed, "openList, closed"],
-        [this.openList, this.visited, "openList, visited"],
+        [this.openList, this.flags, "openList, flags"],
         [this.openList, this.gScore, "openList, gScore"],
         [this.openList, this.hScore, "openList, hScore"],
-        [this.openList, this.weight, "openList, weight"],
         [this.openList, this.path, "openList, path"],
         [this.openList, this.bestPath, "openList, bestPath"],
-        [this.openList, this.dirtyList, "openList, dirtyList"],
       ];
       tests.forEach(([a, b, text]) => {
         if (a.length !== b.length) {
@@ -331,7 +315,7 @@ export class AStar {
       let str = "";
       for (let x = 0; x < GRIDCOUNT.x; x++) {
         const coord = getCoordIndex2(x, y);
-        const isWall = this.weight[coord] === ASTAR_WALL;
+        const isWall = !!(this.flags[coord] & FLAG_WALL);
         const isSnekThreat = coord === this.snekCoord;
         const isMineThreat = this.mines?.existsAtCoord(coord) || false;
         const isPathNode = (() => {
@@ -363,14 +347,14 @@ export class AStar {
   // Binary Heap Functions
   //
 
-  private addToOpenList(coord: number) {
+  private addToOpenList(coord: number, gScore: Float32Array, hScore: Float32Array) {
     const i = this.openListLength;
     this.openList[i] = coord;
     this.openListLength++;
-    this.bhSinkDown(i);
+    this.bhSinkDown(i, gScore, hScore);
   }
 
-  private extractMinFromOpenList() {
+  private extractMinFromOpenList(gScore: Float32Array, hScore: Float32Array) {
     if (this.openListLength === 0) {
       return -1;
     }
@@ -379,32 +363,33 @@ export class AStar {
     this.openListLength--;
     if (this.openListLength > 0) {
       this.openList[0] = end;
-      this.bhBubbleUp(0);
+      this.bhBubbleUp(0, gScore, hScore);
     }
     return result;
   }
 
-  private bhRescoreElement(coord: number) {
+  private bhRescoreElement(coord: number, gScore: Float32Array, hScore: Float32Array) {
     const i = this.openList.indexOf(coord);
     if (i > -1) {
-      const j = this.bhSinkDown(i);
-      this.bhBubbleUp(j);
+      const j = this.bhSinkDown(i, gScore, hScore);
+      this.bhBubbleUp(j, gScore, hScore);
     }
   }
 
-  private bhSinkDown(_index: number) {
-    const coord = this.openList[_index];
+  private bhSinkDown(_index: number, gScore: Float32Array, hScore: Float32Array) {
+    const openList = this.openList;
+    const coord = openList[_index];
     let i = _index;
     let escapeHatch = 0;
     while (i > 0 && escapeHatch < 1000) {
       escapeHatch++;
       const parentIndex = (i - 1) >> 1; // floor((i - 1) / 2)
-      const parentCoord = this.openList[parentIndex];
-      const fScoreCurrent = this.gScore[coord] + this.hScore[coord];
-      const fScoreParent = this.gScore[parentCoord] + this.hScore[parentCoord];
+      const parentCoord = openList[parentIndex];
+      const fScoreCurrent = gScore[coord] + hScore[coord];
+      const fScoreParent = gScore[parentCoord] + hScore[parentCoord];
       if (fScoreCurrent < fScoreParent) {
-        this.openList[parentIndex] = coord;
-        this.openList[i] = parentCoord;
+        openList[parentIndex] = coord;
+        openList[i] = parentCoord;
         i = parentIndex;
       } else {
         return i;
@@ -416,10 +401,11 @@ export class AStar {
     return 0;
   }
 
-  private bhBubbleUp(_index: number) {
+  private bhBubbleUp(_index: number, gScore: Float32Array, hScore: Float32Array) {
+    const openList = this.openList;
     const length = this.openListLength;
-    const coord = this.openList[_index];
-    const fScoreOriginal = this.gScore[coord] + this.hScore[coord];
+    const coord = openList[_index];
+    const fScoreOriginal = gScore[coord] + hScore[coord];
     let fScoreLeft = 0;
     let i = _index;
     let escapeHatch = 0;
@@ -429,22 +415,22 @@ export class AStar {
       const right = (i << 1) + 2; // 2i + 2
       let swap = 0;
       if (left < length) {
-        const leftCoord = this.openList[left];
-        fScoreLeft = this.gScore[leftCoord] + this.hScore[leftCoord];
+        const leftCoord = openList[left];
+        fScoreLeft = gScore[leftCoord] + hScore[leftCoord];
         if (fScoreLeft < fScoreOriginal) {
           swap = left;
         }
       }
       if (right < length) {
-        const rightCoord = this.openList[right];
-        const fScoreRight = this.gScore[rightCoord] + this.hScore[rightCoord];
+        const rightCoord = openList[right];
+        const fScoreRight = gScore[rightCoord] + hScore[rightCoord];
         if (fScoreRight < (swap ? fScoreLeft : fScoreOriginal)) {
           swap = right;
         }
       }
       if (swap > 0) {
-        this.openList[i] = this.openList[swap];
-        this.openList[swap] = coord;
+        openList[i] = openList[swap];
+        openList[swap] = coord;
         i = swap;
       } else {
         return i;
@@ -454,23 +440,23 @@ export class AStar {
   }
 
   public test__addToOpenList(coord: number) {
-    this.addToOpenList(coord);
+    this.addToOpenList(coord, this.gScore, this.hScore);
   }
 
   public test__extractMinFromOpenList() {
-    return this.extractMinFromOpenList();
+    return this.extractMinFromOpenList(this.gScore, this.hScore);
   }
 
   public test__bhSinkDown(index: number) {
-    return this.bhSinkDown(index);
+    return this.bhSinkDown(index, this.gScore, this.hScore);
   }
 
   public test__bhBubbleUp(index: number) {
-    return this.bhBubbleUp(index);
+    return this.bhBubbleUp(index, this.gScore, this.hScore);
   }
 
   public test__bhRescoreElement(index: number) {
-    return this.bhRescoreElement(index);
+    return this.bhRescoreElement(index, this.gScore, this.hScore);
   }
 
   public test__setOpenListData(openListData: number[]) {
