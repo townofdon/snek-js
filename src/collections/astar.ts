@@ -51,10 +51,6 @@ export class AStar {
   private pathLength: number;
   private pathCost: number;
 
-  private bestPath: Uint16Array;
-  private bestPathLength: number;
-  private bestPathCost: number;
-
   // threats
   private mines: AnimationList;
   private snekCoord: number;
@@ -74,9 +70,6 @@ export class AStar {
     this.path = new Uint16Array(ASTAR_GRID_SIZE);
     this.pathLength = 0;
     this.pathCost = 0;
-    this.bestPath = new Uint16Array(ASTAR_GRID_SIZE);
-    this.bestPathLength = 0;
-    this.bestPathCost = 0;
     this.reset();
   }
 
@@ -88,12 +81,9 @@ export class AStar {
     this.gScore.fill(0);
     this.hScore.fill(0);
     this.path.fill(0);
-    this.bestPath.fill(0);
     this.openListLength = 0;
     this.pathLength = 0;
     this.pathCost = 0;
-    this.bestPathLength = 0;
-    this.bestPathCost = 0;
     this.closest = -1;
     this.snekCoord = -1;
   }
@@ -110,15 +100,7 @@ export class AStar {
     this.flags[coord] |= FLAG_WALL;
   }
 
-  public getBestPath() {
-    const best: number[] = new Array(this.bestPathLength).fill(0);
-    for (let i = 0; i < this.bestPathLength; i++) {
-      best[i] = this.bestPath[i];
-    }
-    return best;
-  }
-
-  public getLatestPath() {
+  public getPath() {
     const latest: number[] = new Array(this.pathLength).fill(0);
     for (let i = 0; i < this.pathLength; i++) {
       latest[i] = this.path[i];
@@ -163,17 +145,6 @@ export class AStar {
       if (current === endCoord) {
         this.pathCost = gScores[current] + hScores[current];
         this.constructPath(current);
-        // maybe set best path
-        if (this.path.length && (
-          !this.bestPathLength ||
-          this.pathCost <= this.bestPathCost ||
-          startCoord !== this.bestPath[0]
-        )) {
-          this.bestPathLength = this.pathLength;
-          for (let i = 0; i < this.pathLength; i++) {
-            this.bestPath[i] = this.path[i];
-          }
-        }
         return true;
       }
 
@@ -298,7 +269,6 @@ export class AStar {
         [this.openList, this.gScore, "openList, gScore"],
         [this.openList, this.hScore, "openList, hScore"],
         [this.openList, this.path, "openList, path"],
-        [this.openList, this.bestPath, "openList, bestPath"],
       ];
       tests.forEach(([a, b, text]) => {
         if (a.length !== b.length) {

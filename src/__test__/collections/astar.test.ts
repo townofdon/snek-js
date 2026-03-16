@@ -144,7 +144,7 @@ describe("Collections", () => {
         const result = astar.search(1, 1, 15, 29);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getBestPath();
+        const path = astar.getPath();
         assert.deepStrictEqual(humanify(path), [
           "[1,1]", "[2,1]", "[3,1]", "[3,2]",
           "[4,2]", "[4,3]", "[4,4]", "[4,5]",
@@ -170,7 +170,7 @@ describe("Collections", () => {
         const result = astar.search(1, 15, 29, 15);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getBestPath();
+        const path = astar.getPath();
         assert.deepStrictEqual(humanify(path), [
             '[1,15]',  '[2,15]',  '[3,15]',  '[4,15]',
             '[5,15]',  '[6,15]',  '[7,15]',  '[8,15]',
@@ -199,7 +199,7 @@ describe("Collections", () => {
         const result = astar.search(1, 1, 29, 29);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getBestPath();
+        const path = astar.getPath();
         assert.deepStrictEqual(humanify(path), [
           '[1,1]',
           '[2,2]',
@@ -243,7 +243,7 @@ describe("Collections", () => {
         const result = astar.search(1, 15, 29, 15);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getBestPath();
+        const path = astar.getPath();
         assert.deepStrictEqual(humanify(path), [
           '[1,15]',  '[2,15]',  '[3,15]',
           '[4,15]',  '[5,16]',  '[6,17]',
@@ -266,7 +266,7 @@ describe("Collections", () => {
         const result = astar.search(2, 2, 29, 29);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getLatestPath();
+        const path = astar.getPath();
         assert.deepStrictEqual(humanify(path), [
           '[2,2]',   '[3,2]',   '[4,2]',   '[4,3]',
           '[5,3]',   '[6,3]',   '[7,3]',   '[8,3]',
@@ -293,7 +293,7 @@ describe("Collections", () => {
         const result = astar.search(2, 2, 29, 29);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getLatestPath();
+        const path = astar.getPath();
         assert.deepStrictEqual(humanify(path), [
           '[2,2]',   '[3,3]',   '[4,4]',
           '[5,5]',   '[6,6]',   '[7,7]',
@@ -315,7 +315,7 @@ describe("Collections", () => {
         const result = astar.search(1, 1, 28, 28);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getLatestPath();
+        const path = astar.getPath();
         assert(!path.includes(snek), `snek exists at coord(15, 15)!`);
       });
 
@@ -326,7 +326,7 @@ describe("Collections", () => {
         const result = astar.search(1, 1, 28, 28);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getLatestPath();
+        const path = astar.getPath();
         assert(!path.includes(snek), `snek exists at coord(15, 15)!`);
       });
 
@@ -348,7 +348,7 @@ describe("Collections", () => {
         const result = astar.search(1, 1, 28, 28);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getLatestPath();
+        const path = astar.getPath();
         path.forEach((coord, idx) => {
           const x = Math.floor(coord % GRIDCOUNT.x);
           const y = Math.floor(coord / GRIDCOUNT.x);
@@ -396,7 +396,7 @@ describe("Collections", () => {
         const result = astar.search(1, 1, 28, 28);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getLatestPath();
+        const path = astar.getPath();
         path.forEach((coord, idx) => {
           const x = Math.floor(coord % GRIDCOUNT.x);
           const y = Math.floor(coord / GRIDCOUNT.x);
@@ -446,7 +446,7 @@ describe("Collections", () => {
         const result = astar.search(1, 1, 28, 28);
         if (DEBUG) astar.debugPrint();
         assert(result);
-        const path = astar.getLatestPath();
+        const path = astar.getPath();
         path.forEach((coord, idx) => {
           const x = Math.floor(coord % GRIDCOUNT.x);
           const y = Math.floor(coord / GRIDCOUNT.x);
