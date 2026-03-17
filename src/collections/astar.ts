@@ -4,6 +4,7 @@ import { AnimationList } from "./animationList";
 
 const THREAT_COST_MINE = 4;
 const THREAT_COST_SNEK = 6;
+const FLEE_TRAVERSALS = 20;
 const DIAG_COST = 1.41421;
 const FLAG_WALL = 1;
 const FLAG_CLOSED = 2;
@@ -14,12 +15,14 @@ export const ASTAR_GRID_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
 interface AStarOptions {
   allowDiagonals: boolean,
   allowClosest: boolean,
+  randomizeWeights: boolean,
   mines?: AnimationList,
 }
 
 const DEFAULT_OPTIONS = {
   allowDiagonals: false,
   allowClosest: false,
+  randomizeWeights: false,
 } satisfies AStarOptions;
 
 /**
@@ -49,7 +52,6 @@ export class AStar {
   // result of a-star search()
   private path: Uint16Array;
   private pathLength: number;
-  private pathCost: number;
 
   // threats
   private mines: AnimationList;
@@ -69,7 +71,6 @@ export class AStar {
     this.hScore = new Float32Array(ASTAR_GRID_SIZE);
     this.path = new Uint16Array(ASTAR_GRID_SIZE);
     this.pathLength = 0;
-    this.pathCost = 0;
     this.reset();
   }
 
@@ -83,7 +84,6 @@ export class AStar {
     this.path.fill(0);
     this.openListLength = 0;
     this.pathLength = 0;
-    this.pathCost = 0;
     this.closest = -1;
     this.snekCoord = -1;
   }
@@ -100,19 +100,27 @@ export class AStar {
     this.flags[coord] |= FLAG_WALL;
   }
 
-  public getPath() {
-    const latest: number[] = new Array(this.pathLength).fill(0);
-    for (let i = 0; i < this.pathLength; i++) {
-      latest[i] = this.path[i];
+  public getNextPathCoord(fromCoord: number) {
+    for (let i = 0; i < this.pathLength - 1; i++) {
+      if (fromCoord === this.path[i]) {
+        return this.path[i + 1];
+      }
     }
-    return latest;
+    return fromCoord;
+  }
+
+  public fleeFrom(x: number, y: number) {
+    return this.search(x, y, -1, -1);
   }
 
   public search(startx: number, starty: number, endx: number, endy: number): boolean {
+    // flee mode
+    const flee = endx === -1 && endy === -1;
     const allowClosest = this.options.allowClosest;
     const allowDiagonals = this.options.allowDiagonals;
+    const randomizeWeights = this.options.randomizeWeights;
     const startCoord = getCoordIndex2(startx, starty);
-    const endCoord = getCoordIndex2(endx, endy);
+    const endCoord = flee ? -1 : getCoordIndex2(endx, endy);
     for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
       this.gScore[i] = 0;
       this.hScore[i] = 0;
@@ -132,7 +140,9 @@ export class AStar {
     const hScores = this.hScore;
     const mines = this.mines;
 
-    this.hScore[0] = getTraversalDistance(startx, starty, endx, endy);
+    this.hScore[startCoord] = flee
+      ? FLEE_TRAVERSALS
+      : getTraversalDistance(startx, starty, endx, endy);
     this.addToOpenList(startCoord, gScores, hScores);
 
     while (this.openListLength > 0) {
@@ -142,8 +152,7 @@ export class AStar {
       flags[current] |= FLAG_CLOSED;
 
       // build path if we have arrived at the target
-      if (current === endCoord) {
-        this.pathCost = gScores[current] + hScores[current];
+      if (current === endCoord || (flee && hScores[current] <= 0)) {
         this.constructPath(current);
         return true;
       }
@@ -205,13 +214,16 @@ export class AStar {
           threatCostMine,
           threatCostSnek,
         );
+        const weight = randomizeWeights ? (Math.random() + 0.5) : 1;
         // calculate traversal cost (g)
         const gScore = gScores[current]
-          + diagCostMultiplier
+          + weight * diagCostMultiplier
           + threatCost;
         // set neighbor fields, add to open list
         if (!isVisited || gScore < gScores[neighbor]) {
-          const hScore = getTraversalDistance(nx, ny, endx, endy);
+          const hScore = flee
+            ? hScores[current] - 1
+            : getTraversalDistance(nx, ny, endx, endy);
           flags[neighbor] |= FLAG_VISITED;
           parents[neighbor] = current;
           gScores[neighbor] = gScore;
@@ -239,7 +251,6 @@ export class AStar {
     // build path to closest node if it exists
     if (allowClosest && this.closest >= 0) {
       const current = this.closest;
-      this.pathCost = gScores[current] + hScores[current];
       this.constructPath(current);
       return true;
     }
@@ -281,6 +292,11 @@ export class AStar {
   }
 
   public debugPrint() {
+    const ANSI_RESET = "\x1b[0m";
+    const ANSI_RED = "\x1b[31m";
+    const ANSI_YELLOW = "\x1b[33m";
+    const ANSI_CYAN = "\x1b[36m";
+    const ANSI_WHITE = "\x1b[37m";
     for (let y = 0; y < GRIDCOUNT.y; y++) {
       let str = "";
       for (let x = 0; x < GRIDCOUNT.x; x++) {
@@ -297,19 +313,20 @@ export class AStar {
         const isStart = this.pathLength > 0 && coord === this.path[0];
         const isEnd = this.pathLength > 0 && coord === this.path[this.pathLength - 1];
         const char = (() => {
-          if (isStart) return '@';
-          if (isEnd) return '+';
-          if (isWall && isPathNode) return '!';
+          if (isStart) return ANSI_YELLOW + '█' + ANSI_RESET;
+          if (isEnd) return ANSI_CYAN + '◘' + ANSI_RESET;
+          if (isWall && isPathNode) return ANSI_RED + '!' + ANSI_RESET;
           if (isWall) return 'X';
           if (isSnekThreat) return 'S';
           if (isMineThreat) return '*';
-          if (isPathNode) return 'o'
+          if (isPathNode) return ANSI_WHITE + '█' + ANSI_RESET;
           return '_';
         })()
         str += char;
       }
       console.log(str);
     }
+    console.log(" ");
   }
 
 
@@ -407,6 +424,14 @@ export class AStar {
       }
     }
     throw new Error(`Infinite loop averted! Looped ${escapeHatch} times before stopping.`);
+  }
+
+  public test__getPath() {
+    const latest: number[] = new Array(this.pathLength).fill(0);
+    for (let i = 0; i < this.pathLength; i++) {
+      latest[i] = this.path[i];
+    }
+    return latest;
   }
 
   public test__addToOpenList(coord: number) {
