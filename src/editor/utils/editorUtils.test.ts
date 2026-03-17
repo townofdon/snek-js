@@ -331,6 +331,7 @@ describe('editorUtils', () => {
           121: BarrierType.ThemedSkull,
           122: BarrierType.Indent,
           123: BarrierType.ThemedIndent,
+          150: BarrierType.FireTile,
         },
         passablesMap: { 2: true },
         doorsMap: { 3: true },
