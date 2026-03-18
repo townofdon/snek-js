@@ -171,9 +171,9 @@ export class AnimationList {
       }
     }
 
-    // apple not found
+    // item not found
     if (IS_DEV) {
-      console.warn(`removeApple could not find matching apple for x=${x},y=${y}`);
+      console.warn(`[AnimationList] remove() could not find matching item for x=${x},y=${y}`);
     }
   }
 

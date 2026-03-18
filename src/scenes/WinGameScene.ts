@@ -468,7 +468,7 @@ export class WinGameScene extends BaseScene {
     }
 
     if (this.fieldVisible[FIELD.APPLES]) {
-      this.drawField("APPLES", this.fieldValue[FIELD.APPLES], y);
+      this.drawField("TREATS", this.fieldValue[FIELD.APPLES], y);
       y += fieldPadding;
     }
 

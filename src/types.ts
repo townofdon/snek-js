@@ -922,15 +922,6 @@ export enum PreyType {
   FieldMouse,
 }
 
-// TODO: add a dedicated Prey collection to support multiple prey
-export interface Prey {
-  type: PreyType,
-  coord: number,
-  timeUntilNextMove: number,
-  lifetime: number,
-  elapsed: number,
-}
-
 export interface PreySpawn {
   /**
    * Define prey spawns - drops are by num apples eaten, not frame

@@ -351,7 +351,7 @@ export class WinLevelScene extends BaseScene {
     gfx.stroke(accentColorBg);
     gfx.strokeWeight(2 * 3);
     gfx.textSize(2 * 16);
-    const text = '100% Apples';
+    const text = '100% Treats';
     if (hasOtherBonus) {
       gfx.textAlign(p5.CENTER, p5.TOP);
       gfx.text(text, ...this.getPosition(0.64, 0.6 + this.statOffsetY));
