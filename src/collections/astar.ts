@@ -1,6 +1,7 @@
 import { GRIDCOUNT, IS_DEV } from "../constants";
 import { getCoordIndex2, getTraversalDistance } from "../utils";
 import { AnimationList } from "./animationList";
+import { VectorList } from "./vectorList";
 
 const THREAT_COST_MINE = 4;
 const THREAT_COST_SNEK = 6;
@@ -17,6 +18,7 @@ interface AStarOptions {
   allowClosest: boolean,
   randomizeWeights: boolean,
   mines?: AnimationList,
+  segments?: VectorList,
 }
 
 const DEFAULT_OPTIONS = {
@@ -49,11 +51,15 @@ export class AStar {
   // h score lookup for coord
   private hScore: Float32Array;
 
+  // grid weights
+  private weights: Float32Array;
+
   // result of a-star search()
   private path: Uint16Array;
   private pathLength: number;
 
   // threats
+  private segments: VectorList;
   private mines: AnimationList;
   private snekCoord: number;
 
@@ -62,6 +68,7 @@ export class AStar {
   constructor(_options?: Partial<AStarOptions>) {
     this.options = { ...DEFAULT_OPTIONS, ..._options};
     this.mines = _options?.mines;
+    this.segments = _options?.segments;
 
     this.openList = new Uint16Array(ASTAR_GRID_SIZE);
     this.openListLength = 0;
@@ -69,6 +76,7 @@ export class AStar {
     this.flags = new Uint8Array(ASTAR_GRID_SIZE);
     this.gScore = new Float32Array(ASTAR_GRID_SIZE);
     this.hScore = new Float32Array(ASTAR_GRID_SIZE);
+    this.weights = new Float32Array(ASTAR_GRID_SIZE);
     this.path = new Uint16Array(ASTAR_GRID_SIZE);
     this.pathLength = 0;
     this.reset();
@@ -81,11 +89,21 @@ export class AStar {
     this.flags.fill(0);
     this.gScore.fill(0);
     this.hScore.fill(0);
+    this.weights.fill(1);
     this.path.fill(0);
     this.openListLength = 0;
     this.pathLength = 0;
     this.closest = -1;
     this.snekCoord = -1;
+    if (this.options.randomizeWeights) {
+      this.randomizeWeights();
+    }
+  }
+
+  public randomizeWeights() {
+    for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
+      this.weights[i] = (Math.random() + 0.5);
+    }
   }
 
   public setSnekCoord(coord: number) {
@@ -109,6 +127,12 @@ export class AStar {
     return fromCoord;
   }
 
+  public fleeFromCoord(coord: number) {
+    const x = Math.floor(coord % GRIDCOUNT.x);
+    const y = Math.floor(coord / GRIDCOUNT.x);
+    return this.search(x, y, -1, -1);
+  }
+
   public fleeFrom(x: number, y: number) {
     return this.search(x, y, -1, -1);
   }
@@ -118,7 +142,6 @@ export class AStar {
     const flee = endx === -1 && endy === -1;
     const allowClosest = this.options.allowClosest;
     const allowDiagonals = this.options.allowDiagonals;
-    const randomizeWeights = this.options.randomizeWeights;
     const startCoord = getCoordIndex2(startx, starty);
     const endCoord = flee ? -1 : getCoordIndex2(endx, endy);
     for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
@@ -138,7 +161,9 @@ export class AStar {
     const parents = this.parent;
     const gScores = this.gScore;
     const hScores = this.hScore;
+    const weights = this.weights;
     const mines = this.mines;
+    const segments = this.segments;
 
     this.hScore[startCoord] = flee
       ? FLEE_TRAVERSALS
@@ -187,10 +212,11 @@ export class AStar {
         if (neighbor < 0) {
           continue;
         }
+        const isSegment = !!(segments?.containsCoord(neighbor));
         const isWall = !!(flags[neighbor] & FLAG_WALL);
         const isClosed = !!(flags[neighbor] & FLAG_CLOSED);
         const isVisited = !!(flags[neighbor] & FLAG_VISITED);
-        if (isClosed || isWall) {
+        if (isClosed || isWall || isSegment) {
           continue;
         }
         const nx = Math.floor(neighbor % GRIDCOUNT.x);
@@ -214,7 +240,7 @@ export class AStar {
           threatCostMine,
           threatCostSnek,
         );
-        const weight = randomizeWeights ? (Math.random() + 0.5) : 1;
+        const weight = weights[current] || 1;
         // calculate traversal cost (g)
         const gScore = gScores[current]
           + weight * diagCostMultiplier

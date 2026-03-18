@@ -53,6 +53,10 @@ import {
   SPRINT_INCREMENT_SPEED_MS,
   START_SNAKE_SIZE,
   PICKUP_SPRITE_FRAME_MAP,
+  PREY_SPAWN_WAIT_TIME_MIN,
+  PREY_SPAWN_WAIT_TIME_MAX,
+  PREY_MOVE_TIME,
+  PREY_LIFETIME,
 } from "../constants";
 import {
   Action,
@@ -97,6 +101,9 @@ import {
   Tutorial,
   UINavEventHandler,
   PickupType,
+  PreySpawn,
+  Prey,
+  PreyType,
 } from "../types";
 import {
   checkHasPortalAtLocation,
@@ -118,6 +125,7 @@ import {
   isOrthogonalDirection,
   isWithinBlockDistance,
   lerp,
+  removeArrayElement,
   shouldBlinkExpiringPickup,
   triangle,
   } from "../utils";
@@ -164,6 +172,7 @@ import { resumeAudioContext } from './audio';
 import { LEVEL_01_HARD } from '../levels/campaign/level01hard';
 import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
+import { AStar } from '../collections/astar';
 
 interface EngineParams {
   p5: P5,
@@ -244,7 +253,7 @@ export function engine({
     direction: DIR.RIGHT,
     directionToFirstSegment: DIR.RIGHT,
     directionLastHit: DIR.RIGHT,
-  } as const;
+  };
   const clickState: ClickState = {
     x: 0,
     y: 0,
@@ -306,6 +315,13 @@ export function engine({
 
   let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };
   let portalsMap: Record<number, Portal> = {};
+
+  // TODO: REPLACE WITH DEDICATED PREY COLLECTION
+  let prey: Prey[] = [];
+  const preySpawn: PreySpawn = {
+    dropsByFrame: undefined
+  } satisfies PreySpawn;
+  const astar = new AStar({ allowDiagonals: true, allowClosest: true, randomizeWeights: true, mines, segments });
 
   // hack P5's "offscreen canvas" to layer multiple canvases for MAX PERF - see: https://p5js.org/reference/#/p5/createGraphics
   const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
@@ -519,6 +535,7 @@ export function engine({
     emitters10.reset();
     particles.reset();
     particles10.reset();
+    astar.reset();
 
     if (level.layoutV2?.length) {
       try {
@@ -691,6 +708,21 @@ export function engine({
       spawnApple();
     }
 
+    // setup prey spawns
+    // TODO: configure drops per level - see obsidian notes
+    preySpawn.dropsByFrame = {
+      5: PreyType.FieldMouse,
+      10: PreyType.FieldMouse,
+      15: PreyType.FieldMouse,
+      20: PreyType.FieldMouse,
+      25: PreyType.FieldMouse,
+      30: PreyType.FieldMouse,
+    };
+    barriers.forEach(barrier => {
+      astar.setWall(barrier.vec.x, barrier.vec.y);
+    })
+    astar.setSnekCoord(getCoordIndex(player.position));
+
     resetLightmap(lightMap, level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
     startPortalParticles();
     if (level.type === LevelType.WarpZone || (level.type === LevelType.Maze && level !== START_LEVEL && level !== START_LEVEL_COBRA)) {
@@ -758,11 +790,11 @@ export function engine({
 
     // check if head has reached an apple
     const coord = getCoordIndex(player.position);
-    const appleFound = apples.existsAtCoord(coord) ? coord : -1;
-    if (appleFound != undefined && appleFound >= 0) {
+    const appleFoundCoord = apples.existsAtCoord(coord) ? coord : -1;
+    if (appleFoundCoord != undefined && appleFoundCoord >= 0) {
       spawnAppleParticles(player.position);
       incrementScore();
-      growSnake(appleFound);
+      growSnake(appleFoundCoord);
       increaseSpeed();
       playSound(Sound.eat);
       if (!state.isDoorsOpen) renderLevelName();
@@ -772,6 +804,40 @@ export function engine({
       }
       pickupsMap[coord] = null;
       drawState.shouldDrawApples = true;
+    }
+
+    // check if head has reached any prey
+    const preyFound = prey.find(entity => entity.coord === coord);
+    if (preyFound) {
+      spawnAppleParticles(player.position);
+      incrementScore();
+      growSnake(appleFoundCoord);
+      increaseSpeed();
+      playSound(Sound.eat);
+      drawState.shouldDrawActionFG = true;
+      const idx = prey.indexOf(preyFound);
+      prey = removeArrayElement(prey, idx);
+    }
+
+    // TODO: add prey.tick();
+    // tick time for prey
+    if (!state.isShowingDeathColours) {
+      astar.setSnekCoord(getCoordIndex(player.position));
+      for (let i = prey.length - 1; i >= 0; i--) {
+        prey[i].elapsed += loopState.deltaTime;
+        prey[i].timeUntilNextMove -= loopState.deltaTime;
+        if (prey[i].elapsed > prey[i].lifetime) {
+          prey = removeArrayElement(prey, i);
+          drawState.shouldDrawActionFG = true;
+          continue;
+        }
+        if (prey[i].timeUntilNextMove <= 0) {
+          prey[i].timeUntilNextMove = PREY_MOVE_TIME;
+          astar.fleeFromCoord(prey[i].coord);
+          prey[i].coord = astar.getNextPathCoord(prey[i].coord);
+          drawState.shouldDrawActionFG = true;
+        };
+      }
     }
 
     // tick time for all pickups
@@ -931,6 +997,7 @@ export function engine({
     }
 
     drawMines();
+    drawPrey();
     drawFireTiles();
     drawExplosions();
 
@@ -2059,6 +2126,7 @@ export function engine({
     if (maybeSpawnInvincibilityPickup()) { spawned = true; }
     if (maybeSpawnMine()) { spawned = true; }
     if (!spawned) { maybeSpawnOtherPickup(x, y); }
+    maybeSpawnPrey();
   }
 
   function maybeSpawnMine() {
@@ -2205,6 +2273,47 @@ export function engine({
       };
       state.timeSinceSpawnedPickup = 0;
     }
+  }
+
+  function maybeSpawnPrey() {
+    const preyType = preySpawn.dropsByFrame?.[stats.applesEatenThisLevel];
+    if (!preyType) {
+      return;
+    }
+    spawnPrey(preyType, 0);
+  }
+  const spawnPrey = (preyType: PreyType, numTries: number) => {
+    const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
+    const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
+    const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
+      || doorsMap[getCoordIndex2(x, y)]
+      || nospawnsMap[getCoordIndex2(x, y)]
+      || mines.existsAt(x, y)
+      || segments.containsCoord(getCoordIndex2(x, y))
+      || player.position.equals(x, y);
+    const spawnedTooCloseToPlayer = getTraversalDistance(x, y, player.position.x, player.position.y) < 20;
+    if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
+      if (numTries < 30) spawnPrey(preyType, numTries + 1);
+    } else {
+      coroutines.start(spawnPreyRoutine(preyType, getCoordIndex2(x, y)));
+    }
+  }
+  function* spawnPreyRoutine(preyType: PreyType, coord: number): IEnumerator {
+    yield* coroutines.waitForTime(lerp(PREY_SPAWN_WAIT_TIME_MIN, PREY_SPAWN_WAIT_TIME_MAX, Math.random()));
+    // TODO: REMOVE
+    console.log("SPAWNED PREY!");
+    // TODO: REPLACE WITH COLLECTION
+    prey.push({
+      type: preyType,
+      coord,
+      timeUntilNextMove: PREY_MOVE_TIME,
+      lifetime: PREY_LIFETIME,
+      elapsed: 0,
+    });
+    const x = Math.floor(coord % GRIDCOUNT.x);
+    const y = Math.floor(coord / GRIDCOUNT.x);
+    astar.randomizeWeights();
+    astar.fleeFrom(x, y);
   }
 
   function addAppleReplayMode() {
@@ -2397,6 +2506,29 @@ export function engine({
           spriteRenderer.drawSpritesheetAnim3x3(gfxApples, Image.MineSheet, x, y, elapsed);
         }
       }
+    }
+  }
+
+  function drawPrey() {
+    if (drawState.shouldDrawActionFG) {
+      prey.forEach(entity => {
+        const coord = entity.coord;
+        const x = Math.floor(coord % GRIDCOUNT.x);
+        const y = Math.floor(coord / GRIDCOUNT.x);
+        spriteRenderer.drawSprite3x3(gfxFGAction, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Burger] - 1);
+      });
+      // TODO: render from collection
+      // for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
+      //   if (prey.existsAtCoord(coord)) {
+      //     const x = Math.floor(coord % GRIDCOUNT.x);
+      //     const y = Math.floor(coord / GRIDCOUNT.x);
+      //     const elapsed = prey.getElapsedByCoord(coord);
+      //     if (shouldBlinkExpiringPickup(prey.getTimeRemaining(x, y))) {
+      //       continue;
+      //     }
+      //     spriteRenderer.drawSpritesheetAnim3x3(gfxApples, Image.MineSheet, x, y, elapsed);
+      //   }
+      // }
     }
   }
 

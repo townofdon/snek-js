@@ -14,6 +14,9 @@ import P5, { Vector } from "p5";
  */
 export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, null | undefined>;
 
+/**
+ * actions are unique, singleton coroutines, meaning that only one coroutine of a type can run at a time
+ */
 export enum Action {
   FadeMusic = 'FadeMusic',
   ExecuteQuotesMode = 'ExecuteQuotesMode',
@@ -344,6 +347,9 @@ export interface Level {
   nextLevel?: Level,
   appleSlowdownMod?: number,
   applesModOverride?: number,
+  /**
+   * actually, drops are by num apples eaten, not frame
+   */
   pickupDropsByFrame?: Record<number, PickupDrop>,
   pickupDrops?: Partial<Record<ItemDropType, boolean | number | Record<DifficultyIndex, boolean | number>>>,
   recordProgressAsLevel?: Level,
@@ -888,6 +894,7 @@ export enum PickupType {
   Lollipop,
   Muffin,
   Croisant,
+  Baguette,
   Cupcake,
   Donut,
   // epic items
@@ -908,6 +915,27 @@ export enum PickupType {
   Sushi,
   Milkshake,
   ChiliPepper,
+}
+
+export enum PreyType {
+  None = 0,
+  FieldMouse,
+}
+
+// TODO: add a dedicated Prey collection to support multiple prey
+export interface Prey {
+  type: PreyType,
+  coord: number,
+  timeUntilNextMove: number,
+  lifetime: number,
+  elapsed: number,
+}
+
+export interface PreySpawn {
+  /**
+   * Define prey spawns - drops are by num apples eaten, not frame
+   */
+  dropsByFrame: Record<number, PreyType> | undefined,
 }
 
 export interface Pickup {

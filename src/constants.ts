@@ -210,6 +210,11 @@ export const HURT_GRACE_TIME = 30;
 export const HURT_MUSIC_DUCK_TIME_MS = 1500;
 export const HURT_MUSIC_DUCK_VOL = -0.2;
 
+export const PREY_MOVE_TIME = 600; // time between prey movements
+export const PREY_LIFETIME = 20000;
+export const PREY_SPAWN_WAIT_TIME_MAX = 1000;
+export const PREY_SPAWN_WAIT_TIME_MIN = 220;
+
 // make func to avoid obj mutation
 export const DEFAULT_PORTALS: () => Record<PortalChannel, P5.Vector[]> = () => ({
   0: [],
@@ -367,7 +372,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> = {
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.PickupsSheet]: {
-    frames: 8,
+    frames: 28,
     timePerFrame: 200,
   } satisfies AnimationData,
 } as const;
@@ -435,24 +440,25 @@ export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
   [PickupType.Cabbage]: 6,
   [PickupType.Broccoli]: 7,
   [PickupType.Mushroom]: 8,
-  [PickupType.BreadLoaf]: 0,
-  [PickupType.Cucumber]: 0,
-  [PickupType.Pretzel]: 0,
-  [PickupType.Taco]: 0,
-  [PickupType.Drumstick]: 0,
-  [PickupType.Burger]: 0,
-  [PickupType.PizzaSlice]: 0,
-  [PickupType.HotDog]: 0,
-  [PickupType.Egg]: 0,
-  [PickupType.Fries]: 0,
-  [PickupType.Candy]: 0,
-  [PickupType.ChocolateBar]: 0,
-  [PickupType.Popsicle]: 0,
-  [PickupType.Lollipop]: 0,
-  [PickupType.Muffin]: 0,
-  [PickupType.Croisant]: 0,
-  [PickupType.Cupcake]: 0,
-  [PickupType.Donut]: 0,
+  [PickupType.BreadLoaf]: 10,
+  [PickupType.Cucumber]: 27,
+  [PickupType.Pretzel]: 11,
+  [PickupType.Taco]: 12,
+  [PickupType.Drumstick]: 13,
+  [PickupType.Burger]: 15,
+  [PickupType.PizzaSlice]: 14,
+  [PickupType.HotDog]: 16,
+  [PickupType.Egg]: 17,
+  [PickupType.Fries]: 18,
+  [PickupType.Candy]: 19,
+  [PickupType.ChocolateBar]: 20,
+  [PickupType.Popsicle]: 21,
+  [PickupType.Lollipop]: 22,
+  [PickupType.Muffin]: 23,
+  [PickupType.Croisant]: 25,
+  [PickupType.Baguette]: 26,
+  [PickupType.Cupcake]: 24,
+  [PickupType.Donut]: 28,
   [PickupType.Banana]: 0,
   [PickupType.Watermelon]: 0,
   [PickupType.Mango]: 0,
