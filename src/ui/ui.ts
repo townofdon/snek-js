@@ -48,6 +48,14 @@ export class UI {
     document.getElementById('game').classList.add('hide-gfx-canvas');
   }
 
+  static showDeathColors() {
+    document.getElementById('game').classList.add('showing-death-colors');
+  }
+
+  static hideDeathColors() {
+    document.getElementById('game').classList.remove('showing-death-colors');
+  }
+
   static enableGameBlur() {
     const game = document.getElementById('game');
     game.classList.add('blur');

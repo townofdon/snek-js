@@ -114,6 +114,10 @@ export class AStar {
     this.flags[getCoordIndex2(x, y)] |= FLAG_WALL;
   }
 
+  public removeWall(x: number, y: number) {
+    this.flags[getCoordIndex2(x, y)] &= ~FLAG_WALL;
+  }
+
   public setWallByCoord(coord: number) {
     this.flags[coord] |= FLAG_WALL;
   }

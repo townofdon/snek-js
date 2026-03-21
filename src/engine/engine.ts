@@ -590,6 +590,7 @@ export function engine({
     appleParticleSystem.setColorsFromLevel(level);
     UI.disableScreenScroll();
     UI.clearLabels();
+    UI.hideDeathColors();
     clearUI();
     stopAction(Action.ChangeMusicLowpass);
     stopAction(Action.FadeMusic);
@@ -731,8 +732,11 @@ export function engine({
     };
     barriers.forEach(barrier => {
       astar.setWall(barrier.vec.x, barrier.vec.y);
-    })
+    });
     astar.setSnekCoord(getCoordIndex(player.position));
+    doors.forEach(door => {
+      astar.setWall(door.x, door.y);
+    });
 
     resetLightmap(lightMap, level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
     startPortalParticles();
@@ -2089,6 +2093,9 @@ export function engine({
   }
 
   function openDoors() {
+    doors.forEach(door => {
+      astar.removeWall(door.x, door.y);
+    });
     state.isDoorsOpen = true;
     startExitParticles();
     doors = [];
@@ -2190,6 +2197,25 @@ export function engine({
       PickupType.Cabbage,
       PickupType.Broccoli,
       PickupType.Mushroom,
+      PickupType.BreadLoaf,
+      PickupType.Cucumber,
+      PickupType.Pretzel,
+      PickupType.Taco,
+      PickupType.Drumstick,
+      PickupType.Burger,
+      PickupType.PizzaSlice,
+      PickupType.HotDog,
+      PickupType.Egg,
+      PickupType.Fries,
+      PickupType.Candy,
+      PickupType.ChocolateBar,
+      PickupType.Popsicle,
+      PickupType.Lollipop,
+      PickupType.Muffin,
+      PickupType.Croisant,
+      PickupType.Baguette,
+      PickupType.Cupcake,
+      PickupType.Donut,
     ]
     const pickup = pool[Math.floor(Math.random() * pool.length)]
     pickupsMap[getCoordIndex2(x, y)] = {
@@ -2452,12 +2478,13 @@ export function engine({
   }
 
   function drawApple(x: number, y: number) {
-    if (state.isShowingDeathColours && replay.mode !== ReplayMode.Playback) {
+    const isInvincibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility
+    if (state.isShowingDeathColours && replay.mode !== ReplayMode.Playback && isInvincibility) {
       renderer.drawSquare(x, y,
         PALETTE.deathInvert.apple,
         PALETTE.deathInvert.appleStroke,
         drawAppleOptions);
-    } else if (pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility) {
+    } else if (isInvincibility) {
       const timeLeft = pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
       if (shouldBlinkExpiringPickup(timeLeft)) {
         return;
@@ -2839,6 +2866,7 @@ export function engine({
     drawState.shouldDrawApples = true;
     drawState.shouldDrawActionFG = true;
     drawState.shouldDrawKeysLocks = true;
+    UI.showDeathColors();
     renderer.invalidateStaticCache();
     // UI.renderHearts(0, true);
     yield* coroutines.waitForTime(HURT_STUN_TIME * 2.5);
@@ -2846,6 +2874,7 @@ export function engine({
     drawState.shouldDrawApples = true;
     drawState.shouldDrawActionFG = true;
     drawState.shouldDrawKeysLocks = true;
+    UI.hideDeathColors();
     renderer.invalidateStaticCache();
     // UI.renderHearts(0, false);
     startScreenShake(1, 0.4);
