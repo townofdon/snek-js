@@ -146,6 +146,7 @@ p, button, .button {
   display: block!important;
   position: absolute;
   top: 0;
+  filter: none;
 }
 .static-gfx-canvas.bg {
   z-index: -2;
@@ -174,6 +175,9 @@ p, button, .button {
 }
 .game.hide-gfx-canvas > .static-gfx-canvas {
   display: none!important;
+}
+.game.showing-death-colors > .static-gfx-canvas {
+  filter: grayscale(1);
 }
 
 .start-screen {
