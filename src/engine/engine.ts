@@ -306,9 +306,18 @@ export function engine({
   let locksMap: Record<number, Lock | null> = {};
   let diffSelectMap: Record<number, number> = {};
 
+  const onLifetimeExpire = (coord: number) => {
+    const x = Math.floor(coord % GRIDCOUNT.x);
+    const y = Math.floor(coord / GRIDCOUNT.x);
+    const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
+    explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
+    state.lastHurtBy = HitType.HitMine;
+    playSound(Sound.xpound);
+    drawState.shouldDrawActionFG = true;
+  };
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
-  const mines = new AnimationList();
+  const mines = new AnimationList({ onLifetimeExpire });
   const fireTiles = new AnimationList();
   const explosions = new AnimationList();
   const lightMap = createLightmap();
@@ -320,18 +329,7 @@ export function engine({
     dropsByFrame: undefined
   } satisfies PreySpawn;
   const astar = new AStar({ allowDiagonals: true, allowClosest: true, randomizeWeights: true, mines, segments });
-  const preyList = new PreyList({
-    astar,
-    onLifetimeExpire: (coord) => {
-      const x = Math.floor(coord % GRIDCOUNT.x);
-      const y = Math.floor(coord / GRIDCOUNT.x);
-      const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
-      explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
-      state.lastHurtBy = HitType.HitMine;
-      playSound(Sound.xpound);
-      drawState.shouldDrawActionFG = true;
-    },
-  });
+  const preyList = new PreyList({ astar, onLifetimeExpire });
 
   // hack P5's "offscreen canvas" to layer multiple canvases for MAX PERF - see: https://p5js.org/reference/#/p5/createGraphics
   const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
@@ -1019,7 +1017,7 @@ export function engine({
     drawState.shouldDrawActionFG = false;
     drawState.shouldDrawKeysLocks = false;
 
-    if (mines.tick(p5.deltaTime)) {
+    if (!state.isShowingDeathColours && mines.tick(p5.deltaTime)) {
       drawState.shouldDrawApples = true;
     }
     if (fireTiles.tick(p5.deltaTime)) {
@@ -2187,6 +2185,7 @@ export function engine({
     if (level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
+    if(pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility) return false;
 
     const pool: PickupType[] = [
       PickupType.Cheese,
@@ -2756,19 +2755,20 @@ export function engine({
     }
   }
 
+  function drawParticlesTest(coord: number) {
+    if (barriersMap[coord] && !passablesMap[coord]) return false;
+    if (doorsMap[coord]) return false;
+    if (portalsMap[coord]) return false;
+    if (locksMap[coord]) return false;
+    if (segments.containsCoord(coord)) return false;
+    return true;
+  }
+
   function drawParticles(zIndexPass = 0) {
     if (state.isShowingDeathColours) return;
     if (zIndexPass < 10) {
-      const test = (coord: number): boolean => {
-        if (barriersMap[coord] && !passablesMap[coord]) return false;
-        if (doorsMap[coord]) return false;
-        if (portalsMap[coord]) return false;
-        if (locksMap[coord]) return false;
-        if (segments.containsCoord(coord)) return false;
-        return true;
-      }
       emitters.tick(p5.deltaTime);
-      particles.tick(p5.deltaTime, test);
+      particles.tick(p5.deltaTime, drawParticlesTest);
     } else if (zIndexPass < 20) {
       emitters10.tick(p5.deltaTime);
       particles10.tick(p5.deltaTime);

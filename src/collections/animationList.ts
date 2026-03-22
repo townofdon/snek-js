@@ -4,6 +4,10 @@ import { getCoordIndex2, getTraversalDistance, shouldBlinkExpiringPickup } from 
 
 export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
 
+interface AnimationListConstructorOptions {
+  onLifetimeExpire?: (coord: number) => void
+}
+
 /**
  * Non-allocating collection of animations.
  * Each property is maintained as a primitive array.
@@ -24,8 +28,13 @@ export class AnimationList {
   private coordMap: Record<number, boolean>;
   private numTimesDidChange: number;
 
+  private onLifetimeExpire: (coord: number) => void = () => {}
 
-  constructor() {
+
+  constructor(opts: AnimationListConstructorOptions = {}) {
+    if (opts.onLifetimeExpire) {
+      this.onLifetimeExpire = opts.onLifetimeExpire;
+    }
     this.maxLength = INITIAL_ANIMATIONS_POOL_SIZE;
     this.x = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.y = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
@@ -106,6 +115,10 @@ export class AnimationList {
         didChange = true;
       }
       if (this.elapsed[i] > this.lifetime[i] || !this.lifetime[i]) {
+        const x = this.x[i];
+        const y = this.y[i];
+        const coord = getCoordIndex2(x, y);
+        this.onLifetimeExpire(coord);
         this.removeByIndex(i);
         didChange = true;
       }

@@ -384,7 +384,7 @@ Intelligence is the ability to adapt to snek.
 
 People who boast about snek are losers.
 
-The past, like Snek, is indefinite and exists only as a spectrum of possibilities.
+Snek is indefinite and exists only as a spectrum of possibilities.
 
 Snek would be tragic if it weren't funny.
 
