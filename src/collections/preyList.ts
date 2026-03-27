@@ -17,7 +17,7 @@ export class PreyList {
   private lifetime: Float32Array = new Float32Array(MAX_NUM_PREY);
   private elapsed: Float32Array = new Float32Array(MAX_NUM_PREY);
 
-  private length: number = 0;
+  private _length: number = 0;
 
   private astar: AStar;
   private onLifetimeExpire: (coord: number) => void = () => {}
@@ -30,6 +30,10 @@ export class PreyList {
     this.reset();
   }
 
+  public get length() {
+    return this._length;
+  }
+
   public reset() {
     for (let i = 0; i < MAX_NUM_PREY; i++) {
       this.type[i] = PreyType.None;
@@ -38,7 +42,7 @@ export class PreyList {
       this.lifetime[i] = 0;
       this.elapsed[i] = 0;
     }
-    this.length = 0;
+    this._length = 0;
   }
 
   /**
@@ -47,7 +51,7 @@ export class PreyList {
   public tick = (deltaTime: number): boolean => {
     const astar = this.astar;
     let didChange = false;
-    for (let i = 0; i < this.length; i++) {
+    for (let i = 0; i < this._length; i++) {
       const prevElapsed = this.elapsed[i];
       this.elapsed[i] += deltaTime;
       this.timeUntilNextMove[i] -= deltaTime;
@@ -80,12 +84,12 @@ export class PreyList {
   public existsAt = (x: number, y: number): boolean => {
     const coord = getCoordIndex2(x, y);
     const idx = this.coord.indexOf(coord);
-    return idx >= 0 && idx < this.length;
+    return idx >= 0 && idx < this._length;
   }
 
   public existsAtCoord = (coord: number): boolean => {
     const idx = this.coord.indexOf(coord);
-    return idx >= 0 && idx < this.length;
+    return idx >= 0 && idx < this._length;
   }
 
   public add = (x: number, y: number, preyType: PreyType): boolean => {
@@ -93,47 +97,47 @@ export class PreyList {
     if (this.existsAt(x, y)) {
       return false;
     }
-    if (this.length === MAX_NUM_PREY) {
+    if (this._length === MAX_NUM_PREY) {
       return false;
     }
-    this.type[this.length] = preyType;
-    this.coord[this.length] = coord;
-    this.timeUntilNextMove[this.length] = PREY_MOVE_TIME;
-    this.lifetime[this.length] = PREY_LIFETIME;
-    this.elapsed[this.length] = 0;
-    this.length++;
+    this.type[this._length] = preyType;
+    this.coord[this._length] = coord;
+    this.timeUntilNextMove[this._length] = PREY_MOVE_TIME;
+    this.lifetime[this._length] = PREY_LIFETIME;
+    this.elapsed[this._length] = 0;
+    this._length++;
     this.astar.randomizeWeights();
     return true;
   }
 
   public removeByCoord = (coord: number) => {
-    if (this.length === 0) return;
+    if (this._length === 0) return;
     const idx = this.coord.indexOf(coord);
     this.removeByIndex(idx);
   }
 
   public remove = (x: number, y: number) => {
-    if (this.length === 0) return;
+    if (this._length === 0) return;
     const coord = getCoordIndex2(x, y);
     const idx = this.coord.indexOf(coord);
     this.removeByIndex(idx);
   }
 
   private removeByIndex = (idx: number) => {
-    if (idx < 0 || idx >= this.length || idx >= MAX_NUM_PREY) return;
-    for (let i = idx; i < this.length - 1; i++) {
+    if (idx < 0 || idx >= this._length || idx >= MAX_NUM_PREY) return;
+    for (let i = idx; i < this._length - 1; i++) {
       this.type[i] = this.type[i + 1];
       this.coord[i] = this.coord[i + 1];
       this.timeUntilNextMove[i] = this.timeUntilNextMove[i + 1];
       this.lifetime[i] = this.lifetime[i + 1];
       this.elapsed[i] = this.elapsed[i + 1];
     }
-    this.type[this.length - 1] = PreyType.None;
-    this.coord[this.length - 1] = 0;
-    this.timeUntilNextMove[this.length - 1] = 0;
-    this.lifetime[this.length - 1] = 0;
-    this.elapsed[this.length - 1] = 0;
-    this.length--;
+    this.type[this._length - 1] = PreyType.None;
+    this.coord[this._length - 1] = 0;
+    this.timeUntilNextMove[this._length - 1] = 0;
+    this.lifetime[this._length - 1] = 0;
+    this.elapsed[this._length - 1] = 0;
+    this._length--;
   }
 
   public getElapsed = (x: number, y: number): number => {

@@ -825,7 +825,7 @@ export function engine({
       playSound(Sound.eat);
       if (!state.isDoorsOpen) renderLevelName();
       if (pickupsMap[coord]?.type === PickupType.Invincibility) {
-        incrementPickupBonus(pickupsMap[coord]?.type, coord);
+        incrementPickupBonus(PickupType.Invincibility, coord);
         startInvincibility();
       } else if (pickupsMap[coord]) {
         incrementPickupBonus(pickupsMap[coord]?.type, coord);
@@ -1731,7 +1731,7 @@ export function engine({
       }
     }
     // blow up all mines currently on the level
-    const numMinesAtLevelExitStart = mines.length;
+    const numExplosionsAtLevelExit = mines.length + preyList.length;
     for (let x = 0; x < GRIDCOUNT.x; x++) {
       for (let y = 0; y < GRIDCOUNT.y; y++) {
         const coord = getCoordIndex2(x, y);
@@ -1742,12 +1742,19 @@ export function engine({
           drawState.shouldDrawApples = true;
           drawState.shouldDrawActionFG = true;
         }
+        if (preyList.existsAtCoord(coord)) {
+          preyList.removeByCoord(coord);
+          const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
+          explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
+          drawState.shouldDrawApples = true;
+          drawState.shouldDrawActionFG = true;
+        }
       }
     }
     // play several explosion sounds (but staggered)
-    if (numMinesAtLevelExitStart) {
+    if (numExplosionsAtLevelExit) {
       const callbacks: (() => void)[] = [];
-      for (let i = 0; i < numMinesAtLevelExitStart && i < 6; i++) {
+      for (let i = 0; i < numExplosionsAtLevelExit && i < 6; i++) {
         callbacks.push(() => playSound(Sound.xpound));
       }
       const chain = callbacks.reduce((acc, cur) => {
@@ -2139,6 +2146,8 @@ export function engine({
     const y = Math.floor(coord / GRIDCOUNT.x);
     if (pickupType === PickupType.Invincibility) {
       points = PICKUP_INVINCIBILITY_BONUS;
+      image = Image.Points1000;
+      rarity = PickupRarity.Rare;
     } else if (PICKUP_COMMON_ITEMS.includes(pickupType)) {
       points = PICKUP_COMMON_BONUS;
       image = Image.Points500;
