@@ -59,6 +59,9 @@ import { X_CUBISM } from "./challenge/cubism";
 import { X_DIGIN } from "./challenge/digIn";
 import { X_DATACENTER } from "./challenge/dataCenter";
 import { X_SEARCHLIGHT } from "./challenge/searchlight";
+import { TUTORIAL_LEVEL_51 } from "./campaign/tutorialLevel51";
+import { MAZE_03_STORAGE } from "./mazes/maze03-storage";
+import { MAZE_04_LOOT_ROOM } from "./mazes/maze04-lootroom";
 
 export function getWarpLevelFromNum(levelNum: number): Level {
   switch (levelNum) {
@@ -115,6 +118,12 @@ export function getWarpLevelFromNum(levelNum: number): Level {
       return TUTORIAL_LEVEL_40;
     case 150:
       return TUTORIAL_LEVEL_50;
+    case 151:
+      return TUTORIAL_LEVEL_51;
+    case 152:
+      return MAZE_03_STORAGE;
+    case 153:
+      return MAZE_04_LOOT_ROOM;
 
     case 203:
       return VARIANT_LEVEL_03;

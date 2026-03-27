@@ -61,6 +61,8 @@ import { X_CUBISM } from "./challenge/cubism";
 import { X_DIGIN } from "./challenge/digIn";
 import { X_DATACENTER } from "./challenge/dataCenter";
 import { X_SEARCHLIGHT } from "./challenge/searchlight";
+import { MAZE_04_LOOT_ROOM } from "./mazes/maze04-lootroom";
+import { MAZE_03_STORAGE } from "./mazes/maze03-storage";
 
 export const LEVELS: Level[] = [
     MAZE_01,
@@ -121,6 +123,8 @@ export const SECRET_LEVELS = [
     VARIANT_LEVEL_10,
     VARIANT_LEVEL_15,
     VARIANT_LEVEL_99,
+    TUTORIAL_LEVEL_51,
+    MAZE_03_STORAGE,
 ]
 
 export const CHALLENGE_LEVELS: Level[] = [

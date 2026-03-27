@@ -3,7 +3,7 @@ import { UI } from "./ui";
 import { ACCENT_COLOR } from '../constants';
 import { GameMode, GameState } from '../types';
 import { getWarpLevelFromNum } from '../levels/levelUtils';
-import { CHALLENGE_LEVELS, LEVELS } from '../levels/levelConstants';
+import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from '../levels/levelConstants';
 
 interface GameOverCallbacks {
   confirmShowMainMenu: () => void
@@ -73,6 +73,7 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
     let levelIndex = -1;
     if (levelIndex < 0) levelIndex = LEVELS.indexOf(level);
     if (levelIndex < 0) levelIndex = CHALLENGE_LEVELS.indexOf(level);
+    if (levelIndex < 0) levelIndex = SECRET_LEVELS.indexOf(level);
     const shouldShow = (() => {
       if (hasWarpEnabledParam) return true;
       if (levelIndex < 0) return false;
@@ -126,10 +127,11 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
   } else {
     const xInitial = 120;
     const offset = 60;
-    const yRow1 = 440;
-    const yRow2 = 480;
-    const yRow3 = 520;
-    const yRow4 = 560;
+    const yRow1 = 400;
+    const yRow2 = 440;
+    const yRow3 = 480;
+    const yRow4 = 520;
+    const yRow5 = 560;
     let x = xInitial;
     warpButton("01", x + 0.00000, yRow1, 1, 'pauseButtonWarp01');
     warpButton("02", x += offset, yRow1, 2, 'pauseButtonWarp02');
@@ -158,9 +160,14 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
     warpButton("S2", x += offset, yRow4, 120, 'pauseButtonWarpS2');
     warpButton("S3", x += offset, yRow4, 130, 'pauseButtonWarpS3');
     warpButton("S4", x += offset, yRow4, 140, 'pauseButtonWarpS4');
+    x = xInitial;
+    warpButton("M1", x + 0.00000, yRow5, 150, 'pauseButtonWarpM1');
+    warpButton("M2", x += offset, yRow5, 151, 'pauseButtonWarpM2');
+    warpButton("M3", x += offset, yRow5, 152, 'pauseButtonWarpM3');
   }
 
   if (anyWarpButtonsVisible) {
-    UI.drawText('WARP TO LEVEL', '24px', 380, uiElements, { color: ACCENT_COLOR, margin: '48px auto' });
+    const yPos = isChallengeLevel ? 380 : 340
+    UI.drawText('WARP TO LEVEL', '24px', yPos, uiElements, { color: ACCENT_COLOR, margin: '48px auto' });
   }
 }
