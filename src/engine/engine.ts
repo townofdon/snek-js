@@ -164,6 +164,9 @@ import { LEVEL_01 } from '../levels/campaign/level01';
 import { LEVEL_99 } from '../levels/campaign/level99';
 import { LEVEL_WIN_GAME } from '../levels/winGame';
 import { VARIANT_LEVEL_99 } from '../levels/bonusLevels/variantLevel99';
+import { WARP_ZONE_01 } from '../levels/bonusLevels/warpZone01';
+import { WARP_ZONE_02 } from '../levels/bonusLevels/warpZone02';
+import { WARP_ZONE_03 } from '../levels/bonusLevels/warpZone03';
 import { WinLevelScene } from '../scenes/WinLevelScene';
 import { findLevelWarpIndex, getNumRandomLevelsRemaining } from '../levels/levelUtils';
 import { SpriteRenderer } from './spriteRenderer';
@@ -2794,8 +2797,14 @@ export function engine({
           || hasNeighborEdgeDoor(DIR.RIGHT, combinedMap, x, y, 3)
           || hasNeighborEdgeDoor(DIR.UP, combinedMap, x, y, 3)
           || hasNeighborEdgeDoor(DIR.DOWN, combinedMap, x, y, 3);
-        const isThemedDoor = isAtMapEdge(x, y, 1) || isAtMapEdge(x, y, 3) && hasAdjacentDoor;
-        if (isThemedDoor && level !== START_LEVEL && level !== START_LEVEL_COBRA) {
+        const isThemedDoor = isAtMapEdge(x, y, 1) || (isAtMapEdge(x, y, 3) && hasAdjacentDoor);
+        const isNonDoorLevel = false
+          || level === START_LEVEL
+          || level === START_LEVEL_COBRA
+          || level === WARP_ZONE_01
+          || level === WARP_ZONE_02
+          || level === WARP_ZONE_03;
+        if (isThemedDoor && !isNonDoorLevel) {
           spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedDoor, x, y, 0, 1, 0);
         } else {
           renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.door, x, y, 1, 0);
