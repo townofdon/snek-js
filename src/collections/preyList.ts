@@ -1,4 +1,4 @@
-import { ANIMATIONS, PREY_LIFETIME, PREY_MOVE_TIME } from "../constants";
+import { ANIMATIONS, GRIDCOUNT, PREY_LIFETIME, PREY_MOVE_TIME } from "../constants";
 import { AnimationData, Image, PreyType } from "../types";
 import { getCoordIndex2, shouldBlinkExpiringPickup } from "../utils";
 import { AStar } from "./astar";
@@ -161,6 +161,22 @@ export class PreyList {
       return -1;
     }
     return Math.max(this.lifetime[idx] - this.elapsed[idx], 0);
+  }
+
+  public getTypeByCoord = (coord: number) => {
+    coord = Math.floor(coord);
+    const x = Math.floor(coord % GRIDCOUNT.x);
+    const y = Math.floor(coord / GRIDCOUNT.x);
+    return this.getType(x, y);
+  }
+
+  public getType = (x: number, y: number) => {
+    const coord = getCoordIndex2(x, y);
+    const idx = this.coord.indexOf(coord);
+    if (idx < 0) {
+      return PreyType.None;
+    }
+    return this.type[idx];
   }
 
 

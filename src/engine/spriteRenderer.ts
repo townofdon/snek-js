@@ -34,6 +34,7 @@ export class SpriteRenderer {
     [Image.ThemedDoor]: null,
     [Image.ThemedBarrierFlat]: null,
     [Image.ThemedBarrierPyramid]: null,
+    [Image.ThemedPortalColumns]: null,
     [Image.AppleTemplate]: null,
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
@@ -71,6 +72,11 @@ export class SpriteRenderer {
     [Image.FireSheet]: null,
     [Image.TileSheet]: null,
     [Image.PickupsSheet]: null,
+    [Image.Points500]: null,
+    [Image.Points1000]: null,
+    [Image.Points2000]: null,
+    [Image.Points5000]: null,
+    [Image.Points10000]: null,
   }
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -132,6 +138,7 @@ export class SpriteRenderer {
     this.setThemedImageFromSprite(colors, Image.ThemedBarrierIndent, Image.TileSheet, 3);
     this.setThemedImageFromSprite(colors, Image.ThemedBarrierFlat, Image.TileSheet, 5);
     this.setThemedImageFromSprite(colors, Image.ThemedBarrierPyramid, Image.TileSheet, 7);
+    this.setThemedImageFromSprite(colors, Image.ThemedPortalColumns, Image.TileSheet, 11);
   }
 
   setThemedDoorImage = (palette: ExtendedPalette) => {
@@ -241,6 +248,11 @@ export class SpriteRenderer {
       this.loadImage(Image.FireSheet);
       this.loadImage(Image.TileSheet);
       this.loadImage(Image.PickupsSheet);
+      this.loadImage(Image.Points500);
+      this.loadImage(Image.Points1000);
+      this.loadImage(Image.Points2000);
+      this.loadImage(Image.Points5000);
+      this.loadImage(Image.Points10000);
     } catch (err) {
       console.error(err)
     }

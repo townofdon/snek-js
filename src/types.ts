@@ -674,6 +674,7 @@ export enum Image {
   ThemedBarrierIndent = '__barrier-indent-rendered-at-runtime__',
   ThemedBarrierFlat = '__barrier-flat-rendered-at-runtime__',
   ThemedBarrierPyramid = '__barrier-pyramid-rendered-at-runtime__',
+  ThemedPortalColumns = '__barrier-portal-columns-rendered-at-runtime__',
   ThemedDoor = 'door-rendered-at-runtime__',
   AppleTemplate = 'snek-apple-template.png',
   SnekHead = 'snek-head.png',
@@ -721,6 +722,11 @@ export enum Image {
   FireSheet = 'snek-fire5.png',
   TileSheet = 'snek-tiles.png',
   PickupsSheet = 'snek-pickups.png',
+  Points500 = 'snek-points-500.png',
+  Points1000 = 'snek-points-1000.png',
+  Points2000 = 'snek-points-2000.png',
+  Points5000 = 'snek-points-5000.png',
+  Points10000 = 'snek-points-10000.png',
 }
 
 export type ThemedImage =
@@ -729,6 +735,7 @@ export type ThemedImage =
   | Image.ThemedBarrierSkull
   | Image.ThemedBarrierFlat
   | Image.ThemedBarrierPyramid
+  | Image.ThemedPortalColumns
   | Image.ThemedDoor
 ;
 
@@ -738,6 +745,11 @@ export type SpritesheetImage =
   | Image.FireSheet
   | Image.TileSheet
   | Image.PickupsSheet
+  | Image.Points500
+  | Image.Points1000
+  | Image.Points2000
+  | Image.Points5000
+  | Image.Points10000
 ;
 
 export interface Scene {
@@ -864,6 +876,15 @@ export enum ItemDropType {
   Pickup,
 }
 
+export enum PickupRarity {
+  None = 0,
+  Common, // 500
+  Rare, // 1000
+  Epic, // 2000
+  Legendary, // 5000
+  Galactic, // 10000
+}
+
 export enum PickupType {
   None = 0,
   Invincibility,
@@ -919,7 +940,9 @@ export enum PickupType {
 
 export enum PreyType {
   None = 0,
+  Grub,
   FieldMouse,
+  Cockroach,
 }
 
 export interface PreySpawn {

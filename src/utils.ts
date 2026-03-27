@@ -27,6 +27,7 @@ import {
   PortalExitMode,
   QueryParams,
   Stats,
+  PickupRarity,
 } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
@@ -325,6 +326,12 @@ export function getNextPickupType(pickupTypes?: ItemDropType[]): ItemDropType {
   }
   const idx = Math.floor(Math.random() * pickupTypes.length);
   return pickupTypes[idx] || ItemDropType.None;
+}
+
+export function toRarity(num: number): PickupRarity {
+  if (num <= 0) return PickupRarity.None;
+  if (num > PickupRarity.Galactic) return PickupRarity.None;
+  return num as PickupRarity;
 }
 
 export function getDropLikelihood(

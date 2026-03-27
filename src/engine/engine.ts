@@ -57,6 +57,15 @@ import {
   PREY_SPAWN_WAIT_TIME_MAX,
   PREY_MOVE_TIME,
   PREY_LIFETIME,
+  PICKUP_COMMON_BONUS,
+  PICKUP_COMMON_ITEMS,
+  PICKUP_RARE_ITEMS,
+  PICKUP_RARE_BONUS,
+  PICKUP_EPIC_ITEMS,
+  PICKUP_EPIC_BONUS,
+  PICKUP_LEGENDARY_ITEMS,
+  PICKUP_LEGENDARY_BONUS,
+  PICKUP_GALACTIC_BONUS,
 } from "../constants";
 import {
   Action,
@@ -103,6 +112,8 @@ import {
   PickupType,
   PreySpawn,
   PreyType,
+  SpritesheetImage,
+  PickupRarity,
 } from "../types";
 import {
   checkHasPortalAtLocation,
@@ -126,6 +137,7 @@ import {
   lerp,
   removeArrayElement,
   shouldBlinkExpiringPickup,
+  toRarity,
   triangle,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
@@ -320,6 +332,7 @@ export function engine({
   const mines = new AnimationList({ onLifetimeExpire });
   const fireTiles = new AnimationList();
   const explosions = new AnimationList();
+  const pointsAnim = new AnimationList();
   const lightMap = createLightmap();
 
   let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };
@@ -812,8 +825,10 @@ export function engine({
       playSound(Sound.eat);
       if (!state.isDoorsOpen) renderLevelName();
       if (pickupsMap[coord]?.type === PickupType.Invincibility) {
-        incrementPickupBonus();
+        incrementPickupBonus(pickupsMap[coord]?.type, coord);
         startInvincibility();
+      } else if (pickupsMap[coord]) {
+        incrementPickupBonus(pickupsMap[coord]?.type, coord);
       }
       pickupsMap[coord] = null;
       drawState.shouldDrawApples = true;
@@ -822,7 +837,7 @@ export function engine({
     // check if head has reached any prey
     if (preyList.existsAtCoord(coord)) {
       spawnAppleParticles(player.position);
-      incrementPickupBonus();
+      incrementPreyBonus(preyList.getTypeByCoord(coord), coord);
       growSnake(coord);
       increaseSpeed();
       playSound(Sound.eat);
@@ -973,6 +988,7 @@ export function engine({
 
     drawExitLights();
     drawParticles(0);
+    drawPointsText();
     drawBarriers();
     drawDoors();
 
@@ -1017,6 +1033,9 @@ export function engine({
     drawState.shouldDrawActionFG = false;
     drawState.shouldDrawKeysLocks = false;
 
+    if (pointsAnim.tick(p5.deltaTime)) {
+      drawState.shouldDrawActionFG = true;
+    }
     if (!state.isShowingDeathColours && mines.tick(p5.deltaTime)) {
       drawState.shouldDrawApples = true;
     }
@@ -2069,10 +2088,84 @@ export function engine({
     renderScoreUI();
   }
 
-  function incrementPickupBonus() {
+  function incrementPreyBonus(preyType: PreyType, coord: number) {
     if (state.isGameWon) return;
     if (state.isLost) return;
-    const points = PICKUP_INVINCIBILITY_BONUS * difficulty.scoreMod;
+    let points = 0;
+    let image: SpritesheetImage | null = null;
+    let rarity: PickupRarity = PickupRarity.None;
+    const x = Math.floor(coord % GRIDCOUNT.x);
+    const y = Math.floor(coord / GRIDCOUNT.x);
+    switch (preyType) {
+      case PreyType.Grub:
+        points = PICKUP_EPIC_BONUS;
+        image = Image.Points2000;
+        rarity = PickupRarity.Epic;
+        break;
+      case PreyType.FieldMouse:
+        points = PICKUP_LEGENDARY_BONUS;
+        image = Image.Points5000;
+        rarity = PickupRarity.Legendary;
+        break;
+      case PreyType.Cockroach:
+        points = PICKUP_GALACTIC_BONUS;
+        image = Image.Points10000;
+        rarity = PickupRarity.Galactic;
+        break;
+      default:
+        break;
+    }
+    if (image) {
+      pointsAnim.add(
+        x,
+        y,
+        ANIMATIONS[image].frames * ANIMATIONS[image].timePerFrame,
+        ANIMATIONS[image].frames,
+        ANIMATIONS[image].timePerFrame,
+        rarity,
+      );
+    }
+    addPoints(points);
+    renderScoreUI();
+  }
+
+  function incrementPickupBonus(pickupType: PickupType, coord: number) {
+    if (state.isGameWon) return;
+    if (state.isLost) return;
+    let points = 0;
+    let image: SpritesheetImage | null = null;
+    let rarity: PickupRarity = PickupRarity.None;
+    const x = Math.floor(coord % GRIDCOUNT.x);
+    const y = Math.floor(coord / GRIDCOUNT.x);
+    if (pickupType === PickupType.Invincibility) {
+      points = PICKUP_INVINCIBILITY_BONUS;
+    } else if (PICKUP_COMMON_ITEMS.includes(pickupType)) {
+      points = PICKUP_COMMON_BONUS;
+      image = Image.Points500;
+      rarity = PickupRarity.Common;
+    } else if (PICKUP_RARE_ITEMS.includes(pickupType)) {
+      points = PICKUP_RARE_BONUS;
+      image = Image.Points1000;
+      rarity = PickupRarity.Rare;
+    } else if (PICKUP_EPIC_ITEMS.includes(pickupType)) {
+      points = PICKUP_EPIC_BONUS;
+      image = Image.Points2000;
+      rarity = PickupRarity.Epic;
+    } else if (PICKUP_LEGENDARY_ITEMS.includes(pickupType)) {
+      points = PICKUP_LEGENDARY_BONUS;
+      image = Image.Points5000;
+      rarity = PickupRarity.Legendary;
+    }
+    if (image) {
+      pointsAnim.add(
+        x,
+        y,
+        ANIMATIONS[image].frames * ANIMATIONS[image].timePerFrame,
+        ANIMATIONS[image].frames,
+        ANIMATIONS[image].timePerFrame,
+        rarity,
+      );
+    }
     addPoints(points);
     renderScoreUI();
   }
@@ -2662,6 +2755,8 @@ export function engine({
       for (let i = 0; i < barriers.length; i++) {
         if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
         renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrierPassable, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
+        // draw passable glass overlay
+        spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 12);
       }
       return;
     }
@@ -2775,6 +2870,38 @@ export function engine({
     }
   }
 
+  function drawPointsText() {
+    if (drawState.shouldDrawActionFG) {
+      for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
+        if (pointsAnim.existsAtCoord(coord)) {
+          const x = Math.floor(coord % GRIDCOUNT.x);
+          const y = Math.floor(coord / GRIDCOUNT.x);
+          const elapsed = pointsAnim.getElapsedByCoord(coord);
+          const rarity = toRarity(pointsAnim.getType(x, y))
+          switch (rarity) {
+            case PickupRarity.Common:
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.Points500, x, y, elapsed);
+              break;
+            case PickupRarity.Rare:
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.Points1000, x, y, elapsed);
+              break;
+            case PickupRarity.Epic:
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.Points2000, x, y, elapsed);
+              break;
+            case PickupRarity.Legendary:
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.Points5000, x, y, elapsed);
+              break;
+            case PickupRarity.Galactic:
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.Points10000, x, y, elapsed);
+              break;
+            default:
+              break;
+          }
+        }
+      }
+    }
+  }
+
   function drawPortals() {
     for (let i = 0; i <= 9; i++) {
       for (let j = 0; j < portals[i as PortalChannel].length; j++) {
@@ -2783,6 +2910,9 @@ export function engine({
         const portal = portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
         renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback, drawPortalOptions);
+        if (drawState.shouldDrawKeysLocks) {
+          spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.ThemedPortalColumns, portalPosition.x, portalPosition.y, 0, 1, 0);
+        }
       }
     }
   }
@@ -2850,6 +2980,14 @@ export function engine({
       stopAction(Action.FadeMusic);
       musicPlayer.setVolume(0);
       musicPlayer.halfSpeed(level.musicTrack);
+    }
+    switch (state.lastHurtBy) {
+      case HitType.HitBarrier:
+      case HitType.HitDoor:
+      case HitType.HitLock:
+      case HitType.HitSelf:
+        reboundSnake(1);    
+        break;
     }
     coroutines.start(showGameOverRoutine());
     maybeSaveReplayStateToFile();

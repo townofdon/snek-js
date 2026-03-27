@@ -60,10 +60,11 @@ export const COBRA_SCORE_MOD = 1.2;
 export const DEFAULT_PAR_TIME = 60000;
 
 export const PICKUP_INVINCIBILITY_BONUS = 100;
-export const PICKUP_COMMON_BONUS = 100;
-export const PICKUP_RARE_BONUS = 500;
+export const PICKUP_COMMON_BONUS = 500;
+export const PICKUP_RARE_BONUS = 1000;
 export const PICKUP_EPIC_BONUS = 2000;
-export const PICKUP_LEGENDARY_BONUS = 10000;
+export const PICKUP_LEGENDARY_BONUS = 5000;
+export const PICKUP_GALACTIC_BONUS = 10000;
 
 export const DROP_LIKELIHOOD_INVINCIBILITY = 0.04;
 export const DROP_LIKELIHOOD_MINE = 0.08;
@@ -368,12 +369,32 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> = {
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.TileSheet]: {
-    frames: 10,
+    frames: 13,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.PickupsSheet]: {
     frames: 28,
     timePerFrame: 200,
+  } satisfies AnimationData,
+  [Image.Points500]: {
+    frames: 14,
+    timePerFrame: 100,
+  } satisfies AnimationData,
+  [Image.Points1000]: {
+    frames: 13,
+    timePerFrame: 100,
+  } satisfies AnimationData,
+  [Image.Points2000]: {
+    frames: 13,
+    timePerFrame: 100,
+  } satisfies AnimationData,
+  [Image.Points5000]: {
+    frames: 16,
+    timePerFrame: 100,
+  } satisfies AnimationData,
+  [Image.Points10000]: {
+    frames: 17,
+    timePerFrame: 100,
   } satisfies AnimationData,
 } as const;
 
@@ -404,6 +425,7 @@ export const PICKUP_RARE_ITEMS: PickupType[] = [
   PickupType.Lollipop,
   PickupType.Muffin,
   PickupType.Croisant,
+  PickupType.Baguette,
   PickupType.Cupcake,
   PickupType.Donut,
 ];

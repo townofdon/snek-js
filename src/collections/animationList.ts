@@ -23,6 +23,7 @@ export class AnimationList {
   private elapsed: Float32Array;
   private frames: Uint8Array;
   private timePerFrame: Float32Array;
+  private type: Uint8Array;
   private activeLength: number;
   private maxLength: number;
   private coordMap: Record<number, boolean>;
@@ -43,6 +44,7 @@ export class AnimationList {
     this.elapsed = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.frames = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(1);
     this.timePerFrame = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
+    this.type = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.activeLength = 0;
     this.coordMap = {};
     this.numTimesDidChange = 0;
@@ -58,6 +60,9 @@ export class AnimationList {
       this.elapsed[i] = 0;
       this.coordMap[i] = false;
       this.lifetime[i] = 0;
+      this.frames[i] = 0;
+      this.timePerFrame[i] = 0;
+      this.type[i] = 0;
     }
     this.activeLength = 0;
     this.numTimesDidChange = 0;
@@ -129,7 +134,7 @@ export class AnimationList {
     return didChange;
   }
 
-  public add = (x: number, y: number, lifetime: number, frames: number, timePerFrame: number) => {
+  public add = (x: number, y: number, lifetime: number, frames: number, timePerFrame: number, type = 0) => {
     this.validate();
     if (!frames) throw new Error(`invalid frames value. val=${frames}`)
     if (!timePerFrame) throw new Error(`invalid timePerFrame value. val=${timePerFrame}`)
@@ -147,6 +152,7 @@ export class AnimationList {
         this.lifetime[i] = lifetime;
         this.frames[i] = frames;
         this.timePerFrame[i] = timePerFrame;
+        this.type[i] = type;
         this.recalculateLength();
         return;
       }
@@ -162,6 +168,7 @@ export class AnimationList {
     this.lifetime[i] = lifetime;
     this.frames[i] = frames;
     this.timePerFrame[i] = timePerFrame;
+    this.type[i] = type;
     this.recalculateLength();
   }
 
@@ -201,6 +208,9 @@ export class AnimationList {
     this.free[i] = 1;
     this.elapsed[i] = 0;
     this.lifetime[i] = 0;
+    this.frames[i] = 0;
+    this.timePerFrame[i] = 0;
+    this.type[i] = 0;
     this.recalculateLength();
     return;
   }
@@ -272,6 +282,23 @@ export class AnimationList {
       }
     }
     return min;
+  }
+
+  public getTypeByCoord = (coord: number): number => {
+    coord = Math.floor(coord);
+    const x = Math.floor(coord % GRIDCOUNT.x);
+    const y = Math.floor(coord / GRIDCOUNT.x);
+    return this.getType(x, y);
+  }
+
+  public getType = (x: number, y: number): number => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        return this.type[i];
+      }
+    }
+    return -1;
   }
 
   private recalculateLength = () => {
