@@ -17,6 +17,7 @@ import {
   DIFFICULTY_EASY,
   DISABLE_TRANSITIONS,
   DIFFICULTY_MEDIUM,
+  IS_DEV,
 } from './constants';
 import {
   getDifficultyFromIndex,
@@ -784,7 +785,7 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel || state.isExited) return;
     state.isPaused = true;
     showPauseUI(uiElements, {
-      isWarpDisabled: getIsStartLevel() || state.gameMode === GameMode.Cobra || state.isRandomizer,
+      isWarpDisabled: getIsStartLevel() || state.gameMode === GameMode.Cobra || state.isRandomizer || !IS_DEV,
       hasWarpEnabledParam: queryParams.enableWarp,
       isChallengeLevel: getIsChallengeLevel(getLevel()),
     }, {

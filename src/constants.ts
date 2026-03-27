@@ -9,7 +9,7 @@ export const SHOW_FPS = false;
 export const DEBUG_EASY_LEVEL_EXIT = false;
 export const DISABLE_TRANSITIONS = false;
 export const RECORD_REPLAY_STATE = false;
-export const IS_DEV = window.location.href.includes('localhost') || process.env.NODE_ENV === 'test';
+export const IS_DEV = window.location.href.includes('localhost') || process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development';
 const IS_EDITOR = window.location.pathname.includes('editor');
 
 export const LEADERBOARD_API_HOST = 'https://dontownsendcreative.com/snek-leaderboard';
