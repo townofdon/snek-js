@@ -1,7 +1,7 @@
 import React from "react";
 
 import { SnekMap } from "../api/map";
-import { Stack } from "../editor/components/Stack";
+import { Stack } from "@/components/Stack";
 import { getPreviewUrl } from "../editor/utils/publishUtils";
 
 import * as styles from './Community.css';

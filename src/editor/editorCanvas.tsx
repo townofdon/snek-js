@@ -7,7 +7,7 @@ import { EditorData, EditorOptions } from "../types";
 import { getCoordIndex2 } from "../utils";
 import { getTileExplanation, getTileLabel } from "./utils/tileUtils";
 import { EditorSketchReturn, EditorTool, Operation, editorSketch } from "./editorSketch";
-import { Grid } from "./components/Grid";
+import { Grid } from "@/components/Grid";
 
 import * as styles from "./Editor.css";
 
@@ -27,6 +27,7 @@ interface EditorCanvasProps {
   editorTiles: React.ReactNode;
   editorTools: React.ReactNode;
   tileSidebar: React.ReactNode | null;
+  isPreviewShowing: boolean;
 }
 
 export const EditorCanvas = ({
@@ -45,6 +46,7 @@ export const EditorCanvas = ({
   editorTiles,
   editorTools,
   tileSidebar,
+  isPreviewShowing,
 }: EditorCanvasProps) => {
   const container = useRef<HTMLDivElement>();
   const sketch = useRef<EditorSketchReturn | null>(null);
@@ -78,8 +80,9 @@ export const EditorCanvas = ({
       sketch.current.setMouseFrom(mouseFrom);
       sketch.current.setTool(tool);
       sketch.current.setOperation(operation);
+      sketch.current.setShowingPreview(isPreviewShowing);
     }
-  }, [mouseAt, mouseFrom, tool, operation]);
+  }, [mouseAt, mouseFrom, tool, operation, isPreviewShowing]);
 
   useEffect(() => {
     return () => {
@@ -104,12 +107,11 @@ export const EditorCanvas = ({
     <div className={cx(styles.stack, styles.col)}>
       {editorTools}
       <div className={cx(styles.stack, styles.row, styles.alignStretch)}>
-        {/* <div className={cx(styles.stack, styles.row, styles.alignStretch)}> */}
-          {tileSidebar}
-          {editorTiles}
-        {/* </div> */}
+        {tileSidebar}
+        {editorTiles}
         <Grid mouseAt={mouseAt}>
           <div
+            key="editor-canvas-container"
             className={styles.canvasContainer}
             ref={container}
             onMouseMove={handleMouseMove}

@@ -1,7 +1,7 @@
 import React from "react";
 
 import { getGraphicsDir, getRelativeDir } from "../utils";
-import { Stack } from "../editor/components/Stack";
+import { Stack } from "@/components/Stack";
 import { MapList } from "./MapList";
 
 import * as styles from "./Community.css";

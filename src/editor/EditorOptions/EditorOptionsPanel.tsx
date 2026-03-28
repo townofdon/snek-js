@@ -6,11 +6,11 @@ import { EditorData, EditorOptions, Level, Palette } from "../../types";
 import { SetStateValue } from "../editorTypes";
 import { Command, LoadLevelCommand, SetPaletteCommand } from "../commands";
 
-import { Tabs } from "../components/Tabs/Tabs";
-import { TabList } from "../components/Tabs/TabList";
-import { Tab } from "../components/Tabs/Tab";
-import { OptionsTab } from "../components/Tabs/tabTypes";
-import { TabPanel } from "../components/Tabs/TabPanel";
+import { Tabs } from "@/components/Tabs/Tabs";
+import { TabList } from "@/components/Tabs/TabList";
+import { Tab } from "@/components/Tabs/Tab";
+import { OptionsTab } from "@/components/Tabs/tabTypes";
+import { TabPanel } from "@/components/Tabs/TabPanel";
 import { PanelStats } from "./PanelStats";
 import { PanelColors } from "./PanelColors";
 import { PanelSave } from "./PanelSave";

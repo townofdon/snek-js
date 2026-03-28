@@ -3,7 +3,7 @@ import cx from "classnames";
 import { HexColorPicker } from "react-colorful";
 
 import * as styles from './field.css';
-import { SpecialKey, getIsOutside, isCharPressed } from "../../utils/keyboardUtils";
+import { SpecialKey, getIsOutside, isCharPressed } from "@/editor/utils/keyboardUtils";
 
 interface ColorFieldProps {
   name: string;

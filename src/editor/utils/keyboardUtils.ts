@@ -100,6 +100,10 @@ function findCharPressed(ev: KeyboardEvent): string {
   return ''
 }
 
+/**
+ * Determine whether the user is currently interacting with a DOM object or one of its descendants.
+ * Useful for checking if a user clicked outside a modal, etc.
+ */
 export function getIsOutside(ev: FocusEvent | MouseEvent | KeyboardEvent, ref: React.MutableRefObject<HTMLElement>) {
   if (!ev.target) return true;
   if (!ref.current) return true;

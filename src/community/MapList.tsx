@@ -4,8 +4,8 @@ import ReactPaginate from "react-paginate";
 import { clamp } from "../utils";
 import { useListMap } from "./useListMap";
 import { MapCard } from "./MapCard";
-import { Stack } from "../editor/components/Stack";
-import { Field } from "../editor/components/Field";
+import { Stack } from "@/components/Stack";
+import { Field } from "@/components/Field";
 
 import * as styles from "./Community.css";
 import * as editorStyles from "../editor/Editor.css";

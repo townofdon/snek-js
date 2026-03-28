@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    },
     "outDir": "./dist/",
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,

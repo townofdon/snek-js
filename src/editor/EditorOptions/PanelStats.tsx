@@ -5,7 +5,7 @@ import { EditorOptions, GameSettings, Level, MusicTrack } from "../../types";
 import { SetStateValue } from "../editorTypes";
 import { getRelativeDir, getTrackName } from "../../utils";
 import { musicTracktoIndex } from "../utils/musicTrackUtils";
-import { Stack } from "../components/Stack";
+import { Stack } from "@/components/Stack";
 import { resumeAudioContext } from "../../engine/audio";
 import { MusicPlayer } from "../../engine/musicPlayer";
 import {
@@ -14,7 +14,7 @@ import {
   ToggleField,
   DropdownField,
   Option,
-} from "../components/Field";
+} from "@/components/Field";
 import { SelectLevelDropdown } from "./SelectLevelDropdown";
 
 import * as styles from './EditorOptions.css';

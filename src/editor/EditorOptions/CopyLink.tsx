@@ -1,13 +1,13 @@
 import React, { useMemo, useRef } from "react";
 import toast from "react-hot-toast";
 
-import { Stack } from "../components/Stack";
+import { Stack } from "@/components/Stack";
 import { getPreviewUrl } from "../utils/publishUtils";
 import { getGraphicsDir } from "../../utils";
 
 import { EditorData, EditorOptions } from "../../types";
-import * as fieldStyles from "../components/Field/field.css";
-import { FieldLabel } from "../components/Field";
+import * as fieldStyles from "@/components/Field/field.css";
+import { FieldLabel } from "@/components/Field";
 import { encodeMapData } from "../utils/editorUtils";
 
 interface CopyLinkProps {

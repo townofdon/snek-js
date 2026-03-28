@@ -4,23 +4,28 @@
   <link rel="stylesheet" type="text/css" href="../style.css">
   <link rel="stylesheet" type="text/css" href="../assets/css/hamburgers.css">
 
-  <meta property="og:title" content="SNEK EDITOR" />
-  <meta property="og:site_name" content="SNEK EDITOR" />
+  <meta property="og:title" content="ASTAR TEST" />
+  <meta property="og:site_name" content="ASTAR TEST" />
   <meta property="og:type" content="game" />
-  <meta property="og:description" content="A map editor for the game SNEK" />
-  <meta property="og:url" content="https://townofdon.github.io/snek-js/editor" />
+  <meta property="og:description" content="AStar Algorithm Doodad Tester" />
+  <meta property="og:url" content="https://townofdon.github.io/snek-js/astar-tester" />
   <meta property="og:image" content="https://townofdon.github.io/snek-js/readme/social-embed-editor.png" />
 
-  <meta name="twitter:title" content="SNEK EDITOR">
-  <meta name="twitter:description" content="A map editor for the game SNEK">
+  <meta name="twitter:title" content="ASTAR TEST">
+  <meta name="twitter:description" content="AStar Algorithm Doodad Tester">
   <meta name="twitter:image" content="https://townofdon.github.io/snek-js/readme/social-embed-editor.png">
   <meta name="twitter:card" content="summary_large_image">
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SNEK EDITOR</title>
+  <title>ASTAR TEST</title>
 
-  <script defer src="/snek-js/editor.bundle-c27da0561b81be985328.js"></script><link href="/snek-js/editor-1167a70797d44533dcc0.css" rel="stylesheet"><link href="/snek-js/community-0f2aeb4e8ee82a21f1a0.css" rel="stylesheet">
+  <%= htmlWebpackPlugin
+    .tags
+    .headTags
+    .filter((tag) => tag.attributes?.src?.includes('astarTester.bundle') || /\.css$/.test(tag.attributes?.href) || tag.tagName === 'link' || tag.tagName === 'style')
+    .join('')
+  %>
 </head>
 <body>
   <div id="app"></div>

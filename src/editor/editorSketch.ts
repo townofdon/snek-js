@@ -66,6 +66,7 @@ export enum Operation {
 }
 
 export interface EditorState {
+  showingPreview: boolean,
   dirty: boolean,
   colorsDirty: boolean,
   extendedPalette: ExtendedPalette,
@@ -82,6 +83,7 @@ export interface EditorSketchReturn {
   setTool: (tool: EditorTool) => void,
   setData: (data: EditorData) => void,
   setOptions: (options: EditorOptions) => void,
+  setShowingPreview: (val: boolean) => void,
   cleanup: () => void,
 }
 
@@ -108,6 +110,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     portalExitConfig: { ...EDITOR_DEFAULTS.options.portalExitConfig },
   };
   const state: EditorState = {
+    showingPreview: false,
     dirty: false,
     colorsDirty: false,
     extendedPalette: getExtendedPalette(options.palette),
@@ -128,6 +131,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
   }
   const setTool = (incoming: EditorTool) => {
     state.tool = incoming;
+  }
+  const setShowingPreview = (incoming: boolean): void => {
+    state.showingPreview = incoming;
   }
   const setData = (incoming: EditorData): void => {
     const getIsDiff = (key: keyof EditorData): boolean => {
@@ -377,6 +383,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     function draw() {
       // prevent freezing due to animation frame build up if tab loses focus
       if (p5.deltaTime > 3000) return;
+      if (state.showingPreview) return;
 
       if (state.colorsDirty) {
         state.colorsDirty = false;
@@ -779,6 +786,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     setMouseFrom,
     setOperation,
     setTool,
+    setShowingPreview,
     cleanup,
-  };
+  } satisfies EditorSketchReturn;
 }

@@ -501,7 +501,7 @@ export class UI {
     div.style('left', '0');
     div.style('right', '0');
     div.style('background-color', 'rgb(7 11 15 / 75%)');
-    div.style('z-index', '5');
+    div.style('z-index', '6');
     // div.style('mix-blend-mode', 'color-burn');
     div.parent(UI_PARENT_ID);
     uiElements.push(div);

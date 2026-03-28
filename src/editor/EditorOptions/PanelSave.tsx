@@ -9,8 +9,8 @@ import { drawShareImage, getCanvasImage, getShareUrl } from "../utils/publishUti
 import { getToken, publishMap, uploadMapImage } from "../../api/map";
 import { editorStore } from "../../stores/EditorStore";
 import { useUndoRedo } from "../hooks/useUndoRedo";
-import { Stack } from "../components/Stack";
-import { Field } from "../components/Field";
+import { Stack } from "@/components/Stack";
+import { Field } from "@/components/Field";
 import { PreviewShareDialog } from "./PreviewShareDialog";
 import { PublishButton } from "./PublishButton";
 import { CopyLink } from "./CopyLink";

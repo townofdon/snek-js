@@ -18,6 +18,7 @@ const config = {
     editor: './src/editor/index',
     preview: './src/preview/index',
     community: './src/community/index',
+    astarTester: './src/astar/index',
   },
   output: {
     filename: '[name].bundle-[contenthash].js',
@@ -60,6 +61,12 @@ const config = {
       title: 'SNEK COMMUNITY',
       filename: 'community/index.html',
       template: './public/pages/community/index.ejs',
+      inject: false,
+    }),
+    new HtmlWebpackPlugin({
+      title: 'ASTAR TEST',
+      filename: 'astar-test/index.html',
+      template: './public/pages/astar-test/index.ejs',
       inject: false,
     }),
     new HtmlWebpackPlugin({
@@ -128,6 +135,9 @@ const config = {
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.jsx', '.js', '.json', '.css', '.scss'],
+    alias: {
+      "@": path.resolve(__dirname, "src"),
+    },
   },
 };
 

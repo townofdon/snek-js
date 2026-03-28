@@ -4,8 +4,8 @@ import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from "../../levels/levelConst
 import { LEVEL_01 } from "../../levels/campaign/level01";
 
 import { Level } from "../../types";
-import { Stack } from "../components/Stack";
-import { DropdownField, Option } from "../components/Field/DropdownField";
+import { Stack } from "@/components/Stack";
+import { DropdownField, Option } from "@/components/Field/DropdownField";
 
 import * as styles from './EditorOptions.css'
 

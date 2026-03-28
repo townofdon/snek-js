@@ -1,8 +1,9 @@
 import React from "react";
 import cx from 'classnames';
 
-import * as styles from "../Editor.css";
-import { coordToVec } from "../../utils";
+import { coordToVec } from "@/utils";
+
+import * as styles from "./grid.css";
 
 interface GridProps {
   mouseAt: number,

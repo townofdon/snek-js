@@ -2,8 +2,8 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { EditorOptions, Palette } from "../../types";
 import { getIsOutside, isCharPressed } from "../utils/keyboardUtils";
-import { Field } from "../components/Field";
-import { Stack } from "../components/Stack";
+import { Field } from "@/components/Field";
+import { Stack } from "@/components/Stack";
 import { SelectPalette } from "./SelectPalette";
 
 import * as styles from './EditorOptions.css';

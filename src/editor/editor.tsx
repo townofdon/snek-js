@@ -62,15 +62,15 @@ import { EditorOptionsPanel } from "./EditorOptions";
 import { EditorTiles } from "./EditorTiles";
 import { EditorTools } from "./EditorTools";
 import { MapPreview } from "./MapPreview";
-import { Stack } from "./components/Stack";
 import { SidebarKeyChannels } from "./SidebarKeyChannels";
 import { EditorSidebar } from "./EditorSidebar";
 import { SidebarPortalChannels } from "./SidebarPortalChannels";
+import { useUpdateUrl } from "./hooks/useUpdateUrl";
+import { SidebarBarrierTypes } from "./SidebarBarrierTypes";
+import { Stack } from "@/components/Stack";
+import { DropdownField, Option } from "@/components/Field";
 
 import * as styles from "./Editor.css";
-import { useUpdateUrl } from "./hooks/useUpdateUrl";
-import { DropdownField, Option } from "./components/Field";
-import { SidebarBarrierTypes } from "./SidebarBarrierTypes";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -633,6 +633,7 @@ export const Editor = () => {
           mouseFrom={mouseFrom}
           tile={tile}
           tool={tool}
+          isPreviewShowing={isPreviewShowing}
           operation={getOperation()}
           handleMouseMove={handleMouseMove}
           handleMouseLeave={handleMouseLeave}
