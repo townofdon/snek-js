@@ -147,6 +147,11 @@ p, button, .button {
   position: absolute;
   top: 0;
   filter: none;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale; /* Disables subpixel rendering */
+  image-rendering: pixelated; /* Standard */
+  image-rendering: crisp-edges; /* Firefox & Safari */
+  -ms-interpolation-mode: nearest-neighbor; /* Legacy Internet Explorer */
 }
 .static-gfx-canvas.bg {
   z-index: -2;
