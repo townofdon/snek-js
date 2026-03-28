@@ -141,6 +141,7 @@ export class Renderer implements IRenderer {
     const sx = 1 * BLOCK_SIZE.x + offset;
     const sy = 1 * BLOCK_SIZE.y + offset;
     gfx.tint(255, 255, 255, lerp(0, 255, alpha));
+    gfx.noSmooth();
     gfx.image(
       component,
       // MAP_OFFSET not needed here, as graphical components have already been drawn including this offset
@@ -185,6 +186,7 @@ export class Renderer implements IRenderer {
     this.p5CachedFill(gfx, background, optimize);
     this.p5CachedStroke(gfx, lineColor, optimize);
     gfx.strokeWeight(strokeSize);
+    gfx.noSmooth();
     const strokeOffset = STROKE_SIZE - strokeSize;
     const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
     const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
@@ -256,6 +258,7 @@ export class Renderer implements IRenderer {
     const x1i = Math.floor(x1 - borderSize);
     const y1i = Math.floor(y1 - borderSize);
     gfx.noStroke();
+    gfx.noSmooth();
     if (overrideColor) {
       this.p5CachedFill(gfx, strokeColor);
     } else {
@@ -306,6 +309,7 @@ export class Renderer implements IRenderer {
     // p5.randomSeed(x + y * 500000);
     // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
     gfx.noStroke();
+    gfx.noSmooth();
     for (let i = 0; i < blockDivisions; i++) {
       const px0 = MAP_OFFSET + Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + i * sizeX);
       const py0 = MAP_OFFSET + Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + i * sizeY);

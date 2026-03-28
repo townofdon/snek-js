@@ -35,9 +35,7 @@ export const FRAME_DUR_MS = (1 / FRAMERATE) * 1000;
 export const DIMENSIONS = IS_EDITOR ? { x: 600, y: 600 } as const : { x: 1200, y: 1200 } as const;
 export const GRIDCOUNT = { x: 30, y: 30 } as const;
 export const STROKE_SIZE = IS_EDITOR ? 4 : 8;
-// export const STRANGELY_NEEDED_OFFSET = { x: STROKE_SIZE / GRIDCOUNT.x, y: STROKE_SIZE / GRIDCOUNT.y };
-export const STRANGELY_NEEDED_OFFSET = { x: 0, y: 0 } as const;
-export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x + STRANGELY_NEEDED_OFFSET.x, y: DIMENSIONS.y / GRIDCOUNT.y + STRANGELY_NEEDED_OFFSET.y } as const;
+export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x, y: DIMENSIONS.y / GRIDCOUNT.y } as const;
 export const MAP_OFFSET = IS_EDITOR ? 2 : 4;
 
 export const MAX_MOVES_GAMEPAD = 8;

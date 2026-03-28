@@ -182,15 +182,15 @@ export class SpriteRenderer {
           img.set(x, y, colors.dark);
         }
         // green => main
-        if (g >= 250 && r <= 5 && b <= 5) {
+        if (r <= 5 && g >= 250 && b <= 5) {
           img.set(x, y, colors.main);
         }
         // blue => light
-        if (b >= 250 && r <= 5 && g <= 5) {
+        if (r <= 5 && g <= 5 && b >= 250) {
           img.set(x, y, colors.light);
         }
         // cyan => alt
-        if (b >= 250 && r <= 5 && g >= 250) {
+        if (r <= 5 && g >= 250 && b >= 250) {
           img.set(x, y, colors.alt);
         }
         // else, keep same color
@@ -343,12 +343,13 @@ export class SpriteRenderer {
     const widthX = Math.floor(BLOCK_SIZE.x);
     const widthY = Math.floor(BLOCK_SIZE.y);
     const position = {
-      x: Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE.x * IMAGE_SCALE) + MAP_OFFSET,
+      x: Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE.x * IMAGE_SCALE) + MAP_OFFSET + 1,
       y: Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE.y * IMAGE_SCALE) + MAP_OFFSET,
     }
 
     const offset = -STROKE_SIZE * 0.5;
     gfx.push();
+    gfx.noSmooth();
     gfx.translate(
       position.x,
       position.y,
@@ -434,6 +435,7 @@ export class SpriteRenderer {
     // const adjustment = IMAGE_SCALE - (IMAGE_SCALE - 1) * 0.5;
     const adjustment = 1;
     gfx.push();
+    gfx.noSmooth();
     gfx.translate(
       Math.round(x + offset),
       Math.round(y + offset),
@@ -484,6 +486,8 @@ export class SpriteRenderer {
     }
     const frame = Math.floor(elapsed / timePerFrame) % frames;
     const frameWidth = loaded.width / frames;
+    gfx.push();
+    gfx.noSmooth();
     gfx.image(
       loaded,
       // destination (x, y, w, h)
@@ -500,5 +504,6 @@ export class SpriteRenderer {
       this.p5.LEFT,
       this.p5.TOP
     );
+    gfx.pop();
   }
 }
