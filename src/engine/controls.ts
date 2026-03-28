@@ -27,6 +27,7 @@ export function handleKeyPressed(
   state: GameState,
   clickState: ClickState,
   playerDirection: DIR,
+  playerDirectionToFirstSegment: DIR,
   moves: DIR[],
   recentMoves: RecentMoves,
   recentInputs: RecentMoves,
@@ -115,7 +116,7 @@ export function handleKeyPressed(
 
   const prevMove = moves.length > 0
     ? moves[moves.length - 1]
-    : playerDirection;
+    : invertDirection(playerDirectionToFirstSegment);
 
   // disallow same moves unless snake is currently stunned after hitting something
   const disallowEqual = state.isMoving && (moves.length >= 2 || state.timeSinceHurt >= HURT_STUN_TIME);
