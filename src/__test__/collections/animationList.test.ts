@@ -1,7 +1,8 @@
 import assert from "assert";
 import { AnimationList, INITIAL_ANIMATIONS_POOL_SIZE } from "../../collections/animationList";
 import { getCoordIndex2 } from "../../utils";
-import { GRIDCOUNT, PICKUP_EXPIRE_WARN_MS } from "../../constants";
+import { GRIDCOUNT_X,
+GRIDCOUNT_Y, PICKUP_EXPIRE_WARN_MS } from "../../constants";
 
 describe("Collections", () => {
   describe("AnimationList", () => {
@@ -120,8 +121,8 @@ describe("Collections", () => {
       assert.strictEqual(items.getLength(), 0);
       assert.strictEqual(items.getMaxLength(), INITIAL_ANIMATIONS_POOL_SIZE);
       for (let i = 0; i < INITIAL_ANIMATIONS_POOL_SIZE; i++) {
-        const x = Math.floor(i % GRIDCOUNT.x);
-        const y = Math.floor(i / GRIDCOUNT.x);
+        const x = Math.floor(i % GRIDCOUNT_X);
+        const y = Math.floor(i / GRIDCOUNT_X);
         items.add(x, y, 9999, 1, 1);
         assert.strictEqual(items.getLength(), i + 1);
         assert.strictEqual(items.existsAt(x, y), true);

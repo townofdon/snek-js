@@ -17,7 +17,8 @@ import {
   FRAMERATE,
   FRAME_DUR_MS,
   GLOBAL_LIGHT_DEFAULT,
-  GRIDCOUNT,
+  GRIDCOUNT_X,
+  GRIDCOUNT_Y,
   HURT_FLASH_RATE,
   HURT_FORGIVENESS_TIME,
   HURT_GRACE_TIME,
@@ -178,7 +179,7 @@ import { resumeAudioContext } from './audio';
 import { LEVEL_01_HARD } from '../levels/campaign/level01hard';
 import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
-import { AStar } from '../collections/astar';
+import { AStar } from '../astar/astar';
 import { PreyList } from '../collections/preyList';
 
 interface EngineParams {
@@ -246,12 +247,12 @@ export function engine({
     timeAccumulatedMs: 0,
     timeScale: 1,
     deltaTime: 0,
-  }
+  } satisfies LoopState;
   const drawState: DrawState = {
     shouldDrawApples: true,
     shouldDrawKeysLocks: true,
     shouldDrawActionFG: true,
-  };
+  } satisfies DrawState;
   const metrics = {
     gameLoopProcessingTime: 0,
   }
@@ -260,20 +261,20 @@ export function engine({
     direction: DIR.RIGHT,
     directionToFirstSegment: DIR.RIGHT,
     directionLastHit: DIR.RIGHT,
-  };
+  } satisfies PlayerState;
   const clickState: ClickState = {
     x: 0,
     y: 0,
     didReceiveInput: false,
     directionToPoint: DIR.RIGHT,
-  };
+  } satisfies ClickState;
   const screenShake: ScreenShakeState = {
     offset: new Vector(0, 0),
     timeSinceStarted: Infinity,
     timeSinceLastStep: Infinity,
     magnitude: 1,
     timeScale: 1,
-  };
+  } satisfies ScreenShakeState;
   const replay = engineReplay || {
     mode: ReplayMode.Disabled,
     levelIndex: -1,
@@ -284,7 +285,7 @@ export function engine({
     timeCaptureStarted: 'no-date',
     shouldProceedToNextClip: false,
     lastFrame: 0,
-  }
+  } satisfies Replay;
 
   const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true };
   const drawPlayerOptionsDeath: DrawSquareOptions = { is3d: true, optimize: true, screenshakeMul: -1 };
@@ -314,8 +315,8 @@ export function engine({
   let diffSelectMap: Record<number, number> = {};
 
   const onLifetimeExpire = (coord: number) => {
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
     explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
     state.lastHurtBy = HitType.HitMine;
@@ -849,8 +850,8 @@ export function engine({
     }
 
     // tick time for all pickups
-    for (let x = 0; x < GRIDCOUNT.x; x++) {
-      for (let y = 0; y < GRIDCOUNT.y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
         const i = getCoordIndex2(x, y);
         if (pickupsMap[i]) {
           pickupsMap[i].timeTillDeath -= loopState.deltaTime;
@@ -998,10 +999,10 @@ export function engine({
 
     drawPortals();
 
-    for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
+    for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
       if (apples.existsAtCoord(i)) {
-        const x = Math.floor(i % GRIDCOUNT.x);
-        const y = Math.floor(i / GRIDCOUNT.x);
+        const x = Math.floor(i % GRIDCOUNT_X);
+        const y = Math.floor(i / GRIDCOUNT_X);
         drawApple(x, y);
       }
     }
@@ -1059,8 +1060,7 @@ export function engine({
     renderer.drawUIKeys(gfxPresentation);
     renderer.drawTutorialMoveControls(gfxPresentation);
     renderer.drawTutorialRewindControls(gfxPresentation, player.position, canRewind);
-    // renderer.drawFps(queryParams.showFps, metrics.gameLoopProcessingTime);
-    // if (!state.isGameStarted) leaderboardScene.draw();
+    renderer.drawFps(metrics.gameLoopProcessingTime);
 
     if (state.isLost && state.gameMode !== GameMode.Cobra) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
@@ -1355,9 +1355,9 @@ export function engine({
 
   function getHasSegmentExited(vec: Vector): boolean {
     return (
-      vec.x > GRIDCOUNT.x - 1 ||
+      vec.x > GRIDCOUNT_X - 1 ||
       vec.x < 0 ||
-      vec.y > GRIDCOUNT.y - 1 ||
+      vec.y > GRIDCOUNT_Y - 1 ||
       vec.y < 0
     );
   }
@@ -1728,8 +1728,8 @@ export function engine({
     }
     // blow up all mines currently on the level
     const numExplosionsAtLevelExit = mines.length + preyList.length;
-    for (let x = 0; x < GRIDCOUNT.x; x++) {
-      for (let y = 0; y < GRIDCOUNT.y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
         const coord = getCoordIndex2(x, y);
         if (mines.existsAtCoord(coord)) {
           mines.removeByCoord(coord);
@@ -1851,8 +1851,8 @@ export function engine({
         y: 0 - WIN_SCREEN_TELEPORT_PADDING,
       },
       max: {
-        x: GRIDCOUNT.x + WIN_SCREEN_TELEPORT_PADDING,
-        y: GRIDCOUNT.y + WIN_SCREEN_TELEPORT_PADDING,
+        x: GRIDCOUNT_X + WIN_SCREEN_TELEPORT_PADDING,
+        y: GRIDCOUNT_Y + WIN_SCREEN_TELEPORT_PADDING,
       },
     }
     const bounds = WIN_SCREEN_TELEPORT_BOUNDS;
@@ -2097,8 +2097,8 @@ export function engine({
     let points = 0;
     let image: SpritesheetImage | null = null;
     let rarity: PickupRarity = PickupRarity.None;
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     switch (preyType) {
       case PreyType.Grub:
         points = PICKUP_EPIC_BONUS;
@@ -2138,8 +2138,8 @@ export function engine({
     let points = 0;
     let image: SpritesheetImage | null = null;
     let rarity: PickupRarity = PickupRarity.None;
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     if (pickupType === PickupType.Invincibility) {
       points = PICKUP_INVINCIBILITY_BONUS;
       image = Image.Points1000;
@@ -2207,8 +2207,8 @@ export function engine({
       addAppleReplayMode();
       return;
     }
-    const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
-    const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
+    const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
+    const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
     const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
       || doorsMap[getCoordIndex2(x, y)]
       || nospawnsMap[getCoordIndex2(x, y)]
@@ -2354,8 +2354,8 @@ export function engine({
   }
 
   function spawnMine(numTries = 0) {
-    const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
-    const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
+    const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
+    const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
     const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
       || doorsMap[getCoordIndex2(x, y)]
       || nospawnsMap[getCoordIndex2(x, y)]
@@ -2373,8 +2373,8 @@ export function engine({
   }
 
   function spawnInvincibilityPickup(numTries = 0) {
-    const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
-    const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
+    const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
+    const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
     const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
       || doorsMap[getCoordIndex2(x, y)]
       || nospawnsMap[getCoordIndex2(x, y)]
@@ -2402,8 +2402,8 @@ export function engine({
     spawnPrey(preyType, 0);
   }
   const spawnPrey = (preyType: PreyType, numTries: number) => {
-    const x = Math.floor(p5.random(GRIDCOUNT.x - 2)) + 1;
-    const y = Math.floor(p5.random(GRIDCOUNT.y - 2)) + 1;
+    const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
+    const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
     const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
       || doorsMap[getCoordIndex2(x, y)]
       || nospawnsMap[getCoordIndex2(x, y)]
@@ -2419,8 +2419,8 @@ export function engine({
   }
   function* spawnPreyRoutine(preyType: PreyType, coord: number): IEnumerator {
     yield* coroutines.waitForTime(lerp(PREY_SPAWN_WAIT_TIME_MIN, PREY_SPAWN_WAIT_TIME_MAX, Math.random()));
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     preyList.add(x, y, preyType);
   }
 
@@ -2604,10 +2604,10 @@ export function engine({
 
   function drawMines() {
     if (drawState.shouldDrawApples) {
-      for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         if (mines.existsAtCoord(coord)) {
-          const x = Math.floor(coord % GRIDCOUNT.x);
-          const y = Math.floor(coord / GRIDCOUNT.x);
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = mines.getElapsedByCoord(coord);
           if (shouldBlinkExpiringPickup(mines.getTimeRemaining(x, y))) {
             continue;
@@ -2620,10 +2620,10 @@ export function engine({
 
   function drawPrey() {
     if (drawState.shouldDrawActionFG) {
-      for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         if (preyList.existsAtCoord(coord)) {
-          const x = Math.floor(coord % GRIDCOUNT.x);
-          const y = Math.floor(coord / GRIDCOUNT.x);
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = preyList.getElapsed(x, y);
           if (shouldBlinkExpiringPickup(preyList.getTimeRemaining(x, y))) {
             continue;
@@ -2637,10 +2637,10 @@ export function engine({
 
   function drawFireTiles() {
     if (drawState.shouldDrawActionFG && !state.isShowingDeathColours) {
-      for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         if (fireTiles.existsAtCoord(coord)) {
-          const x = Math.floor(coord % GRIDCOUNT.x);
-          const y = Math.floor(coord / GRIDCOUNT.x);
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = fireTiles.getElapsedByCoord(coord);
           spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.FireSheet, x, y, elapsed);
         }
@@ -2650,10 +2650,10 @@ export function engine({
 
   function drawExplosions() {
     if (drawState.shouldDrawActionFG) {
-      for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         if (explosions.existsAtCoord(coord)) {
-          const x = Math.floor(coord % GRIDCOUNT.x);
-          const y = Math.floor(coord / GRIDCOUNT.x);
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = explosions.getElapsedByCoord(coord);
           spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.ExplosionSheet, x, y, elapsed);
         }
@@ -2669,9 +2669,9 @@ export function engine({
     if (state.isExited) return;
     if (state.isGameWon) return;
 
-    for (let y = 0; y < GRIDCOUNT.y; y++) {
-      for (let x = 0; x < GRIDCOUNT.x; x++) {
-        if (x !== 0 && y !== 0 && x !== GRIDCOUNT.x - 1 && y !== GRIDCOUNT.y - 1) continue;
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        if (x !== 0 && y !== 0 && x !== GRIDCOUNT_X - 1 && y !== GRIDCOUNT_Y - 1) continue;
         const coord = getCoordIndex2(x, y);
         if (barriersMap[coord] && !passablesMap[coord]) continue;
         if (portalsMap[coord]) continue;
@@ -2682,13 +2682,13 @@ export function engine({
         if (x === 0) {
           renderer.drawExitLight(gfxExitLights, x + 1, y, DIR.RIGHT, lightIndex(y));
         }
-        if (x === GRIDCOUNT.x - 1) {
+        if (x === GRIDCOUNT_X - 1) {
           renderer.drawExitLight(gfxExitLights, x - 1, y, DIR.LEFT, lightIndex(y));
         }
         if (y === 0) {
           renderer.drawExitLight(gfxExitLights, x, y + 1, DIR.DOWN, lightIndex(x));
         }
-        if (y === GRIDCOUNT.y - 1) {
+        if (y === GRIDCOUNT_Y - 1) {
           renderer.drawExitLight(gfxExitLights, x, y - 1, DIR.UP, lightIndex(x));
         }
       }
@@ -2883,10 +2883,10 @@ export function engine({
 
   function drawPointsText() {
     if (drawState.shouldDrawActionFG) {
-      for (let coord = 0; coord < GRIDCOUNT.x * GRIDCOUNT.y; coord++) {
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         if (pointsAnim.existsAtCoord(coord)) {
-          const x = Math.floor(coord % GRIDCOUNT.x);
-          const y = Math.floor(coord / GRIDCOUNT.x);
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = pointsAnim.getElapsedByCoord(coord);
           const rarity = toRarity(pointsAnim.getType(x, y))
           switch (rarity) {
@@ -2949,9 +2949,9 @@ export function engine({
     if (state.isExited) return;
     if (state.isGameWon) return;
 
-    for (let y = 0; y < GRIDCOUNT.y; y++) {
-      for (let x = 0; x < GRIDCOUNT.x; x++) {
-        if (x !== 0 && y !== 0 && x !== GRIDCOUNT.x - 1 && y !== GRIDCOUNT.y - 1) continue;
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        if (x !== 0 && y !== 0 && x !== GRIDCOUNT_X - 1 && y !== GRIDCOUNT_Y - 1) continue;
         const coord = getCoordIndex2(x, y);
         // if (barriersMap[coord] && !passablesMap[coord]) continue;
         if (barriersMap[coord]) continue;

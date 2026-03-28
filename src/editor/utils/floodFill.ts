@@ -1,5 +1,5 @@
-import { GRIDCOUNT } from "../../constants";
-import { Barrier, BarrierType, EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../../types";
+import { GRIDCOUNT_X, GRIDCOUNT_Y } from "../../constants";
+import { BarrierType, EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../../types";
 import { Tile } from "../editorTypes";
 import { getCoordIndex2, isValidBarrierType, isValidKeyChannel, isValidPortalChannel } from "../../utils";
 import { deepCloneData } from "./editorUtils";
@@ -328,8 +328,8 @@ export function tileFloodFill(
   }
 
   const screen: FloodFillTile[][] = [];
-  for (let y0 = 0; y0 < GRIDCOUNT.y; y0++) {
-    for (let x0 = 0; x0 < GRIDCOUNT.x; x0++) {
+  for (let y0 = 0; y0 < GRIDCOUNT_Y; y0++) {
+    for (let x0 = 0; x0 < GRIDCOUNT_X; x0++) {
       if (!screen[x0]) {
         screen[x0] = [];
       }
@@ -338,10 +338,10 @@ export function tileFloodFill(
     }
   }
 
-  floodFill(screen, GRIDCOUNT.y, GRIDCOUNT.x, x, y, prev, next);
+  floodFill(screen, GRIDCOUNT_Y, GRIDCOUNT_X, x, y, prev, next);
 
-  for (let y0 = 0; y0 < GRIDCOUNT.y; y0++) {
-    for (let x0 = 0; x0 < GRIDCOUNT.x; x0++) {
+  for (let y0 = 0; y0 < GRIDCOUNT_Y; y0++) {
+    for (let x0 = 0; x0 < GRIDCOUNT_X; x0++) {
       const coord = getCoordIndex2(x0, y0);
       const screenTile = screen[x0][y0];
       const compare = getTileAtLocation(coord, newData);

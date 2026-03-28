@@ -1,7 +1,11 @@
 import P5, { Vector } from "p5";
 import Color from "color";
 
-import { GRIDCOUNT, INVINCIBILITY_EXPIRE_FLASH_MS, LIGHTMAP_RESOLUTION, PICKUP_EXPIRE_WARN_MS } from "../constants";
+import {
+  GRIDCOUNT_X,
+  GRIDCOUNT_Y,
+  LIGHTMAP_RESOLUTION,
+} from "../constants";
 import { Renderer } from "./renderer";
 import { clamp, lerp, shouldBlinkExpiringPickup } from "../utils";
 import { Easing } from "../easing";
@@ -27,8 +31,8 @@ export function initLighting(p5: P5) {
 
 export function createLightmap(): number[] {
   return new Array<number>(
-    GRIDCOUNT.x * Math.floor(LIGHTMAP_RESOLUTION) *
-    GRIDCOUNT.y * Math.floor(LIGHTMAP_RESOLUTION)
+    GRIDCOUNT_X * Math.floor(LIGHTMAP_RESOLUTION) *
+    GRIDCOUNT_Y * Math.floor(LIGHTMAP_RESOLUTION)
   );
 }
 
@@ -59,15 +63,15 @@ export function updateLighting(
       addSpotlight(lightMap, portalPosition.x, portalPosition.y, { strength: 0.5, radius: 0, falloff: 4 });
     }
   }
-  for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
+  for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
     const isInvincibilityAtCoord = (
       apples?.existsAtCoord(i) &&
       pickupsMap[i]?.type === PickupType.Invincibility &&
       !shouldBlinkExpiringPickup(pickupsMap[i]?.timeTillDeath)
     );
     if (isInvincibilityAtCoord || explosions?.existsAtCoord(i)) {
-      const x = Math.floor(i % GRIDCOUNT.x);
-      const y = Math.floor(i / GRIDCOUNT.x);
+      const x = Math.floor(i % GRIDCOUNT_X);
+      const y = Math.floor(i / GRIDCOUNT_X);
       addBlocklight(lightMap, x, y, { strength: 0.7 });
       addBlocklight(lightMap, x, y + 1, { strength: 0.3 });
       addBlocklight(lightMap, x, y - 1, { strength: 0.3 });
@@ -76,10 +80,10 @@ export function updateLighting(
     }
   }
   if (fireTiles) {
-    for (let i = 0; i < GRIDCOUNT.x * GRIDCOUNT.y; i++) {
+    for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
       if (fireTiles.existsAtCoord(i)) {
-        const x = Math.floor(i % GRIDCOUNT.x);
-        const y = Math.floor(i / GRIDCOUNT.x);
+        const x = Math.floor(i % GRIDCOUNT_X);
+        const y = Math.floor(i / GRIDCOUNT_X);
         // simulate a flicker effect
         let t = flickerVal;
         if (flickerCounter < 0 || flickerCounter !== fireTiles.getNumTimesDidChange()) {
@@ -95,8 +99,8 @@ export function updateLighting(
 export function drawLighting(lightMap: number[], renderer: Renderer, graphics: P5 | P5.Graphics) {
   const coefficient = 1 / LIGHTMAP_RESOLUTION;
   for (let i = 0; i < lightMap.length; i++) {
-    const x = i % (GRIDCOUNT.x * LIGHTMAP_RESOLUTION);
-    const y = Math.floor(i / (GRIDCOUNT.x * LIGHTMAP_RESOLUTION));
+    const x = i % (GRIDCOUNT_X * LIGHTMAP_RESOLUTION);
+    const y = Math.floor(i / (GRIDCOUNT_X * LIGHTMAP_RESOLUTION));
     const a = 1 - clamp(lightMap[i], 0, 1);
     const color = lightColorLookup[Math.floor(a * (numUniqLightColors - 1) + Number.EPSILON)];
     if (!color) continue;
@@ -149,8 +153,8 @@ function addSpotlight(lightMap: number[], x: number, y: number, {
 
 function inBounds(lx: number, ly: number): boolean {
   return true
-    && lx >= 0 && lx < GRIDCOUNT.x * LIGHTMAP_RESOLUTION
-    && ly >= 0 && ly < GRIDCOUNT.y * LIGHTMAP_RESOLUTION;
+    && lx >= 0 && lx < GRIDCOUNT_X * LIGHTMAP_RESOLUTION
+    && ly >= 0 && ly < GRIDCOUNT_Y * LIGHTMAP_RESOLUTION;
 }
 
 interface AddBlocklightOptions {
@@ -181,8 +185,8 @@ function commitStagedLight(source: number[], target: number[]) {
 
 function toQuantizedIndex(x: number, y: number): number {
   return Math.floor(
-    clamp(Math.round(x), 0, GRIDCOUNT.x * LIGHTMAP_RESOLUTION - 1) +
-    clamp(Math.round(y), 0, GRIDCOUNT.y * LIGHTMAP_RESOLUTION - 1) * GRIDCOUNT.x * LIGHTMAP_RESOLUTION
+    clamp(Math.round(x), 0, GRIDCOUNT_X * LIGHTMAP_RESOLUTION - 1) +
+    clamp(Math.round(y), 0, GRIDCOUNT_Y * LIGHTMAP_RESOLUTION - 1) * GRIDCOUNT_X * LIGHTMAP_RESOLUTION
   );
 }
 

@@ -1,8 +1,9 @@
 import { Vector } from "p5";
-import { GRIDCOUNT, IS_DEV } from "../constants";
+import { GRIDCOUNT_X,
+GRIDCOUNT_Y, IS_DEV } from "../constants";
 import { getCoordIndex2, getTraversalDistance } from "../utils";
 
-export const INITIAL_APPLE_POOL_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
+export const INITIAL_APPLE_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
 /**
  * Non-allocating collection of apples.
@@ -72,8 +73,8 @@ export class AppleList {
 
   public removeByCoord = (coord: number) => {
     coord = Math.floor(coord);
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     this.remove(x, y);
   }
 
@@ -103,8 +104,8 @@ export class AppleList {
 
   public existsAtCoord = (coord: number): boolean => {
     coord = Math.floor(coord);
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     return this.existsAt(x, y);
   }
 

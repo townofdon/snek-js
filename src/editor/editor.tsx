@@ -4,7 +4,7 @@ import cx from "classnames";
 
 import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, getRelativeDir, isValidPortalChannel } from "../utils";
-import { DIMENSIONS, GRIDCOUNT } from "../constants";
+import { DIMENSIONS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { EDITOR_DEFAULTS } from "./editorConstants";
 import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
 import { Tile } from "./editorTypes";
@@ -355,8 +355,8 @@ export const Editor = () => {
     } else if (toolRef.current === EditorTool.Bucket) {
       if (mouseAtRef.current === -1) return new NoOpCommand();
       if (tileRef.current === Tile.Spawn) return new NoOpCommand();
-      const x = Math.floor(mouseAtRef.current % GRIDCOUNT.x);
-      const y = Math.floor(mouseAtRef.current / GRIDCOUNT.x);
+      const x = Math.floor(mouseAtRef.current % GRIDCOUNT_X);
+      const y = Math.floor(mouseAtRef.current / GRIDCOUNT_X);
       if (operation === Operation.Remove) {
         return new FloodFillEmptyCommand(x, y, portalChannelRef.current, keyChannelRef.current, barrierTypeRef.current, dataRef, setData);
       } else {
@@ -424,8 +424,8 @@ export const Editor = () => {
   }
 
   const handleMouseMove = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const x = Math.floor(clamp(ev.nativeEvent.offsetX, 0, DIMENSIONS.x - 1) / DIMENSIONS.x * GRIDCOUNT.x);
-    const y = Math.floor(clamp(ev.nativeEvent.offsetY, 0, DIMENSIONS.y - 1) / DIMENSIONS.y * GRIDCOUNT.y);
+    const x = Math.floor(clamp(ev.nativeEvent.offsetX, 0, DIMENSIONS.x - 1) / DIMENSIONS.x * GRIDCOUNT_X);
+    const y = Math.floor(clamp(ev.nativeEvent.offsetY, 0, DIMENSIONS.y - 1) / DIMENSIONS.y * GRIDCOUNT_Y);
     const coord = getCoordIndex2(x, y);
     setMouseAt(coord);
     if (mousePressedRef.current && [EditorTool.Pencil, EditorTool.Eraser].includes(toolRef.current)) {

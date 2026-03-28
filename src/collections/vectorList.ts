@@ -1,11 +1,13 @@
 import { Vector } from "p5";
 
-import { GRIDCOUNT, IS_DEV } from "../constants";
-import { getCoordIndex2 } from "../utils";
+import { GRIDCOUNT_X,
+GRIDCOUNT_Y, IS_DEV } from "../constants";
+import { getCoordIndex2, getTraversalDistance } from "../utils";
+import { ICollection } from "../types";
 
-export const INITIAL_POINTS_POOL_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
+export const INITIAL_POINTS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
-export class VectorList {
+export class VectorList implements ICollection {
   private points: Vector[];
   private free: Uint8Array;
   private indices: Int16Array;
@@ -85,6 +87,20 @@ export class VectorList {
     this.recalculateCoordMap();
   }
 
+  public getClosestTraversalDistance = (x: number, y: number) => {
+    this.validate();
+    let min = Infinity;
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      const vec = this.points[i];
+      const dist = getTraversalDistance(x, y, vec.x, vec.y);
+      if (dist < min) {
+        min = dist;
+      }
+    }
+    return min;
+  };
+
   public contains = (x: number, y: number): boolean => {
     return this.coordMap[getCoordIndex2(x, y)] >= 0;
   }
@@ -92,6 +108,9 @@ export class VectorList {
   public containsCoord = (coord: number): boolean => {
     return this.coordMap[coord] >= 0;
   }
+
+  public existsAt = this.contains;
+  public existsAtCoord = this.containsCoord;
 
   public find = (x: number, y: number): (Vector | undefined) => {
     return this.points[this.coordMap[getCoordIndex2(x, y)]] || undefined;

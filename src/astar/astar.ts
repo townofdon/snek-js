@@ -1,9 +1,9 @@
 import alea from '../lib/rng-alea';
 
-import { GRIDCOUNT, IS_DEV } from "../constants";
+import { GRIDCOUNT_X,
+GRIDCOUNT_Y, IS_DEV } from "../constants";
 import { getCoordIndex2, getTraversalDistance } from "../utils";
-import { AnimationList } from "./animationList";
-import { VectorList } from "./vectorList";
+import { ICollection } from '../types';
 
 const THREAT_COST_MINE = 4;
 const THREAT_COST_SNEK = 6;
@@ -13,14 +13,14 @@ const FLAG_WALL = 1;
 const FLAG_CLOSED = 2;
 const FLAG_VISITED = 4;
 
-export const ASTAR_GRID_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
+export const ASTAR_GRID_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
 interface AStarOptions {
   allowDiagonals: boolean,
   allowClosest: boolean,
   randomizeWeights: boolean,
-  mines?: AnimationList,
-  segments?: VectorList,
+  mines?: ICollection,
+  segments?: ICollection,
 }
 
 const DEFAULT_OPTIONS = {
@@ -61,8 +61,8 @@ export class AStar {
   private pathLength: number;
 
   // threats
-  private segments: VectorList;
-  private mines: AnimationList;
+  private segments: ICollection;
+  private mines: ICollection;
   private snekCoord: number;
 
   private closest: number;
@@ -132,8 +132,8 @@ export class AStar {
   }
 
   public fleeFromCoord(coord: number, seed = 0, farsighted = false) {
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     return this.search(x, y, -1, -1, seed, farsighted);
   }
 
@@ -162,8 +162,8 @@ export class AStar {
       this.randomizeWeights(seed);
     }
 
-    const snekx = Math.floor(this.snekCoord % GRIDCOUNT.x);
-    const sneky = Math.floor(this.snekCoord / GRIDCOUNT.x);
+    const snekx = Math.floor(this.snekCoord % GRIDCOUNT_X);
+    const sneky = Math.floor(this.snekCoord / GRIDCOUNT_X);
     const snekCoord = this.snekCoord;
     const flags = this.flags;
     const parents = this.parent;
@@ -190,12 +190,12 @@ export class AStar {
         return true;
       }
 
-      const x = Math.floor(current % GRIDCOUNT.x);
-      const y = Math.floor(current / GRIDCOUNT.x);
+      const x = Math.floor(current % GRIDCOUNT_X);
+      const y = Math.floor(current / GRIDCOUNT_X);
       const okleft = x > 0;
-      const okright = x < GRIDCOUNT.x - 1;
+      const okright = x < GRIDCOUNT_X - 1;
       const okup = y > 0;
-      const okdown = y < GRIDCOUNT.y - 1;
+      const okdown = y < GRIDCOUNT_Y - 1;
       const left = okleft ? getCoordIndex2(x - 1, y) : -1;
       const right = okright ? getCoordIndex2(x + 1, y) : -1;
       const up = okup ? getCoordIndex2(x, y - 1) : -1;
@@ -220,15 +220,15 @@ export class AStar {
         if (neighbor < 0) {
           continue;
         }
-        const isSegment = !!(segments?.containsCoord(neighbor));
+        const isSegment = !!(segments?.existsAtCoord(neighbor));
         const isWall = !!(flags[neighbor] & FLAG_WALL);
         const isClosed = !!(flags[neighbor] & FLAG_CLOSED);
         const isVisited = !!(flags[neighbor] & FLAG_VISITED);
         if (isClosed || isWall || isSegment) {
           continue;
         }
-        const nx = Math.floor(neighbor % GRIDCOUNT.x);
-        const ny = Math.floor(neighbor / GRIDCOUNT.x);
+        const nx = Math.floor(neighbor % GRIDCOUNT_X);
+        const ny = Math.floor(neighbor / GRIDCOUNT_X);
         // calculate threat costs
         const distToClosestMine = mines?.getClosestTraversalDistance(nx, ny) ?? Infinity;
         const distToSnekHead = (() => {
@@ -332,9 +332,9 @@ export class AStar {
     const ANSI_YELLOW = "\x1b[33m";
     const ANSI_CYAN = "\x1b[36m";
     const ANSI_WHITE = "\x1b[37m";
-    for (let y = 0; y < GRIDCOUNT.y; y++) {
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
       let str = "";
-      for (let x = 0; x < GRIDCOUNT.x; x++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
         const coord = getCoordIndex2(x, y);
         const isWall = !!(this.flags[coord] & FLAG_WALL);
         const isSnekThreat = coord === this.snekCoord;

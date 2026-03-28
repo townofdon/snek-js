@@ -6,7 +6,8 @@ import {
   DIFFICULTY_MEDIUM,
   DIFFICULTY_ULTRA,
   FRAME_DUR_MS,
-  GRIDCOUNT,
+  GRIDCOUNT_X,
+  GRIDCOUNT_Y,
   INVINCIBILITY_EXPIRE_FLASH_MS,
   IS_DEV,
   PICKUP_EXPIRE_WARN_MS,
@@ -41,13 +42,13 @@ export function getCoordIndex(vec: Vector | undefined): number {
 }
 
 export function getCoordIndex2(x: number, y: number): number {
-  return clamp(Math.floor(x), 0, GRIDCOUNT.x - 1) + clamp(Math.floor(y), 0, GRIDCOUNT.y - 1) * GRIDCOUNT.x
+  return clamp(Math.floor(x), 0, GRIDCOUNT_X - 1) + clamp(Math.floor(y), 0, GRIDCOUNT_Y - 1) * GRIDCOUNT_X
 }
 
 export function coordToVec(coord: number): Vector {
   coord = Math.floor(coord);
-  const x = Math.floor(coord % GRIDCOUNT.x);
-  const y = Math.floor(coord / GRIDCOUNT.x);
+  const x = Math.floor(coord % GRIDCOUNT_X);
+  const y = Math.floor(coord / GRIDCOUNT_X);
   return new Vector(x, y);
 }
 
@@ -439,14 +440,14 @@ export const toDIR = (dir: string): DIR => {
 }
 
 export function isOutsideMap(location: Vector) {
-  return location.x < 0 || location.x >= GRIDCOUNT.x || location.y < 0 || location.y >= GRIDCOUNT.y;
+  return location.x < 0 || location.x >= GRIDCOUNT_X || location.y < 0 || location.y >= GRIDCOUNT_Y;
 }
 
 export function isAtMapEdge(x: number, y: number, distanceTolerance: number = 1) {
   return Math.abs(x) < distanceTolerance
-    || Math.abs(GRIDCOUNT.x - 1 - x) < distanceTolerance
+    || Math.abs(GRIDCOUNT_X - 1 - x) < distanceTolerance
     || Math.abs(y) < distanceTolerance
-    || Math.abs(GRIDCOUNT.y - 1 - y) < distanceTolerance
+    || Math.abs(GRIDCOUNT_Y - 1 - y) < distanceTolerance
 }
 
 export function hasNeighborEdgeDoor(dir: DIR, doorsMap: Record<number, any>, x: number, y: number, distanceTolerance: number = 1) {

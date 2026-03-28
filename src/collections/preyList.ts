@@ -1,7 +1,8 @@
-import { ANIMATIONS, GRIDCOUNT, PREY_LIFETIME, PREY_MOVE_TIME } from "../constants";
-import { AnimationData, Image, PreyType } from "../types";
-import { getCoordIndex2, shouldBlinkExpiringPickup } from "../utils";
-import { AStar } from "./astar";
+import { ANIMATIONS, GRIDCOUNT_X,
+GRIDCOUNT_Y, PREY_LIFETIME, PREY_MOVE_TIME } from "../constants";
+import { AnimationData, ICollection, Image, PreyType } from "../types";
+import { getCoordIndex2, getTraversalDistance, shouldBlinkExpiringPickup } from "../utils";
+import { AStar } from "../astar/astar";
 
 const MAX_NUM_PREY = 10;
 
@@ -10,7 +11,7 @@ interface PreyConstructorArgs {
   onLifetimeExpire?: (coord: number) => void
 }
 
-export class PreyList {
+export class PreyList implements ICollection {
   private type: PreyType[] = [];
   private coord: Uint16Array = new Uint16Array(MAX_NUM_PREY);
   private seed: Uint16Array = new Uint16Array(MAX_NUM_PREY);
@@ -107,6 +108,20 @@ export class PreyList {
     return idx >= 0 && idx < this._length;
   }
 
+  public getClosestTraversalDistance = (x: number, y: number): number => {
+    let min = Infinity;
+    for (let i = 0; i < this._length; i++) {
+      const coord = this.coord[i];
+      const px = Math.floor(coord % GRIDCOUNT_X);
+      const py = Math.floor(coord / GRIDCOUNT_X);
+      const dist = getTraversalDistance(x, y, px, py);
+      if (dist < min) {
+        min = dist;
+      }
+    }
+    return min;
+  }
+
   public add = (x: number, y: number, preyType: PreyType): boolean => {
     const coord = getCoordIndex2(x, y);
     if (this.existsAt(x, y)) {
@@ -193,8 +208,8 @@ export class PreyList {
 
   public getTypeByCoord = (coord: number) => {
     coord = Math.floor(coord);
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     return this.getType(x, y);
   }
 

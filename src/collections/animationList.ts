@@ -1,8 +1,10 @@
 import { Vector } from "p5";
-import { GRIDCOUNT, IS_DEV } from "../constants";
+import { GRIDCOUNT_X,
+GRIDCOUNT_Y, IS_DEV } from "../constants";
 import { getCoordIndex2, getTraversalDistance, shouldBlinkExpiringPickup } from "../utils";
+import { ICollection } from "../types";
 
-export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT.x * GRIDCOUNT.y;
+export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
 interface AnimationListConstructorOptions {
   onLifetimeExpire?: (coord: number) => void
@@ -15,7 +17,7 @@ interface AnimationListConstructorOptions {
  * Prevents garbage collection and buffs CPU perf.
  * Simple-to-use interface.
  */
-export class AnimationList {
+export class AnimationList implements ICollection {
   private x: Uint8Array;
   private y: Uint8Array;
   private free: Uint8Array;
@@ -70,8 +72,8 @@ export class AnimationList {
 
   public fillFromMap = (map: Record<number, boolean>, lifetime: number, frames: number, timePerFrame: number) => {
     this.reset();
-    for (let y = 0; y < GRIDCOUNT.y; y++) {
-      for (let x = 0; x < GRIDCOUNT.x; x++) {
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
         const coord = getCoordIndex2(x, y);
         if (map[coord]) {
           this.add(x, y, lifetime, frames, timePerFrame)
@@ -174,8 +176,8 @@ export class AnimationList {
 
   public removeByCoord = (coord: number) => {
     coord = Math.floor(coord);
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     this.remove(x, y);
   }
 
@@ -221,8 +223,8 @@ export class AnimationList {
 
   public existsAtCoord = (coord: number): boolean => {
     coord = Math.floor(coord);
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     return this.existsAt(x, y);
   }
 
@@ -236,8 +238,8 @@ export class AnimationList {
 
   public getElapsedByCoord = (coord: number): number => {
     coord = Math.floor(coord);
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     return this.getElapsed(x, y);
   }
 
@@ -286,8 +288,8 @@ export class AnimationList {
 
   public getTypeByCoord = (coord: number): number => {
     coord = Math.floor(coord);
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     return this.getType(x, y);
   }
 

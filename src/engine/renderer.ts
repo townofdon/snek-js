@@ -22,7 +22,8 @@ import {
   ACCENT_COLOR,
   BLOCK_SIZE,
   DIMENSIONS,
-  GRIDCOUNT,
+  GRIDCOUNT_X,
+  GRIDCOUNT_Y,
   HURT_STUN_TIME,
   INVALID_PORTAL_COLOR,
   MAP_OFFSET,
@@ -355,7 +356,7 @@ export class Renderer implements IRenderer {
     gfx.fill(color);
     // gfx.randomSeed(x + y * 500000);
     // gfx.fill(gfx.color(gfx.random(0, 255), gfx.random(0, 255), gfx.random(0, 255)));
-    // gfx.fill(gfx.lerpColor(gfx.color('black'), gfx.color('#fff'), ((x || 0.01) * (y || 0.01)) / (GRIDCOUNT.x * GRIDCOUNT.y)))
+    // gfx.fill(gfx.lerpColor(gfx.color('black'), gfx.color('#fff'), ((x || 0.01) * (y || 0.01)) / (GRIDCOUNT_X * GRIDCOUNT_Y)))
     gfx.noStroke();
     drawQuad(x0, y0, x1, y0, x1, y1, x0, y1);
   }
@@ -513,8 +514,8 @@ export class Renderer implements IRenderer {
         y: 4,
       },
       max: {
-        x: GRIDCOUNT.x - bannerWidth - 1,
-        y: GRIDCOUNT.y - bannerHeight - 1,
+        x: GRIDCOUNT_X - bannerWidth - 1,
+        y: GRIDCOUNT_Y - bannerHeight - 1,
       },
     }
     bannerPosition.x = clamp(bannerPosition.x, bounds.min.x, bounds.max.x);
@@ -761,8 +762,8 @@ export class Renderer implements IRenderer {
   }
 
   private fpsFrames: number[] = [];
-  drawFps = (showFpsFromQueryParams: boolean, gameLoopProcessingTime: number) => {
-    if (!SHOW_FPS && !showFpsFromQueryParams) return;
+  drawFps = (gameLoopProcessingTime: number) => {
+    if (!SHOW_FPS) return;
 
     this.drawPerf(gameLoopProcessingTime);
     const textX = BLOCK_SIZE.x * (25);

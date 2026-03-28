@@ -963,6 +963,12 @@ export interface PickupDrop {
   type: ItemDropType,
 }
 
+export interface ICollection {
+  existsAt: (x: number, y: number) => boolean,
+  existsAtCoord: (coord: number) => boolean,
+  getClosestTraversalDistance: (x: number, y: number) => number,
+}
+
 export enum SNEKALYTICS_EVENT_TYPE {
   DEATH = 'DEATH',
   WARP = 'WARP',

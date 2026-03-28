@@ -1,7 +1,7 @@
 import assert from "assert";
 
-import { AStar, ASTAR_GRID_SIZE } from '../../collections/astar'
-import { GRIDCOUNT } from "../../constants";
+import { AStar, ASTAR_GRID_SIZE } from '../../astar/astar'
+import { GRIDCOUNT_X } from "../../constants";
 import { getCoordIndex2 } from "../../utils";
 import { AnimationList } from "../../collections/animationList";
 
@@ -9,8 +9,8 @@ const DEBUG = process.env.DEBUG;
 
 const humanify = (path: number[]): string[] => {
   return path.map(coord => {
-    const x = Math.floor(coord % GRIDCOUNT.x);
-    const y = Math.floor(coord / GRIDCOUNT.x);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
     return `[${x},${y}]`
   })
 }
@@ -351,8 +351,8 @@ describe("Collections", () => {
         assert(result);
         const path = astar.test__getPath();
         path.forEach((coord, idx) => {
-          const x = Math.floor(coord % GRIDCOUNT.x);
-          const y = Math.floor(coord / GRIDCOUNT.x);
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
           assert(!mines.existsAtCoord(coord), `mine exists at coord(${x}, ${y})! path_index=${idx}`);
         });
       });
@@ -399,8 +399,8 @@ describe("Collections", () => {
         assert(result);
         const path = astar.test__getPath();
         path.forEach((coord, idx) => {
-          const x = Math.floor(coord % GRIDCOUNT.x);
-          const y = Math.floor(coord / GRIDCOUNT.x);
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
           assert(!mines.existsAtCoord(coord), `mine exists at coord(${x}, ${y})! path_index=${idx}`);
         });
       });
@@ -449,8 +449,8 @@ describe("Collections", () => {
         assert(result);
         const path = astar.test__getPath();
         path.forEach((coord, idx) => {
-          const x = Math.floor(coord % GRIDCOUNT.x);
-          const y = Math.floor(coord / GRIDCOUNT.x);
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
           assert(!mines.existsAtCoord(coord), `mine exists at coord(${x}, ${y})! path_index=${idx}`);
         });
         assert(!path.includes(snek), `snek exists at coord(15, 15)!`);

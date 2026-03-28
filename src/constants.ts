@@ -33,15 +33,16 @@ export const FRAME_DUR_MS = (1 / FRAMERATE) * 1000;
  * BLOCK SIZE IS TYPICALLY 20x20
  */
 export const DIMENSIONS = IS_EDITOR ? { x: 600, y: 600 } as const : { x: 1200, y: 1200 } as const;
-export const GRIDCOUNT = { x: 30, y: 30 } as const;
+export const GRIDCOUNT_X = 30;
+export const GRIDCOUNT_Y = 30;
 export const STROKE_SIZE = IS_EDITOR ? 4 : 8;
-export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT.x, y: DIMENSIONS.y / GRIDCOUNT.y } as const;
+export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT_X, y: DIMENSIONS.y / GRIDCOUNT_Y } as const;
 export const MAP_OFFSET = IS_EDITOR ? 2 : 4;
 
 export const MAX_MOVES_GAMEPAD = 8;
 export const MAX_MOVES = 4;
 export const MAX_LIVES = 3;
-export const MAX_SNAKE_SIZE = GRIDCOUNT.x * GRIDCOUNT.y * 0.40;
+export const MAX_SNAKE_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y * 0.40;
 export const START_SNAKE_SIZE = 3;
 export const SPEED_INCREMENT_SPEED_MS = 600;
 export const SPRINT_INCREMENT_SPEED_MS = 250;

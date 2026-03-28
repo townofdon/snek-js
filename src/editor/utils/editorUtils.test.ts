@@ -9,7 +9,7 @@ import { BarrierType, DIR, EditorData, EditorOptions, KeyChannel, Level, LevelTy
 import { coordToVec, getCoordIndex2 } from "../../utils";
 
 import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "./editorUtils"
-import { CAMPAIGN_TRACKS, GRIDCOUNT, SLIME_CONTROL_TRACKS } from "../../constants";
+import { CAMPAIGN_TRACKS, GRIDCOUNT_X, GRIDCOUNT_Y, SLIME_CONTROL_TRACKS } from "../../constants";
 import { PALETTE } from "../../palettes";
 import { EDITOR_DEFAULTS } from "../editorConstants";
 
@@ -423,8 +423,8 @@ describe('editorUtils', () => {
             playerSpawnPosition: new Vector(0, 0),
             startDirection: DIR.RIGHT,
           };
-          for (let y = 0; y < GRIDCOUNT.y; y++) {
-            for (let x = 0; x < GRIDCOUNT.x; x++) {
+          for (let y = 0; y < GRIDCOUNT_Y; y++) {
+            for (let x = 0; x < GRIDCOUNT_X; x++) {
               const coord = getCoordIndex2(x, y);
               if (levelData.portalsMap[coord]) {
                 data.portalsMap[coord] = levelData.portalsMap[coord].channel;

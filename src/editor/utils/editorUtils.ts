@@ -5,7 +5,7 @@ import JSONCrush from './JSONCrush/JSONCrush';
 
 import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, ItemDropType, PortalChannel, PortalExitMode } from '../../types'
 import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../../utils';
-import { GRIDCOUNT, START_SNAKE_SIZE } from '../../constants';
+import { GRIDCOUNT_X, GRIDCOUNT_Y, START_SNAKE_SIZE } from '../../constants';
 import { bton, ntob } from './Base64';
 import { buildLevel } from '../../levels/levelBuilder';
 import { LEVEL_01 } from '../../levels/campaign/level01';
@@ -191,8 +191,8 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     playerSpawnPosition: playerSpawnPosition ?? levelData.playerSpawnPosition,
     startDirection,
   }
-  for (let y = 0; y < GRIDCOUNT.y; y++) {
-    for (let x = 0; x < GRIDCOUNT.x; x++) {
+  for (let y = 0; y < GRIDCOUNT_Y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
       const coord = getCoordIndex2(x, y);
       if (levelData.portalsMap[coord]) {
         data.portalsMap[coord] = levelData.portalsMap[coord].channel;
@@ -273,8 +273,8 @@ export function bitmaskToVectors(encoded: string): Vector[] {
     }
   }
   const vectors: Vector[] = []
-  for (let y = 0; y < GRIDCOUNT.y; y++) {
-    for (let x = 0; x < GRIDCOUNT.x; x++) {
+  for (let y = 0; y < GRIDCOUNT_Y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
       if (bitmasks[y] && (bitmasks[y] & (1 << x))) {
         vectors.push(new Vector(x, y));
       }
@@ -377,8 +377,8 @@ export function buildMapLayout(data: EditorData): string {
     }
     return ' ';
   }
-  for (let y = 0; y < GRIDCOUNT.y; y++) {
-    for (let x = 0; x < GRIDCOUNT.x; x++) {
+  for (let y = 0; y < GRIDCOUNT_Y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
       const coord = getCoordIndex2(x, y);
       chars.push(getCharFromCoord(coord));
     }
@@ -393,8 +393,8 @@ export function printLayout(layout: string) {
 
 export function getMapSliceWithDefaults<T>(mapSlice: Record<number, T>, defaultVal: T | undefined = undefined) {
   const newSlice: Record<number, T> = {};
-  for (let y = 0; y < GRIDCOUNT.y; y++) {
-    for (let x = 0; x < GRIDCOUNT.x; x++) {
+  for (let y = 0; y < GRIDCOUNT_Y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
       const coord = getCoordIndex2(x, y);
       if (mapSlice[coord] === null || mapSlice[coord] === undefined) {
         newSlice[coord] = defaultVal;

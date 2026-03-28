@@ -1,5 +1,5 @@
 import P5, { Vector } from "p5";
-import { DEFAULT_PORTALS, GRIDCOUNT } from "../constants";
+import { DEFAULT_PORTALS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { BarrierType, Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./campaign/level01";
@@ -64,7 +64,7 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
     const rowStr = layoutRows[y];
 
     for (let x = 0; x < rowStr.length; x++) {
-      if (x >= GRIDCOUNT.x) { console.warn("level layout is too wide"); break; }
+      if (x >= GRIDCOUNT_X) { console.warn("level layout is too wide"); break; }
 
       const char = rowStr.charAt(x);
       if (char === ' ') {
@@ -232,7 +232,7 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
           break;
       }
     }
-    if (y >= GRIDCOUNT.y) { console.warn("level layout is too tall"); break; }
+    if (y >= GRIDCOUNT_Y) { console.warn("level layout is too tall"); break; }
   }
 
   if (isEditor) {
@@ -311,7 +311,7 @@ function addPortal(data: LevelData, vec: Vector, char: string, portalGroupIndex:
         if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
       }
       // down
-      if (vec.y < GRIDCOUNT.y) {
+      if (vec.y < GRIDCOUNT_Y) {
         const other = data.portalsMap[getCoordIndex(vec.copy().add(0, 1))];
         if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
       }
@@ -321,7 +321,7 @@ function addPortal(data: LevelData, vec: Vector, char: string, portalGroupIndex:
         if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
       }
       // down
-      if (vec.x < GRIDCOUNT.x) {
+      if (vec.x < GRIDCOUNT_X) {
         const other = data.portalsMap[getCoordIndex(vec.copy().add(1, 0))];
         if (other && other.channel === channel && !checkDiffMoreThanOne(other)) return other;
       }

@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useRef } from "react";
 import cx from 'classnames';
 
-import { GRIDCOUNT } from "../constants";
+import { GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { Tile } from "./editorTypes";
 import { EditorData, EditorOptions } from "../types";
 import { getCoordIndex2 } from "../utils";
@@ -89,8 +89,8 @@ export const EditorCanvas = ({
 
   const preSpawnedAppleCount = (() => {
     let count = 0;
-    for (let y = 0; y < GRIDCOUNT.y; y++) {
-      for (let x = 0; x < GRIDCOUNT.x; x++) {
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
         const coord = getCoordIndex2(x, y);
         if (data.applesMap[coord]) count++;
       }

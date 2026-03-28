@@ -1,6 +1,15 @@
 import P5, { Vector } from 'p5';
 
-import { ANIMATIONS, BLOCK_SIZE, DIMENSIONS, GRIDCOUNT, INVINCIBILITY_COLOR_CYCLE_MS, NUM_SNAKE_INVINCIBLE_COLORS, SNAKE_INVINCIBLE_COLORS } from '../constants';
+import {
+  ANIMATIONS,
+  BLOCK_SIZE,
+  DIMENSIONS,
+  GRIDCOUNT_X,
+  GRIDCOUNT_Y,
+  INVINCIBILITY_COLOR_CYCLE_MS,
+  NUM_SNAKE_INVINCIBLE_COLORS,
+  SNAKE_INVINCIBLE_COLORS,
+} from "../constants";
 import {
   AppMode,
   DIR,
@@ -122,8 +131,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
   }
   const setData = (incoming: EditorData): void => {
     const getIsDiff = (key: keyof EditorData): boolean => {
-      for (let y = 0; y < GRIDCOUNT.y; y++) {
-        for (let x = 0; x < GRIDCOUNT.x; x++) {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
           const coord = getCoordIndex2(x, y);
           // @ts-ignore
           if (data[key][coord] !== incoming[key][coord]) {
@@ -441,8 +450,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
       const snakeAlpha = 0.75;
 
-      for (let y = 0; y < GRIDCOUNT.y; y++) {
-        for (let x = 0; x < GRIDCOUNT.x; x++) {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
           const coord = getCoordIndex2(x, y);
 
           if (data.decoratives1Map[coord]) {
@@ -602,8 +611,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         8: 0,
         9: 0,
       }
-      for (let y = 0; y < GRIDCOUNT.y; y++) {
-        for (let x = 0; x < GRIDCOUNT.x; x++) {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
           const coord = getCoordIndex2(x, y);
           if (isValidPortalChannel(data.portalsMap[coord])) {
             const portalChannel = data.portalsMap[coord];
@@ -691,8 +700,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     function startPortalParticles() {
       portalParticleSystem.reset();
       portalVortexParticleSystem.reset();
-      for (let y = 0; y < GRIDCOUNT.y; y++) {
-        for (let x = 0; x < GRIDCOUNT.x; x++) {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
           const coord = getCoordIndex2(x, y);
           const portalChannel = data.portalsMap[coord];
           if (isValidPortalChannel(portalChannel)) {
@@ -716,8 +725,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         8: [],
         9: [],
       };
-      for (let y = 0; y < GRIDCOUNT.y; y++) {
-        for (let x = 0; x < GRIDCOUNT.x; x++) {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
           const coord = getCoordIndex2(x, y);
           const portalChannel = data.portalsMap[coord];
           if (isValidPortalChannel(portalChannel)) {
