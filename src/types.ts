@@ -943,6 +943,7 @@ export enum PreyType {
   Grub,
   FieldMouse,
   Cockroach,
+  Grasshopper,
 }
 
 export interface PreySpawn {

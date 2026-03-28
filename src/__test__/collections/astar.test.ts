@@ -521,7 +521,7 @@ describe("Collections", () => {
           }
         }
         const executor = (i: number) => {
-          const result = astar.fleeFrom(15, 15);
+          const result = astar.fleeFrom(15, 15, performance.now() % 1000);
           if (DEBUG && (i % 500 === 0) || !result) astar.debugPrint();
           assert(result);
         };

@@ -1,3 +1,5 @@
+import alea from '../lib/rng-alea';
+
 import { GRIDCOUNT, IS_DEV } from "../constants";
 import { getCoordIndex2, getTraversalDistance } from "../utils";
 import { AnimationList } from "./animationList";
@@ -95,14 +97,12 @@ export class AStar {
     this.pathLength = 0;
     this.closest = -1;
     this.snekCoord = -1;
-    if (this.options.randomizeWeights) {
-      this.randomizeWeights();
-    }
   }
 
-  public randomizeWeights() {
+  private randomizeWeights(seed: number) {
+    const rng = alea(seed);
     for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
-      this.weights[i] = (Math.random() + 0.5);
+      this.weights[i] = (rng() + 0.5);
     }
   }
 
@@ -131,17 +131,17 @@ export class AStar {
     return fromCoord;
   }
 
-  public fleeFromCoord(coord: number) {
+  public fleeFromCoord(coord: number, seed = 0, farsighted = false) {
     const x = Math.floor(coord % GRIDCOUNT.x);
     const y = Math.floor(coord / GRIDCOUNT.x);
-    return this.search(x, y, -1, -1);
+    return this.search(x, y, -1, -1, seed, farsighted);
   }
 
-  public fleeFrom(x: number, y: number) {
-    return this.search(x, y, -1, -1);
+  public fleeFrom(x: number, y: number, seed = 0, farsighted = false) {
+    return this.search(x, y, -1, -1, seed, farsighted);
   }
 
-  public search(startx: number, starty: number, endx: number, endy: number): boolean {
+  public search(startx: number, starty: number, endx: number, endy: number, seed = 0, farsighted = false): boolean {
     // flee mode
     const flee = endx === -1 && endy === -1;
     const allowClosest = this.options.allowClosest;
@@ -157,6 +157,10 @@ export class AStar {
     }
     this.openListLength = 0;
     this.closest = -1;
+
+    if (this.options.randomizeWeights) {
+      this.randomizeWeights(seed);
+    }
 
     const snekx = Math.floor(this.snekCoord % GRIDCOUNT.x);
     const sneky = Math.floor(this.snekCoord / GRIDCOUNT.x);
@@ -239,7 +243,7 @@ export class AStar {
           : 0;
         const threatCostSnek = distToSnekHead <= 5
           ? (THREAT_COST_SNEK / (distToSnekHead + 1)) || 0
-          : 0;
+          : (farsighted ? (1.5 / (distToSnekHead + 1)) || 0 : 0);
         const threatCost = Math.max(
           threatCostMine,
           threatCostSnek,
@@ -310,6 +314,7 @@ export class AStar {
         [this.openList, this.gScore, "openList, gScore"],
         [this.openList, this.hScore, "openList, hScore"],
         [this.openList, this.path, "openList, path"],
+        [this.openList, this.weights, "openList, weights"],
       ];
       tests.forEach(([a, b, text]) => {
         if (a.length !== b.length) {

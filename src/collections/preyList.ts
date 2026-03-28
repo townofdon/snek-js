@@ -13,6 +13,8 @@ interface PreyConstructorArgs {
 export class PreyList {
   private type: PreyType[] = [];
   private coord: Uint16Array = new Uint16Array(MAX_NUM_PREY);
+  private seed: Uint16Array = new Uint16Array(MAX_NUM_PREY);
+  private numMoves: Uint16Array = new Uint16Array(MAX_NUM_PREY);
   private timeUntilNextMove: Float32Array = new Float32Array(MAX_NUM_PREY);
   private lifetime: Float32Array = new Float32Array(MAX_NUM_PREY);
   private elapsed: Float32Array = new Float32Array(MAX_NUM_PREY);
@@ -41,6 +43,8 @@ export class PreyList {
       this.timeUntilNextMove[i] = 0;
       this.lifetime[i] = 0;
       this.elapsed[i] = 0;
+      this.seed[i] = 0;
+      this.numMoves[i] = 0;
     }
     this._length = 0;
   }
@@ -58,8 +62,19 @@ export class PreyList {
       // handle prey movement
       if (this.timeUntilNextMove[i] <= 0) {
         this.timeUntilNextMove[i] = PREY_MOVE_TIME;
-        astar.fleeFromCoord(this.coord[i]);
+        const type = this.type[i];
+        const farsighted = type >= PreyType.Cockroach;
+        // avoid settling into a local minimum
+        if (this.numMoves[i] % 10 === 0) {
+          this.seed[i] = this.getSeed();
+        }
+        astar.fleeFromCoord(this.coord[i], this.seed[i], farsighted);
         this.coord[i] = astar.getNextPathCoord(this.coord[i]);
+        if (type === PreyType.Grasshopper) {
+          // move a second time
+          this.coord[i] = astar.getNextPathCoord(this.coord[i]);
+        }
+        this.numMoves[i] += 1;
         didChange = true;
       };
       // determine did animation frame change
@@ -105,9 +120,14 @@ export class PreyList {
     this.timeUntilNextMove[this._length] = PREY_MOVE_TIME;
     this.lifetime[this._length] = PREY_LIFETIME;
     this.elapsed[this._length] = 0;
+    this.seed[this._length] = this.getSeed();
+    this.numMoves[this._length] = 0;
     this._length++;
-    this.astar.randomizeWeights();
     return true;
+  }
+
+  private getSeed() {
+    return Math.floor(Date.now() % 10000);
   }
 
   public removeByCoord = (coord: number) => {
@@ -131,12 +151,16 @@ export class PreyList {
       this.timeUntilNextMove[i] = this.timeUntilNextMove[i + 1];
       this.lifetime[i] = this.lifetime[i + 1];
       this.elapsed[i] = this.elapsed[i + 1];
+      this.seed[i] = this.seed[i + 1];
+      this.numMoves[i] = this.numMoves[i + 1];
     }
     this.type[this._length - 1] = PreyType.None;
     this.coord[this._length - 1] = 0;
     this.timeUntilNextMove[this._length - 1] = 0;
     this.lifetime[this._length - 1] = 0;
     this.elapsed[this._length - 1] = 0;
+    this.seed[this._length - 1] = 0;
+    this.numMoves[this._length - 1] = 0;
     this._length--;
   }
 
