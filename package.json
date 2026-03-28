@@ -8,11 +8,11 @@
     "dev": "http-server ./dist -p 3000 -c-1",
     "serve-prod": "http-server ./dist-prod -p 3000 -c-1",
     "test": "NODE_ENV=test mocha --require mochaSetup.cjs",
-    "build": "webpack --mode=production --node-env=production",
-    "build-dev": "webpack --mode=development --node-env=development",
+    "build": "NODE_ENV=production webpack --mode=production --config-node-env=production",
+    "build-dev": "NODE_ENV=development webpack --mode=development --config-node-env=development",
     "deploy": "npm run build && cd bin && ./deploy.sh",
     "deploy-gh-pages": "git subtree push --prefix dist/snek-js origin gh-pages",
-    "watch": "webpack --watch --node-env=development"
+    "watch": "NODE_ENV=development webpack --watch --config-node-env=development"
   },
   "browser": {
     "crypto": false
@@ -74,7 +74,7 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.2.2",
     "typescript-plugin-css-modules": "^5.1.0",
-    "webpack": "^5.88.2",
-    "webpack-cli": "^5.1.4"
+    "webpack": "^5.105.4",
+    "webpack-cli": "^7.0.2"
   }
 }
