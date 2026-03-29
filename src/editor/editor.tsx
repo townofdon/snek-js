@@ -594,7 +594,6 @@ export const Editor = () => {
     { id: "3", value: "3", label: "Hard" },
     { id: "4", value: "4", label: "Ultra" },
   ] satisfies Option[]
-  const selectedDifficultyOption = difficultyOptions.find(option => option.value === String(difficulty)) || difficultyOptions[1];
 
   return (
     <div className={cx(styles.layout)}>
@@ -619,7 +618,8 @@ export const Editor = () => {
           <DropdownField
             // label="Preview Difficulty"
             options={difficultyOptions}
-            value={selectedDifficultyOption}
+            value={String(difficulty)}
+            defaultValue="2" // easy
             onChange={(option: Option) => setDifficulty(parseInt(option.value, 10) as DifficultyIndex)}
           />
         </Stack>

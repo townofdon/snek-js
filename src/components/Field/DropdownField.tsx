@@ -15,24 +15,27 @@ export interface Option {
 interface DropdownFieldProps {
   label?: string;
   options: Option[];
-  value: Option;
+  value: string,
   onChange: (val: Option) => void;
+  defaultValue?: string,
   placeholder?: string
 }
 
-export const DropdownField = ({ label, options, value, onChange, placeholder = "Select an option" }: DropdownFieldProps) => {
+export const DropdownField = ({ label, options, value, onChange, placeholder = "Select an option", defaultValue }: DropdownFieldProps) => {
   const select = useRef(null);
 
   const handleChange = (option: OnChangeValue<Option, false>, actionMeta: ActionMeta<Option>) => {
     onChange(option);
   }
 
+  const selectedOption = options.find(option => option.value === value) || options.find(option => option.value === defaultValue);
+
   const dropdown = (
     <Select
       ref={select}
       options={options}
       onChange={handleChange}
-      value={value}
+      value={selectedOption}
       placeholder={placeholder}
       classNamePrefix="react-select"
       menuShouldScrollIntoView

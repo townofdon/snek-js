@@ -1,12 +1,13 @@
 import React, { useEffect, useLayoutEffect, useRef } from "react";
 
+import { TesterData } from "./testerTypes";
 import { testerSketch, TesterSketchReturn } from "./testerSketch";
 import { Grid } from "@/components/Grid";
 
 import * as styles from "./astar-tester.css";
 
 interface TesterCanvasProps {
-  data: object;
+  data: TesterData;
   mouseAt: number;
   handleMouseMove: React.MouseEventHandler<HTMLDivElement>;
   handleMouseLeave: React.MouseEventHandler<HTMLDivElement>;
@@ -32,11 +33,11 @@ export const TesterCanvas = ({
     }
   }, [container.current]);
 
-  // useLayoutEffect(() => {
-  //   if (sketch.current) {
-  //     sketch.current.setData(data);
-  //   }
-  // }, [data]);
+  useLayoutEffect(() => {
+    if (sketch.current) {
+      sketch.current.setData(data);
+    }
+  }, [data]);
 
   useLayoutEffect(() => {
     if (sketch.current) {

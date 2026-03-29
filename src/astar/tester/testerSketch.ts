@@ -19,27 +19,16 @@ import { SpriteRenderer } from '@/engine/spriteRenderer';
 import { Renderer } from '@/engine/renderer';
 import { Fonts } from '@/fonts';
 import { PALETTE, getExtendedPalette } from '@/palettes';
-import { coordToVec, getCoordIndex2, getRotationFromDirection, toPreyType } from '@/utils';
+import { coordToVec, getCoordIndex2, getRotationFromDirection } from '@/utils';
 import { SKETCH_DEFAULTS } from '@/editor/editorConstants';
+import { TesterData } from './testerTypes';
 
-export interface TesterState {
+interface SketchState {
   dirty: boolean,
   colorsDirty: boolean,
   mouseAt: number,
   selected: number,
 }
-
-export interface TesterData {
-  agents: Record<number, PreyType>,
-  walls: Record<number, boolean>,
-  mines: Record<number, boolean>,
-  playerPosition: Vector,
-}
-
-// export interface TesterOptions {
-//   numAgents: number,
-//   preyType: PreyType,
-// }
 
 export interface TesterSketchReturn {
   setMouseAt: (coord: number) => void,
@@ -48,34 +37,17 @@ export interface TesterSketchReturn {
 }
 
 export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): TesterSketchReturn => {
-  const state: TesterState = {
+  const state: SketchState = {
     dirty: true,
     colorsDirty: true,
     mouseAt: -1,
     selected: 463,
-  } satisfies TesterState;
+  } satisfies SketchState;
   const data: TesterData = {
-    agents: {
-      63: 1,
-      123: 2,
-      183: 3,
-      243: 4,
-      // 273: 5,
-    },
-    walls: {
-      0: true,
-      30: true,
-      60: true,
-      29: true,
-      59: true,
-      89: true,
-    },
-    mines: {
-      73: true,
-      104: true,
-      135: true,
-    },
-    playerPosition: new Vector(15, 15),
+    agents: {},
+    walls: {},
+    mines: {},
+    playerPosition: new Vector(-1, -1),
   } satisfies TesterData;
 
   const setMouseAt = (incoming: number): void => {
@@ -98,6 +70,7 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
       switch (key) {
         case 'agents':
         case 'walls':
+        case 'mines':
           if (getIsDiff(key)) {
             // @ts-ignore
             data[key] = { ...incoming[key] };

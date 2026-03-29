@@ -338,8 +338,24 @@ export function toRarity(num: number): PickupRarity {
 
 export function toPreyType(num: number): PreyType {
   if (num <= 0) return PreyType.None;
-  if (num >= PreyType.Grasshopper) return PreyType.None;
+  if (num > PreyType.Grasshopper) return PreyType.None;
   return num as PreyType;
+}
+
+export function readablePreyType(preyType: PreyType): string {
+  switch (preyType) {
+    case PreyType.Grub:
+      return "Grub";
+    case PreyType.FieldMouse:
+      return "Mouse";
+    case PreyType.Cockroach:
+      return "Roach";
+    case PreyType.Grasshopper:
+      return "Grasshopper";
+    case PreyType.None:
+    default:
+      return "None"
+  }
 }
 
 export function getDropLikelihood(

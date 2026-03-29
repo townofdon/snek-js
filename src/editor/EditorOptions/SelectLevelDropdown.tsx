@@ -38,15 +38,14 @@ export const SelectLevelDropdown = ({ loadLevel }: SelectLevelDropdownProps) => 
     label: level.name,
   })
   const levelOptions: Option[] = levelsToInclude.map(toOption);
-  const selectedOption = levelOptions.find(option => option.value === selectedLevel.name) || toOption(selectedLevel);
-
 
   return (
     <Stack justify="start">
       <DropdownField
         label="Load Campaign Level"
         options={levelOptions}
-        value={selectedOption}
+        value={selectedLevel.name}
+        defaultValue={LEVEL_01.name}
         onChange={handleSetLevel}
       />
       <button className={styles.buttonLoadLevel} onClick={handleLoadLevel}>Load</button>

@@ -4,7 +4,7 @@ import { AnimationData, ICollection, Image, PreyType } from "../types";
 import { getCoordIndex2, getTraversalDistance, shouldBlinkExpiringPickup } from "../utils";
 import { AStar } from "../astar/astar";
 
-const MAX_NUM_PREY = 10;
+export const MAX_NUM_PREY = 10;
 
 interface PreyConstructorArgs {
   astar: AStar,

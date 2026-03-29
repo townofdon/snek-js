@@ -1,4 +1,8 @@
 
+hr {
+  width: 100%;
+}
+
 .layout {
   position: relative;
   display: flex;

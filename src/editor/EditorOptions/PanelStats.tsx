@@ -68,7 +68,6 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions, loadLevel }:
   });
 
   const musicTrackOptions = includedTracks.map(toOption);
-  const selectedOption = musicTrackOptions.find(option => option.value === options.musicTrack) || toOption(options.musicTrack);
 
   const handleChangeTrack = (option: Option) => {
     const found = includedTracks.find(includedTrack => includedTrack === option.value as MusicTrack);
@@ -176,7 +175,8 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions, loadLevel }:
         <DropdownField
           label="Music Track"
           options={musicTrackOptions}
-          value={selectedOption}
+          value={options.musicTrack}
+          defaultValue={MusicTrack.None}
           onChange={handleChangeTrack}
         />
         {!isPlaying && (
