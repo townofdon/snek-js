@@ -21,7 +21,7 @@ export const Grid = ({ mouseAt, children }: GridProps) => {
           [styles.active]: active,
         })}
       >
-        { (index >= 1 && index <= 30) ? String(index).padStart(2, '0') : ' ' }
+        { (index >= 1 && index <= 30) ? String(index - 1).padStart(2, '0') : ' ' }
       </span>
     );
   }
@@ -29,19 +29,19 @@ export const Grid = ({ mouseAt, children }: GridProps) => {
   return (
     <div className={cx(styles.stack, styles.col, styles.alignStretch)}>
       <div>
-        {Array.from({ length: 32 }).map((val, index) => renderGridCell(index, true, vector?.x === index - 1))}
+        {Array.from({ length: 32 }).map((_, index) => renderGridCell(index, true, vector?.x === index - 1))}
       </div>
       <div className={cx(styles.stack, styles.row, styles.alignStretch)}>
         <div className={cx(styles.stack, styles.col)}>
-          {Array.from({ length: 30 }).map((val, index) => renderGridCell(index + 1, false, vector?.y === index))}
+          {Array.from({ length: 30 }).map((_, index) => renderGridCell(index + 1, false, vector?.y === index))}
         </div>
         {children}
         <div className={cx(styles.stack, styles.col)}>
-          {Array.from({ length: 30 }).map((val, index) => renderGridCell(index + 1, true, vector?.y === index))}
+          {Array.from({ length: 30 }).map((_, index) => renderGridCell(index + 1, true, vector?.y === index))}
         </div>
       </div>
       <div>
-        {Array.from({ length: 32 }).map((val, index) => renderGridCell(index, false, vector?.x === index - 1))}
+        {Array.from({ length: 32 }).map((_, index) => renderGridCell(index, false, vector?.x === index - 1))}
       </div>
     </div>
   );

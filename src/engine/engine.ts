@@ -2624,12 +2624,20 @@ export function engine({
         if (preyList.existsAtCoord(coord)) {
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
-          const elapsed = preyList.getElapsed(x, y);
           if (shouldBlinkExpiringPickup(preyList.getTimeRemaining(x, y))) {
             continue;
           }
-          // spriteRenderer.drawSpritesheetAnim3x3(gfxApples, Image.MineSheet, x, y, elapsed);
-          spriteRenderer.drawSprite3x3(gfxFGAction, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Burger] - 1);
+          // const elapsed = preyList.getElapsed(x, y);
+          const preyType = preyList.getTypeByCoord(coord);
+          switch (preyType) {
+            case PreyType.Grub:
+            case PreyType.FieldMouse:
+            case PreyType.Cockroach:
+            case PreyType.Grasshopper:
+              // spriteRenderer.drawSpritesheetAnim3x3(gfxApples, Image.MineSheet, x, y, elapsed);
+              spriteRenderer.drawSprite3x3(gfxFGAction, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Burger] - 1);
+              break;
+          }
         }
       }
     }

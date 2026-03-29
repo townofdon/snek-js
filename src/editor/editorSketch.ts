@@ -43,7 +43,7 @@ import { Renderer } from '../engine/renderer';
 import { Fonts } from '../fonts';
 import { PALETTE, getExtendedPalette } from '../palettes';
 import { coordToVec, getCoordIndex2, getRotationFromDirection, hasNeighborEdgeDoor, isAtMapEdge, isValidKeyChannel, isValidPortalChannel } from '../utils';
-import { EDITOR_DEFAULTS } from './editorConstants';
+import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
 import { createLightmap, drawLighting, initLighting, updateLighting } from '../engine/lighting';
 import { AnimationList } from '../collections/animationList';
 
@@ -249,72 +249,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
   }
 
   const sketch = (p5: P5) => {
-    const screenShake: ScreenShakeState = {
-      offset: new Vector(0, 0),
-      timeSinceStarted: 0,
-      timeSinceLastStep: 0,
-      magnitude: 0,
-      timeScale: 0
-    }
-    const replay: Replay = {
-      mode: ReplayMode.Disabled,
-      levelIndex: 0,
-      levelName: "",
-      difficulty: undefined,
-      applesToSpawn: [],
-      positions: undefined,
-      timeCaptureStarted: "",
-      shouldProceedToNextClip: false,
-      lastFrame: 0,
-    }
-    const tutorial: Tutorial = {
-      needsMoveControls: false,
-      needsRewindControls: false,
-    }
-    const gameState: GameState = {
-      appMode: AppMode.StartScreen,
-      gameMode: GameMode.Normal,
-      mapset: 0,
-      isRandomizer: false,
-      isPreloaded: false,
-      isGameStarted: false,
-      isGameStarting: false,
-      isPaused: false,
-      isMoving: false,
-      isSprinting: false,
-      isRewinding: false,
-      isLost: false,
-      isGameWon: false,
-      isDoorsOpen: false,
-      isExitingLevel: false,
-      isExited: false,
-      isShowingDeathColours: false,
-      hasKeyYellow: false,
-      hasKeyRed: false,
-      hasKeyBlue: false,
-      levelIndex: 0,
-      actualTimeElapsed: 0,
-      timeElapsed: 0,
-      timeSinceLastMove: 0,
-      timeSinceLastTeleport: 0,
-      timeSinceHurt: 0,
-      timeSinceHurtForgiveness: 0,
-      timeSinceLastInput: 0,
-      timeSinceInvincibleStart: 0,
-      timeSinceSpawnedPickup: 0,
-      hurtGraceTime: 0,
-      lives: 0,
-      collisions: 0,
-      targetSpeed: 0,
-      currentSpeed: 0,
-      steps: 0,
-      frameCount: 0,
-      numTeleports: 0,
-      lastHurtBy: HitType.Unknown,
-      nextLevel: undefined,
-      inputType: InputType.Keyboard,
-    }
-
+    const { gameState, replay, screenShake, tutorial } = SKETCH_DEFAULTS
     const gfx: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
     const graphicalComponents: EditorGraphicalComponents = {
       deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),

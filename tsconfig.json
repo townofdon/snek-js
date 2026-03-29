@@ -6,7 +6,7 @@
     },
     "outDir": "./dist/",
     "allowSyntheticDefaultImports": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "module": "NodeNext",
     "target": "esnext",
     "allowJs": true,

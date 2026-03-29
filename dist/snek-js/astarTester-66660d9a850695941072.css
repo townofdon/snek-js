@@ -1,0 +1,184 @@
+/*!*********************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/components/Stack/stack.css ***!
+  \*********************************************************************************************************************************************************************************/
+:root {
+  --stack-margin: 10px;
+}
+
+.stack--K2FRthj6KtaXewacSoqB {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &.noChildMargin--Vokh7laUrVZBGvpXyp7Z {
+    --stack-margin: 0px;
+  }
+  &.marginBottom--Dze_OMHHvnt0sD3HpCfG {
+    margin-bottom: 20px;
+  }
+  &.marginTop--yjunfVj5JYl5E4Gaw6Ua {
+    margin-top: 20px;
+  }
+  &.row--WR2xf0nyzzBKsOdSmtkd {
+    flex-direction: row;
+    & > * {
+      margin-left: var(--stack-margin);
+      margin-right: var(--stack-margin);
+    }
+    & > :first-child {
+      margin-left: 0;
+    }
+    & > :last-child {
+      margin-right: 0;
+    }
+  }
+  &.col--tquBptBmo3pIUF549lAP {
+    flex-direction: column;
+    & > * {
+      margin-top: var(--stack-margin);
+      margin-bottom: var(--stack-margin);
+    }
+    & > :first-child {
+      margin-top: 0;
+    }
+    & > :last-child {
+      margin-bottom: 0;
+    }
+  }
+  &.alignStart--oI2ztmJ3OmYWDNqErx00 {
+    align-items: flex-start;
+  }
+  &.alignEnd--z3dWiM2ndM9K9oavG2S8 {
+    align-items: flex-end;
+  }
+  &.alignStretch--jwy1U3tefluWMQ0Y4ngC {
+    align-items: stretch;
+  }
+  &.alignSpaceAround--kAmS69Wb8m8k7CPEZnmA {
+    align-items: space-around;
+  }
+  &.alignSpaceBetween--rWNVxQbTC2ddosprdwFr {
+    align-items: space-between;
+  }
+  &.justifyStart--AsmcmejNCW1iqROoMxaf {
+    justify-content: flex-start;
+  }
+  &.justifyEnd--CyKPdwGEJVpOBhW_eMFw {
+    justify-content: flex-end;
+  }
+  &.justifySpaceAround--Y8xZf3AL54mxeXjlRvPV {
+    justify-content: space-around;
+  }
+  &.justifySpaceBetween--w3KyKOhBpbsqjKy0hCWM {
+    justify-content: space-between;
+  }
+}
+/*!************************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/astar/tester/astar-tester.css ***!
+  \************************************************************************************************************************************************************************************/
+.layout--OhyMtXzenoYBJrlokebA {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+@media (max-width: 1199px) {
+  .layout--OhyMtXzenoYBJrlokebA {
+    & {
+      align-items: flex-start;
+    }
+  }
+}
+
+.container--ksWq3lRiJoRZVA5ilN_e {
+  max-width: 900px;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+@media (max-width: 1199px) {
+  .container--ksWq3lRiJoRZVA5ilN_e {
+    & {
+      min-width: calc(100vw - 60px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+.canvasContainer--DniRuNMzHDpBs__LruTw {
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: center;
+  justify-content: center;
+  min-width: 600px;
+  min-height: 600px;
+  font-family: "MiniMOOD", "VT323", monospace;
+  color: slategray;
+}
+
+.mainTitle--P6mQfP8ZGq9RdFzB4YLh {
+  font-family: "MiniMOOD", "VT323", monospace;
+  font-size: 2em;
+  padding-top: 15px;
+  text-shadow: -1px 4px #5a572e;
+  margin: 10px;
+  color: aqua;
+}
+/*!*******************************************************************************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[2].use[1]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[2].use[2]!./src/components/Grid/grid.css ***!
+  \*******************************************************************************************************************************************************************************/
+.stack--lfeYp1p3nDlTOkq4Usz8 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &.row--j4QFLQSTo58fyOUcPjDE {
+    flex-direction: row;
+  }
+  &.col--IfsDsGrxilXxLGdKUjIR {
+    flex-direction: column;
+  }
+  &.alignStart--pYfqBk4LMqYBHhxhX2_o {
+    align-items: flex-start;
+  }
+  &.alignEnd--gh2GZ8i0_mCdMCNierzQ {
+    align-items: flex-end;
+  }
+  &.alignStretch--j3g6yQkTlQ5JVA5c6p_r {
+    align-items: stretch;
+  }
+  &.justifyStart--d00qSnI9NbWJBOgPMuJt {
+    justify-content: flex-start;
+  }
+  &.justifyEnd--yK8YXulN_27Oy6JtbYdA {
+    justify-content: flex-end;
+  }
+}
+
+.gridCell--vfwjGdgODbFcxNhEXioD {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  box-sizing: border-box;
+  font-family: "BIOSfontII", "VT323", monospace;
+  font-size: 0.6em;
+  vertical-align: bottom;
+  background: var(--grid-bg-color-1);
+  color: slategray;
+  user-select: none;
+  &:nth-child(2n) {
+    background: var(--grid-bg-color-2);
+  }
+  &.invert--DEv2PTc5WNkLWuPzUozu {
+    background: var(--grid-bg-color-2);
+  }
+  &.invert--DEv2PTc5WNkLWuPzUozu:nth-child(2n) {
+    background: var(--grid-bg-color-1);
+  }
+  &.active--OOjGd_k4A32_308aMZgx, &.active--OOjGd_k4A32_308aMZgx:nth-child(2n) {
+    background: #eee;
+    color: #333;
+  }
+}

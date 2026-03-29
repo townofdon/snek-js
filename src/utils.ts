@@ -29,6 +29,7 @@ import {
   QueryParams,
   Stats,
   PickupRarity,
+  PreyType,
 } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
@@ -333,6 +334,12 @@ export function toRarity(num: number): PickupRarity {
   if (num <= 0) return PickupRarity.None;
   if (num > PickupRarity.Galactic) return PickupRarity.None;
   return num as PickupRarity;
+}
+
+export function toPreyType(num: number): PreyType {
+  if (num <= 0) return PreyType.None;
+  if (num >= PreyType.Grasshopper) return PreyType.None;
+  return num as PreyType;
 }
 
 export function getDropLikelihood(

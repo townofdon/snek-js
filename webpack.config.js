@@ -18,7 +18,7 @@ const config = {
     editor: './src/editor/index',
     preview: './src/preview/index',
     community: './src/community/index',
-    astarTester: './src/astar/index',
+    astarTester: './src/astar/tester/index',
   },
   output: {
     filename: '[name].bundle-[contenthash].js',
@@ -65,8 +65,8 @@ const config = {
     }),
     new HtmlWebpackPlugin({
       title: 'ASTAR TEST',
-      filename: 'astar-test/index.html',
-      template: './public/pages/astar-test/index.ejs',
+      filename: 'astar-tester/index.html',
+      template: './public/pages/astar-tester/index.ejs',
       inject: false,
     }),
     new HtmlWebpackPlugin({

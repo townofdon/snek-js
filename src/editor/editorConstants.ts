@@ -1,4 +1,21 @@
-import { DIR, EditorData, EditorOptions, MusicTrack, PortalExitMode } from '../types'
+import { Vector } from 'p5';
+import { DIFFICULTY_EASY } from '@/constants';
+import {
+  AppMode,
+  DIR,
+  EditorData,
+  EditorOptions,
+  GameMode,
+  GameState,
+  HitType,
+  InputType,
+  MusicTrack,
+  PortalExitMode,
+  Replay,
+  ReplayMode,
+  ScreenShakeState,
+  Tutorial,
+} from "../types";
 import { PALETTE } from '../palettes';
 import { buildLevel } from '../levels/levelBuilder';
 import { LEVEL_01 } from '../levels/campaign/level01';
@@ -50,3 +67,71 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
     musicTrack: MusicTrack.None
   },
 } as const;
+
+export const SKETCH_DEFAULTS = {
+  screenShake: {
+    offset: new Vector(0, 0),
+    timeSinceStarted: 0,
+    timeSinceLastStep: 0,
+    magnitude: 0,
+    timeScale: 0,
+  } satisfies ScreenShakeState,
+  replay: {
+    mode: ReplayMode.Disabled,
+    levelIndex: 0,
+    levelName: "",
+    difficulty: DIFFICULTY_EASY,
+    applesToSpawn: [] as [number, number][],
+    positions: {},
+    timeCaptureStarted: "",
+    shouldProceedToNextClip: false,
+    lastFrame: 0,
+  } satisfies Replay,
+  tutorial: {
+    needsMoveControls: false,
+    needsRewindControls: false,
+  } satisfies Tutorial,
+  gameState: {
+    appMode: AppMode.StartScreen,
+    gameMode: GameMode.Normal,
+    mapset: 0,
+    isRandomizer: false,
+    isPreloaded: false,
+    isGameStarted: false,
+    isGameStarting: false,
+    isPaused: false,
+    isMoving: false,
+    isSprinting: false,
+    isRewinding: false,
+    isLost: false,
+    isGameWon: false,
+    isDoorsOpen: false,
+    isExitingLevel: false,
+    isExited: false,
+    isShowingDeathColours: false,
+    hasKeyYellow: false,
+    hasKeyRed: false,
+    hasKeyBlue: false,
+    levelIndex: 0,
+    actualTimeElapsed: 0,
+    timeElapsed: 0,
+    timeSinceLastMove: 0,
+    timeSinceLastTeleport: 0,
+    timeSinceHurt: 0,
+    timeSinceHurtForgiveness: 0,
+    timeSinceLastInput: 0,
+    timeSinceInvincibleStart: 0,
+    timeSinceSpawnedPickup: 0,
+    hurtGraceTime: 0,
+    lives: 0,
+    collisions: 0,
+    targetSpeed: 0,
+    currentSpeed: 0,
+    steps: 0,
+    frameCount: 0,
+    numTeleports: 0,
+    lastHurtBy: HitType.Unknown,
+    nextLevel: null,
+    inputType: InputType.Keyboard,
+  } satisfies GameState,
+};
