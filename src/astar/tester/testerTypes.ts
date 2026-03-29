@@ -1,11 +1,17 @@
-import { Vector } from "p5";
 import { PreyType } from "@/types";
 
 export interface TesterData {
   agents: Record<number, PreyType>,
   walls: Record<number, boolean>,
   mines: Record<number, boolean>,
-  playerPosition: Vector,
+  playerPosition: number,
+}
+
+export interface StagedTesterData {
+  agent: PreyType,
+  wall: boolean,
+  mine: boolean,
+  player: boolean,
 }
 
 export interface TesterOptions {

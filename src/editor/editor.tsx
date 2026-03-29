@@ -56,7 +56,7 @@ import {
   SetRectanglePassableCommand,
   SetRectanglePortalCommand,
 } from "./commands";
-import { SpecialKey, findNumberPressed, getIsOutside, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
+import { MouseButton, SpecialKey, findNumberPressed, getIsOutside, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
 import { EditorCanvas } from "./EditorCanvas";
 import { EditorOptionsPanel } from "./EditorOptions";
 import { EditorTiles } from "./EditorTiles";
@@ -74,12 +74,6 @@ import * as styles from "./Editor.css";
 
 interface LocalState {
   isMouseInsideMap: boolean,
-}
-
-enum MouseButton {
-  Left = 0,
-  Middle = 1,
-  Right = 2,
 }
 
 export const Editor = () => {

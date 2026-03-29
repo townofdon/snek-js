@@ -18,6 +18,12 @@ export enum SpecialKey {
   ArrowRight = 'ArrowRight',
 }
 
+export enum MouseButton {
+  Left = 0,
+  Middle = 1,
+  Right = 2,
+}
+
 export function isNumberPressed(ev: KeyboardEvent, num: number, opts: KeyboardOptions = {}): boolean {
   if (!areOptionsSatisfied(ev, opts)) return false;
   return findNumberPressed(ev) === num;

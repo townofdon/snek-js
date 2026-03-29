@@ -1,5 +1,5 @@
 import { Vector } from "p5";
-import { TesterData, TesterOptions } from "./testerTypes";
+import { StagedTesterData, TesterData, TesterOptions } from "./testerTypes";
 import { PreyType } from "@/types";
 
 export const TESTER_INITIAL_DATA: TesterData = {
@@ -23,8 +23,15 @@ export const TESTER_INITIAL_DATA: TesterData = {
     104: true,
     135: true,
   },
-  playerPosition: new Vector(15, 15),
+  playerPosition: 465,
 } satisfies TesterData;
+
+export const TESTER_INITIAL_STAGED_DATA: StagedTesterData = {
+  agent: PreyType.None,
+  wall: false,
+  mine: false,
+  player: false,
+} satisfies StagedTesterData
 
 export const TESTER_INITIAL_OPTIONS: TesterOptions = {
   numAgents: 1,

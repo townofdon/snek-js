@@ -47,7 +47,7 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
     agents: {},
     walls: {},
     mines: {},
-    playerPosition: new Vector(-1, -1),
+    playerPosition: -1,
   } satisfies TesterData;
 
   const setMouseAt = (incoming: number): void => {
@@ -78,8 +78,8 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
           }
           break;
         case 'playerPosition':
-          if (!data[key].equals(incoming[key])) {
-            data[key].set(incoming[key]);
+          if (data[key] !== incoming[key]) {
+            data[key] = incoming[key];
             state.dirty = true;
           }
           break;
@@ -240,8 +240,10 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
         }
       }
 
-      renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.snakeHead, data.playerPosition.x, data.playerPosition.y, snakeAlpha);
-      spriteRenderer.drawImage3x3Static(gfx, Image.SnekHead, data.playerPosition.x, data.playerPosition.y, getRotationFromDirection(DIR.RIGHT), snakeAlpha);
+      const px = Math.floor(data.playerPosition % GRIDCOUNT_X);
+      const py = Math.floor(data.playerPosition / GRIDCOUNT_X);
+      renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.snakeHead, px, py, snakeAlpha);
+      spriteRenderer.drawImage3x3Static(gfx, Image.SnekHead, px, py, getRotationFromDirection(DIR.RIGHT), snakeAlpha);
 
       renderer.drawStaticGraphics(gfx);
 
