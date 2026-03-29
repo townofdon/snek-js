@@ -153,11 +153,12 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
       renderElements();
     }
 
+    const checkerboard01 = '#121619';
+    const checkerboard02 = '#232529';
+
     function cacheGraphicalComponents() {
       renderer.invalidateStaticCache();
       const colors = palette;
-      const colorOdd = '#111';
-      const colorEven = '#222';
       renderer.clearGraphicalComponent(graphicalComponents.barrier);
       renderer.drawSquareCustom(graphicalComponents.barrier, 1, 1, colors.barrier, colors.barrierStroke, drawBasicOptions);
       renderer.drawSquareBorderCustom(graphicalComponents.barrier, 1, 1, 'light', colors.barrierBorderLight, true);
@@ -184,10 +185,10 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
       renderer.drawSquareCustom(graphicalComponents.apple, 1, 1, colors.apple, colors.appleStroke, drawAppleOptions);
 
       renderer.clearGraphicalComponent(graphicalComponents.deco1);
-      renderer.drawSquareCustom(graphicalComponents.deco1, 1, 1, colorOdd, colorOdd, drawBasicOptions);
+      renderer.drawSquareCustom(graphicalComponents.deco1, 1, 1, checkerboard01, checkerboard01, drawBasicOptions);
 
       renderer.clearGraphicalComponent(graphicalComponents.deco2);
-      renderer.drawSquareCustom(graphicalComponents.deco2, 1, 1, colorEven, colorEven, drawBasicOptions);
+      renderer.drawSquareCustom(graphicalComponents.deco2, 1, 1, checkerboard02, checkerboard02, drawBasicOptions);
 
       renderer.clearGraphicalComponent(graphicalComponents.nospawn);
       renderer.drawXCustom(graphicalComponents.nospawn, 1, 1, PALETTE.atomic.apple);
@@ -197,6 +198,7 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
       p5.background(palette.background);
       if (!renderer.getIsStaticCached()) {
         gfx.clear(0, 0, 0, 0);
+        gfx.background(checkerboard01);
       }
 
       const snakeAlpha = 0.75;
@@ -207,7 +209,7 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
           // checkerboard
           if ((x + y) % 2 == 0) {
-            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.deco1, x, y);
+            // renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.deco1, x, y);
           } else {
             renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.deco2, x, y);
           }

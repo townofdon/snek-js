@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import cx from "classnames";
 
@@ -417,7 +417,7 @@ export const Editor = () => {
     return Operation.None;
   }
 
-  const handleMouseMove = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleMouseMove = useCallback((ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const x = Math.floor(clamp(ev.nativeEvent.offsetX, 0, DIMENSIONS.x - 1) / DIMENSIONS.x * GRIDCOUNT_X);
     const y = Math.floor(clamp(ev.nativeEvent.offsetY, 0, DIMENSIONS.y - 1) / DIMENSIONS.y * GRIDCOUNT_Y);
     const coord = getCoordIndex2(x, y);
@@ -428,14 +428,14 @@ export const Editor = () => {
       }
     }
     state.current.isMouseInsideMap = true;
-  };
+  }, []);
 
-  const handleMouseLeave = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleMouseLeave = useCallback((ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     setMouseAt(-1);
     state.current.isMouseInsideMap = false;
-  };
+  }, []);
 
-  const handleMouseDown = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleMouseDown = useCallback((ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (isPreviewShowing) {
       setMousePressed(false);
       setTriggerOnRelease(false);
@@ -455,7 +455,7 @@ export const Editor = () => {
     if ([EditorTool.Pencil, EditorTool.Bucket, EditorTool.Eraser].includes(toolRef.current)) {
       updateMap();
     }
-  };
+  }, [isPreviewShowing]);
 
   const handleMouseUp = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const isValidRelease = mousePressedRef.current && state.current.isMouseInsideMap && triggerOnReleaseRef.current;

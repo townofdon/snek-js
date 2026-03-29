@@ -8,6 +8,7 @@ export interface TesterData {
 }
 
 export interface StagedTesterData {
+  originalPosition: number,
   agent: PreyType,
   wall: boolean,
   mine: boolean,
