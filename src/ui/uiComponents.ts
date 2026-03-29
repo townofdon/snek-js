@@ -1,8 +1,8 @@
 import { Element } from 'p5';
 import { UI } from "./ui";
 import { ACCENT_COLOR } from '../constants';
-import { GameMode, GameState } from '../types';
-import { getWarpLevelFromNum } from '../levels/levelUtils';
+import { GameMode, GameState, Level } from '../types';
+import { findLevelWarpIndex, getWarpLevelFromNum } from '../levels/levelUtils';
 import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from '../levels/levelConstants';
 
 interface GameOverCallbacks {
@@ -75,6 +75,7 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
     if (levelIndex < 0) levelIndex = CHALLENGE_LEVELS.indexOf(level);
     if (levelIndex < 0) levelIndex = SECRET_LEVELS.indexOf(level);
     const shouldShow = (() => {
+      if (levelNum === 9999) return true;
       if (hasWarpEnabledParam) return true;
       if (levelIndex < 0) return false;
       // if (levelProgress < levelIndex) return false;
@@ -82,7 +83,22 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
     })()
     if (shouldShow) {
       const tooltipText = level.name;
-      UI.drawButton(text, x, y, () => warpToLevel(levelNum), uiElements, { tooltipText }).addClass('focus-invert').id(id);
+      const warpFunc = levelNum === 9999
+        ? () => {
+          const levelName = prompt('Input level name');
+          let found: Level = null;
+          const iteratee = (lev: Level) => lev.name.toLowerCase() === levelName.toLowerCase();
+          if (!found) found = LEVELS.find(iteratee);
+          if (!found) found = CHALLENGE_LEVELS.find(iteratee);
+          if (!found) found = SECRET_LEVELS.find(iteratee);
+          if (found) {
+            warpToLevel(findLevelWarpIndex(found));
+          } else {
+            alert(`could not find level "${levelName}" :(`);
+          }
+        }
+        : () => warpToLevel(levelNum)
+      UI.drawButton(text, x, y, warpFunc, uiElements, { tooltipText }).addClass('focus-invert').id(id);
       anyWarpButtonsVisible = true;
     }
   }
@@ -164,6 +180,7 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
     warpButton("M1", x + 0.00000, yRow5, 150, 'pauseButtonWarpM1');
     warpButton("M2", x += offset, yRow5, 151, 'pauseButtonWarpM2');
     warpButton("M3", x += offset, yRow5, 152, 'pauseButtonWarpM3');
+    warpButton("??", x += offset, yRow5, 9999, 'pauseButtonWarp9999');
   }
 
   if (anyWarpButtonsVisible) {

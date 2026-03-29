@@ -148,6 +148,9 @@ export class UIBindings implements UIHandler {
       case PauseMenuElement.ButtonWarpM3:
         this.callbacks.onWarpToLevel(152);
         break;
+      case PauseMenuElement.ButtonWarpPrompt:
+        this.callbacks.onWarpToLevel(9999);
+        break;
       case PauseMenuElement.ButtonWarpX01:
         this.callbacks.onWarpToLevel(401);
         break;

@@ -7,13 +7,13 @@ import {
   LEVELS,
   FIRST_CHALLENGE_LEVEL,
   CHALLENGE_LEVELS,
+  SECRET_LEVELS,
 } from './levels/levelConstants';
 import {
   RECORD_REPLAY_STATE,
   FRAMERATE,
   DIMENSIONS,
   MAX_LIVES,
-  HURT_GRACE_TIME,
   DIFFICULTY_EASY,
   DISABLE_TRANSITIONS,
   DIFFICULTY_MEDIUM,
@@ -29,6 +29,7 @@ import {
   shuffleArray,
 } from './utils';
 import {
+  findLevelWarpIndex,
   getIsChallengeLevel,
   getNextRandomLevel,
   getWarpLevelFromNum,
@@ -56,6 +57,7 @@ import {
   SNEKALYTICS_EVENT_TYPE,
   Mapset,
   InputType,
+  Level,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -758,6 +760,20 @@ export const sketch = (p5: P5) => {
 
   function warpToLevel(levelNum = 1) {
     if (getIsStartLevel() || state.gameMode === GameMode.Cobra) return;
+    if (levelNum === 9999) {
+      const levelName = prompt('Input level name');
+      let found: Level = null;
+      const iteratee = (lev: Level) => lev.name.toLowerCase() === levelName.toLowerCase();
+      if (!found) found = LEVELS.find(iteratee);
+      if (!found) found = CHALLENGE_LEVELS.find(iteratee);
+      if (!found) found = SECRET_LEVELS.find(iteratee);
+      if (found) {
+        levelNum = findLevelWarpIndex(found);
+      } else {
+        alert(`could not find level "${levelName}" :(`);
+        return;
+      }
+    }
     const fromLevel = getLevel();
     const toLevel = getWarpLevelFromNum(levelNum);
     recordSnekalyticsEvent({
