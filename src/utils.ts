@@ -30,6 +30,7 @@ import {
   Stats,
   PickupRarity,
   PreyType,
+  MOVE,
 } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
@@ -107,6 +108,28 @@ export function getDifficultyName(index: number) {
       return 'ULTRA';
     default:
       throw new Error(`Unexpected difficulty index: ${index}`)
+  }
+}
+
+export function moveToDir(move: MOVE): DIR | null {
+  switch (move) {
+    case MOVE.UP:
+      return DIR.UP;
+    case MOVE.DOWN:
+      return DIR.DOWN;
+    case MOVE.LEFT:
+      return DIR.LEFT;
+    case MOVE.RIGHT:
+      return DIR.RIGHT;
+    case MOVE.TURN_R:
+    case MOVE.TURN_L:
+    case MOVE.UTURN_R:
+    case MOVE.UTURN_L:
+    case MOVE.STRAFE_R:
+    case MOVE.STRAFE_L:
+    case MOVE.Nil:
+    default:
+      return null;
   }
 }
 

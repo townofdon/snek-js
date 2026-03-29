@@ -61,6 +61,7 @@ import {
   PICKUP_LEGENDARY_ITEMS,
   PICKUP_LEGENDARY_BONUS,
   PICKUP_GALACTIC_BONUS,
+  TIME_WAIT_BEFORE_REWIND,
 } from "../constants";
 import {
   Action,
@@ -508,7 +509,7 @@ export function engine({
     state.timeSinceHurt = Infinity;
     state.timeSinceHurtForgiveness = Infinity;
     state.timeSinceInvincibleStart = Infinity;
-    state.hurtGraceTime = HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0);
+    state.timeSinceGraceStarted = 0;
     state.lives = state.gameMode === GameMode.Cobra ? state.lives : MAX_LIVES;
     state.collisions = 0;
     screenShake.timeSinceStarted = Infinity;
@@ -954,7 +955,9 @@ export function engine({
     const timeFrameStart = performance.now();
 
     if (!gamepadInputHandled) {
-      const handled = applyGamepadMove(state, player.direction, player.directionToFirstSegment, moves, inputCallbacks, handleInputAction)
+      const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+      const isRewindAllowed = isInvincible || state.gameMode === GameMode.Casual || level === START_LEVEL || level === START_LEVEL_COBRA;
+      const handled = applyGamepadMove(state, player.direction, player.directionToFirstSegment, isRewindAllowed, moves, inputCallbacks, handleInputAction)
       if (handled) {
         state.inputType = InputType.Gamepad;
       }
@@ -1054,7 +1057,7 @@ export function engine({
       drawLighting(lightMap, renderer, gfxLighting);
     }
 
-    if (level.renderInstructions && !state.isDoorsOpen) {
+    if (level.renderInstructions) {
       level.renderInstructions(gfxPresentation, renderer, state, level.colors);
     }
     renderer.drawUIKeys(gfxPresentation);
@@ -1592,6 +1595,8 @@ export function engine({
     if (state.isExited) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     state.timeSinceLastMove = 0;
+    const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    const isRewindAllowed = isInvincible || state.gameMode === GameMode.Casual || level === START_LEVEL || level === START_LEVEL_COBRA;
     const prevDirection = player.direction;
     if (moves.length > 0 && !state.isExitingLevel) {
       const move = moves.shift();
@@ -1608,13 +1613,15 @@ export function engine({
 
     // determine if next move will be into something, allow for grace period before injuring snakey
     const willHitSomething = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
-    if (willHitSomething && state.hurtGraceTime > 0) {
-      state.hurtGraceTime -= loopState.deltaTime;
+    const hurtGraceTime = Math.max(
+      HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0) + (difficulty.index === 4 ? 12 : 0),
+      isRewindAllowed ? TIME_WAIT_BEFORE_REWIND : 0,
+    );
+    if (willHitSomething && state.timeSinceGraceStarted <= hurtGraceTime) {
+      state.timeSinceGraceStarted += loopState.deltaTime;
       return false;
     }
-    const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
-    const canRewind = isInvincible || state.gameMode === GameMode.Casual || level === START_LEVEL || level === START_LEVEL_COBRA;
-    if (willHitSomething && canRewind) {
+    if (willHitSomething && isRewindAllowed) {
       startRewinding();
       return false;
     }
@@ -1622,10 +1629,7 @@ export function engine({
     // apply movement
     moveSegments();
     player.position.add(currentMove);
-    state.hurtGraceTime = HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0);
-    if (difficulty.index === 4) {
-      state.hurtGraceTime += 12;
-    }
+    state.timeSinceGraceStarted = 0;
 
     // play step sfx
     const volume = p5.lerp(1, 0.5, normalizedSpeed);

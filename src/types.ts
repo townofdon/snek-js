@@ -202,7 +202,10 @@ export interface GameState {
   timeSinceLastInput: number,
   timeSinceInvincibleStart: number,
   timeSinceSpawnedPickup: number,
-  hurtGraceTime: number,
+  /**
+   * The time elapsed since the player would have moved into an obstacle (hit grace period).
+   */
+  timeSinceGraceStarted: number,
   lives: number,
   /**
    * The number of collisions the player has accumulated since the start of the level

@@ -1,7 +1,7 @@
 import { HURT_MOVE_RESET_INITIAL_DELAY, HURT_MOVE_RESET_INPUT_DELAY, HURT_STUN_TIME, MAX_MOVES_GAMEPAD } from "../../constants";
 import { Easing } from "../../easing";
 import { AppMode, DIR, GameMode, GameState, InputAction, MOVE, UINavDir } from "../../types";
-import { invertDirection, rotateDirection, clamp } from "../../utils";
+import { invertDirection, rotateDirection, clamp, moveToDir } from "../../utils";
 import { InputCallbacks, validateMove } from "../controls";
 import {
   Axis,
@@ -67,6 +67,7 @@ export function applyGamepadMove(
   state: GameState,
   playerDirection: DIR,
   playerDirectionToFirstSegment: DIR,
+  isRewindAllowed: boolean,
   moves: DIR[],
   callbacks: InputCallbacks,
   callAction: (action: InputAction) => void,
@@ -89,7 +90,7 @@ export function applyGamepadMove(
     return false;
   }
 
-  const desiredMove = getCurrentGamepadMove(playerDirection)
+  const desiredMove = getCurrentGamepadMove(playerDirection);
 
   const prevMove = moves.length > 0
     ? moves[moves.length - 1]
@@ -134,9 +135,9 @@ export function applyGamepadMove(
     }
   })();
 
-  // casual mode rewind
+  // casual mode / invincibility rewind
   const didPressBackwards = desiredMoves.length === 1 && desiredMoves[0] === playerDirectionToFirstSegment;
-  if (state.gameMode === GameMode.Casual && (wasPressedThisFrame(getGamepad(), Button.TriggerRight) || didPressBackwards)) {
+  if (isRewindAllowed && (wasPressedThisFrame(getGamepad(), Button.TriggerRight) || didPressBackwards)) {
     callAction(InputAction.StartRewinding);
     return;
   }

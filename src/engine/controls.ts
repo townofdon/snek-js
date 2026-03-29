@@ -119,7 +119,9 @@ export function handleKeyPressed(
     : invertDirection(playerDirectionToFirstSegment);
 
   // disallow same moves unless snake is currently stunned after hitting something
-  const disallowEqual = state.isMoving && (moves.length >= 2 || state.timeSinceHurt >= HURT_STUN_TIME);
+  const disallowEqual = state.isMoving
+    && (moves.length >= 2 || state.timeSinceHurt >= HURT_STUN_TIME)
+    && (moves.length === 0 ? playerDirection === prevMove : true);
 
   if (currentMove) {
     callAction(InputAction.StartMoving);

@@ -122,7 +122,7 @@ export const SKETCH_DEFAULTS = {
     timeSinceLastInput: 0,
     timeSinceInvincibleStart: 0,
     timeSinceSpawnedPickup: 0,
-    hurtGraceTime: 0,
+    timeSinceGraceStarted: 0,
     lives: 0,
     collisions: 0,
     targetSpeed: 0,
