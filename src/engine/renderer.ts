@@ -180,6 +180,7 @@ export class Renderer implements IRenderer {
   private drawSquareImpl = (gfx: P5 | P5.Graphics, x: number, y: number, background = "pink", lineColor = "fff", {
     is3d = false,
     size = 1,
+    rotation = 0,
     strokeSize = STROKE_SIZE,
     optimize = false,
     screenshakeMul = 1,
@@ -194,7 +195,15 @@ export class Renderer implements IRenderer {
     const px = MAP_OFFSET + Math.floor((x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + strokeOffset) + sizeOffsetX);
     const py = MAP_OFFSET + Math.floor((y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + strokeOffset) + sizeOffsetY);
     const squareSize = Math.floor((BLOCK_SIZE.x - strokeSize - strokeOffset * 2) * size);
-    gfx.square(px, py, squareSize);
+    gfx.push();
+    gfx.translate(px, py);
+    if (rotation) {
+      gfx.translate(squareSize * 0.5, squareSize * 0.5);
+      gfx.rotate(rotation);
+      gfx.translate(-squareSize * 0.5, -squareSize * 0.5);
+    }
+    gfx.square(0, 0, squareSize);
+    gfx.pop();
     if (is3d) {
       const borderSize = STROKE_SIZE * 0.5;
       const x0 = Math.floor(x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX);

@@ -45,6 +45,7 @@ import {
   SCREEN_SHAKE_DURATION_MS,
   SCREEN_SHAKE_MAGNITUDE_PX,
   SNAKE_INVINCIBLE_COLORS,
+  SNAKE_REWIND_COLORS,
   SPEED_INCREMENT_SPEED_MS,
   SPEED_LIMIT_ULTRA_SPRINT,
   SPRINT_INCREMENT_SPEED_MS,
@@ -62,6 +63,7 @@ import {
   PICKUP_LEGENDARY_BONUS,
   PICKUP_GALACTIC_BONUS,
   TIME_WAIT_BEFORE_REWIND,
+  TIME_REWIND_TAKEOVER_CONTROLS,
 } from "../constants";
 import {
   Action,
@@ -292,6 +294,7 @@ export function engine({
   const drawPlayerOptionsDeath: DrawSquareOptions = { is3d: true, optimize: true, screenshakeMul: -1 };
   const drawAppleOptions: DrawSquareOptions = { size: 0.8, is3d: true, optimize: true, screenshakeMul: 0 };
   const drawInvincibilityPickupOptions: DrawSquareOptions = { size: 0.5, is3d: true, optimize: true };
+  const drawReversibilityPickupOptions: DrawSquareOptions = { size: 0.5, is3d: true, optimize: true };
   const drawBasicOptions: DrawSquareOptions = { optimize: true };
   const drawBasicOptionsNoShake: DrawSquareOptions = { optimize: true, screenshakeMul: 0 };
   const drawPortalOptions: DrawSquareOptions = {};
@@ -379,6 +382,7 @@ export function engine({
   const gateUnlockParticleSystem = new GateUnlockParticleSystem2(p5, emitters, gradients);
   const exitLightParticleSystem = new PortalParticleSystem2(p5, emitters, gradients);
 
+  const reversibleColorGradient = gradients.addMultiple(SNAKE_REWIND_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
   const invincibleColorGradient = gradients.addMultiple(SNAKE_INVINCIBLE_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
 
   const renderer = new Renderer({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
@@ -509,6 +513,7 @@ export function engine({
     state.timeSinceHurt = Infinity;
     state.timeSinceHurtForgiveness = Infinity;
     state.timeSinceInvincibleStart = Infinity;
+    state.timeSinceReversibleStart = Infinity;
     state.timeSinceGraceStarted = 0;
     state.lives = state.gameMode === GameMode.Cobra ? state.lives : MAX_LIVES;
     state.collisions = 0;
@@ -824,6 +829,12 @@ export function engine({
       if (pickupsMap[coord]?.type === PickupType.Invincibility) {
         incrementPickupBonus(PickupType.Invincibility, coord);
         startInvincibility();
+      } else if (pickupsMap[coord]?.type === PickupType.Reversibility) {
+        incrementPickupBonus(PickupType.Reversibility, coord);
+        state.isRewindEnabled = true;
+        state.timeSinceReversibleStart = 0;
+        playSound(Sound.hurtSave);
+        startRewinding();
       } else if (pickupsMap[coord]) {
         incrementPickupBonus(pickupsMap[coord]?.type, coord);
       }
@@ -909,6 +920,7 @@ export function engine({
     state.timeSinceHurt += loopState.deltaTime;
     state.timeSinceHurtForgiveness += loopState.deltaTime;
     state.timeSinceInvincibleStart += loopState.deltaTime;
+    state.timeSinceReversibleStart += loopState.deltaTime;
     state.timeSinceSpawnedPickup += loopState.deltaTime;
     state.timeSinceLastInput += loopState.deltaTime;
     state.timeSinceLastTeleport += loopState.deltaTime;
@@ -1138,7 +1150,10 @@ export function engine({
 
   function startMoving() {
     if (state.isMoving) return;
+    if (state.timeSinceReversibleStart < TIME_REWIND_TAKEOVER_CONTROLS) return;
     state.isMoving = true;
+    state.isRewinding = false;
+    state.isRewindEnabled = false;
     state.currentSpeed = 1;
     tutorial.needsMoveControls = false;
     stopRewinding();
@@ -1152,13 +1167,15 @@ export function engine({
     if (!canRewind()) return;
     state.isRewinding = true;
     state.isMoving = false;
-    tutorial.needsRewindControls = false;
     state.currentSpeed = 1;
+    state.timeSinceGraceStarted = 0;
+    tutorial.needsRewindControls = false;
     sfx.playLoop(Sound.rewindLoop);
   }
 
   function stopRewinding() {
     state.isRewinding = false;
+    state.isRewindEnabled = false;
     sfx.stop(Sound.rewindLoop);
   }
 
@@ -1175,7 +1192,8 @@ export function engine({
 
   function canRewind(): boolean {
     if (
-      state.gameMode !== GameMode.Casual
+      !state.isRewindEnabled
+      && state.gameMode !== GameMode.Casual
       && state.timeSinceInvincibleStart >= difficulty.invincibilityTime
       && level !== START_LEVEL
       && level !== START_LEVEL_COBRA
@@ -1227,6 +1245,9 @@ export function engine({
     sfx.stop(Sound.invincibleLoop);
     musicPlayer.setPlaybackRate(level.musicTrack, 1);
     musicPlayer.setVolume(1);
+    if (state.isRewinding) {
+      stopRewinding();
+    }
   }
 
   function getTimeNeededUntilNextMove() {
@@ -1571,6 +1592,7 @@ export function engine({
 
   function handleSnakeMovement(): boolean {
     if (!state.isMoving) return false;
+    if (state.isRewinding) return false;
     if (replay.mode === ReplayMode.Playback) return false;
 
     let didMove = false;
@@ -1593,6 +1615,7 @@ export function engine({
   function movePlayer(normalizedSpeed = 0): boolean {
     if (!state.isMoving) return false;
     if (state.isExited) return false;
+    if (state.isRewinding) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     state.timeSinceLastMove = 0;
     const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
@@ -1654,28 +1677,21 @@ export function engine({
 
   function handleSnakeRewind() {
     if (!state.isRewinding) return;
+    if (state.isExited) return;
     if (replay.mode !== ReplayMode.Disabled) return;
 
     const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
-    if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
-      rewindPlayer();
+    if (!canRewind()) {
+      stopRewinding();
+    } else if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
+      state.timeSinceLastMove = 0;
+      reboundSnake(1);
+      player.direction = getDirectionSnakeForward();
+      player.directionToFirstSegment = invertDirection(player.direction);
     } else {
       state.timeSinceLastMove += loopState.deltaTime;
     }
     updateCurrentMoveSpeed();
-  }
-
-  function rewindPlayer() {
-    if (!state.isRewinding) return;
-    if (state.isExited) return;
-    if (!canRewind()) {
-      stopRewinding();
-      return;
-    }
-    state.timeSinceLastMove = 0;
-    reboundSnake(1);
-    player.direction = getDirectionSnakeForward();
-    player.directionToFirstSegment = invertDirection(player.direction);
   }
 
   function handleSnakeMovementDuringReplay(didHit: boolean) {
@@ -1711,8 +1727,9 @@ export function engine({
     if (state.isExitingLevel) return;
     if (!getHasSegmentExited(player.position)) return;
 
-    const isStartLevel = getIsStartLevel()
+    const isStartLevel = getIsStartLevel();
     state.isExitingLevel = true;
+    state.timeSinceInvincibleStart = Infinity;
     winLevelScene.reset(isStartLevel ? 'GET PSYCHED!' : 'SNEK CLEAR!');
     if (isStartLevel) startScreenShake(1.5, -1);
     sfx.stop(Sound.invincibleLoop);
@@ -2148,6 +2165,10 @@ export function engine({
       points = PICKUP_INVINCIBILITY_BONUS;
       image = Image.Points1000;
       rarity = PickupRarity.Rare;
+    } else if (pickupType === PickupType.Reversibility) {
+      points = PICKUP_INVINCIBILITY_BONUS;
+      image = Image.Points1000;
+      rarity = PickupRarity.Rare;
     } else if (PICKUP_COMMON_ITEMS.includes(pickupType)) {
       points = PICKUP_COMMON_BONUS;
       image = Image.Points500;
@@ -2546,6 +2567,10 @@ export function engine({
         const color = gradients.calc(invincibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
         renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
       }
+    } else if (state.isRewinding) {
+      const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
+      const color = gradients.calc(reversibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
+      renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
     } else if (state.isShowingDeathColours) {
       renderer.drawSquareStatic(gfxFG, vec.x, vec.y,
         PALETTE.deathInvert.playerTail,
@@ -2579,7 +2604,8 @@ export function engine({
   }
 
   function drawApple(x: number, y: number) {
-    const isInvincibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility
+    const isInvincibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility;
+    const isReversibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Reversibility;
     if (state.isShowingDeathColours && replay.mode !== ReplayMode.Playback && isInvincibility) {
       renderer.drawSquare(x, y,
         PALETTE.deathInvert.apple,
@@ -2593,6 +2619,17 @@ export function engine({
       const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
       const color = gradients.calc(invincibleColorGradient, (cycle % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
       renderer.drawSquare(x, y, color.toString(), color.toString(), drawInvincibilityPickupOptions);
+      if (timeLeft <= PICKUP_LIFETIME_MS) {
+        spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
+      }
+    } else if (isReversibility) {
+      const timeLeft = pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
+      if (shouldBlinkExpiringPickup(timeLeft)) {
+        return;
+      }
+      const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
+      const color = gradients.calc(reversibleColorGradient, (cycle % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
+      renderer.drawSquare(x, y, color.toString(), color.toString(), drawReversibilityPickupOptions);
       if (timeLeft <= PICKUP_LIFETIME_MS) {
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }

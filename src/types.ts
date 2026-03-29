@@ -176,6 +176,7 @@ export interface GameState {
   isPaused: boolean,
   isMoving: boolean,
   isSprinting: boolean, // is user holding down shift key?
+  isRewindEnabled: boolean;
   isRewinding: boolean,
   isLost: boolean,
   isGameWon: boolean,
@@ -202,6 +203,10 @@ export interface GameState {
   timeSinceLastInput: number,
   timeSinceInvincibleStart: number,
   timeSinceSpawnedPickup: number,
+  /**
+   * Time since the player picked up a reversible powerup
+   */
+  timeSinceReversibleStart: number,
   /**
    * The time elapsed since the player would have moved into an obstacle (hit grace period).
    */
@@ -398,6 +403,7 @@ export interface IRenderer {
 export interface DrawSquareOptions {
   is3d?: boolean,
   size?: number,
+  rotation?: number,
   strokeSize?: number,
   optimize?: boolean,
   screenshakeMul?: number,
@@ -876,13 +882,14 @@ export enum ItemDropType {
   Invincibility,
   Mine,
   HealthPack,
+  Reversibility,
   Pickup,
 }
 
 export enum PickupRarity {
   None = 0,
-  Common, // 500
-  Rare, // 1000
+  Common, // 100
+  Rare, // 500
   Epic, // 2000
   Legendary, // 5000
   Galactic, // 10000
@@ -891,6 +898,7 @@ export enum PickupRarity {
 export enum PickupType {
   None = 0,
   Invincibility,
+  Reversibility,
   HealthPack,
   // common items
   Cheese,

@@ -81,7 +81,9 @@ export const INVINCIBILITY_PICKUP_FREEZE_MS = 1000;
 export const INVINCIBILITY_EXPIRE_WARN_MS = 2000;
 export const INVINCIBILITY_EXPIRE_FLASH_MS = 200;
 export const INVINCIBILITY_COLOR_CYCLE_MS = 20;
+
 export const TIME_WAIT_BEFORE_REWIND = 80;
+export const TIME_REWIND_TAKEOVER_CONTROLS = 200;
 
 const INVINCIBILITY_TIME_EASY = 12000;
 const INVINCIBILITY_TIME_MEDIUM = 10000;
@@ -252,6 +254,14 @@ export const SNAKE_INVINCIBLE_COLORS = [
   "#FCB045",
   "#FD1D1D",
   "#833AB4",
+] as const;
+export const SNAKE_REWIND_COLORS = [
+  "#15C2CB",
+  "#04859f",
+  "#255c75",
+  "#23415d",
+  "#255c75",
+  "#04859f",
 ] as const;
 export const NUM_SNAKE_INVINCIBLE_COLORS = 20;
 
@@ -453,6 +463,7 @@ export const PICKUP_LEGENDARY_ITEMS: PickupType[] = [
 export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
   [PickupType.None]: 0,
   [PickupType.Invincibility]: 0,
+  [PickupType.Reversibility]: 0,
   [PickupType.HealthPack]: 0,
   [PickupType.Cheese]: 1,
   [PickupType.Carrot]: 2,

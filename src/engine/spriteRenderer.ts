@@ -342,12 +342,12 @@ export class SpriteRenderer {
     }
     const widthX = Math.floor(BLOCK_SIZE.x);
     const widthY = Math.floor(BLOCK_SIZE.y);
+    const offset = -STROKE_SIZE * 0.5;
     const position = {
       x: Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE.x * IMAGE_SCALE) + MAP_OFFSET + 1,
       y: Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE.y * IMAGE_SCALE) + MAP_OFFSET,
     }
 
-    const offset = -STROKE_SIZE * 0.5;
     gfx.push();
     gfx.noSmooth();
     gfx.translate(

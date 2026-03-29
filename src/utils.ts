@@ -344,15 +344,6 @@ export function getLevelProgress(stats: Stats, level: Level, difficulty: Difficu
   return clamp(stats.applesEatenThisLevel / (level.applesToClear * (level.applesModOverride || difficulty.applesMod)), 0, 1);
 }
 
-export function getNextPickupType(pickupTypes?: ItemDropType[]): ItemDropType {
-  if (!pickupTypes) return ItemDropType.Invincibility;
-  if (!pickupTypes.length) {
-    pickupTypes = [ItemDropType.Invincibility];
-  }
-  const idx = Math.floor(Math.random() * pickupTypes.length);
-  return pickupTypes[idx] || ItemDropType.None;
-}
-
 export function toRarity(num: number): PickupRarity {
   if (num <= 0) return PickupRarity.None;
   if (num > PickupRarity.Galactic) return PickupRarity.None;
