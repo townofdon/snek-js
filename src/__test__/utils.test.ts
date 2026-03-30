@@ -1,6 +1,12 @@
 import assert from "assert";
 
-import { getTraversalDistance, isOppositeDirection, isOrthogonalDirection, isSameDirection } from "../utils";
+import {
+  getTraversalDistance,
+  isOppositeDirection,
+  isOrthogonalDirection,
+  isSameDirection,
+  rotateSystemAfterPortalTraverse,
+} from "../utils";
 import { DIR } from "../types";
 
 describe("Utils", () => {
@@ -54,4 +60,61 @@ describe("Utils", () => {
       assert(isOrthogonalDirection(DIR.RIGHT, DIR.DOWN) === true);
     })
   });
+
+  describe("rotateSystemAfterPortalTraverse", () => {
+    const test = (prev: DIR, current: DIR, expectations: [DIR, DIR][]) => {
+      expectations.forEach(([arg, expected], idx) => {
+        const result = rotateSystemAfterPortalTraverse(prev, current, arg);
+        assert.strictEqual(result, expected, `expected:${expected},got:${result},idx=${idx},fn(${prev},${current},${arg})`);
+      })
+    }
+    it("should not rotate if no change", () => {
+      const expectations = [
+        [DIR.UP, DIR.UP],
+        [DIR.RIGHT, DIR.RIGHT],
+        [DIR.DOWN, DIR.DOWN],
+        [DIR.LEFT, DIR.LEFT],
+      ] satisfies [DIR, DIR][];
+      test(DIR.UP, DIR.UP, expectations);
+      test(DIR.DOWN, DIR.DOWN, expectations);
+      test(DIR.LEFT, DIR.LEFT, expectations);
+      test(DIR.RIGHT, DIR.RIGHT, expectations);
+    });
+    it("should rotate systems clockwise 90 degrees", () => {
+      const expectations = [
+        [DIR.UP, DIR.RIGHT],
+        [DIR.RIGHT, DIR.DOWN],
+        [DIR.DOWN, DIR.LEFT],
+        [DIR.LEFT, DIR.UP],
+      ] satisfies [DIR, DIR][];
+      test(DIR.UP, DIR.RIGHT, expectations);
+      test(DIR.RIGHT, DIR.DOWN, expectations);
+      test(DIR.DOWN, DIR.LEFT, expectations);
+      test(DIR.LEFT, DIR.UP, expectations);
+    });
+    it("should rotate systems clockwise 180 degrees", () => {
+      const expectations = [
+        [DIR.UP, DIR.DOWN],
+        [DIR.RIGHT, DIR.LEFT],
+        [DIR.DOWN, DIR.UP],
+        [DIR.LEFT, DIR.RIGHT],
+      ] satisfies [DIR, DIR][];
+      test(DIR.UP, DIR.DOWN, expectations);
+      test(DIR.RIGHT, DIR.LEFT, expectations);
+      test(DIR.DOWN, DIR.UP, expectations);
+      test(DIR.LEFT, DIR.RIGHT, expectations);
+    });
+    it("should rotate systems clockwise 270 degrees", () => {
+      const expectations = [
+        [DIR.UP, DIR.LEFT],
+        [DIR.RIGHT, DIR.UP],
+        [DIR.DOWN, DIR.RIGHT],
+        [DIR.LEFT, DIR.DOWN],
+      ] satisfies [DIR, DIR][];
+      test(DIR.UP, DIR.LEFT, expectations);
+      test(DIR.RIGHT, DIR.UP, expectations);
+      test(DIR.DOWN, DIR.RIGHT, expectations);
+      test(DIR.LEFT, DIR.DOWN, expectations);
+    });
+  })
 });

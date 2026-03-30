@@ -152,6 +152,45 @@ export function rotateDirection(dir: DIR) {
   return dir;
 }
 
+export function rotateSystemAfterPortalTraverse(
+  prev: DIR,
+  current: DIR,
+  applyTo: DIR,
+) {
+  if (prev === current) return applyTo;
+  if (!applyTo) return applyTo;
+  const diff = (2 * Math.PI + getRotationFromDirection(current) - getRotationFromDirection(prev)) % (2 * Math.PI);
+  // rotate counter-clockwise 90 degrees
+  if (approximatelyEqual(-Math.PI * .5, diff)) {
+    return rotateDirection(applyTo);
+  }
+  // rotate counter-clockwise 180 degrees
+  if (approximatelyEqual(-Math.PI * 1, diff)) {
+    return invertDirection(applyTo);
+  }
+  // rotate counter-clockwise 270 degrees
+  if (approximatelyEqual(-Math.PI * 1.5, diff)) {
+    return invertDirection(rotateDirection(applyTo));
+  }
+  // rotate clockwise 90 degrees
+  if (approximatelyEqual(Math.PI * .5, diff)) {
+    return invertDirection(rotateDirection(applyTo));
+  }
+  // rotate clockwise 180 degrees
+  if (approximatelyEqual(Math.PI * 1, diff)) {
+    return invertDirection(applyTo);
+  }
+  // rotate clockwise 270 degrees
+  if (approximatelyEqual(Math.PI * 1.5, diff)) {
+    return rotateDirection(applyTo);
+  }
+  return applyTo;
+}
+
+export function approximatelyEqual(v1: number, v2: number, epsilon = 0.001) {
+  return Math.abs(v1 - v2) < epsilon;
+}
+
 export function getDirectionBetween(from: Vector | undefined, to: Vector | undefined) {
   if (!from || !to) return DIR.RIGHT;
   const diffX = clamp(from.x - to.x, -1, 1);

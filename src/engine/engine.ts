@@ -132,6 +132,7 @@ import {
   isOrthogonalDirection,
   isWithinBlockDistance,
   lerp,
+  rotateSystemAfterPortalTraverse,
   shouldBlinkExpiringPickup,
   toRarity,
   triangle,
@@ -1484,6 +1485,7 @@ export function engine({
       checkHasHit,
       hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, portalsMap),
     });
+    const prevDir = player.direction;
     player.direction = newDir;
     player.directionToFirstSegment = invertDirection(player.direction);
     state.timeSinceLastMove = 0;
@@ -1496,6 +1498,15 @@ export function engine({
       state.lives = 0;
       state.isLost = true;
       state.lastHurtBy = HitType.QuantumEntanglement;
+    }
+    // apply system rotation to recentInputs and recentMoves so that special moves (u-turn, etc) still work
+    if (prevDir !== newDir) {
+      for (let i = 0; i < recentMoves.length; i++) {
+        recentMoves[i] = rotateSystemAfterPortalTraverse(prevDir, newDir, recentMoves[i]);
+      }
+      for (let i = 0; i < recentInputs.length; i++) {
+        recentInputs[i] = rotateSystemAfterPortalTraverse(prevDir, newDir, recentInputs[i]);
+      }
     }
   }
 
