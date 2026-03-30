@@ -1,7 +1,7 @@
 import { Vector } from "p5";
 import { GRIDCOUNT_X,
 GRIDCOUNT_Y, IS_DEV } from "../constants";
-import { getCoordIndex2, getTraversalDistance, shouldBlinkExpiringPickup } from "../utils";
+import { getCoordIndex2, getManhattanDistance, shouldBlinkExpiringPickup } from "../utils";
 import { ICollection } from "../types";
 
 export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
@@ -278,7 +278,7 @@ export class AnimationList implements ICollection {
     let min = Infinity;
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) continue;
-      const dist = getTraversalDistance(x, y, this.x[i], this.y[i]);
+      const dist = getManhattanDistance(x, y, this.x[i], this.y[i]);
       if (dist < min) {
         min = dist;
       }

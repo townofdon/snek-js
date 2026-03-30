@@ -125,7 +125,7 @@ import {
   getDropLikelihood,
   getLevelProgress,
   getRotationFromDirection,
-  getTraversalDistance,
+  getManhattanDistance,
   hasNeighborEdgeDoor,
   invertDirection,
   isAtMapEdge,
@@ -2399,7 +2399,7 @@ export function engine({
       || apples.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
-    const spawnedTooCloseToPlayer = getTraversalDistance(x, y, player.position.x, player.position.y) < 5;
+    const spawnedTooCloseToPlayer = getManhattanDistance(x, y, player.position.x, player.position.y) < 5;
     if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
       if (numTries < 30) spawnMine(numTries + 1);
     } else {
@@ -2417,7 +2417,7 @@ export function engine({
       || mines.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
-    const spawnedTooCloseToPlayer = getTraversalDistance(x, y, player.position.x, player.position.y) < 20;
+    const spawnedTooCloseToPlayer = getManhattanDistance(x, y, player.position.x, player.position.y) < 20;
     if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
       if (numTries < 30) spawnInvincibilityPickup(numTries + 1);
     } else {
@@ -2446,7 +2446,7 @@ export function engine({
       || mines.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
-    const spawnedTooCloseToPlayer = getTraversalDistance(x, y, player.position.x, player.position.y) < 20;
+    const spawnedTooCloseToPlayer = getManhattanDistance(x, y, player.position.x, player.position.y) < 20;
     if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
       if (numTries < 30) spawnPrey(preyType, numTries + 1);
     } else {

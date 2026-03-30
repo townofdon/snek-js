@@ -1,7 +1,6 @@
-import { ANIMATIONS, GRIDCOUNT_X,
-GRIDCOUNT_Y, PREY_LIFETIME, PREY_MOVE_TIME } from "../constants";
+import { ANIMATIONS, GRIDCOUNT_X, PREY_LIFETIME, PREY_MOVE_TIME } from "../constants";
 import { AnimationData, ICollection, Image, PreyType } from "../types";
-import { getCoordIndex2, getTraversalDistance, shouldBlinkExpiringPickup } from "../utils";
+import { getCoordIndex2, getCoordX, getCoordY, getManhattanDistance, shouldBlinkExpiringPickup } from "../utils";
 import { AStar } from "../astar/astar";
 
 export const MAX_NUM_PREY = 10;
@@ -13,9 +12,9 @@ interface PreyConstructorArgs {
 
 export class PreyList implements ICollection {
   private type: PreyType[] = [];
+  private targetCoord: Int16Array = new Int16Array(MAX_NUM_PREY);
   private coord: Uint16Array = new Uint16Array(MAX_NUM_PREY);
-  private seed: Uint16Array = new Uint16Array(MAX_NUM_PREY);
-  private numMoves: Uint16Array = new Uint16Array(MAX_NUM_PREY);
+  private seed: Float32Array = new Float32Array(MAX_NUM_PREY);
   private timeUntilNextMove: Float32Array = new Float32Array(MAX_NUM_PREY);
   private lifetime: Float32Array = new Float32Array(MAX_NUM_PREY);
   private elapsed: Float32Array = new Float32Array(MAX_NUM_PREY);
@@ -40,12 +39,12 @@ export class PreyList implements ICollection {
   public reset() {
     for (let i = 0; i < MAX_NUM_PREY; i++) {
       this.type[i] = PreyType.None;
+      this.targetCoord[i] = -1;
       this.coord[i] = 0;
       this.timeUntilNextMove[i] = 0;
       this.lifetime[i] = 0;
       this.elapsed[i] = 0;
       this.seed[i] = 0;
-      this.numMoves[i] = 0;
     }
     this._length = 0;
   }
@@ -65,18 +64,38 @@ export class PreyList implements ICollection {
         this.timeUntilNextMove[i] = PREY_MOVE_TIME;
         const type = this.type[i];
         const farsighted = type >= PreyType.Cockroach;
-        // avoid settling into a local minimum
-        if (this.numMoves[i] % 10 === 0) {
-          this.seed[i] = this.getSeed();
+        let solutionFound = false;
+        if (this.targetCoord[i] >= 0 && this.targetCoord[i] !== this.coord[i]) {
+          // seek target
+          const px = getCoordX(this.coord[i]);
+          const py = getCoordY(this.coord[i]);
+          const tx = getCoordX(this.targetCoord[i]);
+          const ty = getCoordY(this.targetCoord[i]);
+          solutionFound = astar.search(px, py, tx, ty, {
+            seed: this.seed[i],
+            farsighted,
+          });
+        } else {
+          // flee to acquire a target
+          solutionFound = astar.fleeFromCoord(this.coord[i], {
+            seed: this.seed[i],
+            farsighted,
+          });
         }
-        astar.fleeFromCoord(this.coord[i], this.seed[i], farsighted);
-        this.coord[i] = astar.getNextPathCoord(this.coord[i]);
-        if (type === PreyType.Grasshopper) {
-          // move a second time
+        if (solutionFound) {
+          // move along astar solution path
+          this.targetCoord[i] = astar.getFinalPathCoord();
+          const coord = this.coord[i];
           this.coord[i] = astar.getNextPathCoord(this.coord[i]);
+          if (type === PreyType.Grasshopper) {
+            // move a second time
+            this.coord[i] = astar.getNextPathCoord(this.coord[i]);
+          }
+          if (coord === this.coord[i] || this.coord[i] === this.targetCoord[i]) {
+            this.targetCoord[i] = -1;
+          }
+          didChange = coord !== this.coord[i];
         }
-        this.numMoves[i] += 1;
-        didChange = true;
       };
       // determine did animation frame change
       const animationData = this.getAnimationDataFromPreyType(this.type[i]);
@@ -114,7 +133,7 @@ export class PreyList implements ICollection {
       const coord = this.coord[i];
       const px = Math.floor(coord % GRIDCOUNT_X);
       const py = Math.floor(coord / GRIDCOUNT_X);
-      const dist = getTraversalDistance(x, y, px, py);
+      const dist = getManhattanDistance(x, y, px, py);
       if (dist < min) {
         min = dist;
       }
@@ -131,18 +150,14 @@ export class PreyList implements ICollection {
       return false;
     }
     this.type[this._length] = preyType;
+    this.targetCoord[this._length] = -1;
     this.coord[this._length] = coord;
     this.timeUntilNextMove[this._length] = PREY_MOVE_TIME;
     this.lifetime[this._length] = PREY_LIFETIME;
     this.elapsed[this._length] = 0;
-    this.seed[this._length] = this.getSeed();
-    this.numMoves[this._length] = 0;
+    this.seed[this._length] = Math.random() * 10000;
     this._length++;
     return true;
-  }
-
-  private getSeed() {
-    return Math.floor(Date.now() % 10000);
   }
 
   public removeByCoord = (coord: number) => {
@@ -163,19 +178,19 @@ export class PreyList implements ICollection {
     for (let i = idx; i < this._length - 1; i++) {
       this.type[i] = this.type[i + 1];
       this.coord[i] = this.coord[i + 1];
+      this.targetCoord[i] = this.coord[i + 1];
       this.timeUntilNextMove[i] = this.timeUntilNextMove[i + 1];
       this.lifetime[i] = this.lifetime[i + 1];
       this.elapsed[i] = this.elapsed[i + 1];
       this.seed[i] = this.seed[i + 1];
-      this.numMoves[i] = this.numMoves[i + 1];
     }
     this.type[this._length - 1] = PreyType.None;
     this.coord[this._length - 1] = 0;
+    this.targetCoord[this._length - 1] = -1;
     this.timeUntilNextMove[this._length - 1] = 0;
     this.lifetime[this._length - 1] = 0;
     this.elapsed[this._length - 1] = 0;
     this.seed[this._length - 1] = 0;
-    this.numMoves[this._length - 1] = 0;
     this._length--;
   }
 

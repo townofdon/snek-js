@@ -1,7 +1,7 @@
 import { Vector } from "p5";
 import { GRIDCOUNT_X,
 GRIDCOUNT_Y, IS_DEV } from "../constants";
-import { getCoordIndex2, getTraversalDistance } from "../utils";
+import { getCoordIndex2, getManhattanDistance } from "../utils";
 
 export const INITIAL_APPLE_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
@@ -118,7 +118,7 @@ export class AppleList {
     let min = Infinity;
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) continue;
-      const dist = getTraversalDistance(x, y, this.x[i], this.y[i]);
+      const dist = getManhattanDistance(x, y, this.x[i], this.y[i]);
       if (dist < min) {
         min = dist;
       }

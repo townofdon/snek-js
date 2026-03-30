@@ -47,6 +47,14 @@ export function getCoordIndex2(x: number, y: number): number {
   return clamp(Math.floor(x), 0, GRIDCOUNT_X - 1) + clamp(Math.floor(y), 0, GRIDCOUNT_Y - 1) * GRIDCOUNT_X
 }
 
+export function getCoordX(coord: number) {
+  return Math.floor(coord % GRIDCOUNT_X);
+}
+
+export function getCoordY(coord: number) {
+  return Math.floor(coord / GRIDCOUNT_X);
+}
+
 export function coordToVec(coord: number): Vector {
   coord = Math.floor(coord);
   const x = Math.floor(coord % GRIDCOUNT_X);
@@ -472,8 +480,16 @@ export function isWithinBlockDistance(a: Vector, b: Vector, distance: number = 1
 /**
  * Return the Manhattan Distance between (x0, y0) and (x1, y1)
  */
-export function getTraversalDistance(x0: number, y0: number, x1: number, y1: number): number {
+export function getManhattanDistance(x0: number, y0: number, x1: number, y1: number): number {
   return Math.abs(x0 - x1) + Math.abs(y0 - y1);
+}
+
+/**
+ * Return the Euclidian Distance between (x0, y0) and (x1, y1)
+ */
+export function getEuclidianDistance(x0: number, y0: number, x1: number, y1: number): number {
+  return Math.hypot((x1 - x0), (y1 - y0));
+  // return Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
 }
 
 export const getRelativeDir = () => {

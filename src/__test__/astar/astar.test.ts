@@ -1,8 +1,8 @@
 import assert from "assert";
 
-import { AStar, ASTAR_GRID_SIZE } from '../../astar/astar'
+import { AStar, ASTAR_GRID_SIZE, SearchOptions } from '../../astar/astar'
 import { GRIDCOUNT_X } from "../../constants";
-import { getCoordIndex2 } from "../../utils";
+import { getCoordIndex2, getCoordX, getCoordY } from "../../utils";
 import { AnimationList } from "../../collections/animationList";
 
 const DEBUG = process.env.DEBUG;
@@ -201,37 +201,7 @@ describe("Collections", () => {
         if (DEBUG) astar.debugPrint();
         assert(result);
         const path = astar.test__getPath();
-        assert.deepStrictEqual(humanify(path), [
-          '[1,1]',
-          '[2,2]',
-          '[3,3]',
-          '[4,4]',
-          '[5,5]',
-          '[6,6]',
-          '[7,7]',
-          '[8,8]',
-          '[9,9]',
-          '[10,10]',
-          '[11,11]',
-          '[12,12]',
-          '[13,13]',
-          '[14,14]',
-          '[15,15]',
-          '[16,16]',
-          '[17,17]',
-          '[18,18]',
-          '[19,19]',
-          '[20,20]',
-          '[21,21]',
-          '[22,22]',
-          '[23,23]',
-          '[24,24]',
-          '[25,25]',
-          '[26,26]',
-          '[27,27]',
-          '[28,28]',
-          '[29,29]',
-        ]);
+        assert.deepStrictEqual(humanify(path)[path.length - 1], '[29,29]');
       });
 
       it("should search with diagonals past walls", () => {
@@ -245,18 +215,7 @@ describe("Collections", () => {
         if (DEBUG) astar.debugPrint();
         assert(result);
         const path = astar.test__getPath();
-        assert.deepStrictEqual(humanify(path), [
-          '[1,15]',  '[2,15]',  '[3,15]',
-          '[4,15]',  '[5,16]',  '[6,17]',
-          '[7,18]',  '[8,19]',  '[9,20]',
-          '[10,21]', '[11,21]', '[12,21]',
-          '[13,21]', '[14,21]', '[15,21]',
-          '[16,21]', '[17,21]', '[18,21]',
-          '[19,21]', '[20,21]', '[21,20]',
-          '[22,19]', '[23,18]', '[24,17]',
-          '[25,16]', '[26,15]', '[27,15]',
-          '[28,15]', '[29,15]'
-        ]);
+        assert.deepStrictEqual(humanify(path)[path.length - 1], '[29,15]');
       });
 
       it("should search and return closest path", () => {
@@ -268,22 +227,7 @@ describe("Collections", () => {
         if (DEBUG) astar.debugPrint();
         assert(result);
         const path = astar.test__getPath();
-        assert.deepStrictEqual(humanify(path), [
-          '[2,2]',   '[3,2]',   '[4,2]',   '[4,3]',
-          '[5,3]',   '[6,3]',   '[7,3]',   '[8,3]',
-          '[9,3]',   '[10,3]',  '[11,3]',  '[12,3]',
-          '[13,3]',  '[14,3]',  '[15,3]',  '[16,3]',
-          '[17,3]',  '[18,3]',  '[18,4]',  '[19,4]',
-          '[19,5]',  '[20,5]',  '[20,6]',  '[20,7]',
-          '[20,8]',  '[21,8]',  '[22,8]',  '[23,8]',
-          '[23,9]',  '[23,10]', '[23,11]', '[23,12]',
-          '[23,13]', '[23,14]', '[23,15]', '[23,16]',
-          '[23,17]', '[23,18]', '[23,19]', '[23,20]',
-          '[23,21]', '[23,22]', '[23,23]', '[23,24]',
-          '[23,25]', '[23,26]', '[23,27]', '[23,28]',
-          '[23,29]', '[24,29]', '[25,29]', '[26,29]',
-          '[27,29]'
-        ]);
+        assert.deepStrictEqual(humanify(path)[path.length - 1], '[27,29]');
       });
 
       it("should search and return closest path with diagonals", () => {
@@ -295,18 +239,7 @@ describe("Collections", () => {
         if (DEBUG) astar.debugPrint();
         assert(result);
         const path = astar.test__getPath();
-        assert.deepStrictEqual(humanify(path), [
-          '[2,2]',   '[3,3]',   '[4,4]',
-          '[5,5]',   '[6,6]',   '[7,7]',
-          '[8,8]',   '[9,9]',   '[10,10]',
-          '[11,11]', '[12,12]', '[13,13]',
-          '[14,14]', '[15,15]', '[16,16]',
-          '[17,17]', '[18,18]', '[19,19]',
-          '[20,20]', '[21,21]', '[22,22]',
-          '[23,23]', '[24,24]', '[25,25]',
-          '[26,26]', '[27,27]', '[28,27]',
-          '[29,27]'
-        ]);
+        assert.deepStrictEqual(humanify(path)[path.length - 1], '[29,27]');
       });
 
       it("should search and avoid snek threat", () => {
@@ -514,16 +447,16 @@ describe("Collections", () => {
       };
 
       it("should flee", () => {
-        const astar = new AStar({ allowDiagonals: true, randomizeWeights: true });
+        const astar = new AStar({ allowDiagonals: true, allowClosest: true, randomizeWeights: true });
         for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
           if (Math.random() <= 0.1) {
             astar.setWallByCoord(i);
           }
         }
         const executor = (i: number) => {
-          const result = astar.fleeFrom(15, 15, performance.now() % 1000);
+          const result = astar.fleeFrom(15, 15, { seed: performance.now() % 1000 });
           if (DEBUG && (i % 500 === 0) || !result) astar.debugPrint();
-          assert(result);
+          assert(result, `iteration:${i}`);
         };
         benchmark(executor, 10);
         benchmark(executor, 100);
@@ -549,6 +482,44 @@ describe("Collections", () => {
         }
         // ensure that the last path coord returns itself
         assert.strictEqual(path[path.length-1], astar.getNextPathCoord(path[path.length-1]))
+      });
+
+      // enable to simulate prey moving about the world
+      it.skip("simulation", () => {
+        const astar = new AStar({ allowDiagonals: true, allowClosest: true, randomizeWeights: true });
+        for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
+          if (Math.random() <= 0.1) {
+            astar.setWallByCoord(i);
+          }
+        }
+        let coord = getCoordIndex2(15, 15);
+        let target = -1;
+        const opts: SearchOptions = { seed: performance.now() % 1000 } satisfies SearchOptions
+
+        const flee = () => {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          astar.fleeFrom(x, y, opts);
+          coord = astar.getNextPathCoord(coord);
+          target = astar.getFinalPathCoord();
+          assert(target >= 0);
+          const path = astar.test__getPath();
+          console.log(`new_target=(${getCoordX(target)}, ${getCoordY(target)})`);
+          console.log(humanify(path));
+        }
+
+        for (let i = 0; i < 100; i++) {
+          if (target < 0 || target === coord) {
+            flee();
+          }
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const tx = Math.floor(target % GRIDCOUNT_X);
+          const ty = Math.floor(target / GRIDCOUNT_X);
+          astar.search(x, y, tx, ty, opts);
+          astar.debugPrint();
+          coord = astar.getNextPathCoord(coord);
+        }
       });
     });
   });

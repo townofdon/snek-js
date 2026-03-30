@@ -1,7 +1,7 @@
 import assert from "assert";
 
 import {
-  getTraversalDistance,
+  getManhattanDistance,
   isOppositeDirection,
   isOrthogonalDirection,
   isSameDirection,
@@ -10,13 +10,13 @@ import {
 import { DIR } from "../types";
 
 describe("Utils", () => {
-  describe("getTraversalDistance", () => {
+  describe("getManhattanDistance", () => {
     it("should calc correct value", () => {
-      assert(getTraversalDistance(5, 5, 5, 5) === 0);
-      assert(getTraversalDistance(0, 0, 0, 1) === 1);
-      assert(getTraversalDistance(0, 0, 1, 1) === 2);
-      assert(getTraversalDistance(0, 0, 29, 29) === 58);
-      assert(getTraversalDistance(29, 29, 0, 0) === 58);
+      assert(getManhattanDistance(5, 5, 5, 5) === 0);
+      assert(getManhattanDistance(0, 0, 0, 1) === 1);
+      assert(getManhattanDistance(0, 0, 1, 1) === 2);
+      assert(getManhattanDistance(0, 0, 29, 29) === 58);
+      assert(getManhattanDistance(29, 29, 0, 0) === 58);
     });
   });
 

@@ -1,8 +1,7 @@
 import alea from '../lib/rng-alea';
 
-import { GRIDCOUNT_X,
-GRIDCOUNT_Y, IS_DEV } from "../constants";
-import { getCoordIndex2, getTraversalDistance } from "../utils";
+import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_DEV } from "../constants";
+import { getCoordIndex2, getEuclidianDistance, getManhattanDistance, lerp } from "../utils";
 import { ICollection } from '../types';
 
 const THREAT_COST_MINE = 4;
@@ -28,6 +27,13 @@ const DEFAULT_OPTIONS = {
   allowClosest: false,
   randomizeWeights: false,
 } satisfies AStarOptions;
+
+export interface SearchOptions {
+  seed?: number,
+  minWeight?: number,
+  maxWeight?: number,
+  farsighted?: boolean,
+}
 
 /**
  * Non-allocating A-Star search algorithm.
@@ -99,10 +105,10 @@ export class AStar {
     this.snekCoord = -1;
   }
 
-  private randomizeWeights(seed: number) {
+  private randomizeWeights(seed: number, min: number, max: number) {
     const rng = alea(seed);
     for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
-      this.weights[i] = (rng() + 0.5);
+      this.weights[i] = lerp(min, max, rng() + 0.01);
     }
   }
 
@@ -131,17 +137,23 @@ export class AStar {
     return fromCoord;
   }
 
-  public fleeFromCoord(coord: number, seed = 0, farsighted = false) {
+  public getFinalPathCoord() {
+    if (this.pathLength === 0) return -1;
+    return this.path[this.pathLength - 1];
+  }
+
+  public fleeFromCoord(coord: number, opts: SearchOptions = {}) {
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
-    return this.search(x, y, -1, -1, seed, farsighted);
+    return this.search(x, y, -1, -1, opts);
   }
 
-  public fleeFrom(x: number, y: number, seed = 0, farsighted = false) {
-    return this.search(x, y, -1, -1, seed, farsighted);
+  public fleeFrom(x: number, y: number, opts: SearchOptions = {}) {
+    return this.search(x, y, -1, -1, opts);
   }
 
-  public search(startx: number, starty: number, endx: number, endy: number, seed = 0, farsighted = false): boolean {
+  public search(startx: number, starty: number, endx: number, endy: number, opts: SearchOptions = {}): boolean {
+    const { seed = 0, farsighted = false, minWeight = .5, maxWeight = 1.5 } = opts;
     // flee mode
     const flee = endx === -1 && endy === -1;
     const allowClosest = this.options.allowClosest;
@@ -159,7 +171,7 @@ export class AStar {
     this.closest = -1;
 
     if (this.options.randomizeWeights) {
-      this.randomizeWeights(seed);
+      this.randomizeWeights(seed, minWeight, maxWeight);
     }
 
     const snekx = Math.floor(this.snekCoord % GRIDCOUNT_X);
@@ -173,9 +185,10 @@ export class AStar {
     const mines = this.mines;
     const segments = this.segments;
 
+    const distance = allowDiagonals ? getEuclidianDistance : getManhattanDistance;
     this.hScore[startCoord] = flee
       ? FLEE_TRAVERSALS
-      : getTraversalDistance(startx, starty, endx, endy);
+      : distance(startx, starty, endx, endy);
     this.addToOpenList(startCoord, gScores, hScores);
 
     while (this.openListLength > 0) {
@@ -233,7 +246,7 @@ export class AStar {
         const distToClosestMine = mines?.getClosestTraversalDistance(nx, ny) ?? Infinity;
         const distToSnekHead = (() => {
           if (snekCoord < 0) return Infinity;
-          return getTraversalDistance(nx, ny, snekx, sneky);
+          return getManhattanDistance(nx, ny, snekx, sneky);
         })()
         const isDiagonal = idx >= 4;
         const diagCostMultiplier = isDiagonal ? DIAG_COST : 1;
@@ -248,7 +261,7 @@ export class AStar {
           threatCostMine,
           threatCostSnek,
         );
-        const weight = weights[current] || 1;
+        const weight = weights[current] ?? 1;
         // calculate traversal cost (g)
         const gScore = gScores[current]
           + weight * diagCostMultiplier
@@ -256,8 +269,8 @@ export class AStar {
         // set neighbor fields, add to open list
         if (!isVisited || gScore < gScores[neighbor]) {
           const hScore = flee
-            ? hScores[current] - 1
-            : getTraversalDistance(nx, ny, endx, endy);
+            ? Math.min(FLEE_TRAVERSALS - distance(startx, starty, nx, ny), hScores[current] - 1)
+            : distance(nx, ny, endx, endy);
           flags[neighbor] |= FLAG_VISITED;
           parents[neighbor] = current;
           gScores[neighbor] = gScore;
@@ -284,8 +297,7 @@ export class AStar {
 
     // build path to closest node if it exists
     if (allowClosest && this.closest >= 0) {
-      const current = this.closest;
-      this.constructPath(current);
+      this.constructPath(this.closest);
       return true;
     }
 
@@ -296,13 +308,13 @@ export class AStar {
     let current = coord;
     const newpath: number[] = [current];
     while (this.parent[current] > -1) {
-      newpath.unshift(this.parent[current]);
+      newpath.push(this.parent[current]);
       current = this.parent[current];
     }
     this.pathLength = newpath.length;
-    newpath.forEach((coord, i) => {
-      this.path[i] = coord;
-    });
+    for (let i = newpath.length - 1; i >= 0; i--) {
+      this.path[newpath.length - 1 - i] = newpath[i];
+    }
   }
 
   private validate() {

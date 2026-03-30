@@ -2,7 +2,7 @@ import { Vector } from "p5";
 
 import { GRIDCOUNT_X,
 GRIDCOUNT_Y, IS_DEV } from "../constants";
-import { getCoordIndex2, getTraversalDistance } from "../utils";
+import { getCoordIndex2, getManhattanDistance } from "../utils";
 import { ICollection } from "../types";
 
 export const INITIAL_POINTS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
@@ -93,7 +93,7 @@ export class VectorList implements ICollection {
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) continue;
       const vec = this.points[i];
-      const dist = getTraversalDistance(x, y, vec.x, vec.y);
+      const dist = getManhattanDistance(x, y, vec.x, vec.y);
       if (dist < min) {
         min = dist;
       }
