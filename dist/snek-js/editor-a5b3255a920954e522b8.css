@@ -552,6 +552,20 @@ button,
   margin-left: 40px;
 }
 
+.syncText--LjdHDZQzMuMMSVuxIZzY {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  white-space: nowrap;
+  color: rgb(208, 135, 46);
+  &.isSynced--GdFFz0dDQ1jTBB_Lmi4g {
+    color: rgb(78, 146, 93);
+  }
+}
+
 .modalOverlay--nS76wrRfZOQYvBkoZPlQ,
 .mapPreviewOverlay--ICT56LhL1wdePiwl03Po {
   display: block;
@@ -829,6 +843,7 @@ a.button.allMapsButton--N5xVXHYdnpqnHxq1zXiJ {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   &.noChildMargin--Vokh7laUrVZBGvpXyp7Z {
     --stack-margin: 0px;
   }
