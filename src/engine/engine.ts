@@ -64,6 +64,8 @@ import {
   PICKUP_GALACTIC_BONUS,
   TIME_WAIT_BEFORE_REWIND,
   TIME_REWIND_TAKEOVER_CONTROLS,
+  KEYCODE_ALPHA_A,
+  KEYCODE_ALPHA_D,
 } from "../constants";
 import {
   Action,
@@ -185,6 +187,7 @@ import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
 import { AStar } from '../astar/astar';
 import { PreyList } from '../collections/preyList';
+import { TUTORIAL_LEVEL_10 } from '@/levels/campaign/tutorialLevel10';
 
 interface EngineParams {
   p5: P5,
@@ -945,6 +948,12 @@ export function engine({
   }
 
   function onKeyPressed( ev: KeyboardEvent ) {
+    // force player to use u-turn mechanic on "turnaround" level
+    const { keyCode, LEFT_ARROW, ENTER, RIGHT_ARROW } = p5;
+    if (level.id === TUTORIAL_LEVEL_10.id && player.direction === DIR.RIGHT && !recentInputs[1]
+      && keyCode !== LEFT_ARROW && keyCode !== RIGHT_ARROW && keyCode !== KEYCODE_ALPHA_A && keyCode !== KEYCODE_ALPHA_D && keyCode !== ENTER) {
+      return;
+    }
     handleKeyPressed(
       p5,
       state,

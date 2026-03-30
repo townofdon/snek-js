@@ -53,7 +53,8 @@ XXXXXXXXX==X++XX++X++XXXXXXXXX
   },
   showTitle: true,
   extraLoseMessages: [
-    ["Pst... Press down-left real fast next time.", (state, stats) => stats.applesEatenThisLevel >= 5],
+    ["Pst... Press left to initiate a u-turn.", (state, stats) => stats.applesEatenThisLevel >= 5],
+    ["This level is tryna teach you something.", (state, stats) => stats.applesEatenThisLevel >= 5],
     ["You might... need to eat more apples.", (state, stats) => stats.applesEatenThisLevel < 5],
   ],
   disableNormalLoseMessages: true,
