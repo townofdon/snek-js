@@ -290,7 +290,7 @@ export class WinGameScene extends BaseScene {
       this.hideAllFields();
       this.fieldVisible[FIELD.HIGHSCORE_ENTRY] = true;
       const modalHighScoreEntry = this.modalHighScoreEntry;
-      const modalConfirm = this.modalConfirm;
+      const modalConfirm = this.modalConfirm.setHideOnCancel(false); // we will handle hiding the modal manually
       const onSubmitHighscoreName = (name: string) => {
         const handleYesClick = () => {
           this.state.highscoreEntryName = name;
@@ -406,21 +406,22 @@ export class WinGameScene extends BaseScene {
 
   keyPressed = (): boolean => {
     if (!this.isShowing()) return false;
-    return handleUIEvents(this.props.p5, this.onUINavigate, this.onUIInteract, this.onUICancel)
+    return handleUIEvents(this.props.p5, this.onUINavigate, this.onUIInteract, this.onUICancel);
   };
 
   private onUINavigate = (navDir: UINavDir) => {
     let handled = false;
     if (!handled) handled = this.modalHighScoreEntry.handleUINavigation(navDir);
-    if (!handled) handled = this.modalConfirm.handleUINavigation(navDir);
-    if (handled) {
-      this.sfx.play(Sound.uiBlip, 0.5);
+    if (!handled) {
+      handled = this.modalConfirm.handleUINavigation(navDir);
+      if (handled) this.sfx.play(Sound.uiBlip, 0.5);
     }
     return handled;
   }
   private onUIInteract = () => {
     let handled = false;
     if (!handled) handled = this.modalHighScoreEntry.handleUIInteract();
+    if (handled) this.props.p5.keyIsPressed = false;
     if (!handled) handled = this.modalConfirm.handleUIInteract();
     return handled;
   }

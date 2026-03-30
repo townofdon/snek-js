@@ -58,7 +58,7 @@ export class HighscoreEntryModal implements UIHandler {
     try {
       this.isSubmitting = true;
       const formData = new FormData(this.form);
-      this.onSubmitName(formData.get('input-highscore-name') as string)
+      this.onSubmitName(formData.get('input-highscore-name') as string);
     } catch (err) {
       console.log(err);
     } finally {

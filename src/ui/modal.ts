@@ -8,9 +8,11 @@ export class Modal implements UIHandler {
   private message: HTMLElement;
   private buttonNo: HTMLElement;
   private buttonYes: HTMLElement;
-  private handleNoClick: () => void = () => { };
-  private handleYesClick: () => void = () => { };
+  private handleNoClick: () => void = null;
+  private handleYesClick: () => void = null;
   private isShowing: boolean = false;
+  private hideOnCancel: boolean = true;
+  private isInputReady: boolean = false;
 
   constructor() {
     this.modal = requireElementById<HTMLElement>('modal');
@@ -28,19 +30,28 @@ export class Modal implements UIHandler {
     return this.isShowing;
   }
 
+  setHideOnCancel = (val: boolean) => {
+    this.hideOnCancel = val;
+    return this;
+  }
+
   show = (title: string, message: string, handleYesClick: () => void, handleNoClick: () => void) => {
     if (this.isShowing) return;
-    this.isShowing = true;
     UI.enableGameBlur();
+    this.addBindings();
+    this.isShowing = true;
     this.handleNoClick = handleNoClick;
     this.handleYesClick = handleYesClick;
     this.title.innerText = title;
     this.message.innerText = message;
     this.modal.classList.remove("hidden");
-    this.addBindings();
     setTimeout(() => {
       this.buttonNo.focus();
-    }, 0)
+    }, 0);
+    // set a small delay to start receiving input in order to fix strange firefox bug where modal is immediately dismissing on show().
+    setTimeout(() => {
+      this.isInputReady = true;
+    }, 100)
   }
 
   hide = () => {
@@ -48,45 +59,60 @@ export class Modal implements UIHandler {
     this.modal.classList.add("hidden");
     this.removeBindings();
     this.isShowing = false;
+    this.isInputReady = false;
+    this.handleNoClick = null;
+    this.handleYesClick = null;
   }
 
   handleUINavigation: UINavEventHandler = () => {
     if (!this.isShowing) return false;
+    if (!this.isInputReady) return false;
     this.gotoNextOption();
     return true;
   }
 
   handleUIInteract: UIInteractHandler = () => {
     if (!this.isShowing) return false;
+    if (!this.isInputReady) return false;
     this.onSubmit();
     return true;
   }
 
   handleUICancel: UICancelHandler = () => {
     if (!this.isShowing) return false;
-    this.hide();
+    if (!this.isInputReady) return false;
+    this.handleNoClick?.();
+    if (this.hideOnCancel) {
+      this.hide();
+    }
     return true;
   }
 
   private onNoClick = () => {
-    this.handleNoClick();
+    if (!this.isShowing) return;
+    if (!this.isInputReady) return false;
+    this.handleNoClick?.();
   }
 
   private onYesClick = () => {
-    this.handleYesClick();
+    if (!this.isShowing) return;
+    if (!this.isInputReady) return false;
+    this.handleYesClick?.();
   }
 
   private onSubmit = () => {
     if (!this.isShowing) return;
-    if (document.activeElement === this.buttonNo) {
-      this.onNoClick();
-    } else {
+    if (!this.isInputReady) return false;
+    if (document.activeElement === this.buttonYes) {
       this.onYesClick();
+    } else {
+      this.onNoClick();
     }
   }
 
   private gotoNextOption = () => {
     if (!this.isShowing) return;
+    if (!this.isInputReady) return false;
     if (document.activeElement === this.buttonNo) {
       this.buttonYes.focus();
     } else {

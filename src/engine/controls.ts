@@ -167,14 +167,14 @@ export function handleKeyPressed(
 }
 
 export function handleUIEvents(p5: P5, onUINavigate: UINavEventHandler, onUIInteract: () => boolean, onUICancel: () => boolean): boolean {
-  const { keyCode, ENTER, ESCAPE, SHIFT, TAB, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
+  const { keyCode, keyIsPressed, ENTER, ESCAPE, SHIFT, TAB, BACKSPACE, DELETE, LEFT_ARROW, RIGHT_ARROW, UP_ARROW, DOWN_ARROW } = p5;
   if (keyCode === LEFT_ARROW || keyCode === KEYCODE_ALPHA_A) return onUINavigate(UINavDir.Left)
   if (keyCode === RIGHT_ARROW || keyCode === KEYCODE_ALPHA_D) return onUINavigate(UINavDir.Right)
   if (keyCode === UP_ARROW || keyCode === KEYCODE_ALPHA_W) return onUINavigate(UINavDir.Up)
   if (keyCode === DOWN_ARROW || keyCode === KEYCODE_ALPHA_S) return onUINavigate(UINavDir.Down)
   if (keyCode === TAB && p5.keyIsDown(SHIFT)) return onUINavigate(UINavDir.Prev)
   if (keyCode === TAB && !p5.keyIsDown(SHIFT)) return onUINavigate(UINavDir.Next)
-  if (keyCode === ENTER) return onUIInteract();
+  if (keyCode === ENTER && keyIsPressed) return onUIInteract();
   if (keyCode === ESCAPE || keyCode === BACKSPACE || keyCode === DELETE) return onUICancel();
   return false;
 }
