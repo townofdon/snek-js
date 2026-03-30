@@ -9,6 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
   &.noChildMargin--Vokh7laUrVZBGvpXyp7Z {
     --stack-margin: 0px;
   }
