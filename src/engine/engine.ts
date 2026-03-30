@@ -2810,7 +2810,9 @@ export function engine({
         if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
         renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrierPassable, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
         // draw passable glass overlay
-        spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 12);
+        if (!keysMap[getCoordIndex(barriers[i].vec)]) {
+          spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 12);
+        }
       }
       return;
     }
