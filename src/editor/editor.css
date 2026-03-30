@@ -473,6 +473,21 @@ button,
   margin-left: 40px;
 }
 
+.syncText {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 100%;
+  white-space: nowrap;
+  color: rgb(208, 135, 46);
+
+  &.isSynced {
+    color: rgb(78, 146, 93);
+  }
+}
+
 .modalOverlay,
 .mapPreviewOverlay {
   display: block;

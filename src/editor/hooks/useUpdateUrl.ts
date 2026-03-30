@@ -1,10 +1,10 @@
-import throttle from "throttleit";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { EditorData, EditorOptions } from "../../types";
 import { encodeMapData } from "../utils/editorUtils";
 import { EDITOR_DEFAULTS } from "../editorConstants";
 
+const UPDATE_URL_DELAY = 800;
 
 interface UseUpdateUrlArgs {
   initialized: boolean,
@@ -12,14 +12,28 @@ interface UseUpdateUrlArgs {
   options: EditorOptions,
 }
 export const useUpdateUrl = ({ initialized, data, options }: UseUpdateUrlArgs) => {
+  const [isSynced, setSynced] = useState(true);
+  const timeout = useRef<NodeJS.Timeout | null>(null);
+  const touched = useRef(false);
+
   useEffect(() => {
     if (!initialized) return;
-    if (data === EDITOR_DEFAULTS.data && options === EDITOR_DEFAULTS.options) return;
-    setUrl(data, options);
+    if (!touched.current && data === EDITOR_DEFAULTS.data && options === EDITOR_DEFAULTS.options) return;
+    setSynced(false);
+    if (timeout.current) {
+      clearTimeout(timeout.current);
+    }
+    timeout.current = setTimeout(() => {
+      setUrl(data, options);
+      setSynced(true);
+      touched.current = true;
+    }, UPDATE_URL_DELAY);
   }, [initialized, data, options]);
+
+  return isSynced;
 }
 
-const setUrl = throttle((data: EditorData, options: EditorOptions) => {
+const setUrl = (data: EditorData, options: EditorOptions) => {
   try {
     const encoded = encodeMapData(data, options);
     const url = new URL(window.location.href);
@@ -28,4 +42,4 @@ const setUrl = throttle((data: EditorData, options: EditorOptions) => {
   } catch (err) {
     console.error(err);
   }
-}, 800);
+};

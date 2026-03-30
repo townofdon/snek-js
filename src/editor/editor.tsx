@@ -104,7 +104,7 @@ export const Editor = () => {
   const hasRedo = !!futureCommands.length;
 
   useLoadMapData({ setData, setOptions, setPastCommands, setFutureCommands, setInitialized });
-  useUpdateUrl({ initialized, data, options });
+  const isSynced = useUpdateUrl({ initialized, data, options });
 
   const setTile = (_tile: Tile) => {
     if (toolRef.current === EditorTool.Eraser) setTool(EditorTool.Pencil);
@@ -616,6 +616,11 @@ export const Editor = () => {
             defaultValue="2" // easy
             onChange={(option: Option) => setDifficulty(parseInt(option.value, 10) as DifficultyIndex)}
           />
+          <Stack>
+            <span className={cx(styles.syncText, { [styles.isSynced]: isSynced })}>
+              {isSynced ? 'synced ✓' : 'syncing...'}
+            </span>
+          </Stack>
         </Stack>
       </div>
       <div className={styles.editorContainer}>
