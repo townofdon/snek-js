@@ -780,6 +780,7 @@ export enum WearableFrame {
   NinjaBlue = 14,
   NinjaPurple = 15,
   BaseballCap = 16,
+  VikingHelmet = 17,
   LuchadoreMaskRed = 18,
   LuchadoreMaskBlue = 19,
   MexicanBlanket = 20,
