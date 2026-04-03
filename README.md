@@ -25,7 +25,7 @@ You can [play the demo here](https://townofdon.github.io/snek-js/)!
 - Obstacles and puzzle-like rooms to escape
 - 4 difficulty modes
 - High score leaderboard
-- Kickin' soundtrack
+- Chiptune original soundtrack
 - [A level editor](https://townofdon.github.io/snek-js/editor)
 
 ## Tools Used
