@@ -728,6 +728,7 @@ export enum Image {
   EditorSelectionRed = 'editor-selection-red.png',
   MineSheet = 'snek-mine-sheet.png',
   ExplosionSheet = 'snek-explosion-sheet.png',
+  WearablesSheet = 'snek-wearables.png',
   FireSheet = 'snek-fire5.png',
   TileSheet = 'snek-tiles.png',
   PickupsSheet = 'snek-pickups.png',
@@ -754,12 +755,38 @@ export type SpritesheetImage =
   | Image.FireSheet
   | Image.TileSheet
   | Image.PickupsSheet
+  | Image.WearablesSheet
   | Image.Points500
   | Image.Points1000
   | Image.Points2000
   | Image.Points5000
   | Image.Points10000
 ;
+
+export enum WearableFrame {
+  None = 0,
+  CowboyHat = 1,
+  ChefHat = 2,
+  IndianaJonesHat = 3,
+  Sunglasses = 4,
+  Monocle = 5,
+  TechVisor = 6,
+  Glasses = 7,
+  Mustache = 9,
+  BanditMask = 10,
+  PirateOutfit = 11,
+  CatEars = 12,
+  Horns = 13,
+  NinjaBlue = 14,
+  NinjaPurple = 15,
+  BaseballCap = 16,
+  LuchadoreMaskRed = 18,
+  LuchadoreMaskBlue = 19,
+  MexicanBlanket = 20,
+  RoyalCape = 21,
+  Crown = 22,
+  Cone = 23,
+}
 
 export interface Scene {
   draw: () => void

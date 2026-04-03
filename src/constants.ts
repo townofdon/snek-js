@@ -387,6 +387,10 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> = {
     frames: 28,
     timePerFrame: 200,
   } satisfies AnimationData,
+  [Image.WearablesSheet]: {
+    frames: 23,
+    timePerFrame: 200,
+  } satisfies AnimationData,
   [Image.Points500]: {
     frames: 14,
     timePerFrame: 100,

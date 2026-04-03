@@ -116,6 +116,7 @@ import {
   PreyType,
   SpritesheetImage,
   PickupRarity,
+  WearableFrame,
 } from "../types";
 import {
   checkHasPortalAtLocation,
@@ -2591,6 +2592,18 @@ export function engine({
       spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHead, vec.x, vec.y, getRotationFromDirection(direction), 1, -1);
     } else {
       spriteRenderer.drawImage3x3(Image.SnekHead, vec.x, vec.y, getRotationFromDirection(direction));
+      if (replay.mode !== ReplayMode.Playback) {
+        p5.push();
+        let rotation = getRotationFromDirection(direction);
+        let x = vec.x;
+        if (direction === DIR.LEFT) {
+          rotation = 0;
+          p5.scale(-1, 1);
+          x = -x - 1;
+        }
+        spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, x, vec.y, WearableFrame.LuchadoreMaskBlue - 1, rotation);
+        p5.pop();
+      }
     }
   }
 

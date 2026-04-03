@@ -72,6 +72,7 @@ export class SpriteRenderer {
     [Image.FireSheet]: null,
     [Image.TileSheet]: null,
     [Image.PickupsSheet]: null,
+    [Image.WearablesSheet]: null,
     [Image.Points500]: null,
     [Image.Points1000]: null,
     [Image.Points2000]: null,
@@ -248,6 +249,7 @@ export class SpriteRenderer {
       this.loadImage(Image.FireSheet);
       this.loadImage(Image.TileSheet);
       this.loadImage(Image.PickupsSheet);
+      this.loadImage(Image.WearablesSheet);
       this.loadImage(Image.Points500);
       this.loadImage(Image.Points1000);
       this.loadImage(Image.Points2000);
@@ -309,12 +311,12 @@ export class SpriteRenderer {
   /**
    * Draw a sprite from a spritesheet
    */
-  drawSprite3x3 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {
+  drawSprite3x3 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0) => {
     if (!ANIMATIONS[image]) {
       throw new Error(`no animation data found for image "${image}"`);
     }
     const { frames, timePerFrame } = ANIMATIONS[image];
-    this.drawImage3x3Impl(gfx, image, x, y, 0, 1, 0, frames, timePerFrame, timePerFrame * frame);
+    this.drawImage3x3Impl(gfx, image, x, y, rotation, 1, 0, frames, timePerFrame, timePerFrame * frame);
   }
 
   drawSprite3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {
