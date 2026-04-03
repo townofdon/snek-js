@@ -718,7 +718,7 @@ export class Renderer implements IRenderer {
     }
   }
 
-  drawPortal = (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions) => {
+  drawPortal = (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions, gfx?: P5.Graphics) => {
     if (!portal) return;
     const delay = portal.index * PORTAL_INDEX_DELAY;
     const t1 = oscilateLinear((this.elapsed + delay) / (PORTAL_FADE_DURATION));
@@ -727,6 +727,9 @@ export class Renderer implements IRenderer {
       ? [this.p5.lerpColor(this.p5.color("#ccc"), this.p5.color("#000"), t1).toString(), "#555"]
       : this.lookupPortalColors(portal.channel, t1, t2);
     this.drawSquare(portal.position.x, portal.position.y, background, color, options);
+    if (gfx && !this.isStaticCached) {
+      this.drawSquareCustom(gfx, portal.position.x, portal.position.y, background, color, options);
+    }
   }
 
   drawExitLight = (gfx: P5.Graphics, x: number, y: number, dir: DIR, idx: number) => {

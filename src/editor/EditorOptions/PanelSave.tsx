@@ -69,7 +69,7 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
     await generateShareImage();
     const encoded = encodeMapData(data, options);
     const [file, xsrfToken] = await Promise.all([
-      getCanvasImage(publishCanvas.current),
+      getCanvasImage(publishCanvas.current, `map-${Date.now()}.png`),
       getToken(),
     ]);
     return [encoded, file, xsrfToken];

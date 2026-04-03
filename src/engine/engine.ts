@@ -66,6 +66,8 @@ import {
   TIME_REWIND_TAKEOVER_CONTROLS,
   KEYCODE_ALPHA_A,
   KEYCODE_ALPHA_D,
+  KEYCODE_F10,
+  IS_DEV,
 } from "../constants";
 import {
   Action,
@@ -167,7 +169,7 @@ import { WARP_ZONE_01 } from '../levels/bonusLevels/warpZone01';
 import { WARP_ZONE_02 } from '../levels/bonusLevels/warpZone02';
 import { WARP_ZONE_03 } from '../levels/bonusLevels/warpZone03';
 import { WinLevelScene } from '../scenes/WinLevelScene';
-import { findLevelWarpIndex, getNumRandomLevelsRemaining } from '../levels/levelUtils';
+import { findLevelWarpIndex, getNumRandomLevelsRemaining, getWarpLevelFromNum } from '../levels/levelUtils';
 import { SpriteRenderer } from './spriteRenderer';
 import { Renderer } from './renderer';
 import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
@@ -188,6 +190,7 @@ import { SaveDataStore } from '../stores/SaveDataStore';
 import { AStar } from '../astar/astar';
 import { PreyList } from '../collections/preyList';
 import { TUTORIAL_LEVEL_10 } from '@/levels/campaign/tutorialLevel10';
+import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/publishUtils';
 
 interface EngineParams {
   p5: P5,
@@ -356,13 +359,13 @@ export function engine({
   const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxFGAction: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  gfxBG.addClass('static-gfx-canvas').addClass('bg').parent('game').addClass('gfx-bg');
+  gfxBG.addClass('static-gfx-canvas').addClass('bg').parent('game').addClass('gfx-bg').id('canvas-bg');
   gfxExitLights.addClass('static-gfx-canvas').addClass('fg0').parent('game').addClass('gfx-exit-lights');
-  gfxKeysLocks.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-keys-locks');
-  gfxApples.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-apples');
-  gfxFG.addClass('static-gfx-canvas').addClass('fg2').parent('game').addClass('gfx-fg');
-  gfxFGAction.addClass('static-gfx-canvas').addClass('fg3').parent('game').addClass('gfx-fg-action');
-  gfxLighting.addClass('static-gfx-canvas').addClass('fg4').parent('game').addClass('gfx-lighting');
+  gfxKeysLocks.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-keys-locks').id('canvas-keys-locks');
+  gfxApples.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-apples').id('canvas-apples');
+  gfxFG.addClass('static-gfx-canvas').addClass('fg2').parent('game').addClass('gfx-fg').id('canvas-fg');
+  gfxFGAction.addClass('static-gfx-canvas').addClass('fg3').parent('game').addClass('gfx-fg-action').id('canvas-action');
+  gfxLighting.addClass('static-gfx-canvas').addClass('fg4').parent('game').addClass('gfx-lighting').id('canvas-lighting');
   const graphicalComponents: GraphicalComponents = {
     deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     deco2: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -954,6 +957,10 @@ export function engine({
       && keyCode !== LEFT_ARROW && keyCode !== RIGHT_ARROW && keyCode !== KEYCODE_ALPHA_A && keyCode !== KEYCODE_ALPHA_D && keyCode !== ENTER) {
       return;
     }
+    if (!IS_DEV && p5.keyCode === KEYCODE_F10) {
+      saveMapImage();
+      return;
+    }
     handleKeyPressed(
       p5,
       state,
@@ -971,6 +978,23 @@ export function engine({
     );
     state.timeSinceLastInput = 0;
     state.inputType = InputType.Keyboard;
+  }
+
+  async function saveMapImage() {
+    // const mainCanvas = document.getElementById("game-canvas") as HTMLCanvasElement;
+    const fg = document.getElementById("canvas-fg") as HTMLCanvasElement;
+    // const apples = document.getElementById("canvas-apples") as HTMLCanvasElement;
+    const action = document.getElementById("canvas-action") as HTMLCanvasElement;
+    const dest = document.getElementById("canvas-bg") as HTMLCanvasElement;
+    const sourceDimensions = [2400,2400] as const;
+    const destinationDimensions = [1200, 1200] as const;
+    // await overlayOntoCanvas(mainCanvas, dest, ...sourceDimensions, ...destinationDimensions);
+    await overlayOntoCanvas(fg, dest, ...sourceDimensions, ...destinationDimensions);
+    // await overlayOntoCanvas(apples, dest, ...sourceDimensions, ...destinationDimensions);
+    await overlayOntoCanvas(action, dest, ...sourceDimensions, ...destinationDimensions);
+    const img = await getCanvasImage(dest, `map-${Date.now()}.png`);
+    downloadFile(img, `map-${findLevelWarpIndex(level)}-${level.name}.png`, 'img/png');
+    renderer.invalidateStaticCache();
   }
 
   function renderLoop(gamepadInputHandled = false) {
@@ -2991,7 +3015,11 @@ export function engine({
         if (!portalPosition) continue;
         const portal = portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
-        renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback, drawPortalOptions);
+        if (IS_DEV) {
+          renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback, drawPortalOptions, gfxBG);
+        } else {
+          renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback, drawPortalOptions);
+        }
         if (drawState.shouldDrawKeysLocks) {
           spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.ThemedPortalColumns, portalPosition.x, portalPosition.y, 0, 1, 0);
         }

@@ -14,11 +14,36 @@ export const getEditorUrl = (data: string) => {
   return `${window.location.origin}/snek-js/editor/?data=${data}`;
 }
 
-export const getCanvasImage = async (canvas: HTMLCanvasElement): Promise<File> => {
+export const getCanvasImage = async (canvas: HTMLCanvasElement, filename: string): Promise<File> => {
+  if (!filename) throw new Error('Filename is required for getCanvasImage()');
   const dataUrl = canvas.toDataURL('image/png');
   const blob = await (await fetch(dataUrl)).blob();
-  return new File([blob], `map-${Date.now()}.png`, { type: blob.type });
+  return new File([blob], filename, { type: blob.type });
 };
+
+export const overlayOntoCanvas = async (src: HTMLCanvasElement, dest: HTMLCanvasElement, sw: number, sh: number, dw: number, dh: number) => {
+  const mapImageDataUrl = src.toDataURL('image/png');
+  const mapImage = await loadImage(mapImageDataUrl);
+  const ctx = dest.getContext('2d');
+  ctx.drawImage(mapImage, 0, 0, sw, sh, 0, 0, dw, dh);
+}
+
+export const downloadFile = (content: File, fileName: string, contentType: string) => {
+  // Create a Blob from the content
+  const blob = new Blob([content], { type: contentType });
+  // Generate a temporary URL for the Blob
+  const url = window.URL.createObjectURL(blob);
+  // Create a hidden anchor element
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName; // Suggested file name
+  // Trigger the download by "clicking" the link
+  document.body.appendChild(link);
+  link.click();
+  // Clean up: remove the link and revoke the URL
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
+}
 
 export async function drawShareImage(ctx: CanvasRenderingContext2D, mapWidth: number, mapHeight: number, colors: Palette, mapImageDataUrl: string, mapName: string, author?: string) {
   const template = await loadImage('editor-share-template.png');

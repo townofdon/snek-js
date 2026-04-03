@@ -200,6 +200,7 @@ export const KEYCODE_ALPHA_P = 80;
 export const KEYCODE_ALPHA_R = 82;
 export const KEYCODE_ALPHA_S = 83;
 export const KEYCODE_ALPHA_W = 87;
+export const KEYCODE_F10 = 121;
 
 export const SCREEN_SHAKE_DURATION_MS = 1000;
 export const SCREEN_SHAKE_MAGNITUDE_PX = 4;
