@@ -2601,7 +2601,7 @@ export function engine({
           p5.scale(-1, 1);
           x = -x - 1;
         }
-        spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, x, vec.y, WearableFrame.IndianaJonesHat - 1, rotation);
+        // spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, x, vec.y, WearableFrame.IndianaJonesHat - 1, rotation);
         p5.pop();
       }
     }
