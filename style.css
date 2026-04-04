@@ -176,7 +176,7 @@ p, button, .button {
 }
 .static-gfx-canvas.gfx-exit-lights {
   mix-blend-mode: lighten;
-  opacity: 0.20;
+  opacity: 0.30;
 }
 .game.hide-gfx-canvas > .static-gfx-canvas {
   display: none!important;
