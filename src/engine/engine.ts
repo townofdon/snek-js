@@ -954,7 +954,7 @@ export function engine({
   function onKeyPressed( ev: KeyboardEvent ) {
     // force player to use u-turn mechanic on "turnaround" level
     const { keyCode, LEFT_ARROW, ENTER, RIGHT_ARROW } = p5;
-    if (level.id === TUTORIAL_LEVEL_10.id && player.direction === DIR.RIGHT && !recentInputs[1]
+    if (level?.id === TUTORIAL_LEVEL_10.id && player.direction === DIR.RIGHT && !recentInputs[1]
       && keyCode !== LEFT_ARROW && keyCode !== RIGHT_ARROW && keyCode !== KEYCODE_ALPHA_A && keyCode !== KEYCODE_ALPHA_D && keyCode !== ENTER) {
       return;
     }
