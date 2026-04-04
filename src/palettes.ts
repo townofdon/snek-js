@@ -38,6 +38,15 @@ export function getExtendedPalette(palette: Palette): ExtendedPalette {
   return extended;
 }
 
+export function getBorderColorVariant(color: string, variant: 'light' | 'dark'): string {
+  if (variant === 'light') {
+    return Color(color).lighten(0.2).desaturate(0.1).hex();
+  } else if (variant === 'dark') {
+    return Color(color).darken(0.2).saturate(0.1).hex();
+  }
+  return color;
+}
+
 // online palette tools
 // - https://coolors.co/493b2a-593f62-7b6d8d-8499b1-a5c4d4
 // - https://mycolor.space/?hex=%23CB1587&sub=1

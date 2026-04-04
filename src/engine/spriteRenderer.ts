@@ -4,6 +4,7 @@ import Color from "color";
 import { ScreenShakeState, Image, Palette, ExtendedPalette, AnimationData, SpritesheetImage, ThemedImage, ColorReplacementPalette } from "../types";
 import { ANIMATIONS, BLOCK_SIZE, MAP_OFFSET, STROKE_SIZE } from "../constants";
 import { getRelativeDir, lerp } from "../utils";
+import { getBorderColorVariant } from "@/palettes";
 
 const IMAGE_SCALE = 1.01;
 
@@ -32,6 +33,10 @@ export class SpriteRenderer {
     [Image.ThemedBarrierSkull]: null,
     [Image.ThemedBarrierIndent]: null,
     [Image.ThemedDoor]: null,
+    [Image.ThemedSegmentNE]: null,
+    [Image.ThemedSegmentSE]: null,
+    [Image.ThemedSegmentSW]: null,
+    [Image.ThemedSegmentNW]: null,
     [Image.ThemedBarrierFlat]: null,
     [Image.ThemedBarrierPyramid]: null,
     [Image.ThemedPortalColumns]: null,
@@ -148,6 +153,19 @@ export class SpriteRenderer {
       alt: this.p5.color(palette.doorStroke),
     } satisfies ColorReplacementPalette;
     this.setThemedImageFromSprite(colors, Image.ThemedDoor, Image.TileSheet, 9);
+  }
+
+  setThemedSegmentImage = (background: string, lineColor: string) => {
+    const colors = {
+      dark: this.p5.color(getBorderColorVariant(lineColor, 'dark')),
+      light: this.p5.color(getBorderColorVariant(lineColor, 'light')),
+      main: this.p5.color(lineColor),
+      alt: this.p5.color(background),
+    } satisfies ColorReplacementPalette;
+    this.setThemedImageFromSprite(colors, Image.ThemedSegmentNE, Image.TileSheet, 15);
+    this.setThemedImageFromSprite(colors, Image.ThemedSegmentSE, Image.TileSheet, 16);
+    this.setThemedImageFromSprite(colors, Image.ThemedSegmentSW, Image.TileSheet, 17);
+    this.setThemedImageFromSprite(colors, Image.ThemedSegmentNW, Image.TileSheet, 18);
   }
 
   private setThemedImageFromSprite(colors: ColorReplacementPalette, dest: ThemedImage, sourceSprite: Image, frame: number) {

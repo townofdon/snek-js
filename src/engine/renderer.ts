@@ -37,6 +37,7 @@ import {
 import { clamp, getRotationFromDirection, lerp, oscilateLinear } from "../utils";
 import { SpriteRenderer } from "./spriteRenderer";
 import { Easing } from "../easing";
+import { getBorderColorVariant } from "@/palettes";
 
 interface RendererConstructorProps {
   p5: P5
@@ -236,6 +237,56 @@ export class Renderer implements IRenderer {
       drawQuad(x0, y1i, x1, y1i, x1, y1, x0, y1);
       // LEFT
       drawQuad(x0, y0, x0i, y0, x0i, y1, x0, y1);
+    }
+  }
+
+  eraseCorner = (gfx: P5 | P5.Graphics, background: string, x: number, y: number, corner: 'NE' | 'SE' | 'SW' | 'NW', screenshakeMul) => {
+    const size = 1;
+    const strokeSize = STROKE_SIZE;
+    const strokeOffset = 0;
+    const borderSize = STROKE_SIZE * 0.5;
+    const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
+    const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
+    const x0 = Math.floor(x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX);
+    const y0 = Math.floor(y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY);
+    const x1 = Math.floor(x0 + (BLOCK_SIZE.x * size) - strokeOffset);
+    const y1 = Math.floor(y0 + (BLOCK_SIZE.y * size) - strokeOffset);
+    // inner rect
+    const x0i = Math.floor(x0 + borderSize);
+    const y0i = Math.floor(y0 + borderSize);
+    const x1i = Math.floor(x1 - borderSize);
+    const y1i = Math.floor(y1 - borderSize);
+    // inner-inner rect
+    const x0b = Math.floor(x0 + borderSize * 2);
+    const y0b = Math.floor(y0 + borderSize * 2);
+    const x1b = Math.floor(x1 - borderSize * 2);
+    const y1b = Math.floor(y1 - borderSize * 2);
+    const drawQuad = (_x0: number, _y0: number, _x1: number, _y1: number, _x2: number, _y2: number, _x3: number, _y3: number) => {
+      gfx.quad(
+        MAP_OFFSET + _x0,
+        MAP_OFFSET + _y0,
+        MAP_OFFSET + _x1,
+        MAP_OFFSET + _y1,
+        MAP_OFFSET + _x2,
+        MAP_OFFSET + _y2,
+        MAP_OFFSET + _x3,
+        MAP_OFFSET + _y3);
+    }
+    gfx.fill(background)
+    // gfx.erase();
+    // all corners drawn clockwise - see: https://p5js.org/reference/p5/quad/
+    if (corner === 'NE') {
+      drawQuad(x1, y0, x1, y0i, x1b, y0i, x1b, y0);
+      drawQuad(x1, y0, x1, y0b, x1i, y0b, x1i, y0);
+    } else if (corner === 'SE') {
+      drawQuad(x1, y1, x1b, y1, x1b, y1i, x1, y1i);
+      drawQuad(x1, y1, x1i, y1, x1i, y1b, x1, y1b);
+    } else if (corner === 'SW') {
+      drawQuad(x0, y1, x0, y1i, x0b, y1i, x0b, y1);
+      drawQuad(x0, y1, x0, y1b, x0i, y1b, x0i, y1);
+    } else if (corner === 'NW') {
+      drawQuad(x0, y0, x0b, y0, x0b, y0i, x0, y0i);
+      drawQuad(x0, y0, x0i, y0, x0i, y0b, x0, y0b);
     }
   }
 
@@ -836,12 +887,12 @@ export class Renderer implements IRenderer {
   private getBorderColor = (color: string, variant: 'light' | 'dark'): string => {
     if (variant === 'light') {
       if (!this.lightColorMap[color]) {
-        this.lightColorMap[color] = Color(color).lighten(0.2).desaturate(0.1).hex()
+        this.lightColorMap[color] = getBorderColorVariant(color, 'light');
       }
       return this.lightColorMap[color];
     } else if (variant === 'dark') {
       if (!this.darkColorMap[color]) {
-        this.darkColorMap[color] = Color(color).darken(0.2).saturate(0.1).hex();
+        this.darkColorMap[color] = getBorderColorVariant(color, 'dark');
       }
       return this.darkColorMap[color];
     }

@@ -376,6 +376,7 @@ export function engine({
     // @ts-ignore
     apple: null,
     snakeHead: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
+    // note - unused for main engine
     snakeSegment: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
   };
   const gradients = new Gradients(p5);
@@ -607,6 +608,11 @@ export function engine({
     spriteRenderer.setThemedAppleImage(level.colors);
     spriteRenderer.setThemedBorderImages(level.colors);
     spriteRenderer.setThemedDoorImage(level.colors);
+    if (state.gameMode === GameMode.Cobra) {
+      spriteRenderer.setThemedSegmentImage(PALETTE.cobra.playerTail, PALETTE.cobra.playerTailStroke);
+    } else {
+      spriteRenderer.setThemedSegmentImage(level.colors.playerTail, level.colors.playerTailStroke);
+    }
     cacheGraphicalComponents();
     appleParticleSystem.setColorsFromLevel(level);
     UI.disableScreenScroll();
@@ -1065,9 +1071,14 @@ export function engine({
 
     renderer.drawPlayerMoveArrows(p5, player.position, moves.length > 0 ? moves[0] : player.direction);
 
+    p5.push();
     for (let i = 0; i < segments.length; i++) {
       drawPlayerSegment(segments.get(i), i);
     }
+    for (let i = 0; i < segments.length; i++) {
+      erasePlayerSegmentCorner(segments.get(i), i);
+    }
+    p5.pop();
 
     const globalLight = level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
 
@@ -2638,13 +2649,38 @@ export function engine({
 
   function drawPlayerSegment(vec: Vector | undefined, i = 0) {
     if (!vec) return;
-    if (state.timeSinceHurt < HURT_STUN_TIME) {
+    const isMiddle = i < segments.length - 1;
+    const dirPrev = i === 0
+      ? getDirectionBetween(segments.get(i), player.position)
+      : getDirectionBetween(segments.get(i), segments.get(i - 1));
+    const dirNext = getDirectionBetween(segments.get(i), segments.get(i + 1));
+    const cornerNE = isMiddle && (
+      (dirPrev === DIR.UP && dirNext === DIR.RIGHT) ||
+      (dirPrev === DIR.RIGHT && dirNext === DIR.UP)
+    );
+    const cornerSE = isMiddle && (
+      (dirPrev === DIR.DOWN && dirNext === DIR.RIGHT) ||
+      (dirPrev === DIR.RIGHT && dirNext === DIR.DOWN)
+    );
+    const cornerSW = isMiddle && (
+      (dirPrev === DIR.DOWN && dirNext === DIR.LEFT) ||
+      (dirPrev === DIR.LEFT && dirNext === DIR.DOWN)
+    );
+    const cornerNW = isMiddle && (
+      (dirPrev === DIR.UP && dirNext === DIR.LEFT) ||
+      (dirPrev === DIR.LEFT && dirNext === DIR.UP)
+    );
+    const stunned = state.timeSinceHurt < HURT_STUN_TIME;
+    const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    if (stunned) {
+      // draw stunned
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
         renderer.drawSquare(vec.x, vec.y, "#000", "#000", drawPlayerOptions);
       } else {
         renderer.drawSquare(vec.x, vec.y, "#fff", "#fff", drawPlayerOptions);
       }
-    } else if (!state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
+    } else if (invincible) {
+      // draw invincible
       const timeLeft = difficulty.invincibilityTime - state.timeSinceInvincibleStart;
       if (timeLeft < INVINCIBILITY_EXPIRE_WARN_MS && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0) {
         renderer.drawSquare(vec.x, vec.y, "#000", "#000", drawPlayerOptions);
@@ -2654,6 +2690,7 @@ export function engine({
         renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
       }
     } else if (state.isRewinding) {
+      // draw rewinding
       const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
       const color = gradients.calc(reversibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
       renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
@@ -2662,13 +2699,31 @@ export function engine({
         PALETTE.deathInvert.playerTail,
         PALETTE.deathInvert.playerTailStroke,
         drawPlayerOptionsDeath);
+      const backgroundColor = state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
+      if (cornerNE) {
+        renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'NE', drawPlayerOptionsDeath.screenshakeMul);
+      } else if (cornerSE) {
+        renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'SE', drawPlayerOptionsDeath.screenshakeMul);
+      } else if (cornerSW) {
+        renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'SW', drawPlayerOptionsDeath.screenshakeMul);
+      } else if (cornerNW) {
+        renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'NW', drawPlayerOptionsDeath.screenshakeMul);
+      }
     } else {
-      if (state.gameMode === GameMode.Cobra) {
+      // draw normal segment
+      if (cornerNE) {
+        spriteRenderer.drawImage3x3Custom(p5, Image.ThemedSegmentNE, vec.x, vec.y, 0, 1, 0);
+      } else if (cornerSE) {
+        spriteRenderer.drawImage3x3Custom(p5, Image.ThemedSegmentSE, vec.x, vec.y, 0, 1, 0);
+      } else if (cornerSW) {
+        spriteRenderer.drawImage3x3Custom(p5, Image.ThemedSegmentSW, vec.x, vec.y, 0, 1, 0);
+      } else if (cornerNW) {
+        spriteRenderer.drawImage3x3Custom(p5, Image.ThemedSegmentNW, vec.x, vec.y, 0, 1, 0);
+      } else if (state.gameMode === GameMode.Cobra) {
         renderer.drawSquare(vec.x, vec.y, PALETTE.cobra.playerTail, PALETTE.cobra.playerTailStroke, drawPlayerOptions);
       } else {
         renderer.drawSquare(vec.x, vec.y, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
       }
-      // renderer.drawGraphicalComponent(graphicalComponents.snakeSegment, vec.x, vec.y);
       const decoInterval = 9;
       if (i === 0 && state.gameMode === GameMode.Cobra) {
         const direction = invertDirection(player.directionToFirstSegment);
@@ -2686,6 +2741,50 @@ export function engine({
         const direction = getDirectionBetween(segments.get(i), segments.get(i + 1));
         spriteRenderer.drawImage3x3(Image.SnekSegmentE, vec.x, vec.y, getRotationFromDirection(direction));
       }
+    }
+  }
+
+  function erasePlayerSegmentCorner(vec: Vector | undefined, i = 0) {
+    if (!vec) return;
+    const stunned = state.timeSinceHurt < HURT_STUN_TIME;
+    const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    if (!stunned &&
+      !invincible &&
+      !state.isRewinding &&
+      !state.isShowingDeathColours
+    ) {
+      return;
+    }
+    const isMiddle = i < segments.length - 1;
+    const dirPrev = i === 0
+      ? getDirectionBetween(segments.get(i), player.position)
+      : getDirectionBetween(segments.get(i), segments.get(i - 1));
+    const dirNext = getDirectionBetween(segments.get(i), segments.get(i + 1));
+    const cornerNE = isMiddle && (
+      (dirPrev === DIR.UP && dirNext === DIR.RIGHT) ||
+      (dirPrev === DIR.RIGHT && dirNext === DIR.UP)
+    );
+    const cornerSE = isMiddle && (
+      (dirPrev === DIR.DOWN && dirNext === DIR.RIGHT) ||
+      (dirPrev === DIR.RIGHT && dirNext === DIR.DOWN)
+    );
+    const cornerSW = isMiddle && (
+      (dirPrev === DIR.DOWN && dirNext === DIR.LEFT) ||
+      (dirPrev === DIR.LEFT && dirNext === DIR.DOWN)
+    );
+    const cornerNW = isMiddle && (
+      (dirPrev === DIR.UP && dirNext === DIR.LEFT) ||
+      (dirPrev === DIR.LEFT && dirNext === DIR.UP)
+    );
+    const backgroundColor = state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
+    if (cornerNE) {
+      renderer.eraseCorner(p5, backgroundColor, vec.x, vec.y, 'NE', 1);
+    } else if (cornerSE) {
+      renderer.eraseCorner(p5, backgroundColor, vec.x, vec.y, 'SE', 1);
+    } else if (cornerSW) {
+      renderer.eraseCorner(p5, backgroundColor, vec.x, vec.y, 'SW', 1);
+    } else if (cornerNW) {
+      renderer.eraseCorner(p5, backgroundColor, vec.x, vec.y, 'NW', 1);
     }
   }
 

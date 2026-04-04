@@ -685,6 +685,10 @@ export enum Image {
   ThemedBarrierPyramid = '__barrier-pyramid-rendered-at-runtime__',
   ThemedPortalColumns = '__barrier-portal-columns-rendered-at-runtime__',
   ThemedDoor = 'door-rendered-at-runtime__',
+  ThemedSegmentNE = 'segment-ne-rendered-at-runtime__',
+  ThemedSegmentSE = 'segment-se-rendered-at-runtime__',
+  ThemedSegmentSW = 'segment-sw-rendered-at-runtime__',
+  ThemedSegmentNW = 'segment-nw-rendered-at-runtime__',
   AppleTemplate = 'snek-apple-template.png',
   SnekHead = 'snek-head.png',
   SnekHeadDead = 'snek-head-dead.png',
@@ -743,6 +747,10 @@ export type ThemedImage =
   | Image.ThemedBarrierPyramid
   | Image.ThemedPortalColumns
   | Image.ThemedDoor
+  | Image.ThemedSegmentNE
+  | Image.ThemedSegmentSE
+  | Image.ThemedSegmentSW
+  | Image.ThemedSegmentNW
 ;
 
 export type SpritesheetImage =
