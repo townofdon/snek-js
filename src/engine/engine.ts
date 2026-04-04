@@ -584,7 +584,7 @@ export function engine({
         // may decide to remove these overwrites later
         level.disableAppleSpawn = options.disableAppleSpawn;
         if (options.disableAppleSpawn) {
-          level.applesModOverride = 1;
+          level.applesModOverride ??= 1;
           level.growthOverride = level.growthOverride ?? 2;
         }
         level.numApplesStart = options.numApplesStart;
