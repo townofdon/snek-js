@@ -2785,17 +2785,22 @@ export function engine({
         const lightIndex = (i: number) => {
           return Math.round(lerp(0, 4, triangle((i + 6) / 4)))
         }
+        const secondaryLightAlpha = 0.3;
         if (x === 0) {
-          renderer.drawExitLight(gfxExitLights, x + 1, y, DIR.RIGHT, lightIndex(y));
+          renderer.drawExitLight(gfxExitLights, x + 1, y, DIR.RIGHT, lightIndex(y), 1);
+          renderer.drawExitLight(gfxExitLights, x + 2, y, DIR.RIGHT, lightIndex(y), secondaryLightAlpha);
         }
         if (x === GRIDCOUNT_X - 1) {
-          renderer.drawExitLight(gfxExitLights, x - 1, y, DIR.LEFT, lightIndex(y));
+          renderer.drawExitLight(gfxExitLights, x - 1, y, DIR.LEFT, lightIndex(y), 1);
+          renderer.drawExitLight(gfxExitLights, x - 2, y, DIR.LEFT, lightIndex(y), secondaryLightAlpha);
         }
         if (y === 0) {
-          renderer.drawExitLight(gfxExitLights, x, y + 1, DIR.DOWN, lightIndex(x));
+          renderer.drawExitLight(gfxExitLights, x, y + 1, DIR.DOWN, lightIndex(x), 1);
+          renderer.drawExitLight(gfxExitLights, x, y + 2, DIR.DOWN, lightIndex(x), secondaryLightAlpha);
         }
         if (y === GRIDCOUNT_Y - 1) {
-          renderer.drawExitLight(gfxExitLights, x, y - 1, DIR.UP, lightIndex(x));
+          renderer.drawExitLight(gfxExitLights, x, y - 1, DIR.UP, lightIndex(x), 1);
+          renderer.drawExitLight(gfxExitLights, x, y - 2, DIR.UP, lightIndex(x), secondaryLightAlpha);
         }
       }
     }

@@ -391,6 +391,10 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> = {
     frames: 23,
     timePerFrame: 200,
   } satisfies AnimationData,
+  [Image.SnekDoorLightSheet]: {
+    frames: 9,
+    timePerFrame: 100,
+  } satisfies AnimationData,
   [Image.Points500]: {
     frames: 14,
     timePerFrame: 100,

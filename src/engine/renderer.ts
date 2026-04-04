@@ -732,20 +732,20 @@ export class Renderer implements IRenderer {
     }
   }
 
-  drawExitLight = (gfx: P5.Graphics, x: number, y: number, dir: DIR, idx: number) => {
-    const images = [
-      Image.SnekDoorLightD,
-      Image.SnekDoorLightD,
-      Image.SnekDoorLightC,
-      Image.SnekDoorLightB,
-      Image.SnekDoorLightA,
-      Image.SnekDoorLightA,
-      Image.SnekDoorLightA,
-      Image.SnekDoorLightB,
-      Image.SnekDoorLightC,
-      Image.SnekDoorLightD,
-      Image.SnekDoorLightD,
-    ]
+  drawExitLight = (gfx: P5.Graphics, x: number, y: number, dir: DIR, idx: number, alpha: number) => {
+    const frames = [
+      3,
+      3,
+      2,
+      1,
+      0,
+      0,
+      0,
+      1,
+      2,
+      3,
+      3,
+    ];
     const alphas = [
       0.95,
       0.8,
@@ -758,19 +758,18 @@ export class Renderer implements IRenderer {
       0.7,
       0.8,
       0.9,
-    ]
+    ];
     const duration = 200;
-    const totalDuration = duration * images.length;
+    const totalDuration = duration * frames.length;
     const on = Math.floor(this.elapsed / totalDuration) % 2 === 0;
     if (!on) {
-      this.spriteRenderer.drawImage3x3Custom(gfx, Image.SnekDoorLightD, x, y, getRotationFromDirection(dir), Easing.inCubic(alphas[0]), 0);
+      this.spriteRenderer.drawSprite3x3(gfx, Image.SnekDoorLightSheet, x, y, 3, getRotationFromDirection(dir), Easing.inCubic(alphas[0]) * alpha);
       return;
     }
-    const index = (Math.floor(this.elapsed / duration) + Math.round(idx)) % images.length;
-    // const index = Math.max((Math.floor(this.elapsed / duration) % images.length) + Math.round(idx), images.length - 1);
-    const img = images[index] || Image.SnekDoorLightE;
-    const alpha = Easing.inCubic(alphas[index] || alphas[0])
-    this.spriteRenderer.drawImage3x3Custom(gfx, img, x, y, getRotationFromDirection(dir), alpha, 0);
+    const index = (Math.floor(this.elapsed / duration) + Math.round(idx)) % frames.length;
+    const frame = frames[index] || 4;
+    const combinedAlpha = Easing.inCubic(alphas[index] || alphas[0]) * alpha;
+    this.spriteRenderer.drawSprite3x3(gfx, Image.SnekDoorLightSheet, x, y, frame, getRotationFromDirection(dir), combinedAlpha);
   }
 
   private fpsFrames: number[] = [];

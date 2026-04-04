@@ -693,11 +693,6 @@ export enum Image {
   SnekSegmentD = 'snek-segment-d.png',
   SnekSegmentE = 'snek-segment-e.png',
   SnekButt = 'snek-butt.png',
-  SnekDoorLightA = 'snek-door-light-1.png',
-  SnekDoorLightB = 'snek-door-light-2.png',
-  SnekDoorLightC = 'snek-door-light-3.png',
-  SnekDoorLightD = 'snek-door-light-4.png',
-  SnekDoorLightE = 'snek-door-light-5.png',
   ControlsKeyboardMove = 'controls-keyboard-move.png',
   ControlsKeyboardTurn = 'controls-keyboard-turn.png',
   ControlsKeyboardDelete = 'controls-keyboard-delete.png',
@@ -729,6 +724,7 @@ export enum Image {
   MineSheet = 'snek-mine-sheet.png',
   ExplosionSheet = 'snek-explosion-sheet.png',
   WearablesSheet = 'snek-wearables.png',
+  SnekDoorLightSheet = 'snek-door-light-sheet.png',
   FireSheet = 'snek-fire5.png',
   TileSheet = 'snek-tiles.png',
   PickupsSheet = 'snek-pickups.png',
@@ -756,6 +752,7 @@ export type SpritesheetImage =
   | Image.TileSheet
   | Image.PickupsSheet
   | Image.WearablesSheet
+  | Image.SnekDoorLightSheet
   | Image.Points500
   | Image.Points1000
   | Image.Points2000

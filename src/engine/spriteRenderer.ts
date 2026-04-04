@@ -43,11 +43,6 @@ export class SpriteRenderer {
     [Image.SnekSegmentD]: null,
     [Image.SnekSegmentE]: null,
     [Image.SnekButt]: null,
-    [Image.SnekDoorLightA]: null,
-    [Image.SnekDoorLightB]: null,
-    [Image.SnekDoorLightC]: null,
-    [Image.SnekDoorLightD]: null,
-    [Image.SnekDoorLightE]: null,
     [Image.KeyGrey]: null,
     [Image.KeyYellow]: null,
     [Image.KeyRed]: null,
@@ -73,6 +68,7 @@ export class SpriteRenderer {
     [Image.TileSheet]: null,
     [Image.PickupsSheet]: null,
     [Image.WearablesSheet]: null,
+    [Image.SnekDoorLightSheet]: null,
     [Image.Points500]: null,
     [Image.Points1000]: null,
     [Image.Points2000]: null,
@@ -223,11 +219,6 @@ export class SpriteRenderer {
       this.loadImage(Image.SnekSegmentD);
       this.loadImage(Image.SnekSegmentE);
       this.loadImage(Image.SnekButt);
-      this.loadImage(Image.SnekDoorLightA);
-      this.loadImage(Image.SnekDoorLightB);
-      this.loadImage(Image.SnekDoorLightC);
-      this.loadImage(Image.SnekDoorLightD);
-      this.loadImage(Image.SnekDoorLightE);
       this.loadImage(Image.KeyGrey);
       this.loadImage(Image.KeyYellow);
       this.loadImage(Image.KeyRed);
@@ -250,6 +241,7 @@ export class SpriteRenderer {
       this.loadImage(Image.TileSheet);
       this.loadImage(Image.PickupsSheet);
       this.loadImage(Image.WearablesSheet);
+      this.loadImage(Image.SnekDoorLightSheet);
       this.loadImage(Image.Points500);
       this.loadImage(Image.Points1000);
       this.loadImage(Image.Points2000);
@@ -281,7 +273,7 @@ export class SpriteRenderer {
    * Imperatively draw a 3x3 image (normally 48x48 px) providing a P5 or Graphics instant on which to draw
    */
   drawImage3x3Custom = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 0) => {
-    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, screenshakeMul);
+    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, screenshakeMul, 1, 1000, 0);
   }
 
   /**
@@ -311,12 +303,12 @@ export class SpriteRenderer {
   /**
    * Draw a sprite from a spritesheet
    */
-  drawSprite3x3 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0) => {
+  drawSprite3x3 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1) => {
     if (!ANIMATIONS[image]) {
       throw new Error(`no animation data found for image "${image}"`);
     }
     const { frames, timePerFrame } = ANIMATIONS[image];
-    this.drawImage3x3Impl(gfx, image, x, y, rotation, 1, 0, frames, timePerFrame, timePerFrame * frame);
+    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, 0, frames, timePerFrame, timePerFrame * frame);
   }
 
   drawSprite3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {
