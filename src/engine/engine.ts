@@ -896,6 +896,7 @@ export function engine({
       state.collisions += 1;
     }
     state.isLost = state.isLost || didHit;
+    handleSnakeTrapped(state.isLost && state.lives > 0);
     handleSnakeDamage(state.isLost && state.lives > 0);
 
     // handle snake death
@@ -1988,6 +1989,34 @@ export function engine({
     renderHeartsUI();
     stopAction(Action.GameOver);
     renderer.invalidateStaticCache();
+  }
+
+  // if snake has trapped itself, die immediately
+  function handleSnakeTrapped(didReceiveDamage: boolean) {
+    if (!didReceiveDamage) return;
+    if (state.gameMode === GameMode.Casual) return
+
+    let trapped = true;
+    outer:
+    for (let i = 0; i <= 3; i++) {
+      const prev = segments.get(i);
+      for (let i = 0; i <= 3; i++) {
+        let dir = DIR.UP;
+        if (i === 1) dir = DIR.RIGHT;
+        if (i === 2) dir = DIR.DOWN;
+        if (i === 3) dir = DIR.LEFT;
+        const pos = prev.copy().add(dirToUnitVector(dir));
+        if (!checkHasHit(pos)) {
+          trapped = false;
+          break outer;
+        }
+      }
+    }
+    if (trapped) {
+      state.lives = 0;
+      state.isLost = true;
+      playSound(Sound.hurt3);
+    }
   }
 
   function handleSnakeDamage(didReceiveDamage: boolean) {
