@@ -85,16 +85,13 @@ import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
 import { SaveDataStore } from './stores/SaveDataStore';
 import { recordSnekalyticsEvent } from './api/snekalytics';
 import { applyGamepadUIActions, resetGamepad, tickGamepad } from './engine/gamepad';
+import { SettingsStore } from './stores/SettingsStore';
 
 const queryParams = parseUrlQueryParams();
 const unlockedMusicStore = new UnlockedMusicStore()
 const saveDataStore = new SaveDataStore();
 
-const settings: GameSettings = {
-  musicVolume: 1,
-  sfxVolume: 1,
-  isScreenShakeDisabled: false,
-}
+const settings = new SettingsStore();
 const state: GameState = {
   appMode: AppMode.StartScreen,
   gameMode: GameMode.Normal,
