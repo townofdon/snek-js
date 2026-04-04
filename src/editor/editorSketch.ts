@@ -11,26 +11,17 @@ import {
   SNAKE_INVINCIBLE_COLORS,
 } from "../constants";
 import {
-  AppMode,
   DIR,
   DrawSquareOptions,
   EditorData,
   EditorOptions,
   ExtendedPalette,
-  GameMode,
-  GameState,
   EditorGraphicalComponents,
-  HitType,
   Image,
   KeyChannel,
   Palette,
   Portal,
   PortalChannel,
-  Replay,
-  ReplayMode,
-  ScreenShakeState,
-  Tutorial,
-  InputType,
   BarrierType,
 } from '../types';
 import { Gradients } from '../collections/gradients';

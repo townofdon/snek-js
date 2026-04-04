@@ -670,6 +670,7 @@ export const Editor = () => {
               sidebarBarrierTypes={
                 <SidebarBarrierTypes
                   activeBarrierType={barrierType}
+                  options={options}
                   setBarrierType={setBarrierType}
                 />
               }

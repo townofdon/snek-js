@@ -377,7 +377,7 @@ export function engine({
     apple: null,
     snakeHead: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     snakeSegment: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-  }
+  };
   const gradients = new Gradients(p5);
   const particles = new Particles(p5, gradients, screenShake); // z-index 0
   const particles10 = new Particles(p5, gradients, screenShake); // z-index 10

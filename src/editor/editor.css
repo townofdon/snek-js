@@ -421,7 +421,9 @@ button,
     padding-bottom: 0;
     border: 2px solid transparent;
     filter: brightness(0.5) grayscale(1);
+    &.noGrayscale { filter: brightness(0.5); }
     &:hover { filter: brightness(0.8) grayscale(0.8); }
+    &:hover.noGrayscale { filter: brightness(0.8); }
     &.active { filter: none; border-color: #fff; }
   }
   & .keyChannelSelect.active > button { filter: none; border-color: #fff; }
@@ -431,8 +433,13 @@ button,
   & .keyChannelYellow .keyChannelColorPreview { background-color: var(--channel-color-yellow); }
   & .keyChannelRed .keyChannelColorPreview { background-color: var(--channel-color-red); }
   & .keyChannelBlue .keyChannelColorPreview { background-color: var(--channel-color-blue); }
+  & button.portalChannel {
+    width: 70px;
+  }
   & button.portalChannel,
   & .keyChannelSelect > button {
+    display: flex;
+    align-items: center;
     color: #fff;
     padding-left: 25px;
     padding-right: 15px;
@@ -465,6 +472,12 @@ button,
   }
   & .keyChannelSelect.active .keyChannelColorPreview {
     background-color: rgb(17 17 17 / 10%);
+  }
+  & .barrierPreview {
+    display: inline-block !important;
+    position: absolute;
+    left: 0;
+    margin-bottom: 6px;
   }
 }
 

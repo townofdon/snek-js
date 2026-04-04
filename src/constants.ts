@@ -274,20 +274,6 @@ export const NEW_HIGHSCORE_COLORS = [
   "#15C2CB",
 ] as const;
 
-export const EDITOR_BARRIER_TYPE_COLORS: Record<BarrierType, string> = {
-  [BarrierType.Unset]: '#666',
-  [BarrierType.Default]: '#ffffff',
-  [BarrierType.Skull]: '#6fabb3',
-  [BarrierType.ThemedSkull]: '#6fabb3',
-  [BarrierType.Indent]: '#cbc8b2',
-  [BarrierType.ThemedIndent]: '#cbc8b2',
-  [BarrierType.FireTile]: '#fb873a',
-  [BarrierType.Flat]: '#b2cbb4',
-  [BarrierType.ThemedFlat]: '#b2cbb4',
-  [BarrierType.Pyramid]: '#bd7bca',
-  [BarrierType.ThemedPyramid]: '#bd7bca',
-} as const
-
 export const OST_TRACK_FADE_DURATION_MS = 10000;
 export const CAMPAIGN_TRACKS: MusicTrack[] = [
   MusicTrack.champion,

@@ -1,17 +1,57 @@
-import React from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import cx from 'classnames';
 
-import { BarrierType } from "../types";
+import { BarrierType, EditorOptions } from "../types";
+import { BLOCK_SIZE } from "../constants";
+import { sidebarBarrierTypesSketch, SidebarBarrierTypesSketchReturn } from "./sidebarBarrierTypesSketch";
 
 import * as styles from "./Editor.css";
-import { EDITOR_BARRIER_TYPE_COLORS } from "../constants";
 
 interface SidebarBarrierTypesProps {
   activeBarrierType: BarrierType,
+  options: EditorOptions,
   setBarrierType: (barrierType: BarrierType) => void,
 }
 
-export const SidebarBarrierTypes = ({ activeBarrierType, setBarrierType }: SidebarBarrierTypesProps) => {
+export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType }: SidebarBarrierTypesProps) => {
+  const container = useRef<HTMLDivElement>();
+  const sketch = useRef<SidebarBarrierTypesSketchReturn | null>(null);
+  const syncOptionsTimeout = useRef<NodeJS.Timeout>(null);
+  const canvasRef = {
+    [BarrierType.Unset]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Default]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Skull]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.ThemedSkull]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Indent]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.ThemedIndent]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.FireTile]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Flat]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.ThemedFlat]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Pyramid]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.ThemedPyramid]: useRef<HTMLCanvasElement>(null),
+  } satisfies Record<BarrierType, React.MutableRefObject<HTMLCanvasElement>>;
+
+  useLayoutEffect(() => {
+    if (container.current && canvasRef[BarrierType.Default].current && !sketch.current) {
+      Object.values(BarrierType).filter(v => typeof v !== 'string').forEach(barrierType => {
+        if (!canvasRef[barrierType].current && barrierType !== BarrierType.Unset) {
+          throw new Error(`No canvas exists for barrierType ${barrierTypeLabel(barrierType)}`);
+        }
+      })
+      sketch.current = sidebarBarrierTypesSketch(container.current, canvasRef);
+      sketch.current.setOptions(options);
+    }
+  }, [container.current, canvasRef[BarrierType.Default].current]);
+
+  useLayoutEffect(() => {
+    clearTimeout(syncOptionsTimeout.current);
+    if (sketch.current) {
+      syncOptionsTimeout.current = setTimeout(() => {
+        sketch.current.setOptions(options);
+      }, 40);
+    }
+  }, [options]);
+
   const renderButton = (barrierType: BarrierType) => {
     const text = {
       [BarrierType.Unset]: 'None',
@@ -26,37 +66,32 @@ export const SidebarBarrierTypes = ({ activeBarrierType, setBarrierType }: Sideb
       [BarrierType.Pyramid]: '9',
       [BarrierType.ThemedPyramid]: '10',
     }[barrierType];
-    const tooltipText = {
-      [BarrierType.Unset]: 'None',
-      [BarrierType.Default]: 'Default',
-      [BarrierType.Skull]: 'Skull',
-      [BarrierType.ThemedSkull]: 'Themed Skull',
-      [BarrierType.Indent]: 'Indent',
-      [BarrierType.ThemedIndent]: 'Themed Indent',
-      [BarrierType.FireTile]: 'Fire',
-      [BarrierType.Flat]: 'Flat',
-      [BarrierType.ThemedFlat]: 'Themed Flat',
-      [BarrierType.Pyramid]: 'Pyramid',
-      [BarrierType.ThemedPyramid]: 'Themed Pyramid',
-    }[barrierType];
-    const color = barrierType === activeBarrierType ? EDITOR_BARRIER_TYPE_COLORS[barrierType] : '#444'
-    const colorPreview = barrierType === activeBarrierType ? 'rgb(17 17 17 / 10%)' : EDITOR_BARRIER_TYPE_COLORS[barrierType];
+    const color = barrierType === activeBarrierType ? '#ffffff' : '#444'
     return (
       <div key={barrierType} className={styles.portalChannelSelect}>
-        <span className={styles.portalChannelColorPreview} style={{ backgroundColor: colorPreview }} />
         <button
           onClick={() => setBarrierType(barrierType)}
-          className={cx(styles.portalChannel, { [styles.active]: barrierType === activeBarrierType })}
+          className={cx(styles.portalChannel, styles.noGrayscale, { [styles.active]: barrierType === activeBarrierType })}
           style={{ backgroundColor: color }}
         >
+          {barrierType !== BarrierType.Unset && (
+            <canvas
+              ref={canvasRef[barrierType]}
+              id={`editor-tile-preview-barrier-${barrierType}`}
+              className={styles.barrierPreview}
+              width={BLOCK_SIZE.x}
+              height={BLOCK_SIZE.y}
+            />
+          )}
           {text}
-          {tooltipText && <span className={cx('tooltip', styles.tooltip)}>{tooltipText}</span>}
+          <span className={cx('tooltip', styles.tooltip)}>{barrierTypeLabel(barrierType)}</span>
         </button>
       </div>
     );
   }
+
   return (
-    <div>
+    <div ref={container}>
       <label>style</label>
       {renderButton(BarrierType.Default)}
       {renderButton(BarrierType.Skull)}
@@ -70,4 +105,21 @@ export const SidebarBarrierTypes = ({ activeBarrierType, setBarrierType }: Sideb
       {renderButton(BarrierType.ThemedPyramid)}
     </div>
   );
+}
+
+const barrierTypeLabel = (barrierType: BarrierType) => {
+  const tooltipText = {
+    [BarrierType.Unset]: 'None',
+    [BarrierType.Default]: 'Default',
+    [BarrierType.Skull]: 'Skull',
+    [BarrierType.ThemedSkull]: 'Themed Skull',
+    [BarrierType.Indent]: 'Indent',
+    [BarrierType.ThemedIndent]: 'Themed Indent',
+    [BarrierType.FireTile]: 'Fire',
+    [BarrierType.Flat]: 'Flat',
+    [BarrierType.ThemedFlat]: 'Themed Flat',
+    [BarrierType.Pyramid]: 'Pyramid',
+    [BarrierType.ThemedPyramid]: 'Themed Pyramid',
+  }[barrierType];
+  return tooltipText || 'Unknown';
 }
