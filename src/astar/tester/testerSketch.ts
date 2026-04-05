@@ -231,7 +231,7 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
               case PreyType.FieldMouse:
                 spriteRenderer.drawSprite3x3(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Cheese] - 1);
                 break;
-              case PreyType.Cockroach:
+              case PreyType.Ant:
                 spriteRenderer.drawSprite3x3(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Egg] - 1);
                 break;
               case PreyType.Grasshopper:

@@ -729,6 +729,10 @@ export enum Image {
   ExplosionSheet = 'snek-explosion-sheet.png',
   WearablesSheet = 'snek-wearables.png',
   SnekDoorLightSheet = 'snek-door-light-sheet.png',
+  PreyGrubSheet = 'snek-prey-grub.png',
+  PreyAntSheet = 'snek-prey-ant.png',
+  PreyMouseSheet = 'snek-prey-mouse.png',
+  PreyGrasshopperSheet = 'snek-prey-grasshopper.png',
   FireSheet = 'snek-fire5.png',
   TileSheet = 'snek-tiles.png',
   PickupsSheet = 'snek-pickups.png',
@@ -761,6 +765,10 @@ export type SpritesheetImage =
   | Image.PickupsSheet
   | Image.WearablesSheet
   | Image.SnekDoorLightSheet
+  | Image.PreyGrubSheet
+  | Image.PreyAntSheet
+  | Image.PreyMouseSheet
+  | Image.PreyGrasshopperSheet
   | Image.Points500
   | Image.Points1000
   | Image.Points2000
@@ -986,7 +994,7 @@ export enum PreyType {
   None = 0,
   Grub,
   FieldMouse,
-  Cockroach,
+  Ant,
   Grasshopper,
 }
 

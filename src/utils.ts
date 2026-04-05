@@ -409,7 +409,7 @@ export function readablePreyType(preyType: PreyType): string {
       return "Grub";
     case PreyType.FieldMouse:
       return "Mouse";
-    case PreyType.Cockroach:
+    case PreyType.Ant:
       return "Roach";
     case PreyType.Grasshopper:
       return "Grasshopper";

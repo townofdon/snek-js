@@ -74,6 +74,10 @@ export class SpriteRenderer {
     [Image.PickupsSheet]: null,
     [Image.WearablesSheet]: null,
     [Image.SnekDoorLightSheet]: null,
+    [Image.PreyGrubSheet]: null,
+    [Image.PreyMouseSheet]: null,
+    [Image.PreyAntSheet]: null,
+    [Image.PreyGrasshopperSheet]: null,
     [Image.Points500]: null,
     [Image.Points1000]: null,
     [Image.Points2000]: null,
@@ -260,6 +264,10 @@ export class SpriteRenderer {
       this.loadImage(Image.PickupsSheet);
       this.loadImage(Image.WearablesSheet);
       this.loadImage(Image.SnekDoorLightSheet);
+      this.loadImage(Image.PreyGrubSheet);
+      this.loadImage(Image.PreyMouseSheet);
+      this.loadImage(Image.PreyAntSheet);
+      this.loadImage(Image.PreyGrasshopperSheet);
       this.loadImage(Image.Points500);
       this.loadImage(Image.Points1000);
       this.loadImage(Image.Points2000);

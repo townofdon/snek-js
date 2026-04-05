@@ -93,7 +93,7 @@ export const LOSE_MESSAGES: LoseMessage[] = [
     ["Hey, you're getting good at this...", (state, stats, difficulty) => difficulty.index === 3 && stats.numLevelsCleared >= 4],
     ["Heck, even I'm impressed.", (state, stats, difficulty) => difficulty.index === 3 && stats.numLevelsCleared >= 7],
     ["You show a lot of spirit.", (state, stats, difficulty) => difficulty.index === 3],
-    ["Do tell, what is it like on the other side?", (state, stats, difficulty) => difficulty.index === 3],
+    ["What is it like on the other side?", (state, stats, difficulty) => difficulty.index === 3],
     ["Is it curtain call already?", (state, stats, difficulty) => difficulty.index === 3],
     ["What a tragic end to such riveting gameplay.", (state, stats, difficulty) => difficulty.index >= 3],
     ["You were doomed from the gecko.", (state, stats, difficulty) => difficulty.index >= 3 && stats.numLevelsCleared < 2],

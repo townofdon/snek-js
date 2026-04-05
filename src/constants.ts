@@ -214,7 +214,10 @@ export const HURT_GRACE_TIME = 30;
 export const HURT_MUSIC_DUCK_TIME_MS = 1500;
 export const HURT_MUSIC_DUCK_VOL = -0.2;
 
-export const PREY_MOVE_TIME = 600; // time between prey movements
+export const PREY_MOVE_TIME_GRUB = 600; // time between prey movements
+export const PREY_MOVE_TIME_ANT = 400;
+export const PREY_MOVE_TIME_MOUSE = 200;
+export const PREY_MOVE_TIME_GRASSHOPPER = 500;
 export const PREY_LIFETIME = 20000;
 export const PREY_SPAWN_WAIT_TIME_MAX = 1000;
 export const PREY_SPAWN_WAIT_TIME_MIN = 220;
@@ -352,7 +355,7 @@ export const SLIME_CONTROL_TRACKS: MusicTrack[] = [
   MusicTrack.slime_rollcredits,
 ];
 
-export const ANIMATIONS: Record<SpritesheetImage, AnimationData> = {
+export const ANIMATIONS = {
   [Image.MineSheet]: {
     frames: 2,
     timePerFrame: 400,
@@ -401,7 +404,23 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> = {
     frames: 17,
     timePerFrame: 100,
   } satisfies AnimationData,
-} as const;
+  [Image.PreyGrubSheet]: {
+    frames: 4,
+    timePerFrame: PREY_MOVE_TIME_GRUB / 2,
+  } satisfies AnimationData,
+  [Image.PreyAntSheet]: {
+    frames: 2,
+    timePerFrame: PREY_MOVE_TIME_ANT / 2,
+  } satisfies AnimationData,
+  [Image.PreyMouseSheet]: {
+    frames: 4,
+    timePerFrame: PREY_MOVE_TIME_MOUSE / 2,
+  } satisfies AnimationData,
+  [Image.PreyGrasshopperSheet]: {
+    frames: 2,
+    timePerFrame: PREY_MOVE_TIME_GRASSHOPPER / 2,
+  } satisfies AnimationData,
+} as const satisfies Record<SpritesheetImage, AnimationData>;
 
 export const PICKUP_COMMON_ITEMS: PickupType[] = [
   PickupType.Cheese,

@@ -750,12 +750,13 @@ export function engine({
     // setup prey spawns
     // TODO: configure drops per level - see obsidian notes
     preySpawn.dropsByFrame = {
-      5: PreyType.FieldMouse,
-      10: PreyType.FieldMouse,
+      5: PreyType.Grub,
+      10: PreyType.Ant,
       15: PreyType.FieldMouse,
-      20: PreyType.FieldMouse,
+      20: PreyType.Grasshopper,
       25: PreyType.FieldMouse,
-      30: PreyType.FieldMouse,
+      30: PreyType.Ant,
+      35: PreyType.Grub,
     };
     barriers.forEach(barrier => {
       astar.setWall(barrier.vec.x, barrier.vec.y);
@@ -2206,17 +2207,18 @@ export function engine({
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     switch (preyType) {
+      case PreyType.Ant:
       case PreyType.Grub:
         points = PICKUP_EPIC_BONUS;
         image = Image.Points2000;
         rarity = PickupRarity.Epic;
         break;
-      case PreyType.FieldMouse:
+      case PreyType.Grasshopper:
         points = PICKUP_LEGENDARY_BONUS;
         image = Image.Points5000;
         rarity = PickupRarity.Legendary;
         break;
-      case PreyType.Cockroach:
+      case PreyType.FieldMouse:
         points = PICKUP_GALACTIC_BONUS;
         image = Image.Points10000;
         rarity = PickupRarity.Galactic;
@@ -2848,22 +2850,34 @@ export function engine({
     if (drawState.shouldDrawActionFG) {
       for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         if (preyList.existsAtCoord(coord)) {
-          const x = Math.floor(coord % GRIDCOUNT_X);
+          let x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
           if (shouldBlinkExpiringPickup(preyList.getTimeRemaining(x, y))) {
             continue;
           }
-          // const elapsed = preyList.getElapsed(x, y);
+          const flipx = preyList.getFlipX(x, y);
+          const elapsed = preyList.getElapsed(x, y);
           const preyType = preyList.getTypeByCoord(coord);
+          gfxFGAction.push();
+          if (flipx) {
+            gfxFGAction.scale(-1, 1);
+            x = -x - 1;
+          }
           switch (preyType) {
             case PreyType.Grub:
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.PreyGrubSheet, x, y, elapsed);
+              break;
             case PreyType.FieldMouse:
-            case PreyType.Cockroach:
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.PreyMouseSheet, x, y, elapsed);
+              break;
+            case PreyType.Ant:
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.PreyAntSheet, x, y, elapsed);
+              break;
             case PreyType.Grasshopper:
-              // spriteRenderer.drawSpritesheetAnim3x3(gfxApples, Image.MineSheet, x, y, elapsed);
-              spriteRenderer.drawSprite3x3(gfxFGAction, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Burger] - 1);
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.PreyGrasshopperSheet, x, y, elapsed);
               break;
           }
+          gfxFGAction.pop();
         }
       }
     }

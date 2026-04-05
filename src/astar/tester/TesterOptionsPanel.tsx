@@ -17,7 +17,7 @@ export const TesterOptionsPanel = ({ options, setOptions, handleGenerateMap }: T
   const agentTypeOptions = [
     PreyType.Grub,
     PreyType.FieldMouse,
-    PreyType.Cockroach,
+    PreyType.Ant,
     PreyType.Grasshopper,
   ].map(num => ({
     id: String(num),

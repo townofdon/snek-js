@@ -1,7 +1,7 @@
 import alea from '../lib/rng-alea';
 
 import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_DEV } from "../constants";
-import { getCoordIndex2, getEuclidianDistance, getManhattanDistance, lerp } from "../utils";
+import { getCoordIndex2, getCoordX, getEuclidianDistance, getManhattanDistance, lerp } from "../utils";
 import { ICollection } from '../types';
 
 const THREAT_COST_MINE = 4;
@@ -32,7 +32,8 @@ export interface SearchOptions {
   seed?: number,
   minWeight?: number,
   maxWeight?: number,
-  farsighted?: boolean,
+  ignoreThreats?: boolean,
+  sightRange?: number
 }
 
 /**
@@ -137,6 +138,24 @@ export class AStar {
     return fromCoord;
   }
 
+  public getNextDirX(fromCoord: number): number {
+    let ax = -1;
+    for (let i = 0; i < this.pathLength - 1; i++) {
+      if (ax >= 0) {
+        const bx = getCoordX(this.path[i]);
+        if (ax !== bx) {
+          return bx - ax;
+        } else {
+          continue;
+        }
+      }
+      if (fromCoord === this.path[i]) {
+        ax = getCoordX(this.path[i]);
+      }
+    }
+    return 0;
+  }
+
   public getFinalPathCoord() {
     if (this.pathLength === 0) return -1;
     return this.path[this.pathLength - 1];
@@ -153,7 +172,7 @@ export class AStar {
   }
 
   public search(startx: number, starty: number, endx: number, endy: number, opts: SearchOptions = {}): boolean {
-    const { seed = 0, farsighted = false, minWeight = .5, maxWeight = 1.5 } = opts;
+    const { seed = 0, sightRange = 5, ignoreThreats = false, minWeight = .5, maxWeight = 1.5 } = opts;
     // flee mode
     const flee = endx === -1 && endy === -1;
     const allowClosest = this.options.allowClosest;
@@ -254,12 +273,12 @@ export class AStar {
         const threatCostMine = distToClosestMine <= 2
           ? (THREAT_COST_MINE / (distToClosestMine + 1)) || 0
           : 0;
-        const threatCostSnek = distToSnekHead <= 5
+        const threatCostSnek = distToSnekHead <= sightRange
           ? (THREAT_COST_SNEK / (distToSnekHead + 1)) || 0
-          : (farsighted ? (1.5 / (distToSnekHead + 1)) || 0 : 0);
+          : 0;
         const threatCost = Math.max(
           threatCostMine,
-          threatCostSnek,
+          threatCostSnek * (ignoreThreats ? 0 : 1),
         );
         const weight = weights[current] ?? 1;
         // calculate traversal cost (g)
