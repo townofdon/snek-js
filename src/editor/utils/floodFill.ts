@@ -1,47 +1,10 @@
 import { GRIDCOUNT_X, GRIDCOUNT_Y } from "../../constants";
-import { BarrierType, EditorData, EditorDataSlice, KeyChannel, PortalChannel } from "../../types";
+import { BarrierType, EditorData, EditorDataSlice, FloodFillTile, KeyChannel, PortalChannel } from "../../types";
 import { Tile } from "../editorTypes";
 import { getCoordIndex2, isValidBarrierType, isValidKeyChannel, isValidPortalChannel } from "../../utils";
 import { deepCloneData } from "./editorUtils";
+import { BARRIER_TYPE_TO_FLOOD_FILL_TILE } from "@/levels/levelConstants";
 
-
-enum FloodFillTile {
-  None,
-  Passable,
-  Barrier,
-  BarrierSkull,
-  BarrierSkullThemed,
-  BarrierIndent,
-  BarrierIndentThemed,
-  BarrierFireTile,
-  BarrierFlat,
-  BarrierFlatThemed,
-  BarrierPyramid,
-  BarrierPyramidThemed,
-  Door,
-  Deco1,
-  Deco2,
-  Apple,
-  Portal0,
-  Portal1,
-  Portal2,
-  Portal3,
-  Portal4,
-  Portal5,
-  Portal6,
-  Portal7,
-  Portal8,
-  Portal9,
-  KeyYellow,
-  KeyRed,
-  KeyBlue,
-  LockYellow,
-  LockRed,
-  LockBlue,
-  Nospawn,
-  Mine,
-  Invincibility,
-}
 
 interface GetTileArgs {
   tile: Tile;
@@ -58,29 +21,7 @@ function getTile({ tile, portalChannel, keyChannel, barrierType }: GetTileArgs) 
   if (tile === Tile.Deco2) return FloodFillTile.Deco2;
   if (tile === Tile.Deco1) return FloodFillTile.Deco1;
   if (tile === Tile.Barrier && isValidBarrierType(barrierType)) {
-    switch (barrierType) {
-      case BarrierType.FireTile:
-        return FloodFillTile.BarrierFireTile;
-      case BarrierType.Skull:
-        return FloodFillTile.BarrierSkull;
-      case BarrierType.ThemedSkull:
-        return FloodFillTile.BarrierSkullThemed;
-      case BarrierType.Indent:
-        return FloodFillTile.BarrierIndent;
-      case BarrierType.ThemedIndent:
-        return FloodFillTile.BarrierIndentThemed;
-      case BarrierType.Flat:
-        return FloodFillTile.BarrierFlat;
-      case BarrierType.ThemedFlat:
-        return FloodFillTile.BarrierFlatThemed
-      case BarrierType.Pyramid:
-        return FloodFillTile.BarrierPyramid
-      case BarrierType.ThemedPyramid:
-        return FloodFillTile.BarrierPyramidThemed
-      case BarrierType.Default:
-      default:
-        return FloodFillTile.Barrier;
-    }
+    return BARRIER_TYPE_TO_FLOOD_FILL_TILE[barrierType] || FloodFillTile.Barrier;
   }
   if (tile === Tile.Portal && isValidPortalChannel(portalChannel)) {
     switch (portalChannel) {
@@ -216,6 +157,36 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
       break;
     case FloodFillTile.BarrierPyramidThemed:
       slice.barrier = BarrierType.ThemedPyramid;
+      break;
+    case FloodFillTile.BarrierExitSign:
+      slice.barrier = BarrierType.ExitSign;
+      break;
+    case FloodFillTile.BarrierRadar:
+      slice.barrier = BarrierType.Radar;
+      break;
+    case FloodFillTile.BarrierComputerChip:
+      slice.barrier = BarrierType.ComputerChip;
+      break;
+    case FloodFillTile.BarrierMetalPlate:
+      slice.barrier = BarrierType.MetalPlate;
+      break;
+    case FloodFillTile.BarrierPanel0:
+      slice.barrier = BarrierType.Panel0;
+      break;
+    case FloodFillTile.BarrierPanel1:
+      slice.barrier = BarrierType.Panel1;
+      break;
+    case FloodFillTile.BarrierPanel2:
+      slice.barrier = BarrierType.Panel2;
+      break;
+    case FloodFillTile.BarrierPanel3:
+      slice.barrier = BarrierType.Panel3;
+      break;
+    case FloodFillTile.BarrierPanel4:
+      slice.barrier = BarrierType.Panel4;
+      break;
+    case FloodFillTile.BarrierPanel5:
+      slice.barrier = BarrierType.Panel5;
       break;
     case FloodFillTile.Door:
       slice.door = true;

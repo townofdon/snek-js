@@ -3,6 +3,7 @@ import { DEFAULT_PORTALS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { BarrierType, Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./campaign/level01";
+import { TILE_CHAR_TO_BARRIER_TYPE, TILECHAR } from "./levelConstants";
 
 export function buildLevel(level: Level, isEditor = false): LevelData {
   const data: LevelData = {
@@ -74,47 +75,21 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
       const vec = new Vector(x, y);
       const coord = getCoordIndex(vec);
 
-      switch (char) {
-        case 'X':
-        case 'x':
-          if (char === 'x') {
-            passables.push(vec);
-          }
-          data.barriers.push({ vec, type: BarrierType.Default });
-          break;
-        case 'Z':
-          data.barriers.push({ vec, type: BarrierType.Skull });
-          break;
-        case 'z':
-          data.barriers.push({ vec, type: BarrierType.ThemedSkull });
-          break;
-        case 'C':
-          data.barriers.push({ vec, type: BarrierType.Indent });
-          break;
-        case 'c':
-          data.barriers.push({ vec, type: BarrierType.ThemedIndent });
-          break;
-        case 'F':
-          data.barriers.push({ vec, type: BarrierType.FireTile });
-          break;
-        case 'V':
-          data.barriers.push({ vec, type: BarrierType.Flat });
-          break;
-        case 'v':
-          data.barriers.push({ vec, type: BarrierType.ThemedFlat });
-          break;
-        case 'B':
-          data.barriers.push({ vec, type: BarrierType.Pyramid });
-          break;
-        case 'b':
-          data.barriers.push({ vec, type: BarrierType.ThemedPyramid });
-          break;
+      const barrierType = TILE_CHAR_TO_BARRIER_TYPE[char];
+      if (barrierType) {
+        if (char === TILECHAR.BarrierPassable) {
+          passables.push(vec);
+        }
+        data.barriers.push({ vec, type: barrierType });
+        continue;
+      }
 
-        case 'D':
-        case 'd':
+      switch (char) {
+        case TILECHAR.Door:
+        case TILECHAR.DoorAlt:
           data.doors.push(vec);
           // extra decoration for doors, if lowercase
-          if (char === 'd') {
+          if (TILECHAR.DoorAlt) {
             if (level === LEVEL_01) {
               data.decoratives2.push(vec);
             } else {
@@ -123,105 +98,105 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
           }
           break;
 
-        case 'O':
+        case TILECHAR.PlayerSpawn:
           data.playerSpawnPosition = vec;
           break;
 
         // no-spawns
-        case '~':
+        case TILECHAR.Nospawn:
           data.nospawns.push(vec);
           break;
-        case '_':
+        case TILECHAR.Deco1Alt:
           data.decoratives1.push(vec);
           data.nospawns.push(vec);
           break;
-        case '+':
+        case TILECHAR.Deco2Alt:
           data.decoratives2.push(vec);
           data.nospawns.push(vec);
           break;
 
         // decorative
-        case '-':
+        case TILECHAR.Deco1:
           data.decoratives1.push(vec);
           break;
-        case '=':
+        case TILECHAR.Deco2:
           data.decoratives2.push(vec);
           break;
 
         // manually-spawned apples
-        case 'A':
-        case 'a':
+        case TILECHAR.Apple:
+        case TILECHAR.AppleAlt:
           data.nospawns.push(vec);
           data.apples.push(vec);
           break;
 
 
         // mines
-        case '*':
+        case TILECHAR.Mine:
           data.mines.push(vec);
           data.decoratives2.push(vec);
           break;
 
         // invincibility pickups
-        case '!':
+        case TILECHAR.Invincibility:
           data.invincibilities.push(vec);
           break;
 
         // keys / locks
-        case 'u':
+        case TILECHAR.BarrierKeyYellow:
           keyCandidates[KeyChannel.Yellow].push({ position: vec, channel: KeyChannel.Yellow });
           passables.push(vec);
           data.barriers.push({ vec, type: BarrierType.Default });
           break;
-        case 'i':
+        case TILECHAR.BarrierKeyRed:
           keyCandidates[KeyChannel.Red].push({ position: vec, channel: KeyChannel.Red });
           passables.push(vec);
           data.barriers.push({ vec, type: BarrierType.Default });
           break;
-        case 'o':
+        case TILECHAR.BarrierKeyBlue:
           keyCandidates[KeyChannel.Blue].push({ position: vec, channel: KeyChannel.Blue });
           passables.push(vec);
           data.barriers.push({ vec, type: BarrierType.Default });
           break;
-        case 'j':
+        case TILECHAR.KeyYellow:
           keyCandidates[KeyChannel.Yellow].push({ position: vec, channel: KeyChannel.Yellow });
           data.nospawns.push(vec);
           break;
-        case 'k':
+        case TILECHAR.KeyRed:
           keyCandidates[KeyChannel.Red].push({ position: vec, channel: KeyChannel.Red });
           data.nospawns.push(vec);
           break;
-        case 'l':
+        case TILECHAR.KeyBlue:
           keyCandidates[KeyChannel.Blue].push({ position: vec, channel: KeyChannel.Blue });
           data.nospawns.push(vec);
           break;
-        case 'J':
+        case TILECHAR.LockYellow:
           data.locks.push({ position: vec, channel: KeyChannel.Yellow, coord });
           data.nospawns.push(vec);
           data.decoratives2.push(vec);
           break;
-        case 'K':
+        case TILECHAR.LockRed:
           data.locks.push({ position: vec, channel: KeyChannel.Red, coord });
           data.nospawns.push(vec);
           data.decoratives2.push(vec);
           break;
-        case 'L':
+        case TILECHAR.LockBlue:
           data.locks.push({ position: vec, channel: KeyChannel.Blue, coord });
           data.nospawns.push(vec);
           data.decoratives2.push(vec);
           break;
 
         // portals
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
+        case TILECHAR.Portal0:
+        case TILECHAR.Portal1:
+        case TILECHAR.Portal2:
+        case TILECHAR.Portal3:
+        case TILECHAR.Portal4:
+        case TILECHAR.Portal5:
+        case TILECHAR.Portal6:
+        case TILECHAR.Portal7:
+        case TILECHAR.Portal8:
+        case TILECHAR.Portal9:
           if (level.type === LevelType.Maze) {
             const difficultyIndex = parseInt(char, 0);
             if (difficultyIndex < 1 || difficultyIndex > 4) continue;

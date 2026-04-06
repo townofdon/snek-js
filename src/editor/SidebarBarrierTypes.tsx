@@ -29,6 +29,16 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
     [BarrierType.ThemedFlat]: useRef<HTMLCanvasElement>(null),
     [BarrierType.Pyramid]: useRef<HTMLCanvasElement>(null),
     [BarrierType.ThemedPyramid]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.ExitSign]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Radar]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.ComputerChip]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.MetalPlate]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Panel0]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Panel1]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Panel2]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Panel3]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Panel4]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Panel5]: useRef<HTMLCanvasElement>(null),
   } satisfies Record<BarrierType, React.MutableRefObject<HTMLCanvasElement>>;
 
   useLayoutEffect(() => {
@@ -53,7 +63,7 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
   }, [options]);
 
   const renderButton = (barrierType: BarrierType) => {
-    const text = {
+    const text = ({
       [BarrierType.Unset]: 'None',
       [BarrierType.Default]: '1',
       [BarrierType.Skull]: '2',
@@ -65,7 +75,17 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
       [BarrierType.ThemedFlat]: '8',
       [BarrierType.Pyramid]: '9',
       [BarrierType.ThemedPyramid]: '10',
-    }[barrierType];
+      [BarrierType.ExitSign]: "11",
+      [BarrierType.Radar]: "12",
+      [BarrierType.ComputerChip]: "13",
+      [BarrierType.MetalPlate]: "14",
+      [BarrierType.Panel0]: "15",
+      [BarrierType.Panel1]: "16",
+      [BarrierType.Panel2]: "17",
+      [BarrierType.Panel3]: "18",
+      [BarrierType.Panel4]: "19",
+      [BarrierType.Panel5]: "20"
+    } satisfies Record<BarrierType, string>)[barrierType];
     const color = barrierType === activeBarrierType ? '#ffffff' : '#444'
     return (
       <div key={barrierType} className={styles.portalChannelSelect}>
@@ -103,12 +123,22 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
       {renderButton(BarrierType.ThemedFlat)}
       {renderButton(BarrierType.Pyramid)}
       {renderButton(BarrierType.ThemedPyramid)}
+      {renderButton(BarrierType.ExitSign)}
+      {renderButton(BarrierType.Radar)}
+      {renderButton(BarrierType.ComputerChip)}
+      {renderButton(BarrierType.MetalPlate)}
+      {renderButton(BarrierType.Panel0)}
+      {renderButton(BarrierType.Panel1)}
+      {renderButton(BarrierType.Panel2)}
+      {renderButton(BarrierType.Panel3)}
+      {renderButton(BarrierType.Panel4)}
+      {renderButton(BarrierType.Panel5)}
     </div>
   );
 }
 
 const barrierTypeLabel = (barrierType: BarrierType) => {
-  const tooltipText = {
+  const tooltipText = ({
     [BarrierType.Unset]: 'None',
     [BarrierType.Default]: 'Default',
     [BarrierType.Skull]: 'Skull',
@@ -120,6 +150,16 @@ const barrierTypeLabel = (barrierType: BarrierType) => {
     [BarrierType.ThemedFlat]: 'Themed Flat',
     [BarrierType.Pyramid]: 'Pyramid',
     [BarrierType.ThemedPyramid]: 'Themed Pyramid',
-  }[barrierType];
+    [BarrierType.ExitSign]: "Exit Sign",
+    [BarrierType.Radar]: "Radar Display",
+    [BarrierType.ComputerChip]: "Computer Chip",
+    [BarrierType.MetalPlate]: "Metal Plate",
+    [BarrierType.Panel0]: "Panel 0",
+    [BarrierType.Panel1]: "Panel 1",
+    [BarrierType.Panel2]: "Panel 2",
+    [BarrierType.Panel3]: "Panel 3",
+    [BarrierType.Panel4]: "Panel 4",
+    [BarrierType.Panel5]: "Panel 5"
+  } satisfies Record<BarrierType, string>)[barrierType];
   return tooltipText || 'Unknown';
 }

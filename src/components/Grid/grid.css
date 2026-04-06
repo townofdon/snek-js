@@ -24,6 +24,9 @@
   &.justifyEnd {
     justify-content: flex-end;
   }
+  &.alignSelfStart {
+    align-self: flex-start;
+  }
 }
 
 .gridCell {

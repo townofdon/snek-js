@@ -444,6 +444,36 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
               case BarrierType.ThemedPyramid:
                 spriteRenderer.drawImage3x3Static(gfx, Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
                 break;
+              case BarrierType.ExitSign:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 13);
+                break;
+              case BarrierType.Radar:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 19);
+                break;
+              case BarrierType.ComputerChip:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 20);
+                break;
+              case BarrierType.MetalPlate:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 21);
+                break;
+              case BarrierType.Panel0:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 22);
+                break;
+              case BarrierType.Panel1:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 23);
+                break;
+              case BarrierType.Panel2:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 24);
+                break;
+              case BarrierType.Panel3:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 25);
+                break;
+              case BarrierType.Panel4:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 26);
+                break;
+              case BarrierType.Panel5:
+                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 27);
+                break;
               case BarrierType.Default:
               default:
                 renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);

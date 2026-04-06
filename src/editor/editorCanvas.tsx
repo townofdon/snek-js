@@ -104,9 +104,9 @@ export const EditorCanvas = ({
   const tileLabel = getTileLabel(tile);
 
   return (
-    <div className={cx(styles.stack, styles.col)}>
+    <div className={cx('editor-canvas', styles.stack, styles.col)}>
       {editorTools}
-      <div className={cx(styles.stack, styles.row, styles.alignStretch)}>
+      <div className={cx(styles.stack, styles.row, styles.alignStretch, styles.justifyStart)}>
         {tileSidebar}
         {editorTiles}
         <Grid mouseAt={mouseAt}>

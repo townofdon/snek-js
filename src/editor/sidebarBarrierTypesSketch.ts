@@ -69,6 +69,16 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       [BarrierType.ThemedFlat]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ThemedFlat].current),
       [BarrierType.Pyramid]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Pyramid].current),
       [BarrierType.ThemedPyramid]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ThemedPyramid].current),
+      [BarrierType.ExitSign]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ExitSign].current),
+      [BarrierType.Radar]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Radar].current),
+      [BarrierType.ComputerChip]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ComputerChip].current),
+      [BarrierType.MetalPlate]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.MetalPlate].current),
+      [BarrierType.Panel0]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel0].current),
+      [BarrierType.Panel1]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel1].current),
+      [BarrierType.Panel2]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel2].current),
+      [BarrierType.Panel3]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel3].current),
+      [BarrierType.Panel4]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel4].current),
+      [BarrierType.Panel5]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel5].current),
     } satisfies Record<BarrierType, P5.Graphics>;
     const graphicalComponents: Pick<EditorGraphicalComponents, 'barrier'> = {
       barrier: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -144,6 +154,18 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       spriteRenderer.drawImage3x3Static(gfx[BarrierType.ThemedFlat], Image.ThemedBarrierFlat, x, y, 0, 1, 0);
       spriteRenderer.drawSprite3x3Static(gfx[BarrierType.Pyramid], Image.TileSheet, x, y, 6);
       spriteRenderer.drawImage3x3Static(gfx[BarrierType.ThemedPyramid], Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
+      spriteRenderer.drawSprite3x3Static(gfx[BarrierType.ExitSign], Image.TileSheet, x, y, 13);
+      spriteRenderer.drawSprite3x3Static(gfx[BarrierType.Radar], Image.TileSheet, x, y, 19);
+      spriteRenderer.drawSprite3x3Static(gfx[BarrierType.ComputerChip], Image.TileSheet, x, y, 20);
+      spriteRenderer.drawSprite3x3Static(gfx[BarrierType.MetalPlate], Image.TileSheet, x, y, 21);
+      spriteRenderer.drawSprite3x3Static(gfx[BarrierType.Panel0], Image.TileSheet, x, y, 22);
+      spriteRenderer.drawSprite3x3Static(gfx[BarrierType.Panel1], Image.TileSheet, x, y, 23);
+      spriteRenderer.drawSprite3x3Static(gfx[BarrierType.Panel2], Image.TileSheet, x, y, 24);
+      spriteRenderer.drawSprite3x3Static(gfx[BarrierType.Panel3], Image.TileSheet, x, y, 25);
+      spriteRenderer.drawSprite3x3Static(gfx[BarrierType.Panel4], Image.TileSheet, x, y, 26);
+      spriteRenderer.drawSprite3x3Static(gfx[BarrierType.Panel5], Image.TileSheet, x, y, 27);
+
+
       renderer.drawGraphicalComponentCustom(gfx[BarrierType.Default], graphicalComponents.barrier, x, y);
     }
   }

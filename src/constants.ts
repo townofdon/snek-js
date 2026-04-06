@@ -379,7 +379,7 @@ export const ANIMATIONS = {
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.TileSheet]: {
-    frames: 19,
+    frames: 28,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.PickupsSheet]: {

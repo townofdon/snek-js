@@ -11,6 +11,7 @@ import { buildLevel } from '../../levels/levelBuilder';
 import { LEVEL_01 } from '../../levels/campaign/level01';
 import { EDITOR_DEFAULTS } from '../editorConstants';
 import { indexToMusicTrack, musicTracktoIndex } from './musicTrackUtils';
+import { BARRIER_TYPE_TO_TILE_CHAR, TILECHAR } from '@/levels/levelConstants';
 
 const MASK_BASE_64 = true;
 
@@ -297,23 +298,23 @@ export function buildMapLayout(data: EditorData): string {
       const keyChannel = data.keysMap[coord];
       if (data.barriersMap[coord]) {
         return {
-          [KeyChannel.Yellow]: 'u',
-          [KeyChannel.Red]: 'i',
-          [KeyChannel.Blue]: 'o',
+          [KeyChannel.Yellow]: TILECHAR.BarrierKeyYellow,
+          [KeyChannel.Red]: TILECHAR.BarrierKeyRed,
+          [KeyChannel.Blue]: TILECHAR.BarrierKeyBlue,
         }[keyChannel] ?? '?';
       }
       return {
-        [KeyChannel.Yellow]: 'j',
-        [KeyChannel.Red]: 'k',
-        [KeyChannel.Blue]: 'l',
+        [KeyChannel.Yellow]: TILECHAR.KeyYellow,
+        [KeyChannel.Red]: TILECHAR.KeyRed,
+        [KeyChannel.Blue]: TILECHAR.KeyBlue,
       }[keyChannel] ?? '?';
     }
     if (data.locksMap[coord] != undefined) {
       const keyChannel = data.locksMap[coord];
       return {
-        [KeyChannel.Yellow]: 'J',
-        [KeyChannel.Red]: 'K',
-        [KeyChannel.Blue]: 'L',
+        [KeyChannel.Yellow]: TILECHAR.LockYellow,
+        [KeyChannel.Red]: TILECHAR.LockRed,
+        [KeyChannel.Blue]: TILECHAR.LockBlue,
       }[keyChannel] ?? '?';
     }
     if (data.portalsMap[coord] != undefined) {
@@ -322,58 +323,36 @@ export function buildMapLayout(data: EditorData): string {
     }
     if (data.barriersMap[coord]) {
       if (data.passablesMap[coord]) {
-        return 'x';
+        return TILECHAR.BarrierPassable;
       }
-      switch (data.barriersMap[coord]) {
-        case BarrierType.Skull:
-          return 'Z';
-        case BarrierType.ThemedSkull:
-          return 'z';
-        case BarrierType.Indent:
-          return 'C';
-        case BarrierType.ThemedIndent:
-          return 'c';
-        case BarrierType.FireTile:
-          return 'F';
-        case BarrierType.Flat:
-          return 'V';
-        case BarrierType.ThemedFlat:
-          return 'v';
-        case BarrierType.Pyramid:
-          return 'B';
-        case BarrierType.ThemedPyramid:
-          return 'b';
-        case BarrierType.Default:
-        default:
-          return 'X';
-      }
+      return BARRIER_TYPE_TO_TILE_CHAR[data.barriersMap[coord]] || TILECHAR.Barrier;
     }
     if (data.doorsMap[coord]) {
-      return 'd';
+      return TILECHAR.DoorAlt;
     }
     if (data.applesMap[coord]) {
-      return 'A';
+      return TILECHAR.Apple;
     }
     if (data.minesMap[coord]) {
-      return '*';
+      return TILECHAR.Mine;
     }
     if (data.invincibilitiesMap[coord]) {
-      return '!';
+      return TILECHAR.Invincibility;
     }
     if (data.decoratives1Map[coord]) {
       if (data.nospawnsMap[coord]) {
-        return '_';
+        return TILECHAR.Deco1Alt;
       }
-      return '-';
+      return TILECHAR.Deco1;
     }
     if (data.decoratives2Map[coord]) {
       if (data.nospawnsMap[coord]) {
-        return '+';
+        return TILECHAR.Deco2Alt;
       }
-      return '=';
+      return TILECHAR.Deco2;
     }
     if (data.nospawnsMap[coord]) {
-      return '~';
+      return TILECHAR.Nospawn;
     }
     return ' ';
   }

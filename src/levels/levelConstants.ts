@@ -1,4 +1,4 @@
-import { Level } from "../types";
+import { BarrierType, FloodFillTile, Level } from "../types";
 import { LEVEL_00 } from "./campaign/level00";
 import { LEVEL_01 } from "./campaign/level01";
 import { LEVEL_02 } from "./campaign/level02";
@@ -125,6 +125,7 @@ export const SECRET_LEVELS = [
     VARIANT_LEVEL_99,
     TUTORIAL_LEVEL_51,
     MAZE_03_STORAGE,
+    MAZE_04_LOOT_ROOM,
 ]
 
 export const CHALLENGE_LEVELS: Level[] = [
@@ -156,3 +157,174 @@ export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;
 export const START_LEVEL = MAZE_01;
 export const START_LEVEL_COBRA = MAZE_01_COBRA;
 export const FIRST_CHALLENGE_LEVEL = X_SNEKCITY;
+
+export enum TILECHAR {
+  None = '',
+  Barrier = 'X',
+  BarrierPassable = 'x',
+  BarrierSkull = 'Z',
+  BarrierSkullThemed = 'z',
+  BarrierIndent = 'C',
+  BarrierIndentThemed = 'c',
+  BarrierFireTile = 'F',
+  BarrierFlat = 'V',
+  BarrierFlatThemed = 'v',
+  BarrierPyramid = 'B',
+  BarrierPyramidThemed = 'b',
+  BarrierExitSign = 'N',
+  BarrierRadar = 'n',
+  BarrierComputerChip = 'M',
+  BarrierMetalPlate = 'm',
+  BarrierPanel0 = 'q',
+  BarrierPanel1 = 'w',
+  BarrierPanel2 = 'e',
+  BarrierPanel3 = 'r',
+  BarrierPanel4 = 't',
+  BarrierPanel5 = 'y',
+  Door = 'D',
+  DoorAlt = 'd',
+  Deco1 = '-',
+  Deco2 = '=',
+  Deco1Alt = '_',
+  Deco2Alt = '+',
+  Apple = 'A',
+  AppleAlt = 'a',
+  Portal0 = '0',
+  Portal1 = '1',
+  Portal2 = '2',
+  Portal3 = '3',
+  Portal4 = '4',
+  Portal5 = '5',
+  Portal6 = '6',
+  Portal7 = '7',
+  Portal8 = '8',
+  Portal9 = '9',
+  BarrierKeyYellow = 'u',
+  BarrierKeyRed = 'i',
+  BarrierKeyBlue = 'o',
+  KeyYellow = 'j',
+  KeyRed = 'k',
+  KeyBlue = 'l',
+  LockYellow = 'J',
+  LockRed = 'K',
+  LockBlue = 'L',
+  Nospawn = '~',
+  Mine = '*',
+  Invincibility = '!',
+  PlayerSpawn = 'O',
+}
+
+// validate TILECHAR
+(() => {
+  const found = {} satisfies Partial<Record<string, boolean>>;
+  Object.values(TILECHAR).forEach(v => {
+    if (found[v]) {
+        throw new Error(`Duplicate TILECHAR found for "${v}"`);
+    }
+    found[v] = true;
+  });
+})()
+
+export const BARRIER_TYPE_TO_TILE_CHAR = {
+  [BarrierType.Unset]: TILECHAR.None,
+  [BarrierType.Default]: TILECHAR.Barrier,
+  [BarrierType.Skull]: TILECHAR.BarrierSkull,
+  [BarrierType.ThemedSkull]: TILECHAR.BarrierSkullThemed,
+  [BarrierType.Indent]: TILECHAR.BarrierIndent,
+  [BarrierType.ThemedIndent]: TILECHAR.BarrierIndentThemed,
+  [BarrierType.FireTile]: TILECHAR.BarrierFireTile,
+  [BarrierType.Flat]: TILECHAR.BarrierFlat,
+  [BarrierType.ThemedFlat]: TILECHAR.BarrierFlatThemed,
+  [BarrierType.Pyramid]: TILECHAR.BarrierPyramid,
+  [BarrierType.ThemedPyramid]: TILECHAR.BarrierPyramidThemed,
+  [BarrierType.ExitSign]: TILECHAR.BarrierExitSign,
+  [BarrierType.Radar]: TILECHAR.BarrierRadar,
+  [BarrierType.ComputerChip]: TILECHAR.BarrierComputerChip,
+  [BarrierType.MetalPlate]: TILECHAR.BarrierMetalPlate,
+  [BarrierType.Panel0]: TILECHAR.BarrierPanel0,
+  [BarrierType.Panel1]: TILECHAR.BarrierPanel1,
+  [BarrierType.Panel2]: TILECHAR.BarrierPanel2,
+  [BarrierType.Panel3]: TILECHAR.BarrierPanel3,
+  [BarrierType.Panel4]: TILECHAR.BarrierPanel4,
+  [BarrierType.Panel5]: TILECHAR.BarrierPanel5,
+} satisfies Record<BarrierType, TILECHAR>;
+
+export const TILE_CHAR_TO_BARRIER_TYPE = {
+  [TILECHAR.None]: 0,
+  [TILECHAR.Barrier]: BarrierType.Default,
+  [TILECHAR.BarrierPassable]: BarrierType.Default,
+  [TILECHAR.BarrierSkull]: BarrierType.Skull,
+  [TILECHAR.BarrierSkullThemed]: BarrierType.ThemedSkull,
+  [TILECHAR.BarrierIndent]: BarrierType.Indent,
+  [TILECHAR.BarrierIndentThemed]: BarrierType.ThemedIndent,
+  [TILECHAR.BarrierFireTile]: BarrierType.FireTile,
+  [TILECHAR.BarrierFlat]: BarrierType.Flat,
+  [TILECHAR.BarrierFlatThemed]: BarrierType.ThemedFlat,
+  [TILECHAR.BarrierPyramid]: BarrierType.Pyramid,
+  [TILECHAR.BarrierPyramidThemed]: BarrierType.ThemedPyramid,
+  [TILECHAR.BarrierExitSign]: BarrierType.ExitSign,
+  [TILECHAR.BarrierRadar]: BarrierType.Radar,
+  [TILECHAR.BarrierComputerChip]: BarrierType.ComputerChip,
+  [TILECHAR.BarrierMetalPlate]: BarrierType.MetalPlate,
+  [TILECHAR.BarrierPanel0]: BarrierType.Panel0,
+  [TILECHAR.BarrierPanel1]: BarrierType.Panel1,
+  [TILECHAR.BarrierPanel2]: BarrierType.Panel2,
+  [TILECHAR.BarrierPanel3]: BarrierType.Panel3,
+  [TILECHAR.BarrierPanel4]: BarrierType.Panel4,
+  [TILECHAR.BarrierPanel5]: BarrierType.Panel5,
+  [TILECHAR.Door]: 0,
+  [TILECHAR.DoorAlt]: 0,
+  [TILECHAR.Deco1]: 0,
+  [TILECHAR.Deco2]: 0,
+  [TILECHAR.Deco1Alt]: 0,
+  [TILECHAR.Deco2Alt]: 0,
+  [TILECHAR.Apple]: 0,
+  [TILECHAR.AppleAlt]: 0,
+  [TILECHAR.Portal0]: 0,
+  [TILECHAR.Portal1]: 0,
+  [TILECHAR.Portal2]: 0,
+  [TILECHAR.Portal3]: 0,
+  [TILECHAR.Portal4]: 0,
+  [TILECHAR.Portal5]: 0,
+  [TILECHAR.Portal6]: 0,
+  [TILECHAR.Portal7]: 0,
+  [TILECHAR.Portal8]: 0,
+  [TILECHAR.Portal9]: 0,
+  [TILECHAR.BarrierKeyYellow]: 0,
+  [TILECHAR.BarrierKeyRed]: 0,
+  [TILECHAR.BarrierKeyBlue]: 0,
+  [TILECHAR.KeyYellow]: 0,
+  [TILECHAR.KeyRed]: 0,
+  [TILECHAR.KeyBlue]: 0,
+  [TILECHAR.LockYellow]: 0,
+  [TILECHAR.LockRed]: 0,
+  [TILECHAR.LockBlue]: 0,
+  [TILECHAR.Nospawn]: 0,
+  [TILECHAR.Mine]: 0,
+  [TILECHAR.Invincibility]: 0,
+  [TILECHAR.PlayerSpawn]: 0,
+} satisfies Record<TILECHAR, BarrierType>;
+
+export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
+  [BarrierType.Unset]: FloodFillTile.None,
+  [BarrierType.Default]: FloodFillTile.Barrier,
+  [BarrierType.Skull]: FloodFillTile.BarrierSkull,
+  [BarrierType.ThemedSkull]: FloodFillTile.BarrierSkullThemed,
+  [BarrierType.Indent]: FloodFillTile.BarrierIndent,
+  [BarrierType.ThemedIndent]: FloodFillTile.BarrierIndentThemed,
+  [BarrierType.FireTile]: FloodFillTile.BarrierFireTile,
+  [BarrierType.Flat]: FloodFillTile.BarrierFlat,
+  [BarrierType.ThemedFlat]: FloodFillTile.BarrierFlatThemed,
+  [BarrierType.Pyramid]: FloodFillTile.BarrierPyramid,
+  [BarrierType.ThemedPyramid]: FloodFillTile.BarrierPyramidThemed,
+  [BarrierType.ExitSign]: FloodFillTile.BarrierExitSign,
+  [BarrierType.Radar]: FloodFillTile.BarrierRadar,
+  [BarrierType.ComputerChip]: FloodFillTile.BarrierComputerChip,
+  [BarrierType.MetalPlate]: FloodFillTile.BarrierMetalPlate,
+  [BarrierType.Panel0]: FloodFillTile.BarrierPanel0,
+  [BarrierType.Panel1]: FloodFillTile.BarrierPanel1,
+  [BarrierType.Panel2]: FloodFillTile.BarrierPanel2,
+  [BarrierType.Panel3]: FloodFillTile.BarrierPanel3,
+  [BarrierType.Panel4]: FloodFillTile.BarrierPanel4,
+  [BarrierType.Panel5]: FloodFillTile.BarrierPanel5,
+} satisfies Record<BarrierType, FloodFillTile>;

@@ -3041,7 +3041,38 @@ export function engine({
           case BarrierType.ThemedPyramid:
             spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedBarrierPyramid, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
             break;
+          case BarrierType.ExitSign:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 13);
+            break;
+          case BarrierType.Radar:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 19);
+            break;
+          case BarrierType.ComputerChip:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 20);
+            break;
+          case BarrierType.MetalPlate:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 21);
+            break;
+          case BarrierType.Panel0:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 22);
+            break;
+          case BarrierType.Panel1:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 23);
+            break;
+          case BarrierType.Panel2:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 24);
+            break;
+          case BarrierType.Panel3:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 25);
+            break;
+          case BarrierType.Panel4:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 26);
+            break;
+          case BarrierType.Panel5:
+            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 27);
+            break;
           default:
+          case BarrierType.Unset:
           case BarrierType.Default:
             renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrier, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
             break;

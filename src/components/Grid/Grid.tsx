@@ -27,7 +27,7 @@ export const Grid = ({ mouseAt, children }: GridProps) => {
   }
 
   return (
-    <div className={cx(styles.stack, styles.col, styles.alignStretch)}>
+    <div className={cx('grid', styles.stack, styles.col, styles.alignStretch, styles.alignSelfStart)}>
       <div>
         {Array.from({ length: 32 }).map((_, index) => renderGridCell(index, true, vector?.x === index - 1))}
       </div>
