@@ -47,6 +47,7 @@ export class SpriteRenderer {
     [Image.SnekSegmentB]: null,
     [Image.SnekSegmentD]: null,
     [Image.SnekSegmentE]: null,
+    [Image.SegmentsSheet]: null,
     [Image.SnekButt]: null,
     [Image.KeyGrey]: null,
     [Image.KeyYellow]: null,
@@ -240,6 +241,7 @@ export class SpriteRenderer {
       this.loadImage(Image.SnekSegmentB);
       this.loadImage(Image.SnekSegmentD);
       this.loadImage(Image.SnekSegmentE);
+      this.loadImage(Image.SegmentsSheet);
       this.loadImage(Image.SnekButt);
       this.loadImage(Image.KeyGrey);
       this.loadImage(Image.KeyYellow);
@@ -363,16 +365,14 @@ export class SpriteRenderer {
     const widthX = Math.floor(BLOCK_SIZE.x);
     const widthY = Math.floor(BLOCK_SIZE.y);
     const offset = -STROKE_SIZE * 0.5;
-    const position = {
-      x: Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE.x * IMAGE_SCALE) + MAP_OFFSET + 1,
-      y: Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE.y * IMAGE_SCALE) + MAP_OFFSET,
-    }
+    const posx = Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE.x * IMAGE_SCALE) + MAP_OFFSET + 1;
+    const posy = Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE.y * IMAGE_SCALE) + MAP_OFFSET;
 
     gfx.push();
     gfx.noSmooth();
     gfx.translate(
-      position.x,
-      position.y,
+      posx,
+      posy,
     );
     if (rotation) {
       gfx.translate(
@@ -397,6 +397,82 @@ export class SpriteRenderer {
       0,
       (widthX * 3 - STROKE_SIZE) * IMAGE_SCALE,
       (widthY * 3 - STROKE_SIZE) * IMAGE_SCALE,
+      // source (x, y, w, h)
+      frame * frameWidth,
+      0,
+      frameWidth,
+      loaded.height,
+      this.p5.COVER,
+      this.p5.LEFT,
+      this.p5.TOP
+    );
+    if (alpha !== 1) {
+      gfx.tint(255, 255, 255, 255);
+    }
+    gfx.pop();
+  }
+
+  public debugDrawImage1x1 = (gfx: P5 | P5.Graphics,) => {
+    const { frames } = ANIMATIONS[Image.SegmentsSheet];
+    this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 15, Math.PI * 0.0, 1, 1, frames, 1000, 0);
+    this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 16, Math.PI * 0.5, 1, 1, frames, 1000, 0);
+    this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 17, Math.PI * 1.0, 1, 1, frames, 1000, 0);
+    this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 18, Math.PI * 1.5, 1, 1, frames, 1000, 0);
+  }
+
+  public drawImage1x1 = (
+    gfx: P5 | P5.Graphics,
+    image: Image,
+    x: number,
+    y: number,
+    rotation: number = 0,
+    alpha = 1,
+    screenshakeMul = 1,
+    frames = 1,
+    timePerFrame = 1000,
+    elapsed = 0,
+  ) => {
+    if (!frames) throw new Error(`frames cannot be zero. val=${frames},img=${image}`);
+    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${image}`);
+    const loaded = this.images[image];
+    if (!loaded) {
+      return;
+    }
+    const widthX = Math.floor(BLOCK_SIZE.x) + STROKE_SIZE;
+    const widthY = Math.floor(BLOCK_SIZE.y) + STROKE_SIZE;
+    const offset = -STROKE_SIZE * 0.5;
+    const posx = Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul) + offset + MAP_OFFSET + 1;
+    const posy = Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul) + offset + MAP_OFFSET;
+
+    gfx.push();
+    gfx.noSmooth();
+    gfx.translate(
+      posx,
+      posy,
+    );
+    if (rotation) {
+      gfx.translate(
+        (widthX * 0.5 + offset) * IMAGE_SCALE,
+        (widthY * 0.5 + offset) * IMAGE_SCALE,
+      );
+      gfx.rotate(rotation);
+      gfx.translate(
+        (-widthX * 0.5 - offset) * IMAGE_SCALE,
+        (-widthY * 0.5 - offset) * IMAGE_SCALE,
+      );
+    }
+    if (alpha !== 1) {
+      gfx.tint(255, 255, 255, lerp(0, 255, alpha));
+    }
+    const frame = Math.floor(elapsed / timePerFrame) % frames;
+    const frameWidth = loaded.width / frames;
+    gfx.image(
+      loaded,
+      // destination (x, y, w, h)
+      0,
+      0,
+      (widthX - STROKE_SIZE) * IMAGE_SCALE,
+      (widthY - STROKE_SIZE) * IMAGE_SCALE,
       // source (x, y, w, h)
       frame * frameWidth,
       0,
@@ -451,9 +527,6 @@ export class SpriteRenderer {
     if (!loaded) {
       return;
     }
-    // this is why you should use a dedicated game engine, to not have to deal with sub-pixel adjustments
-    // const adjustment = IMAGE_SCALE - (IMAGE_SCALE - 1) * 0.5;
-    const adjustment = 1;
     gfx.push();
     gfx.noSmooth();
     gfx.translate(
@@ -463,13 +536,13 @@ export class SpriteRenderer {
     if (rotation) {
       // translate 1 instead of 0.5 because we are doubling all image sizes
       gfx.translate(
-        (loaded.width) * adjustment,
-        (loaded.height) * adjustment,
+        loaded.width,
+        loaded.height,
       );
       gfx.rotate(rotation);
       gfx.translate(
-        (-loaded.width) * adjustment,
-        (-loaded.height) * adjustment,
+        -loaded.width,
+        -loaded.height,
       );
     }
     if (alpha !== 1) {

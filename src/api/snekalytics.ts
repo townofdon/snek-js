@@ -1,13 +1,12 @@
-import { v4 as uuid } from 'uuid';
-
-import { IS_DEV, MAP_API_HOST } from "../constants";
+import { COMMIT_HASH, IS_DEV, MAP_API_HOST, VERSION } from "../constants";
 import { Api } from "./utils/apiUtils";
 import { identityStore } from '../stores/IdentityStore';
 
 export const recordSnekalyticsEvent = (event: {
-  eventType: String,
-  difficulty: String,
-  levelName: String,
+  eventType: string,
+  playthroughId: string,
+  difficulty: string,
+  levelName: string,
   levelProgress: Number,
   levelTimeProgress: Number,
   score: Number,
@@ -17,6 +16,8 @@ export const recordSnekalyticsEvent = (event: {
   const isDev = IS_DEV;
   const origin = window.location.origin;
   const sessionId = identityStore.getId();
-  const body = { ...event, origin, sessionId, isDev };
+  const version = VERSION;
+  const commitHash = COMMIT_HASH
+  const body = { ...event, origin, sessionId, version, commitHash, isDev };
   return Api.post(url, body).catch(err => { console.error(err); });
 }

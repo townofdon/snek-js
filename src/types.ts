@@ -792,6 +792,7 @@ export enum Image {
   SnekSegmentB = 'snek-segment-b.png',
   SnekSegmentD = 'snek-segment-d.png',
   SnekSegmentE = 'snek-segment-e.png',
+  SegmentsSheet = 'snek-segments-sheet.png',
   SnekButt = 'snek-butt.png',
   ControlsKeyboardMove = 'controls-keyboard-move.png',
   ControlsKeyboardTurn = 'controls-keyboard-turn.png',
@@ -854,6 +855,7 @@ export type ThemedImage =
 ;
 
 export type SpritesheetImage =
+  | Image.SegmentsSheet
   | Image.MineSheet
   | Image.ExplosionSheet
   | Image.FireSheet

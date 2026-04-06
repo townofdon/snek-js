@@ -77,6 +77,7 @@ export const LOSE_MESSAGES: LoseMessage[] = [
     ["You will go down in hiss-tory", (state, stats) => stats.numLevelsCleared >= 10],
     ["Holy snek, you're still playing this game?!", (state, stats) => stats.totalGameTimeElapsed >= 1000 * 60 * 30],
     ["I can tell you're going places.", (state, stats) => stats.totalGameTimeElapsed >= 1000 * 60 * 20],
+    ["Snek? Snek!<br />Sneeeeeek!!!!!", (state, stats, difficulty) => difficulty.index <= 2 && stats.numLevelsCleared >= 3],
     // ["Don't ever let them say you can't succeed.", (state, stats) => stats.totalTimeElapsed > 1000 * 60 * 10],
 
     ["What, you expected this to be easy?", (state, stats, difficulty) => difficulty.index === 3],

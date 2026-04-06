@@ -1,16 +1,20 @@
 // Generated using webpack-cli https://github.com/webpack/webpack-cli
 
 const path = require('path');
-var webpack = require('webpack');
+const { execSync } = require('child_process');
+const webpack = require('webpack');
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const pkg = require('./package.json');
 
 function stripTrailingSlash(text) {
   return String(text).replace(/\/$/, '')
 }
 
 const isProduction = process.env.NODE_ENV == 'production';
+const commitHash = execSync('git rev-parse --short HEAD').toString().trim();
+
 
 const config = {
   entry: {
@@ -31,6 +35,10 @@ const config = {
     // Learn more about plugins from https://webpack.js.org/configuration/plugins/
     new webpack.ProvidePlugin({
       p5: 'p5',
+    }),
+    new webpack.DefinePlugin({
+      'process.env.__COMMIT_HASH__': JSON.stringify(commitHash),
+      'process.env.__VERSION__': JSON.stringify(pkg.version),
     }),
     new CopyPlugin({
       patterns: [

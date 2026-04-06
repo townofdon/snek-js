@@ -19,6 +19,8 @@ export const SHOW_FPS = false;
 export const DEBUG_EASY_LEVEL_EXIT = false;
 export const DISABLE_TRANSITIONS = false;
 export const RECORD_REPLAY_STATE = false;
+export const VERSION = process.env.__VERSION__;
+export const COMMIT_HASH = process.env.__COMMIT_HASH__;
 export const IS_DEV = window.location.href.includes('localhost') || process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development';
 const IS_EDITOR = window.location.pathname.includes('editor') || window.location.pathname.includes('astar-tester');
 
@@ -366,6 +368,10 @@ export const SLIME_CONTROL_TRACKS: MusicTrack[] = [
 ];
 
 export const ANIMATIONS = {
+  [Image.SegmentsSheet]: {
+    frames: 3,
+    timePerFrame: 100,
+  } satisfies AnimationData,
   [Image.MineSheet]: {
     frames: 2,
     timePerFrame: 400,

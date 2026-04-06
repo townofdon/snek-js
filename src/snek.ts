@@ -1,4 +1,5 @@
 import P5 from 'p5';
+import { v4 as uuid } from 'uuid';
 
 import {
   MAIN_TITLE_SCREEN_LEVEL,
@@ -51,7 +52,6 @@ import {
   Stats,
   LoseMessage,
   MusicTrack,
-  GameSettings,
   AppMode,
   TitleVariant,
   Tutorial,
@@ -65,7 +65,6 @@ import {
   InputType,
   Level,
   Outfit,
-  WearableFrame,
   HeldItems,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
@@ -125,6 +124,7 @@ const loseMessages: Record<number, LoseMessage[]> = {};
 
 let uiElements: P5.Element[] = [];
 let quotes = allQuotes.slice();
+let playthroughId = '';
 
 export const sketch = (p5: P5) => {
   const coroutines = new Coroutines(p5);
@@ -348,8 +348,9 @@ export const sketch = (p5: P5) => {
     window.addEventListener('beforeunload', () => {
       if (state.appMode === AppMode.Game && state.isGameStarted) {
         recordSnekalyticsEvent({
-          difficulty: getDifficultyName(getDifficulty().index),
           eventType: SNEKALYTICS_EVENT_TYPE.QUIT_GAME,
+          playthroughId,
+          difficulty: getDifficultyName(getDifficulty().index),
           levelName: getLevel().name,
           levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
           levelTimeProgress: state.timeElapsed,
@@ -574,6 +575,7 @@ export const sketch = (p5: P5) => {
   function startGame(levelNum = -1) {
     if (!state.isPreloaded) return;
     if (state.isGameStarting) return;
+    playthroughId = uuid();
     state.isGameStarting = true;
     state.lives = MAX_LIVES;
     resetStats();
@@ -688,8 +690,9 @@ export const sketch = (p5: P5) => {
     winGameScene.trigger();
     UI.enableScreenScroll();
     recordSnekalyticsEvent({
-      difficulty: getDifficultyName(getDifficulty().index),
       eventType: SNEKALYTICS_EVENT_TYPE.DEATH,
+      playthroughId,
+      difficulty: getDifficultyName(getDifficulty().index),
       levelName: getLevel().name,
       levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
       levelTimeProgress: state.timeElapsed,
@@ -704,8 +707,9 @@ export const sketch = (p5: P5) => {
     uiBindings.onGameOver();
     stats.numLevelsCleared = 0;
     recordSnekalyticsEvent({
-      difficulty: getDifficultyName(getDifficulty().index),
       eventType: SNEKALYTICS_EVENT_TYPE.DEATH,
+      playthroughId,
+      difficulty: getDifficultyName(getDifficulty().index),
       levelName: getLevel().name,
       levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
       levelTimeProgress: state.timeElapsed,
@@ -733,8 +737,9 @@ export const sketch = (p5: P5) => {
     const fromLevel = getLevel();
     const toLevel = getWarpLevelFromNum(levelNum);
     recordSnekalyticsEvent({
-      difficulty: getDifficultyName(getDifficulty().index),
       eventType: SNEKALYTICS_EVENT_TYPE.WARP,
+      playthroughId,
+      difficulty: getDifficultyName(getDifficulty().index),
       levelName: `${fromLevel.name}-->${toLevel.name}`,
       levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
       levelTimeProgress: state.timeElapsed,
@@ -788,8 +793,9 @@ export const sketch = (p5: P5) => {
   function confirmShowMainMenu() {
     const handleYes = () => {
       recordSnekalyticsEvent({
-        difficulty: getDifficultyName(getDifficulty().index),
         eventType: SNEKALYTICS_EVENT_TYPE.QUIT_GAME,
+        playthroughId,
+        difficulty: getDifficultyName(getDifficulty().index),
         levelName: getLevel().name,
         levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
         levelTimeProgress: state.timeElapsed,
@@ -861,8 +867,9 @@ export const sketch = (p5: P5) => {
 
     if (state.isGameWon) {
       recordSnekalyticsEvent({
-        difficulty: getDifficultyName(getDifficulty().index),
         eventType: SNEKALYTICS_EVENT_TYPE.WIN_GAME,
+        playthroughId,
+        difficulty: getDifficultyName(getDifficulty().index),
         levelName: getLevel().name,
         levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
         levelTimeProgress: state.timeElapsed,
@@ -892,8 +899,9 @@ export const sketch = (p5: P5) => {
 
     if (getLevel() !== START_LEVEL && getLevel() !== START_LEVEL_COBRA) {
       recordSnekalyticsEvent({
-        difficulty: getDifficultyName(getDifficulty().index),
         eventType: SNEKALYTICS_EVENT_TYPE.WIN_LEVEL,
+        playthroughId,
+        difficulty: getDifficultyName(getDifficulty().index),
         levelName: getLevel().name,
         levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
         levelTimeProgress: state.timeElapsed,
