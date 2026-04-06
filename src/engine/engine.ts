@@ -3366,7 +3366,9 @@ export function engine({
     drawState.shouldDrawApples = true;
     drawState.shouldDrawActionFG = true;
     drawState.shouldDrawKeysLocks = true;
-    UI.showDeathColors();
+    if (replay.mode !== ReplayMode.Playback) {
+      UI.showDeathColors();
+    }
     renderer.invalidateStaticCache();
     // UI.renderHearts(0, true);
     yield* coroutines.waitForTime(HURT_STUN_TIME * 2.5);
