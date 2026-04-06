@@ -379,6 +379,18 @@ export function engine({
     // note - unused for main engine
     snakeSegment: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
   };
+  // set pixel density for a perf boost. see - https://p5js.org/reference/p5/pixelDensity/
+  [
+    p5,
+    gfxPresentation,
+    gfxBG,
+    gfxExitLights,
+    gfxKeysLocks,
+    gfxApples,
+    gfxFG,
+    gfxFGAction,
+    gfxLighting,
+  ].forEach(gfx => gfx.pixelDensity(1));
   const gradients = new Gradients(p5);
   const particles = new Particles(p5, gradients, screenShake); // z-index 0
   const particles10 = new Particles(p5, gradients, screenShake); // z-index 10
