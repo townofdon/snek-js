@@ -102,8 +102,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
   };
   const state: EditorState = {
     showingPreview: false,
-    dirty: false,
-    colorsDirty: false,
+    dirty: true,
+    colorsDirty: true,
     extendedPalette: getExtendedPalette(options.palette),
     mouseAt: -1,
     mouseFrom: -1,

@@ -76,13 +76,15 @@ export class PreyList implements ICollection {
             seed: this.seed[i],
             sightRange: this.sightRange(preyType),
             ignoreThreats: preyType === PreyType.Ant,
+            allowDiagonals: preyType !== PreyType.Ant,
           });
         } else {
           // flee to acquire a target
           solutionFound = astar.fleeFromCoord(this.coord[i], {
             seed: this.seed[i],
-            sightRange: this.sightRange(preyType),
+            sightRange: 99,
             ignoreThreats: preyType === PreyType.Ant,
+            allowDiagonals: preyType !== PreyType.Ant,
           });
         }
         if (solutionFound) {

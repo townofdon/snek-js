@@ -33,7 +33,8 @@ export interface SearchOptions {
   minWeight?: number,
   maxWeight?: number,
   ignoreThreats?: boolean,
-  sightRange?: number
+  sightRange?: number,
+  allowDiagonals?: boolean,
 }
 
 /**
@@ -172,11 +173,17 @@ export class AStar {
   }
 
   public search(startx: number, starty: number, endx: number, endy: number, opts: SearchOptions = {}): boolean {
-    const { seed = 0, sightRange = 5, ignoreThreats = false, minWeight = .5, maxWeight = 1.5 } = opts;
+    const {
+      seed = 0,
+      sightRange = 5,
+      ignoreThreats = false,
+      minWeight = 0.5,
+      maxWeight = 1.5,
+      allowDiagonals = this.options.allowDiagonals,
+    } = opts;
     // flee mode
     const flee = endx === -1 && endy === -1;
     const allowClosest = this.options.allowClosest;
-    const allowDiagonals = this.options.allowDiagonals;
     const startCoord = getCoordIndex2(startx, starty);
     const endCoord = flee ? -1 : getCoordIndex2(endx, endy);
     for (let i = 0; i < ASTAR_GRID_SIZE; i++) {
