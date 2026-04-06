@@ -47,7 +47,9 @@ XXXXXXXXX==X++XX++X++XXXXXXXXX
   layoutV2: 'RUplZShOZWFYVydBQVBBQSchISEhUyEhISEhTWNLTihVQUFVKE5LY0tOTkxOTktNISEhISFTISFNKCkpV0plYU5hWAp8ODEyfFJJR0hUfHNwcmludHwxNDA3MTV8NHwtWVk1MHwwfDI4fDAuNXwjMTVDMkNCKjExOURBNFYyQzJDNjMqMzMzMzcxWlYxOTE5MzhaKjRCM0Y3Mio1NjQ4ODRiQjQxRmJDODU3YkREOTl8T09PWTQhYycoUCgnZiAoWFgpClhfLVUnUVEnX1FmVV8gZCotI0UKKGEoKEtfKF9MVShVTWMnKCdKYScoJ054eE8xLTEtMS1QJ1hVWExYVVgnUSBfU2NLKChMKChLVWRkViowRDBEMUMqV0VhKExKSkVZMXxaKjEzMTMyQV8tLWFKKGIqRkZjKEVlWE5mJyABZmVjYmFfWllXVlVTUVBPTk1MS0pFKikoJyFf',
   colors: getExtendedPalette(PALETTE.hospital),
   renderInstructions: (gfx, renderer, state, palette) => {
-    renderer.drawSprintControls(gfx, 11, 19);
+    if (!state.isDoorsOpen) {
+      renderer.drawSprintControls(gfx, 11, 19);
+    }
   },
   showTitle: true,
   extraLoseMessages: [

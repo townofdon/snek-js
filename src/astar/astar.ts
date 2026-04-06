@@ -259,11 +259,12 @@ export class AStar {
         if (neighbor < 0) {
           continue;
         }
+        const isPlayerHead = neighbor === snekCoord;
         const isSegment = !!(segments?.existsAtCoord(neighbor));
         const isWall = !!(flags[neighbor] & FLAG_WALL);
         const isClosed = !!(flags[neighbor] & FLAG_CLOSED);
         const isVisited = !!(flags[neighbor] & FLAG_VISITED);
-        if (isClosed || isWall || isSegment) {
+        if (isClosed || isWall || isSegment || isPlayerHead) {
           continue;
         }
         const nx = Math.floor(neighbor % GRIDCOUNT_X);
