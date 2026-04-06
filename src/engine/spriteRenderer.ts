@@ -334,7 +334,7 @@ export class SpriteRenderer {
       throw new Error(`no animation data found for image "${image}"`);
     }
     const { frames, timePerFrame } = ANIMATIONS[image];
-    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, 0, frames, timePerFrame, timePerFrame * frame);
+    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, 0.5, frames, timePerFrame, timePerFrame * frame);
   }
 
   drawSprite3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {

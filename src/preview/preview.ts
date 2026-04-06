@@ -7,9 +7,14 @@ import {
   FRAMERATE,
   DIMENSIONS,
   MAX_LIVES,
-  HURT_GRACE_TIME,
   DIFFICULTY_MEDIUM,
 } from '../constants';
+import {
+  DEFAULT_BASE_STATS,
+  DEFAULT_GAME_STATE,
+  DEFAULT_HELD_ITEMS,
+  DEFAULT_OUTFIT,
+} from "@/defaults";
 import {
   getCoordIndex,
   getDifficultyFromIndex,
@@ -17,7 +22,6 @@ import {
   wait,
 } from '../utils';
 import {
-  HitType,
   GameState,
   IEnumerator,
   Sound,
@@ -32,8 +36,9 @@ import {
   Action,
   Level,
   Palette,
-  InputType,
   ItemDropType,
+  Outfit,
+  HeldItems,
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI } from '../ui/ui';
@@ -75,66 +80,14 @@ const settings: GameSettings = {
   sfxVolume: 1,
   isScreenShakeDisabled: false,
 }
-const state: GameState = {
-  appMode: AppMode.StartScreen,
-  gameMode: GameMode.Normal,
-  mapset: 0,
-  isRandomizer: false,
-  isPreloaded: false,
-  isGameStarted: false,
-  isGameStarting: false,
-  isPaused: false,
-  isMoving: false,
-  isSprinting: false,
-  isRewindEnabled: false,
-  isRewinding: false,
-  isLost: false,
-  isGameWon: false,
-  isDoorsOpen: false,
-  isExitingLevel: false,
-  isExited: false,
-  isShowingDeathColours: false,
-  levelIndex: 0,
-  actualTimeElapsed: 0,
-  timeElapsed: 0,
-  timeSinceLastMove: Infinity,
-  timeSinceLastTeleport: Infinity,
-  timeSinceHurt: Infinity,
-  timeSinceHurtForgiveness: Infinity,
-  timeSinceLastInput: Infinity,
-  timeSinceInvincibleStart: Infinity,
-  timeSinceReversibleStart: Infinity,
-  timeSinceSpawnedPickup: Infinity,
-  timeSinceGraceStarted: 0,
-  lives: MAX_LIVES,
-  collisions: 0,
-  targetSpeed: 1,
-  currentSpeed: 1,
-  steps: 0,
-  frameCount: 0,
-  numTeleports: 0,
-  lastHurtBy: HitType.Unknown,
-  hasKeyYellow: false,
-  hasKeyRed: false,
-  hasKeyBlue: false,
-  nextLevel: null,
-  inputType: InputType.Keyboard,
-};
-const stats: Stats = {
-  numDeaths: 0,
-  numLevelsCleared: 0,
-  numLevelsEverCleared: 0,
-  numPointsEverScored: 0,
-  numApplesEverEaten: 0,
-  score: 0,
-  applesEatenThisLevel: 0,
-  totalGameTimeElapsed: 0,
-  totalLevelTimeElapsed: 0,
-}
+const state: GameState = { ...DEFAULT_GAME_STATE };
+const stats: Stats = { ...DEFAULT_BASE_STATS, applesEatenThisLevel: 0, totalLevelTimeElapsed: 0 } satisfies Stats;
+const outfit: Outfit = { ...DEFAULT_OUTFIT };
+const heldItems: HeldItems = { ...DEFAULT_HELD_ITEMS };
 const tutorial: Tutorial = {
   needsMoveControls: false,
   needsRewindControls: false,
-};
+} satisfies Tutorial;
 
 let uiElements: P5.Element[] = [];
 
@@ -195,6 +148,8 @@ export const sketch = (p5: P5) => {
     state,
     stats,
     settings,
+    outfit,
+    heldItems,
     tutorial,
     fonts,
     sfx,

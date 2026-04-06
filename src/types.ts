@@ -147,7 +147,11 @@ export type RecentMove = DIR | null
 export type RecentMoves = [RecentMove, RecentMove, RecentMove, RecentMove];
 export type RecentMoveTimings = [number, number, number, number];
 
-export interface Stats {
+/**
+ * Stats that are unique to a save slot.
+ */
+export interface BaseStats {
+  score: number,
   numDeaths: number,
   numLevelsCleared: number,
   numLevelsEverCleared: number,
@@ -159,9 +163,14 @@ export interface Stats {
    * total apples eaten, regardless of deaths (resets on new game)
    */
   numApplesEverEaten: number,
-  score: number,
-  applesEatenThisLevel: number,
   totalGameTimeElapsed: number,
+}
+
+/**
+ * Stats for a current game session.
+ */
+export interface Stats extends BaseStats {
+  applesEatenThisLevel: number,
   totalLevelTimeElapsed: number,
 }
 
@@ -226,6 +235,18 @@ export interface GameState {
   inputType: InputType,
 }
 
+export interface Outfit {
+  exclusive: WearableFrame, // pirate costume, luchador masks, etc.
+  hat: WearableFrame,
+  eyes: WearableFrame,
+  back: WearableFrame,
+  hair: WearableFrame,
+}
+
+export interface HeldItems {
+  crusher: boolean,
+}
+
 export interface DrawState {
   shouldDrawApples: boolean,
   shouldDrawKeysLocks: boolean,
@@ -253,9 +274,26 @@ export interface GameSettings {
 
 export type LevelId = string;
 
+export interface SaveSlotData {
+  currentLevel: number,
+  gameMode: GameMode,
+  difficulty: DifficultyIndex,
+  wearablesUnlocked: Record<WearableFrame, boolean>,
+  stats: BaseStats,
+  heldItems: HeldItems,
+}
+
+export type SaveSlot = 0 | 1 | 2;
+
 export interface SaveData {
   isCobraModeUnlocked: boolean,
-  completion: Record<LevelId, Record<DifficultyIndex, LevelCompletion>>
+  /**
+   * History of levels completed during any play session
+   */
+  completion: Record<LevelId, Record<DifficultyIndex, LevelCompletion>>,
+  slot0: SaveSlotData | null,
+  slot1: SaveSlotData | null,
+  slot2: SaveSlotData | null,
 }
 
 export interface LevelCompletion {
@@ -800,6 +838,16 @@ export enum WearableFrame {
   RoyalCape = 21,
   Crown = 22,
   Cone = 23,
+  Crusher = 24,
+}
+
+export enum WearableType {
+  None = 0,
+  Exclusive, // pirate costume, luchador masks, etc.
+  Hat,
+  Eyes,
+  Back,
+  Hair,
 }
 
 export interface Scene {

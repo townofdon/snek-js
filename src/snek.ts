@@ -20,6 +20,12 @@ import {
   IS_DEV,
 } from './constants';
 import {
+  DEFAULT_BASE_STATS,
+  DEFAULT_GAME_STATE,
+  DEFAULT_HELD_ITEMS,
+  DEFAULT_OUTFIT,
+} from './defaults';
+import {
   getDifficultyFromIndex,
   getDifficultyName,
   getLevelProgress,
@@ -58,6 +64,9 @@ import {
   Mapset,
   InputType,
   Level,
+  Outfit,
+  WearableFrame,
+  HeldItems,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -92,62 +101,10 @@ const unlockedMusicStore = new UnlockedMusicStore()
 const saveDataStore = new SaveDataStore();
 
 const settings = new SettingsStore();
-const state: GameState = {
-  appMode: AppMode.StartScreen,
-  gameMode: GameMode.Normal,
-  mapset: Mapset.Campaign,
-  isRandomizer: false,
-  isPreloaded: false,
-  isGameStarted: false,
-  isGameStarting: false,
-  isPaused: false,
-  isMoving: false,
-  isSprinting: false,
-  isRewindEnabled: false,
-  isRewinding: false,
-  isLost: false,
-  isGameWon: false,
-  isDoorsOpen: false,
-  isExitingLevel: false,
-  isExited: false,
-  isShowingDeathColours: false,
-  levelIndex: 0,
-  actualTimeElapsed: 0,
-  timeElapsed: 0,
-  timeSinceLastMove: Infinity,
-  timeSinceLastTeleport: Infinity,
-  timeSinceHurt: Infinity,
-  timeSinceHurtForgiveness: Infinity,
-  timeSinceLastInput: Infinity,
-  timeSinceInvincibleStart: Infinity,
-  timeSinceReversibleStart: Infinity,
-  timeSinceSpawnedPickup: Infinity,
-  timeSinceGraceStarted: 0,
-  lives: MAX_LIVES,
-  collisions: 0,
-  targetSpeed: 1,
-  currentSpeed: 1,
-  steps: 0,
-  frameCount: 0,
-  numTeleports: 0,
-  lastHurtBy: HitType.Unknown,
-  hasKeyYellow: false,
-  hasKeyRed: false,
-  hasKeyBlue: false,
-  nextLevel: null,
-  inputType: InputType.Keyboard,
-};
-const stats: Stats = {
-  numDeaths: 0,
-  numLevelsCleared: 0,
-  numLevelsEverCleared: 0,
-  numPointsEverScored: 0,
-  numApplesEverEaten: 0,
-  score: 0,
-  applesEatenThisLevel: 0,
-  totalGameTimeElapsed: 0,
-  totalLevelTimeElapsed: 0,
-}
+const state: GameState = { ...DEFAULT_GAME_STATE };
+const stats: Stats = { ...DEFAULT_BASE_STATS, applesEatenThisLevel: 0, totalLevelTimeElapsed: 0 } satisfies Stats;
+const outfit: Outfit = { ...DEFAULT_OUTFIT };
+const heldItems: HeldItems = { ...DEFAULT_HELD_ITEMS };
 const replay: Replay = {
   mode: ReplayMode.Disabled,
   levelIndex: state.levelIndex,
@@ -158,11 +115,11 @@ const replay: Replay = {
   timeCaptureStarted: 'no-date',
   shouldProceedToNextClip: false,
   lastFrame: 0,
-}
+} satisfies Replay;
 const tutorial: Tutorial = {
   needsMoveControls: false,
   needsRewindControls: false,
-};
+} satisfies Tutorial;
 
 const loseMessages: Record<number, LoseMessage[]> = {};
 
@@ -235,6 +192,8 @@ export const sketch = (p5: P5) => {
     state,
     stats,
     settings,
+    outfit,
+    heldItems,
     replay,
     tutorial,
     fonts,

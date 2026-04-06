@@ -1,7 +1,17 @@
 import P5 from "p5";
 import Color from "color";
 
-import { AnimationData, BarrierType, Difficulty, Image, MusicTrack, PickupType, PortalChannel, SpritesheetImage } from "./types";
+import {
+  AnimationData,
+  Difficulty,
+  Image,
+  MusicTrack,
+  PickupType,
+  PortalChannel,
+  SpritesheetImage,
+  WearableFrame,
+  WearableType,
+} from "./types";
 
 export const TITLE = 'SNEK';
 
@@ -377,7 +387,7 @@ export const ANIMATIONS = {
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.WearablesSheet]: {
-    frames: 23,
+    frames: 24,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.SnekDoorLightSheet]: {
@@ -522,5 +532,31 @@ export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
   [PickupType.Sushi]: 0,
   [PickupType.Milkshake]: 0,
   [PickupType.ChiliPepper]: 0,
-} as const satisfies Record<PickupType, number>)
+} as const satisfies Record<PickupType, number>);
 
+export const WEARABLE_TYPE_MAP = {
+  [WearableFrame.None]: WearableType.None,
+  [WearableFrame.CowboyHat]: WearableType.Hat,
+  [WearableFrame.ChefHat]: WearableType.Hat,
+  [WearableFrame.IndianaJonesHat]: WearableType.Hat,
+  [WearableFrame.Sunglasses]: WearableType.Eyes,
+  [WearableFrame.Monocle]: WearableType.Eyes,
+  [WearableFrame.TechVisor]: WearableType.Eyes,
+  [WearableFrame.Glasses]: WearableType.Eyes,
+  [WearableFrame.Mustache]: WearableType.Hair,
+  [WearableFrame.BanditMask]: WearableType.Eyes,
+  [WearableFrame.PirateOutfit]: WearableType.Exclusive,
+  [WearableFrame.CatEars]: WearableType.Hat,
+  [WearableFrame.Horns]: WearableType.Hat,
+  [WearableFrame.NinjaBlue]: WearableType.Exclusive,
+  [WearableFrame.NinjaPurple]: WearableType.Exclusive,
+  [WearableFrame.BaseballCap]: WearableType.Hat,
+  [WearableFrame.VikingHelmet]: WearableType.Hat,
+  [WearableFrame.LuchadoreMaskRed]: WearableType.Exclusive,
+  [WearableFrame.LuchadoreMaskBlue]: WearableType.Exclusive,
+  [WearableFrame.MexicanBlanket]: WearableType.Back,
+  [WearableFrame.RoyalCape]: WearableType.Back,
+  [WearableFrame.Crown]: WearableType.Hat,
+  [WearableFrame.Cone]: WearableType.Hat,
+  [WearableFrame.Crusher]: WearableType.None
+} satisfies Record<WearableFrame, WearableType>;

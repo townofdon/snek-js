@@ -117,6 +117,8 @@ import {
   SpritesheetImage,
   PickupRarity,
   WearableFrame,
+  Outfit,
+  HeldItems,
 } from "../types";
 import {
   checkHasPortalAtLocation,
@@ -141,6 +143,7 @@ import {
   shouldBlinkExpiringPickup,
   toRarity,
   triangle,
+  rotateDirection,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -199,6 +202,8 @@ interface EngineParams {
   state: GameState,
   stats: Stats,
   settings: GameSettings,
+  outfit: Outfit,
+  heldItems: HeldItems,
   replay?: Replay,
   tutorial: Tutorial,
   fonts: FontsInstance,
@@ -228,6 +233,8 @@ export function engine({
   state,
   stats,
   settings,
+  outfit,
+  heldItems,
   replay: engineReplay,
   tutorial,
   fonts,
@@ -2022,7 +2029,7 @@ export function engine({
 
     let trapped = true;
     outer:
-    for (let i = 0; i <= 3; i++) {
+    for (let i = 0; i < 3; i++) {
       const prev = segments.get(i);
       for (let i = 0; i <= 3; i++) {
         let dir = DIR.UP;
@@ -2639,23 +2646,65 @@ export function engine({
     } else {
       renderer.drawGraphicalComponent(graphicalComponents.snakeHead, vec.x, vec.y);
     }
-    const direction: DIR = (!state.isLost && moves.length > 0) ? (moves[0] as DIR) : player.direction;
+    const dir: DIR = (!state.isLost && moves.length > 0) ? (moves[0] as DIR) : player.direction;
     if (state.isLost) {
-      spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(direction), 1, -1);
-    } else if (state.isShowingDeathColours) {
-      spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHead, vec.x, vec.y, getRotationFromDirection(direction), 1, -1);
-    } else {
-      spriteRenderer.drawImage3x3(Image.SnekHead, vec.x, vec.y, getRotationFromDirection(direction));
+      spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(dir), 1, -1);
       if (replay.mode !== ReplayMode.Playback) {
+        // draw wearables
         p5.push();
-        let rotation = getRotationFromDirection(direction);
-        let x = vec.x;
-        if (direction === DIR.LEFT) {
+        let rotation = getRotationFromDirection(dir);
+        let wx = vec.x;
+        if (dir === DIR.LEFT) {
           rotation = 0;
           p5.scale(-1, 1);
-          x = -x - 1;
+          wx = -wx - 1;
         }
-        // spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, x, vec.y, WearableFrame.IndianaJonesHat - 1, rotation);
+        if (outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(gfxFGAction, Image.WearablesSheet, wx, vec.y, outfit.exclusive - 1, rotation);
+        }
+        if (outfit.hair && !outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(gfxFGAction, Image.WearablesSheet, wx, vec.y, outfit.hair - 1, rotation);
+        }
+        p5.pop();
+        // show hat, eyewear as scattered across map
+        if (outfit.eyes && !outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(gfxFGAction, Image.WearablesSheet, wx - 1, vec.y - 1, outfit.eyes - 1, 0);
+        }
+        if (outfit.hat && !outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(gfxFGAction, Image.WearablesSheet, wx + 2, vec.y + 1, outfit.hat - 1, getRotationFromDirection(DIR.DOWN));
+        }
+      }
+    } else if (state.isShowingDeathColours) {
+      spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHead, vec.x, vec.y, getRotationFromDirection(dir), 1, -1);
+    } else {
+      spriteRenderer.drawImage3x3(Image.SnekHead, vec.x, vec.y, getRotationFromDirection(dir));
+      if (replay.mode !== ReplayMode.Playback) {
+        p5.push();
+        let rotation = getRotationFromDirection(dir);
+        let wx = vec.x;
+        if (dir === DIR.LEFT) {
+          rotation = 0;
+          p5.scale(-1, 1);
+          wx = -wx - 1;
+        }
+        if (outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.exclusive - 1, rotation);
+        }
+        if (outfit.hair && !outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.hair - 1, rotation);
+        }
+        if (outfit.eyes && !outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.eyes - 1, rotation);
+        }
+        if (outfit.back && !outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.back - 1, rotation);
+        }
+        if (heldItems.crusher) {
+          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, WearableFrame.Crusher - 1, rotation);
+        }
+        if (outfit.hat && !outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.hat - 1, rotation);
+        }
         p5.pop();
       }
     }
