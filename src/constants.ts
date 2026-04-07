@@ -400,8 +400,12 @@ export const ANIMATIONS = {
     frames: 24,
     timePerFrame: 200,
   } satisfies AnimationData,
-  [Image.SnekDoorLightSheet]: {
+  [Image.DoorLightSheet]: {
     frames: 9,
+    timePerFrame: 100,
+  } satisfies AnimationData,
+  [Image.DoorOpenSheet]: {
+    frames: 13,
     timePerFrame: 100,
   } satisfies AnimationData,
   [Image.Points500]: {

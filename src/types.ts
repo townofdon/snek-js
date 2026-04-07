@@ -833,7 +833,8 @@ export enum Image {
   MineSheet = 'snek-mine-sheet.png',
   ExplosionSheet = 'snek-explosion-sheet.png',
   WearablesSheet = 'snek-wearables.png',
-  SnekDoorLightSheet = 'snek-door-light-sheet.png',
+  DoorLightSheet = 'snek-door-light-sheet.png',
+  DoorOpenSheet = 'snek-door-open.png',
   PreyGrubSheet = 'snek-prey-grub.png',
   PreyAntSheet = 'snek-prey-ant.png',
   PreyMouseSheet = 'snek-prey-mouse.png',
@@ -866,6 +867,7 @@ export type ThemedImage =
 ;
 
 export type SpritesheetImage =
+  | Image.DoorOpenSheet
   | Image.SegmentsSheet
   | Image.MineSheet
   | Image.ExplosionSheet
@@ -874,7 +876,7 @@ export type SpritesheetImage =
   | Image.TileSheet48
   | Image.PickupsSheet
   | Image.WearablesSheet
-  | Image.SnekDoorLightSheet
+  | Image.DoorLightSheet
   | Image.PreyGrubSheet
   | Image.PreyAntSheet
   | Image.PreyMouseSheet

@@ -2,7 +2,7 @@ import { getCoordIndex2 } from "@/utils";
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { LEVEL_01 } from "./level01";
-import { LEVEL_02 } from "./level02";
+import { TUTORIAL_LEVEL_10 } from "./tutorialLevel10";
 
 const name = 'snekadia'
 
@@ -54,7 +54,7 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   ],
   musicTrack: MusicTrack.champion,
   titleVariant: TitleVariant.Yellow,
-  nextLevel: LEVEL_02,
+  nextLevel: TUTORIAL_LEVEL_10,
   recordProgressAsLevel: LEVEL_01,
   pickupDropsByFrame: {
     28: { likelihood: 1, type: ItemDropType.Invincibility },

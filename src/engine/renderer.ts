@@ -813,13 +813,13 @@ export class Renderer implements IRenderer {
     const totalDuration = duration * frames.length;
     const on = Math.floor(this.elapsed / totalDuration) % 2 === 0;
     if (!on) {
-      this.spriteRenderer.drawSprite3x3(gfx, Image.SnekDoorLightSheet, x, y, 3, getRotationFromDirection(dir), Easing.inCubic(alphas[0]) * alpha);
+      this.spriteRenderer.drawSprite3x3(gfx, Image.DoorLightSheet, x, y, 3, getRotationFromDirection(dir), Easing.inCubic(alphas[0]) * alpha);
       return;
     }
     const index = (Math.floor(this.elapsed / duration) + Math.round(idx)) % frames.length;
     const frame = frames[index] || 4;
     const combinedAlpha = Easing.inCubic(alphas[index] || alphas[0]) * alpha;
-    this.spriteRenderer.drawSprite3x3(gfx, Image.SnekDoorLightSheet, x, y, frame, getRotationFromDirection(dir), combinedAlpha);
+    this.spriteRenderer.drawSprite3x3(gfx, Image.DoorLightSheet, x, y, frame, getRotationFromDirection(dir), combinedAlpha);
   }
 
   private fpsFrames: number[] = [];

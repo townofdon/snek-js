@@ -343,6 +343,7 @@ export function engine({
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
   const mines = new AnimationList({ onLifetimeExpire });
+  const doorsOpening = new AnimationList();
   const fireTiles = new AnimationList();
   const explosions = new AnimationList();
   const pointsAnim = new AnimationList();
@@ -577,6 +578,7 @@ export function engine({
     keysMap = {};
     apples.reset();
     mines.reset();
+    doorsOpening.reset();
     explosions.reset();
     fireTiles.reset();
     segments.reset();
@@ -1111,6 +1113,9 @@ export function engine({
     drawState.shouldDrawKeysLocks = false;
 
     if (pointsAnim.tick(p5.deltaTime)) {
+      drawState.shouldDrawActionFG = true;
+    }
+    if (doorsOpening.tick(p5.deltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
     if (!state.isShowingDeathColours && mines.tick(p5.deltaTime)) {
@@ -2315,8 +2320,12 @@ export function engine({
   }
 
   function openDoors() {
+    const { frames, timePerFrame } = ANIMATIONS[Image.DoorOpenSheet];
     doors.forEach(door => {
       astar.removeWall(door.x, door.y);
+      const x = door.x;
+      const y = door.y;
+      doorsOpening.add(x, y, frames * timePerFrame, frames, timePerFrame);
     });
     state.isDoorsOpen = true;
     startExitParticles();
@@ -3145,11 +3154,25 @@ export function engine({
           || level === WARP_ZONE_02
           || level === WARP_ZONE_03;
         if (isThemedDoor && !isNonDoorLevel) {
-          spriteRenderer.drawImage1x1(gfxFG, Image.ThemedDoor, x, y, 0, 1, 0);
+          spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedDoor, x, y, 0, 1, 0);
         } else if (!isNonDoorLevel) {
-          spriteRenderer.drawImage1x1(gfxFG, Image.ThemedDoorAlt, x, y, 0, 1, 0);
+          spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedDoorAlt, x, y, 0, 1, 0);
         } else {
           renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.door, x, y, 1, 0);
+        }
+      }
+      // door open effect
+      if (state.isDoorsOpen && drawState.shouldDrawActionFG) {
+        const lifetime = ANIMATIONS[Image.DoorOpenSheet].frames * ANIMATIONS[Image.DoorOpenSheet].timePerFrame
+        for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+          if (doorsOpening.existsAtCoord(coord)) {
+            const x = Math.floor(coord % GRIDCOUNT_X);
+            const y = Math.floor(coord / GRIDCOUNT_X);
+            const elapsed = doorsOpening.getElapsedByCoord(coord);
+            if (elapsed < lifetime) {
+              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, Image.DoorOpenSheet, x, y, elapsed);
+            }
+          }
         }
       }
       return;

@@ -77,7 +77,8 @@ export class SpriteRenderer {
     [Image.TileSheet48]: null,
     [Image.PickupsSheet]: null,
     [Image.WearablesSheet]: null,
-    [Image.SnekDoorLightSheet]: null,
+    [Image.DoorLightSheet]: null,
+    [Image.DoorOpenSheet]: null,
     [Image.PreyGrubSheet]: null,
     [Image.PreyMouseSheet]: null,
     [Image.PreyAntSheet]: null,
@@ -271,7 +272,8 @@ export class SpriteRenderer {
       this.loadImage(Image.TileSheet48);
       this.loadImage(Image.PickupsSheet);
       this.loadImage(Image.WearablesSheet);
-      this.loadImage(Image.SnekDoorLightSheet);
+      this.loadImage(Image.DoorLightSheet);
+      this.loadImage(Image.DoorOpenSheet);
       this.loadImage(Image.PreyGrubSheet);
       this.loadImage(Image.PreyMouseSheet);
       this.loadImage(Image.PreyAntSheet);
@@ -416,6 +418,17 @@ export class SpriteRenderer {
       gfx.tint(255, 255, 255, 255);
     }
     gfx.pop();
+  }
+
+  /**
+   * Draw an animation from a 1x1 (16x16) spritesheet
+   */
+  drawSpritesheetAnim1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, elapsed = 0) => {
+    if (!ANIMATIONS[image]) {
+      throw new Error(`no animation data found for image "${image}"`);
+    }
+    const { frames, timePerFrame } = ANIMATIONS[image];
+    this.drawImage1x1(gfx, image, x, y, 0, 1, 0, frames, timePerFrame, elapsed);
   }
 
   public drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1) => {
