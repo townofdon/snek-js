@@ -3018,58 +3018,58 @@ export function engine({
             // handled by drawFireTiles()
             break;
           case BarrierType.Skull:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 0);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 0);
             break;
           case BarrierType.ThemedSkull:
-            spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedBarrierSkull, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierSkull, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
             break;
           case BarrierType.Indent:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 2);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 2);
             break;
           case BarrierType.ThemedIndent:
-            spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedBarrierIndent, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierIndent, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
             break;
           case BarrierType.Flat:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 4);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 4);
             break;
           case BarrierType.ThemedFlat:
-            spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedBarrierFlat, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierFlat, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
             break;
           case BarrierType.Pyramid:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 6);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 6);
             break;
           case BarrierType.ThemedPyramid:
-            spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedBarrierPyramid, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierPyramid, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
             break;
           case BarrierType.ExitSign:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 13);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 11);
             break;
           case BarrierType.Radar:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 19);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 12);
             break;
           case BarrierType.ComputerChip:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 20);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 13);
             break;
           case BarrierType.MetalPlate:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 21);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 14);
             break;
           case BarrierType.Panel0:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 22);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 15);
             break;
           case BarrierType.Panel1:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 23);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 16);
             break;
           case BarrierType.Panel2:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 24);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 17);
             break;
           case BarrierType.Panel3:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 25);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 18);
             break;
           case BarrierType.Panel4:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 26);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 19);
             break;
           case BarrierType.Panel5:
-            spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 27);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 20);
             break;
           default:
           case BarrierType.Unset:
@@ -3107,7 +3107,7 @@ export function engine({
         renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrierPassable, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
         // draw passable glass overlay
         if (!keysMap[getCoordIndex(barriers[i].vec)]) {
-          spriteRenderer.drawSprite3x3Static(gfxFG, Image.TileSheet, barriers[i].vec.x, barriers[i].vec.y, 12);
+          spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 10);
         }
       }
       return;
@@ -3145,7 +3145,7 @@ export function engine({
           || level === WARP_ZONE_02
           || level === WARP_ZONE_03;
         if (isThemedDoor && !isNonDoorLevel) {
-          spriteRenderer.drawImage3x3Static(gfxFG, Image.ThemedDoor, x, y, 0, 1, 0);
+          spriteRenderer.drawImage1x1(gfxFG, Image.ThemedDoor, x, y, 0, 1, 0);
         } else {
           renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.door, x, y, 1, 0);
         }

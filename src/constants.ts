@@ -384,8 +384,12 @@ export const ANIMATIONS = {
     frames: 3,
     timePerFrame: 200,
   } satisfies AnimationData,
-  [Image.TileSheet]: {
-    frames: 28,
+  [Image.TileSheet16]: {
+    frames: 24,
+    timePerFrame: 200,
+  } satisfies AnimationData,
+  [Image.TileSheet48]: {
+    frames: 7,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.PickupsSheet]: {

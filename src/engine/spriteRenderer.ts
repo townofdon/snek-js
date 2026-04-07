@@ -71,7 +71,8 @@ export class SpriteRenderer {
     [Image.MineSheet]: null,
     [Image.ExplosionSheet]: null,
     [Image.FireSheet]: null,
-    [Image.TileSheet]: null,
+    [Image.TileSheet16]: null,
+    [Image.TileSheet48]: null,
     [Image.PickupsSheet]: null,
     [Image.WearablesSheet]: null,
     [Image.SnekDoorLightSheet]: null,
@@ -129,7 +130,7 @@ export class SpriteRenderer {
       main: this.p5.color(palette.apple),
       alt: this.p5.color(palette.appleStroke), // unused
     } satisfies ColorReplacementPalette;
-    this.setThemedImageFromSprite(colors, Image.ThemedApple, Image.AppleTemplate, 0);
+    this.setThemedImageFromSprite(colors, 48, Image.ThemedApple, Image.AppleTemplate, 0);
   }
 
   setThemedBorderImages = (palette: ExtendedPalette) => {
@@ -141,11 +142,11 @@ export class SpriteRenderer {
       main: this.p5.color(palette.barrierStroke),
       alt: this.p5.color(palette.barrier)
     } satisfies ColorReplacementPalette;
-    this.setThemedImageFromSprite(colors, Image.ThemedBarrierSkull, Image.TileSheet, 1);
-    this.setThemedImageFromSprite(colors, Image.ThemedBarrierIndent, Image.TileSheet, 3);
-    this.setThemedImageFromSprite(colors, Image.ThemedBarrierFlat, Image.TileSheet, 5);
-    this.setThemedImageFromSprite(colors, Image.ThemedBarrierPyramid, Image.TileSheet, 7);
-    this.setThemedImageFromSprite(colors, Image.ThemedPortalColumns, Image.TileSheet, 11);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierSkull, Image.TileSheet16, 1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierIndent, Image.TileSheet16, 3);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierFlat, Image.TileSheet16, 5);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierPyramid, Image.TileSheet16, 7);
+    this.setThemedImageFromSprite(colors, 48, Image.ThemedPortalColumns, Image.TileSheet48, 1);
   }
 
   setThemedDoorImage = (palette: ExtendedPalette) => {
@@ -157,7 +158,7 @@ export class SpriteRenderer {
       main: this.p5.color(palette.door),
       alt: this.p5.color(palette.doorStroke),
     } satisfies ColorReplacementPalette;
-    this.setThemedImageFromSprite(colors, Image.ThemedDoor, Image.TileSheet, 9);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedDoor, Image.TileSheet16, 9);
   }
 
   setThemedSegmentImage = (background: string, lineColor: string) => {
@@ -167,19 +168,19 @@ export class SpriteRenderer {
       main: this.p5.color(lineColor),
       alt: this.p5.color(background),
     } satisfies ColorReplacementPalette;
-    this.setThemedImageFromSprite(colors, Image.ThemedSegmentNE, Image.TileSheet, 15);
-    this.setThemedImageFromSprite(colors, Image.ThemedSegmentSE, Image.TileSheet, 16);
-    this.setThemedImageFromSprite(colors, Image.ThemedSegmentSW, Image.TileSheet, 17);
-    this.setThemedImageFromSprite(colors, Image.ThemedSegmentNW, Image.TileSheet, 18);
+    this.setThemedImageFromSprite(colors, 48, Image.ThemedSegmentNE, Image.TileSheet48, 3);
+    this.setThemedImageFromSprite(colors, 48, Image.ThemedSegmentSE, Image.TileSheet48, 4);
+    this.setThemedImageFromSprite(colors, 48, Image.ThemedSegmentSW, Image.TileSheet48, 5);
+    this.setThemedImageFromSprite(colors, 48, Image.ThemedSegmentNW, Image.TileSheet48, 6);
   }
 
-  private setThemedImageFromSprite(colors: ColorReplacementPalette, dest: ThemedImage, sourceSprite: Image, frame: number) {
+  private setThemedImageFromSprite(colors: ColorReplacementPalette, size: 16 | 48, dest: ThemedImage, sourceSprite: Image, frame: number) {
     if (!this.images[sourceSprite]) {
       throw new Error(`source image is not loaded: ${sourceSprite}`);
     }
-    const img = this.p5.createImage(48, 48);
-    // copy template image pixels to new image (assumes 48x48 dest img dims, as well as 48x48 src rect)
-    img.copy(this.images[sourceSprite], 48 * frame, 0, 48, 48, 0, 0, 48, 48);
+    const img = this.p5.createImage(size, size);
+    // copy template image pixels to new image (assumes dest img and src rect are same dims)
+    img.copy(this.images[sourceSprite], size * frame, 0, size, size, 0, 0, size, size);
     // iterate through all pixels, replacing with theme colors
     img.loadPixels();
     for (let x = 0; x < img.width; x += 1) {
@@ -262,7 +263,8 @@ export class SpriteRenderer {
       this.loadImage(Image.MineSheet);
       this.loadImage(Image.ExplosionSheet);
       this.loadImage(Image.FireSheet);
-      this.loadImage(Image.TileSheet);
+      this.loadImage(Image.TileSheet16);
+      this.loadImage(Image.TileSheet48);
       this.loadImage(Image.PickupsSheet);
       this.loadImage(Image.WearablesSheet);
       this.loadImage(Image.SnekDoorLightSheet);
@@ -412,12 +414,30 @@ export class SpriteRenderer {
     gfx.pop();
   }
 
+  public drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1) => {
+    if (!ANIMATIONS[image]) {
+      throw new Error(`no animation data found for image "${image}"`);
+    }
+    const { frames, timePerFrame } = ANIMATIONS[image];
+    this.drawImage1x1(gfx, image, x, y, rotation, alpha, 0.5, frames, timePerFrame, timePerFrame * frame);
+  }
+
+  public drawSprite1x1Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {
+    if (this.isStaticCached) return;
+    this.drawSprite1x1(gfx, image, x, y, frame);
+  }
+
   public debugDrawImage1x1 = (gfx: P5 | P5.Graphics,) => {
     const { frames } = ANIMATIONS[Image.SegmentsSheet];
     this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 15, Math.PI * 0.0, 1, 1, frames, 1000, 0);
     this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 16, Math.PI * 0.5, 1, 1, frames, 1000, 0);
     this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 17, Math.PI * 1.0, 1, 1, frames, 1000, 0);
     this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 18, Math.PI * 1.5, 1, 1, frames, 1000, 0);
+  }
+
+  public drawImage1x1Static = (...args: Parameters<SpriteRenderer['drawImage1x1']>) => {
+    if (this.isStaticCached) return;
+    this.drawImage1x1(...args);
   }
 
   public drawImage1x1 = (

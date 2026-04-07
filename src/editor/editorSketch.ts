@@ -409,7 +409,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
           if (data.doorsMap[coord]) {
             if (isAtMapEdge(x, y, 1) || isAtMapEdge(x, y, 3) && hasAdjacentDoor) {
-              spriteRenderer.drawImage3x3Static(gfx, Image.ThemedDoor, x, y, 0, 1, 0);
+              spriteRenderer.drawImage1x1Static(gfx, Image.ThemedDoor, x, y, 0, 1, 0);
             } else {
               renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.door, x, y);
             }
@@ -421,58 +421,58 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
                 spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.FireSheet, x, y, 0);
                 break;
               case BarrierType.Skull:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 0);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 0);
                 break;
               case BarrierType.ThemedSkull:
-                spriteRenderer.drawImage3x3Static(gfx, Image.ThemedBarrierSkull, x, y, 0, 1, 0);
+                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierSkull, x, y, 0, 1, 0);
                 break;
               case BarrierType.Indent:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 2);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 2);
                 break;
               case BarrierType.ThemedIndent:
-                spriteRenderer.drawImage3x3Static(gfx, Image.ThemedBarrierIndent, x, y, 0, 1, 0);
+                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierIndent, x, y, 0, 1, 0);
                 break;
               case BarrierType.Flat:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 4);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 4);
                 break;
               case BarrierType.ThemedFlat:
-                spriteRenderer.drawImage3x3Static(gfx, Image.ThemedBarrierFlat, x, y, 0, 1, 0);
+                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierFlat, x, y, 0, 1, 0);
                 break;
               case BarrierType.Pyramid:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 6);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 6);
                 break;
               case BarrierType.ThemedPyramid:
-                spriteRenderer.drawImage3x3Static(gfx, Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
+                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
                 break;
               case BarrierType.ExitSign:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 13);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 11);
                 break;
               case BarrierType.Radar:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 19);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 12);
                 break;
               case BarrierType.ComputerChip:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 20);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 13);
                 break;
               case BarrierType.MetalPlate:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 21);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 14);
                 break;
               case BarrierType.Panel0:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 22);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 15);
                 break;
               case BarrierType.Panel1:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 23);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 16);
                 break;
               case BarrierType.Panel2:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 24);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 17);
                 break;
               case BarrierType.Panel3:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 25);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 18);
                 break;
               case BarrierType.Panel4:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 26);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 19);
                 break;
               case BarrierType.Panel5:
-                spriteRenderer.drawSprite3x3Static(gfx, Image.TileSheet, x, y, 27);
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 20);
                 break;
               case BarrierType.Default:
               default:

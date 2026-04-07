@@ -831,7 +831,8 @@ export enum Image {
   PreyMouseSheet = 'snek-prey-mouse.png',
   PreyGrasshopperSheet = 'snek-prey-grasshopper.png',
   FireSheet = 'snek-fire5.png',
-  TileSheet = 'snek-tiles.png',
+  TileSheet16 = 'snek-tiles-16.png',
+  TileSheet48 = 'snek-tiles-48.png',
   PickupsSheet = 'snek-pickups.png',
   Points500 = 'snek-points-500.png',
   Points1000 = 'snek-points-1000.png',
@@ -859,7 +860,8 @@ export type SpritesheetImage =
   | Image.MineSheet
   | Image.ExplosionSheet
   | Image.FireSheet
-  | Image.TileSheet
+  | Image.TileSheet16
+  | Image.TileSheet48
   | Image.PickupsSheet
   | Image.WearablesSheet
   | Image.SnekDoorLightSheet
