@@ -8,6 +8,8 @@ import { Stack } from "@/components/Stack";
 import { DropdownField, Option } from "@/components/Field/DropdownField";
 
 import * as styles from './EditorOptions.css'
+import { LEVEL_01_HARD } from "@/levels/campaign/level01hard";
+import { LEVEL_01_ULTRA } from "@/levels/campaign/level01ultra";
 
 interface SelectLevelDropdownProps {
   loadLevel: (level: Level) => void;
@@ -23,8 +25,8 @@ export const SelectLevelDropdown = ({ loadLevel }: SelectLevelDropdownProps) => 
   ];
 
   const handleSetLevel = (option: Option) => {
-    const levelName = option.value;
-    const match = levelsToInclude.find(level => level.name === levelName);
+    const id = option.value;
+    const match = levelsToInclude.find(level => level.id === id);
     if (!match) return;
     setSelectedLevel(match);
   }
@@ -34,8 +36,8 @@ export const SelectLevelDropdown = ({ loadLevel }: SelectLevelDropdownProps) => 
   }
 
   const toOption = (level: Level): Option => ({
-    value: level.name,
-    label: level.name,
+    value: level.id,
+    label: EDITOR_LEVEL_NAME_OVERRIDE[level.id] || level.name,
   })
   const levelOptions: Option[] = levelsToInclude.map(toOption);
 
@@ -44,11 +46,16 @@ export const SelectLevelDropdown = ({ loadLevel }: SelectLevelDropdownProps) => 
       <DropdownField
         label="Load Campaign Level"
         options={levelOptions}
-        value={selectedLevel.name}
-        defaultValue={LEVEL_01.name}
+        value={selectedLevel.id}
+        defaultValue={LEVEL_01.id}
         onChange={handleSetLevel}
       />
       <button className={styles.buttonLoadLevel} onClick={handleLoadLevel}>Load</button>
     </Stack>
   )
 }
+
+const EDITOR_LEVEL_NAME_OVERRIDE = {
+  [LEVEL_01_HARD.id]: 'snekadia (hard)',
+  [LEVEL_01_ULTRA.id]: 'snekadia (ultra)',
+} as const

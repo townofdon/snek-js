@@ -411,7 +411,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             if (isAtMapEdge(x, y, 1) || isAtMapEdge(x, y, 3) && hasAdjacentDoor) {
               spriteRenderer.drawImage1x1Static(gfx, Image.ThemedDoor, x, y, 0, 1, 0);
             } else {
-              renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.door, x, y);
+              spriteRenderer.drawImage1x1Static(gfx, Image.ThemedDoorAlt, x, y, 0, 1, 0);
+              // renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.door, x, y);
             }
           }
 
@@ -423,25 +424,25 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
               case BarrierType.Skull:
                 spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 0);
                 break;
-              case BarrierType.ThemedSkull:
+              case BarrierType.SkullThemed:
                 spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierSkull, x, y, 0, 1, 0);
                 break;
               case BarrierType.Indent:
                 spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 2);
                 break;
-              case BarrierType.ThemedIndent:
+              case BarrierType.IndentThemed:
                 spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierIndent, x, y, 0, 1, 0);
                 break;
               case BarrierType.Flat:
                 spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 4);
                 break;
-              case BarrierType.ThemedFlat:
+              case BarrierType.FlatThemed:
                 spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierFlat, x, y, 0, 1, 0);
                 break;
               case BarrierType.Pyramid:
                 spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 6);
                 break;
-              case BarrierType.ThemedPyramid:
+              case BarrierType.PyramidThemed:
                 spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
                 break;
               case BarrierType.ExitSign:
@@ -473,6 +474,12 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
                 break;
               case BarrierType.Panel5:
                 spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 20);
+                break;
+              case BarrierType.Brick:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 21);
+                break;
+              case BarrierType.BrickThemed:
+                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierBrick, x, y, 0, 1, 0);
                 break;
               case BarrierType.Default:
               default:

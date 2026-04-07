@@ -203,7 +203,9 @@ export function validateLevelIds() {
     ...SECRET_LEVELS,
     ...CHALLENGE_LEVELS,
   ].forEach(level => {
-    if (!level.id) return;
+    if (!level.id) {
+      throw new Error(`level "${level.name}" has no ID!`);
+    }
     if (map[level.id]) {
       throw new Error(`level id collision: "${level.name}" and "${map[level.id].name}" both have id "${level.id}"`);
     }

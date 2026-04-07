@@ -63,6 +63,8 @@ import { X_DATACENTER } from "./challenge/dataCenter";
 import { X_SEARCHLIGHT } from "./challenge/searchlight";
 import { MAZE_04_LOOT_ROOM } from "./mazes/maze04-lootroom";
 import { MAZE_03_STORAGE } from "./mazes/maze03-storage";
+import { LEVEL_01_HARD } from "./campaign/level01hard";
+import { LEVEL_01_ULTRA } from "./campaign/level01ultra";
 
 export const LEVELS: Level[] = [
     MAZE_01,
@@ -113,6 +115,8 @@ export const CAMPAIGN_LEVELS = LEVELS.filter(level => {
 });
 
 export const SECRET_LEVELS = [
+    LEVEL_01_HARD,
+    LEVEL_01_ULTRA,
     SECRET_LEVEL_10,
     SECRET_LEVEL_20,
     SECRET_LEVEL_21,
@@ -181,6 +185,8 @@ export enum TILECHAR {
   BarrierPanel3 = 'r',
   BarrierPanel4 = 't',
   BarrierPanel5 = 'y',
+  BarrierBrick = 'Q',
+  BarrierBrickThemed = 'W',
   Door = 'D',
   DoorAlt = 'd',
   Deco1 = '-',
@@ -229,14 +235,14 @@ export const BARRIER_TYPE_TO_TILE_CHAR = {
   [BarrierType.Unset]: TILECHAR.None,
   [BarrierType.Default]: TILECHAR.Barrier,
   [BarrierType.Skull]: TILECHAR.BarrierSkull,
-  [BarrierType.ThemedSkull]: TILECHAR.BarrierSkullThemed,
+  [BarrierType.SkullThemed]: TILECHAR.BarrierSkullThemed,
   [BarrierType.Indent]: TILECHAR.BarrierIndent,
-  [BarrierType.ThemedIndent]: TILECHAR.BarrierIndentThemed,
+  [BarrierType.IndentThemed]: TILECHAR.BarrierIndentThemed,
   [BarrierType.FireTile]: TILECHAR.BarrierFireTile,
   [BarrierType.Flat]: TILECHAR.BarrierFlat,
-  [BarrierType.ThemedFlat]: TILECHAR.BarrierFlatThemed,
+  [BarrierType.FlatThemed]: TILECHAR.BarrierFlatThemed,
   [BarrierType.Pyramid]: TILECHAR.BarrierPyramid,
-  [BarrierType.ThemedPyramid]: TILECHAR.BarrierPyramidThemed,
+  [BarrierType.PyramidThemed]: TILECHAR.BarrierPyramidThemed,
   [BarrierType.ExitSign]: TILECHAR.BarrierExitSign,
   [BarrierType.Radar]: TILECHAR.BarrierRadar,
   [BarrierType.ComputerChip]: TILECHAR.BarrierComputerChip,
@@ -247,6 +253,8 @@ export const BARRIER_TYPE_TO_TILE_CHAR = {
   [BarrierType.Panel3]: TILECHAR.BarrierPanel3,
   [BarrierType.Panel4]: TILECHAR.BarrierPanel4,
   [BarrierType.Panel5]: TILECHAR.BarrierPanel5,
+  [BarrierType.Brick]: TILECHAR.BarrierBrick,
+  [BarrierType.BrickThemed]: TILECHAR.BarrierBrickThemed,
 } satisfies Record<BarrierType, TILECHAR>;
 
 export const TILE_CHAR_TO_BARRIER_TYPE = {
@@ -254,14 +262,14 @@ export const TILE_CHAR_TO_BARRIER_TYPE = {
   [TILECHAR.Barrier]: BarrierType.Default,
   [TILECHAR.BarrierPassable]: BarrierType.Default,
   [TILECHAR.BarrierSkull]: BarrierType.Skull,
-  [TILECHAR.BarrierSkullThemed]: BarrierType.ThemedSkull,
+  [TILECHAR.BarrierSkullThemed]: BarrierType.SkullThemed,
   [TILECHAR.BarrierIndent]: BarrierType.Indent,
-  [TILECHAR.BarrierIndentThemed]: BarrierType.ThemedIndent,
+  [TILECHAR.BarrierIndentThemed]: BarrierType.IndentThemed,
   [TILECHAR.BarrierFireTile]: BarrierType.FireTile,
   [TILECHAR.BarrierFlat]: BarrierType.Flat,
-  [TILECHAR.BarrierFlatThemed]: BarrierType.ThemedFlat,
+  [TILECHAR.BarrierFlatThemed]: BarrierType.FlatThemed,
   [TILECHAR.BarrierPyramid]: BarrierType.Pyramid,
-  [TILECHAR.BarrierPyramidThemed]: BarrierType.ThemedPyramid,
+  [TILECHAR.BarrierPyramidThemed]: BarrierType.PyramidThemed,
   [TILECHAR.BarrierExitSign]: BarrierType.ExitSign,
   [TILECHAR.BarrierRadar]: BarrierType.Radar,
   [TILECHAR.BarrierComputerChip]: BarrierType.ComputerChip,
@@ -272,6 +280,8 @@ export const TILE_CHAR_TO_BARRIER_TYPE = {
   [TILECHAR.BarrierPanel3]: BarrierType.Panel3,
   [TILECHAR.BarrierPanel4]: BarrierType.Panel4,
   [TILECHAR.BarrierPanel5]: BarrierType.Panel5,
+  [TILECHAR.BarrierBrick]: BarrierType.Brick,
+  [TILECHAR.BarrierBrickThemed]: BarrierType.BrickThemed,
   [TILECHAR.Door]: 0,
   [TILECHAR.DoorAlt]: 0,
   [TILECHAR.Deco1]: 0,
@@ -309,14 +319,14 @@ export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
   [BarrierType.Unset]: FloodFillTile.None,
   [BarrierType.Default]: FloodFillTile.Barrier,
   [BarrierType.Skull]: FloodFillTile.BarrierSkull,
-  [BarrierType.ThemedSkull]: FloodFillTile.BarrierSkullThemed,
+  [BarrierType.SkullThemed]: FloodFillTile.BarrierSkullThemed,
   [BarrierType.Indent]: FloodFillTile.BarrierIndent,
-  [BarrierType.ThemedIndent]: FloodFillTile.BarrierIndentThemed,
+  [BarrierType.IndentThemed]: FloodFillTile.BarrierIndentThemed,
   [BarrierType.FireTile]: FloodFillTile.BarrierFireTile,
   [BarrierType.Flat]: FloodFillTile.BarrierFlat,
-  [BarrierType.ThemedFlat]: FloodFillTile.BarrierFlatThemed,
+  [BarrierType.FlatThemed]: FloodFillTile.BarrierFlatThemed,
   [BarrierType.Pyramid]: FloodFillTile.BarrierPyramid,
-  [BarrierType.ThemedPyramid]: FloodFillTile.BarrierPyramidThemed,
+  [BarrierType.PyramidThemed]: FloodFillTile.BarrierPyramidThemed,
   [BarrierType.ExitSign]: FloodFillTile.BarrierExitSign,
   [BarrierType.Radar]: FloodFillTile.BarrierRadar,
   [BarrierType.ComputerChip]: FloodFillTile.BarrierComputerChip,
@@ -327,4 +337,6 @@ export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
   [BarrierType.Panel3]: FloodFillTile.BarrierPanel3,
   [BarrierType.Panel4]: FloodFillTile.BarrierPanel4,
   [BarrierType.Panel5]: FloodFillTile.BarrierPanel5,
+  [BarrierType.Brick]: FloodFillTile.BarrierBrick,
+  [BarrierType.BrickThemed]: FloodFillTile.BarrierBrickThemed,
 } satisfies Record<BarrierType, FloodFillTile>;

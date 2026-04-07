@@ -5,7 +5,7 @@ import { LEVEL_06 } from "../campaign/level06";
 const name = 'maze-02-sw';
 
 export const MAZE_02_SW: Level = {
-  id: '',
+  id: '_maze-02-sw_',
   type: LevelType.Maze,
   name,
   timeToClear: Infinity,

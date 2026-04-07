@@ -4,7 +4,7 @@ import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 const name = 'cobra mode';
 
 export const MAZE_01_COBRA: Level = {
-  id: '',
+  id: '_START_COBRA_',
   type: LevelType.Maze,
   name,
   timeToClear: Infinity,

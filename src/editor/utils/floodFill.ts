@@ -135,13 +135,13 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
       slice.barrier = BarrierType.Skull;
       break;
     case FloodFillTile.BarrierSkullThemed:
-      slice.barrier = BarrierType.ThemedSkull;
+      slice.barrier = BarrierType.SkullThemed;
       break;
     case FloodFillTile.BarrierIndent:
       slice.barrier = BarrierType.Indent;
       break;
     case FloodFillTile.BarrierIndentThemed:
-      slice.barrier = BarrierType.ThemedIndent;
+      slice.barrier = BarrierType.IndentThemed;
       break;
     case FloodFillTile.BarrierFireTile:
       slice.barrier = BarrierType.FireTile;
@@ -150,13 +150,13 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
       slice.barrier = BarrierType.Flat;
       break;
     case FloodFillTile.BarrierFlatThemed:
-      slice.barrier = BarrierType.ThemedFlat;
+      slice.barrier = BarrierType.FlatThemed;
       break;
     case FloodFillTile.BarrierPyramid:
       slice.barrier = BarrierType.Pyramid;
       break;
     case FloodFillTile.BarrierPyramidThemed:
-      slice.barrier = BarrierType.ThemedPyramid;
+      slice.barrier = BarrierType.PyramidThemed;
       break;
     case FloodFillTile.BarrierExitSign:
       slice.barrier = BarrierType.ExitSign;
@@ -187,6 +187,12 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
       break;
     case FloodFillTile.BarrierPanel5:
       slice.barrier = BarrierType.Panel5;
+      break;
+    case FloodFillTile.BarrierBrick:
+      slice.barrier = BarrierType.Brick;
+      break;
+    case FloodFillTile.BarrierBrickThemed:
+      slice.barrier = BarrierType.BrickThemed;
       break;
     case FloodFillTile.Door:
       slice.door = true;

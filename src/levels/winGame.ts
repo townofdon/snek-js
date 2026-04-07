@@ -4,7 +4,7 @@ import { Level, MusicTrack } from "../types";
 const name = 'wingame';
 
 export const LEVEL_WIN_GAME: Level = {
-  id: '',
+  id: '_wingame_',
   name,
   timeToClear: 1000 * 60 * 10,
   applesToClear: 1000000,

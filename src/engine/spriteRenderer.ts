@@ -33,12 +33,14 @@ export class SpriteRenderer {
     [Image.ThemedBarrierSkull]: null,
     [Image.ThemedBarrierIndent]: null,
     [Image.ThemedDoor]: null,
+    [Image.ThemedDoorAlt]: null,
     [Image.ThemedSegmentNE]: null,
     [Image.ThemedSegmentSE]: null,
     [Image.ThemedSegmentSW]: null,
     [Image.ThemedSegmentNW]: null,
     [Image.ThemedBarrierFlat]: null,
     [Image.ThemedBarrierPyramid]: null,
+    [Image.ThemedBarrierBrick]: null,
     [Image.ThemedPortalColumns]: null,
     [Image.AppleTemplate]: null,
     [Image.SnekHead]: null,
@@ -146,11 +148,12 @@ export class SpriteRenderer {
     this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierIndent, Image.TileSheet16, 3);
     this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierFlat, Image.TileSheet16, 5);
     this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierPyramid, Image.TileSheet16, 7);
-    this.setThemedImageFromSprite(colors, 48, Image.ThemedPortalColumns, Image.TileSheet48, 1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierBrick, Image.TileSheet16, 23);
+    this.setThemedImageFromSprite(colors, 48, Image.ThemedPortalColumns, Image.TileSheet48, 0);
   }
 
   setThemedDoorImage = (palette: ExtendedPalette) => {
-    const r_colorDark = Color(palette.doorStroke).darken(0.2).saturate(0.1).hex();
+    const r_colorDark = Color(palette.doorStroke).darken(0.25).saturate(0.1).hex();
     const r_colorLight = Color(palette.doorStroke).lighten(0.2).desaturate(0.1).hex();
     const colors = {
       dark: this.p5.color(r_colorDark),
@@ -159,6 +162,7 @@ export class SpriteRenderer {
       alt: this.p5.color(palette.doorStroke),
     } satisfies ColorReplacementPalette;
     this.setThemedImageFromSprite(colors, 16, Image.ThemedDoor, Image.TileSheet16, 9);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedDoorAlt, Image.TileSheet16, 8);
   }
 
   setThemedSegmentImage = (background: string, lineColor: string) => {

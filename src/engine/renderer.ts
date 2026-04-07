@@ -1,5 +1,4 @@
 import P5, { Vector } from "p5";
-import Color from "color";
 
 import {
   DIR,
@@ -917,7 +916,7 @@ export class Renderer implements IRenderer {
       for (let j = 0; j < NUM_PORTAL_GRADIENT_COLORS; j++) {
         const t = j / (NUM_PORTAL_GRADIENT_COLORS - 1);
         const accent = PORTAL_CHANNEL_COLORS[i as PortalChannel];
-        const color = p5.lerpColor(p5.color(accent), p5.color("#000"), t).toString();
+        const color = p5.lerpColor(p5.color(accent), p5.color("#000"), lerp(0.6, 1, t)).toString();
         const background = p5.lerpColor(p5.color("#000000"), p5.color(accent), t).toString();
         this.portalCachedColorsFG[i][j] = color;
         this.portalCachedColorsBG[i][j] = background;

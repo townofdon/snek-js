@@ -1648,8 +1648,6 @@ export function engine({
       return true;
     });
     drawState.shouldDrawKeysLocks = true;
-    // renderer.invalidateStaticCache();
-    // drawState.shouldDrawApples = true;
   }
 
   function handleDifficultySelect() {
@@ -1661,8 +1659,7 @@ export function engine({
   }
 
   function handleSetNextLevel() {
-    if (!level.nextLevelMap) return;
-    const nextLevel = level.nextLevelMap[getCoordIndex(player.position)];
+    const nextLevel = level.nextLevelMap?.[getCoordIndex(player.position)];
     if (!nextLevel) return;
     state.nextLevel = nextLevel;
   }
@@ -3013,63 +3010,71 @@ export function engine({
     if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < barriers.length; i++) {
         if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
+        const x = barriers[i].vec.x;
+        const y = barriers[i].vec.y;
         switch (barriers[i].type) {
           case BarrierType.FireTile:
             // handled by drawFireTiles()
             break;
           case BarrierType.Skull:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 0);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 0);
             break;
-          case BarrierType.ThemedSkull:
-            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierSkull, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+          case BarrierType.SkullThemed:
+            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierSkull, x, y, 0, 1, 0);
             break;
           case BarrierType.Indent:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 2);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 2);
             break;
-          case BarrierType.ThemedIndent:
-            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierIndent, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+          case BarrierType.IndentThemed:
+            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierIndent, x, y, 0, 1, 0);
             break;
           case BarrierType.Flat:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 4);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 4);
             break;
-          case BarrierType.ThemedFlat:
-            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierFlat, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+          case BarrierType.FlatThemed:
+            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierFlat, x, y, 0, 1, 0);
             break;
           case BarrierType.Pyramid:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 6);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 6);
             break;
-          case BarrierType.ThemedPyramid:
-            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierPyramid, barriers[i].vec.x, barriers[i].vec.y, 0, 1, 0);
+          case BarrierType.PyramidThemed:
+            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
             break;
           case BarrierType.ExitSign:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 11);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 11);
             break;
           case BarrierType.Radar:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 12);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 12);
             break;
           case BarrierType.ComputerChip:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 13);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 13);
             break;
           case BarrierType.MetalPlate:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 14);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 14);
             break;
           case BarrierType.Panel0:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 15);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 15);
             break;
           case BarrierType.Panel1:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 16);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 16);
             break;
           case BarrierType.Panel2:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 17);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 17);
             break;
           case BarrierType.Panel3:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 18);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 18);
             break;
           case BarrierType.Panel4:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 19);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 19);
             break;
           case BarrierType.Panel5:
-            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 20);
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 20);
+            break;
+          case BarrierType.Brick:
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 21);
+            break;
+          case BarrierType.BrickThemed:
+            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierBrick, x, y, 0, 1, 0);
             break;
           default:
           case BarrierType.Unset:
@@ -3146,6 +3151,8 @@ export function engine({
           || level === WARP_ZONE_03;
         if (isThemedDoor && !isNonDoorLevel) {
           spriteRenderer.drawImage1x1(gfxFG, Image.ThemedDoor, x, y, 0, 1, 0);
+        } else if (!isNonDoorLevel) {
+          spriteRenderer.drawImage1x1(gfxFG, Image.ThemedDoorAlt, x, y, 0, 1, 0);
         } else {
           renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.door, x, y, 1, 0);
         }
@@ -3267,14 +3274,10 @@ export function engine({
         if (!portalPosition) continue;
         const portal = portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
-        if (IS_DEV) {
-          renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback, drawPortalOptions, gfxBG);
-        } else {
-          renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback, drawPortalOptions);
-        }
-        if (drawState.shouldDrawKeysLocks) {
-          spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.ThemedPortalColumns, portalPosition.x, portalPosition.y, 0, 1, 0);
-        }
+        renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback, drawPortalOptions, gfxBG);
+        // if (drawState.shouldDrawKeysLocks) {
+        //   spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.ThemedPortalColumns, portalPosition.x, portalPosition.y, 0, 1, 0);
+        // }
       }
     }
   }
@@ -3287,7 +3290,7 @@ export function engine({
         const portal = portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
         portalParticleSystem.emit(portal.position.x, portal.position.y, portal.channel);
-        portalVortexParticleSystem.emit(portal.position.x, portal.position.y, portal.channel);
+        // portalVortexParticleSystem.emit(portal.position.x, portal.position.y, portal.channel);
       }
     }
   }

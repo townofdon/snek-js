@@ -1,3 +1,4 @@
+import { getCoordIndex2 } from "@/utils";
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { LEVEL_01 } from "./level01";
@@ -42,14 +43,8 @@ X~    --     ===     --     ~X
 X~~   ++~  XX+++XX  ~++~   ~~X
 XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   `,
-  colors: getExtendedPalette({
-    ...PALETTE.boxcar,
-    // background: Color("#505050").mix(Color("#2F4858"), 0.2).darken(0.25).mix(Color('#008080'), 0.06).hex(),
-    // deco1: Color("#535353").mix(Color("#2F4858"), 0.2).darken(0.21).mix(Color('#008080'), 0.045).hex(),
-    // deco1Stroke: Color("#515151").mix(Color("#2F4858"), 0.2).darken(0.23).mix(Color('#008080'), 0.05).hex(),
-    // deco2: Color("#595959").mix(Color("#2F4858"), 0.2).darken(0.1).mix(Color('#008080'), 0.04).hex(),
-    // deco2Stroke: Color("#555555").mix(Color("#2F4858"), 0.2).darken(0.17).mix(Color('#008080'), 0.04).hex(),
-  }),
+  layoutV2: 'Tk9PaE9PWCpjKSlyb3BjKSlTU0tLS1NTKXJjTnBvYykpckohSiptUWhRT09YCnw3Mjl8UklHSFR8c25la2FkaWF8NjAwMGZmfGZWMFYjRTc2RjUxTUUyNEQyOGwyNDc0OWpqbDQ0OTRDbDM0NzRBbDk0RDUwbDY0QTRETTJBOUQ4Rk0yRkIxQTJNRjRBMjYxTUU5QzQ2QU1FOUQzQTd8YmJiMVYwIS4ucS5VKC5VcS5VZz1yICEgWCpYTkpKVV9KLnZ2Xyt2di5KX0pVSkpYTlUgSiwnSwpkKygoKCgoKChnK2RMcXFNLSNOClhtWFB4TC0rWE5TCld2IXZXVS4gVnwxfFkrTHhaTC0oTC1fKytiMS0xLTEtY0ohSlhmMHwzZyg9PWhXV2RkZFdXak0yNjQ2NTNsTTRtT1hYWFhvWXhaeFBwWWRaZFBxLS1yKU4BcnFwb21samhnZmNiX1pZVlVTUE9OTUxLSi4qKSghXw%253D%253D',
+  colors: getExtendedPalette(PALETTE.boxcar),
   showTitle: true,
   showQuoteOnLevelWin: true,
   extraLoseMessages: [
@@ -63,5 +58,9 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   recordProgressAsLevel: LEVEL_01,
   pickupDropsByFrame: {
     28: { likelihood: 1, type: ItemDropType.Invincibility },
+  },
+  nextLevelMap: {
+    [getCoordIndex2(10, 29)]: null,
+    [getCoordIndex2(18, 29)]: null,
   },
 };

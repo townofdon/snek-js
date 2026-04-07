@@ -466,14 +466,14 @@ export enum BarrierType {
   Unset = 0,
   Default,
   Skull,
-  ThemedSkull,
+  SkullThemed,
   Indent,
-  ThemedIndent,
+  IndentThemed,
   FireTile,
   Flat,
-  ThemedFlat,
+  FlatThemed,
   Pyramid,
-  ThemedPyramid,
+  PyramidThemed,
   ExitSign,
   Radar,
   ComputerChip,
@@ -484,8 +484,10 @@ export enum BarrierType {
   Panel3,
   Panel4,
   Panel5,
+  Brick,
+  BrickThemed,
 }
-export const BARRIER_TYPE_MAX = BarrierType.Panel5 + 1;
+export const BARRIER_TYPE_MAX = BarrierType.BrickThemed + 1;
 
 export interface Barrier {
   type: BarrierType,
@@ -515,6 +517,8 @@ export enum FloodFillTile {
   BarrierPanel3,
   BarrierPanel4,
   BarrierPanel5,
+  BarrierBrick,
+  BarrierBrickThemed,
   Door,
   Deco1,
   Deco2,
@@ -779,8 +783,10 @@ export enum Image {
   ThemedBarrierIndent = '__barrier-indent-rendered-at-runtime__',
   ThemedBarrierFlat = '__barrier-flat-rendered-at-runtime__',
   ThemedBarrierPyramid = '__barrier-pyramid-rendered-at-runtime__',
+  ThemedBarrierBrick = '__barrier-bricks-rendered-at-runtime__',
   ThemedPortalColumns = '__barrier-portal-columns-rendered-at-runtime__',
   ThemedDoor = 'door-rendered-at-runtime__',
+  ThemedDoorAlt = 'door-alt-rendered-at-runtime__',
   ThemedSegmentNE = 'segment-ne-rendered-at-runtime__',
   ThemedSegmentSE = 'segment-se-rendered-at-runtime__',
   ThemedSegmentSW = 'segment-sw-rendered-at-runtime__',
@@ -847,8 +853,10 @@ export type ThemedImage =
   | Image.ThemedBarrierSkull
   | Image.ThemedBarrierFlat
   | Image.ThemedBarrierPyramid
+  | Image.ThemedBarrierBrick
   | Image.ThemedPortalColumns
   | Image.ThemedDoor
+  | Image.ThemedDoorAlt
   | Image.ThemedSegmentNE
   | Image.ThemedSegmentSE
   | Image.ThemedSegmentSW

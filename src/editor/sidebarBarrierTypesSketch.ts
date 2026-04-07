@@ -61,14 +61,14 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       [BarrierType.Unset]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Unset].current),
       [BarrierType.Default]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Default].current),
       [BarrierType.Skull]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Skull].current),
-      [BarrierType.ThemedSkull]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ThemedSkull].current),
+      [BarrierType.SkullThemed]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.SkullThemed].current),
       [BarrierType.Indent]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Indent].current),
-      [BarrierType.ThemedIndent]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ThemedIndent].current),
+      [BarrierType.IndentThemed]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.IndentThemed].current),
       [BarrierType.FireTile]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.FireTile].current),
       [BarrierType.Flat]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Flat].current),
-      [BarrierType.ThemedFlat]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ThemedFlat].current),
+      [BarrierType.FlatThemed]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.FlatThemed].current),
       [BarrierType.Pyramid]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Pyramid].current),
-      [BarrierType.ThemedPyramid]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ThemedPyramid].current),
+      [BarrierType.PyramidThemed]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.PyramidThemed].current),
       [BarrierType.ExitSign]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ExitSign].current),
       [BarrierType.Radar]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Radar].current),
       [BarrierType.ComputerChip]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ComputerChip].current),
@@ -79,6 +79,8 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       [BarrierType.Panel3]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel3].current),
       [BarrierType.Panel4]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel4].current),
       [BarrierType.Panel5]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel5].current),
+      [BarrierType.Brick]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Brick].current),
+      [BarrierType.BrickThemed]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.BrickThemed].current),
     } satisfies Record<BarrierType, P5.Graphics>;
     const graphicalComponents: Pick<EditorGraphicalComponents, 'barrier'> = {
       barrier: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -147,13 +149,13 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       const y = 0;
       spriteRenderer.drawSpritesheetAnim3x3(gfx[BarrierType.FireTile], Image.FireSheet, x, y, 0);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Skull], Image.TileSheet16, x, y, 0);
-      spriteRenderer.drawImage1x1Static(gfx[BarrierType.ThemedSkull], Image.ThemedBarrierSkull, x, y, 0, 1, 0);
+      spriteRenderer.drawImage1x1Static(gfx[BarrierType.SkullThemed], Image.ThemedBarrierSkull, x, y, 0, 1, 0);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Indent], Image.TileSheet16, x, y, 2);
-      spriteRenderer.drawImage1x1Static(gfx[BarrierType.ThemedIndent], Image.ThemedBarrierIndent, x, y, 0, 1, 0);
+      spriteRenderer.drawImage1x1Static(gfx[BarrierType.IndentThemed], Image.ThemedBarrierIndent, x, y, 0, 1, 0);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Flat], Image.TileSheet16, x, y, 4);
-      spriteRenderer.drawImage1x1Static(gfx[BarrierType.ThemedFlat], Image.ThemedBarrierFlat, x, y, 0, 1, 0);
+      spriteRenderer.drawImage1x1Static(gfx[BarrierType.FlatThemed], Image.ThemedBarrierFlat, x, y, 0, 1, 0);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Pyramid], Image.TileSheet16, x, y, 6);
-      spriteRenderer.drawImage1x1Static(gfx[BarrierType.ThemedPyramid], Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
+      spriteRenderer.drawImage1x1Static(gfx[BarrierType.PyramidThemed], Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.ExitSign], Image.TileSheet16, x, y, 11);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Radar], Image.TileSheet16, x, y, 12);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.ComputerChip], Image.TileSheet16, x, y, 13);
@@ -164,8 +166,8 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel3], Image.TileSheet16, x, y, 18);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel4], Image.TileSheet16, x, y, 19);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel5], Image.TileSheet16, x, y, 20);
-
-
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Brick], Image.TileSheet16, x, y, 21);
+      spriteRenderer.drawImage1x1Static(gfx[BarrierType.BrickThemed], Image.ThemedBarrierBrick, x, y, 0, 1, 0);
       renderer.drawGraphicalComponentCustom(gfx[BarrierType.Default], graphicalComponents.barrier, x, y);
     }
   }
