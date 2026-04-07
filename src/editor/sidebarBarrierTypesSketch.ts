@@ -80,6 +80,7 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       [BarrierType.Panel4]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel4].current),
       [BarrierType.Panel5]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Panel5].current),
       [BarrierType.Brick]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Brick].current),
+      [BarrierType.BrickWhite]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.BrickWhite].current),
       [BarrierType.BrickThemed]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.BrickThemed].current),
     } satisfies Record<BarrierType, P5.Graphics>;
     const graphicalComponents: Pick<EditorGraphicalComponents, 'barrier'> = {
@@ -167,6 +168,7 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel4], Image.TileSheet16, x, y, 19);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel5], Image.TileSheet16, x, y, 20);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Brick], Image.TileSheet16, x, y, 21);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.BrickWhite], Image.TileSheet16, x, y, 22);
       spriteRenderer.drawImage1x1Static(gfx[BarrierType.BrickThemed], Image.ThemedBarrierBrick, x, y, 0, 1, 0);
       renderer.drawGraphicalComponentCustom(gfx[BarrierType.Default], graphicalComponents.barrier, x, y);
     }

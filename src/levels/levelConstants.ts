@@ -187,6 +187,7 @@ export enum TILECHAR {
   BarrierPanel5 = 'y',
   BarrierBrick = 'Q',
   BarrierBrickThemed = 'W',
+  BarrierBrickWhite = 'E',
   Door = 'D',
   DoorAlt = 'd',
   Deco1 = '-',
@@ -254,6 +255,7 @@ export const BARRIER_TYPE_TO_TILE_CHAR = {
   [BarrierType.Panel4]: TILECHAR.BarrierPanel4,
   [BarrierType.Panel5]: TILECHAR.BarrierPanel5,
   [BarrierType.Brick]: TILECHAR.BarrierBrick,
+  [BarrierType.BrickWhite]: TILECHAR.BarrierBrickWhite,
   [BarrierType.BrickThemed]: TILECHAR.BarrierBrickThemed,
 } satisfies Record<BarrierType, TILECHAR>;
 
@@ -281,6 +283,7 @@ export const TILE_CHAR_TO_BARRIER_TYPE = {
   [TILECHAR.BarrierPanel4]: BarrierType.Panel4,
   [TILECHAR.BarrierPanel5]: BarrierType.Panel5,
   [TILECHAR.BarrierBrick]: BarrierType.Brick,
+  [TILECHAR.BarrierBrickWhite]: BarrierType.BrickWhite,
   [TILECHAR.BarrierBrickThemed]: BarrierType.BrickThemed,
   [TILECHAR.Door]: 0,
   [TILECHAR.DoorAlt]: 0,
@@ -338,5 +341,6 @@ export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
   [BarrierType.Panel4]: FloodFillTile.BarrierPanel4,
   [BarrierType.Panel5]: FloodFillTile.BarrierPanel5,
   [BarrierType.Brick]: FloodFillTile.BarrierBrick,
+  [BarrierType.BrickWhite]: FloodFillTile.BarrierBrickWhite,
   [BarrierType.BrickThemed]: FloodFillTile.BarrierBrickThemed,
 } satisfies Record<BarrierType, FloodFillTile>;

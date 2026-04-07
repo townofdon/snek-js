@@ -191,6 +191,9 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
     case FloodFillTile.BarrierBrick:
       slice.barrier = BarrierType.Brick;
       break;
+    case FloodFillTile.BarrierBrickWhite:
+      slice.barrier = BarrierType.BrickWhite;
+      break;
     case FloodFillTile.BarrierBrickThemed:
       slice.barrier = BarrierType.BrickThemed;
       break;

@@ -40,6 +40,7 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
     [BarrierType.Panel4]: useRef<HTMLCanvasElement>(null),
     [BarrierType.Panel5]: useRef<HTMLCanvasElement>(null),
     [BarrierType.Brick]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.BrickWhite]: useRef<HTMLCanvasElement>(null),
     [BarrierType.BrickThemed]: useRef<HTMLCanvasElement>(null),
   } satisfies Record<BarrierType, React.MutableRefObject<HTMLCanvasElement>>;
 
@@ -88,7 +89,8 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
       [BarrierType.Panel4]: "19",
       [BarrierType.Panel5]: "20",
       [BarrierType.Brick]: "21",
-      [BarrierType.BrickThemed]: "22",
+      [BarrierType.BrickWhite]: "22",
+      [BarrierType.BrickThemed]: "23",
     } satisfies Record<BarrierType, string>)[barrierType];
     const color = barrierType === activeBarrierType ? '#ffffff' : '#444'
     return (
@@ -138,6 +140,7 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
       {renderButton(BarrierType.Panel4)}
       {renderButton(BarrierType.Panel5)}
       {renderButton(BarrierType.Brick)}
+      {renderButton(BarrierType.BrickWhite)}
       {renderButton(BarrierType.BrickThemed)}
     </div>
   );
@@ -167,6 +170,7 @@ const barrierTypeLabel = (barrierType: BarrierType) => {
     [BarrierType.Panel4]: "Panel 4",
     [BarrierType.Panel5]: "Panel 5",
     [BarrierType.Brick]: "Brick",
+    [BarrierType.BrickWhite]: "White Brick",
     [BarrierType.BrickThemed]: "Themed Brick",
   } satisfies Record<BarrierType, string>)[barrierType];
   return tooltipText || 'Unknown';

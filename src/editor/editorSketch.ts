@@ -33,7 +33,7 @@ import { SpriteRenderer } from '../engine/spriteRenderer';
 import { Renderer } from '../engine/renderer';
 import { Fonts } from '../fonts';
 import { PALETTE, getExtendedPalette } from '../palettes';
-import { coordToVec, getCoordIndex2, getRotationFromDirection, hasNeighborEdgeDoor, isAtMapEdge, isValidKeyChannel, isValidPortalChannel } from '../utils';
+import { coordToVec, getCoordIndex2, getRotationFromDirection, isAtMapEdge, isValidKeyChannel, isValidPortalChannel } from '../utils';
 import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
 import { createLightmap, drawLighting, initLighting, updateLighting } from '../engine/lighting';
 import { AnimationList } from '../collections/animationList';
@@ -400,15 +400,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.nospawn, x, y, alpha);
           }
 
-          const combinedMap = { ...data.doorsMap, ...data.locksMap }
-          const hasAdjacentDoor = false
-            || hasNeighborEdgeDoor(DIR.LEFT, combinedMap, x, y, 3)
-            || hasNeighborEdgeDoor(DIR.RIGHT, combinedMap, x, y, 3)
-            || hasNeighborEdgeDoor(DIR.UP, combinedMap, x, y, 3)
-            || hasNeighborEdgeDoor(DIR.DOWN, combinedMap, x, y, 3);
-
           if (data.doorsMap[coord]) {
-            if (isAtMapEdge(x, y, 1) || isAtMapEdge(x, y, 3) && hasAdjacentDoor) {
+            if (isAtMapEdge(x, y, 1)) {
               spriteRenderer.drawImage1x1Static(gfx, Image.ThemedDoor, x, y, 0, 1, 0);
             } else {
               spriteRenderer.drawImage1x1Static(gfx, Image.ThemedDoorAlt, x, y, 0, 1, 0);
@@ -477,6 +470,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
                 break;
               case BarrierType.Brick:
                 spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 21);
+                break;
+              case BarrierType.BrickWhite:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 22);
                 break;
               case BarrierType.BrickThemed:
                 spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierBrick, x, y, 0, 1, 0);

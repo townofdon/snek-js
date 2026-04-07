@@ -485,6 +485,7 @@ export enum BarrierType {
   Panel4,
   Panel5,
   Brick,
+  BrickWhite,
   BrickThemed,
 }
 export const BARRIER_TYPE_MAX = BarrierType.BrickThemed + 1;
@@ -518,6 +519,7 @@ export enum FloodFillTile {
   BarrierPanel4,
   BarrierPanel5,
   BarrierBrick,
+  BarrierBrickWhite,
   BarrierBrickThemed,
   Door,
   Deco1,

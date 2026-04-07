@@ -133,7 +133,6 @@ import {
   getLevelProgress,
   getRotationFromDirection,
   getManhattanDistance,
-  hasNeighborEdgeDoor,
   invertDirection,
   isAtMapEdge,
   isOrthogonalDirection,
@@ -143,7 +142,6 @@ import {
   shouldBlinkExpiringPickup,
   toRarity,
   triangle,
-  rotateDirection,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -173,7 +171,7 @@ import { WARP_ZONE_01 } from '../levels/bonusLevels/warpZone01';
 import { WARP_ZONE_02 } from '../levels/bonusLevels/warpZone02';
 import { WARP_ZONE_03 } from '../levels/bonusLevels/warpZone03';
 import { WinLevelScene } from '../scenes/WinLevelScene';
-import { findLevelWarpIndex, getNumRandomLevelsRemaining, getWarpLevelFromNum } from '../levels/levelUtils';
+import { findLevelWarpIndex, getNumRandomLevelsRemaining } from '../levels/levelUtils';
 import { SpriteRenderer } from './spriteRenderer';
 import { Renderer } from './renderer';
 import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
@@ -3073,6 +3071,9 @@ export function engine({
           case BarrierType.Brick:
             spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 21);
             break;
+          case BarrierType.BrickWhite:
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 22);
+            break;
           case BarrierType.BrickThemed:
             spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierBrick, x, y, 0, 1, 0);
             break;
@@ -3136,13 +3137,7 @@ export function engine({
       for (let i = 0; i < doors.length; i++) {
         const x = doors[i].x;
         const y = doors[i].y;
-        const combinedMap = { ...doorsMap, ...locksMap }
-        const hasAdjacentDoor = false
-          || hasNeighborEdgeDoor(DIR.LEFT, combinedMap, x, y, 3)
-          || hasNeighborEdgeDoor(DIR.RIGHT, combinedMap, x, y, 3)
-          || hasNeighborEdgeDoor(DIR.UP, combinedMap, x, y, 3)
-          || hasNeighborEdgeDoor(DIR.DOWN, combinedMap, x, y, 3);
-        const isThemedDoor = isAtMapEdge(x, y, 1) || (isAtMapEdge(x, y, 3) && hasAdjacentDoor);
+        const isThemedDoor = isAtMapEdge(x, y, 1);
         const isNonDoorLevel = false
           || level === START_LEVEL
           || level === START_LEVEL_COBRA
