@@ -190,6 +190,7 @@ import { SaveDataStore } from '../stores/SaveDataStore';
 import { AStar } from '../astar/astar';
 import { PreyList } from '../collections/preyList';
 import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/publishUtils';
+import { withErrorReporting } from '@/reporting';
 
 interface EngineParams {
   p5: P5,
@@ -791,7 +792,7 @@ export function engine({
 
   function startLogicLoop() {
     if (loopState.interval) clearInterval(loopState.interval);
-    loopState.interval = setInterval(logicLoop, 1);
+    loopState.interval = setInterval(withErrorReporting(logicLoop), 1);
   }
 
   function stopLogicLoop() {
@@ -3479,7 +3480,7 @@ export function engine({
     getMaybeTitleScene,
     resetStats,
     resetLevel,
-    renderLoop,
+    renderLoop: withErrorReporting(renderLoop),
     startMoving,
     startRewinding,
     startScreenShake,
