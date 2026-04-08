@@ -459,6 +459,7 @@ button,
 }
 
 .editorTileSidebar--uuBQITMXZKkc6enfJglp {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -545,6 +546,12 @@ button,
       bottom: inherit;
       margin-right: 4px;
       filter: none;
+      z-index: 9999;
+      &.customAnchor--MfMg9OVtOZAoBEO3NJ7g {
+        right: 100%;
+        min-width: 80px;
+        max-width: 80px;
+      }
     }
   }
   & .portalChannelColorPreview--i7T4LHCWLNg9a1wmy6IC,
