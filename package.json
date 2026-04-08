@@ -10,8 +10,9 @@
     "test": "NODE_ENV=test mocha --require mochaSetup.cjs -r ts-node/register -r tsconfig-paths/register 'src/**/*test.ts'",
     "build": "NODE_ENV=production webpack --mode=production --config-node-env=production",
     "build-dev": "NODE_ENV=development webpack --mode=development --config-node-env=development",
-    "deploy": "npm run build && cd bin && ./deploy.sh",
-    "deploy-gh-pages": "git subtree push --prefix dist/snek-js origin gh-pages",
+    "deploy": "echo \"Don't forget to bump the version!\n\" && git push --tags",
+    "deploy-gh-pages": "echo \"Deprecated: run 'npm run deploy'\" && exit 1",
+    "deploy-prod-manual": "npm run build && cd bin && ./deploy.sh",
     "watch": "NODE_ENV=development webpack --watch --config-node-env=development"
   },
   "browser": {

@@ -135,6 +135,7 @@ src/assets/sounds/test
 
 # builds
 .env
+dist
 dist-prod
 dist.zip
 dist-prod.zip
