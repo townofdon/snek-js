@@ -191,7 +191,6 @@ import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
 import { AStar } from '../astar/astar';
 import { PreyList } from '../collections/preyList';
-import { TUTORIAL_LEVEL_10 } from '@/levels/campaign/tutorialLevel10';
 import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/publishUtils';
 
 interface EngineParams {
@@ -979,13 +978,7 @@ export function engine({
   }
 
   function onKeyPressed( ev: KeyboardEvent ) {
-    // force player to use u-turn mechanic on "turnaround" level
-    const { keyCode, LEFT_ARROW, ENTER, RIGHT_ARROW } = p5;
-    if (level?.id === TUTORIAL_LEVEL_10.id && player.direction === DIR.RIGHT && !recentInputs[1]
-      && keyCode !== LEFT_ARROW && keyCode !== RIGHT_ARROW && keyCode !== KEYCODE_ALPHA_A && keyCode !== KEYCODE_ALPHA_D && keyCode !== ENTER) {
-      return;
-    }
-    if (!IS_DEV && p5.keyCode === KEYCODE_F10) {
+    if (IS_DEV && p5.keyCode === KEYCODE_F10) {
       saveMapImage();
       return;
     }
@@ -1013,11 +1006,13 @@ export function engine({
     const fg = document.getElementById("canvas-fg") as HTMLCanvasElement;
     // const apples = document.getElementById("canvas-apples") as HTMLCanvasElement;
     const action = document.getElementById("canvas-action") as HTMLCanvasElement;
+    const keysLocks = document.getElementById("canvas-keys-locks") as HTMLCanvasElement;
     const dest = document.getElementById("canvas-bg") as HTMLCanvasElement;
-    const sourceDimensions = [2400,2400] as const;
+    const sourceDimensions = [1200, 1200] as const;
     const destinationDimensions = [1200, 1200] as const;
     // await overlayOntoCanvas(mainCanvas, dest, ...sourceDimensions, ...destinationDimensions);
     await overlayOntoCanvas(fg, dest, ...sourceDimensions, ...destinationDimensions);
+    await overlayOntoCanvas(keysLocks, dest, ...sourceDimensions, ...destinationDimensions);
     // await overlayOntoCanvas(apples, dest, ...sourceDimensions, ...destinationDimensions);
     await overlayOntoCanvas(action, dest, ...sourceDimensions, ...destinationDimensions);
     const img = await getCanvasImage(dest, `map-${Date.now()}.png`);
