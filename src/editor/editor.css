@@ -392,6 +392,7 @@ button,
 
 
 .editorTileSidebar {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -458,6 +459,13 @@ button,
       bottom: inherit;
       margin-right: 4px;
       filter: none;
+      z-index: 9999;
+
+      &.customAnchor {
+        right: 100%;
+        min-width: 80px;
+        max-width: 80px;
+      }
     }
   }
   & .portalChannelColorPreview,

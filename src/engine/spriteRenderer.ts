@@ -41,6 +41,7 @@ export class SpriteRenderer {
     [Image.ThemedBarrierFlat]: null,
     [Image.ThemedBarrierPyramid]: null,
     [Image.ThemedBarrierBrick]: null,
+    [Image.ThemedBarrierStone]: null,
     [Image.ThemedPortalColumns]: null,
     [Image.AppleTemplate]: null,
     [Image.SnekHead]: null,
@@ -150,6 +151,7 @@ export class SpriteRenderer {
     this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierFlat, Image.TileSheet16, 5);
     this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierPyramid, Image.TileSheet16, 7);
     this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierBrick, Image.TileSheet16, 23);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierStone, Image.TileSheet16, 25);
     this.setThemedImageFromSprite(colors, 48, Image.ThemedPortalColumns, Image.TileSheet48, 0);
   }
 

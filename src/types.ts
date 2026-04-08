@@ -487,8 +487,10 @@ export enum BarrierType {
   Brick,
   BrickWhite,
   BrickThemed,
+  Stone,
+  StoneThemed,
 }
-export const BARRIER_TYPE_MAX = BarrierType.BrickThemed + 1;
+export const BARRIER_TYPE_MAX = BarrierType.StoneThemed + 1;
 
 export interface Barrier {
   type: BarrierType,
@@ -521,6 +523,8 @@ export enum FloodFillTile {
   BarrierBrick,
   BarrierBrickWhite,
   BarrierBrickThemed,
+  BarrierStone,
+  BarrierStoneThemed,
   Door,
   Deco1,
   Deco2,
@@ -786,6 +790,7 @@ export enum Image {
   ThemedBarrierFlat = '__barrier-flat-rendered-at-runtime__',
   ThemedBarrierPyramid = '__barrier-pyramid-rendered-at-runtime__',
   ThemedBarrierBrick = '__barrier-bricks-rendered-at-runtime__',
+  ThemedBarrierStone = '__barrier-stone-rendered-at-runtime__',
   ThemedPortalColumns = '__barrier-portal-columns-rendered-at-runtime__',
   ThemedDoor = 'door-rendered-at-runtime__',
   ThemedDoorAlt = 'door-alt-rendered-at-runtime__',
@@ -857,6 +862,7 @@ export type ThemedImage =
   | Image.ThemedBarrierFlat
   | Image.ThemedBarrierPyramid
   | Image.ThemedBarrierBrick
+  | Image.ThemedBarrierStone
   | Image.ThemedPortalColumns
   | Image.ThemedDoor
   | Image.ThemedDoorAlt

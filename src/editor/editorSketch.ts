@@ -477,6 +477,12 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
               case BarrierType.BrickThemed:
                 spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierBrick, x, y, 0, 1, 0);
                 break;
+              case BarrierType.Stone:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 24);
+                break;
+              case BarrierType.StoneThemed:
+                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierStone, x, y, 0, 1, 0);
+                break;
               case BarrierType.Default:
               default:
                 renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);

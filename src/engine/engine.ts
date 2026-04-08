@@ -64,8 +64,6 @@ import {
   PICKUP_GALACTIC_BONUS,
   TIME_WAIT_BEFORE_REWIND,
   TIME_REWIND_TAKEOVER_CONTROLS,
-  KEYCODE_ALPHA_A,
-  KEYCODE_ALPHA_D,
   KEYCODE_F10,
   IS_DEV,
 } from "../constants";
@@ -3080,6 +3078,12 @@ export function engine({
             break;
           case BarrierType.BrickThemed:
             spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierBrick, x, y, 0, 1, 0);
+            break;
+          case BarrierType.Stone:
+            spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, x, y, 24);
+            break;
+          case BarrierType.StoneThemed:
+            spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedBarrierStone, x, y, 0, 1, 0);
             break;
           default:
           case BarrierType.Unset:

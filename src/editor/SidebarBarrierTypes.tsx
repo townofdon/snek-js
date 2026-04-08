@@ -6,6 +6,7 @@ import { BLOCK_SIZE } from "../constants";
 import { sidebarBarrierTypesSketch, SidebarBarrierTypesSketchReturn } from "./sidebarBarrierTypesSketch";
 
 import * as styles from "./Editor.css";
+import { Stack } from "@/components/Stack";
 
 interface SidebarBarrierTypesProps {
   activeBarrierType: BarrierType,
@@ -42,6 +43,8 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
     [BarrierType.Brick]: useRef<HTMLCanvasElement>(null),
     [BarrierType.BrickWhite]: useRef<HTMLCanvasElement>(null),
     [BarrierType.BrickThemed]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Stone]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.StoneThemed]: useRef<HTMLCanvasElement>(null),
   } satisfies Record<BarrierType, React.MutableRefObject<HTMLCanvasElement>>;
 
   useLayoutEffect(() => {
@@ -65,7 +68,7 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
     }
   }, [options]);
 
-  const renderButton = (barrierType: BarrierType) => {
+  const renderButton = (barrierType: BarrierType, isLeft = false) => {
     const text = ({
       [BarrierType.Unset]: 'None',
       [BarrierType.Default]: '1',
@@ -91,6 +94,8 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
       [BarrierType.Brick]: "21",
       [BarrierType.BrickWhite]: "22",
       [BarrierType.BrickThemed]: "23",
+      [BarrierType.Stone]: "24",
+      [BarrierType.StoneThemed]: "25"
     } satisfies Record<BarrierType, string>)[barrierType];
     const color = barrierType === activeBarrierType ? '#ffffff' : '#444'
     return (
@@ -110,38 +115,48 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
             />
           )}
           {text}
-          <span className={cx('tooltip', styles.tooltip)}>{barrierTypeLabel(barrierType)}</span>
+          <span className={cx('tooltip', styles.tooltip, { [styles.customAnchor]: isLeft })}>
+            {barrierTypeLabel(barrierType)}
+          </span>
         </button>
       </div>
     );
   }
 
   return (
-    <div ref={container}>
+    <div className="sidebar-barrier-types" ref={container}>
       <label>style</label>
-      {renderButton(BarrierType.Default)}
-      {renderButton(BarrierType.Skull)}
-      {renderButton(BarrierType.SkullThemed)}
-      {renderButton(BarrierType.Indent)}
-      {renderButton(BarrierType.IndentThemed)}
-      {renderButton(BarrierType.FireTile)}
-      {renderButton(BarrierType.Flat)}
-      {renderButton(BarrierType.FlatThemed)}
-      {renderButton(BarrierType.Pyramid)}
-      {renderButton(BarrierType.PyramidThemed)}
-      {renderButton(BarrierType.ExitSign)}
-      {renderButton(BarrierType.Radar)}
-      {renderButton(BarrierType.ComputerChip)}
-      {renderButton(BarrierType.MetalPlate)}
-      {renderButton(BarrierType.Panel0)}
-      {renderButton(BarrierType.Panel1)}
-      {renderButton(BarrierType.Panel2)}
-      {renderButton(BarrierType.Panel3)}
-      {renderButton(BarrierType.Panel4)}
-      {renderButton(BarrierType.Panel5)}
-      {renderButton(BarrierType.Brick)}
-      {renderButton(BarrierType.BrickWhite)}
-      {renderButton(BarrierType.BrickThemed)}
+      <Stack justify="end" align="start" noChildMargin>
+        <div>
+          {renderButton(BarrierType.MetalPlate, true)}
+          {renderButton(BarrierType.Panel0, true)}
+          {renderButton(BarrierType.Panel1, true)}
+          {renderButton(BarrierType.Panel2, true)}
+          {renderButton(BarrierType.Panel3, true)}
+          {renderButton(BarrierType.Panel4, true)}
+          {renderButton(BarrierType.Panel5, true)}
+          {renderButton(BarrierType.Brick, true)}
+          {renderButton(BarrierType.BrickWhite, true)}
+          {renderButton(BarrierType.BrickThemed, true)}
+          {renderButton(BarrierType.Stone, true)}
+          {renderButton(BarrierType.StoneThemed, true)}
+        </div>
+        <div>
+          {renderButton(BarrierType.Default)}
+          {renderButton(BarrierType.Skull)}
+          {renderButton(BarrierType.SkullThemed)}
+          {renderButton(BarrierType.Indent)}
+          {renderButton(BarrierType.IndentThemed)}
+          {renderButton(BarrierType.FireTile)}
+          {renderButton(BarrierType.Flat)}
+          {renderButton(BarrierType.FlatThemed)}
+          {renderButton(BarrierType.Pyramid)}
+          {renderButton(BarrierType.PyramidThemed)}
+          {renderButton(BarrierType.ExitSign)}
+          {renderButton(BarrierType.Radar)}
+          {renderButton(BarrierType.ComputerChip)}
+        </div>
+      </Stack>
     </div>
   );
 }
@@ -172,6 +187,8 @@ const barrierTypeLabel = (barrierType: BarrierType) => {
     [BarrierType.Brick]: "Brick",
     [BarrierType.BrickWhite]: "White Brick",
     [BarrierType.BrickThemed]: "Themed Brick",
+    [BarrierType.Stone]: "Stone",
+    [BarrierType.StoneThemed]: "Themed Stone"
   } satisfies Record<BarrierType, string>)[barrierType];
   return tooltipText || 'Unknown';
 }

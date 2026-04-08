@@ -89,7 +89,7 @@ export const LOSE_MESSAGES: LoseMessage[] = [
     ["We are only pawns in the game of Snek.", (state, stats, difficulty) => difficulty.index === 3],
     ["Behold, the scales of justice.", (state, stats, difficulty) => difficulty.index === 3],
     ["Vengeance has been visited upon you.", (state, stats, difficulty) => difficulty.index >= 3],
-    ["You do not have the moves like Jagger.", (state, stats, difficulty) => difficulty.index >= 3 && stats.numLevelsCleared == 0],
+    ["I guess you don't have the moves like Jagger.", (state, stats, difficulty) => difficulty.index >= 3 && stats.numLevelsCleared == 0],
     ["The twitch is strong with this one.", (state, stats, difficulty) => difficulty.index === 3 && stats.numLevelsCleared >= 5],
     ["Hey, you're getting good at this...", (state, stats, difficulty) => difficulty.index === 3 && stats.numLevelsCleared >= 4],
     ["Heck, even I'm impressed.", (state, stats, difficulty) => difficulty.index === 3 && stats.numLevelsCleared >= 7],

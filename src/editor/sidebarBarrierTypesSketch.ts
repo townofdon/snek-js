@@ -82,6 +82,8 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       [BarrierType.Brick]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Brick].current),
       [BarrierType.BrickWhite]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.BrickWhite].current),
       [BarrierType.BrickThemed]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.BrickThemed].current),
+      [BarrierType.Stone]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Stone].current),
+      [BarrierType.StoneThemed]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.StoneThemed].current),
     } satisfies Record<BarrierType, P5.Graphics>;
     const graphicalComponents: Pick<EditorGraphicalComponents, 'barrier'> = {
       barrier: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -170,6 +172,8 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Brick], Image.TileSheet16, x, y, 21);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.BrickWhite], Image.TileSheet16, x, y, 22);
       spriteRenderer.drawImage1x1Static(gfx[BarrierType.BrickThemed], Image.ThemedBarrierBrick, x, y, 0, 1, 0);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Stone], Image.TileSheet16, x, y, 24);
+      spriteRenderer.drawImage1x1Static(gfx[BarrierType.StoneThemed], Image.ThemedBarrierStone, x, y, 0, 1, 0);
       renderer.drawGraphicalComponentCustom(gfx[BarrierType.Default], graphicalComponents.barrier, x, y);
     }
   }
