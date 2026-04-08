@@ -615,6 +615,16 @@ export const sketch = (p5: P5) => {
     state.isGameStarting = false;
     state.isGameStarted = true;
     replay.difficulty = { ...getDifficulty() };
+    recordSnekalyticsEvent({
+      eventType: SNEKALYTICS_EVENT_TYPE.NEW_GAME,
+      playthroughId,
+      difficulty: '-',
+      levelName: state.mapset === Mapset.Challenge ? 'CHALLENGE' : 'CAMPAIGN',
+      levelProgress: 0,
+      levelTimeProgress: 0,
+      score: 0,
+      isCobra: state.gameMode === GameMode.Cobra,
+    });
   }
 
   function clearUI(force = false) {
