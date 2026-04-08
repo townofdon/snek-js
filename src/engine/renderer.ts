@@ -394,16 +394,16 @@ export class Renderer implements IRenderer {
 
   private drawBasicRectImpl(gfx: P5 | P5.Graphics, x: number, y: number, w: number, h: number, color: P5.Color) {
     const borderSize = STROKE_SIZE * 0.5;
-    const widthAddLastX = MAP_OFFSET * (x >= BLOCK_SIZE.x - 1 ? 1 : 0);
-    const heightAddLastY = MAP_OFFSET * (y >= BLOCK_SIZE.y - 1 ? 1 : 0);
+    const widthAddLastX = MAP_OFFSET * (x >= GRIDCOUNT_X - 1 ? 1 : 0);
+    const heightAddLastY = MAP_OFFSET * (y >= GRIDCOUNT_Y - 1 ? 1 : 0);
     const width = BLOCK_SIZE.x + widthAddLastX;
     const height = BLOCK_SIZE.y + heightAddLastY;
     const x0 = x * BLOCK_SIZE.x - borderSize;
     const y0 = y * BLOCK_SIZE.y - borderSize;
     gfx.fill(color);
     gfx.noStroke();
-    gfx.randomSeed(x + y * 500000);
-    // DEBUG RECT FILL (LIGHTING, ETC.)
+    // DEBUG RECT FILL (LIGHTING, ETC.) (two methods below)
+    // gfx.randomSeed(x + y * 500000);
     // gfx.fill(gfx.color(gfx.random(0, 255), gfx.random(0, 255), gfx.random(0, 255), 255 * 0.5));
     // gfx.fill(gfx.lerpColor(gfx.color('black'), gfx.color('#fff'), ((x || 0.01) * (y || 0.01)) / (GRIDCOUNT_X * GRIDCOUNT_Y)))
     gfx.rect(
