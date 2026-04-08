@@ -18,7 +18,7 @@ export const recordSnekalyticsEvent = (event: {
   const origin = window.location.origin;
   const sessionId = identityStore.getId();
   const version = VERSION;
-  const commitHash = COMMIT_HASH
-  const body = { ...event, origin, sessionId, version, commitHash, isDev };
+  const commit = COMMIT_HASH
+  const body = { ...event, origin, sessionId, version, commit, isDev };
   return Api.post(url, body).catch(err => { console.error(err); });
 }
