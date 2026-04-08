@@ -44,7 +44,12 @@ export function getCoordIndex(vec: Vector | undefined): number {
 }
 
 export function getCoordIndex2(x: number, y: number): number {
-  return clamp(Math.floor(x), 0, GRIDCOUNT_X - 1) + clamp(Math.floor(y), 0, GRIDCOUNT_Y - 1) * GRIDCOUNT_X
+  return clamp(Math.floor(x), 0, GRIDCOUNT_X - 1) + clamp(Math.floor(y), 0, GRIDCOUNT_Y - 1) * GRIDCOUNT_X;
+}
+
+export function getCoordIndex3(x: number, y: number, resolution: number): number {
+  const r = Math.floor(Math.max(resolution, 0));
+  return clamp(Math.floor(x), 0, GRIDCOUNT_X * r - 1) + clamp(Math.floor(y), 0, GRIDCOUNT_Y * r - 1) * GRIDCOUNT_X * r;
 }
 
 export function getCoordX(coord: number) {

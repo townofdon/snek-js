@@ -331,7 +331,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           return acc;
         }, {} as Record<number, boolean>);
         fireTiles.fillFromMap(fireBarriersMap, 99999999, ANIMATIONS[Image.FireSheet].frames, ANIMATIONS[Image.FireSheet].timePerFrame);
-        updateLighting(lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, null, fireTiles);
+        updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, null, fireTiles);
         startPortalParticles();
       }
       renderElements();
@@ -663,7 +663,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         const color = state.operation === Operation.Remove ? '#ff330044' : '#00aaff44';
         for (let y = Math.min(from.y, to.y); y <= Math.max(from.y, to.y); y++) {
           for (let x = Math.min(from.x, to.x); x <= Math.max(from.x, to.x); x++) {
-            renderer.drawBasicSquareCustom(p5, x, y, p5.color(color), 1, 0)
+            renderer.drawBasicSquareCustom(p5, x, y, p5.color(color), 1);
           }
         }
       }

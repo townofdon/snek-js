@@ -380,44 +380,38 @@ export class Renderer implements IRenderer {
     }
   }
 
-  drawBasicSquare(x: number, y: number, color: P5.Color, size = 1, screenshakeMul = 1) {
-    this.drawBasicSquareImpl(this.p5, x, y, color, size, screenshakeMul);
+  drawBasicSquare(x: number, y: number, color: P5.Color, size = 1) {
+    this.drawBasicRectImpl(this.p5, x, y, size, size, color);
   }
 
-  drawBasicSquareCustom(component: P5 | P5.Graphics, x: number, y: number, color: P5.Color, size = 1, screenshakeMul = 0) {
-    this.drawBasicSquareImpl(component, x, y, color, size, screenshakeMul);
+  drawBasicSquareCustom(gfx: P5 | P5.Graphics, x: number, y: number, color: P5.Color, size = 1) {
+    this.drawBasicRectImpl(gfx, x, y, size, size, color);
   }
 
-  private drawBasicSquareImpl(gfx: P5 | P5.Graphics, x: number, y: number, color: P5.Color, size = 1, screenshakeMul = 1) {
+  drawBasicRect(...args: Parameters<Renderer['drawBasicRectImpl']>) {
+    this.drawBasicRectImpl(...args)
+  }
+
+  private drawBasicRectImpl(gfx: P5 | P5.Graphics, x: number, y: number, w: number, h: number, color: P5.Color) {
     const borderSize = STROKE_SIZE * 0.5;
     const widthAddLastX = MAP_OFFSET * (x >= BLOCK_SIZE.x - 1 ? 1 : 0);
     const heightAddLastY = MAP_OFFSET * (y >= BLOCK_SIZE.y - 1 ? 1 : 0);
     const width = BLOCK_SIZE.x + widthAddLastX;
     const height = BLOCK_SIZE.y + heightAddLastY;
-    const x0 = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + (1 - size) * width - borderSize;
-    const y0 = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + (1 - size) * height - borderSize;
-    const x1 = x0 + width * size;
-    const y1 = y0 + height * size;
-    const offsetMulFirstX = x <= 0 ? 0 : 1;
-    const offsetMulFirstY = y <= 0 ? 0 : 1;
-    const drawQuad = (_x0: number, _y0: number, _x1: number, _y1: number, _x2: number, _y2: number, _x3: number, _y3: number) => {
-      gfx.quad(
-        Math.floor(_x0) + MAP_OFFSET * offsetMulFirstX,
-        Math.floor(_y0) + MAP_OFFSET * offsetMulFirstY,
-        Math.floor(_x1) + MAP_OFFSET,
-        Math.floor(_y1) + MAP_OFFSET * offsetMulFirstY,
-        Math.floor(_x2) + MAP_OFFSET,
-        Math.floor(_y2) + MAP_OFFSET,
-        Math.floor(_x3) + MAP_OFFSET * offsetMulFirstX,
-        Math.floor(_y3) + MAP_OFFSET,
-      );
-    }
+    const x0 = x * BLOCK_SIZE.x - borderSize;
+    const y0 = y * BLOCK_SIZE.y - borderSize;
     gfx.fill(color);
-    // gfx.randomSeed(x + y * 500000);
-    // gfx.fill(gfx.color(gfx.random(0, 255), gfx.random(0, 255), gfx.random(0, 255)));
-    // gfx.fill(gfx.lerpColor(gfx.color('black'), gfx.color('#fff'), ((x || 0.01) * (y || 0.01)) / (GRIDCOUNT_X * GRIDCOUNT_Y)))
     gfx.noStroke();
-    drawQuad(x0, y0, x1, y0, x1, y1, x0, y1);
+    gfx.randomSeed(x + y * 500000);
+    // DEBUG RECT FILL (LIGHTING, ETC.)
+    // gfx.fill(gfx.color(gfx.random(0, 255), gfx.random(0, 255), gfx.random(0, 255), 255 * 0.5));
+    // gfx.fill(gfx.lerpColor(gfx.color('black'), gfx.color('#fff'), ((x || 0.01) * (y || 0.01)) / (GRIDCOUNT_X * GRIDCOUNT_Y)))
+    gfx.rect(
+      Math.floor(x0) + (MAP_OFFSET + 1) * (x <= 0 ? 0 : 1),
+      Math.floor(y0) + MAP_OFFSET * (y <= 0 ? 0 : 1),
+      width * w + (MAP_OFFSET + 1) * (x <= 0 ? 1 : 0),
+      height * h + MAP_OFFSET * (y <= 0 ? 1 : 0),
+    );
   }
 
   drawLine(gfx: P5 | P5.Graphics, x0: number, y0: number, x1: number, y1: number, color: string) {

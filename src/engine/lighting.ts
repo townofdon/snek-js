@@ -7,43 +7,49 @@ import {
   LIGHTMAP_RESOLUTION,
 } from "../constants";
 import { Renderer } from "./renderer";
-import { clamp, lerp, shouldBlinkExpiringPickup } from "../utils";
+import { clamp, getCoordIndex3, lerp, shouldBlinkExpiringPickup } from "../utils";
 import { Easing } from "../easing";
 import { Pickup, ItemDropType, PortalChannel, PickupType } from "../types";
 import { AppleList } from "../collections/appleList";
 import { AnimationList } from "../collections/animationList";
 
+const LIGHTMAP_SIZE = (
+  GRIDCOUNT_X * Math.floor(LIGHTMAP_RESOLUTION) *
+  GRIDCOUNT_Y * Math.floor(LIGHTMAP_RESOLUTION)
+);
+
 const lightBuffer = createLightmap();
 
 const TAU = Math.PI * 2;
 const NUM_ANGLE_STEPS = 64;
-const LIGHT_RADIUS_STEP = 0.5;
+const LIGHT_RADIUS_STEP = 0.5 / LIGHTMAP_RESOLUTION;
 const LIGHT_ANGLE_STEP = TAU / NUM_ANGLE_STEPS;
 
-const numUniqLightColors = 1000;
+const NUM_UNIQ_LIGHT_COLORS = 1000;
 let lightColorLookup: P5.Color[] = [];
-let flickerVal = 0.5; // value in range [0,1)
-let flickerCounter = -1;
+
+const FIRE_FLICKER_CYCLE_MIN = 200;
+const FIRE_FLICKER_CYCLE_MAX = 600;
+let flickerElapsed = 0;
+let flickerDuration = lerp(FIRE_FLICKER_CYCLE_MIN, FIRE_FLICKER_CYCLE_MAX, Math.random());
 
 export function initLighting(p5: P5) {
-  lightColorLookup = initLightColorLookup(p5, numUniqLightColors);
+  lightColorLookup = initLightColorLookup(p5, NUM_UNIQ_LIGHT_COLORS);
 }
 
-export function createLightmap(): number[] {
-  return new Array<number>(
-    GRIDCOUNT_X * Math.floor(LIGHTMAP_RESOLUTION) *
-    GRIDCOUNT_Y * Math.floor(LIGHTMAP_RESOLUTION)
-  );
+export function createLightmap(): Float32Array {
+  return new Float32Array(LIGHTMAP_SIZE).fill(0);
 }
 
-export function resetLightmap(lightMap: number[], globalLight: number) {
+export function resetLightmap(lightMap: Float32Array, globalLight: number) {
   for (let i = 0; i < lightMap.length; i++) {
     lightMap[i] = globalLight;
   }
 }
 
 export function updateLighting(
-  lightMap: number[],
+  deltaTime: number,
+  lightMap: Float32Array,
   globalLight: number,
   playerPosition: Vector,
   portals: Record<PortalChannel, Vector[]>,
@@ -85,35 +91,101 @@ export function updateLighting(
         const x = Math.floor(i % GRIDCOUNT_X);
         const y = Math.floor(i / GRIDCOUNT_X);
         // simulate a flicker effect
-        let t = flickerVal;
-        if (flickerCounter < 0 || flickerCounter !== fireTiles.getNumTimesDidChange()) {
-          t = flickerVal = Math.random();
-          flickerCounter = fireTiles.getNumTimesDidChange();
+        if (flickerElapsed >= flickerDuration) {
+          flickerElapsed = 0;
+          flickerDuration = lerp(FIRE_FLICKER_CYCLE_MIN, FIRE_FLICKER_CYCLE_MAX, Math.random());
         }
+        const t = Math.sin((flickerElapsed / flickerDuration) * Math.PI)
         addSpotlight(lightMap, x, y, { strength: lerp(0.35, 0.5, t), radius: lerp(0, 0.25, t), falloff: lerp(2.25, 2.75, t) });
       }
     }
+    flickerElapsed += deltaTime;
   }
 }
 
-export function drawLighting(lightMap: number[], renderer: Renderer, graphics: P5 | P5.Graphics) {
+interface LightRect {
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  lightIndex: number,
+}
+const grid = new Uint16Array(LIGHTMAP_SIZE).fill(0);
+
+export function drawLighting(lightMap: Float32Array, renderer: Renderer, graphics: P5 | P5.Graphics) {
+  grid.fill(0);
   const coefficient = 1 / LIGHTMAP_RESOLUTION;
+  // calculate all light color indexes
   for (let i = 0; i < lightMap.length; i++) {
     const x = i % (GRIDCOUNT_X * LIGHTMAP_RESOLUTION);
     const y = Math.floor(i / (GRIDCOUNT_X * LIGHTMAP_RESOLUTION));
     const a = 1 - clamp(lightMap[i], 0, 1);
-    const color = lightColorLookup[Math.floor(a * (numUniqLightColors - 1) + Number.EPSILON)];
+    const idx = Math.floor(a * (NUM_UNIQ_LIGHT_COLORS - 1) + Number.EPSILON);
+    if (!lightColorLookup[idx]) continue;
+    grid[getCoordIndex3(x, y, LIGHTMAP_RESOLUTION)] = idx;
+  }
+  // perform greedy quad algorithm to get fewest possible number of rects to draw
+  const rects: LightRect[] = []
+  const consumed: Record<number, boolean> = {};
+  const cols = GRIDCOUNT_X * LIGHTMAP_RESOLUTION;
+  const rows = GRIDCOUNT_Y * LIGHTMAP_RESOLUTION;
+  const r = LIGHTMAP_RESOLUTION;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      if (consumed[getCoordIndex3(x, y, r)]) {
+        continue;
+      }
+      let width = 1;
+      let height = 1;
+      const idx = grid[getCoordIndex3(x, y, r)];
+      // greedy expand horizontally
+      while (
+        x + width < cols &&
+        grid[getCoordIndex3(x + width, y, r)] === idx &&
+        !consumed[getCoordIndex3(x + width, y, r)]
+      ) {
+        width++;
+      }
+      // greedy expand vertically
+      let canExpandHeight = true;
+      while (y + height < rows && canExpandHeight) {
+        for (let i = 0; i < width; i++) {
+          const coord = getCoordIndex3(x + i, y + height, r);
+          if (
+            grid[coord] !== idx ||
+            consumed[coord]
+          ) {
+            canExpandHeight = false;
+            break;
+          }
+        }
+        if (canExpandHeight) height++;
+      }
+      // mark cells consumed
+      for (let i = 0; i < height; i++) {
+        for (let j = 0; j < width; j++) {
+          consumed[getCoordIndex3(x + j, y + i, r)] = true;
+        }
+      }
+      rects.push({ x, y, width, height, lightIndex: idx } satisfies LightRect);
+    }
+  }
+  // finally, draw the result rects
+  for (let i = 0; i < rects.length; i++) {
+    const { x, y, width, height, lightIndex } = rects[i]
+    const color = lightColorLookup[lightIndex];
     if (!color) continue;
-    renderer.drawBasicSquareCustom(graphics, x * coefficient, y * coefficient, color, coefficient, 0);
+    renderer.drawBasicRect(graphics, x * coefficient, y * coefficient, width * coefficient, height * coefficient, color);
   }
 }
+
 
 interface AddSpotlightOptions {
   radius?: number,
   falloff?: number,
   strength?: number,
 }
-function addSpotlight(lightMap: number[], x: number, y: number, {
+function addSpotlight(lightMap: Float32Array, x: number, y: number, {
   radius = 1,
   falloff = 2,
   strength = 1,
@@ -125,12 +197,12 @@ function addSpotlight(lightMap: number[], x: number, y: number, {
   while (r <= (radius + falloff) * LIGHTMAP_RESOLUTION) {
     let angle = 0;
     while (angle < TAU) {
-      const lx = x * LIGHTMAP_RESOLUTION + Math.round(Math.cos(angle) * r * LIGHTMAP_RESOLUTION);
-      const ly = y * LIGHTMAP_RESOLUTION + Math.round(Math.sin(angle) * r * LIGHTMAP_RESOLUTION);
+      const lx = x * LIGHTMAP_RESOLUTION + Math.round(Math.cos(angle) * r / LIGHTMAP_RESOLUTION);
+      const ly = y * LIGHTMAP_RESOLUTION + Math.round(Math.sin(angle) * r / LIGHTMAP_RESOLUTION);
       const i = toQuantizedIndex(lx, ly);
       // don't draw here if buffer already has a value
       if (inBounds(lx, ly) && lightBuffer[i] === 0) {
-        lightBuffer[i] = getSpotlightValue(r, radius, falloff) * strength;
+        lightBuffer[i] = getSpotlightValue(r / LIGHTMAP_RESOLUTION, radius, falloff) * strength;
       }
       if (r < 2) {
         angle += LIGHT_ANGLE_STEP * 16;
@@ -142,7 +214,7 @@ function addSpotlight(lightMap: number[], x: number, y: number, {
         angle += LIGHT_ANGLE_STEP;
       }
     }
-    if (r <= 5) {
+    if (r <= 5 * LIGHTMAP_RESOLUTION) {
       r += 1;
     } else {
       r += LIGHT_RADIUS_STEP;
@@ -160,7 +232,7 @@ function inBounds(lx: number, ly: number): boolean {
 interface AddBlocklightOptions {
   strength?: number,
 }
-function addBlocklight(lightMap: number[], x: number, y: number, {
+function addBlocklight(lightMap: Float32Array, x: number, y: number, {
   strength = 1,
 }: AddBlocklightOptions) {
   const lx = x * LIGHTMAP_RESOLUTION;
@@ -177,7 +249,7 @@ function getSpotlightValue(distanceFromOrigin: number, radius: number, falloff: 
   return Easing.inQuad(lerp(1, 0, (distanceFromOrigin - radius) / falloff));
 }
 
-function commitStagedLight(source: number[], target: number[]) {
+function commitStagedLight(source: Float32Array, target: Float32Array) {
   for (let i = 0; i < target.length && i < source.length; i++) {
     target[i] += source[i];
   }
@@ -196,6 +268,12 @@ function initLightColorLookup(p5: P5, size: number) {
     const a = i / (size - 1);
     const color = Color("#013").alpha(a);
     lookup.push(p5.color(color.hexa()));
+    // // // DEBUG SHADOW COLORS
+    // const r = lerp(0, 255, Math.random());
+    // const g = lerp(0, 255, Math.random());
+    // const b = lerp(0, 255, Math.random());
+    // const color = p5.color(r, g, b, lerp(0, 255, 0.5))
+    // lookup.push(color);
   }
   return lookup;
 }

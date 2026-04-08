@@ -1128,7 +1128,7 @@ export function engine({
       !state.isShowingDeathColours &&
       state.timeSinceInvincibleStart >= difficulty.invincibilityTime
     ) {
-      updateLighting(lightMap, globalLight, player.position, portals, apples, pickupsMap, explosions, fireTiles);
+      updateLighting(p5.deltaTime, lightMap, globalLight, player.position, portals, apples, pickupsMap, explosions, fireTiles);
       drawLighting(lightMap, renderer, gfxLighting);
     }
 
