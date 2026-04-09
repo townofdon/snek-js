@@ -2854,6 +2854,7 @@ export function engine({
       const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
       const color = gradients.calc(reversibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
       renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
+      drawSegmentArmor(vec, i, dirPrev);
     } else if (state.isShowingDeathColours) {
       renderer.drawSquareStatic(gfxFG, vec.x, vec.y,
         PALETTE.deathInvert.playerTail,
@@ -2902,14 +2903,19 @@ export function engine({
         const direction = getDirectionBetween(segments.get(i), segments.get(i + 1));
         spriteRenderer.drawImage3x3(Image.SnekSegmentE, vec.x, vec.y, getRotationFromDirection(direction));
       }
-      // draw armor on segments
-      const numArmoredSegments = 15;
-      if (heldItems.armor > 0 && replay.mode !== ReplayMode.Playback && i > 0 && i < numArmoredSegments) {
-        if (i % 2 === 1) {
-          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg1 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
-        } else {
-          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg2 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
-        }
+      drawSegmentArmor(vec, i, dirPrev);
+    }
+  }
+
+  function drawSegmentArmor(vec: Vector, i = 0, dirPrev: DIR) {
+    const numArmoredSegments = 2 * (heldItems.armor - 1) + 1;
+    if (heldItems.armor === 1 && replay.mode !== ReplayMode.Playback && i === 1) {
+      spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg2 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
+    } else if (heldItems.armor > 0 && replay.mode !== ReplayMode.Playback && i > 0 && i < numArmoredSegments) {
+      if (i % 2 === 1) {
+        spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg1 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
+      } else {
+        spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg2 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
       }
     }
   }
