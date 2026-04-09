@@ -174,7 +174,7 @@ export const sketch = (p5: P5) => {
     resetStats,
     renderLoop,
     startMoving,
-    startRewinding,
+    requestPlayerRewind,
     startScreenShake,
     startLogicLoop,
     stopLogicLoop,
@@ -306,7 +306,7 @@ export const sketch = (p5: P5) => {
         startMoving();
         break;
       case InputAction.StartRewinding:
-        startRewinding();
+        requestPlayerRewind();
         break;
       case InputAction.GotoCommunityPage:
         window.location.href = `${getRelativeDir()}community`;

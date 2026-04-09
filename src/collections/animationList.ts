@@ -121,7 +121,7 @@ export class AnimationList implements ICollection {
       if (shouldBlinkExpiringPickup(this.lifetime[i] - prevElapsed) !== shouldBlinkExpiringPickup(this.lifetime[i] - this.elapsed[i])) {
         didChange = true;
       }
-      if (this.elapsed[i] > this.lifetime[i] || !this.lifetime[i]) {
+      if (this.elapsed[i] >= this.lifetime[i] || !this.lifetime[i]) {
         const x = this.x[i];
         const y = this.y[i];
         const coord = getCoordIndex2(x, y);

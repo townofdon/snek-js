@@ -540,7 +540,7 @@ export class Renderer implements IRenderer {
     }
   }
 
-  drawTutorialRewindControls = (gfx: P5 | P5.Graphics, playerPosition: Vector, canRewind: () => boolean) => {
+  drawTutorialRewindControls = (gfx: P5 | P5.Graphics, playerPosition: Vector, canRewind: boolean) => {
     const hasNeverBeenHurt = this.gameState.lastHurtBy === HitType.Unknown;
     if (hasNeverBeenHurt) return;
     if (this.tutorial.needsMoveControls) return;
@@ -551,8 +551,7 @@ export class Renderer implements IRenderer {
     const isWaitingToStartMoving = this.gameState.isGameStarted && !this.gameState.isMoving;
     const isStunned = this.gameState.timeSinceHurt < HURT_STUN_TIME;
     if (!isWaitingToStartMoving && !isStunned) return;
-
-    if (!canRewind()) return;
+    if (!canRewind) return;
 
     // banner background
     const bannerWidth = 7;

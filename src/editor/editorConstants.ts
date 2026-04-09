@@ -1,14 +1,9 @@
 import { Vector } from 'p5';
 import { DIFFICULTY_EASY } from '@/constants';
 import {
-  AppMode,
   DIR,
   EditorData,
   EditorOptions,
-  GameMode,
-  GameState,
-  HitType,
-  InputType,
   MusicTrack,
   PortalExitMode,
   Replay,
@@ -19,6 +14,7 @@ import {
 import { PALETTE } from '../palettes';
 import { buildLevel } from '../levels/levelBuilder';
 import { LEVEL_01 } from '../levels/campaign/level01';
+import { DEFAULT_GAME_STATE } from '@/defaults';
 
 const levelData = buildLevel(LEVEL_01);
 
@@ -91,49 +87,5 @@ export const SKETCH_DEFAULTS = {
     needsMoveControls: false,
     needsRewindControls: false,
   } satisfies Tutorial,
-  gameState: {
-    appMode: AppMode.StartScreen,
-    gameMode: GameMode.Normal,
-    mapset: 0,
-    isRandomizer: false,
-    isPreloaded: false,
-    isGameStarted: false,
-    isGameStarting: false,
-    isPaused: false,
-    isMoving: false,
-    isSprinting: false,
-    isRewindEnabled: false,
-    isRewinding: false,
-    isLost: false,
-    isGameWon: false,
-    isDoorsOpen: false,
-    isExitingLevel: false,
-    isExited: false,
-    isShowingDeathColours: false,
-    hasKeyYellow: false,
-    hasKeyRed: false,
-    hasKeyBlue: false,
-    levelIndex: 0,
-    actualTimeElapsed: 0,
-    timeElapsed: 0,
-    timeSinceLastMove: 0,
-    timeSinceLastTeleport: 0,
-    timeSinceHurt: 0,
-    timeSinceHurtForgiveness: 0,
-    timeSinceLastInput: 0,
-    timeSinceInvincibleStart: 0,
-    timeSinceReversibleStart: Infinity,
-    timeSinceSpawnedPickup: 0,
-    timeSinceGraceStarted: 0,
-    lives: 0,
-    collisions: 0,
-    targetSpeed: 0,
-    currentSpeed: 0,
-    steps: 0,
-    frameCount: 0,
-    numTeleports: 0,
-    lastHurtBy: HitType.Unknown,
-    nextLevel: null,
-    inputType: InputType.Keyboard,
-  } satisfies GameState,
+  gameState: { ...DEFAULT_GAME_STATE },
 };

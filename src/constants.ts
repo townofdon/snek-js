@@ -398,7 +398,7 @@ export const ANIMATIONS = {
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.WearablesSheet]: {
-    frames: 24,
+    frames: 26,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.DoorLightSheet]: {
@@ -502,7 +502,7 @@ export const PICKUP_LEGENDARY_ITEMS: PickupType[] = [
 export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
   [PickupType.None]: 0,
   [PickupType.Invincibility]: 0,
-  [PickupType.Reversibility]: 0,
+  [PickupType.Armor]: 0,
   [PickupType.HealthPack]: 0,
   [PickupType.Cheese]: 1,
   [PickupType.Carrot]: 2,
@@ -573,5 +573,7 @@ export const WEARABLE_TYPE_MAP = {
   [WearableFrame.RoyalCape]: WearableType.Back,
   [WearableFrame.Crown]: WearableType.Hat,
   [WearableFrame.Cone]: WearableType.Hat,
-  [WearableFrame.Crusher]: WearableType.None
+  [WearableFrame.Crusher]: WearableType.None,
+  [WearableFrame.CrusherSeg1]: WearableType.None,
+  [WearableFrame.CrusherSeg2]: WearableType.None,
 } satisfies Record<WearableFrame, WearableType>;

@@ -134,7 +134,7 @@ export const sketch = (p5: P5) => {
     resetStats,
     renderLoop,
     startMoving,
-    startRewinding,
+    requestPlayerRewind,
     startLogicLoop,
     clearBackground,
     changeMusicLowpass,
@@ -223,7 +223,7 @@ export const sketch = (p5: P5) => {
         startMoving();
         break;
       case InputAction.StartRewinding:
-        startRewinding();
+        requestPlayerRewind();
         break;
     }
   }

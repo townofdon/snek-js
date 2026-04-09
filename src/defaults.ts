@@ -23,7 +23,6 @@ export const DEFAULT_GAME_STATE: GameState = {
   isPaused: false,
   isMoving: false,
   isSprinting: false,
-  isRewindEnabled: false,
   isRewinding: false,
   isLost: false,
   isGameWon: false,
@@ -40,9 +39,10 @@ export const DEFAULT_GAME_STATE: GameState = {
   timeSinceHurtForgiveness: Infinity,
   timeSinceLastInput: Infinity,
   timeSinceInvincibleStart: Infinity,
-  timeSinceReversibleStart: Infinity,
   timeSinceSpawnedPickup: Infinity,
   timeSinceGraceStarted: 0,
+  timeSinceArmorProtection: Infinity,
+  timeSinceArmorPickup: Infinity,
   lives: MAX_LIVES,
   collisions: 0,
   targetSpeed: 1,
@@ -84,5 +84,5 @@ export const DEFAULT_OUTFIT: Outfit = {
 } satisfies Outfit;
 
 export const DEFAULT_HELD_ITEMS = {
-  crusher: false,
+  armor: 0,
 } satisfies HeldItems;

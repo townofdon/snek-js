@@ -140,6 +140,7 @@ import {
   shouldBlinkExpiringPickup,
   toRarity,
   triangle,
+  removeArrayElement,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -538,7 +539,8 @@ export function engine({
     state.timeSinceHurt = Infinity;
     state.timeSinceHurtForgiveness = Infinity;
     state.timeSinceInvincibleStart = Infinity;
-    state.timeSinceReversibleStart = Infinity;
+    state.timeSinceArmorPickup = Infinity;
+    state.timeSinceArmorProtection = Infinity;
     state.timeSinceGraceStarted = 0;
     state.lives = state.gameMode === GameMode.Cobra ? state.lives : MAX_LIVES;
     state.collisions = 0;
@@ -861,12 +863,12 @@ export function engine({
       if (pickupsMap[coord]?.type === PickupType.Invincibility) {
         incrementPickupBonus(PickupType.Invincibility, coord);
         startInvincibility();
-      } else if (pickupsMap[coord]?.type === PickupType.Reversibility) {
-        incrementPickupBonus(PickupType.Reversibility, coord);
-        state.isRewindEnabled = true;
-        state.timeSinceReversibleStart = 0;
+      } else if (pickupsMap[coord]?.type === PickupType.Armor) {
+        incrementPickupBonus(PickupType.Armor, coord);
+        heldItems.armor += 1;
+        state.timeSinceArmorPickup = 0;
+        // TODO: ADD UNIQ SOUND
         playSound(Sound.hurtSave);
-        startRewinding();
       } else if (pickupsMap[coord]) {
         incrementPickupBonus(pickupsMap[coord]?.type, coord);
       }
@@ -918,8 +920,8 @@ export function engine({
     if (didHit) {
       player.directionLastHit = player.direction;
       state.collisions += 1;
+      state.isLost = true;
     }
-    state.isLost = state.isLost || didHit;
     handleSnakeTrapped(state.isLost && state.lives > 0);
     handleSnakeDamage(state.isLost && state.lives > 0);
 
@@ -953,7 +955,8 @@ export function engine({
     state.timeSinceHurt += loopState.deltaTime;
     state.timeSinceHurtForgiveness += loopState.deltaTime;
     state.timeSinceInvincibleStart += loopState.deltaTime;
-    state.timeSinceReversibleStart += loopState.deltaTime;
+    state.timeSinceArmorPickup += loopState.deltaTime;
+    state.timeSinceArmorProtection += loopState.deltaTime;
     state.timeSinceSpawnedPickup += loopState.deltaTime;
     state.timeSinceLastInput += loopState.deltaTime;
     state.timeSinceLastTeleport += loopState.deltaTime;
@@ -1023,8 +1026,8 @@ export function engine({
     const timeFrameStart = performance.now();
 
     if (!gamepadInputHandled) {
-      const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
-      const isRewindAllowed = isInvincible || state.gameMode === GameMode.Casual || level === START_LEVEL || level === START_LEVEL_COBRA;
+      const invincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+      const isRewindAllowed = rewindAllowed(invincible || heldItems.armor > 0);
       const handled = applyGamepadMove(state, player.direction, player.directionToFirstSegment, isRewindAllowed, moves, inputCallbacks, handleInputAction)
       if (handled) {
         state.inputType = InputType.Gamepad;
@@ -1138,7 +1141,7 @@ export function engine({
     }
     renderer.drawUIKeys(gfxPresentation);
     renderer.drawTutorialMoveControls(gfxPresentation);
-    renderer.drawTutorialRewindControls(gfxPresentation, player.position, canRewind);
+    renderer.drawTutorialRewindControls(gfxPresentation, player.position, rewindAllowed());
     renderer.drawFps(metrics.gameLoopProcessingTime);
 
     if (state.isLost && state.gameMode !== GameMode.Cobra) return;
@@ -1214,10 +1217,9 @@ export function engine({
 
   function startMoving() {
     if (state.isMoving) return;
-    if (state.timeSinceReversibleStart < TIME_REWIND_TAKEOVER_CONTROLS) return;
+    if (state.isRewinding && state.timeSinceArmorProtection < TIME_REWIND_TAKEOVER_CONTROLS) return;
     state.isMoving = true;
     state.isRewinding = false;
-    state.isRewindEnabled = false;
     state.currentSpeed = 1;
     tutorial.needsMoveControls = false;
     stopRewinding();
@@ -1226,21 +1228,56 @@ export function engine({
     }
   }
 
-  function startRewinding() {
+  function stopRewinding() {
+    state.isRewinding = false;
+    sfx.stop(Sound.rewindLoop);
+  }
+
+  function startAutoRewind() {
     if (state.isRewinding) return;
-    if (!canRewind()) return;
+    if (!rewindAllowed(true)) return;
+    state.isRewinding = true;
+    state.isMoving = false;
+    state.currentSpeed = 1;
+    state.timeSinceGraceStarted = 0;
+    sfx.playLoop(Sound.rewindLoop);
+  }
+
+  function requestPlayerRewind() {
+    if (state.isRewinding) return;
+    const invincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    const canRewind = rewindAllowed(invincible || heldItems.armor > 0);
+    if (!canRewind) {
+      return false;
+    }
     state.isRewinding = true;
     state.isMoving = false;
     state.currentSpeed = 1;
     state.timeSinceGraceStarted = 0;
     tutorial.needsRewindControls = false;
     sfx.playLoop(Sound.rewindLoop);
+    if (!invincible && heldItems.armor > 0) {
+      heldItems.armor -= 1;
+      state.timeSinceArmorProtection = 0;
+      playSound(Sound.hurtSave);
+    }
+    return true;
   }
 
-  function stopRewinding() {
-    state.isRewinding = false;
-    state.isRewindEnabled = false;
-    sfx.stop(Sound.rewindLoop);
+  function rewindAllowed(additionalConditions: boolean = false) {
+    // Conditions for which rewind is always forbidden. These take precedence.
+    if (replay.mode === ReplayMode.Playback) return false;
+    if (state.isLost) return false;
+    if (state.isGameWon) return false;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+    if (calculateSnakeSize() <= START_SNAKE_SIZE + 1) return false;
+    // Conditions for which rewind is always allowed.
+    if (state.gameMode === GameMode.Casual) return true;
+    if (level === START_LEVEL) return true;
+    if (level === START_LEVEL_COBRA) return true;
+    // other conditions of varying scenarios
+    if (additionalConditions) return true;
+    return false;
   }
 
   function calculateSnakeSize(): number {
@@ -1252,22 +1289,6 @@ export function engine({
       uniquePositions[getCoordIndex(segments.get(i))] = true;
     }
     return size + 1;
-  }
-
-  function canRewind(): boolean {
-    if (
-      !state.isRewindEnabled
-      && state.gameMode !== GameMode.Casual
-      && state.timeSinceInvincibleStart >= difficulty.invincibilityTime
-      && level !== START_LEVEL
-      && level !== START_LEVEL_COBRA
-    ) return false;
-    if (state.isLost) return false;
-    if (state.isGameWon) return false;
-    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
-    if (replay.mode === ReplayMode.Playback) return false;
-    if (calculateSnakeSize() <= START_SNAKE_SIZE + 1) return false;
-    return true;
   }
 
   function startInvincibility() {
@@ -1324,6 +1345,9 @@ export function engine({
     if (state.timeSinceHurt < HURT_STUN_TIME) {
       return Infinity;
     }
+    if (state.timeSinceArmorProtection < HURT_STUN_TIME && !state.isRewinding) {
+      return Infinity;
+    }
     if (difficulty.index === 4 && state.isSprinting) {
       return difficulty.sprintLimit;
     }
@@ -1345,7 +1369,11 @@ export function engine({
       return;
     }
     if (state.currentSpeed < state.targetSpeed) {
-      const t = Easing.inOutCubic(clamp((state.timeSinceHurt - HURT_STUN_TIME) * 0.5, 0, 1));
+      const time = Math.min(
+        state.timeSinceArmorProtection - HURT_STUN_TIME,
+        state.timeSinceHurt - HURT_STUN_TIME,
+      );
+      const t = Easing.inOutCubic(clamp(time * 0.5, 0, 1));
       const diff = Math.abs(state.targetSpeed - state.currentSpeed);
       const deltaSpeed = clamp(diff, 1, difficulty.speedSteps) * (loopState.deltaTime / SPEED_INCREMENT_SPEED_MS) * p5.lerp(0, 1, t);
       state.currentSpeed += deltaSpeed;
@@ -1457,52 +1485,69 @@ export function engine({
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     const coord = getCoordIndex(vec);
     if (mines.existsAtCoord(coord)) {
+      // explode mine
+      const coord = getCoordIndex(vec);
       mines.removeByCoord(coord);
       const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
       explosions.add(vec.x, vec.y, frames * timePerFrame, frames, timePerFrame);
-      state.lastHurtBy = HitType.HitMine;
       playSound(Sound.xpound);
       drawState.shouldDrawApples = true;
       drawState.shouldDrawActionFG = true;
+      // check invincible
       const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
-      return !isInvincible;
+      if (isInvincible) {
+        return false;
+      }
+      // check armor
+      if (heldItems.armor > 0) {
+        heldItems.armor -= 1;
+        state.timeSinceArmorProtection = 0;
+        startScreenShake(1, 0.5);
+        reboundSnake(segments.length > 3 ? 2 : 1);
+        // TODO: ADD UNIQ SOUND
+        playSound(Sound.hurtSave);
+        return false;
+      }
+      state.lastHurtBy = HitType.HitMine;
+      return true;
     }
     return false;
   }
 
-  function checkHasHit(vec: Vector): boolean {
+  function checkHasHit(vec: Vector, updateLastHurtBy = true): boolean {
     if (state.isExitingLevel) return false;
     if (state.isExited) return false;
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     const coord = getCoordIndex(vec);
-
-    if (segments.containsCoord(coord) && state.timeSinceInvincibleStart >= difficulty.invincibilityTime) {
-      state.lastHurtBy = HitType.HitSelf;
+    // self
+    const invincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    const rewindingFromArmor = state.isRewinding && state.timeSinceArmorProtection < difficulty.invincibilityTime;
+    if (segments.containsCoord(coord) && !invincible && !rewindingFromArmor) {
+      if (updateLastHurtBy) state.lastHurtBy = HitType.HitSelf;
       return true;
     }
-
+    // clip reality
     if (level.disableWallCollision) return false;
-
+    // door
     if (doorsMap[coord]) {
-      state.lastHurtBy = HitType.HitDoor;
+      if (updateLastHurtBy) state.lastHurtBy = HitType.HitDoor;
       return true;
     }
-
+    // barrier
     const isPassableBarrier = state.isDoorsOpen && passablesMap[coord];
     if (!isPassableBarrier && barriersMap[coord]) {
-      state.lastHurtBy = HitType.HitBarrier;
+      if (updateLastHurtBy) state.lastHurtBy = HitType.HitBarrier;
       return true;
     }
-
+    // lock
     if (locksMap[coord]) {
       if (locksMap[coord].channel === KeyChannel.Yellow && state.hasKeyYellow) return false;
       if (locksMap[coord].channel === KeyChannel.Red && state.hasKeyRed) return false;
       if (locksMap[coord].channel === KeyChannel.Blue && state.hasKeyBlue) return false;
-      state.lastHurtBy = HitType.HitLock;
+      if (updateLastHurtBy) state.lastHurtBy = HitType.HitLock;
       return true;
     }
-
     return false;
   }
 
@@ -1511,7 +1556,7 @@ export function engine({
     const currentMove = dirToUnitVector(dir);
     for (let i = 0; i < numMoves; i++) {
       const futurePosition = pos.add(currentMove);
-      const willHit = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, dir);
+      const willHit = checkHasHit(futurePosition, false) || checkPortalTeleportWillHit(futurePosition, dir);
       if (willHit) return true;
     }
     return false;
@@ -1529,7 +1574,7 @@ export function engine({
       checkHasHit,
       hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, portalsMap),
     });
-    return checkHasHit(portal.link.copy().add(dirToUnitVector(newDir)));
+    return checkHasHit(portal.link.copy().add(dirToUnitVector(newDir)), false);
   }
 
   function handlePortalTravel() {
@@ -1591,8 +1636,6 @@ export function engine({
     keysMap[index] = null;
     playSound(Sound.pickup, 0.35);
     drawState.shouldDrawKeysLocks = true;
-    // renderer.invalidateStaticCache();
-    // drawState.shouldDrawApples = true;
   }
 
   function handleUnlock() {
@@ -1688,9 +1731,8 @@ export function engine({
     if (state.isExited) return false;
     if (state.isRewinding) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+    if (state.timeSinceArmorProtection < HURT_STUN_TIME) return false;
     state.timeSinceLastMove = 0;
-    const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
-    const isRewindAllowed = isInvincible || state.gameMode === GameMode.Casual || level === START_LEVEL || level === START_LEVEL_COBRA;
     const prevDirection = player.direction;
     if (moves.length > 0 && !state.isExitingLevel) {
       const move = moves.shift();
@@ -1707,16 +1749,24 @@ export function engine({
 
     // determine if next move will be into something, allow for grace period before injuring snakey
     const willHitSomething = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
+    const invincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    const canAutoRewind = rewindAllowed(invincible && heldItems.armor === 0);
     const hurtGraceTime = Math.max(
       HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0) + (difficulty.index === 4 ? 12 : 0),
-      isRewindAllowed ? TIME_WAIT_BEFORE_REWIND : 0,
+      // if currently invincible or in casual mode, wait a bit longer before starting rewind
+      canAutoRewind ? TIME_WAIT_BEFORE_REWIND : 0,
     );
     if (willHitSomething && state.timeSinceGraceStarted <= hurtGraceTime) {
       state.timeSinceGraceStarted += loopState.deltaTime;
       return false;
     }
-    if (willHitSomething && isRewindAllowed) {
-      startRewinding();
+    if (willHitSomething && checkArmorProtection(futurePosition)) {
+      state.timeSinceGraceStarted = 0;
+      return false;
+    }
+    if (willHitSomething && canAutoRewind) {
+      state.timeSinceGraceStarted = 0;
+      startAutoRewind();
       return false;
     }
 
@@ -1750,11 +1800,16 @@ export function engine({
     if (!state.isRewinding) return;
     if (state.isExited) return;
     if (replay.mode !== ReplayMode.Disabled) return;
-
+    // back that thing up
     const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
-    if (!canRewind()) {
+    const canRewind = rewindAllowed(
+      state.timeSinceArmorProtection < difficulty.invincibilityTime ||
+      state.timeSinceInvincibleStart < difficulty.invincibilityTime
+    );
+    if (!canRewind) {
       stopRewinding();
     } else if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
+      state.timeSinceGraceStarted = 0;
       state.timeSinceLastMove = 0;
       reboundSnake(1);
       player.direction = getDirectionSnakeForward();
@@ -2016,6 +2071,49 @@ export function engine({
     renderer.invalidateStaticCache();
   }
 
+  function checkArmorProtection(vec: Vector): boolean {
+    if (heldItems.armor <= 0) return false;
+
+    const invincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    if (!invincible) {
+      heldItems.armor -= 1;
+    }
+    state.timeSinceArmorProtection = 0;
+
+    // check if barrier at player position is breakable
+    let isBreakable = false;
+    const coord = getCoordIndex(vec);
+    const isPassableBarrier = state.isDoorsOpen && passablesMap[coord];
+    if (!isPassableBarrier && barriersMap[coord]) {
+      isBreakable = barriersMap[coord] && (
+        barriersMap[coord] === BarrierType.Brick ||
+        barriersMap[coord] === BarrierType.BrickThemed ||
+        barriersMap[coord] === BarrierType.BrickWhite ||
+        barriersMap[coord] === BarrierType.Stone ||
+        barriersMap[coord] === BarrierType.StoneThemed
+      );
+    }
+    if (isBreakable) {
+      const barrierIdx = barriers.findIndex(barrier => getCoordIndex(barrier.vec) === coord);
+      barriers = removeArrayElement(barriers, barrierIdx);
+      barriersMap[coord] = BarrierType.Unset;
+      renderer.invalidateStaticCache();
+      const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
+      explosions.add(vec.x, vec.y, frames * timePerFrame, frames, timePerFrame);
+      playSound(Sound.xplodeLong);
+      startScreenShake(2, 0, 0.8);
+      reboundSnake(segments.length > 3 ? 2 : 1);
+    } else {
+      startAutoRewind()
+      startScreenShake(0.3, 0.8);
+    }
+    if (!invincible) {
+      // TODO: ADD UNIQ SOUND
+      playSound(Sound.hurtSave);
+    }
+    return true;
+  }
+
   // if snake has trapped itself, die immediately
   function handleSnakeTrapped(didReceiveDamage: boolean) {
     if (!didReceiveDamage) return;
@@ -2265,7 +2363,7 @@ export function engine({
       points = PICKUP_INVINCIBILITY_BONUS;
       image = Image.Points1000;
       rarity = PickupRarity.Rare;
-    } else if (pickupType === PickupType.Reversibility) {
+    } else if (pickupType === PickupType.Armor) {
       points = PICKUP_INVINCIBILITY_BONUS;
       image = Image.Points1000;
       rarity = PickupRarity.Rare;
@@ -2697,7 +2795,7 @@ export function engine({
         if (outfit.back && !outfit.exclusive) {
           spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.back - 1, rotation);
         }
-        if (heldItems.crusher) {
+        if (heldItems.armor > 0) {
           spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, WearableFrame.Crusher - 1, rotation);
         }
         if (outfit.hat && !outfit.exclusive) {
@@ -2732,6 +2830,7 @@ export function engine({
       (dirPrev === DIR.LEFT && dirNext === DIR.UP)
     );
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
+    const armor = state.timeSinceArmorProtection < HURT_STUN_TIME;
     const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime;
     if (stunned) {
       // draw stunned
@@ -2750,7 +2849,7 @@ export function engine({
         const color = gradients.calc(invincibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
         renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
       }
-    } else if (state.isRewinding) {
+    } else if (state.isRewinding || armor) {
       // draw rewinding
       const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
       const color = gradients.calc(reversibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
@@ -2785,6 +2884,7 @@ export function engine({
       } else {
         renderer.drawSquare(vec.x, vec.y, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
       }
+      // draw decorative segment overlay
       const decoInterval = 9;
       if (i === 0 && state.gameMode === GameMode.Cobra) {
         const direction = invertDirection(player.directionToFirstSegment);
@@ -2802,14 +2902,25 @@ export function engine({
         const direction = getDirectionBetween(segments.get(i), segments.get(i + 1));
         spriteRenderer.drawImage3x3(Image.SnekSegmentE, vec.x, vec.y, getRotationFromDirection(direction));
       }
+      // draw armor on segments
+      const numArmoredSegments = 15;
+      if (heldItems.armor > 0 && replay.mode !== ReplayMode.Playback && i > 0 && i < numArmoredSegments) {
+        if (i % 2 === 1) {
+          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg1 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
+        } else {
+          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg2 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
+        }
+      }
     }
   }
 
   function erasePlayerSegmentCorner(vec: Vector | undefined, i = 0) {
     if (!vec) return;
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
+    const armor = state.timeSinceArmorProtection < HURT_STUN_TIME;
     const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime;
     if (!stunned &&
+      !armor &&
       !invincible &&
       !state.isRewinding &&
       !state.isShowingDeathColours
@@ -2851,7 +2962,7 @@ export function engine({
 
   function drawApple(x: number, y: number) {
     const isInvincibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility;
-    const isReversibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Reversibility;
+    const isReversibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Armor;
     if (state.isShowingDeathColours && replay.mode !== ReplayMode.Playback && isInvincibility) {
       renderer.drawSquare(x, y,
         PALETTE.deathInvert.apple,
@@ -3482,7 +3593,7 @@ export function engine({
     resetLevel,
     renderLoop: withErrorReporting(renderLoop),
     startMoving,
-    startRewinding,
+    requestPlayerRewind,
     startScreenShake,
     startLogicLoop,
     stopLogicLoop,

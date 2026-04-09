@@ -573,7 +573,7 @@ interface GetBestPortalExitDirectionArgs {
   portalLink: Vector | undefined,
   playerDirection: DIR,
   portalExitMode: PortalExitMode,
-  checkHasHit: (location: Vector) => boolean,
+  checkHasHit: (location: Vector, updateLastHurtBy?: boolean) => boolean,
   hasPortalAtLocation: (location: Vector) => boolean,
   ignoreBestCheck?: boolean,
 }
@@ -593,16 +593,16 @@ export function getBestPortalExitDirection({
     return newDir;
   }
   let scoreLeft = 0, scoreRight = 0, scoreUp = 0, scoreDown = 0;
-  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.LEFT)))) {
+  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.LEFT)), false)) {
     scoreLeft += 1000;
   }
-  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.RIGHT)))) {
+  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.RIGHT)), false)) {
     scoreRight += 1000;
   }
-  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.UP)))) {
+  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.UP)), false)) {
     scoreUp += 1000;
   }
-  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.DOWN)))) {
+  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.DOWN)), false)) {
     scoreDown += 1000;
   }
   if (isOutsideMap(portalLink.copy().add(dirToUnitVector(DIR.LEFT)))) {

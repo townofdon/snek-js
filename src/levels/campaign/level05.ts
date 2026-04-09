@@ -50,4 +50,9 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
   pickupDrops: {
     [ItemDropType.Invincibility]: true,
   },
+  pickupDropsByFrame: {
+    15: { likelihood: 1, type: ItemDropType.Invincibility },
+    20: { likelihood: 1, type: ItemDropType.Invincibility },
+    25: { likelihood: 1, type: ItemDropType.Invincibility },
+  }
 };

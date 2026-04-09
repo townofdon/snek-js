@@ -185,7 +185,6 @@ export interface GameState {
   isPaused: boolean,
   isMoving: boolean,
   isSprinting: boolean, // is user holding down shift key?
-  isRewindEnabled: boolean;
   isRewinding: boolean,
   isLost: boolean,
   isGameWon: boolean,
@@ -213,13 +212,17 @@ export interface GameState {
   timeSinceInvincibleStart: number,
   timeSinceSpawnedPickup: number,
   /**
-   * Time since the player picked up a reversible powerup
-   */
-  timeSinceReversibleStart: number,
-  /**
    * The time elapsed since the player would have moved into an obstacle (hit grace period).
+  */
+ timeSinceGraceStarted: number,
+ /**
+  * Time since the player was protected from a hit by armor
+  */
+ timeSinceArmorProtection: number,
+  /**
+   * The time elapsed since the player picked up armor
    */
-  timeSinceGraceStarted: number,
+  timeSinceArmorPickup: number,
   lives: number,
   /**
    * The number of collisions the player has accumulated since the start of the level
@@ -244,7 +247,7 @@ export interface Outfit {
 }
 
 export interface HeldItems {
-  crusher: boolean,
+  armor: number,
 }
 
 export interface DrawState {
@@ -429,7 +432,7 @@ export interface IRenderer {
   drawCaptureMode: () => void
   drawPlayerMoveArrows: (gfx: P5 | P5.Graphics, vec: Vector, currentMove: DIR) => void
   drawTutorialMoveControls: (gfx: P5 | P5.Graphics) => void
-  drawTutorialRewindControls: (gfx: P5 | P5.Graphics, playerPosition: Vector, canRewind: () => boolean) => void
+  drawTutorialRewindControls: (gfx: P5 | P5.Graphics, playerPosition: Vector, canRewind: boolean) => void
   drawTutorialTurnControls: (gfx: P5 | P5.Graphics, x: number, y: number) => void
   drawSprintControls: (gfx: P5 | P5.Graphics, x: number, y: number) => void
   drawDifficultySelect: (gfx: P5 | P5.Graphics, backgroundColor: string) => void
@@ -919,6 +922,8 @@ export enum WearableFrame {
   Crown = 22,
   Cone = 23,
   Crusher = 24,
+  CrusherSeg1 = 25,
+  CrusherSeg2 = 26,
 }
 
 export enum WearableType {
@@ -1067,7 +1072,7 @@ export enum PickupRarity {
 export enum PickupType {
   None = 0,
   Invincibility,
-  Reversibility,
+  Armor,
   HealthPack,
   // common items
   Cheese,
