@@ -66,6 +66,7 @@ export class SpriteRenderer {
     [Image.UIKeyRed]: null,
     [Image.UIKeyBlue]: null,
     [Image.UILocked]: null,
+    [Image.UIShield]: null,
     [Image.UIFlamesheet]: null,
     [Image.Darken]: null,
     [Image.EditorSelection]: null,
@@ -264,6 +265,7 @@ export class SpriteRenderer {
       this.loadImage(Image.UIKeyYellow);
       this.loadImage(Image.UIKeyRed);
       this.loadImage(Image.UIKeyBlue);
+      this.loadImage(Image.UIShield);
       this.loadImage(Image.UILocked);
       this.loadImage(Image.UIFlamesheet);
       this.loadImage(Image.Darken);

@@ -41,7 +41,7 @@ import {
   HeldItems,
 } from '../types';
 import { Modal } from '../ui/modal';
-import { UI } from '../ui/ui';
+import { UI, UI_PARENT_ID } from '../ui/ui';
 import { showPauseUIPreviewMode } from '../ui/uiComponents';
 import { engine } from '../engine/engine';
 import { resumeAudioContext } from '../engine/audio';
@@ -120,7 +120,7 @@ export const sketch = (p5: P5) => {
   const musicPlayer = new MusicPlayer(settings);
 
   const gfxPresentation: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  gfxPresentation.addClass('static-gfx-canvas').addClass('fg5').parent('game').addClass('gfx-presentation');
+  gfxPresentation.addClass('static-gfx-canvas').addClass('fg5').parent(UI_PARENT_ID).addClass('gfx-presentation');
 
   const spriteRenderer = new SpriteRenderer({ p5 });
   const winLevelScene = new WinLevelScene(p5, gfxPresentation, state, sfx, fonts, NoOpUnlockedMusicStore, spriteRenderer, { onSceneEnded: gotoNextLevel });
@@ -233,7 +233,7 @@ export const sketch = (p5: P5) => {
    */
   p5.preload = preload;
   function preload() {
-    UI.setP5Instance(p5);
+    UI.init(p5);
     fonts.load();
     sfx.load();
     spriteRenderer.loadImages();
@@ -245,10 +245,10 @@ export const sketch = (p5: P5) => {
    */
   p5.setup = setup;
   function setup() {
+    UI.init(p5);
     state.appMode = AppMode.StartScreen;
     state.isGameStarted = false;
     state.isGameStarting = false;
-    UI.setP5Instance(p5);
     const canvas = document.getElementById("game-canvas");
     if (!canvas) throw new Error('could not find canvas with id="game-canvas"');
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);

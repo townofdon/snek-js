@@ -180,7 +180,7 @@ import { applyGamepadRumble, applyGamepadMove, getCurrentGamepadSprint } from '.
 import { Easing } from '../easing';
 import { getExtendedPalette, PALETTE } from '../palettes';
 import { Coroutines } from './coroutines';
-import { UI } from '../ui/ui';
+import { UI, UI_CANVAS_RIGHT, UI_PARENT_ID } from '../ui/ui';
 import { buildSceneActionFactory } from '../scenes/sceneUtils';
 import { TitleScene } from '../scenes/TitleScene';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
@@ -365,13 +365,14 @@ export function engine({
   const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxFGAction: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
   const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  gfxBG.addClass('static-gfx-canvas').addClass('bg').parent('game').addClass('gfx-bg').id('canvas-bg');
-  gfxExitLights.addClass('static-gfx-canvas').addClass('fg0').parent('game').addClass('gfx-exit-lights');
-  gfxKeysLocks.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-keys-locks').id('canvas-keys-locks');
-  gfxApples.addClass('static-gfx-canvas').addClass('fg1').parent('game').addClass('gfx-apples').id('canvas-apples');
-  gfxFG.addClass('static-gfx-canvas').addClass('fg2').parent('game').addClass('gfx-fg').id('canvas-fg');
-  gfxFGAction.addClass('static-gfx-canvas').addClass('fg3').parent('game').addClass('gfx-fg-action').id('canvas-action');
-  gfxLighting.addClass('static-gfx-canvas').addClass('fg4').parent('game').addClass('gfx-lighting').id('canvas-lighting');
+  const gfxUIRight: P5.Graphics = p5.createGraphics(BLOCK_SIZE.x, DIMENSIONS.y, p5.P2D, document.getElementById(UI_CANVAS_RIGHT));
+  gfxBG.addClass('static-gfx-canvas').addClass('bg').parent(UI_PARENT_ID).addClass('gfx-bg').id('canvas-bg');
+  gfxExitLights.addClass('static-gfx-canvas').addClass('fg0').parent(UI_PARENT_ID).addClass('gfx-exit-lights');
+  gfxKeysLocks.addClass('static-gfx-canvas').addClass('fg1').parent(UI_PARENT_ID).addClass('gfx-keys-locks').id('canvas-keys-locks');
+  gfxApples.addClass('static-gfx-canvas').addClass('fg1').parent(UI_PARENT_ID).addClass('gfx-apples').id('canvas-apples');
+  gfxFG.addClass('static-gfx-canvas').addClass('fg2').parent(UI_PARENT_ID).addClass('gfx-fg').id('canvas-fg');
+  gfxFGAction.addClass('static-gfx-canvas').addClass('fg3').parent(UI_PARENT_ID).addClass('gfx-fg-action').id('canvas-action');
+  gfxLighting.addClass('static-gfx-canvas').addClass('fg4').parent(UI_PARENT_ID).addClass('gfx-lighting').id('canvas-lighting');
   const graphicalComponents: GraphicalComponents = {
     deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     deco2: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -395,6 +396,7 @@ export function engine({
     gfxFG,
     gfxFGAction,
     gfxLighting,
+    gfxUIRight,
   ].forEach(gfx => gfx.pixelDensity(1));
   const gradients = new Gradients(p5);
   const particles = new Particles(p5, gradients, screenShake); // z-index 0
@@ -1036,8 +1038,11 @@ export function engine({
 
     actions.tick();
 
-    if (state.isPaused) return;
     if (state.appMode === AppMode.StartScreen) return;
+    if (state.isPaused) {
+      renderer.drawRightUI(gfxUIRight, heldItems.armor);
+      return;
+    }
 
     setTimeout(() => { coroutines.tick(); }, 0);
 
@@ -1139,7 +1144,7 @@ export function engine({
     if (level.renderInstructions) {
       level.renderInstructions(gfxPresentation, renderer, state, level.colors);
     }
-    renderer.drawUIKeys(gfxPresentation);
+    renderer.drawRightUI(gfxUIRight, heldItems.armor);
     renderer.drawTutorialMoveControls(gfxPresentation);
     renderer.drawTutorialRewindControls(gfxPresentation, player.position, rewindAllowed());
     renderer.drawFps(metrics.gameLoopProcessingTime);
@@ -1213,6 +1218,7 @@ export function engine({
     gfxKeysLocks.clear(0, 0, 0, 0);
     gfxLighting.clear(0, 0, 0, 0);
     gfxPresentation.clear(0, 0, 0, 0);
+    gfxUIRight.clear(0, 0, 0, 0);
   }
 
   function startMoving() {
@@ -2721,6 +2727,7 @@ export function engine({
     gfxExitLights.clear(0, 0, 0, 0);
     gfxLighting.clear(0, 0, 0, 0);
     gfxPresentation.clear(0, 0, 0, 0);
+    gfxUIRight.clear(0, 0, 0, 0);
     if (drawState.shouldDrawApples) {
       gfxApples.clear(0, 0, 0, 0);
     }

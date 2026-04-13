@@ -731,33 +731,69 @@ export class Renderer implements IRenderer {
     gfx.text(text, textX, textY);
   }
 
-  drawUIKeys = (gfx: P5 | P5.Graphics) => {
+  drawRightUI = (gfx: P5 | P5.Graphics, armorCount: number) => {
     if (this.replay.mode === ReplayMode.Playback) return;
     if (this.gameState.isGameWon) return;
     if (!this.gameState.isGameStarted) return;
-    if (!this.gameState.hasKeyYellow && !this.gameState.hasKeyRed && !this.gameState.hasKeyBlue) return;
 
-    const x0 = MAP_OFFSET + BLOCK_SIZE.x * 29 - STROKE_SIZE * 0.5;
-    const y0 = MAP_OFFSET + BLOCK_SIZE.y * 1 - STROKE_SIZE * 0.5;
+    const paused = this.gameState.isPaused;
+    const hasAnyKeys = this.gameState.hasKeyYellow || this.gameState.hasKeyRed || this.gameState.hasKeyBlue;
+    let offsetY = 0;
+    if (hasAnyKeys) {
+      this.drawKeys(gfx, offsetY, paused);
+      offsetY += 5;
+    }
+    if (armorCount > 0) {
+      this.drawArmor(gfx, offsetY, armorCount, paused);
+      offsetY += armorCount + 1;
+    }
+  }
+
+  private drawKeys(gfx: P5 | P5.Graphics, offsetY: number, paused: boolean) {
+    const x = 0;
+    const y = 1 + offsetY;
+    const x0 = MAP_OFFSET + BLOCK_SIZE.x * x - STROKE_SIZE * 0.5;
+    const y0 = MAP_OFFSET + BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
     const x1 = MAP_OFFSET + x0 + BLOCK_SIZE.x * 1 + STROKE_SIZE * 0.5;
     const y1 = MAP_OFFSET + y0 + BLOCK_SIZE.y * 3 + STROKE_SIZE * 0.5;
     gfx.fill("#00000099");
     gfx.noStroke();
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
-
-    const imgX = BLOCK_SIZE.x * 29 + 1;
-    const imgY = BLOCK_SIZE.y * 1 + 1;
-
+    const imgX = BLOCK_SIZE.x * x + 1;
+    const imgY = BLOCK_SIZE.y * y + 1;
     if (this.gameState.hasKeyYellow) {
       this.spriteRenderer.drawImage(Image.UIKeyYellow, imgX, imgY, gfx);
     }
-
     if (this.gameState.hasKeyRed) {
       this.spriteRenderer.drawImage(Image.UIKeyRed, imgX, imgY + BLOCK_SIZE.y, gfx);
     }
-
     if (this.gameState.hasKeyBlue) {
       this.spriteRenderer.drawImage(Image.UIKeyBlue, imgX, imgY + BLOCK_SIZE.y * 2, gfx);
+    }
+    if (paused) {
+      gfx.fill("#070b0fbf");
+      gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    }
+  }
+
+  private drawArmor(gfx: P5 | P5.Graphics, offsetY: number, armorCount: number, paused: boolean) {
+    const x = 0;
+    const y = 1 + offsetY;
+    const x0 = MAP_OFFSET + BLOCK_SIZE.x * x - STROKE_SIZE * 0.5;
+    const y0 = MAP_OFFSET + BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
+    const x1 = MAP_OFFSET + x0 + BLOCK_SIZE.x * 1 + STROKE_SIZE * 0.5;
+    const y1 = MAP_OFFSET + y0 + BLOCK_SIZE.y * armorCount + STROKE_SIZE * 0.5;
+    gfx.fill("#00000099");
+    gfx.noStroke();
+    gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
+    for (let i = 0; i < armorCount && i < 10; i++) {
+      const imgX = BLOCK_SIZE.x * x + 1;
+      const imgY = BLOCK_SIZE.y * (y + i) + 1;
+      this.spriteRenderer.drawImage(Image.UIShield, imgX, imgY, gfx);
+    }
+    if (paused) {
+      gfx.fill("#070b0fbf");
+      gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     }
   }
 

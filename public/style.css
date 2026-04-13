@@ -256,8 +256,6 @@ canvas {
 main {
   position: relative;
   z-index: 10;
-  overflow: hidden;
-  /* padding: 0 120px; */
 }
 
 .minimood {
@@ -267,9 +265,25 @@ main {
 .game {
   position: relative;
   filter: none;
+  display: flex;
+  justify-content: center;
+}
+
+.containment {
+  position: relative;
   overflow: hidden;
   display: flex;
   justify-content: center;
+}
+
+.ui-canvas-right {
+  display: block !important;
+  position: absolute;
+  left: 100%;
+  top: 0;
+  bottom: 0;
+  /* width will be overridden in JS */
+  width: 20px;
 }
 
 .blur {

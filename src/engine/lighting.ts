@@ -112,7 +112,7 @@ interface LightRect {
 }
 const grid = new Uint16Array(LIGHTMAP_SIZE).fill(0);
 
-export function drawLighting(lightMap: Float32Array, renderer: Renderer, graphics: P5 | P5.Graphics) {
+export function drawLighting(lightMap: Float32Array, renderer: Renderer, gfx: P5 | P5.Graphics) {
   grid.fill(0);
   const coefficient = 1 / LIGHTMAP_RESOLUTION;
   // calculate all light color indexes
@@ -175,7 +175,7 @@ export function drawLighting(lightMap: Float32Array, renderer: Renderer, graphic
     const { x, y, width, height, lightIndex } = rects[i]
     const color = lightColorLookup[lightIndex];
     if (!color) continue;
-    renderer.drawBasicRect(graphics, x * coefficient, y * coefficient, width * coefficient, height * coefficient, color);
+    renderer.drawBasicRect(gfx, x * coefficient, y * coefficient, width * coefficient, height * coefficient, color);
   }
 }
 

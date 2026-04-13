@@ -442,7 +442,7 @@ export interface IRenderer {
   drawSprintControls: (gfx: P5 | P5.Graphics, x: number, y: number) => void
   drawDifficultySelect: (gfx: P5 | P5.Graphics, backgroundColor: string) => void
   drawDifficultySelectCobra: (gfx: P5 | P5.Graphics, backgroundColor: string) => void
-  drawUIKeys: (gfx: P5 | P5.Graphics) => void
+  drawRightUI: (gfx: P5 | P5.Graphics, armorCount: number) => void
   drawPortal: (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions) => void
 }
 
@@ -837,6 +837,7 @@ export enum Image {
   UIKeyYellow = 'snek-smkey2-yellow.png',
   UIKeyRed = 'snek-smkey2-red.png',
   UIKeyBlue = 'snek-smkey2-blue.png',
+  UIShield = 'snek-shield-sm.png',
   UILocked = 'ui-locked.png',
   UIFlamesheet = 'ui-flame-sheet-2.png',
   Darken = 'darken2.png',

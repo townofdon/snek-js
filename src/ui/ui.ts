@@ -6,17 +6,19 @@ import { DifficultyIndex, LevelCompletion, LevelId } from '../types';
 import { getWarpLevelFromNum } from '../levels/levelUtils';
 import { SaveDataStore } from '../stores/SaveDataStore';
 import { GameModeMenuElement } from './uiTypes';
+import { BLOCK_SIZE, DIMENSIONS } from '@/constants';
 
-const UI_LABEL_OFFSET = '36px';
-const UI_PARENT_ID = 'game';
+export const UI_PARENT_ID = 'game-container';
+export const UI_CANVAS_RIGHT = 'ui-canvas-right';
+const GAME_ID = 'game';
+const $GAME = document.getElementById('game');
+const $GAME_CONTAINER = document.getElementById('game-container');
+const $UI_CANVAS_RIGHT = document.getElementById('ui-canvas-right');
 
 const LABEL_COLOR = '#fff';
 const LABEL_COLOR_INVERTED = '#000';
-// const LABEL_BG_COLOR = 'rgba(0,0,0, 0.5)';
 const LABEL_BG_COLOR = 'rgb(7 11 15 / 52%)';
-// const LABEL_BG_COLOR = 'radial-gradient(circle, rgba(0,0,0,0.4990371148459384) 0%, rgba(0,0,0,0.4430147058823529) 18%, rgba(68,138,227,0) 100%)';
 const LABEL_BG_COLOR_INVERTED = 'rgba(255,255,255, 0.5)';
-
 
 enum ActiveMenu {
   None,
@@ -36,34 +38,37 @@ export class UI {
   static getIsGameModeMenuShowing = () => UI.activeMenu === ActiveMenu.GameModeMenu;
   static getIsLevelSelectMenuShowing = () => UI.activeMenu === ActiveMenu.LevelSelectMenu;
 
-  static setP5Instance(p5: P5) {
+  static init(p5: P5) {
     UI.p5 = p5;
+    $GAME.style.width = String(DIMENSIONS.x) + 'px';
+    $GAME.style.height = String(DIMENSIONS.y) + 'px';
+    $GAME_CONTAINER.style.width = String(DIMENSIONS.x) + 'px';
+    $GAME_CONTAINER.style.height = String(DIMENSIONS.y) + 'px';
+    $UI_CANVAS_RIGHT.style.width = `${BLOCK_SIZE.x}px`;
   }
 
   static showGfxCanvas() {
-    document.getElementById('game').classList.remove('hide-gfx-canvas');
+   $GAME.classList.remove('hide-gfx-canvas');
   }
 
   static hideGfxCanvas() {
-    document.getElementById('game').classList.add('hide-gfx-canvas');
+   $GAME.classList.add('hide-gfx-canvas');
   }
 
   static showDeathColors() {
-    document.getElementById('game').classList.add('showing-death-colors');
+   $GAME.classList.add('showing-death-colors');
   }
 
   static hideDeathColors() {
-    document.getElementById('game').classList.remove('showing-death-colors');
+   $GAME.classList.remove('showing-death-colors');
   }
 
   static enableGameBlur() {
-    const game = document.getElementById('game');
-    game.classList.add('blur');
+    $GAME.classList.add('blur');
   }
 
   static disableGameBlur() {
-    const game = document.getElementById('game');
-    game.classList.remove('blur');
+    $GAME.classList.remove('blur');
   }
 
   static hideStartScreen() {
@@ -273,22 +278,8 @@ export class UI {
     const p2 = progress > Number.EPSILON ? UI.p5.createP(levelName).id(id2) : null;
     const applyStyles = (p: P5.Element | null, backgroundColor: string, color: string) => {
       if (!p) return;
-      // p.position(0, 0);
-      // p.style('font-size', '1em');
       p.style('background-color', backgroundColor);
       p.style('color', color);
-      // p.style('line-height', '1em');
-      // p.style('white-space', 'nowrap');
-      // p.style('top', 'inherit');
-      // p.style('left', 'inherit');
-      // p.style('bottom', '0');
-      // p.style('right', UI_LABEL_OFFSET);
-      // p.style('margin', '0');
-      // p.style('padding', '1px 8px');
-      // p.style('text-align', 'right');
-      // p.style('z-index', '5');
-      // p.style('transform-origin', 'bottom right');
-      // p.style('transform', 'scale(2)');
       p.class('ui-label level-name');
       p.parent(UI_PARENT_ID);
     }
@@ -374,22 +365,9 @@ export class UI {
       return;
     }
     const p = UI.p5.createP(String(score).padStart(8, '0'));
-    // p.position(0, 0);
     p.id(id);
     p.style('color', isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
     p.style('background-color', isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
-    // p.style('font-size', '1em');
-    // p.style('line-height', '1em');
-    // p.style('white-space', 'nowrap');
-    // p.style('top', 'inherit');
-    // p.style('bottom', '0');
-    // p.style('left', UI_LABEL_OFFSET);
-    // p.style('margin', '0');
-    // p.style('padding', '1px 8px');
-    // p.style('text-align', 'left');
-    // p.style('z-index', '5');
-    // p.style('transform-origin', 'bottom left');
-    // p.style('transform', 'scale(2)');
     p.class('ui-label score');
     p.parent(UI_PARENT_ID);
   }
@@ -405,20 +383,9 @@ export class UI {
     })() + (isCasualModeEnabled ? ' CASUAL' : '') + (isCobraModeEnabled ? ' COBRA' : '');
     document.getElementById(id)?.remove();
     const p = UI.p5.createP(difficultyText);
-    // p.position(0, 0);
     p.id(id);
     p.style('color', isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
     p.style('background-color', isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
-    // p.style('font-size', '1em');
-    // p.style('line-height', '1em');
-    // p.style('white-space', 'nowrap');
-    // p.style('left', UI_LABEL_OFFSET);
-    // p.style('margin', '0');
-    // p.style('padding', '1px 8px');
-    // p.style('text-align', 'left');
-    // p.style('z-index', '5');
-    // p.style('transform-origin', 'top left');
-    // p.style('transform', 'scale(2)');
     p.class('ui-label difficulty');
     p.parent(UI_PARENT_ID);
   }
@@ -431,16 +398,6 @@ export class UI {
     p.id(id);
     p.style('color', LABEL_COLOR);
     p.style('background-color', LABEL_BG_COLOR);
-    // p.style('font-size', '1em');
-    // p.style('line-height', '1em');
-    // p.style('white-space', 'nowrap');
-    // p.style('left', 'inherit');
-    // p.style('right', UI_LABEL_OFFSET);
-    // p.style('margin', '0');
-    // p.style('padding', '1px 8px');
-    // p.style('text-align', 'right');
-    // p.style('transform-origin', 'top right');
-    // p.style('transform', 'scale(2)');
     p.addClass('ui-label casual')
     p.parent(UI_PARENT_ID);
   }
@@ -500,6 +457,7 @@ export class UI {
     div.style('bottom', '0');
     div.style('left', '0');
     div.style('right', '0');
+    div.style('margin', '-1px');
     div.style('background-color', 'rgb(7 11 15 / 75%)');
     div.style('z-index', '6');
     // div.style('mix-blend-mode', 'color-burn');
