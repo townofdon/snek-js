@@ -398,7 +398,7 @@ export const ANIMATIONS = {
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.WearablesSheet]: {
-    frames: 26,
+    frames: 27,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.DoorLightSheet]: {

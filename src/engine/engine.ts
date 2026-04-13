@@ -2783,9 +2783,6 @@ export function engine({
           p5.scale(-1, 1);
           wx = -wx - 1;
         }
-        if (outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.exclusive - 1, rotation);
-        }
         if (outfit.hair && !outfit.exclusive) {
           spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.hair - 1, rotation);
         }
@@ -2800,6 +2797,9 @@ export function engine({
         }
         if (outfit.hat && !outfit.exclusive) {
           spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.hat - 1, rotation);
+        }
+        if (outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.exclusive - 1, rotation);
         }
         p5.pop();
       }
