@@ -1,6 +1,6 @@
 import { DIFFICULTY_EASY } from "@/constants";
 import { DEFAULT_HELD_ITEMS, DEFAULT_BASE_STATS, DEFAULT_WEARABLES_UNLOCKED } from "@/defaults";
-import { DifficultyIndex, GameMode, LevelCompletion, LevelId, SaveData, SaveSlot, SaveSlotData } from "../types";
+import { DifficultyIndex, GameMode, LevelCompletion, LevelId, SaveData, SaveSlot, SaveSlotData, WearableFrame } from "../types";
 import { BaseStore } from "./BaseStore";
 
 export class SaveDataStore extends BaseStore<SaveData> {
@@ -19,22 +19,46 @@ export class SaveDataStore extends BaseStore<SaveData> {
     ...this.getStore(),
   };
 
+  private currentSlot: SaveSlot = SaveSlot.Unset;
+
   private set = (incoming: Partial<SaveData>) => {
     this.state = { ...this.getStore(), ...incoming };
     this.setStore(this.state);
   };
 
-  public getIsSlotUsed = (slot: SaveSlot): boolean => {
+  private getSlot = (slot: SaveSlot): SaveSlotData => {
     switch (slot) {
-      case 0:
-        return !!this.state.slot0?.currentLevel
-      case 1:
-        return !!this.state.slot1?.currentLevel
-      case 2:
-        return !!this.state.slot2?.currentLevel
+      case SaveSlot.Slot0:
+        return this.state.slot0;
+      case SaveSlot.Slot1:
+        return this.state.slot1;
+      case SaveSlot.Slot2:
+        return this.state.slot2;
+      case SaveSlot.Unset:
       default:
-        return false;
+        return null;
     }
+  };
+
+  private setSlot = (slot: SaveSlot, data: SaveSlotData) => {
+    switch (slot) {
+      case SaveSlot.Slot0:
+        this.set({ slot0: data });
+        break;
+      case SaveSlot.Slot1:
+        this.set({ slot1: data });
+        break;
+      case SaveSlot.Slot2:
+        this.set({ slot2: data });
+        break;
+      case SaveSlot.Unset:
+      default:
+        throw new Error(`[SaveDataStore] Invalid save slot: ${slot}`);
+    }
+  }
+
+  public getIsSlotUsed = (slot: SaveSlot): boolean => {
+    return !!this.getSlot(slot)?.currentLevel;
   };
 
   public newSaveSlot = (slot: SaveSlot, gameMode: GameMode) => {
@@ -46,35 +70,65 @@ export class SaveDataStore extends BaseStore<SaveData> {
       stats: { ...DEFAULT_BASE_STATS },
       heldItems: { ...DEFAULT_HELD_ITEMS },
     } satisfies SaveSlotData;
-    switch (slot) {
-      case 0:
-        this.set({ slot0: newSlotData });
-        break;
-      case 1:
-        this.set({ slot1: newSlotData });
-        break;
-      case 2:
-        this.set({ slot2: newSlotData });
-        break;
-      default:
-        break;
-    }
+    this.currentSlot = slot;
+    this.setSlot(slot, newSlotData);
   }
 
   public resetSaveSlot = (slot: SaveSlot) => {
-    switch (slot) {
-      case 0:
-        this.set({ slot0: null });
-        break;
-      case 1:
-        this.set({ slot1: null });
-        break;
-      case 2:
-        this.set({ slot2: null });
-        break;
-      default:
-        break;
+    this.setSlot(slot, null);
+  }
+
+  public resetCurrentSaveSlot = () => {
+    const slot = this.currentSlot;
+    if (!slot) {
+      throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
     }
+    this.setSlot(slot, null);
+  }
+
+  public save = async (incoming: Omit<SaveSlotData, 'wearablesUnlocked'>) => {
+    // TODO: enable save slots
+    return;
+    const slot = this.currentSlot;
+    if (!slot) {
+      throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
+    }
+    const data = {
+      currentLevel: incoming.currentLevel,
+      gameMode: incoming.gameMode,
+      difficulty: incoming.difficulty,
+      wearablesUnlocked: this.getSlot(slot).wearablesUnlocked,
+      stats: { ...incoming.stats },
+      heldItems: { ...incoming.heldItems },
+    } satisfies SaveSlotData;
+    this.setSlot(slot, data);
+  }
+
+  public unlockWearable = (item: WearableFrame) => {
+    const slot = this.currentSlot;
+    if (!slot) {
+      throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
+    }
+    const data = { ...this.getSlot(slot) } satisfies SaveSlotData;
+    if (!data) {
+      throw new Error(`[SaveDataStore] Slot data was nil: slot=${slot},data=${String(data)}`);
+    }
+    data.wearablesUnlocked = { ...data.wearablesUnlocked, [item]: true };
+    this.setSlot(slot, data);
+  }
+
+  public getUnlockedWearables = (): WearableFrame[] => {
+    const slot = this.currentSlot;
+    if (!slot) {
+      throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
+    }
+    const data = this.getSlot(slot);
+    if (!data) {
+      return [];
+    }
+    return Object.keys(data.wearablesUnlocked)
+      .filter((key: string) => data.wearablesUnlocked[WearableFrame[key]])
+      .map(key => WearableFrame[key] || WearableFrame.None);
   }
 
   public getIsCobraModeUnlocked = (): boolean => {

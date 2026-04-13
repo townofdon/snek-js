@@ -1,5 +1,8 @@
+import { IS_LOCALHOST } from "@/constants";
 import { Level } from "../types";
 import { LEVEL_01 } from "./campaign/level01";
+import { LEVEL_01_HARD } from "./campaign/level01hard";
+import { LEVEL_01_ULTRA } from "./campaign/level01ultra";
 import { LEVEL_02 } from "./campaign/level02";
 import { LEVEL_03 } from "./campaign/level03";
 import { LEVEL_04 } from "./campaign/level04";
@@ -62,162 +65,93 @@ import { X_SEARCHLIGHT } from "./challenge/searchlight";
 import { TUTORIAL_LEVEL_51 } from "./campaign/tutorialLevel51";
 import { MAZE_03_STORAGE } from "./mazes/maze03-storage";
 import { MAZE_04_LOOT_ROOM } from "./mazes/maze04-lootroom";
+import { MAZE_01 } from "./mazes/maze01";
+import { MAZE_01_COBRA } from "./mazes/maze01-cobra";
+
+const WARP_INDEX_TO_LEVEL = {
+  1: LEVEL_01,
+  2: LEVEL_02,
+  3: LEVEL_03,
+  4: LEVEL_04,
+  5: LEVEL_05,
+  6: LEVEL_06,
+  7: LEVEL_07,
+  8: LEVEL_08,
+  9: LEVEL_09,
+  10: LEVEL_10,
+  11: LEVEL_11,
+  12: LEVEL_12,
+  13: LEVEL_13,
+  14: LEVEL_14,
+  15: LEVEL_15,
+  16: LEVEL_16,
+  17: LEVEL_17,
+  18: LEVEL_18,
+  19: LEVEL_19,
+  99: LEVEL_99,
+  110: TUTORIAL_LEVEL_10,
+  111: TUTORIAL_LEVEL_11,
+  120: TUTORIAL_LEVEL_20,
+  130: TUTORIAL_LEVEL_30,
+  140: TUTORIAL_LEVEL_40,
+  150: TUTORIAL_LEVEL_50,
+  151: TUTORIAL_LEVEL_51,
+  152: MAZE_03_STORAGE,
+  153: MAZE_04_LOOT_ROOM,
+  203: VARIANT_LEVEL_03,
+  205: VARIANT_LEVEL_05,
+  207: VARIANT_LEVEL_07,
+  208: VARIANT_LEVEL_08,
+  210: VARIANT_LEVEL_10,
+  215: VARIANT_LEVEL_15,
+  299: VARIANT_LEVEL_99,
+  310: SECRET_LEVEL_10,
+  320: SECRET_LEVEL_20,
+  321: SECRET_LEVEL_21,
+  401: X_ACROPOLIS,
+  402: X_BEACONS,
+  403: X_CASA,
+  404: X_CATACOMBS,
+  405: X_FORTITUDE,
+  406: X_GUARDIAN,
+  407: X_KINGS_HALL,
+  408: X_STONEMAZE,
+  409: X_LAST_RITES,
+  410: X_MAKEITOUTALIVE,
+  411: X_QUANTUM_ENTANGLEMENT,
+  412: X_SKILL_CHECK,
+  413: X_TOO_SIMPLE,
+  414: X_UNDERGROUND,
+  415: X_UNWIND,
+  416: X_GAUNTLET,
+  417: X_SNEKCITY,
+  418: X_CUBISM,
+  419: X_DIGIN,
+  420: X_DATACENTER,
+  421: X_SEARCHLIGHT,
+} satisfies Record<number, Level>
+
+const LEVEL_ID_TO_WARP_INDEX: Record<string, number> = Object.keys(WARP_INDEX_TO_LEVEL)
+  .reduce((acc: Record<string, number>, idx: string) => {
+    if (Number.isNaN(parseInt(idx, 10))) {
+      throw new Error(`Bad warp index: ${idx}`);
+    }
+    const level = WARP_INDEX_TO_LEVEL[idx];
+    if (!level) {
+      throw new Error(`warp index did not map to a level: ${idx}`);
+    }
+    acc[level.id] = parseInt(idx, 10);
+    return acc;
+  }, {} satisfies Record<string, number>);
 
 export function getWarpLevelFromNum(levelNum: number): Level {
-  switch (levelNum) {
-    case 1:
-      return LEVEL_01;
-    case 2:
-      return LEVEL_02;
-    case 3:
-      return LEVEL_03;
-    case 4:
-      return LEVEL_04;
-    case 5:
-      return LEVEL_05;
-    case 6:
-      return LEVEL_06;
-    case 7:
-      return LEVEL_07;
-    case 8:
-      return LEVEL_08;
-    case 9:
-      return LEVEL_09;
-    case 10:
-      return LEVEL_10;
-    case 11:
-      return LEVEL_11;
-    case 12:
-      return LEVEL_12;
-    case 13:
-      return LEVEL_13;
-    case 14:
-      return LEVEL_14;
-    case 15:
-      return LEVEL_15;
-    case 16:
-      return LEVEL_16;
-    case 17:
-      return LEVEL_17;
-    case 18:
-      return LEVEL_18;
-    case 19:
-      return LEVEL_19;
-    case 99:
-      return LEVEL_99;
-
-    case 110:
-      return TUTORIAL_LEVEL_10;
-    case 111:
-      return TUTORIAL_LEVEL_11;
-    case 120:
-      return TUTORIAL_LEVEL_20;
-    case 130:
-      return TUTORIAL_LEVEL_30;
-    case 140:
-      return TUTORIAL_LEVEL_40;
-    case 150:
-      return TUTORIAL_LEVEL_50;
-    case 151:
-      return TUTORIAL_LEVEL_51;
-    case 152:
-      return MAZE_03_STORAGE;
-    case 153:
-      return MAZE_04_LOOT_ROOM;
-
-    case 203:
-      return VARIANT_LEVEL_03;
-    case 205:
-      return VARIANT_LEVEL_05;
-    case 207:
-      return VARIANT_LEVEL_07;
-    case 208:
-      return VARIANT_LEVEL_08;
-    case 210:
-      return VARIANT_LEVEL_10;
-    case 215:
-      return VARIANT_LEVEL_15;
-    case 299:
-      return VARIANT_LEVEL_99;
-
-    case 310:
-      return SECRET_LEVEL_10;
-    case 320:
-      return SECRET_LEVEL_20;
-    case 321:
-      return SECRET_LEVEL_21;
-
-    case 401:
-      return X_ACROPOLIS;
-    case 402:
-      return X_BEACONS;
-    case 403:
-      return X_CASA;
-    case 404:
-      return X_CATACOMBS;
-    case 405:
-      return X_FORTITUDE;
-    case 406:
-      return X_GUARDIAN;
-    case 407:
-      return X_KINGS_HALL;
-    case 408:
-      return X_STONEMAZE;
-    case 409:
-      return X_LAST_RITES;
-    case 410:
-      return X_MAKEITOUTALIVE;
-    case 411:
-      return X_QUANTUM_ENTANGLEMENT;
-    case 412:
-      return X_SKILL_CHECK;
-    case 413:
-      return X_TOO_SIMPLE;
-    case 414:
-      return X_UNDERGROUND;
-    case 415:
-      return X_UNWIND;
-    case 416:
-      return X_GAUNTLET;
-    case 417:
-      return X_SNEKCITY;
-    case 418:
-      return X_CUBISM;
-    case 419:
-      return X_DIGIN;
-    case 420:
-      return X_DATACENTER;
-    case 421:
-      return X_SEARCHLIGHT;
-    default:
-      return LEVEL_01;
-  }
+  return WARP_INDEX_TO_LEVEL[levelNum] || LEVEL_01;
 }
 
-export const START_CHALLENGE_LEVEL_NUM = findLevelWarpIndex(X_SNEKCITY);
-
-export function validateLevelIds() {
-  const map: Record<string, Level> = {};
-  [
-    ...LEVELS,
-    ...SECRET_LEVELS,
-    ...CHALLENGE_LEVELS,
-  ].forEach(level => {
-    if (!level.id) {
-      throw new Error(`level "${level.name}" has no ID!`);
-    }
-    if (map[level.id]) {
-      throw new Error(`level id collision: "${level.name}" and "${map[level.id].name}" both have id "${level.id}"`);
-    }
-    map[level.id] = level;
-  });
-}
+export const START_CHALLENGE_LEVEL_NUM = LEVEL_ID_TO_WARP_INDEX[X_SNEKCITY.id];
 
 export function findLevelWarpIndex(level: Level): number {
-  for (let i = 1; i < 420; i++) {
-    if (getWarpLevelFromNum(i) === level) return i;
-  }
-  return -1;
+  return LEVEL_ID_TO_WARP_INDEX[level.id] || -1;
 }
 
 export function getIsChallengeLevel(level: Level) {
@@ -251,4 +185,40 @@ export function getNextRandomLevel(): Level | null {
   }
   const level = randomLevels.shift();
   return level;
+}
+
+export function validateLevels() {
+  if (!IS_LOCALHOST) return;
+  const idMap: Record<string, Level> = {};
+  const warpMap: Record<string, Level> = {};
+  [
+    ...LEVELS,
+    ...SECRET_LEVELS,
+    ...CHALLENGE_LEVELS,
+  ].forEach(level => {
+    // validate level ID
+    if (!level.id) {
+      throw new Error(`level "${level.name}" (${level.id}) has no ID!`);
+    }
+    if (idMap[level.id]) {
+      throw new Error(`level id collision: "${level.name}" (${level.id}) and "${idMap[level.id].name}" (${idMap[level.id].id}) both have id "${level.id}"`);
+    }
+    idMap[level.id] = level;
+    // validate level warp index
+    const exclusions = [LEVEL_WIN_GAME, MAZE_01, MAZE_01_COBRA, LEVEL_01_HARD, LEVEL_01_ULTRA];
+    if (exclusions.includes(level)) {
+      return;
+    }
+    const idx = LEVEL_ID_TO_WARP_INDEX[level.id] || -1;
+    if (idx < 1) {
+      throw new Error(`level "${level.name}" (${level.id}) has no warp index!`);
+    }
+    if (warpMap[idx]) {
+      throw new Error(`warp index collision: "${level.name}" (${level.id}) and "${warpMap[idx].name}" (${warpMap[idx].id}) both have index "${idx}"`);
+    }
+    if (findLevelWarpIndex(level) !== idx) {
+      throw new Error(`level warp index mismatch: level=${level.name}(${level.id}),idxA=${idx},idxB=${findLevelWarpIndex(level)}`);
+    }
+    warpMap[idx] = level;
+  });
 }

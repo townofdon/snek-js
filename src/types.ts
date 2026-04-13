@@ -286,7 +286,12 @@ export interface SaveSlotData {
   heldItems: HeldItems,
 }
 
-export type SaveSlot = 0 | 1 | 2;
+export enum SaveSlot {
+  Unset = 0,
+  Slot0,
+  Slot1,
+  Slot2,
+}
 
 export interface SaveData {
   isCobraModeUnlocked: boolean,

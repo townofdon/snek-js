@@ -1937,7 +1937,10 @@ export function engine({
     state.isExited = true;
     if (replay.mode === ReplayMode.Playback) {
       proceedToNextReplayClip();
-    } else if (DISABLE_TRANSITIONS) {
+      return;
+    }
+
+    if (DISABLE_TRANSITIONS) {
       gotoNextLevel();
     } else if (getIsStartLevel()) {
       gotoNextLevel();

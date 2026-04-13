@@ -896,12 +896,20 @@ export const sketch = (p5: P5) => {
       if (state.mapset === Mapset.Challenge) {
         state.nextLevel = FIRST_CHALLENGE_LEVEL;
       }
+      saveDataStore.save({
+        currentLevel: findLevelWarpIndex(getLevel()),
+        gameMode: state.gameMode,
+        difficulty: getDifficulty().index,
+        stats,
+        heldItems,
+      });
       initLevel();
       return;
     }
 
     if (state.isLost && state.gameMode === GameMode.Cobra) {
       winGameScene.reset();
+      saveDataStore.resetCurrentSaveSlot();
       resetStats();
       showMainMenu();
       return;
@@ -942,6 +950,13 @@ export const sketch = (p5: P5) => {
     state.nextLevel = null;
 
     maybeSaveReplayStateToFile();
+    saveDataStore.save({
+      currentLevel: findLevelWarpIndex(getLevel()),
+      gameMode: state.gameMode,
+      difficulty: getDifficulty().index,
+      stats,
+      heldItems,
+    });
 
     if (showQuoteOnLevelWin) {
       stopLogicLoop();

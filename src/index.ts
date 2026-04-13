@@ -2,9 +2,9 @@ import p5 from 'p5';
 
 import './windowManagement';
 import { sketch } from './snek';
-import { validateLevelIds } from './levels/levelUtils';
+import { validateLevels } from './levels/levelUtils';
 
-validateLevelIds()
+validateLevels()
 
 function main() {
     new p5(sketch)
