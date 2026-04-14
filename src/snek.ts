@@ -127,6 +127,12 @@ let quotes = allQuotes.slice();
 let playthroughId = '';
 
 export const sketch = (p5: P5) => {
+  // note: bindings must be assigned here first in order for scene binding overrides to work properly.
+  p5.preload = preload;
+  p5.setup = setup;
+  p5.draw = draw;
+  p5.keyPressed = keyPressed;
+
   const coroutines = new Coroutines(p5);
   // actions are unique, singleton coroutines, meaning that only one coroutine of a type can run at a time
   const actions = new Coroutines(p5);
@@ -159,7 +165,7 @@ export const sketch = (p5: P5) => {
   const musicPlayer = new MusicPlayer(settings);
 
   const gfxPresentation: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  gfxPresentation.addClass('static-gfx-canvas').addClass('fg5').parent(UI_PARENT_ID).addClass('gfx-presentation');
+  gfxPresentation.addClass('static-gfx-canvas').addClass('fg5').parent(UI_PARENT_ID).addClass('gfx-presentation').id('gfx-presentation');
 
   const spriteRenderer = new SpriteRenderer({ p5 });
   const winLevelScene = new WinLevelScene(p5, gfxPresentation, state, sfx, fonts, unlockedMusicStore, spriteRenderer, { onSceneEnded: gotoNextLevel });
@@ -317,7 +323,6 @@ export const sketch = (p5: P5) => {
   /**
    * https://p5js.org/reference/#/p5/preload
    */
-  p5.preload = preload;
   function preload() {
     UI.init(p5);
     fonts.load();
@@ -330,7 +335,6 @@ export const sketch = (p5: P5) => {
   /**
    * https://p5js.org/reference/#/p5/setup
    */
-  p5.setup = setup;
   function setup() {
     UI.init(p5);
     state.appMode = AppMode.StartScreen;
@@ -365,7 +369,6 @@ export const sketch = (p5: P5) => {
    * https://p5js.org/reference/#/p5/draw
    * called by window.requestAnimationFrame
    */
-  p5.draw = draw;
   function draw() {
     // prevent freezing due to animation frame build up if tab loses focus
     if (p5.deltaTime > 3000) return;
@@ -384,7 +387,6 @@ export const sketch = (p5: P5) => {
   /**
    * https://p5js.org/reference/#/p5/keyPressed
    */
-  p5.keyPressed = keyPressed;
   function keyPressed(ev?: KeyboardEvent) {
     resumeAudioContext();
     let handled = false;

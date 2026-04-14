@@ -778,6 +778,7 @@ button.game-mode.back {
   color: #fff;
   font-family: MiniMOOD, 'VT323', monospace;
   font-size: 14px;
+  overflow: hidden;
 }
 
 .settings-menu > .content {

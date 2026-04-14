@@ -159,8 +159,11 @@ export class WinLevelScene extends BaseScene {
       this.drawScore(this.score);
     }, true);
 
+    let pauseBeforeIncrement = false;
+
     // all locks bonus
     if (this.hasAllLocks && !this.isPerfect && !this.hasAllApples) {
+      pauseBeforeIncrement = true;
       sfx.play(Sound.xplode);
       yield* coroutines.waitForTime(700, () => {
         this.drawAllLocksBonus(this.allLocksBonus, this.hasAllLocks, this.isPerfect || this.hasAllApples);
@@ -172,6 +175,7 @@ export class WinLevelScene extends BaseScene {
 
     // perfect bonus
     if (this.isPerfect) {
+      pauseBeforeIncrement = true;
       sfx.play(Sound.xplodeLong, 0.7);
       if (this.clearTime <= this.parTime - 10000) {
         sfx.play(Sound.guitarRiff2, 0.6);
@@ -189,6 +193,7 @@ export class WinLevelScene extends BaseScene {
         this.drawScore(this.score);
       }, true);
     } else if (this.hasAllApples) {
+      pauseBeforeIncrement = true;
       sfx.play(Sound.xpound, 0.6);
       yield* coroutines.waitForTime(500, (t) => {
         this.drawAllApplesBonus(this.allApplesBonus, this.hasAllApples, this.hasAllLocks);
@@ -199,18 +204,20 @@ export class WinLevelScene extends BaseScene {
       }, true);
     }
 
-    // pause before increment
-    yield* coroutines.waitForTime(500, () => {
-      if (this.isPerfect) {
-        this.drawPerfectBonus(this.perfectBonus, this.isPerfect, this.hasAllLocks);
-      } else if (this.hasAllApples) {
-        this.drawAllApplesBonus(this.allApplesBonus, this.hasAllApples, this.hasAllLocks);
-      }
-      this.drawAllLocksBonus(this.allLocksBonus, this.hasAllLocks, this.isPerfect || this.hasAllApples);
-      this.drawLevelClearBonus(this.levelClearBonus);
-      this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
-      this.drawScore(this.score);
-    }, true);
+    // pause
+    if (pauseBeforeIncrement) {
+      yield* coroutines.waitForTime(500, () => {
+        if (this.isPerfect) {
+          this.drawPerfectBonus(this.perfectBonus, this.isPerfect, this.hasAllLocks);
+        } else if (this.hasAllApples) {
+          this.drawAllApplesBonus(this.allApplesBonus, this.hasAllApples, this.hasAllLocks);
+        }
+        this.drawAllLocksBonus(this.allLocksBonus, this.hasAllLocks, this.isPerfect || this.hasAllApples);
+        this.drawLevelClearBonus(this.levelClearBonus);
+        this.drawLivesLeftBonus(this.livesLeftBonus, this.livesLeft, this.livesLeftBonus * this.livesLeft);
+        this.drawScore(this.score);
+      }, true);
+    }
 
     const perfectBonusCalc = this.isPerfect ? this.perfectBonus : 0;
     const allApplesBonusCalc = !this.isPerfect && this.hasAllApples ? this.allApplesBonus : 0;
@@ -257,8 +264,8 @@ export class WinLevelScene extends BaseScene {
     if (this.levelMusicTrack && !this.unlockedMusicStore.getIsUnlocked(this.levelMusicTrack)) {
       this.unlockedMusicStore.unlockTrack(this.levelMusicTrack);
       if (OST_MODE_TRACKS_NOTIFY_UNLOCK.includes(this.levelMusicTrack)) {
-        sfx.play(Sound.unlockAbility, 1);
-        yield* coroutines.waitForTime(3200, (t) => {
+        sfx.play(Sound.doorOpenHuge, 1);
+        yield* coroutines.waitForTime(1500, (t) => {
           // flash
           const freq = 0.3;
           const shouldShow = t % freq < freq * 0.5;
@@ -267,7 +274,7 @@ export class WinLevelScene extends BaseScene {
       }
     }
 
-    sfx.stop(Sound.unlockAbility);
+    sfx.stop(Sound.doorOpenHuge);
 
     this.cleanup();
     this.isTriggered = false;

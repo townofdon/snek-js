@@ -151,7 +151,6 @@ import { AnimationList } from '../collections/animationList';
 import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
 import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
-import { PortalVortexParticleSystem2 } from './particleSystems/PortalVortexParticleSystem2';
 import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
 import { buildLevel } from '../levels/levelBuilder';
 import {
@@ -192,6 +191,8 @@ import { AStar } from '../astar/astar';
 import { PreyList } from '../collections/preyList';
 import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/publishUtils';
 import { withErrorReporting } from '@/reporting';
+import { AcquirePickupParticleSystem } from './particleSystems/AcquirePickupParticleSystem';
+import { AcquirePickupScene, AcquirePickupSceneConstructorArgs } from '@/scenes/AcquirePickupScene';
 
 interface EngineParams {
   p5: P5,
@@ -373,6 +374,8 @@ export function engine({
   gfxFG.addClass('static-gfx-canvas').addClass('fg2').parent(UI_PARENT_ID).addClass('gfx-fg').id('canvas-fg');
   gfxFGAction.addClass('static-gfx-canvas').addClass('fg3').parent(UI_PARENT_ID).addClass('gfx-fg-action').id('canvas-action');
   gfxLighting.addClass('static-gfx-canvas').addClass('fg4').parent(UI_PARENT_ID).addClass('gfx-lighting').id('canvas-lighting');
+  // move gfxPresentation so that it is on top of everything else
+  document.getElementById('gfx-presentation').after(document.getElementById('canvas-lighting'));
   const graphicalComponents: GraphicalComponents = {
     deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
     deco2: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -406,15 +409,53 @@ export function engine({
   const appleParticleSystem = new AppleParticleSystem2(p5, emitters, gradients);
   const impactParticleSystem = new ImpactParticleSystem2(p5, emitters10, gradients);
   const portalParticleSystem = new PortalParticleSystem2(p5, emitters10, gradients);
-  const portalVortexParticleSystem = new PortalVortexParticleSystem2(p5, emitters, gradients);
   const gateUnlockParticleSystem = new GateUnlockParticleSystem2(p5, emitters, gradients);
   const exitLightParticleSystem = new PortalParticleSystem2(p5, emitters, gradients);
+  const acquirePickupParticleSystem = new AcquirePickupParticleSystem(p5, emitters, gradients);
 
   const reversibleColorGradient = gradients.addMultiple(SNAKE_REWIND_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
   const invincibleColorGradient = gradients.addMultiple(SNAKE_INVINCIBLE_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
 
   const renderer = new Renderer({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
   spriteRenderer.setScreenShake(screenShake);
+  const acquirePickupScene = new AcquirePickupScene({
+    p5,
+    gfx: gfxPresentation,
+    sfx,
+    musicPlayer,
+    fonts,
+    renderer,
+    spriteRenderer,
+    gameState: state,
+    segments,
+    player,
+    drawGameBackground: drawBackground,
+    drawPlayerHead,
+    drawPlayerSegment,
+    erasePlayerSegmentCorner,
+    drawParticles,
+    callbacks: {
+      onSceneStart: () => {
+        stopLogicLoop();
+        playSound(Sound.doorOpenHuge);
+        startAction(fadeMusic(0, 1000), Action.FadeMusic);
+        exitLightParticleSystem.reset();
+        acquirePickupParticleSystem.emit(15, 15);
+        state.currentSpeed = 1;
+        state.isMoving = false;
+        // set rewinding state just for visuals
+        state.isRewinding = true;
+        gfxFGAction.clear(0, 0, 0, 0);
+      },
+      onSceneEnded: () => {
+        startAction(fadeMusic(1, 1000), Action.FadeMusic);
+        state.isRewinding = false;
+        startLogicLoop();
+        acquirePickupParticleSystem.reset();
+        startExitParticles();
+      },
+    },
+  } satisfies AcquirePickupSceneConstructorArgs);
 
   function setLevel(incoming: Level) {
     level = incoming;
@@ -840,6 +881,7 @@ export function engine({
     if (state.isLost) return;
 
     // check if a segment intersects with an apple
+    let didEat = false;
     for (let i = 0; i < segments.length; i++) {
       if (state.isLost || state.isExitingLevel) continue;
       const coord = getCoordIndex(segments.get(i));
@@ -849,6 +891,7 @@ export function engine({
         incrementScore();
         growSnake(appleFound);
         drawState.shouldDrawApples = true;
+        didEat = true;
       }
     }
 
@@ -869,13 +912,14 @@ export function engine({
         incrementPickupBonus(PickupType.Armor, coord);
         heldItems.armor += 1;
         state.timeSinceArmorPickup = 0;
-        // TODO: ADD UNIQ SOUND
-        playSound(Sound.hurtSave);
+        acquirePickupScene.trigger('ARMOR ACQUIRED!');
+        return;
       } else if (pickupsMap[coord]) {
         incrementPickupBonus(pickupsMap[coord]?.type, coord);
       }
       pickupsMap[coord] = null;
       drawState.shouldDrawApples = true;
+      didEat = true;
     }
 
     // check if head has reached any prey
@@ -887,6 +931,15 @@ export function engine({
       playSound(Sound.eat);
       preyList.removeByCoord(coord);
       drawState.shouldDrawActionFG = true;
+      didEat = true;
+    }
+
+    if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && !getIsStartLevel() && replay.mode !== ReplayMode.Playback) {
+      heldItems.armor += 1;
+      state.timeSinceArmorPickup = 0;
+      acquirePickupScene.trigger('ARMOR ACQUIRED!');
+      return;
+      // TODO: SPAWN ARMOR PICKUP INSTEAD
     }
 
     // tick time for prey
@@ -1093,14 +1146,12 @@ export function engine({
 
     renderer.drawPlayerMoveArrows(p5, player.position, moves.length > 0 ? moves[0] : player.direction);
 
-    p5.push();
     for (let i = 0; i < segments.length; i++) {
       drawPlayerSegment(segments.get(i), i);
     }
     for (let i = 0; i < segments.length; i++) {
       erasePlayerSegmentCorner(segments.get(i), i);
     }
-    p5.pop();
 
     const globalLight = level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
 
@@ -1869,6 +1920,7 @@ export function engine({
     stopAction(Action.Invincibility);
     musicPlayer.setPlaybackRate(level.musicTrack, 1);
     exitLightParticleSystem.reset();
+    acquirePickupParticleSystem.reset();
     if (replay.mode !== ReplayMode.Playback) {
       startAction(fadeMusic(0, 1000), Action.FadeMusic);
       if (isStartLevel) {
@@ -3435,7 +3487,6 @@ export function engine({
         const portal = portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
         portalParticleSystem.emit(portal.position.x, portal.position.y, portal.channel);
-        // portalVortexParticleSystem.emit(portal.position.x, portal.position.y, portal.channel);
       }
     }
   }

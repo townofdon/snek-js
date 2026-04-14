@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
 
-import { IS_DEV } from "../constants";
+import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_DEV } from "../constants";
 import { Particles } from "./particles";
 import { EmitterOptions } from "../types";
 
@@ -209,7 +209,15 @@ export class Emitters {
   private spawnParticle = (x: number, y: number, options: EmitterOptions) => {
     const origin = (new Vector(x, y)).add(ORIGIN_OFFSET_X, ORIGIN_OFFSET_Y);
     const randomVector = (scale = 1) => {
-      return P5.Vector.random2D().mult(scale);
+      // random pos in square, scaled
+      if (options.randomizeSpawnPos) {
+        const x = Math.random() * 2 - 1;
+        const y = Math.random() * 2 - 1;
+        return new P5.Vector(x, y).mult(scale);
+      }
+      // random pos on unit circle, scaled
+      const vec = P5.Vector.random2D().mult(scale);
+      return vec;
     }
     const positionStart = origin.copy().add(randomVector(options.originOffset));
     const calcSpeed = Math.abs(options.speed + (this.p5.random(2) - 1) * options.speedVariance);

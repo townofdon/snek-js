@@ -949,13 +949,14 @@ export interface Scene {
 }
 
 export interface SceneCallbacks {
+  onSceneStart?: () => void
   onSceneEnded?: () => void
   onEscapePress?: () => void
 }
 
-export interface SceneCachedCallbacks {
-  draw: () => void
-  keyPressed: (event?: object) => void
+export interface SceneCachedBindings {
+  readonly draw: () => void
+  readonly keyPressed: (event?: object) => void
 }
 
 export enum ReplayMode {
@@ -1054,6 +1055,7 @@ export interface EmitterOptions {
   scaleVariance: number,
   loop: boolean,
   orbit: number,
+  randomizeSpawnPos?: boolean,
   easingFnc?: (x: number) => number,
 }
 

@@ -1,6 +1,6 @@
 import P5 from "p5";
 
-import { FontsInstance, IEnumerator, Scene, SceneCachedCallbacks, SceneCallbacks } from '../types';
+import { FontsInstance, IEnumerator, Scene, SceneCachedBindings, SceneCallbacks } from '../types';
 import { Coroutines } from "../engine/coroutines";
 import { DIMENSIONS } from "../constants";
 
@@ -8,7 +8,6 @@ import { DIMENSIONS } from "../constants";
 export interface BaseSceneProps {
   p5: P5
   gfx: P5.Graphics
-  cachedCallbacks: SceneCachedCallbacks
   callbacks: SceneCallbacks
   coroutines: Coroutines
   fonts: FontsInstance
@@ -18,16 +17,15 @@ export abstract class BaseScene implements Scene {
   protected props: BaseSceneProps = {
     p5: null,
     gfx: null,
-    cachedCallbacks: {
-      draw: () => { },
-      keyPressed: () => { },
-    },
     callbacks: {
-      onSceneEnded: () => { }
+      onSceneStart: null,
+      onSceneEnded: null,
     },
     coroutines: null,
     fonts: null,
   };
+
+  private readonly cachedBindings: SceneCachedBindings;
 
   private _internalState = {
     isCleaningUp: false,
@@ -39,17 +37,21 @@ export abstract class BaseScene implements Scene {
     this.props.gfx = gfx;
     this.props.fonts = fonts;
     this.props.callbacks = callbacks;
-    this.props.cachedCallbacks.draw = p5.draw;
-    this.props.cachedCallbacks.keyPressed = p5.keyPressed;
+    this.cachedBindings = {
+      draw: p5.draw,
+      keyPressed: p5.keyPressed,
+    }
     this.props.coroutines = new Coroutines(p5);
   }
 
   public isShowing = () => this._internalState.isShowing;
 
   /**
-   * call in the last line of constructor after super()
+   * call this to take over the P5 render loop and input handling.
+   * e.g. in the last line of constructor after super()
    */
   protected bindActions = () => {
+    if (this.props.callbacks.onSceneStart) this.props.callbacks.onSceneStart();
     this._internalState.isShowing = true;
     const { p5 } = this.props;
     p5.draw = this.draw;
@@ -62,11 +64,12 @@ export abstract class BaseScene implements Scene {
   /**
    * use this instead of bindActions, e.g. if you DON'T want to bind p5 functions.
    * 
-   * note that this scene must be manually ticked by calling the `draw()` function.
+   * note that this scene must be manually ticked by calling the `tick()` function.
    * 
    * make sure to call onSceneEnded callback afterwards :)
    */
   protected startActionsNoBind = () => {
+    if (this.props.callbacks.onSceneStart) this.props.callbacks.onSceneStart();
     this._internalState.isShowing = true;
     this.stopAllCoroutines();
     this.startCoroutine(this.action());
@@ -80,8 +83,8 @@ export abstract class BaseScene implements Scene {
   cleanup = () => {
     if (this._internalState.isCleaningUp) return;
     this._internalState.isCleaningUp = true;
-    const { p5, cachedCallbacks, callbacks } = this.props;
-    const { draw, keyPressed } = cachedCallbacks;
+    const { p5, callbacks } = this.props;
+    const { draw, keyPressed } = this.cachedBindings;
     if (draw) p5.draw = draw;
     if (keyPressed) p5.keyPressed = keyPressed;
     this.stopAllCoroutines();
