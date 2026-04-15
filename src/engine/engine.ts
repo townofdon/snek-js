@@ -420,7 +420,8 @@ export function engine({
   spriteRenderer.setScreenShake(screenShake);
   const acquirePickupScene = new AcquirePickupScene({
     p5,
-    gfx: gfxPresentation,
+    gfxFGAction,
+    gfxPresentation,
     sfx,
     musicPlayer,
     fonts,
@@ -434,6 +435,9 @@ export function engine({
     drawPlayerSegment,
     erasePlayerSegmentCorner,
     drawParticles,
+    onBeforeDraw: () => {
+      drawState.shouldDrawActionFG = true;
+    },
     callbacks: {
       onSceneStart: () => {
         stopLogicLoop();
@@ -445,7 +449,10 @@ export function engine({
         state.isMoving = false;
         // set rewinding state just for visuals
         state.isRewinding = true;
+        particles.setGfx(gfxFGAction);
+        renderer.setGfxOverride(gfxFGAction);
         gfxFGAction.clear(0, 0, 0, 0);
+        UI.clearLabels();
       },
       onSceneEnded: () => {
         startAction(fadeMusic(1, 1000), Action.FadeMusic);
@@ -453,6 +460,13 @@ export function engine({
         startLogicLoop();
         acquirePickupParticleSystem.reset();
         startExitParticles();
+        renderer.setGfxOverride(null);
+        particles.setGfx(p5);
+        drawState.shouldDrawActionFG = true;
+        renderDifficultyUI();
+        renderHeartsUI();
+        renderScoreUI();
+        renderLevelName();
       },
     },
   } satisfies AcquirePickupSceneConstructorArgs);
@@ -912,6 +926,7 @@ export function engine({
         incrementPickupBonus(PickupType.Armor, coord);
         heldItems.armor += 1;
         state.timeSinceArmorPickup = 0;
+        // TODO: CHECK IF PLAYER HAS PICKED UP ARMOR BEFORE
         acquirePickupScene.trigger('ARMOR ACQUIRED!');
         return;
       } else if (pickupsMap[coord]) {
@@ -935,10 +950,10 @@ export function engine({
     }
 
     if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && !getIsStartLevel() && replay.mode !== ReplayMode.Playback) {
-      heldItems.armor += 1;
-      state.timeSinceArmorPickup = 0;
-      acquirePickupScene.trigger('ARMOR ACQUIRED!');
-      return;
+      // heldItems.armor += 1;
+      // state.timeSinceArmorPickup = 0;
+      // acquirePickupScene.trigger('ARMOR ACQUIRED!');
+      // return;
       // TODO: SPAWN ARMOR PICKUP INSTEAD
     }
 
@@ -2835,35 +2850,36 @@ export function engine({
     } else if (state.isShowingDeathColours) {
       spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHead, vec.x, vec.y, getRotationFromDirection(dir), 1, -1);
     } else {
-      spriteRenderer.drawImage3x3(Image.SnekHead, vec.x, vec.y, getRotationFromDirection(dir));
+      const gfx = renderer.getMainGfx();
+      spriteRenderer.drawImage3x3Custom(gfx, Image.SnekHead, vec.x, vec.y, getRotationFromDirection(dir));
       if (replay.mode !== ReplayMode.Playback) {
-        p5.push();
+        gfx.push();
         let rotation = getRotationFromDirection(dir);
         let wx = vec.x;
         if (dir === DIR.LEFT) {
           rotation = 0;
-          p5.scale(-1, 1);
+          gfx.scale(-1, 1);
           wx = -wx - 1;
         }
         if (outfit.hair && !outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.hair - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, outfit.hair - 1, rotation);
         }
         if (outfit.eyes && !outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.eyes - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, outfit.eyes - 1, rotation);
         }
         if (outfit.back && !outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.back - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, outfit.back - 1, rotation);
         }
         if (heldItems.armor > 0) {
-          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, WearableFrame.Crusher - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, WearableFrame.Crusher - 1, rotation);
         }
         if (outfit.hat && !outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.hat - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, outfit.hat - 1, rotation);
         }
         if (outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, wx, vec.y, outfit.exclusive - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, outfit.exclusive - 1, rotation);
         }
-        p5.pop();
+        gfx.pop();
       }
     }
   }
@@ -2971,13 +2987,14 @@ export function engine({
 
   function drawSegmentArmor(vec: Vector, i = 0, dirPrev: DIR) {
     const numArmoredSegments = 2 * (heldItems.armor - 1) + 1;
+    const gfx = renderer.getMainGfx();
     if (heldItems.armor === 1 && replay.mode !== ReplayMode.Playback && i === 1) {
-      spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg2 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
+      spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg2 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
     } else if (heldItems.armor > 0 && replay.mode !== ReplayMode.Playback && i > 0 && i < numArmoredSegments) {
       if (i % 2 === 1) {
-        spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg1 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
+        spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg1 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
       } else {
-        spriteRenderer.drawSprite3x3(p5, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg2 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
+        spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, vec.x, vec.y, WearableFrame.CrusherSeg2 - 1, (getRotationFromDirection(invertDirection(dirPrev))));
       }
     }
   }
@@ -3016,15 +3033,16 @@ export function engine({
       (dirPrev === DIR.UP && dirNext === DIR.LEFT) ||
       (dirPrev === DIR.LEFT && dirNext === DIR.UP)
     );
+    const gfx = renderer.getMainGfx();
     const backgroundColor = state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
     if (cornerNE) {
-      renderer.eraseCorner(p5, backgroundColor, vec.x, vec.y, 'NE', 1);
+      renderer.eraseCorner(gfx, backgroundColor, vec.x, vec.y, 'NE', 1);
     } else if (cornerSE) {
-      renderer.eraseCorner(p5, backgroundColor, vec.x, vec.y, 'SE', 1);
+      renderer.eraseCorner(gfx, backgroundColor, vec.x, vec.y, 'SE', 1);
     } else if (cornerSW) {
-      renderer.eraseCorner(p5, backgroundColor, vec.x, vec.y, 'SW', 1);
+      renderer.eraseCorner(gfx, backgroundColor, vec.x, vec.y, 'SW', 1);
     } else if (cornerNW) {
-      renderer.eraseCorner(p5, backgroundColor, vec.x, vec.y, 'NW', 1);
+      renderer.eraseCorner(gfx, backgroundColor, vec.x, vec.y, 'NW', 1);
     }
   }
 

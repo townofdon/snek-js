@@ -833,10 +833,7 @@ export enum Image {
   LockRed = 'snek-lock-red.png',
   LockBlue = 'snek-lock-blue.png',
   PickupArrows = 'pickup-arrows.png',
-  UIKeyGrey = 'snek-smkey2-grey.png',
-  UIKeyYellow = 'snek-smkey2-yellow.png',
-  UIKeyRed = 'snek-smkey2-red.png',
-  UIKeyBlue = 'snek-smkey2-blue.png',
+  UIKeysSheet = 'snek-smkey2-sheet.png',
   UIShield = 'snek-shield-sm.png',
   UILocked = 'ui-locked.png',
   UIFlamesheet = 'ui-flame-sheet-2.png',
@@ -890,6 +887,7 @@ export type SpritesheetImage =
   | Image.TileSheet16
   | Image.TileSheet48
   | Image.PickupsSheet
+  | Image.UIKeysSheet
   | Image.WearablesSheet
   | Image.DoorLightSheet
   | Image.PreyGrubSheet

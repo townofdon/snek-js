@@ -28,7 +28,6 @@ export abstract class BaseScene implements Scene {
   private readonly cachedBindings: SceneCachedBindings;
 
   private _internalState = {
-    isCleaningUp: false,
     isShowing: false,
   }
 
@@ -81,15 +80,12 @@ export abstract class BaseScene implements Scene {
   abstract action(): IEnumerator;
 
   cleanup = () => {
-    if (this._internalState.isCleaningUp) return;
-    this._internalState.isCleaningUp = true;
     const { p5, callbacks } = this.props;
     const { draw, keyPressed } = this.cachedBindings;
     if (draw) p5.draw = draw;
     if (keyPressed) p5.keyPressed = keyPressed;
     this.stopAllCoroutines();
     if (callbacks.onSceneEnded) callbacks.onSceneEnded();
-    this._internalState.isCleaningUp = false;
     this._internalState.isShowing = false;
   }
 
@@ -101,7 +97,6 @@ export abstract class BaseScene implements Scene {
    * Call as the last line of draw()
    */
   protected tick = () => {
-    if (this._internalState.isCleaningUp) return;
     this.tickCoroutines();
   }
 

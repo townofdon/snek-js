@@ -46,7 +46,7 @@ const DEFAULT_OPTIONS: ParticleOptions = {
 
 export class Particles {
   // GLOBAL
-  private p5: P5;
+  private gfx: P5 | P5.Graphics;
   private gradients: Gradients;
   private screenShake: ScreenShakeState;
   private timeElapsed: number = 0;
@@ -74,8 +74,8 @@ export class Particles {
   private activeLength: number = 0;
   private maxLength: number;
 
-  constructor(p5: P5, gradients: Gradients, screenShake: ScreenShakeState) {
-    this.p5 = p5;
+  constructor(gfx: P5 | P5.Graphics, gradients: Gradients, screenShake: ScreenShakeState) {
+    this.gfx = gfx;
     this.gradients = gradients;
     this.screenShake = screenShake;
     this.maxLength = INITIAL_POOL_SIZE;
@@ -93,6 +93,10 @@ export class Particles {
     }
     this.activeLength = 0;
     this.timeElapsed = 0;
+  }
+
+  public setGfx = (gfx: P5 | P5.Graphics) => {
+    this.gfx = gfx;
   }
 
   public getLength = (): number => this.activeLength;
@@ -215,9 +219,9 @@ export class Particles {
     const scale = lerp(this.scaleStart[i], this.scaleEnd[i], t);
     // const calcColor = p5.lerpColor(this.colorStart, this.colorEnd, clamp(t * 10 - 9, 0, 1));
     const color = this.gradients.calc(this.gradientIndex[i], clamp(t * 10 - 9, 0, 1));
-    const origin = this.p5.createVector(this.originX[i], this.originY[i]);
-    const positionStart = this.p5.createVector(this.positionStartX[i], this.positionStartY[i]);
-    const positionEnd = this.p5.createVector(this.positionEndX[i], this.positionEndY[i]);
+    const origin = this.gfx.createVector(this.originX[i], this.originY[i]);
+    const positionStart = this.gfx.createVector(this.positionStartX[i], this.positionStartY[i]);
+    const positionEnd = this.gfx.createVector(this.positionEndX[i], this.positionEndY[i]);
     const position = Vector.lerp(positionStart, positionEnd, t);
 
     const orbitOffset = this.getOrbitOffset(this.orbit[i], origin, positionStart, position, t);
@@ -226,11 +230,11 @@ export class Particles {
     const coord = getCoordIndex2(position.x + (this.screenShake.offset.x + orbitOffset.x) / BLOCK_SIZE.x, position.y + (this.screenShake.offset.x + orbitOffset.x) / BLOCK_SIZE.y);
     if (test && !test(coord)) return;
 
-    this.p5.fill(color);
-    this.p5.stroke(color);
-    this.p5.strokeWeight(0);
-    this.p5.noStroke();
-    this.p5.square(x, y, Math.round(BLOCK_SIZE.x * scale));
+    this.gfx.fill(color);
+    this.gfx.stroke(color);
+    this.gfx.strokeWeight(0);
+    this.gfx.noStroke();
+    this.gfx.square(x, y, Math.round(BLOCK_SIZE.x * scale));
   }
 
   private getOrbitOffset = (orbit: number, origin: Vector, positionStart: Vector, position: Vector, t: number): { x: number, y: number } => {

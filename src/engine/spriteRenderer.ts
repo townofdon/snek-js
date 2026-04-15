@@ -61,10 +61,7 @@ export class SpriteRenderer {
     [Image.LockRed]: null,
     [Image.LockBlue]: null,
     [Image.PickupArrows]: null,
-    [Image.UIKeyGrey]: null,
-    [Image.UIKeyYellow]: null,
-    [Image.UIKeyRed]: null,
-    [Image.UIKeyBlue]: null,
+    [Image.UIKeysSheet]: null,
     [Image.UILocked]: null,
     [Image.UIShield]: null,
     [Image.UIFlamesheet]: null,
@@ -261,10 +258,7 @@ export class SpriteRenderer {
       this.loadImage(Image.LockRed);
       this.loadImage(Image.LockBlue);
       this.loadImage(Image.PickupArrows);
-      this.loadImage(Image.UIKeyGrey);
-      this.loadImage(Image.UIKeyYellow);
-      this.loadImage(Image.UIKeyRed);
-      this.loadImage(Image.UIKeyBlue);
+      this.loadImage(Image.UIKeysSheet);
       this.loadImage(Image.UIShield);
       this.loadImage(Image.UILocked);
       this.loadImage(Image.UIFlamesheet);

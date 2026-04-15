@@ -10,7 +10,8 @@ import { Easing } from "@/easing";
 
 export interface AcquirePickupSceneConstructorArgs {
   p5: P5;
-  gfx: P5.Graphics;
+  gfxFGAction: P5.Graphics;
+  gfxPresentation: P5.Graphics;
   sfx: SFXInstance;
   musicPlayer: MusicPlayer;
   fonts: FontsInstance;
@@ -21,6 +22,7 @@ export interface AcquirePickupSceneConstructorArgs {
   segments: VectorList;
   player: PlayerState;
   // rendering
+  onBeforeDraw: () => void
   drawGameBackground: () => void
   drawPlayerHead: (vec: P5.Vector) => void
   drawPlayerSegment: (vec: P5.Vector, i?: number) => void
@@ -41,6 +43,7 @@ const defaultShowing = {
 } satisfies Record<RenderItem, boolean>
 
 export class AcquirePickupScene extends BaseScene {
+  private gfxFGAction: P5.Graphics;
   private sfx: SFXInstance;
   private musicPlayer: MusicPlayer;
   private renderer: Renderer;
@@ -50,6 +53,7 @@ export class AcquirePickupScene extends BaseScene {
   private segments: VectorList;
   private player: PlayerState;
 
+  private onBeforeDraw: () => void;
   private drawGameBackground: () => void;
   private drawPlayerHead: (vec: P5.Vector) => void;
   private drawPlayerSegment: (vec: P5.Vector, i?: number) => void;
@@ -64,7 +68,8 @@ export class AcquirePickupScene extends BaseScene {
   constructor(args: AcquirePickupSceneConstructorArgs) {
     const {
       p5,
-      gfx,
+      gfxFGAction,
+      gfxPresentation,
       fonts,
       callbacks,
       sfx,
@@ -74,13 +79,15 @@ export class AcquirePickupScene extends BaseScene {
       gameState,
       segments,
       player,
+      onBeforeDraw,
       drawGameBackground,
       drawPlayerHead,
       drawPlayerSegment,
       erasePlayerSegmentCorner,
       drawParticles,
     } = args;
-    super(p5, gfx, fonts, callbacks);
+    super(p5, gfxPresentation, fonts, callbacks);
+    this.gfxFGAction = gfxFGAction;
     this.sfx = sfx;
     this.musicPlayer = musicPlayer;
     this.renderer = renderer;
@@ -88,6 +95,7 @@ export class AcquirePickupScene extends BaseScene {
     this.gameState = gameState;
     this.segments = segments;
     this.player = player;
+    this.onBeforeDraw = onBeforeDraw;
     this.drawGameBackground = drawGameBackground;
     this.drawPlayerHead = drawPlayerHead;
     this.drawPlayerSegment = drawPlayerSegment;
@@ -122,13 +130,15 @@ export class AcquirePickupScene extends BaseScene {
       this.drawPressAnyKey();
     });
 
+    this.showing[RenderItem.Title] = false;
+    this.props.gfx.clear(0, 0, 0, 0);
+
     // fade out
     this.fadeDirection = FadeDirection.Out;
-    yield* coroutines.waitForTime(500, (t) => {
+    yield* coroutines.waitForTime(200, (t) => {
       this.fade = 1 - t;
     }, false);
 
-    this.drawGameBackground();
     this.props.gfx.clear(0, 0, 0, 0);
     this.cleanup();
   }
@@ -137,16 +147,18 @@ export class AcquirePickupScene extends BaseScene {
 
   draw = () => {
     const p5 = this.props.p5;
-    const gfx = this.props.gfx;
+    const gfxFGAction = this.gfxFGAction;
+    const gfxPresentation = this.props.gfx;
     const state = this.gameState;
     const segments = this.segments;
     const player = this.player;
 
     // render game elements
+    this.onBeforeDraw();
     this.drawGameBackground();
     const fromColor = this.fadeDirection === FadeDirection.In ? "#6cc2dd" : "#00000000";
-    this.drawBackground(this.bgColor(fromColor, Easing.inOutQuad(this.fade)), p5);
-    this.drawBackground(this.bgColor('#00000000', Easing.inOutQuad(this.fade)), gfx);
+    this.drawBackground(this.bgColor(fromColor, "#000000ce", Easing.inOutQuad(this.fade)), gfxFGAction);
+    this.drawBackground(this.bgColor('#00000000', "#00000066", Easing.inOutQuad(this.fade)), gfxPresentation);
     this.drawParticles(0);
     for (let i = 0; i < segments.length; i++) {
       this.drawPlayerSegment(segments.get(i), i);
@@ -167,9 +179,9 @@ export class AcquirePickupScene extends BaseScene {
     this.tick();
   };
 
-  private bgColor = (fromColor: string, amount: number) => {
+  private bgColor = (fromColor: string, toColor: string, amount: number) => {
     const p5 = this.props.p5;
-    return p5.lerpColor(p5.color(fromColor), p5.color("#00000066"), amount).toString()
+    return p5.lerpColor(p5.color(fromColor), p5.color(toColor), amount).toString()
   }
 
   private drawTitle = (title: string, type: 'primary' | 'secondary') => {

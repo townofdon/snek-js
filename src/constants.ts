@@ -401,6 +401,10 @@ export const ANIMATIONS = {
     frames: 27,
     timePerFrame: 200,
   } satisfies AnimationData,
+  [Image.UIKeysSheet]: {
+    frames: 5,
+    timePerFrame: 100,
+  } satisfies AnimationData,
   [Image.DoorLightSheet]: {
     frames: 9,
     timePerFrame: 100,

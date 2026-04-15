@@ -49,6 +49,7 @@ interface RendererConstructorProps {
 }
 
 export class Renderer implements IRenderer {
+  private gfxOverride = null;
   private p5: P5 = null;
   private fonts: FontsInstance = null;
   private replay: Replay = null;
@@ -87,6 +88,14 @@ export class Renderer implements IRenderer {
     this.elapsed += this.p5.deltaTime;
   }
 
+  public setGfxOverride = (gfx: P5.Graphics | null) => {
+    this.gfxOverride = gfx;
+  }
+
+  public getMainGfx = () => {
+    return this.gfxOverride || this.p5;
+  }
+
   // Static gfx (e.g. barriers) are cached in an OffscreenCanvas and re-drawn if things change (e.g. due to screen shake)
   // See: P5.createGraphics - see: https://p5js.org/reference/#/p5/createGraphics
   drawStaticGraphics = (gfx: P5.Graphics) => {
@@ -120,7 +129,7 @@ export class Renderer implements IRenderer {
   }
 
   drawGraphicalComponent = (component: P5.Graphics, x: number, y: number, alpha = 1, screenshakeMul = 1) => {
-    this.drawGraphicalComponentImpl(this.p5, component, x, y, alpha, screenshakeMul);
+    this.drawGraphicalComponentImpl(this.gfxOverride || this.p5, component, x, y, alpha, screenshakeMul);
   }
 
   drawGraphicalComponentCustom = (gfx: P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1, screenshakeMul = 0) => {
@@ -165,7 +174,7 @@ export class Renderer implements IRenderer {
    * Draw a square to the canvas
    */
   drawSquare = (x: number, y: number, background = "pink", lineColor = "fff", options: DrawSquareOptions) => {
-    this.drawSquareImpl(this.p5, x, y, background, lineColor, options);
+    this.drawSquareImpl(this.gfxOverride || this.p5, x, y, background, lineColor, options);
   }
 
   drawSquareStatic = (gfx: P5.Graphics, x: number, y: number, background = "pink", lineColor = "fff", options: DrawSquareOptions) => {
@@ -741,7 +750,7 @@ export class Renderer implements IRenderer {
     let offsetY = 0;
     if (hasAnyKeys) {
       this.drawKeys(gfx, offsetY, paused);
-      offsetY += 5;
+      offsetY += 4;
     }
     if (armorCount > 0) {
       this.drawArmor(gfx, offsetY, armorCount, paused);
@@ -759,17 +768,12 @@ export class Renderer implements IRenderer {
     gfx.fill("#00000099");
     gfx.noStroke();
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
-    const imgX = BLOCK_SIZE.x * x + 1;
-    const imgY = BLOCK_SIZE.y * y + 1;
-    if (this.gameState.hasKeyYellow) {
-      this.spriteRenderer.drawImage(Image.UIKeyYellow, imgX, imgY, gfx);
-    }
-    if (this.gameState.hasKeyRed) {
-      this.spriteRenderer.drawImage(Image.UIKeyRed, imgX, imgY + BLOCK_SIZE.y, gfx);
-    }
-    if (this.gameState.hasKeyBlue) {
-      this.spriteRenderer.drawImage(Image.UIKeyBlue, imgX, imgY + BLOCK_SIZE.y * 2, gfx);
-    }
+    const framey = this.gameState.hasKeyYellow ? 1 : 4;
+    const framer = this.gameState.hasKeyRed ? 2 : 4;
+    const frameb = this.gameState.hasKeyBlue ? 3 : 4;
+    this.spriteRenderer.drawSprite1x1(gfx, Image.UIKeysSheet, x, y + 0, framey);
+    this.spriteRenderer.drawSprite1x1(gfx, Image.UIKeysSheet, x, y + 1, framer);
+    this.spriteRenderer.drawSprite1x1(gfx, Image.UIKeysSheet, x, y + 2, frameb);
     if (paused) {
       gfx.fill("#070b0fbf");
       gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
