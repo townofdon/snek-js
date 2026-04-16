@@ -208,9 +208,9 @@ describe("Collections", () => {
 
       items.tick(1);
 
-      assert.strictEqual(items.getLength(), 5);
+      assert.strictEqual(items.getLength(), 4);
       assert.strictEqual(items.existsAt(0, 0), false);
-      assert.strictEqual(items.existsAt(1, 1), true);
+      assert.strictEqual(items.existsAt(1, 1), false); // elapsed === lifetime, therefore item gets removed
       assert.strictEqual(items.existsAt(2, 2), true);
       assert.strictEqual(items.existsAt(3, 3), true);
       assert.strictEqual(items.existsAt(4, 4), true);
@@ -218,7 +218,7 @@ describe("Collections", () => {
       assert.strictEqual(items.existsAt(6, 6), false);
       assert.strictEqual(items.existsAt(7, 7), false);
       assert.strictEqual(items.getElapsed(0, 0), -1);
-      assert.strictEqual(items.getElapsed(1, 1), 1);
+      assert.strictEqual(items.getElapsed(1, 1), -1);
       assert.strictEqual(items.getElapsed(2, 2), 1);
       assert.strictEqual(items.getElapsed(3, 3), 1);
       assert.strictEqual(items.getElapsed(4, 4), 1);
@@ -228,10 +228,10 @@ describe("Collections", () => {
 
       items.tick(1);
 
-      assert.strictEqual(items.getLength(), 4);
+      assert.strictEqual(items.getLength(), 3);
       assert.strictEqual(items.existsAt(0, 0), false);
       assert.strictEqual(items.existsAt(1, 1), false);
-      assert.strictEqual(items.existsAt(2, 2), true);
+      assert.strictEqual(items.existsAt(2, 2), false);
       assert.strictEqual(items.existsAt(3, 3), true);
       assert.strictEqual(items.existsAt(4, 4), true);
       assert.strictEqual(items.existsAt(5, 5), true);
@@ -239,7 +239,7 @@ describe("Collections", () => {
       assert.strictEqual(items.existsAt(7, 7), false);
       assert.strictEqual(items.getElapsed(0, 0), -1);
       assert.strictEqual(items.getElapsed(1, 1), -1);
-      assert.strictEqual(items.getElapsed(2, 2), 2);
+      assert.strictEqual(items.getElapsed(2, 2), -1);
       assert.strictEqual(items.getElapsed(3, 3), 2);
       assert.strictEqual(items.getElapsed(4, 4), 2);
       assert.strictEqual(items.getElapsed(5, 5), 2);
@@ -249,32 +249,17 @@ describe("Collections", () => {
       items.add(6, 6, 6, 1, 1);
       items.add(7, 7, 7, 1, 1);
       items.remove(4, 4);
-      assert.strictEqual(items.getLength(), 5);
+      assert.strictEqual(items.getLength(), 4);
+      assert.strictEqual(items.existsAt(3, 3), true);
+      assert.strictEqual(items.existsAt(5, 5), true);
+      assert.strictEqual(items.existsAt(6, 6), true);
+      assert.strictEqual(items.existsAt(7, 7), true);
       assert.strictEqual(items.getLifetime(6, 6), 6);
       assert.strictEqual(items.getLifetime(7, 7), 7);
       assert.strictEqual(items.getElapsed(6, 6), 0);
       assert.strictEqual(items.getElapsed(7, 7), 0);
+
       items.tick(1);
-
-      assert.strictEqual(items.getLength(), 4);
-      assert.strictEqual(items.existsAt(0, 0), false);
-      assert.strictEqual(items.existsAt(1, 1), false);
-      assert.strictEqual(items.existsAt(2, 2), false);
-      assert.strictEqual(items.existsAt(3, 3), true);
-      assert.strictEqual(items.existsAt(4, 4), false);
-      assert.strictEqual(items.existsAt(5, 5), true);
-      assert.strictEqual(items.existsAt(6, 6), true);
-      assert.strictEqual(items.existsAt(7, 7), true);
-      assert.strictEqual(items.getElapsed(0, 0), -1);
-      assert.strictEqual(items.getElapsed(1, 1), -1);
-      assert.strictEqual(items.getElapsed(2, 2), -1);
-      assert.strictEqual(items.getElapsed(3, 3), 3);
-      assert.strictEqual(items.getElapsed(4, 4), -1);
-      assert.strictEqual(items.getElapsed(5, 5), 3);
-      assert.strictEqual(items.getElapsed(6, 6), 1);
-      assert.strictEqual(items.getElapsed(7, 7), 1);
-
-      items.tick(2);
 
       assert.strictEqual(items.getLength(), 3);
       assert.strictEqual(items.existsAt(0, 0), false);
@@ -290,7 +275,27 @@ describe("Collections", () => {
       assert.strictEqual(items.getElapsed(2, 2), -1);
       assert.strictEqual(items.getElapsed(3, 3), -1);
       assert.strictEqual(items.getElapsed(4, 4), -1);
-      assert.strictEqual(items.getElapsed(5, 5), 5);
+      assert.strictEqual(items.getElapsed(5, 5), 3);
+      assert.strictEqual(items.getElapsed(6, 6), 1);
+      assert.strictEqual(items.getElapsed(7, 7), 1);
+
+      items.tick(2);
+
+      assert.strictEqual(items.getLength(), 2);
+      assert.strictEqual(items.existsAt(0, 0), false);
+      assert.strictEqual(items.existsAt(1, 1), false);
+      assert.strictEqual(items.existsAt(2, 2), false);
+      assert.strictEqual(items.existsAt(3, 3), false);
+      assert.strictEqual(items.existsAt(4, 4), false);
+      assert.strictEqual(items.existsAt(5, 5), false);
+      assert.strictEqual(items.existsAt(6, 6), true);
+      assert.strictEqual(items.existsAt(7, 7), true);
+      assert.strictEqual(items.getElapsed(0, 0), -1);
+      assert.strictEqual(items.getElapsed(1, 1), -1);
+      assert.strictEqual(items.getElapsed(2, 2), -1);
+      assert.strictEqual(items.getElapsed(3, 3), -1);
+      assert.strictEqual(items.getElapsed(4, 4), -1);
+      assert.strictEqual(items.getElapsed(5, 5), -1);
       assert.strictEqual(items.getElapsed(6, 6), 3);
       assert.strictEqual(items.getElapsed(7, 7), 3);
 
