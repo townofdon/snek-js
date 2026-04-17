@@ -43,6 +43,7 @@ export const DEFAULT_GAME_STATE: GameState = {
   timeSinceGraceStarted: 0,
   timeSinceArmorProtection: Infinity,
   timeSinceArmorPickup: Infinity,
+  acquireProgression: 0,
   lives: MAX_LIVES,
   collisions: 0,
   targetSpeed: 1,

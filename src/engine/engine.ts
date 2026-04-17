@@ -304,6 +304,7 @@ export function engine({
   } satisfies Replay;
 
   const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true };
+  const drawPlayerOptionsAcquire: DrawSquareOptions = { is3d: false, optimize: true };
   const drawPlayerOptionsDeath: DrawSquareOptions = { is3d: true, optimize: true, screenshakeMul: -1 };
   const drawAppleOptions: DrawSquareOptions = { size: 0.8, is3d: true, optimize: true, screenshakeMul: 0 };
   const drawInvincibilityPickupOptions: DrawSquareOptions = { size: 0.5, is3d: true, optimize: true };
@@ -435,28 +436,37 @@ export function engine({
     drawPlayerSegment,
     erasePlayerSegmentCorner,
     drawParticles,
-    onBeforeDraw: () => {
-      drawState.shouldDrawActionFG = true;
-    },
     callbacks: {
       onSceneStart: () => {
         stopLogicLoop();
         playSound(Sound.doorOpenHuge);
-        startAction(fadeMusic(0, 1000), Action.FadeMusic);
+        musicPlayer.setPlaybackRate(level.musicTrack, 0);
+        musicPlayer.setVolume(0);
         exitLightParticleSystem.reset();
         acquirePickupParticleSystem.emit(15, 15);
         state.currentSpeed = 1;
         state.isMoving = false;
-        // set rewinding state just for visuals
-        state.isRewinding = true;
+        state.acquireProgression = 0;
         particles.setGfx(gfxFGAction);
         renderer.setGfxOverride(gfxFGAction);
         gfxFGAction.clear(0, 0, 0, 0);
         UI.clearLabels();
       },
+      onBeforeDraw: () => {
+        drawState.shouldDrawActionFG = true;
+      },
+      onAcquire: () => {
+        state.acquireProgression = 0;
+        state.timeSinceArmorPickup = 0;
+        heldItems.armor += 1;
+        // set rewinding state just for visuals
+        state.isRewinding = true;
+      },
       onSceneEnded: () => {
-        startAction(fadeMusic(1, 1000), Action.FadeMusic);
+        musicPlayer.setPlaybackRate(level.musicTrack, 1);
+        startAction(fadeMusic(1, 2000), Action.FadeMusic);
         state.isRewinding = false;
+        state.acquireProgression = 0;
         startLogicLoop();
         acquirePickupParticleSystem.reset();
         startExitParticles();
@@ -924,10 +934,16 @@ export function engine({
         startInvincibility();
       } else if (pickupsMap[coord]?.type === PickupType.Armor) {
         incrementPickupBonus(PickupType.Armor, coord);
-        heldItems.armor += 1;
-        state.timeSinceArmorPickup = 0;
-        // TODO: CHECK IF PLAYER HAS PICKED UP ARMOR BEFORE
-        acquirePickupScene.trigger('ARMOR ACQUIRED!');
+        // TODO: DERIVE FROM SAVE SLOT
+        const hasEverAcquiredArmor = false;
+        if (hasEverAcquiredArmor) {
+          heldItems.armor += 1;
+          state.timeSinceArmorPickup = 0;
+          // TODO: UNIQ SOUND
+          playSound(Sound.pickup);
+        } else {
+          acquirePickupScene.trigger('HOLY SNEK!', 'Picked up *armor*.', 'Walls no longer frighten you.');
+        }
         return;
       } else if (pickupsMap[coord]) {
         incrementPickupBonus(pickupsMap[coord]?.type, coord);
@@ -950,9 +966,7 @@ export function engine({
     }
 
     if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && !getIsStartLevel() && replay.mode !== ReplayMode.Playback) {
-      // heldItems.armor += 1;
-      // state.timeSinceArmorPickup = 0;
-      // acquirePickupScene.trigger('ARMOR ACQUIRED!');
+      // acquirePickupScene.trigger('HOLY SNEK!', 'Picked up *armor*.', 'Walls no longer frighten you.');
       // return;
       // TODO: SPAWN ARMOR PICKUP INSTEAD
     }
@@ -2983,6 +2997,10 @@ export function engine({
       }
       drawSegmentArmor(vec, i, dirPrev);
     }
+    if (state.acquireProgression > 0) {
+      const color = p5.lerpColor(p5.color('#ffffff00'), p5.color('#ffffffff'), state.acquireProgression);
+      renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptionsAcquire);
+    }
   }
 
   function drawSegmentArmor(vec: Vector, i = 0, dirPrev: DIR) {
@@ -3004,11 +3022,13 @@ export function engine({
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
     const armor = state.timeSinceArmorProtection < HURT_STUN_TIME;
     const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    const acquiring = state.acquireProgression > 0;
     if (!stunned &&
       !armor &&
       !invincible &&
       !state.isRewinding &&
-      !state.isShowingDeathColours
+      !state.isShowingDeathColours &&
+      !acquiring
     ) {
       return;
     }

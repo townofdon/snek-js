@@ -214,15 +214,19 @@ export interface GameState {
   /**
    * The time elapsed since the player would have moved into an obstacle (hit grace period).
   */
- timeSinceGraceStarted: number,
- /**
-  * Time since the player was protected from a hit by armor
-  */
- timeSinceArmorProtection: number,
+  timeSinceGraceStarted: number,
+  /**
+    * Time since the player was protected from a hit by armor
+    */
+  timeSinceArmorProtection: number,
   /**
    * The time elapsed since the player picked up armor
    */
   timeSinceArmorPickup: number,
+  /**
+  * The progression amount for acquiring an item: range [0, 1]
+  */
+  acquireProgression: number,
   lives: number,
   /**
    * The number of collisions the player has accumulated since the start of the level

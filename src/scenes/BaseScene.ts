@@ -117,9 +117,7 @@ export abstract class BaseScene implements Scene {
   protected getRect = (x: number, y: number, width: number, height: number): [number, number, number, number] => {
     const x1 = DIMENSIONS.x * x - width / 2;
     const y1 = DIMENSIONS.y * y - height / 2;
-    const x2 = width;
-    const y2 = height;
-    return [x1, y1, x2, y2];
+    return [x1, y1, width, height];
   }
 
   private tickCoroutines = () => {
