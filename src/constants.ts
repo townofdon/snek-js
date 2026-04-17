@@ -449,6 +449,14 @@ export const ANIMATIONS = {
     frames: 2,
     timePerFrame: PREY_MOVE_TIME_GRASSHOPPER / 2,
   } satisfies AnimationData,
+  [Image.Shield]: {
+    frames: 6,
+    timePerFrame: 100,
+  } satisfies AnimationData,
+  [Image.ShieldSpawn]: {
+    frames: 13,
+    timePerFrame: 100,
+  } satisfies AnimationData
 } as const satisfies Record<SpritesheetImage, AnimationData>;
 
 export const PICKUP_COMMON_ITEMS: PickupType[] = [

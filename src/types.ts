@@ -836,6 +836,8 @@ export enum Image {
   LockYellow = 'snek-lock-yellow.png',
   LockRed = 'snek-lock-red.png',
   LockBlue = 'snek-lock-blue.png',
+  Shield = 'snek-shield.png',
+  ShieldSpawn = 'snek-shield-spawn.png',
   PickupArrows = 'pickup-arrows.png',
   UIKeysSheet = 'snek-smkey2-sheet.png',
   UIShield = 'snek-shield-sm.png',
@@ -903,6 +905,8 @@ export type SpritesheetImage =
   | Image.Points2000
   | Image.Points5000
   | Image.Points10000
+  | Image.Shield
+  | Image.ShieldSpawn
 ;
 
 export enum WearableFrame {

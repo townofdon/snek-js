@@ -87,6 +87,8 @@ export class SpriteRenderer {
     [Image.Points2000]: null,
     [Image.Points5000]: null,
     [Image.Points10000]: null,
+    [Image.Shield]: null,
+    [Image.ShieldSpawn]: null,
   }
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -281,6 +283,8 @@ export class SpriteRenderer {
       this.loadImage(Image.Points2000);
       this.loadImage(Image.Points5000);
       this.loadImage(Image.Points10000);
+      this.loadImage(Image.Shield);
+      this.loadImage(Image.ShieldSpawn);
     } catch (err) {
       console.error(err)
     }

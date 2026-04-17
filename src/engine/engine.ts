@@ -332,7 +332,7 @@ export function engine({
   let locksMap: Record<number, Lock | null> = {};
   let diffSelectMap: Record<number, number> = {};
 
-  const onLifetimeExpire = (coord: number) => {
+  const onMineLifetimeExpire = (coord: number) => {
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
@@ -341,13 +341,24 @@ export function engine({
     playSound(Sound.xpound);
     drawState.shouldDrawActionFG = true;
   };
+  const onShieldSpawnLifetimeExpire = (coord: number) => {
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
+    const { frames, timePerFrame } = ANIMATIONS[Image.Shield];
+    shields.add(x, y, 99999999, frames, timePerFrame);
+    // TODO: PLAY SPAWN SOUND
+    // playSound(Sound.xpound);
+    drawState.shouldDrawActionFG = true;
+  };
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
-  const mines = new AnimationList({ onLifetimeExpire });
+  const mines = new AnimationList({ onLifetimeExpire: onMineLifetimeExpire });
   const doorsOpening = new AnimationList();
   const fireTiles = new AnimationList();
   const explosions = new AnimationList();
   const pointsAnim = new AnimationList();
+  const shields = new AnimationList();
+  const shieldSpawns = new AnimationList({ onLifetimeExpire: onShieldSpawnLifetimeExpire});
   const lightMap = createLightmap();
 
   let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };
@@ -357,7 +368,7 @@ export function engine({
     dropsByFrame: undefined
   } satisfies PreySpawn;
   const astar = new AStar({ allowDiagonals: true, allowClosest: true, randomizeWeights: true, mines, segments });
-  const preyList = new PreyList({ astar, onLifetimeExpire });
+  const preyList = new PreyList({ astar, onLifetimeExpire: onMineLifetimeExpire });
 
   // hack P5's "offscreen canvas" to layer multiple canvases for MAX PERF - see: https://p5js.org/reference/#/p5/createGraphics
   const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
@@ -645,6 +656,8 @@ export function engine({
     keysMap = {};
     apples.reset();
     mines.reset();
+    shields.reset();
+    shieldSpawns.reset();
     doorsOpening.reset();
     explosions.reset();
     fireTiles.reset();
@@ -943,14 +956,32 @@ export function engine({
           playSound(Sound.pickup);
         } else {
           acquirePickupScene.trigger('HOLY SNEK!', 'Picked up *armor*.', 'Walls no longer frighten you.');
+          return;
         }
-        return;
       } else if (pickupsMap[coord]) {
         incrementPickupBonus(pickupsMap[coord]?.type, coord);
       }
       pickupsMap[coord] = null;
       drawState.shouldDrawApples = true;
       didEat = true;
+    }
+
+    // check if head has reached a shield pickup
+    if (shieldSpawns.existsAtCoord(coord) || shields.existsAtCoord(coord)) {
+      shieldSpawns.removeByCoord(coord);
+      shields.removeByCoord(coord);
+      incrementPickupBonus(PickupType.Armor, coord);
+      // TODO: DERIVE FROM SAVE SLOT
+      const hasEverAcquiredArmor = false;
+      if (hasEverAcquiredArmor) {
+        heldItems.armor += 1;
+        state.timeSinceArmorPickup = 0;
+        // TODO: UNIQ SOUND
+        playSound(Sound.pickup);
+      } else {
+        acquirePickupScene.trigger('HOLY SNEK!', 'Picked up *armor*.', 'Walls no longer frighten you.');
+        return;
+      }
     }
 
     // check if head has reached any prey
@@ -966,9 +997,20 @@ export function engine({
     }
 
     if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && !getIsStartLevel() && replay.mode !== ReplayMode.Playback) {
-      // acquirePickupScene.trigger('HOLY SNEK!', 'Picked up *armor*.', 'Walls no longer frighten you.');
-      // return;
-      // TODO: SPAWN ARMOR PICKUP INSTEAD
+      // TODO: ONLY SPAWN IF SET IN LEVEL CONFIG
+      const { frames, timePerFrame } = ANIMATIONS[Image.ShieldSpawn];
+      const x = 15;
+      const y = 15;
+      shieldSpawns.add(x, y, frames * timePerFrame, frames, timePerFrame);
+      if (mines.existsAt(x, y)) {
+        const coord = getCoordIndex2(x, y);
+        mines.removeByCoord(coord);
+        const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
+        explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
+        playSound(Sound.xpound);
+        drawState.shouldDrawApples = true;
+        drawState.shouldDrawActionFG = true;
+      }
     }
 
     // tick time for prey
@@ -1168,6 +1210,7 @@ export function engine({
       }
     }
 
+    drawShields();
     drawMines();
     drawPrey();
     drawFireTiles();
@@ -1207,6 +1250,12 @@ export function engine({
       drawState.shouldDrawActionFG = true;
     }
     if (explosions.tick(p5.deltaTime)) {
+      drawState.shouldDrawActionFG = true;
+    }
+    if (shields.tick(p5.deltaTime)) {
+      drawState.shouldDrawActionFG = true;
+    }
+    if (shieldSpawns.tick(p5.deltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
 
@@ -3180,6 +3229,24 @@ export function engine({
           const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = explosions.getElapsedByCoord(coord);
           spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.ExplosionSheet, x, y, elapsed);
+        }
+      }
+    }
+  }
+
+  function drawShields() {
+    if (drawState.shouldDrawActionFG) {
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+        if (shieldSpawns.existsAtCoord(coord)) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const elapsed = shieldSpawns.getElapsedByCoord(coord);
+          spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, Image.ShieldSpawn, x, y, elapsed);
+        } else if (shields.existsAtCoord(coord)) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const elapsed = shields.getElapsedByCoord(coord);
+          spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, Image.Shield, x, y, elapsed);
         }
       }
     }
