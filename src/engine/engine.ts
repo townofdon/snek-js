@@ -66,6 +66,7 @@ import {
   TIME_REWIND_TAKEOVER_CONTROLS,
   KEYCODE_F10,
   IS_DEV,
+  ARMOR_PICKUP_FREEZE_MS,
 } from "../constants";
 import {
   Action,
@@ -346,8 +347,6 @@ export function engine({
     const y = Math.floor(coord / GRIDCOUNT_X);
     const { frames, timePerFrame } = ANIMATIONS[Image.Shield];
     shields.add(x, y, 99999999, frames, timePerFrame);
-    // TODO: PLAY SPAWN SOUND
-    // playSound(Sound.xpound);
     drawState.shouldDrawActionFG = true;
   };
   const segments = new VectorList(); // snake segments
@@ -522,7 +521,7 @@ export function engine({
     if (level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    UI.renderDifficulty(difficulty.index, state.isShowingDeathColours, state.gameMode === GameMode.Casual, state.gameMode === GameMode.Cobra);
+    UI.renderDifficulty(difficulty.index, state.isInvertedColors, state.gameMode === GameMode.Casual, state.gameMode === GameMode.Cobra);
   }
 
   function renderHeartsUI() {
@@ -533,7 +532,7 @@ export function engine({
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.gameMode === GameMode.Casual) return;
-    UI.renderHearts(state.lives, state.isShowingDeathColours);
+    UI.renderHearts(state.lives, state.isInvertedColors);
   }
 
   function renderScoreUI(score = stats.score) {
@@ -544,7 +543,7 @@ export function engine({
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.gameMode === GameMode.Casual) return;
-    UI.renderScore(score, state.isShowingDeathColours);
+    UI.renderScore(score, state.isInvertedColors);
   }
 
   function renderLevelName() {
@@ -555,7 +554,7 @@ export function engine({
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     const progress = getLevelProgress(stats, level, difficulty);
-    UI.renderLevelName(level.name, state.isShowingDeathColours, progress);
+    UI.renderLevelName(level.name, state.isInvertedColors, progress);
   }
 
   function getMaybeTitleScene() {
@@ -609,7 +608,7 @@ export function engine({
     state.isDoorsOpen = false;
     state.isExitingLevel = false;
     state.isExited = false;
-    state.isShowingDeathColours = false;
+    state.isInvertedColors = false;
     state.actualTimeElapsed = 0;
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
@@ -946,18 +945,7 @@ export function engine({
         incrementPickupBonus(PickupType.Invincibility, coord);
         startInvincibility();
       } else if (pickupsMap[coord]?.type === PickupType.Armor) {
-        incrementPickupBonus(PickupType.Armor, coord);
-        // TODO: DERIVE FROM SAVE SLOT
-        const hasEverAcquiredArmor = false;
-        if (hasEverAcquiredArmor) {
-          heldItems.armor += 1;
-          state.timeSinceArmorPickup = 0;
-          // TODO: UNIQ SOUND
-          playSound(Sound.pickup);
-        } else {
-          acquirePickupScene.trigger('HOLY SNEK!', 'Picked up *armor*.', 'Walls no longer frighten you.');
-          return;
-        }
+        // handled below via shieldSpawns / shields
       } else if (pickupsMap[coord]) {
         incrementPickupBonus(pickupsMap[coord]?.type, coord);
       }
@@ -971,17 +959,7 @@ export function engine({
       shieldSpawns.removeByCoord(coord);
       shields.removeByCoord(coord);
       incrementPickupBonus(PickupType.Armor, coord);
-      // TODO: DERIVE FROM SAVE SLOT
-      const hasEverAcquiredArmor = false;
-      if (hasEverAcquiredArmor) {
-        heldItems.armor += 1;
-        state.timeSinceArmorPickup = 0;
-        // TODO: UNIQ SOUND
-        playSound(Sound.pickup);
-      } else {
-        acquirePickupScene.trigger('HOLY SNEK!', 'Picked up *armor*.', 'Walls no longer frighten you.');
-        return;
-      }
+      acquireArmor();
     }
 
     // check if head has reached any prey
@@ -1002,6 +980,7 @@ export function engine({
       const x = 15;
       const y = 15;
       shieldSpawns.add(x, y, frames * timePerFrame, frames, timePerFrame);
+      playSound(Sound.shieldSpawn, 0.35);
       if (mines.existsAt(x, y)) {
         const coord = getCoordIndex2(x, y);
         mines.removeByCoord(coord);
@@ -1014,7 +993,7 @@ export function engine({
     }
 
     // tick time for prey
-    if (!state.isShowingDeathColours) {
+    if (!state.isInvertedColors) {
       astar.setSnekCoord(getCoordIndex(player.position));
       if (preyList.tick(loopState.deltaTime)) {
         drawState.shouldDrawActionFG = true;
@@ -1237,13 +1216,13 @@ export function engine({
     drawState.shouldDrawActionFG = false;
     drawState.shouldDrawKeysLocks = false;
 
-    if (pointsAnim.tick(p5.deltaTime)) {
+    if (!state.isInvertedColors && pointsAnim.tick(p5.deltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
     if (doorsOpening.tick(p5.deltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (!state.isShowingDeathColours && mines.tick(p5.deltaTime)) {
+    if (!state.isInvertedColors && mines.tick(p5.deltaTime)) {
       drawState.shouldDrawApples = true;
     }
     if (fireTiles.tick(p5.deltaTime)) {
@@ -1263,7 +1242,7 @@ export function engine({
       state.isGameStarted &&
       replay.mode !== ReplayMode.Playback &&
       globalLight < 1 &&
-      !state.isShowingDeathColours &&
+      !state.isInvertedColors &&
       state.timeSinceInvincibleStart >= difficulty.invincibilityTime
     ) {
       updateLighting(p5.deltaTime, lightMap, globalLight, player.position, portals, apples, pickupsMap, explosions, fireTiles);
@@ -1433,25 +1412,25 @@ export function engine({
     if (state.isGameWon) return;
     if (state.isExitingLevel) return;
     if (state.isExited) return;
-    startAction(startInvincibilityRoutine(), Action.Invincibility);
+    startAction(invincibilityRoutine(), Action.Invincibility);
     state.lives = Math.min(state.lives + 1, MAX_LIVES);
     renderHeartsUI();
   }
 
-  function* startInvincibilityRoutine(): IEnumerator {
+  function* invincibilityRoutine(): IEnumerator {
     sfx.stop(Sound.invincibleLoop);
     playSound(Sound.pickupInvincibility);
     musicPlayer.setPlaybackRate(level.musicTrack, 0);
     musicPlayer.setVolume(0);
     state.timeSinceInvincibleStart = 0;
-    state.isShowingDeathColours = true;
+    state.isInvertedColors = true;
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
     loopState.timeScale = 0;
     startScreenShake(2, 0, 0.8);
     renderer.invalidateStaticCache();
     yield* coroutines.waitForTime(INVINCIBILITY_PICKUP_FREEZE_MS);
-    state.isShowingDeathColours = false;
+    state.isInvertedColors = false;
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
     loopState.timeScale = 1;
@@ -1468,6 +1447,39 @@ export function engine({
     if (state.isRewinding) {
       stopRewinding();
     }
+  }
+
+  function acquireArmor() {
+    if (replay.mode === ReplayMode.Playback) return;
+    if (!state.isGameStarted) return;
+    if (state.isLost) return;
+    if (state.isGameWon) return;
+    if (state.isExitingLevel) return;
+    if (state.isExited) return;
+    heldItems.armor += 1;
+    state.timeSinceArmorPickup = 0;
+    state.currentSpeed = 1;
+    startAction(armorRoutine(), Action.AcquireArmor);
+  }
+
+  function* armorRoutine(): IEnumerator {
+    playSound(Sound.acquireShield, 0.6);
+    musicPlayer.setPlaybackRate(level.musicTrack, 0);
+    musicPlayer.setVolume(0);
+    state.isInvertedColors = true;
+    drawState.shouldDrawActionFG = true;
+    loopState.timeScale = 0;
+    startScreenShake(2, 0, 0.8);
+    renderer.invalidateStaticCache();
+    yield* coroutines.waitForTime(ARMOR_PICKUP_FREEZE_MS);
+    state.isInvertedColors = false;
+    drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
+    loopState.timeScale = 1;
+    startScreenShake(0, 1);
+    renderer.invalidateStaticCache();
+    musicPlayer.setPlaybackRate(level.musicTrack, 1);
+    musicPlayer.setVolume(1);
   }
 
   function getTimeNeededUntilNextMove() {
@@ -1996,6 +2008,7 @@ export function engine({
     sfx.stop(Sound.invincibleLoop);
     sfx.stop(Sound.rewindLoop);
     stopAction(Action.Invincibility);
+    stopAction(Action.AcquireArmor);
     musicPlayer.setPlaybackRate(level.musicTrack, 1);
     exitLightParticleSystem.reset();
     acquirePickupParticleSystem.reset();
@@ -2852,7 +2865,7 @@ export function engine({
   }
 
   function drawBackground() {
-    const backgroundColor = state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
+    const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
     renderer.drawBackground(backgroundColor, gfxBG, gfxFG);
     gfxExitLights.clear(0, 0, 0, 0);
     gfxLighting.clear(0, 0, 0, 0);
@@ -2870,7 +2883,7 @@ export function engine({
   }
 
   function drawPlayerHead(vec: Vector) {
-    if (state.isShowingDeathColours) {
+    if (state.isInvertedColors) {
       renderer.drawSquareStatic(gfxFG, vec.x, vec.y,
         PALETTE.deathInvert.playerHead,
         PALETTE.deathInvert.playerHead,
@@ -2910,11 +2923,10 @@ export function engine({
           spriteRenderer.drawSprite3x3(gfxFGAction, Image.WearablesSheet, wx + 2, vec.y + 1, outfit.hat - 1, getRotationFromDirection(DIR.DOWN));
         }
       }
-    } else if (state.isShowingDeathColours) {
-      spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHead, vec.x, vec.y, getRotationFromDirection(dir), 1, -1);
     } else {
-      const gfx = renderer.getMainGfx();
-      spriteRenderer.drawImage3x3Custom(gfx, Image.SnekHead, vec.x, vec.y, getRotationFromDirection(dir));
+      const gfx = state.isInvertedColors ? gfxFG : renderer.getMainGfx();
+      const screenshakeMul = state.isInvertedColors ? -1 : 1;
+      spriteRenderer.drawImage3x3Custom(gfx, Image.SnekHead, vec.x, vec.y, getRotationFromDirection(dir), 1, screenshakeMul);
       if (replay.mode !== ReplayMode.Playback) {
         gfx.push();
         let rotation = getRotationFromDirection(dir);
@@ -2971,7 +2983,8 @@ export function engine({
       (dirPrev === DIR.LEFT && dirNext === DIR.UP)
     );
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
-    const armor = state.timeSinceArmorProtection < HURT_STUN_TIME;
+    const acquiringArmor = state.timeSinceArmorPickup < ARMOR_PICKUP_FREEZE_MS;
+    const armorUsed = state.timeSinceArmorProtection < HURT_STUN_TIME;
     const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime;
     if (stunned) {
       // draw stunned
@@ -2990,18 +3003,18 @@ export function engine({
         const color = gradients.calc(invincibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
         renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
       }
-    } else if (state.isRewinding || armor) {
+    } else if (state.isRewinding || armorUsed || acquiringArmor) {
       // draw rewinding
       const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
       const color = gradients.calc(reversibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
       renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
       drawSegmentArmor(vec, i, dirPrev);
-    } else if (state.isShowingDeathColours) {
+    } else if (state.isInvertedColors) {
       renderer.drawSquareStatic(gfxFG, vec.x, vec.y,
         PALETTE.deathInvert.playerTail,
         PALETTE.deathInvert.playerTailStroke,
         drawPlayerOptionsDeath);
-      const backgroundColor = state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
+      const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
       if (cornerNE) {
         renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'NE', drawPlayerOptionsDeath.screenshakeMul);
       } else if (cornerSE) {
@@ -3069,15 +3082,17 @@ export function engine({
   function erasePlayerSegmentCorner(vec: Vector | undefined, i = 0) {
     if (!vec) return;
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
-    const armor = state.timeSinceArmorProtection < HURT_STUN_TIME;
+    const acquiringArmor = state.timeSinceArmorPickup < ARMOR_PICKUP_FREEZE_MS;
+    const armorUsed = state.timeSinceArmorProtection < HURT_STUN_TIME;
     const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime;
-    const acquiring = state.acquireProgression > 0;
+    const acquiringOther = state.acquireProgression > 0;
     if (!stunned &&
-      !armor &&
+      !armorUsed &&
+      !acquiringArmor &&
       !invincible &&
       !state.isRewinding &&
-      !state.isShowingDeathColours &&
-      !acquiring
+      !state.isInvertedColors &&
+      !acquiringOther
     ) {
       return;
     }
@@ -3103,7 +3118,7 @@ export function engine({
       (dirPrev === DIR.LEFT && dirNext === DIR.UP)
     );
     const gfx = renderer.getMainGfx();
-    const backgroundColor = state.isShowingDeathColours && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
+    const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
     if (cornerNE) {
       renderer.eraseCorner(gfx, backgroundColor, vec.x, vec.y, 'NE', 1);
     } else if (cornerSE) {
@@ -3118,7 +3133,7 @@ export function engine({
   function drawApple(x: number, y: number) {
     const isInvincibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility;
     const isReversibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Armor;
-    if (state.isShowingDeathColours && replay.mode !== ReplayMode.Playback && isInvincibility) {
+    if (state.isInvertedColors && replay.mode !== ReplayMode.Playback && isInvincibility) {
       renderer.drawSquare(x, y,
         PALETTE.deathInvert.apple,
         PALETTE.deathInvert.appleStroke,
@@ -3209,7 +3224,7 @@ export function engine({
   }
 
   function drawFireTiles() {
-    if (drawState.shouldDrawActionFG && !state.isShowingDeathColours) {
+    if (drawState.shouldDrawActionFG && !state.isInvertedColors) {
       for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         if (fireTiles.existsAtCoord(coord)) {
           const x = Math.floor(coord % GRIDCOUNT_X);
@@ -3292,7 +3307,7 @@ export function engine({
   }
 
   function drawBarriers() {
-    if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
+    if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < barriers.length; i++) {
         if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
         const x = barriers[i].vec.x;
@@ -3400,7 +3415,7 @@ export function engine({
 
   function drawPassableBarriers() {
     if (!state.isDoorsOpen) return;
-    if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
+    if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < barriers.length; i++) {
         if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
         renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrierPassable, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
@@ -3426,7 +3441,7 @@ export function engine({
   }
 
   function drawDoors() {
-    if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
+    if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < doors.length; i++) {
         const x = doors[i].x;
         const y = doors[i].y;
@@ -3474,8 +3489,8 @@ export function engine({
 
   function drawKey(key: Key) {
     if (!state.isDoorsOpen && passablesMap[getCoordIndex(key.position)]) return;
-    if (!drawState.shouldDrawKeysLocks && !state.isShowingDeathColours) return;
-    if (state.isShowingDeathColours) {
+    if (!drawState.shouldDrawKeysLocks && !state.isInvertedColors) return;
+    if (state.isInvertedColors) {
       spriteRenderer.drawImage3x3(Image.KeyGrey, key.position.x, key.position.y);
     } else if (key.channel === KeyChannel.Yellow) {
       spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.KeyYellow, key.position.x, key.position.y, 0, 1, 0);
@@ -3487,8 +3502,8 @@ export function engine({
   }
 
   function drawLock(lock: Lock) {
-    if (!drawState.shouldDrawKeysLocks && !state.isShowingDeathColours) return;
-    if (state.isShowingDeathColours) {
+    if (!drawState.shouldDrawKeysLocks && !state.isInvertedColors) return;
+    if (state.isInvertedColors) {
       spriteRenderer.drawImage3x3(Image.LockGrey, lock.position.x, lock.position.y);
     } else if (lock.channel === KeyChannel.Yellow) {
       spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.LockYellow, lock.position.x, lock.position.y, 0, 1, 0);
@@ -3500,7 +3515,7 @@ export function engine({
   }
 
   function drawDecorative1(vec: Vector) {
-    if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
+    if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
       renderer.drawGraphicalComponentStatic(gfxBG, graphicalComponents.deco1, vec.x, vec.y, 1, 0);
       // renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptionsNoShake);
     } else {
@@ -3509,7 +3524,7 @@ export function engine({
   }
 
   function drawDecorative2(vec: Vector) {
-    if (!state.isShowingDeathColours || replay.mode === ReplayMode.Playback) {
+    if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
       renderer.drawGraphicalComponentStatic(gfxBG, graphicalComponents.deco2, vec.x, vec.y, 1, 0);
       // renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptionsNoShake);
     } else {
@@ -3527,7 +3542,7 @@ export function engine({
   }
 
   function drawParticles(zIndexPass = 0) {
-    if (state.isShowingDeathColours) return;
+    if (state.isInvertedColors) return;
     if (zIndexPass < 10) {
       emitters.tick(p5.deltaTime);
       particles.tick(p5.deltaTime, drawParticlesTest);
@@ -3538,6 +3553,7 @@ export function engine({
   }
 
   function drawPointsText() {
+    if (state.timeSinceArmorPickup < ARMOR_PICKUP_FREEZE_MS) return;
     if (drawState.shouldDrawActionFG) {
       for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         if (pointsAnim.existsAtCoord(coord)) {
@@ -3576,7 +3592,7 @@ export function engine({
         if (!portalPosition) continue;
         const portal = portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
-        renderer.drawPortal(portal, state.isShowingDeathColours && replay.mode !== ReplayMode.Playback, drawPortalOptions, gfxBG);
+        renderer.drawPortal(portal, state.isInvertedColors && replay.mode !== ReplayMode.Playback, drawPortalOptions, gfxBG);
         // if (drawState.shouldDrawKeysLocks) {
         //   spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.ThemedPortalColumns, portalPosition.x, portalPosition.y, 0, 1, 0);
         // }
@@ -3666,7 +3682,7 @@ export function engine({
     startScreenShake(1, 0, 0.4);
     yield* coroutines.waitForTime(200);
     startScreenShake(3, -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, 0.1);
-    state.isShowingDeathColours = true;
+    state.isInvertedColors = true;
     drawState.shouldDrawApples = true;
     drawState.shouldDrawActionFG = true;
     drawState.shouldDrawKeysLocks = true;
@@ -3676,7 +3692,7 @@ export function engine({
     renderer.invalidateStaticCache();
     // UI.renderHearts(0, true);
     yield* coroutines.waitForTime(HURT_STUN_TIME * 2.5);
-    state.isShowingDeathColours = false;
+    state.isInvertedColors = false;
     drawState.shouldDrawApples = true;
     drawState.shouldDrawActionFG = true;
     drawState.shouldDrawKeysLocks = true;

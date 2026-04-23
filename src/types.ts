@@ -24,6 +24,7 @@ export enum Action {
   ChangeMusicLowpass = 'ChangeMusicLowpass',
   GameOver = 'GameOver',
   Invincibility = 'Invincibility',
+  AcquireArmor = 'AcquireArmor',
 }
 
 export type ActionKey = keyof typeof Action
@@ -191,7 +192,7 @@ export interface GameState {
   isDoorsOpen: boolean,
   isExitingLevel: boolean,
   isExited: boolean,
-  isShowingDeathColours: boolean,
+  isInvertedColors: boolean,
   hasKeyYellow: boolean,
   hasKeyRed: boolean,
   hasKeyBlue: boolean,
@@ -698,6 +699,7 @@ export interface SFXInstance {
 }
 
 export enum Sound {
+  acquireShield = 'acquireShield',
   death = 'death',
   doorOpen = 'doorOpen',
   doorOpenHuge = 'doorOpenHuge',
@@ -713,6 +715,7 @@ export enum Sound {
   pickup = 'pickup',
   pickupInvincibility = 'pickupInvincibility',
   rewindLoop = 'rewindLoop',
+  shieldSpawn = 'shieldSpawn',
   step1 = 'step1',
   step2 = 'step2',
   uiBlip = 'uiBlip',

@@ -29,7 +29,7 @@ export const DEFAULT_GAME_STATE: GameState = {
   isDoorsOpen: false,
   isExitingLevel: false,
   isExited: false,
-  isShowingDeathColours: false,
+  isInvertedColors: false,
   levelIndex: 0,
   actualTimeElapsed: 0,
   timeElapsed: 0,

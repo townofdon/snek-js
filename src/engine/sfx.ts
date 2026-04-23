@@ -22,6 +22,7 @@ export class SFX implements SFXInstance {
   private globalVolume = 1;
 
   private sounds: SoundVariants = {
+    acquireShield: null,
     death: null,
     doorOpen: null,
     doorOpenHuge: null,
@@ -37,6 +38,7 @@ export class SFX implements SFXInstance {
     pickup: null,
     pickupInvincibility: null,
     rewindLoop: null,
+    shieldSpawn: null,
     step1: null,
     step2: null,
     uiBlip: null,
@@ -103,6 +105,7 @@ export class SFX implements SFXInstance {
       const relativeDir = getRelativeDir();
       // const loadSound = (soundFile: string) => new Howl({ src: [`${relativeDir}assets/sounds/${soundFile}`] });
       const loadSound = (soundFile: string) => loadSfxAudio({src: [`${relativeDir}assets/sounds/${soundFile}`] })
+      this.sounds.acquireShield = await loadSound('acquire-shield.wav');
       this.sounds.death = await loadSound('death.wav');
       this.sounds.doorOpen = await loadSound('door-open.wav');
       this.sounds.doorOpenHuge = await loadSound('door-open-huge.wav');
@@ -118,6 +121,7 @@ export class SFX implements SFXInstance {
       this.sounds.pickup = await loadSound('pickup.wav');
       this.sounds.pickupInvincibility = await loadSound('pickup-invincibility.wav');
       this.sounds.rewindLoop = await loadSound('rewind-loop.wav');
+      this.sounds.shieldSpawn = await loadSound('shield-spawn.wav');
       this.sounds.step1 = await loadSound('step-1.wav');
       this.sounds.step2 = await loadSound('step-2.wav');
       this.sounds.uiBlip = await loadSound('ui-blip.wav');

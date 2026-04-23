@@ -143,6 +143,7 @@ export const sketch = (p5: P5) => {
     [Action.ChangeMusicLowpass]: null,
     [Action.GameOver]: null,
     [Action.Invincibility]: null,
+    [Action.AcquireArmor]: null,
   };
   const startAction = (enumerator: IEnumerator, actionKey: Action, force = false) => {
     if (!force && replay.mode === ReplayMode.Playback) {
@@ -688,7 +689,7 @@ export const sketch = (p5: P5) => {
   }
 
   function handleRenderWinGameScene() {
-    if (state.isShowingDeathColours) return;
+    if (state.isInvertedColors) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.isLost && state.gameMode !== GameMode.Cobra) return;
     if (!state.isGameStarted) return;

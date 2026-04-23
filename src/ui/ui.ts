@@ -253,17 +253,17 @@ export class UI {
     document.getElementById('casual-rewind-tip-field')?.remove();
   }
 
-  static renderLevelName(levelName = '', isShowingDeathColours: boolean, progress = 0) {
+  static renderLevelName(levelName = '', isInvertedColors: boolean, progress = 0) {
     const progressColor = "#ffffffdd";
     const id1 = 'level-name-field-1'
     const id2 = 'level-name-field-2'
     const elem1 = document.getElementById(id1);
     const elem2 = document.getElementById(id2);
     if (elem1 && elem2) {
-      elem1.style.backgroundColor = isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
-      elem2.style.backgroundColor = isShowingDeathColours ? LABEL_COLOR_INVERTED : progressColor;
-      elem1.style.color = isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR;
-      elem2.style.color = isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : "black";
+      elem1.style.backgroundColor = isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
+      elem2.style.backgroundColor = isInvertedColors ? LABEL_COLOR_INVERTED : progressColor;
+      elem1.style.color = isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR;
+      elem2.style.color = isInvertedColors ? LABEL_BG_COLOR_INVERTED : "black";
       const p1 = new P5.Element(elem1, UI.p5);
       const p2 = new P5.Element(elem2, UI.p5);
       if (progress > Number.EPSILON) {
@@ -283,8 +283,8 @@ export class UI {
       p.class('ui-label level-name');
       p.parent(UI_PARENT_ID);
     }
-    applyStyles(p1, isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR, isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
-    applyStyles(p2, isShowingDeathColours ? LABEL_COLOR_INVERTED : progressColor, isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : "black");
+    applyStyles(p1, isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR, isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR);
+    applyStyles(p2, isInvertedColors ? LABEL_COLOR_INVERTED : progressColor, isInvertedColors ? LABEL_BG_COLOR_INVERTED : "black");
     if (progress > Number.EPSILON) {
       UI.applyLevelProgressInverted(p1, progress);
       UI.applyLevelProgress(p2, progress);
@@ -307,7 +307,7 @@ export class UI {
     elem.style('-webkit-clip-path', polygon);
   }
 
-  static renderHearts(numLives = 3, isShowingDeathColours: boolean) {
+  static renderHearts(numLives = 3, isInvertedColors: boolean) {
     const containerId = "hearts-container";
     const classNameContainer = "ui-label hearts-container";
     const classNameHeart = 'ui-heart';
@@ -315,7 +315,7 @@ export class UI {
     const classNameNoLivesLeft = 'no-lives-left';
     const classNameDeathInverted = 'death-inverted';
     const labelBackgroundColor = (() => {
-      if (isShowingDeathColours) return LABEL_BG_COLOR_INVERTED;
+      if (isInvertedColors) return LABEL_BG_COLOR_INVERTED;
       return numLives === 0 ? '#5c050ddb' : LABEL_BG_COLOR;
     })()
     const numHearts = 3;
@@ -348,31 +348,31 @@ export class UI {
     } else {
       elem.classList.remove(classNameNoLivesLeft);
     }
-    if (isShowingDeathColours) {
+    if (isInvertedColors) {
       elem.classList.add(classNameDeathInverted);
     } else {
       elem.classList.remove(classNameDeathInverted);
     }
   }
 
-  static renderScore(score = 0, isShowingDeathColours: boolean) {
+  static renderScore(score = 0, isInvertedColors: boolean) {
     const id = 'score-field';
     const elem = document.getElementById(id);
     if (elem) {
       elem.innerText = String(score).padStart(8, '0');
-      elem.style.color = isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR;
-      elem.style.backgroundColor = isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
+      elem.style.color = isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR;
+      elem.style.backgroundColor = isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
       return;
     }
     const p = UI.p5.createP(String(score).padStart(8, '0'));
     p.id(id);
-    p.style('color', isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
-    p.style('background-color', isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
+    p.style('color', isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR);
+    p.style('background-color', isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
     p.class('ui-label score');
     p.parent(UI_PARENT_ID);
   }
 
-  static renderDifficulty(difficultyIndex = 0, isShowingDeathColours: boolean, isCasualModeEnabled = false, isCobraModeEnabled = false) {
+  static renderDifficulty(difficultyIndex = 0, isInvertedColors: boolean, isCasualModeEnabled = false, isCobraModeEnabled = false) {
     const id = 'difficulty-field';
     const difficultyText = (() => {
       if (difficultyIndex >= 4) return 'ULTRA';
@@ -384,8 +384,8 @@ export class UI {
     document.getElementById(id)?.remove();
     const p = UI.p5.createP(difficultyText);
     p.id(id);
-    p.style('color', isShowingDeathColours ? LABEL_COLOR_INVERTED : LABEL_COLOR);
-    p.style('background-color', isShowingDeathColours ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
+    p.style('color', isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR);
+    p.style('background-color', isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
     p.class('ui-label difficulty');
     p.parent(UI_PARENT_ID);
   }

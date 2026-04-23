@@ -47,7 +47,7 @@ XXXXXXXXXXXXXD4DXXXXXXXXXXXXXX
   `,
   colors: getExtendedPalette(PALETTE.gravChamber),
   renderInstructions: (gfx, renderer, state, palette) => {
-    renderer.drawDifficultySelectCobra(gfx, state.isShowingDeathColours ? PALETTE.deathInvert.background : palette.background);
+    renderer.drawDifficultySelectCobra(gfx, state.isInvertedColors ? PALETTE.deathInvert.background : palette.background);
   },
   showQuoteOnLevelWin: false,
   showTitle: true,

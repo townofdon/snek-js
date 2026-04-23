@@ -101,6 +101,7 @@ export const sketch = (p5: P5) => {
     [Action.ChangeMusicLowpass]: null,
     [Action.GameOver]: null,
     [Action.Invincibility]: null,
+    [Action.AcquireArmor]: null,
   };
   const startAction = (enumerator: IEnumerator, actionKey: Action, force = false) => {
     actions.stop(actionIds[actionKey]);

@@ -42,7 +42,18 @@ const config = {
     }),
     new CopyPlugin({
       patterns: [
-        { from: "public/assets", to: "assets/", globOptions: { ignore: ["**/music/*.wav", "**/graphics/*.ase"] } },
+        { from: "public/assets",
+          to: "assets/",
+          globOptions: {
+            ignore: [
+              "**/music/*.wav",
+              "**/graphics/*.ase",
+              "**/sounds/*.aup3",
+              "**/sounds/*.aup3-shm",
+              "**/sounds/*.aup3-wal",
+            ]
+          }
+        },
         { from: "public/readme", to: "readme/" },
         // { from: "public/pages/privacy-policy", to: "pages/privacy-policy" },
         { from: "public/style.css" },

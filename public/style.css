@@ -181,7 +181,7 @@ p, button, .button {
 .game.hide-gfx-canvas > .static-gfx-canvas {
   display: none!important;
 }
-.game.showing-death-colors > .static-gfx-canvas {
+.game.showing-death-colors > .containment > .static-gfx-canvas {
   filter: grayscale(1);
 }
 

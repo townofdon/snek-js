@@ -47,7 +47,7 @@ XXXXXXXXXXXXXD3DXXXXXXXXDD4DXX
   `,
   colors: getExtendedPalette(PALETTE.gravChamber),
   renderInstructions: (gfx, renderer, state, palette) => {
-    renderer.drawDifficultySelect(gfx, state.isShowingDeathColours ? PALETTE.deathInvert.background : palette.background);
+    renderer.drawDifficultySelect(gfx, state.isInvertedColors ? PALETTE.deathInvert.background : palette.background);
   },
   showQuoteOnLevelWin: false,
   portalExitConfig: {
