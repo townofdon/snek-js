@@ -748,7 +748,7 @@ export class Renderer implements IRenderer {
     const paused = this.gameState.isPaused;
     const hasAnyKeys = this.gameState.hasKeyYellow || this.gameState.hasKeyRed || this.gameState.hasKeyBlue;
     let offsetY = 0;
-    if (hasAnyKeys) {
+    if (true || hasAnyKeys) {
       this.drawKeys(gfx, offsetY, paused);
       offsetY += 4;
     }

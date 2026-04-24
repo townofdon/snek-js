@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, ItemDropType, PortalExitMode, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, PortalExitMode, TitleVariant, PickupType } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { VARIANT_LEVEL_03 } from "../bonusLevels/variantLevel03";
 
@@ -60,4 +60,13 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     [ItemDropType.Invincibility]: true,
   },
   armorDrop: getCoordIndex2(14, 14),
+  pickupTypes: [
+    PickupType.Cheese,
+    PickupType.Tomato,
+    PickupType.Onion,
+    PickupType.BreadLoaf,
+    PickupType.Baguette,
+    PickupType.Egg,
+    PickupType.Banana,
+  ],
 };

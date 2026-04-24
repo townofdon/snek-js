@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant, PickupType } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { SECRET_LEVEL_10 } from "../bonusLevels/secretLevel10";
 
@@ -57,4 +57,12 @@ XXXXXXXXXXXXXXJXXXXXXXXXXXXXXX
   pickupDrops: {
     [ItemDropType.Invincibility]: true,
   },
+  pickupTypes: [
+    PickupType.Cabbage,
+    PickupType.Cheese,
+    PickupType.Carrot,
+    PickupType.Burger,
+    PickupType.Taco,
+    PickupType.Fries,
+  ],
 };

@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant, PickupType } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 
 export const LEVEL_01: Level = {
@@ -58,4 +58,10 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
     [getCoordIndex2(10, 29)]: null,
     [getCoordIndex2(18, 29)]: null,
   },
+  pickupTypes: [
+    PickupType.Carrot,
+    PickupType.Tomato,
+    PickupType.Potato,
+    PickupType.Cherries,
+  ],
 };

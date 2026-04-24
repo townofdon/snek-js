@@ -91,6 +91,13 @@ export const PICKUP_LIFETIME_MS = 8000;
 export const PICKUP_EXPIRE_WARN_MS = 3500;
 export const PICKUP_SPAWN_COOLDOWN = 15000;
 
+export const BASE_PICKUP_RARITY = 0.3;
+export const RARITY_COMMON = 0.6;
+export const RARITY_RARE = 0.3;
+export const RARITY_EPIC = 0.09;
+export const RARITY_LEGENDARY = 0.01;
+export const PITY_INCREMENT = 1 / 30;
+
 export const INVINCIBILITY_PICKUP_FREEZE_MS = 1000;
 export const INVINCIBILITY_EXPIRE_WARN_MS = 2000;
 export const INVINCIBILITY_EXPIRE_FLASH_MS = 200;
@@ -397,7 +404,7 @@ export const ANIMATIONS = {
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.PickupsSheet]: {
-    frames: 28,
+    frames: 56,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.WearablesSheet]: {
@@ -505,6 +512,7 @@ export const PICKUP_EPIC_ITEMS: PickupType[] = [
   PickupType.Pear,
   PickupType.Peach,
   PickupType.Lemon,
+  PickupType.Lime,
 ];
 export const PICKUP_LEGENDARY_ITEMS: PickupType[] = [
   PickupType.GoldenApple,
@@ -518,7 +526,8 @@ export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
   [PickupType.None]: 0,
   [PickupType.Invincibility]: 0,
   [PickupType.Armor]: 0,
-  [PickupType.HealthPack]: 0,
+  [PickupType.HealthPack]: 55,
+  [PickupType.WeightLossPill]: 56,
   [PickupType.Cheese]: 1,
   [PickupType.Carrot]: 2,
   [PickupType.Potato]: 3,
@@ -546,23 +555,53 @@ export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
   [PickupType.Baguette]: 26,
   [PickupType.Cupcake]: 24,
   [PickupType.Donut]: 28,
-  [PickupType.Banana]: 0,
-  [PickupType.Watermelon]: 0,
-  [PickupType.Mango]: 0,
-  [PickupType.Grapes]: 0,
-  [PickupType.Strawberry]: 0,
-  [PickupType.Kiwi]: 0,
-  [PickupType.Orange]: 0,
-  [PickupType.Cherries]: 0,
-  [PickupType.Pear]: 0,
-  [PickupType.Peach]: 0,
-  [PickupType.Lemon]: 0,
-  [PickupType.GoldenApple]: 0,
-  [PickupType.RainbowCake]: 0,
-  [PickupType.Sushi]: 0,
-  [PickupType.Milkshake]: 0,
-  [PickupType.ChiliPepper]: 0,
+  [PickupType.Banana]: 29,
+  [PickupType.Watermelon]: 30,
+  [PickupType.Mango]: 31,
+  [PickupType.Grapes]: 32,
+  [PickupType.Strawberry]: 33,
+  [PickupType.Kiwi]: 34,
+  [PickupType.Orange]: 35,
+  [PickupType.Cherries]: 36,
+  [PickupType.Pear]: 37,
+  [PickupType.Peach]: 38,
+  [PickupType.Lemon]: 39,
+  [PickupType.Lime]: 40,
+  [PickupType.GoldenApple]: 42,
+  [PickupType.RainbowCake]: 43,
+  [PickupType.Sushi]: 45,
+  [PickupType.Milkshake]: 46,
+  [PickupType.ChiliPepper]: 47,
 } as const satisfies Record<PickupType, number>);
+
+// validate PickupType rarities
+Object.entries(PickupType).forEach(([key, pickupType]) => {
+  if (typeof pickupType === 'string') return;
+  if ([
+    PickupType.None,
+    PickupType.Invincibility,
+    PickupType.Armor,
+    PickupType.HealthPack,
+    PickupType.WeightLossPill,
+  ].includes(pickupType)) return;
+  if (PICKUP_COMMON_ITEMS.includes(pickupType)) return;
+  if (PICKUP_RARE_ITEMS.includes(pickupType)) return;
+  if (PICKUP_EPIC_ITEMS.includes(pickupType)) return;
+  if (PICKUP_LEGENDARY_ITEMS.includes(pickupType)) return;
+  throw new Error(`PickupType ${key} (${pickupType}) is missing from all rarity lists.`);
+});
+
+export const PICKUP_TYPE_RARITY_MAP: Record<PickupType, number> = Object.values(PickupType)
+  .filter(v => typeof v !== 'string')
+  .reduce((acc, pickupType) => {
+    let rarity = 0;
+    if (PICKUP_COMMON_ITEMS.includes(pickupType)) rarity = RARITY_COMMON;
+    else if (PICKUP_RARE_ITEMS.includes(pickupType)) rarity = RARITY_RARE;
+    else if (PICKUP_EPIC_ITEMS.includes(pickupType)) rarity = RARITY_EPIC;
+    else if (PICKUP_LEGENDARY_ITEMS.includes(pickupType)) rarity = RARITY_LEGENDARY;
+    acc[pickupType] = rarity;
+    return acc;
+  }, {} as Record<PickupType, number>);
 
 export const WEARABLE_TYPE_MAP = {
   [WearableFrame.None]: WearableType.None,

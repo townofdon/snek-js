@@ -68,6 +68,13 @@ import {
   IS_DEV,
   ARMOR_PICKUP_FREEZE_MS,
   DROP_LIKELIHOOD_ARMOR,
+  PICKUP_TYPE_RARITY_MAP,
+  RARITY_LEGENDARY,
+  RARITY_COMMON,
+  RARITY_EPIC,
+  RARITY_RARE,
+  PITY_INCREMENT,
+  BASE_PICKUP_RARITY,
 } from "../constants";
 import {
   Action,
@@ -197,6 +204,7 @@ import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/
 import { withErrorReporting } from '@/reporting';
 import { AcquirePickupParticleSystem } from './particleSystems/AcquirePickupParticleSystem';
 import { AcquirePickupScene, AcquirePickupSceneConstructorArgs } from '@/scenes/AcquirePickupScene';
+import { DEFAULT_PICKUP_TYPES } from '@/defaults';
 
 interface EngineParams {
   p5: P5,
@@ -636,6 +644,7 @@ export function engine({
     state.targetSpeed = 1;
     state.currentSpeed = 1;
     state.steps = 0;
+    state.pity = 0;
     state.frameCount = 0;
     state.numTeleports = 0;
     state.lastHurtBy = HitType.Unknown;
@@ -2502,6 +2511,8 @@ export function engine({
         rarity,
       );
     }
+    stats.applesEatenThisLevel += 1;
+    stats.numApplesEverEaten += 1;
     addPoints(points);
     renderScoreUI();
   }
@@ -2607,7 +2618,11 @@ export function engine({
     if (maybeSpawnInvincibilityPickup()) { spawned = true; }
     if (maybeSpawnMine()) { spawned = true; }
     if (maybeSpawnArmor()) { spawned = true; }
-    if (!spawned) { maybeSpawnOtherPickup(x, y); }
+    if (!spawned && maybeSpawnOtherPickup(x, y)) { spawned = true; }
+    if (!spawned) {
+      state.pity = lerp(state.pity, 1, PITY_INCREMENT);
+      state.pity = clamp(state.pity, 0, 1);
+    }
     maybeSpawnPrey();
   }
 
@@ -2682,7 +2697,6 @@ export function engine({
     if (r < 1) {
       return false;
     }
-
     const coord = chooseArmorSpawnLocation();
     if (coord < 0) {
       return false
@@ -2696,72 +2710,39 @@ export function engine({
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
     if(pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility) return false;
+    if (Math.random() > BASE_PICKUP_RARITY) return false;
 
-    const pool: PickupType[] = [
-      PickupType.Cheese,
-      PickupType.Carrot,
-      PickupType.Potato,
-      PickupType.Tomato,
-      PickupType.Onion,
-      PickupType.Cabbage,
-      PickupType.Broccoli,
-      PickupType.Mushroom,
-      PickupType.BreadLoaf,
-      PickupType.Cucumber,
-      PickupType.Pretzel,
-      PickupType.Taco,
-      PickupType.Drumstick,
-      PickupType.Burger,
-      PickupType.PizzaSlice,
-      PickupType.HotDog,
-      PickupType.Egg,
-      PickupType.Fries,
-      PickupType.Candy,
-      PickupType.ChocolateBar,
-      PickupType.Popsicle,
-      PickupType.Lollipop,
-      PickupType.Muffin,
-      PickupType.Croisant,
-      PickupType.Baguette,
-      PickupType.Cupcake,
-      PickupType.Donut,
-    ]
-    const pickup = pool[Math.floor(Math.random() * pool.length)]
+    const pool: PickupType[] = (level.pickupTypes ?? DEFAULT_PICKUP_TYPES).filter(pickupType => PICKUP_TYPE_RARITY_MAP[pickupType] > 0);
+    const weights: number[] = pool.map(pickupType => lerp(PICKUP_TYPE_RARITY_MAP[pickupType], RARITY_COMMON, state.pity));
+    if (pool.length !== weights.length) throw new Error(`pool and weight lengths do not match: ${pool.length} vs ${weights.length}`);
+    const totalWeight = weights.reduce((a, b) => a + b, 0);
+    const r = Math.random() * totalWeight;
+    let sum = 0;
+    let pickup = PickupType.None;
+    for (let i = 0; i < pool.length; i++) {
+      sum += weights[i];
+      if (r <= sum) {
+        pickup = pool[i];
+        break;
+      }
+    }
+    if (!pickup) {
+      return false;
+    }
     pickupsMap[getCoordIndex2(x, y)] = {
       timeTillDeath: 999999999999,
       type: pickup,
     };
-
-    return;
-
-    // TODO: ADD MORE PICKUP TYPES THAT CAN SPAWN AT ALL TIMES
-    // const basePickupTypes: PickupType[] = [
-    //   // watermelon,
-    //   // strawberry,
-    //   // grapes,
-    //   // kiwi,
-    //   // health,
-    //   // ...etc.
-    // ];
-
-    // create array of pickup items, e.g. [Watermelon, Kiwi, Orange, Grapes, ...]
-    // get array of weights for the same items e.g. [0.1, 0.2, 0.05, 0.4, ...]
-    // sort array
-    // r0 = random number * totalWeights
-    // iterate through items util floor(r0) === item's weight
-
-    const progress = getLevelProgress(stats, level, difficulty);
-    const baseLikelihood = getDropLikelihood(
-      level.pickupDrops?.[ItemDropType.Mine] ?? false,
-      DROP_LIKELIHOOD_MINE,
-      difficulty.index
-    ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
-    const likelihood = baseLikelihood;
-    const r = Math.random() + likelihood;
-    if (r < 1) {
-      return false;
+    // adjust pity system
+    const rarity = PICKUP_TYPE_RARITY_MAP[pickup];
+    if (rarity === RARITY_LEGENDARY) {
+      state.pity = 0;
+    } else if (rarity === RARITY_EPIC) {
+      state.pity *= 0.5;
+    } else if (rarity === RARITY_COMMON) {
+      state.pity = lerp(state.pity, 1, PITY_INCREMENT);
     }
-    // spawnPickup(pickupType, x, y);
+    state.pity = clamp(state.pity, 0, 1);
     return true;
   }
 

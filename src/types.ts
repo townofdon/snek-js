@@ -233,9 +233,22 @@ export interface GameState {
    * The number of collisions the player has accumulated since the start of the level
    */
   collisions: number,
+  /**
+   * desired speed
+   */
   targetSpeed: number,
+  /**
+   * actual speed
+   */
   currentSpeed: number,
+  /**
+   * Number of snake movements (used for cycling footstep sounds)
+   */
   steps: number,
+  /**
+   * Pity system for pickup spawns [0-1]
+   */
+  pity: number,
   frameCount: number,
   numTeleports: number,
   lastHurtBy: HitType,
@@ -423,6 +436,7 @@ export interface Level {
    * ```
    */
   pickupDrops?: Partial<Record<ItemDropType, boolean | number | Record<DifficultyIndex, boolean | number>>>,
+  pickupTypes?: PickupType[],
   /**
    * coord for armor drop when all items are eaten
    */
@@ -1090,6 +1104,7 @@ export enum ItemDropType {
   Armor,
   Mine,
   HealthPack,
+  WeightLossPill,
   Reversibility,
   Pickup,
 }
@@ -1108,6 +1123,7 @@ export enum PickupType {
   Invincibility,
   Armor, // needed for animated points
   HealthPack,
+  WeightLossPill,
   // common items
   Cheese,
   Carrot,
@@ -1149,6 +1165,7 @@ export enum PickupType {
   Pear,
   Peach,
   Lemon,
+  Lime,
   // legendary items
   GoldenApple,
   RainbowCake,

@@ -9,6 +9,7 @@ import {
   InputType,
   Mapset,
   Outfit,
+  PickupType,
   WearableFrame,
 } from "./types";
 
@@ -48,6 +49,7 @@ export const DEFAULT_GAME_STATE: GameState = {
   collisions: 0,
   targetSpeed: 1,
   currentSpeed: 1,
+  pity: 0,
   steps: 0,
   frameCount: 0,
   numTeleports: 0,
@@ -87,3 +89,16 @@ export const DEFAULT_OUTFIT: Outfit = {
 export const DEFAULT_HELD_ITEMS = {
   armor: 0,
 } satisfies HeldItems;
+
+export const DEFAULT_PICKUP_TYPES: PickupType[] = [
+  PickupType.Cheese,
+  PickupType.Carrot,
+  PickupType.Potato,
+  PickupType.Tomato,
+  PickupType.Onion,
+  PickupType.Cabbage,
+  PickupType.Broccoli,
+  PickupType.Mushroom,
+  PickupType.BreadLoaf,
+  PickupType.Cucumber,
+]
