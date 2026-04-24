@@ -179,6 +179,7 @@ export const sketch = (p5: P5) => {
     getMaybeTitleScene,
     resetLevel,
     resetStats,
+    resetGraphics,
     renderLoop,
     startMoving,
     requestPlayerRewind,
@@ -963,6 +964,7 @@ export const sketch = (p5: P5) => {
 
     if (showQuoteOnLevelWin) {
       stopLogicLoop();
+      resetGraphics();
       const quote = getNextQuote();
       const onSceneEnded = () => {
         initLevel();

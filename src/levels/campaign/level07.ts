@@ -72,8 +72,10 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
     32: { likelihood: .8, type: ItemDropType.Mine },
     35: { likelihood: .8, type: ItemDropType.Mine },
     36: { likelihood: .8, type: ItemDropType.Mine },
+    38: { likelihood: .5, type: ItemDropType.Armor },
     42: { likelihood: .8, type: ItemDropType.Mine },
     48: { likelihood: .9, type: ItemDropType.Mine },
     50: { likelihood: .8, type: ItemDropType.Invincibility },
   },
+  armorDrop: getCoordIndex2(14, 13),
 };

@@ -407,10 +407,26 @@ export interface Level {
   appleSlowdownMod?: number,
   applesModOverride?: number,
   /**
-   * actually, drops are by num apples eaten, not frame
+   * pickup drop config by "frame" (number of apples eaten)
    */
   pickupDropsByFrame?: Record<number, PickupDrop>,
+  /**
+   * general pickup drop configs by item type
+   *
+   * usage:
+   * ```
+   * pickupDrops: {
+   *   [ItemDropType.Invincibility]: true, // use base likelihood (default 1)
+   *   [ItemDropType.Mine]: 2, // likelihood multiplier
+   *   [ItemDropType.Armor]: { 1: true, 2: true, 3: 0.5, 4: false }, // by difficulty
+   * },
+   * ```
+   */
   pickupDrops?: Partial<Record<ItemDropType, boolean | number | Record<DifficultyIndex, boolean | number>>>,
+  /**
+   * coord for armor drop when all items are eaten
+   */
+  armorDrop?: number,
   recordProgressAsLevel?: Level,
   author?: string,
   numLocks?: number;
@@ -1071,6 +1087,7 @@ export interface EmitterOptions {
 export enum ItemDropType {
   None = 0,
   Invincibility,
+  Armor,
   Mine,
   HealthPack,
   Reversibility,
@@ -1089,7 +1106,7 @@ export enum PickupRarity {
 export enum PickupType {
   None = 0,
   Invincibility,
-  Armor,
+  Armor, // needed for animated points
   HealthPack,
   // common items
   Cheese,

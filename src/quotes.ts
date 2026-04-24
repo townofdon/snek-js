@@ -427,7 +427,7 @@ Once more unto the snek, dear friends,|
 Once more!
 
 By the pricking of my thumbs,|
-Something snek this way comes.
+Something snekky this way comes.
 
 Though this be madness,|
 Yet there is snek in't.

@@ -1,6 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
-import { toTime } from "../../utils";
+import { getCoordIndex2, toTime } from "../../utils";
 
 const name = 'panopticon';
 
@@ -54,5 +54,31 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
     15: { likelihood: 1, type: ItemDropType.Invincibility },
     20: { likelihood: 1, type: ItemDropType.Invincibility },
     25: { likelihood: 1, type: ItemDropType.Invincibility },
-  }
+  },
+  nextLevelMap: {
+    [getCoordIndex2(0, 9)]: null,
+    [getCoordIndex2(0, 10)]: null,
+    [getCoordIndex2(0, 11)]: null,
+    [getCoordIndex2(0, 12)]: null,
+    [getCoordIndex2(0, 13)]: null,
+    [getCoordIndex2(0, 14)]: null,
+    [getCoordIndex2(0, 15)]: null,
+    [getCoordIndex2(0, 16)]: null,
+    [getCoordIndex2(0, 17)]: null,
+    [getCoordIndex2(0, 18)]: null,
+    [getCoordIndex2(0, 19)]: null,
+    [getCoordIndex2(0, 20)]: null,
+    [getCoordIndex2(29, 9)]: null,
+    [getCoordIndex2(29, 10)]: null,
+    [getCoordIndex2(29, 11)]: null,
+    [getCoordIndex2(29, 12)]: null,
+    [getCoordIndex2(29, 13)]: null,
+    [getCoordIndex2(29, 14)]: null,
+    [getCoordIndex2(29, 15)]: null,
+    [getCoordIndex2(29, 16)]: null,
+    [getCoordIndex2(29, 17)]: null,
+    [getCoordIndex2(29, 18)]: null,
+    [getCoordIndex2(29, 19)]: null,
+    [getCoordIndex2(29, 20)]: null,
+  },
 };

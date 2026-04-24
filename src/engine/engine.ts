@@ -67,6 +67,7 @@ import {
   KEYCODE_F10,
   IS_DEV,
   ARMOR_PICKUP_FREEZE_MS,
+  DROP_LIKELIHOOD_ARMOR,
 } from "../constants";
 import {
   Action,
@@ -142,6 +143,8 @@ import {
   toRarity,
   triangle,
   removeArrayElement,
+  getCoordX,
+  getCoordY,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -346,7 +349,9 @@ export function engine({
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     const { frames, timePerFrame } = ANIMATIONS[Image.Shield];
-    shields.add(x, y, 99999999, frames, timePerFrame);
+    const isEndOfLevelDrop = state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && level.armorDrop;
+    const lifetime = isEndOfLevelDrop ? 99999999 : difficulty.invincibilityTime;
+    shields.add(x, y, lifetime, frames, timePerFrame);
     drawState.shouldDrawActionFG = true;
   };
   const segments = new VectorList(); // snake segments
@@ -449,6 +454,7 @@ export function engine({
     callbacks: {
       onSceneStart: () => {
         stopLogicLoop();
+        // TODO: add uniq sound
         playSound(Sound.doorOpenHuge);
         musicPlayer.setPlaybackRate(level.musicTrack, 0);
         musicPlayer.setVolume(0);
@@ -974,21 +980,10 @@ export function engine({
       didEat = true;
     }
 
-    if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && !getIsStartLevel() && replay.mode !== ReplayMode.Playback) {
-      // TODO: ONLY SPAWN IF SET IN LEVEL CONFIG
-      const { frames, timePerFrame } = ANIMATIONS[Image.ShieldSpawn];
-      const x = 15;
-      const y = 15;
-      shieldSpawns.add(x, y, frames * timePerFrame, frames, timePerFrame);
-      playSound(Sound.shieldSpawn, 0.35);
-      if (mines.existsAt(x, y)) {
-        const coord = getCoordIndex2(x, y);
-        mines.removeByCoord(coord);
-        const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
-        explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
-        playSound(Sound.xpound);
-        drawState.shouldDrawApples = true;
-        drawState.shouldDrawActionFG = true;
+    if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && level.armorDrop && replay.mode !== ReplayMode.Playback) {
+      const loc = chooseArmorSpawnLocation(level.armorDrop);
+      if (loc >= 0) {
+        spawnArmorPickup(getCoordX(getCoordX(loc)), getCoordY(loc));
       }
     }
 
@@ -1327,6 +1322,9 @@ export function engine({
     gfxLighting.clear(0, 0, 0, 0);
     gfxPresentation.clear(0, 0, 0, 0);
     gfxUIRight.clear(0, 0, 0, 0);
+    drawState.shouldDrawApples = true;
+    drawState.shouldDrawKeysLocks = true;
+    drawState.shouldDrawActionFG = true;
   }
 
   function startMoving() {
@@ -1464,6 +1462,7 @@ export function engine({
 
   function* armorRoutine(): IEnumerator {
     playSound(Sound.acquireShield, 0.6);
+    sfx.stop(Sound.invincibleLoop);
     musicPlayer.setPlaybackRate(level.musicTrack, 0);
     musicPlayer.setVolume(0);
     state.isInvertedColors = true;
@@ -1632,14 +1631,7 @@ export function engine({
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     const coord = getCoordIndex(vec);
     if (mines.existsAtCoord(coord)) {
-      // explode mine
-      const coord = getCoordIndex(vec);
-      mines.removeByCoord(coord);
-      const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
-      explosions.add(vec.x, vec.y, frames * timePerFrame, frames, timePerFrame);
-      playSound(Sound.xpound);
-      drawState.shouldDrawApples = true;
-      drawState.shouldDrawActionFG = true;
+      explodeMine(vec.x, vec.y);
       // check invincible
       const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
       if (isInvincible) {
@@ -1659,6 +1651,17 @@ export function engine({
       return true;
     }
     return false;
+  }
+
+  function explodeMine(x: number, y: number) {
+    if (!mines.existsAt(x, y)) return;
+    const coord = getCoordIndex2(x, y);
+    mines.removeByCoord(coord);
+    const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
+    explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
+    playSound(Sound.xpound);
+    drawState.shouldDrawApples = true;
+    drawState.shouldDrawActionFG = true;
   }
 
   function checkHasHit(vec: Vector, updateLastHurtBy = true): boolean {
@@ -2603,6 +2606,7 @@ export function engine({
     let spawned = false;
     if (maybeSpawnInvincibilityPickup()) { spawned = true; }
     if (maybeSpawnMine()) { spawned = true; }
+    if (maybeSpawnArmor()) { spawned = true; }
     if (!spawned) { maybeSpawnOtherPickup(x, y); }
     maybeSpawnPrey();
   }
@@ -2655,6 +2659,35 @@ export function engine({
       return false;
     }
     spawnInvincibilityPickup()
+    return true;
+  }
+
+  function maybeSpawnArmor(): boolean {
+    if (level.disableAppleSpawn) return false;
+    if (replay.mode === ReplayMode.Playback) return false;
+    if (stats.applesEatenThisLevel === 0) return false;
+    if (!level.pickupDropsByFrame && !level.pickupDrops?.[ItemDropType.Armor]) return false;
+
+    const progress = getLevelProgress(stats, level, difficulty);
+    const frameLikelihood = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.Armor
+      ? level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
+      : undefined
+    const baseLikelihood = getDropLikelihood(
+      level.pickupDrops?.[ItemDropType.Armor] ?? false,
+      DROP_LIKELIHOOD_ARMOR,
+      difficulty.index
+    ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
+    const likelihood = frameLikelihood ?? baseLikelihood;
+    const r = Math.random() + likelihood;
+    if (r < 1) {
+      return false;
+    }
+
+    const coord = chooseArmorSpawnLocation();
+    if (coord < 0) {
+      return false
+    }
+    spawnArmorPickup(getCoordX(coord), getCoordY(coord));
     return true;
   }
 
@@ -2730,6 +2763,67 @@ export function engine({
     }
     // spawnPickup(pickupType, x, y);
     return true;
+  }
+
+  function chooseArmorSpawnLocation(initialCoord = -1): number {
+    if (initialCoord < 0) {
+      initialCoord = getCoordIndex2(
+        Math.floor(Math.random() * GRIDCOUNT_X - 2) + 1,
+        Math.floor(Math.random() * GRIDCOUNT_Y - 2) + 1,
+      );
+    }
+    const visited: Record<number, boolean> = {}
+    const validCandidate = (x: number, y: number) => {
+      return (
+        !visited[getCoordIndex2(x, y)] &&
+        x >= 0 &&
+        y >= 0 &&
+        x < GRIDCOUNT_X &&
+        y < GRIDCOUNT_Y
+      );
+    }
+    const candidateFound = (x: number, y: number) => {
+      const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
+        || doorsMap[getCoordIndex2(x, y)]
+        || nospawnsMap[getCoordIndex2(x, y)]
+        || mines.existsAt(x, y)
+        || apples.existsAt(x, y)
+        || segments.containsCoord(getCoordIndex2(x, y))
+        || player.position.equals(x, y);
+      return !spawnedInsideOfSomething;
+    }
+    const candidates = [initialCoord];
+    while (candidates.length > 0) {
+      const current = candidates.pop();
+      visited[current] = true;
+      const x = getCoordX(current);
+      const y = getCoordY(current);
+      if (candidateFound(x, y)) {
+        return current;
+      }
+      if (validCandidate(x + 1, y)) {
+        candidates.push(getCoordIndex2(x + 1, y));
+      }
+      if (validCandidate(x - 1, y)) {
+        candidates.push(getCoordIndex2(x - 1, y));
+      }
+      if (validCandidate(x, y + 1)) {
+        candidates.push(getCoordIndex2(x, y + 1));
+      }
+      if (validCandidate(x, y - 1)) {
+        candidates.push(getCoordIndex2(x, y - 1));
+      }
+    }
+    return -1;
+  }
+
+  function spawnArmorPickup(x: number, y: number) {
+    const { frames, timePerFrame } = ANIMATIONS[Image.ShieldSpawn];
+    shieldSpawns.add(x, y, frames * timePerFrame, frames, timePerFrame);
+    playSound(Sound.shieldSpawn, 0.45);
+    if (mines.existsAt(x, y)) {
+      explodeMine(x, y);
+    }
   }
 
   function spawnMine(numTries = 0) {
@@ -2983,7 +3077,7 @@ export function engine({
       (dirPrev === DIR.LEFT && dirNext === DIR.UP)
     );
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
-    const acquiringArmor = state.timeSinceArmorPickup < ARMOR_PICKUP_FREEZE_MS;
+    const acquiringArmor = state.timeSinceArmorPickup < 100;
     const armorUsed = state.timeSinceArmorProtection < HURT_STUN_TIME;
     const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime;
     if (stunned) {
@@ -3261,6 +3355,9 @@ export function engine({
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = shields.getElapsedByCoord(coord);
+          if (shouldBlinkExpiringPickup(shields.getTimeRemaining(x, y))) {
+            continue;
+          }
           spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, Image.Shield, x, y, elapsed);
         }
       }
@@ -3779,6 +3876,7 @@ export function engine({
     getMaybeTitleScene,
     resetStats,
     resetLevel,
+    resetGraphics,
     renderLoop: withErrorReporting(renderLoop),
     startMoving,
     requestPlayerRewind,

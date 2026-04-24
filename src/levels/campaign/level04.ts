@@ -63,4 +63,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     45: { likelihood: .5, type: ItemDropType.Invincibility },
     65: { likelihood: 1, type: ItemDropType.Invincibility },
   },
+  armorDrop: getCoordIndex2(27, 17),
 };

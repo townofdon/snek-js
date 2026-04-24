@@ -59,4 +59,5 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   pickupDrops: {
     [ItemDropType.Invincibility]: true,
   },
+  armorDrop: getCoordIndex2(14, 14),
 };

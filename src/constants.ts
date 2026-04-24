@@ -80,6 +80,7 @@ export const PICKUP_GALACTIC_BONUS = 10000;
 
 export const DROP_LIKELIHOOD_INVINCIBILITY = 0.04;
 export const DROP_LIKELIHOOD_MINE = 0.08;
+export const DROP_LIKELIHOOD_ARMOR = 0.02;
 export const DROP_LIKELIHOOD_ITEM_BASE = 0.2;
 export const DROP_LIKELIHOOD_ITEM_COMMON = 0.6; // applied on top of base
 export const DROP_LIKELIHOOD_ITEM_RARE = 0.03; // applied on top of base

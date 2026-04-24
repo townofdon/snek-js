@@ -690,7 +690,7 @@ export function wait(duration: number) {
   })
 }
 
-export const shouldBlinkExpiringPickup = (timeLeft: number) => !!timeLeft && timeLeft <= PICKUP_EXPIRE_WARN_MS && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0
+export const shouldBlinkExpiringPickup = (timeLeft: number, warnTime = PICKUP_EXPIRE_WARN_MS) => !!timeLeft && timeLeft <= warnTime && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0
 
 interface ToTimeParams {
   minutes: number,
