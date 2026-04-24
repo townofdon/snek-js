@@ -122,6 +122,10 @@ html, body {
   height: 100%;
 }
 
+body.preview {
+  overflow: hidden;
+}
+
 html, body, main {
   background: #030303;
   background: #181A1B;

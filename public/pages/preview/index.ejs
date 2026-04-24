@@ -77,7 +77,7 @@
     }
   </style>
 </head>
-<body>
+<body class="preview">
   <a id="allMapsButton" href="<%= htmlWebpackPlugin.files.publicPath %>community" class="button minimood allMapsButton hidden">
     <span>&lt;- All Maps</span>
   </a>
@@ -100,7 +100,10 @@
     <main id="main">
 
       <div id="game" class="game">
-        <canvas id="game-canvas" class="p5Canvas" style="width: 1200px; height: 1200px;" width="1200" height="1200"></canvas>
+        <canvas id="ui-canvas-right" class="ui-canvas-right" style="width: 20px; height: 1200px;" width="20" height="1200"></canvas>
+        <div id="game-container" class="containment">
+          <canvas id="game-canvas" class="p5Canvas" style="width: 1200px; height: 1200px;" width="1200" height="1200"></canvas>
+        </div>
       </div>
 
       <div id="settings-menu" class="settings-menu hidden">

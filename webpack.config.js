@@ -30,6 +30,7 @@ const config = {
     publicPath: stripTrailingSlash(isProduction ? '' : '/snek-js'),
     clean: true,
   },
+  devtool: 'eval',
   plugins: [
     // Add your plugins here
     // Learn more about plugins from https://webpack.js.org/configuration/plugins/
