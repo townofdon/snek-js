@@ -145,6 +145,8 @@ TODO.md
 
 public/assets/music/*.wav
 
-# nwjs packaging
+# nwjs bundling / packaging
 cache/
-dist-pkg/
+out/
+bundle/
+**/*.zip

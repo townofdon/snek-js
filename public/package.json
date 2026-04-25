@@ -17,7 +17,7 @@
   "nwbuild": {
     "mode": "build",
     "version": "stable",
-    "flavor": "sdk",
+    "flavor": "normal",
     "glob": false,
     "ffmpeg": false,
     "logLevel": "info",
@@ -39,6 +39,6 @@
     "frame": true,
     "transparent": false,
     "position": "center",
-    "icon": "public/assets/graphics/snek-favicon.png"
+    "icon": "public/assets/graphics/snek-banner-sq.png"
   }
 }

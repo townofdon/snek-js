@@ -13,8 +13,7 @@
     "deploy": "echo \"Don't forget to bump the version!\n\" && git push --tags",
     "deploy-gh-pages": "echo \"Deprecated: run 'npm run deploy'\" && exit 1",
     "deploy-prod-manual": "npm run build && cd bin && ./deploy.sh",
-    "package": "cd bin && ./package.sh",
-    "nwbuild": "nwbuild --mode=build --version=stable --glob=false --flavor=normal ./dist-prod",
+    "bundle": "cd bin && ./bundle.sh",
     "watch": "NODE_ENV=development webpack --watch --config-node-env=development"
   },
   "browser": {
