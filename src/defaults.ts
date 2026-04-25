@@ -1,7 +1,9 @@
-import { MAX_LIVES } from "./constants";
+import { DEFAULT_PORTALS, DIFFICULTY_EASY, MAX_LIVES } from "./constants";
+import { MAIN_TITLE_SCREEN_LEVEL } from "./levels/levelConstants";
 import {
   AppMode,
   BaseStats,
+  EngineState,
   GameMode,
   GameState,
   HeldItems,
@@ -60,6 +62,31 @@ export const DEFAULT_GAME_STATE: GameState = {
   nextLevel: null,
   inputType: InputType.Keyboard,
 } satisfies GameState;
+
+export const DEFAULT_ENGINE_STATE: EngineState = {
+  level: MAIN_TITLE_SCREEN_LEVEL,
+  difficulty: { ...DIFFICULTY_EASY },
+  moves: [],
+  recentMoves: [null, null, null, null],
+  recentInputs: [null, null, null, null],
+  recentInputTimes: [Infinity, Infinity, Infinity, Infinity],
+  barriers: [],
+  doors: [],
+  decoratives1: [],
+  decoratives2: [],
+  keys: [],
+  locks: [],
+  passablesMap: {},
+  barriersMap: {},
+  doorsMap: {},
+  pickupsMap: {},
+  nospawnsMap: {},
+  keysMap: {},
+  locksMap: {},
+  diffSelectMap: {},
+  portals: { ...DEFAULT_PORTALS() },
+  portalsMap: {},
+} satisfies EngineState;
 
 export const DEFAULT_BASE_STATS = {
   score: 0,

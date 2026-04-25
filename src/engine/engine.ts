@@ -10,7 +10,6 @@ import {
   DEBUG_EASY_LEVEL_EXIT,
   DEFAULT_PAR_TIME,
   DEFAULT_PORTALS,
-  DIFFICULTY_EASY,
   DIFFICULTY_MEDIUM,
   DIMENSIONS,
   DISABLE_TRANSITIONS,
@@ -21,7 +20,6 @@ import {
   GRIDCOUNT_Y,
   HURT_FLASH_RATE,
   HURT_FORGIVENESS_TIME,
-  HURT_GRACE_TIME,
   HURT_MUSIC_DUCK_TIME_MS,
   HURT_MUSIC_DUCK_VOL,
   HURT_STUN_TIME,
@@ -62,7 +60,6 @@ import {
   PICKUP_LEGENDARY_ITEMS,
   PICKUP_LEGENDARY_BONUS,
   PICKUP_GALACTIC_BONUS,
-  TIME_WAIT_BEFORE_REWIND,
   TIME_REWIND_TAKEOVER_CONTROLS,
   KEYCODE_F10,
   IS_DEV,
@@ -72,7 +69,6 @@ import {
   RARITY_LEGENDARY,
   RARITY_COMMON,
   RARITY_EPIC,
-  RARITY_RARE,
   PITY_INCREMENT,
   BASE_PICKUP_RARITY,
   STROKE_SIZE,
@@ -80,7 +76,6 @@ import {
 import {
   Action,
   AppMode,
-  Barrier,
   BarrierType,
   ClickState,
   DIR,
@@ -104,13 +99,9 @@ import {
   Lock,
   LoopState,
   MusicTrack,
-  Pickup,
   ItemDropType,
   PlayerState,
-  Portal,
   PortalChannel,
-  RecentMoveTimings,
-  RecentMoves,
   Replay,
   ReplayMode,
   SFXInstance,
@@ -127,12 +118,11 @@ import {
   WearableFrame,
   Outfit,
   HeldItems,
+  EngineState,
 } from "../types";
 import {
-  checkHasPortalAtLocation,
   clamp,
   dirToUnitVector,
-  getBestPortalExitDirection,
   getCoordIndex,
   getCoordIndex2,
   getDifficultyFromIndex,
@@ -146,7 +136,6 @@ import {
   isOrthogonalDirection,
   isWithinBlockDistance,
   lerp,
-  rotateSystemAfterPortalTraverse,
   shouldBlinkExpiringPickup,
   toRarity,
   triangle,
@@ -169,7 +158,6 @@ import {
   CAMPAIGN_LEVELS,
   CHALLENGE_LEVELS,
   LEVELS,
-  MAIN_TITLE_SCREEN_LEVEL,
   START_LEVEL,
   START_LEVEL_COBRA,
 } from "../levels/levelConstants";
@@ -205,7 +193,8 @@ import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/
 import { withErrorReporting } from '@/reporting';
 import { AcquirePickupParticleSystem } from './particleSystems/AcquirePickupParticleSystem';
 import { AcquirePickupScene, AcquirePickupSceneConstructorArgs } from '@/scenes/AcquirePickupScene';
-import { DEFAULT_PICKUP_TYPES } from '@/defaults';
+import { DEFAULT_ENGINE_STATE, DEFAULT_PICKUP_TYPES } from '@/defaults';
+import { engineMovement } from './engineComponents/movement';
 
 interface EngineParams {
   p5: P5,
@@ -268,8 +257,7 @@ export function engine({
   onGameOverCobra,
   onRecordLevelProgress,
 }: EngineParams) {
-  let level: Level = MAIN_TITLE_SCREEN_LEVEL;
-  let difficulty: Difficulty = { ...DIFFICULTY_EASY };
+  const es: EngineState = DEFAULT_ENGINE_STATE;
   const loopState: LoopState = {
     interval: null,
     timePrevMs: 0,
@@ -326,25 +314,6 @@ export function engine({
   const drawBasicOptionsNoShake: DrawSquareOptions = { optimize: true, screenshakeMul: 0 };
   const drawPortalOptions: DrawSquareOptions = {};
 
-  let moves: DIR[] = []; // moves that the player has queued up
-  let recentMoves: RecentMoves = [null, null, null, null]; // most recent moves that the snake has performed
-  let recentInputs: RecentMoves = [null, null, null, null]; // most recent inputs that the player has performed
-  let recentInputTimes: RecentMoveTimings = [Infinity, Infinity, Infinity, Infinity]; // timing of the most recent inputs that the player has performed
-  let barriers: Barrier[] = []; // permanent structures that damage the snake
-  let doors: Vector[] = []; // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
-  let decoratives1: Vector[] = []; // bg decorative elements
-  let decoratives2: Vector[] = []; // bg decorative elements
-  let keys: Key[] = []; // unlock locks
-  let locks: Lock[] = []; // unlockable barriers
-  let passablesMap: Record<number, boolean> = {}; // map of barriers that become passable when doors open
-  let barriersMap: Record<number, BarrierType> = {}; // map of barriers (obstacles or walls that the snake can hit)
-  let doorsMap: Record<number, boolean> = {}; // map of doors - blocks that disappear once conditions are met
-  let pickupsMap: Record<number, Pickup | null> = {}; // map of pickup items, powerups, etc.
-  let nospawnsMap: Record<number, boolean> = {}; // no-spawns are designated spots on the map where an apple cannot spawn
-  let keysMap: Record<number, Key | null> = {};
-  let locksMap: Record<number, Lock | null> = {};
-  let diffSelectMap: Record<number, number> = {};
-
   const onMineLifetimeExpire = (coord: number) => {
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
@@ -358,8 +327,8 @@ export function engine({
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     const { frames, timePerFrame } = ANIMATIONS[Image.Shield];
-    const isEndOfLevelDrop = state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && level.armorDrop;
-    const lifetime = isEndOfLevelDrop ? 99999999 : difficulty.invincibilityTime;
+    const isEndOfLevelDrop = state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && es.level.armorDrop;
+    const lifetime = isEndOfLevelDrop ? 99999999 : es.difficulty.invincibilityTime;
     shields.add(x, y, lifetime, frames, timePerFrame);
     drawState.shouldDrawActionFG = true;
   };
@@ -374,14 +343,39 @@ export function engine({
   const shieldSpawns = new AnimationList({ onLifetimeExpire: onShieldSpawnLifetimeExpire});
   const lightMap = createLightmap();
 
-  let portals: Record<PortalChannel, Vector[]> = { ...DEFAULT_PORTALS() };
-  let portalsMap: Record<number, Portal> = {};
-
   const preySpawn: PreySpawn = {
     dropsByFrame: undefined
   } satisfies PreySpawn;
   const astar = new AStar({ allowDiagonals: true, allowClosest: true, randomizeWeights: true, mines, segments });
   const preyList = new PreyList({ astar, onLifetimeExpire: onMineLifetimeExpire });
+
+  const {
+    handleSnakeMovement,
+    handleSnakeRewind,
+    handleSnakeMovementDuringReplay,
+    handleTeleportOnGameWin,
+    handlePortalTravel,
+    reboundSnake,
+    rewindAllowed,
+    checkHasHit,
+    checkPortalTeleportWillHit,
+    getDirectionSnakeForward,
+    getDirectionSnakeBackward,
+  } = engineMovement({
+    state,
+    es,
+    player,
+    loopState,
+    segments,
+    replay,
+    heldItems,
+    stats,
+    startAutoRewind,
+    checkArmorProtection,
+    playSound,
+    stopRewinding,
+    proceedToNextReplayClip,
+  });
 
   // hack P5's "offscreen canvas" to layer multiple canvases for MAX PERF - see: https://p5js.org/reference/#/p5/createGraphics
   const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
@@ -451,7 +445,7 @@ export function engine({
         stopLogicLoop();
         // TODO: add uniq sound
         playSound(Sound.doorOpenHuge);
-        musicPlayer.setPlaybackRate(level.musicTrack, 0);
+        musicPlayer.setPlaybackRate(es.level.musicTrack, 0);
         musicPlayer.setVolume(0);
         exitLightParticleSystem.reset();
         acquirePickupParticleSystem.emit(15, 15);
@@ -474,7 +468,7 @@ export function engine({
         state.isRewinding = true;
       },
       onSceneEnded: () => {
-        musicPlayer.setPlaybackRate(level.musicTrack, 1);
+        musicPlayer.setPlaybackRate(es.level.musicTrack, 1);
         startAction(fadeMusic(1, 2000), Action.FadeMusic);
         state.isRewinding = false;
         state.acquireProgression = 0;
@@ -512,43 +506,43 @@ export function engine({
   }
 
   function setLevel(incoming: Level) {
-    level = incoming;
-    if (level === LEVEL_01 && replay.mode !== ReplayMode.Playback) {
-      if (difficulty.index === 3) {
-        level = LEVEL_01_HARD;
-      } else if (difficulty.index === 4) {
-        level = LEVEL_01_ULTRA;
+    es.level = incoming;
+    if (es.level === LEVEL_01 && replay.mode !== ReplayMode.Playback) {
+      if (es.difficulty.index === 3) {
+        es.level = LEVEL_01_HARD;
+      } else if (es.difficulty.index === 4) {
+        es.level = LEVEL_01_ULTRA;
       }
     }
   }
 
   function setDifficulty(incoming: Difficulty) {
-    difficulty = { ...incoming }
+    es.difficulty = { ...incoming }
   }
 
   function getLevel() {
-    return level;
+    return es.level;
   }
 
   function getDifficulty() {
-    return difficulty;
+    return es.difficulty;
   }
 
   function renderDifficultyUI() {
-    if (level === START_LEVEL) return;
-    if (level === START_LEVEL_COBRA) return;
-    if (level.type === LevelType.Maze) return;
-    if (level.type === LevelType.WarpZone) return;
+    if (es.level === START_LEVEL) return;
+    if (es.level === START_LEVEL_COBRA) return;
+    if (es.level.type === LevelType.Maze) return;
+    if (es.level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    UI.renderDifficulty(difficulty.index, state.isInvertedColors, state.gameMode === GameMode.Casual, state.gameMode === GameMode.Cobra);
+    UI.renderDifficulty(es.difficulty.index, state.isInvertedColors, state.gameMode === GameMode.Casual, state.gameMode === GameMode.Cobra);
   }
 
   function renderHeartsUI() {
-    if (level === START_LEVEL) return;
-    if (level === START_LEVEL_COBRA) return;
-    if (level.type === LevelType.Maze) return;
-    if (level.type === LevelType.WarpZone) return;
+    if (es.level === START_LEVEL) return;
+    if (es.level === START_LEVEL_COBRA) return;
+    if (es.level.type === LevelType.Maze) return;
+    if (es.level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.gameMode === GameMode.Casual) return;
@@ -556,10 +550,10 @@ export function engine({
   }
 
   function renderScoreUI(score = stats.score) {
-    if (level === START_LEVEL) return;
-    if (level === START_LEVEL_COBRA) return;
-    if (level.type === LevelType.Maze) return;
-    if (level.type === LevelType.WarpZone) return;
+    if (es.level === START_LEVEL) return;
+    if (es.level === START_LEVEL_COBRA) return;
+    if (es.level.type === LevelType.Maze) return;
+    if (es.level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
     if (state.gameMode === GameMode.Casual) return;
@@ -567,37 +561,37 @@ export function engine({
   }
 
   function renderLevelName() {
-    if (level === START_LEVEL) return;
-    if (level === START_LEVEL_COBRA) return;
-    if (level.type === LevelType.Maze) return;
-    if (level.type === LevelType.WarpZone) return;
+    if (es.level === START_LEVEL) return;
+    if (es.level === START_LEVEL_COBRA) return;
+    if (es.level.type === LevelType.Maze) return;
+    if (es.level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    const progress = getLevelProgress(stats, level, difficulty);
-    UI.renderLevelName(level.name, state.isInvertedColors, progress);
+    const progress = getLevelProgress(stats, es.level, es.difficulty);
+    UI.renderLevelName(es.level.name, state.isInvertedColors, progress);
   }
 
   function getMaybeTitleScene() {
       const annotation = (() => {
-        if (!level.id) return '';
+        if (!es.level.id) return '';
         if (state.isRandomizer) {
           const levelNum = (20 - getNumRandomLevelsRemaining()) || 20;
           return `${levelNum} / 20`;
         }
         {
-          const levelIndex = CAMPAIGN_LEVELS.indexOf(level);
+          const levelIndex = CAMPAIGN_LEVELS.indexOf(es.level);
           if (levelIndex >= 0) return `${levelIndex + 1} / ${CAMPAIGN_LEVELS.length}`;
         }
         {
-          const levelIndex = CHALLENGE_LEVELS.indexOf(level);
+          const levelIndex = CHALLENGE_LEVELS.indexOf(es.level);
           if (levelIndex >= 0) return `${levelIndex + 1} / ${CHALLENGE_LEVELS.length}`;
         }
-        if (level.author) return `by ${level.author}`;
+        if (es.level.author) return `by ${es.level.author}`;
         return ''
       })()
       const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts, state);
-      return level.showTitle
-        ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(level.name, annotation, p5, gfx, sfx, fonts, callbacks))
+      return es.level.showTitle
+        ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(es.level.name, annotation, p5, gfx, sfx, fonts, callbacks))
         : () => Promise.resolve();
   }
 
@@ -611,7 +605,7 @@ export function engine({
     stats.applesEatenThisLevel = 0;
     stats.totalLevelTimeElapsed = 0;
 
-    // init state for new level
+    // init state for new es.level
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
     drawState.shouldDrawActionFG = true;
@@ -657,23 +651,23 @@ export function engine({
     state.hasKeyYellow = false;
     state.hasKeyRed = false;
     state.hasKeyBlue = false;
-    moves = [];
-    recentMoves = [null, null, null, null];
-    recentInputs = [null, null, null, null];
-    recentInputTimes = [Infinity, Infinity, Infinity, Infinity];
-    barriers = [];
-    doors = [];
-    decoratives1 = [];
-    decoratives2 = [];
-    keys = [];
-    passablesMap = {};
-    barriersMap = {};
-    doorsMap = {};
-    pickupsMap = {};
-    nospawnsMap = {};
-    portals = { ...DEFAULT_PORTALS() };
-    portalsMap = {};
-    keysMap = {};
+    es.moves = [];
+    es.recentMoves = [null, null, null, null];
+    es.recentInputs = [null, null, null, null];
+    es.recentInputTimes = [Infinity, Infinity, Infinity, Infinity];
+    es.barriers = [];
+    es.doors = [];
+    es.decoratives1 = [];
+    es.decoratives2 = [];
+    es.keys = [];
+    es.passablesMap = {};
+    es.barriersMap = {};
+    es.doorsMap = {};
+    es.pickupsMap = {};
+    es.nospawnsMap = {};
+    es.portals = { ...DEFAULT_PORTALS() };
+    es.portalsMap = {};
+    es.keysMap = {};
     apples.reset();
     mines.reset();
     shields.reset();
@@ -689,51 +683,51 @@ export function engine({
     astar.reset();
     preyList.reset();
 
-    if (level.layoutV2?.length) {
+    if (es.level.layoutV2?.length) {
       try {
         // // NOTE TO FUTURE SELF: do NOT copy data directly from the URL. This is the path of pain and misery.
         // // Instead, use "Copy dev link" in snek editor, or use this snippet below:
-        // const query = new URLSearchParams(`?data=${level.layoutV2}`);
+        // const query = new URLSearchParams(`?data=${es.level.layoutV2}`);
         // const queryData = query.get('data');
         // const [data] = decodeMapData(queryData);
-        const [data, options] = decodeMapData(level.layoutV2);
-        level.colors = getExtendedPalette(options.palette);
-        level.layout = buildMapLayout(data);
-        level.snakeSpawnPointOverride = getCoordIndex(data.playerSpawnPosition);
+        const [data, options] = decodeMapData(es.level.layoutV2);
+        es.level.colors = getExtendedPalette(options.palette);
+        es.level.layout = buildMapLayout(data);
+        es.level.snakeSpawnPointOverride = getCoordIndex(data.playerSpawnPosition);
         // may decide to remove these overwrites later
-        level.disableAppleSpawn = options.disableAppleSpawn;
+        es.level.disableAppleSpawn = options.disableAppleSpawn;
         if (options.disableAppleSpawn) {
-          level.applesModOverride ??= 1;
-          level.growthOverride = level.growthOverride ?? 2;
+          es.level.applesModOverride ??= 1;
+          es.level.growthOverride = es.level.growthOverride ?? 2;
         }
-        level.numApplesStart = options.numApplesStart;
-        level.applesToClear = options.applesToClear;
-        level.timeToClear = options.timeToClear;
-        level.snakeStartSizeOverride = options.snakeStartSize;
-        level.extraHurtGraceTime = options.extraHurtGraceTime;
-        level.globalLight = options.globalLight;
-        if (!level.musicTrack || level.musicTrack === MusicTrack.None) {
-          level.musicTrack = options.musicTrack;
+        es.level.numApplesStart = options.numApplesStart;
+        es.level.applesToClear = options.applesToClear;
+        es.level.timeToClear = options.timeToClear;
+        es.level.snakeStartSizeOverride = options.snakeStartSize;
+        es.level.extraHurtGraceTime = options.extraHurtGraceTime;
+        es.level.globalLight = options.globalLight;
+        if (!es.level.musicTrack || es.level.musicTrack === MusicTrack.None) {
+          es.level.musicTrack = options.musicTrack;
         }
-        level.snakeStartDirectionOverride = data.startDirection;
+        es.level.snakeStartDirectionOverride = data.startDirection;
       } catch (err) {
         console.error(err);
-        console.error(`Unable to parse layoutV2 data for level "${level.name}"`);
+        console.error(`Unable to parse layoutV2 data for es.level "${es.level.name}"`);
       }
     }
 
     renderer.reset();
     renderer.invalidateStaticCache();
-    spriteRenderer.setThemedAppleImage(level.colors);
-    spriteRenderer.setThemedBorderImages(level.colors);
-    spriteRenderer.setThemedDoorImage(level.colors);
+    spriteRenderer.setThemedAppleImage(es.level.colors);
+    spriteRenderer.setThemedBorderImages(es.level.colors);
+    spriteRenderer.setThemedDoorImage(es.level.colors);
     if (state.gameMode === GameMode.Cobra) {
       spriteRenderer.setThemedSegmentImage(PALETTE.cobra.playerTail, PALETTE.cobra.playerTailStroke);
     } else {
-      spriteRenderer.setThemedSegmentImage(level.colors.playerTail, level.colors.playerTailStroke);
+      spriteRenderer.setThemedSegmentImage(es.level.colors.playerTail, es.level.colors.playerTailStroke);
     }
     cacheGraphicalComponents();
-    appleParticleSystem.setColorsFromLevel(level);
+    appleParticleSystem.setColorsFromLevel(es.level);
     UI.disableScreenScroll();
     UI.clearLabels();
     UI.hideDeathColors();
@@ -756,12 +750,12 @@ export function engine({
     if (shouldShowTransitions) {
       UI.hideGfxCanvas();
       actions.stopAll();
-      musicPlayer.load(level.musicTrack);
+      musicPlayer.load(es.level.musicTrack);
       musicPlayer.setVolume(1);
       transition()
         .catch(err => { console.error(err); })
         .finally(() => {
-          if (level.isWinGame) {
+          if (es.level.isWinGame) {
             state.isGameWon = true;
             state.isMoving = true;
             onTriggerWinGame();
@@ -773,7 +767,7 @@ export function engine({
           UI.showGfxCanvas();
           musicPlayer.stopAllTracks();
           resumeAudioContext().then(() => {
-            musicPlayer.play(level.musicTrack);
+            musicPlayer.play(es.level.musicTrack);
           })
           startLogicLoop();
         })
@@ -782,7 +776,7 @@ export function engine({
         if (DISABLE_TRANSITIONS) {
           musicPlayer.stopAllTracks();
         }
-        musicPlayer.play(level.musicTrack);
+        musicPlayer.play(es.level.musicTrack);
       }
       startLogicLoop();
       renderDifficultyUI();
@@ -792,34 +786,34 @@ export function engine({
       UI.showGfxCanvas();
     }
 
-    const levelData = buildLevel(level);
+    const levelData = buildLevel(es.level);
     player.position = levelData.playerSpawnPosition;
-    player.direction = level.snakeStartDirectionOverride ?? DIR.RIGHT;
+    player.direction = es.level.snakeStartDirectionOverride ?? DIR.RIGHT;
     player.directionToFirstSegment = invertDirection(player.direction);
     player.directionLastHit = invertDirection(player.direction);
-    barriers = levelData.barriers;
-    barriersMap = levelData.barriersMap;
-    passablesMap = levelData.passablesMap;
-    doors = levelData.doors;
-    doorsMap = levelData.doorsMap;
-    decoratives1 = levelData.decoratives1;
-    decoratives2 = levelData.decoratives2;
-    nospawnsMap = levelData.nospawnsMap;
-    portals = levelData.portals;
-    portalsMap = levelData.portalsMap;
-    keys = levelData.keys;
-    keysMap = levelData.keysMap;
-    locks = levelData.locks;
-    locksMap = levelData.locksMap;
-    diffSelectMap = levelData.diffSelectMap;
+    es.barriers = levelData.barriers;
+    es.barriersMap = levelData.barriersMap;
+    es.passablesMap = levelData.passablesMap;
+    es.doors = levelData.doors;
+    es.doorsMap = levelData.doorsMap;
+    es.decoratives1 = levelData.decoratives1;
+    es.decoratives2 = levelData.decoratives2;
+    es.nospawnsMap = levelData.nospawnsMap;
+    es.portals = levelData.portals;
+    es.portalsMap = levelData.portalsMap;
+    es.keys = levelData.keys;
+    es.keysMap = levelData.keysMap;
+    es.locks = levelData.locks;
+    es.locksMap = levelData.locksMap;
+    es.diffSelectMap = levelData.diffSelectMap;
 
-    // set level metadata
-    level.numLocks = locks.length;
+    // set es.level metadata
+    es.level.numLocks = es.locks.length;
 
     // create snake parts
     let x = player.position.x;
     let y = player.position.y;
-    for (let i = 0; i < (level.snakeStartSizeOverride || START_SNAKE_SIZE); i++) {
+    for (let i = 0; i < (es.level.snakeStartSizeOverride || START_SNAKE_SIZE); i++) {
       if (i < 3) {
         if (player.direction === DIR.RIGHT) x--;
         if (player.direction === DIR.LEFT) x++;
@@ -831,7 +825,7 @@ export function engine({
     }
 
     // add fire tiles
-    barriers.filter(barrier => barrier.type === BarrierType.FireTile).forEach(barrier => {
+    es.barriers.filter(barrier => barrier.type === BarrierType.FireTile).forEach(barrier => {
       const x = barrier.vec.x;
       const y = barrier.vec.y;
       const lifetime = 99999999; // improbably high lifetime = never despawn
@@ -851,7 +845,7 @@ export function engine({
       const x = levelData.invincibilities[i].x;
       const y = levelData.invincibilities[i].y;
       if (!apples.existsAt(x, y)) apples.add(x, y);
-      pickupsMap[getCoordIndex2(x, y)] = {
+      es.pickupsMap[getCoordIndex2(x, y)] = {
         timeTillDeath: 99999999, // improbably high lifetime = never despawn
         type: PickupType.Invincibility,
       };
@@ -861,7 +855,7 @@ export function engine({
     for (let i = 0; i < levelData.apples.length; i++) {
       apples.add(levelData.apples[i].x, levelData.apples[i].y);
     }
-    const numApplesStart = level.numApplesStart ?? NUM_APPLES_START;
+    const numApplesStart = es.level.numApplesStart ?? NUM_APPLES_START;
     for (let i = 0; i < numApplesStart; i++) {
       spawnApple();
     }
@@ -877,17 +871,17 @@ export function engine({
       30: PreyType.Ant,
       35: PreyType.Grub,
     };
-    barriers.forEach(barrier => {
+    es.barriers.forEach(barrier => {
       astar.setWall(barrier.vec.x, barrier.vec.y);
     });
     astar.setSnekCoord(getCoordIndex(player.position));
-    doors.forEach(door => {
+    es.doors.forEach(door => {
       astar.setWall(door.x, door.y);
     });
 
-    resetLightmap(lightMap, level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
+    resetLightmap(lightMap, es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
     startPortalParticles();
-    if (level.type === LevelType.WarpZone || (level.type === LevelType.Maze && level !== START_LEVEL && level !== START_LEVEL_COBRA)) {
+    if (es.level.type === LevelType.WarpZone || (es.level.type === LevelType.Maze && es.level !== START_LEVEL && es.level !== START_LEVEL_COBRA)) {
       startExitParticles();
     }
   }
@@ -962,15 +956,15 @@ export function engine({
       increaseSpeed();
       playSound(Sound.eat);
       if (!state.isDoorsOpen) renderLevelName();
-      if (pickupsMap[coord]?.type === PickupType.Invincibility) {
+      if (es.pickupsMap[coord]?.type === PickupType.Invincibility) {
         incrementPickupBonus(PickupType.Invincibility, coord);
         startInvincibility();
-      } else if (pickupsMap[coord]?.type === PickupType.Armor) {
+      } else if (es.pickupsMap[coord]?.type === PickupType.Armor) {
         // handled below via shieldSpawns / shields
-      } else if (pickupsMap[coord]) {
-        incrementPickupBonus(pickupsMap[coord]?.type, coord);
+      } else if (es.pickupsMap[coord]) {
+        incrementPickupBonus(es.pickupsMap[coord]?.type, coord);
       }
-      pickupsMap[coord] = null;
+      es.pickupsMap[coord] = null;
       drawState.shouldDrawApples = true;
       didEat = true;
     }
@@ -995,8 +989,8 @@ export function engine({
       didEat = true;
     }
 
-    if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && level.armorDrop && replay.mode !== ReplayMode.Playback) {
-      const loc = chooseArmorSpawnLocation(level.armorDrop);
+    if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && es.level.armorDrop && replay.mode !== ReplayMode.Playback) {
+      const loc = chooseArmorSpawnLocation(es.level.armorDrop);
       if (loc >= 0) {
         spawnArmorPickup(getCoordX(getCoordX(loc)), getCoordY(loc));
       }
@@ -1014,10 +1008,10 @@ export function engine({
     for (let x = 0; x < GRIDCOUNT_X; x++) {
       for (let y = 0; y < GRIDCOUNT_Y; y++) {
         const i = getCoordIndex2(x, y);
-        if (pickupsMap[i]) {
-          pickupsMap[i].timeTillDeath -= loopState.deltaTime;
-          if (pickupsMap[i].timeTillDeath <= 0) {
-            pickupsMap[i] = null;
+        if (es.pickupsMap[i]) {
+          es.pickupsMap[i].timeTillDeath -= loopState.deltaTime;
+          if (es.pickupsMap[i].timeTillDeath <= 0) {
+            es.pickupsMap[i] = null;
             apples.removeByCoord(i);
             drawState.shouldDrawApples = true;
           }
@@ -1076,8 +1070,8 @@ export function engine({
     state.timeSinceLastInput += loopState.deltaTime;
     state.timeSinceLastTeleport += loopState.deltaTime;
     state.frameCount += 1;
-    for (let i = recentInputTimes.length - 1; i >= 0; i--) {
-      recentInputTimes[i] += loopState.deltaTime;
+    for (let i = es.recentInputTimes.length - 1; i >= 0; i--) {
+      es.recentInputTimes[i] += loopState.deltaTime;
     }
     // solution to infinite portal loop soft lock:
     // since the loop happens every frame, decrement every N frames so that
@@ -1105,10 +1099,10 @@ export function engine({
       clickState,
       player.direction,
       player.directionToFirstSegment,
-      moves,
-      recentMoves,
-      recentInputs,
-      recentInputTimes,
+      es.moves,
+      es.recentMoves,
+      es.recentInputs,
+      es.recentInputTimes,
       checkPlayerWillHit,
       inputCallbacks,
       handleInputAction,
@@ -1123,7 +1117,7 @@ export function engine({
     const fg = document.getElementById("canvas-fg") as HTMLCanvasElement;
     // const apples = document.getElementById("canvas-apples") as HTMLCanvasElement;
     const action = document.getElementById("canvas-action") as HTMLCanvasElement;
-    const keysLocks = document.getElementById("canvas-keys-locks") as HTMLCanvasElement;
+    const keysLocks = document.getElementById("canvas-es.keys-es.locks") as HTMLCanvasElement;
     const dest = document.getElementById("canvas-bg") as HTMLCanvasElement;
     const sourceDimensions = [1200, 1200] as const;
     const destinationDimensions = [1200, 1200] as const;
@@ -1133,7 +1127,7 @@ export function engine({
     // await overlayOntoCanvas(apples, dest, ...sourceDimensions, ...destinationDimensions);
     await overlayOntoCanvas(action, dest, ...sourceDimensions, ...destinationDimensions);
     const img = await getCanvasImage(dest, `map-${Date.now()}.png`);
-    downloadFile(img, `map-${findLevelWarpIndex(level)}-${level.name}.png`, 'img/png');
+    downloadFile(img, `map-${findLevelWarpIndex(es.level)}-${es.level.name}.png`, 'img/png');
     renderer.invalidateStaticCache();
   }
 
@@ -1141,9 +1135,9 @@ export function engine({
     const timeFrameStart = performance.now();
 
     if (!gamepadInputHandled) {
-      const invincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+      const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
       const isRewindAllowed = rewindAllowed(invincible || heldItems.armor > 0);
-      const handled = applyGamepadMove(state, player.direction, player.directionToFirstSegment, isRewindAllowed, moves, inputCallbacks, handleInputAction)
+      const handled = applyGamepadMove(state, player.direction, player.directionToFirstSegment, isRewindAllowed, es.moves, inputCallbacks, handleInputAction)
       if (handled) {
         state.inputType = InputType.Gamepad;
       }
@@ -1167,12 +1161,12 @@ export function engine({
     updateScreenShake();
     drawBackground();
 
-    for (let i = 0; i < decoratives1.length; i++) {
-      drawDecorative1(decoratives1[i]);
+    for (let i = 0; i < es.decoratives1.length; i++) {
+      drawDecorative1(es.decoratives1[i]);
     }
 
-    for (let i = 0; i < decoratives2.length; i++) {
-      drawDecorative2(decoratives2[i]);
+    for (let i = 0; i < es.decoratives2.length; i++) {
+      drawDecorative2(es.decoratives2[i]);
     }
 
     drawExitLights();
@@ -1181,12 +1175,12 @@ export function engine({
     drawBarriers();
     drawDoors();
 
-    for (let i = 0; i < keys.length; i++) {
-      drawKey(keys[i])
+    for (let i = 0; i < es.keys.length; i++) {
+      drawKey(es.keys[i])
     }
 
-    for (let i = 0; i < locks.length; i++) {
-      drawLock(locks[i])
+    for (let i = 0; i < es.locks.length; i++) {
+      drawLock(es.locks[i])
     }
 
     drawPortals();
@@ -1205,7 +1199,7 @@ export function engine({
     drawFireTiles();
     drawExplosions();
 
-    renderer.drawPlayerMoveArrows(p5, player.position, moves.length > 0 ? moves[0] : player.direction);
+    renderer.drawPlayerMoveArrows(p5, player.position, es.moves.length > 0 ? es.moves[0] : player.direction);
 
     for (let i = 0; i < segments.length; i++) {
       drawPlayerSegment(segments.get(i), i);
@@ -1214,7 +1208,7 @@ export function engine({
       erasePlayerSegmentCorner(segments.get(i), i);
     }
 
-    const globalLight = level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
+    const globalLight = es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
 
     drawPlayerHead(player.position);
     drawPassableBarriers();
@@ -1253,14 +1247,14 @@ export function engine({
       replay.mode !== ReplayMode.Playback &&
       globalLight < 1 &&
       !state.isInvertedColors &&
-      state.timeSinceInvincibleStart >= difficulty.invincibilityTime
+      state.timeSinceInvincibleStart >= es.difficulty.invincibilityTime
     ) {
-      updateLighting(p5.deltaTime, lightMap, globalLight, player.position, portals, apples, pickupsMap, explosions, fireTiles);
+      updateLighting(p5.deltaTime, lightMap, globalLight, player.position, es.portals, apples, es.pickupsMap, explosions, fireTiles);
       drawLighting(lightMap, renderer, gfxLighting);
     }
 
-    if (level.renderInstructions) {
-      level.renderInstructions(gfxPresentation, renderer, state, level.colors);
+    if (es.level.renderInstructions) {
+      es.level.renderInstructions(gfxPresentation, renderer, state, es.level.colors);
     }
     renderer.drawRightUI(gfxUIRight, heldItems.armor);
     renderer.drawTutorialMoveControls(gfxPresentation);
@@ -1293,18 +1287,18 @@ export function engine({
 
   function onAddMove(currentMove: DIR) {
     if (!currentMove) return;
-    moves.push(currentMove);
-    for (let i = recentMoves.length - 1; i >= 0; i--) {
+    es.moves.push(currentMove);
+    for (let i = es.recentMoves.length - 1; i >= 0; i--) {
       if (i > 0) {
-        recentMoves[i] = recentMoves[i - 1];
+        es.recentMoves[i] = es.recentMoves[i - 1];
       } else {
-        recentMoves[i] = currentMove;
+        es.recentMoves[i] = currentMove;
       }
     }
   }
 
   function onResetMoves() {
-    moves = [];
+    es.moves = [];
   }
 
   const onChangePlayerDirection: (direction: DIR) => void = (dir) => {
@@ -1372,7 +1366,7 @@ export function engine({
 
   function requestPlayerRewind() {
     if (state.isRewinding) return;
-    const invincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     const canRewind = rewindAllowed(invincible || heldItems.armor > 0);
     if (!canRewind) {
       return false;
@@ -1391,33 +1385,6 @@ export function engine({
     return true;
   }
 
-  function rewindAllowed(additionalConditions: boolean = false) {
-    // Conditions for which rewind is always forbidden. These take precedence.
-    if (replay.mode === ReplayMode.Playback) return false;
-    if (state.isLost) return false;
-    if (state.isGameWon) return false;
-    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
-    if (calculateSnakeSize() <= START_SNAKE_SIZE + 1) return false;
-    // Conditions for which rewind is always allowed.
-    if (state.gameMode === GameMode.Casual) return true;
-    if (level === START_LEVEL) return true;
-    if (level === START_LEVEL_COBRA) return true;
-    // other conditions of varying scenarios
-    if (additionalConditions) return true;
-    return false;
-  }
-
-  function calculateSnakeSize(): number {
-    let size = 0;
-    const uniquePositions: Record<number, boolean> = {};
-    for (let i = 0; i < segments.length; i++) {
-      if (!segments.get(i)) continue;
-      if (!uniquePositions[getCoordIndex(segments.get(i))]) { size++; }
-      uniquePositions[getCoordIndex(segments.get(i))] = true;
-    }
-    return size + 1;
-  }
-
   function startInvincibility() {
     if (replay.mode === ReplayMode.Playback) return;
     if (!state.isGameStarted) return;
@@ -1433,7 +1400,7 @@ export function engine({
   function* invincibilityRoutine(): IEnumerator {
     sfx.stop(Sound.invincibleLoop);
     playSound(Sound.pickupInvincibility);
-    musicPlayer.setPlaybackRate(level.musicTrack, 0);
+    musicPlayer.setPlaybackRate(es.level.musicTrack, 0);
     musicPlayer.setVolume(0);
     state.timeSinceInvincibleStart = 0;
     state.isInvertedColors = true;
@@ -1451,11 +1418,11 @@ export function engine({
     renderer.invalidateStaticCache();
     yield* coroutines.waitForTime(600);
     sfx.playLoop(Sound.invincibleLoop, 0.55 * settings.musicVolume);
-    while (state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
+    while (state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) {
       yield null;
     }
     sfx.stop(Sound.invincibleLoop);
-    musicPlayer.setPlaybackRate(level.musicTrack, 1);
+    musicPlayer.setPlaybackRate(es.level.musicTrack, 1);
     musicPlayer.setVolume(1);
     if (state.isRewinding) {
       stopRewinding();
@@ -1478,7 +1445,7 @@ export function engine({
   function* armorRoutine(): IEnumerator {
     playSound(Sound.acquireShield, 0.6);
     sfx.stop(Sound.invincibleLoop);
-    musicPlayer.setPlaybackRate(level.musicTrack, 0);
+    musicPlayer.setPlaybackRate(es.level.musicTrack, 0);
     musicPlayer.setVolume(0);
     state.isInvertedColors = true;
     drawState.shouldDrawActionFG = true;
@@ -1492,58 +1459,8 @@ export function engine({
     loopState.timeScale = 1;
     startScreenShake(0, 1);
     renderer.invalidateStaticCache();
-    musicPlayer.setPlaybackRate(level.musicTrack, 1);
+    musicPlayer.setPlaybackRate(es.level.musicTrack, 1);
     musicPlayer.setVolume(1);
-  }
-
-  function getTimeNeededUntilNextMove() {
-    if (state.isExitingLevel) {
-      return 0;
-    }
-    if (state.isGameWon) {
-      return SPEED_LIMIT_ULTRA_SPRINT;
-    }
-    if (state.timeSinceHurt < HURT_STUN_TIME) {
-      return Infinity;
-    }
-    if (state.timeSinceArmorProtection < HURT_STUN_TIME && !state.isRewinding) {
-      return Infinity;
-    }
-    if (difficulty.index === 4 && state.isSprinting) {
-      return difficulty.sprintLimit;
-    }
-    return lerp(difficulty.speedStart,
-      state.isSprinting ? difficulty.sprintLimit : difficulty.speedLimit,
-      state.currentSpeed / difficulty.speedSteps);
-  }
-
-  function updateCurrentMoveSpeed() {
-    if (state.isSprinting) {
-      const deltaSpeed = difficulty.speedSteps * (loopState.deltaTime / SPRINT_INCREMENT_SPEED_MS);
-      state.currentSpeed += deltaSpeed;
-      if (state.currentSpeed > difficulty.speedSteps) {
-        state.currentSpeed = difficulty.speedSteps;
-      }
-      return;
-    }
-    if (state.currentSpeed === state.targetSpeed) {
-      return;
-    }
-    if (state.currentSpeed < state.targetSpeed) {
-      const time = Math.min(
-        state.timeSinceArmorProtection - HURT_STUN_TIME,
-        state.timeSinceHurt - HURT_STUN_TIME,
-      );
-      const t = Easing.inOutCubic(clamp(time * 0.5, 0, 1));
-      const diff = Math.abs(state.targetSpeed - state.currentSpeed);
-      const deltaSpeed = clamp(diff, 1, difficulty.speedSteps) * (loopState.deltaTime / SPEED_INCREMENT_SPEED_MS) * p5.lerp(0, 1, t);
-      state.currentSpeed += deltaSpeed;
-      if (state.currentSpeed > state.targetSpeed) state.currentSpeed = state.targetSpeed;
-    } else if (state.currentSpeed > state.targetSpeed) {
-      const deltaSpeed = difficulty.speedSteps * (loopState.deltaTime / SPRINT_INCREMENT_SPEED_MS);
-      state.currentSpeed -= deltaSpeed;
-      if (state.currentSpeed < state.targetSpeed) state.currentSpeed = state.targetSpeed;
-    }
   }
 
   function spawnAppleParticles(position: Vector | undefined) {
@@ -1622,11 +1539,11 @@ export function engine({
   }
 
   function getHasClearedLevel() {
-    const applesMod = level.applesModOverride || difficulty.applesMod || 1;
+    const applesMod = es.level.applesModOverride || es.difficulty.applesMod || 1;
     if (state.isGameWon) return false;
     if (DEBUG_EASY_LEVEL_EXIT && stats.applesEatenThisLevel > 0) return true;
-    if (stats.applesEatenThisLevel >= level.applesToClear * applesMod) return true;
-    if (state.timeElapsed >= level.timeToClear && stats.applesEatenThisLevel >= level.applesToClear * applesMod * 0.5) return true;
+    if (stats.applesEatenThisLevel >= es.level.applesToClear * applesMod) return true;
+    if (state.timeElapsed >= es.level.timeToClear && stats.applesEatenThisLevel >= es.level.applesToClear * applesMod * 0.5) return true;
     return false;
   }
 
@@ -1648,7 +1565,7 @@ export function engine({
     if (mines.existsAtCoord(coord)) {
       explodeMine(vec.x, vec.y);
       // check invincible
-      const isInvincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+      const isInvincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
       if (isInvincible) {
         return false;
       }
@@ -1679,43 +1596,6 @@ export function engine({
     drawState.shouldDrawActionFG = true;
   }
 
-  function checkHasHit(vec: Vector, updateLastHurtBy = true): boolean {
-    if (state.isExitingLevel) return false;
-    if (state.isExited) return false;
-    if (state.isGameWon) return false;
-    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
-    const coord = getCoordIndex(vec);
-    // self
-    const invincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
-    const rewindingFromArmor = state.isRewinding && state.timeSinceArmorProtection < difficulty.invincibilityTime;
-    if (segments.containsCoord(coord) && !invincible && !rewindingFromArmor) {
-      if (updateLastHurtBy) state.lastHurtBy = HitType.HitSelf;
-      return true;
-    }
-    // clip reality
-    if (level.disableWallCollision) return false;
-    // door
-    if (doorsMap[coord]) {
-      if (updateLastHurtBy) state.lastHurtBy = HitType.HitDoor;
-      return true;
-    }
-    // barrier
-    const isPassableBarrier = state.isDoorsOpen && passablesMap[coord];
-    if (!isPassableBarrier && barriersMap[coord]) {
-      if (updateLastHurtBy) state.lastHurtBy = HitType.HitBarrier;
-      return true;
-    }
-    // lock
-    if (locksMap[coord]) {
-      if (locksMap[coord].channel === KeyChannel.Yellow && state.hasKeyYellow) return false;
-      if (locksMap[coord].channel === KeyChannel.Red && state.hasKeyRed) return false;
-      if (locksMap[coord].channel === KeyChannel.Blue && state.hasKeyBlue) return false;
-      if (updateLastHurtBy) state.lastHurtBy = HitType.HitLock;
-      return true;
-    }
-    return false;
-  }
-
   function checkPlayerWillHit(dir: DIR, numMoves = 1): boolean {
     const pos = player.position.copy();
     const currentMove = dirToUnitVector(dir);
@@ -1727,78 +1607,22 @@ export function engine({
     return false;
   }
 
-  function checkPortalTeleportWillHit(position: Vector, dir: DIR): boolean {
-    if (state.isExitingLevel) return false;
-    const portal = portalsMap[getCoordIndex(position)];
-    if (!portal) return false;
-    if (!portal.link) return false;
-    const newDir = getBestPortalExitDirection({
-      portalLink: portal.link,
-      playerDirection: player.direction,
-      portalExitMode: level.portalExitConfig?.[portal.channel] || portal.exitMode,
-      checkHasHit,
-      hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, portalsMap),
-    });
-    return checkHasHit(portal.link.copy().add(dirToUnitVector(newDir)), false);
-  }
-
-  function handlePortalTravel() {
-    if (state.isExitingLevel) return;
-    const portal = portalsMap[getCoordIndex(player.position)];
-    if (!portal) return;
-    if (!portal.link) {
-      console.warn(`portal has no link: channel=${portal.channel},(${portal.position.x},${portal.position.y})`);
-      return;
-    }
-    playSound(Sound.warp);
-    const newDir = getBestPortalExitDirection({
-      portalLink: portal.link,
-      playerDirection: player.direction,
-      portalExitMode: level.portalExitConfig?.[portal.channel] || portal.exitMode,
-      checkHasHit,
-      hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, portalsMap),
-    });
-    const prevDir = player.direction;
-    player.direction = newDir;
-    player.directionToFirstSegment = invertDirection(player.direction);
-    state.timeSinceLastMove = 0;
-    state.timeSinceLastTeleport = 0;
-    player.position.set(portal.link);
-    player.position.add(dirToUnitVector(player.direction));
-    state.numTeleports++;
-    if (state.numTeleports > 80) {
-      // kill the snake to prevent a soft lock due to infinite loop
-      state.lives = 0;
-      state.isLost = true;
-      state.lastHurtBy = HitType.QuantumEntanglement;
-    }
-    // apply system rotation to recentInputs and recentMoves so that special moves (u-turn, etc) still work
-    if (prevDir !== newDir) {
-      for (let i = 0; i < recentMoves.length; i++) {
-        recentMoves[i] = rotateSystemAfterPortalTraverse(prevDir, newDir, recentMoves[i]);
-      }
-      for (let i = 0; i < recentInputs.length; i++) {
-        recentInputs[i] = rotateSystemAfterPortalTraverse(prevDir, newDir, recentInputs[i]);
-      }
-    }
-  }
-
   function handleKeyPickup() {
     // if player is on top of a key, pick it up!
     const index = getCoordIndex(player.position);
-    const key = keysMap[index];
+    const key = es.keysMap[index];
     if (!key) return;
     if (key.channel === KeyChannel.Yellow) {
       state.hasKeyYellow = true;
-      keys = keys.filter(key => key.channel !== KeyChannel.Yellow);
+      es.keys = es.keys.filter(key => key.channel !== KeyChannel.Yellow);
     } else if (key.channel === KeyChannel.Red) {
       state.hasKeyRed = true;
-      keys = keys.filter(key => key.channel !== KeyChannel.Red);
+      es.keys = es.keys.filter(key => key.channel !== KeyChannel.Red);
     } else if (key.channel === KeyChannel.Blue) {
       state.hasKeyBlue = true;
-      keys = keys.filter(key => key.channel !== KeyChannel.Blue);
+      es.keys = es.keys.filter(key => key.channel !== KeyChannel.Blue);
     }
-    keysMap[index] = null;
+    es.keysMap[index] = null;
     playSound(Sound.pickup, 0.35);
     drawState.shouldDrawKeysLocks = true;
   }
@@ -1807,17 +1631,17 @@ export function engine({
     if (!state.hasKeyYellow && !state.hasKeyRed && !state.hasKeyBlue) {
       return;
     }
-    for (let i = 0; i < locks.length; i++) {
-      if (state.hasKeyYellow && locks[i].channel === KeyChannel.Yellow && isWithinBlockDistance(locks[i].position, player.position, 1)) {
-        unlockGate(locks[i]);
+    for (let i = 0; i < es.locks.length; i++) {
+      if (state.hasKeyYellow && es.locks[i].channel === KeyChannel.Yellow && isWithinBlockDistance(es.locks[i].position, player.position, 1)) {
+        unlockGate(es.locks[i]);
         return;
       }
-      if (state.hasKeyRed && locks[i].channel === KeyChannel.Red && isWithinBlockDistance(locks[i].position, player.position, 1)) {
-        unlockGate(locks[i]);
+      if (state.hasKeyRed && es.locks[i].channel === KeyChannel.Red && isWithinBlockDistance(es.locks[i].position, player.position, 1)) {
+        unlockGate(es.locks[i]);
         return;
       }
-      if (state.hasKeyBlue && locks[i].channel === KeyChannel.Blue && isWithinBlockDistance(locks[i].position, player.position, 1)) {
-        unlockGate(locks[i]);
+      if (state.hasKeyBlue && es.locks[i].channel === KeyChannel.Blue && isWithinBlockDistance(es.locks[i].position, player.position, 1)) {
+        unlockGate(es.locks[i]);
         return;
       }
     }
@@ -1837,16 +1661,16 @@ export function engine({
       group[lock.coord] = true;
       for (let i = 0; i < directionsToCheck.length; i++) {
         const index = getCoordIndex(lock.position.copy().add(directionsToCheck[i]));
-        if (!group[index] && locksMap[index] && locksMap[index].channel === lockTriggered.channel) {
-          addTouchingLocksToGroup(locksMap[index]);
+        if (!group[index] && es.locksMap[index] && es.locksMap[index].channel === lockTriggered.channel) {
+          addTouchingLocksToGroup(es.locksMap[index]);
         }
       }
     }
     addTouchingLocksToGroup(lockTriggered);
     const coords = Object.keys(group).map(coordKey => parseInt(coordKey, 10));
-    locks = locks.filter((lock) => {
+    es.locks = es.locks.filter((lock) => {
       if (coords.includes(lock.coord)) {
-        locksMap[lock.coord] = null;
+        es.locksMap[lock.coord] = null;
         gateUnlockParticleSystem.emit(lock.position.x, lock.position.y, lock.channel);
         return false;
       }
@@ -1858,146 +1682,15 @@ export function engine({
   function handleDifficultySelect() {
     if (!getIsStartLevel()) return;
     const index = getCoordIndex(player.position);
-    const difficultyIndex = diffSelectMap[index];
+    const difficultyIndex = es.diffSelectMap[index];
     if (difficultyIndex === undefined) return;
-    difficulty = getDifficultyFromIndex(difficultyIndex);
+    es.difficulty = getDifficultyFromIndex(difficultyIndex);
   }
 
   function handleSetNextLevel() {
-    const nextLevel = level.nextLevelMap?.[getCoordIndex(player.position)];
+    const nextLevel = es.level.nextLevelMap?.[getCoordIndex(player.position)];
     if (!nextLevel) return;
     state.nextLevel = nextLevel;
-  }
-
-  function handleSnakeMovement(): boolean {
-    if (!state.isMoving) return false;
-    if (state.isRewinding) return false;
-    if (replay.mode === ReplayMode.Playback) return false;
-
-    let didMove = false;
-    const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
-    if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
-      const normalizedSpeed = clamp(difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
-      didMove = movePlayer(normalizedSpeed);
-      if (didMove) player.directionToFirstSegment = invertDirection(player.direction);
-    } else {
-      state.timeSinceLastMove += loopState.deltaTime;
-    }
-    updateCurrentMoveSpeed();
-    if (!state.isExitingLevel && !state.isExited && !state.isGameWon) {
-      stats.totalGameTimeElapsed += loopState.deltaTime;
-      stats.totalLevelTimeElapsed += loopState.deltaTime;
-    }
-    return didMove;
-  }
-
-  function movePlayer(normalizedSpeed = 0): boolean {
-    if (!state.isMoving) return false;
-    if (state.isExited) return false;
-    if (state.isRewinding) return false;
-    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
-    if (state.timeSinceArmorProtection < HURT_STUN_TIME) return false;
-    state.timeSinceLastMove = 0;
-    const prevDirection = player.direction;
-    if (moves.length > 0 && !state.isExitingLevel) {
-      const move = moves.shift();
-      if (move && move !== player.directionToFirstSegment) player.direction = move;
-    }
-    const currentMove = dirToUnitVector(player.direction);
-    const futurePosition = player.position.copy().add(currentMove);
-
-    // disallow snake moving backwards into itself
-    if (segments.length > 0 && futurePosition.equals(segments.get(0).x, segments.get(0).y)) {
-      player.direction = player.direction === prevDirection ? getDirectionSnakeForward() : prevDirection;
-      return false;
-    }
-
-    // determine if next move will be into something, allow for grace period before injuring snakey
-    const willHitSomething = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
-    const invincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
-    const canAutoRewind = rewindAllowed(invincible && heldItems.armor === 0);
-    const hurtGraceTime = Math.max(
-      HURT_GRACE_TIME + (level.extraHurtGraceTime ?? 0) + (difficulty.index === 4 ? 12 : 0),
-      // if currently invincible or in casual mode, wait a bit longer before starting rewind
-      canAutoRewind ? TIME_WAIT_BEFORE_REWIND : 0,
-    );
-    if (willHitSomething && state.timeSinceGraceStarted <= hurtGraceTime) {
-      state.timeSinceGraceStarted += loopState.deltaTime;
-      return false;
-    }
-    if (willHitSomething && checkArmorProtection(futurePosition)) {
-      state.timeSinceGraceStarted = 0;
-      return false;
-    }
-    if (willHitSomething && canAutoRewind) {
-      state.timeSinceGraceStarted = 0;
-      startAutoRewind();
-      return false;
-    }
-
-    // apply movement
-    moveSegments();
-    player.position.add(currentMove);
-    state.timeSinceGraceStarted = 0;
-
-    // play step sfx
-    const volume = p5.lerp(1, 0.5, normalizedSpeed);
-    if (state.steps % 2 === 0) {
-      playSound(Sound.step1, volume);
-    } else {
-      playSound(Sound.step2, volume);
-    }
-    state.steps += 1;
-    return true;
-  }
-
-  function moveSegments() {
-    for (let i = segments.length - 1; i >= 0; i--) {
-      if (i === 0) {
-        segments.setVec(i, player.position);
-      } else {
-        segments.setVec(i, segments.get(i - 1));
-      }
-    }
-  }
-
-  function handleSnakeRewind() {
-    if (!state.isRewinding) return;
-    if (state.isExited) return;
-    if (replay.mode !== ReplayMode.Disabled) return;
-    // back that thing up
-    const timeNeededUntilNextMove = getTimeNeededUntilNextMove();
-    const canRewind = rewindAllowed(
-      state.timeSinceArmorProtection < difficulty.invincibilityTime ||
-      state.timeSinceInvincibleStart < difficulty.invincibilityTime
-    );
-    if (!canRewind) {
-      stopRewinding();
-    } else if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
-      state.timeSinceGraceStarted = 0;
-      state.timeSinceLastMove = 0;
-      reboundSnake(1);
-      player.direction = getDirectionSnakeForward();
-      player.directionToFirstSegment = invertDirection(player.direction);
-    } else {
-      state.timeSinceLastMove += loopState.deltaTime;
-    }
-    updateCurrentMoveSpeed();
-  }
-
-  function handleSnakeMovementDuringReplay(didHit: boolean) {
-    if (didHit) return;
-    if (replay.mode !== ReplayMode.Playback) return;
-    const position: [number, number] | undefined = replay.positions[state.frameCount];
-    if (position != undefined) {
-      moveSegments();
-      player.position.set(position[0], position[1])
-      player.direction = getDirectionSnakeForward();
-      player.directionToFirstSegment = invertDirection(player.direction);
-    }
-    if (state.frameCount > replay.lastFrame) {
-      proceedToNextReplayClip();
-    }
   }
 
   function handleCaptureReplayInfo(didMove: boolean, didHit: boolean) {
@@ -2027,14 +1720,14 @@ export function engine({
     sfx.stop(Sound.rewindLoop);
     stopAction(Action.Invincibility);
     stopAction(Action.AcquireArmor);
-    musicPlayer.setPlaybackRate(level.musicTrack, 1);
+    musicPlayer.setPlaybackRate(es.level.musicTrack, 1);
     exitLightParticleSystem.reset();
     acquirePickupParticleSystem.reset();
     if (replay.mode !== ReplayMode.Playback) {
       startAction(fadeMusic(0, 1000), Action.FadeMusic);
       if (isStartLevel) {
         playSound(Sound.doorOpenHuge);
-      } else if (level === LEVEL_99 || level === VARIANT_LEVEL_99 || level.playWinSound) {
+      } else if (es.level === LEVEL_99 || es.level === VARIANT_LEVEL_99 || es.level.playWinSound) {
         playSound(Sound.winGame);
       } else {
         playSound(Sound.winLevel);
@@ -2082,8 +1775,8 @@ export function engine({
     if (!state.isExitingLevel) return;
     if (state.isExited) return;
     if (getIsStartLevel()) return;
-    if (level.type === LevelType.Maze) return;
-    if (level.type === LevelType.WarpZone) return;
+    if (es.level.type === LevelType.Maze) return;
+    if (es.level.type === LevelType.WarpZone) return;
 
     incrementScoreWhileExitingLevel();
     renderScoreUI();
@@ -2111,21 +1804,21 @@ export function engine({
       gotoNextLevel();
     } else if (getIsStartLevel()) {
       gotoNextLevel();
-    } else if (level.type === LevelType.Maze) {
+    } else if (es.level.type === LevelType.Maze) {
       gotoNextLevel();
-    } else if (level.type === LevelType.WarpZone) {
+    } else if (es.level.type === LevelType.WarpZone) {
       gotoNextLevel();
     } else {
-      const levelToSave = level.recordProgressAsLevel || level;
+      const levelToSave = es.level.recordProgressAsLevel || es.level;
       const isPerfect = apples.length === 0 && state.collisions === 0;
       const hasAllApples = apples.length === 0;
-      const hasAllLocks = !!level.numLocks && locks.length === 0;
+      const hasAllLocks = !!es.level.numLocks && es.locks.length === 0;
       const shouldRecordLevelCompletion = !DEBUG_EASY_LEVEL_EXIT &&
         state.gameMode !== GameMode.Casual &&
         !!levelToSave?.id;
 
       if (shouldRecordLevelCompletion) {
-        onRecordLevelProgress(levelToSave.id, difficulty.index, isPerfect, stats.totalLevelTimeElapsed);
+        onRecordLevelProgress(levelToSave.id, es.difficulty.index, isPerfect, stats.totalLevelTimeElapsed);
       }
 
       winLevelScene.triggerLevelExit({
@@ -2140,8 +1833,8 @@ export function engine({
         hasAllApples,
         hasAllLocks,
         isCasualModeEnabled: state.gameMode === GameMode.Casual,
-        levelMusicTrack: getIsStartLevel() ? undefined : level.musicTrack,
-        parTime: level.parTime || DEFAULT_PAR_TIME,
+        levelMusicTrack: getIsStartLevel() ? undefined : es.level.musicTrack,
+        parTime: es.level.parTime || DEFAULT_PAR_TIME,
         clearTime: Math.floor(stats.totalLevelTimeElapsed / 1000) * 1000,
         onApplyScore: () => {
           musicPlayer.stopAllTracks();
@@ -2159,31 +1852,6 @@ export function engine({
     }
   }
 
-  function handleTeleportOnGameWin() {
-    if (!state.isGameWon) return;
-    const WIN_SCREEN_TELEPORT_PADDING = 2;
-    const WIN_SCREEN_TELEPORT_BOUNDS = {
-      min: {
-        x: 0 - WIN_SCREEN_TELEPORT_PADDING,
-        y: 0 - WIN_SCREEN_TELEPORT_PADDING,
-      },
-      max: {
-        x: GRIDCOUNT_X + WIN_SCREEN_TELEPORT_PADDING,
-        y: GRIDCOUNT_Y + WIN_SCREEN_TELEPORT_PADDING,
-      },
-    }
-    const bounds = WIN_SCREEN_TELEPORT_BOUNDS;
-    if (player.position.x < bounds.min.x) {
-      player.position.x = bounds.max.x;
-    } else if (player.position.x > bounds.max.x) {
-      player.position.x = bounds.min.x;
-    } else if (player.position.y < bounds.min.y) {
-      player.position.y = bounds.max.y;
-    } else if (player.position.y > bounds.max.y) {
-      player.position.y = bounds.min.y;
-    }
-  }
-
   function handleHurtForgiveness() {
     if (state.timeSinceHurtForgiveness < HURT_STUN_TIME * 2) return;
     if (state.timeSinceHurt >= HURT_FORGIVENESS_TIME) return;
@@ -2192,12 +1860,12 @@ export function engine({
     if (!state.isGameStarted) return;
     if (!state.isMoving) return;
     if (replay.mode === ReplayMode.Playback) return;
-    if (moves.length <= 0) return;
+    if (es.moves.length <= 0) return;
     if (segments.length <= 0) return;
     if (state.lastHurtBy === HitType.HitMine) return;
 
     const isGameOver = state.isLost && state.lives === 0;
-    const move = moves[0];
+    const move = es.moves[0];
     if (!isOrthogonalDirection(move, player.directionLastHit)) {
       state.timeSinceHurtForgiveness = 0;
       return;
@@ -2228,7 +1896,7 @@ export function engine({
       state.lives += 1;
       state.collisions = Math.max(state.collisions - 1, 0);
     }
-    moves.shift();
+    es.moves.shift();
     player.direction = move;
     player.directionToFirstSegment = getDirectionSnakeBackward();
     state.isLost = false;
@@ -2244,7 +1912,7 @@ export function engine({
   function checkArmorProtection(vec: Vector): boolean {
     if (heldItems.armor <= 0) return false;
 
-    const invincible = state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     if (!invincible) {
       heldItems.armor -= 1;
     }
@@ -2253,20 +1921,20 @@ export function engine({
     // check if barrier at player position is breakable
     let isBreakable = false;
     const coord = getCoordIndex(vec);
-    const isPassableBarrier = state.isDoorsOpen && passablesMap[coord];
-    if (!isPassableBarrier && barriersMap[coord]) {
-      isBreakable = barriersMap[coord] && (
-        barriersMap[coord] === BarrierType.Brick ||
-        barriersMap[coord] === BarrierType.BrickThemed ||
-        barriersMap[coord] === BarrierType.BrickWhite ||
-        barriersMap[coord] === BarrierType.Stone ||
-        barriersMap[coord] === BarrierType.StoneThemed
+    const isPassableBarrier = state.isDoorsOpen && es.passablesMap[coord];
+    if (!isPassableBarrier && es.barriersMap[coord]) {
+      isBreakable = es.barriersMap[coord] && (
+        es.barriersMap[coord] === BarrierType.Brick ||
+        es.barriersMap[coord] === BarrierType.BrickThemed ||
+        es.barriersMap[coord] === BarrierType.BrickWhite ||
+        es.barriersMap[coord] === BarrierType.Stone ||
+        es.barriersMap[coord] === BarrierType.StoneThemed
       );
     }
     if (isBreakable) {
-      const barrierIdx = barriers.findIndex(barrier => getCoordIndex(barrier.vec) === coord);
-      barriers = removeArrayElement(barriers, barrierIdx);
-      barriersMap[coord] = BarrierType.Unset;
+      const barrierIdx = es.barriers.findIndex(barrier => getCoordIndex(barrier.vec) === coord);
+      es.barriers = removeArrayElement(es.barriers, barrierIdx);
+      es.barriersMap[coord] = BarrierType.Unset;
       renderer.invalidateStaticCache();
       const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
       explosions.add(vec.x, vec.y, frames * timePerFrame, frames, timePerFrame);
@@ -2323,7 +1991,7 @@ export function engine({
       state.lives -= 1;
     }
     state.timeSinceHurt = 0;
-    if (difficulty.index === 4) {
+    if (es.difficulty.index === 4) {
       state.currentSpeed = 1;
     } else {
       state.currentSpeed = 2;
@@ -2343,7 +2011,7 @@ export function engine({
       player.direction = getDirectionSnakeForward();
     }
 
-    moves = [];
+    es.moves = [];
     startAction(duckMusicOnHurt(), Action.FadeMusic);
     switch (state.lives) {
       case 2:
@@ -2374,28 +2042,6 @@ export function engine({
     impactParticleSystem.emit(player.position.x, player.position.y);
   }
 
-  function getDirectionSnakeForward() {
-    return getDirectionBetween(player.position, segments.get(0));
-  }
-
-  function getDirectionSnakeBackward() {
-    return invertDirection(getDirectionSnakeForward())
-  }
-
-  /**
-   * Move snake back after it hits something
-   */
-  function reboundSnake(numTimes = 2) {
-    for (let times = 0; times < numTimes; times++) {
-      if (segments.length > 1) {
-        player.position.set(segments.get(0));
-      }
-      for (let i = 0; i < segments.length - 1; i++) {
-        segments.setVec(i, segments.get(i + 1));
-      }
-    }
-  }
-
   /**
    * actions to apply when snake eats an apple
    */
@@ -2406,10 +2052,10 @@ export function engine({
     startScreenShake(0.25, 0.8);
     apples.removeByCoord(appleCoord);
     const numSegmentsToAdd = Math.max(
-      ((level.growthOverride ?? difficulty.index) - Math.floor(segments.length / 100)) * (level.growthMod ?? 1),
+      ((es.level.growthOverride ?? es.difficulty.index) - Math.floor(segments.length / 100)) * (es.level.growthMod ?? 1),
       1
     );
-    const maxSize = level === LEVEL_WIN_GAME ? 0.25 : MAX_SNAKE_SIZE;
+    const maxSize = es.level === LEVEL_WIN_GAME ? 0.25 : MAX_SNAKE_SIZE;
     if (segments.length < maxSize) {
       for (let i = 0; i < numSegmentsToAdd; i++) {
         addSnakeSegment();
@@ -2429,7 +2075,7 @@ export function engine({
   }
 
   function getParTimeBonusMultiplier() {
-    const parTime = level.parTime || DEFAULT_PAR_TIME;
+    const parTime = es.level.parTime || DEFAULT_PAR_TIME;
     const clearTime = Math.floor(stats.totalLevelTimeElapsed / 1000) * 1000;
     if (parTime <= 0) return 1;
     if (clearTime > parTime) return 1;
@@ -2442,37 +2088,37 @@ export function engine({
 
   function getLevelClearBonus() {
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    return (LEVEL_BONUS * difficulty.bonusMod * cobraMod || LEVEL_BONUS) * getParTimeBonusMultiplier();
+    return (LEVEL_BONUS * es.difficulty.bonusMod * cobraMod || LEVEL_BONUS) * getParTimeBonusMultiplier();
   }
 
   function getLivesLeftBonus() {
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    return LIVES_LEFT_BONUS * difficulty.bonusMod * cobraMod || LIVES_LEFT_BONUS;
+    return LIVES_LEFT_BONUS * es.difficulty.bonusMod * cobraMod || LIVES_LEFT_BONUS;
   }
 
   function getAllApplesBonus() {
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    return ALL_APPLES_BONUS * difficulty.bonusMod * cobraMod || ALL_APPLES_BONUS;
+    return ALL_APPLES_BONUS * es.difficulty.bonusMod * cobraMod || ALL_APPLES_BONUS;
   }
 
   function getAllLocksBonus() {
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    return ALL_LOCKS_BONUS * difficulty.bonusMod * cobraMod || ALL_LOCKS_BONUS;
+    return ALL_LOCKS_BONUS * es.difficulty.bonusMod * cobraMod || ALL_LOCKS_BONUS;
   }
 
   function getPerfectBonus() {
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    return PERFECT_BONUS * difficulty.bonusMod * cobraMod || PERFECT_BONUS;
+    return PERFECT_BONUS * es.difficulty.bonusMod * cobraMod || PERFECT_BONUS;
   }
 
   function incrementScore() {
     if (state.isGameWon) return;
     let bonus = 0;
     if (state.isDoorsOpen) {
-      bonus = CLEAR_BONUS * difficulty.scoreMod;
+      bonus = CLEAR_BONUS * es.difficulty.scoreMod;
     }
     const cobraMod = state.gameMode === GameMode.Cobra ? COBRA_SCORE_MOD : 1;
-    const points = SCORE_INCREMENT * difficulty.scoreMod * cobraMod + bonus
+    const points = SCORE_INCREMENT * es.difficulty.scoreMod * cobraMod + bonus
     stats.applesEatenThisLevel += 1;
     stats.numApplesEverEaten += 1;
     addPoints(points);
@@ -2578,14 +2224,14 @@ export function engine({
   function increaseSpeed() {
     if (state.isLost) return;
     state.targetSpeed += 1;
-    if (level.appleSlowdownMod && !state.isSprinting) {
-      state.currentSpeed = Math.min(difficulty.speedSteps * level.appleSlowdownMod, state.currentSpeed);
+    if (es.level.appleSlowdownMod && !state.isSprinting) {
+      state.currentSpeed = Math.min(es.difficulty.speedSteps * es.level.appleSlowdownMod, state.currentSpeed);
     }
   }
 
   function openDoors() {
     const { frames, timePerFrame } = ANIMATIONS[Image.DoorOpenSheet];
-    doors.forEach(door => {
+    es.doors.forEach(door => {
       astar.removeWall(door.x, door.y);
       const x = door.x;
       const y = door.y;
@@ -2593,24 +2239,24 @@ export function engine({
     });
     state.isDoorsOpen = true;
     startExitParticles();
-    doors = [];
-    doorsMap = {};
+    es.doors = [];
+    es.doorsMap = {};
     renderer.invalidateStaticCache();
     drawState.shouldDrawKeysLocks = true;
   }
 
   function spawnApple(numTries = 0) {
     drawState.shouldDrawApples = true;
-    if (level.disableAppleSpawn) return;
+    if (es.level.disableAppleSpawn) return;
     if (replay.mode === ReplayMode.Playback) {
       addAppleReplayMode();
       return;
     }
     const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
-    const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
-      || doorsMap[getCoordIndex2(x, y)]
-      || nospawnsMap[getCoordIndex2(x, y)]
+    const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
+      || es.doorsMap[getCoordIndex2(x, y)]
+      || es.nospawnsMap[getCoordIndex2(x, y)]
       || mines.existsAt(x, y);
     if (spawnedInsideOfSomething) {
       if (numTries < 30) spawnApple(numTries + 1);
@@ -2633,20 +2279,20 @@ export function engine({
   }
 
   function maybeSpawnMine() {
-    if (level.disableAppleSpawn) return false;
+    if (es.level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
-    if (!level.pickupDropsByFrame && !level.pickupDrops?.[ItemDropType.Mine] && state.gameMode !== GameMode.Cobra) return false;
+    if (!es.level.pickupDropsByFrame && !es.level.pickupDrops?.[ItemDropType.Mine] && state.gameMode !== GameMode.Cobra) return false;
 
-    const progress = getLevelProgress(stats, level, difficulty);
-    const frameLikelihood = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.Mine
-      ? level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
+    const progress = getLevelProgress(stats, es.level, es.difficulty);
+    const frameLikelihood = es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.Mine
+      ? es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
       : undefined
     const shouldSpawnDefault = state.gameMode === GameMode.Cobra;
     const baseLikelihood = getDropLikelihood(
-      level.pickupDrops?.[ItemDropType.Mine] ?? shouldSpawnDefault,
+      es.level.pickupDrops?.[ItemDropType.Mine] ?? shouldSpawnDefault,
       DROP_LIKELIHOOD_MINE,
-      difficulty.index
+      es.difficulty.index
     ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
     const likelihood = frameLikelihood ?? baseLikelihood;
     const r = Math.random() + likelihood;
@@ -2658,23 +2304,23 @@ export function engine({
   }
 
   function maybeSpawnInvincibilityPickup(): boolean {
-    if (level.disableAppleSpawn) return false;
+    if (es.level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
     if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return false;
-    if (!level.pickupDropsByFrame && !level.pickupDrops?.[ItemDropType.Invincibility]) return false;
+    if (!es.level.pickupDropsByFrame && !es.level.pickupDrops?.[ItemDropType.Invincibility]) return false;
 
-    const type = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type || ItemDropType.Invincibility;
+    const type = es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type || ItemDropType.Invincibility;
     if (type !== ItemDropType.Invincibility) {
       return false;
     }
-    const progress = getLevelProgress(stats, level, difficulty);
+    const progress = getLevelProgress(stats, es.level, es.difficulty);
     const baseLikelihood = getDropLikelihood(
-      level.pickupDrops?.[ItemDropType.Invincibility] ?? true,
+      es.level.pickupDrops?.[ItemDropType.Invincibility] ?? true,
       DROP_LIKELIHOOD_INVINCIBILITY,
-      difficulty.index
+      es.difficulty.index
     ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
-    const likelihood = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood || baseLikelihood;
+    const likelihood = es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood || baseLikelihood;
     const r = Math.random() + likelihood;
     if (r < 1) {
       return false;
@@ -2684,19 +2330,19 @@ export function engine({
   }
 
   function maybeSpawnArmor(): boolean {
-    if (level.disableAppleSpawn) return false;
+    if (es.level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
-    if (!level.pickupDropsByFrame && !level.pickupDrops?.[ItemDropType.Armor]) return false;
+    if (!es.level.pickupDropsByFrame && !es.level.pickupDrops?.[ItemDropType.Armor]) return false;
 
-    const progress = getLevelProgress(stats, level, difficulty);
-    const frameLikelihood = level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.Armor
-      ? level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
+    const progress = getLevelProgress(stats, es.level, es.difficulty);
+    const frameLikelihood = es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.Armor
+      ? es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
       : undefined
     const baseLikelihood = getDropLikelihood(
-      level.pickupDrops?.[ItemDropType.Armor] ?? false,
+      es.level.pickupDrops?.[ItemDropType.Armor] ?? false,
       DROP_LIKELIHOOD_ARMOR,
-      difficulty.index
+      es.difficulty.index
     ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
     const likelihood = frameLikelihood ?? baseLikelihood;
     const r = Math.random() + likelihood;
@@ -2712,13 +2358,13 @@ export function engine({
   }
 
   function maybeSpawnOtherPickup(x: number, y: number): boolean {
-    if (level.disableAppleSpawn) return false;
+    if (es.level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
-    if(pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility) return false;
+    if(es.pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility) return false;
     if (Math.random() > BASE_PICKUP_RARITY) return false;
 
-    const pool: PickupType[] = (level.pickupTypes ?? DEFAULT_PICKUP_TYPES).filter(pickupType => PICKUP_TYPE_RARITY_MAP[pickupType] > 0);
+    const pool: PickupType[] = (es.level.pickupTypes ?? DEFAULT_PICKUP_TYPES).filter(pickupType => PICKUP_TYPE_RARITY_MAP[pickupType] > 0);
     const weights: number[] = pool.map(pickupType => lerp(PICKUP_TYPE_RARITY_MAP[pickupType], RARITY_COMMON, state.pity));
     if (pool.length !== weights.length) throw new Error(`pool and weight lengths do not match: ${pool.length} vs ${weights.length}`);
     const totalWeight = weights.reduce((a, b) => a + b, 0);
@@ -2735,7 +2381,7 @@ export function engine({
     if (!pickup) {
       return false;
     }
-    pickupsMap[getCoordIndex2(x, y)] = {
+    es.pickupsMap[getCoordIndex2(x, y)] = {
       timeTillDeath: 999999999999,
       type: pickup,
     };
@@ -2770,9 +2416,9 @@ export function engine({
       );
     }
     const candidateFound = (x: number, y: number) => {
-      const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
-        || doorsMap[getCoordIndex2(x, y)]
-        || nospawnsMap[getCoordIndex2(x, y)]
+      const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
+        || es.doorsMap[getCoordIndex2(x, y)]
+        || es.nospawnsMap[getCoordIndex2(x, y)]
         || mines.existsAt(x, y)
         || apples.existsAt(x, y)
         || segments.containsCoord(getCoordIndex2(x, y))
@@ -2816,9 +2462,9 @@ export function engine({
   function spawnMine(numTries = 0) {
     const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
-    const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
-      || doorsMap[getCoordIndex2(x, y)]
-      || nospawnsMap[getCoordIndex2(x, y)]
+    const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
+      || es.doorsMap[getCoordIndex2(x, y)]
+      || es.nospawnsMap[getCoordIndex2(x, y)]
       || mines.existsAt(x, y)
       || apples.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
@@ -2835,9 +2481,9 @@ export function engine({
   function spawnInvincibilityPickup(numTries = 0) {
     const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
-    const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
-      || doorsMap[getCoordIndex2(x, y)]
-      || nospawnsMap[getCoordIndex2(x, y)]
+    const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
+      || es.doorsMap[getCoordIndex2(x, y)]
+      || es.nospawnsMap[getCoordIndex2(x, y)]
       || mines.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
@@ -2846,7 +2492,7 @@ export function engine({
       if (numTries < 30) spawnInvincibilityPickup(numTries + 1);
     } else {
       if (!apples.existsAt(x, y)) apples.add(x, y);
-      pickupsMap[getCoordIndex2(x, y)] = {
+      es.pickupsMap[getCoordIndex2(x, y)] = {
         timeTillDeath: PICKUP_LIFETIME_MS,
         type: PickupType.Invincibility,
       };
@@ -2864,9 +2510,9 @@ export function engine({
   const spawnPrey = (preyType: PreyType, numTries: number) => {
     const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
-    const spawnedInsideOfSomething = barriersMap[getCoordIndex2(x, y)]
-      || doorsMap[getCoordIndex2(x, y)]
-      || nospawnsMap[getCoordIndex2(x, y)]
+    const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
+      || es.doorsMap[getCoordIndex2(x, y)]
+      || es.nospawnsMap[getCoordIndex2(x, y)]
       || mines.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
@@ -2904,26 +2550,26 @@ export function engine({
     graphicalComponents.barrier.push();
     graphicalComponents.barrier.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.barrier);
-    renderer.drawSquareCustom(graphicalComponents.barrier, 0, 0, level.colors.barrier, level.colors.barrierStroke, drawBasicOptionsNoShake);
-    renderer.drawSquareBorderCustom(graphicalComponents.barrier, 0, 0, 'light', level.colors.barrierBorderLight, true);
-    renderer.drawSquareBorderCustom(graphicalComponents.barrier, 0, 0, 'dark', level.colors.barrierBorderDark, true);
-    renderer.drawXCustom(graphicalComponents.barrier, 0, 0, level.colors.barrierStroke);
+    renderer.drawSquareCustom(graphicalComponents.barrier, 0, 0, es.level.colors.barrier, es.level.colors.barrierStroke, drawBasicOptionsNoShake);
+    renderer.drawSquareBorderCustom(graphicalComponents.barrier, 0, 0, 'light', es.level.colors.barrierBorderLight, true);
+    renderer.drawSquareBorderCustom(graphicalComponents.barrier, 0, 0, 'dark', es.level.colors.barrierBorderDark, true);
+    renderer.drawXCustom(graphicalComponents.barrier, 0, 0, es.level.colors.barrierStroke);
     graphicalComponents.barrier.pop();
 
     graphicalComponents.barrierPassable.push();
     graphicalComponents.barrierPassable.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.barrierPassable);
-    renderer.drawSquareCustom(graphicalComponents.barrierPassable, 0, 0, level.colors.passableStroke, level.colors.passableStroke, drawBasicOptionsNoShake);
-    renderer.drawSquareBorderCustom(graphicalComponents.barrierPassable, 0, 0, 'light', level.colors.passableBorderLight, true);
-    renderer.drawSquareBorderCustom(graphicalComponents.barrierPassable, 0, 0, 'dark', level.colors.passableBorderDark, true);
+    renderer.drawSquareCustom(graphicalComponents.barrierPassable, 0, 0, es.level.colors.passableStroke, es.level.colors.passableStroke, drawBasicOptionsNoShake);
+    renderer.drawSquareBorderCustom(graphicalComponents.barrierPassable, 0, 0, 'light', es.level.colors.passableBorderLight, true);
+    renderer.drawSquareBorderCustom(graphicalComponents.barrierPassable, 0, 0, 'dark', es.level.colors.passableBorderDark, true);
     graphicalComponents.barrierPassable.pop();
 
     graphicalComponents.door.push();
     graphicalComponents.door.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.door);
-    renderer.drawSquareCustom(graphicalComponents.door, 0, 0, level.colors.door, level.colors.doorStroke, drawBasicOptionsNoShake);
-    renderer.drawSquareBorderCustom(graphicalComponents.door, 0, 0, 'light', level.colors.doorStroke, false);
-    renderer.drawSquareBorderCustom(graphicalComponents.door, 0, 0, 'dark', level.colors.doorStroke, false);
+    renderer.drawSquareCustom(graphicalComponents.door, 0, 0, es.level.colors.door, es.level.colors.doorStroke, drawBasicOptionsNoShake);
+    renderer.drawSquareBorderCustom(graphicalComponents.door, 0, 0, 'light', es.level.colors.doorStroke, false);
+    renderer.drawSquareBorderCustom(graphicalComponents.door, 0, 0, 'dark', es.level.colors.doorStroke, false);
     graphicalComponents.door.pop();
 
     graphicalComponents.snakeHead.push();
@@ -2932,7 +2578,7 @@ export function engine({
     if (state.gameMode === GameMode.Cobra) {
       renderer.drawSquareCustom(graphicalComponents.snakeHead, 0, 0, PALETTE.cobra.playerHead, PALETTE.cobra.playerHead, drawPlayerOptions);
     } else {
-      renderer.drawSquareCustom(graphicalComponents.snakeHead, 0, 0, level.colors.playerHead, level.colors.playerHead, drawPlayerOptions);
+      renderer.drawSquareCustom(graphicalComponents.snakeHead, 0, 0, es.level.colors.playerHead, es.level.colors.playerHead, drawPlayerOptions);
     }
     graphicalComponents.snakeHead.pop();
 
@@ -2942,20 +2588,20 @@ export function engine({
     if (state.gameMode === GameMode.Cobra) {
       renderer.drawSquareCustom(graphicalComponents.snakeSegment, 0, 0, PALETTE.cobra.playerTail, PALETTE.cobra.playerTailStroke, drawPlayerOptions);
     } else {
-      renderer.drawSquareCustom(graphicalComponents.snakeSegment, 0, 0, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
+      renderer.drawSquareCustom(graphicalComponents.snakeSegment, 0, 0, es.level.colors.playerTail, es.level.colors.playerTailStroke, drawPlayerOptions);
     }
     graphicalComponents.snakeSegment.pop();
 
     graphicalComponents.deco1.push();
     graphicalComponents.deco1.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.deco1);
-    renderer.drawSquareCustom(graphicalComponents.deco1, 0, 0, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptionsNoShake);
+    renderer.drawSquareCustom(graphicalComponents.deco1, 0, 0, es.level.colors.deco1, es.level.colors.deco1Stroke, drawBasicOptionsNoShake);
     graphicalComponents.deco1.pop();
 
     graphicalComponents.deco2.push();
     graphicalComponents.deco2.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.deco2);
-    renderer.drawSquareCustom(graphicalComponents.deco2, 0, 0, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptionsNoShake);
+    renderer.drawSquareCustom(graphicalComponents.deco2, 0, 0, es.level.colors.deco2, es.level.colors.deco2Stroke, drawBasicOptionsNoShake);
     graphicalComponents.deco2.pop();
   }
 
@@ -2967,7 +2613,7 @@ export function engine({
   }
 
   function drawBackground() {
-    const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
+    const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : es.level.colors.background;
     renderer.drawBackground(backgroundColor, gfxBG, gfxFG);
     gfxExitLights.clear(0, 0, 0, 0);
     gfxLighting.clear(0, 0, 0, 0);
@@ -2990,14 +2636,14 @@ export function engine({
         PALETTE.deathInvert.playerHead,
         PALETTE.deathInvert.playerHead,
         drawPlayerOptionsDeath);
-    } else if (!state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
+    } else if (!state.isExitingLevel && state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) {
       renderer.drawSquare(vec.x, vec.y, PALETTE.cobra.playerHead, PALETTE.cobra.playerHead, drawPlayerOptions);
     } else if (state.isLost) {
       renderer.drawGraphicalComponent1x1Static(gfxFG, graphicalComponents.snakeHead, vec.x, vec.y, 0.5, -1);
     } else {
       renderer.drawGraphicalComponent1x1Custom(renderer.getMainGfx(), graphicalComponents.snakeHead, vec.x, vec.y);
     }
-    const dir: DIR = (!state.isLost && moves.length > 0) ? (moves[0] as DIR) : player.direction;
+    const dir: DIR = (!state.isLost && es.moves.length > 0) ? (es.moves[0] as DIR) : player.direction;
     if (state.isLost) {
       spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(dir), 1, -1);
       if (replay.mode !== ReplayMode.Playback) {
@@ -3087,7 +2733,7 @@ export function engine({
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
     const acquiringArmor = state.timeSinceArmorPickup < 100;
     const armorUsed = state.timeSinceArmorProtection < HURT_STUN_TIME;
-    const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     if (stunned) {
       // draw stunned
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
@@ -3097,7 +2743,7 @@ export function engine({
       }
     } else if (invincible) {
       // draw invincible
-      const timeLeft = difficulty.invincibilityTime - state.timeSinceInvincibleStart;
+      const timeLeft = es.difficulty.invincibilityTime - state.timeSinceInvincibleStart;
       if (timeLeft < INVINCIBILITY_EXPIRE_WARN_MS && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0) {
         renderer.drawSquare(vec.x, vec.y, "#000", "#000", drawPlayerOptions);
       } else {
@@ -3116,7 +2762,7 @@ export function engine({
         PALETTE.deathInvert.playerTail,
         PALETTE.deathInvert.playerTailStroke,
         drawPlayerOptionsDeath);
-      const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
+      const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : es.level.colors.background;
       if (cornerNE) {
         renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'NE', drawPlayerOptionsDeath.screenshakeMul);
       } else if (cornerSE) {
@@ -3185,7 +2831,7 @@ export function engine({
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
     const acquiringArmor = state.timeSinceArmorPickup < ARMOR_PICKUP_FREEZE_MS;
     const armorUsed = state.timeSinceArmorProtection < HURT_STUN_TIME;
-    const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime;
+    const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     const acquiringOther = state.acquireProgression > 0;
     if (!stunned &&
       !armorUsed &&
@@ -3219,7 +2865,7 @@ export function engine({
       (dirPrev === DIR.LEFT && dirNext === DIR.UP)
     );
     const gfx = renderer.getMainGfx();
-    const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : level.colors.background;
+    const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : es.level.colors.background;
     if (cornerNE) {
       renderer.eraseCorner(gfx, backgroundColor, vec.x, vec.y, 'NE', 1);
     } else if (cornerSE) {
@@ -3232,15 +2878,15 @@ export function engine({
   }
 
   function drawApple(x: number, y: number) {
-    const isInvincibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility;
-    const isReversibility = pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Armor;
+    const isInvincibility = es.pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility;
+    const isReversibility = es.pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Armor;
     if (state.isInvertedColors && replay.mode !== ReplayMode.Playback && isInvincibility) {
       renderer.drawSquare(x, y,
         PALETTE.deathInvert.apple,
         PALETTE.deathInvert.appleStroke,
         drawAppleOptions);
     } else if (isInvincibility) {
-      const timeLeft = pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
+      const timeLeft = es.pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
       if (shouldBlinkExpiringPickup(timeLeft)) {
         return;
       }
@@ -3251,7 +2897,7 @@ export function engine({
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
     } else if (isReversibility) {
-      const timeLeft = pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
+      const timeLeft = es.pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
       if (shouldBlinkExpiringPickup(timeLeft)) {
         return;
       }
@@ -3262,7 +2908,7 @@ export function engine({
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
     } else if (drawState.shouldDrawApples) {
-      const specialPickupType = pickupsMap[getCoordIndex2(x, y)]?.type;
+      const specialPickupType = es.pickupsMap[getCoordIndex2(x, y)]?.type;
       if (specialPickupType) {
         spriteRenderer.drawSprite3x3(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
       } else {
@@ -3374,7 +3020,7 @@ export function engine({
   function drawExitLights() {
     if (state.appMode !== AppMode.Game) return;
     if (replay.mode === ReplayMode.Playback) return;
-    if (!state.isDoorsOpen && (level.type || 0) === LevelType.Level) return;
+    if (!state.isDoorsOpen && (es.level.type || 0) === LevelType.Level) return;
     if (state.isExitingLevel) return;
     if (state.isExited) return;
     if (state.isGameWon) return;
@@ -3383,9 +3029,9 @@ export function engine({
       for (let x = 0; x < GRIDCOUNT_X; x++) {
         if (x !== 0 && y !== 0 && x !== GRIDCOUNT_X - 1 && y !== GRIDCOUNT_Y - 1) continue;
         const coord = getCoordIndex2(x, y);
-        if (barriersMap[coord] && !passablesMap[coord]) continue;
-        if (portalsMap[coord]) continue;
-        if (nospawnsMap[coord] && !locksMap[coord]) continue;
+        if (es.barriersMap[coord] && !es.passablesMap[coord]) continue;
+        if (es.portalsMap[coord]) continue;
+        if (es.nospawnsMap[coord] && !es.locksMap[coord]) continue;
         const lightIndex = (i: number) => {
           return Math.round(lerp(0, 4, triangle((i + 6) / 4)))
         }
@@ -3412,11 +3058,11 @@ export function engine({
 
   function drawBarriers() {
     if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
-      for (let i = 0; i < barriers.length; i++) {
-        if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
-        const x = barriers[i].vec.x;
-        const y = barriers[i].vec.y;
-        switch (barriers[i].type) {
+      for (let i = 0; i < es.barriers.length; i++) {
+        if (state.isDoorsOpen && es.passablesMap[getCoordIndex(es.barriers[i].vec)]) continue;
+        const x = es.barriers[i].vec.x;
+        const y = es.barriers[i].vec.y;
+        switch (es.barriers[i].type) {
           case BarrierType.FireTile:
             // handled by drawFireTiles()
             break;
@@ -3499,63 +3145,63 @@ export function engine({
       return;
     }
 
-    for (let i = 0; i < barriers.length; i++) {
-      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
-      renderer.drawSquareStatic(gfxFG, barriers[i].vec.x, barriers[i].vec.y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptionsNoShake);
+    for (let i = 0; i < es.barriers.length; i++) {
+      if (state.isDoorsOpen && es.passablesMap[getCoordIndex(es.barriers[i].vec)]) continue;
+      renderer.drawSquareStatic(gfxFG, es.barriers[i].vec.x, es.barriers[i].vec.y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptionsNoShake);
     }
-    for (let i = 0; i < barriers.length; i++) {
-      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
-      renderer.drawSquareBorderStatic(gfxFG, barriers[i].vec.x, barriers[i].vec.y, 'light', PALETTE.deathInvert.barrierStroke, false, 0);
+    for (let i = 0; i < es.barriers.length; i++) {
+      if (state.isDoorsOpen && es.passablesMap[getCoordIndex(es.barriers[i].vec)]) continue;
+      renderer.drawSquareBorderStatic(gfxFG, es.barriers[i].vec.x, es.barriers[i].vec.y, 'light', PALETTE.deathInvert.barrierStroke, false, 0);
     }
-    for (let i = 0; i < barriers.length; i++) {
-      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
-      renderer.drawSquareBorderStatic(gfxFG, barriers[i].vec.x, barriers[i].vec.y, 'dark', PALETTE.deathInvert.barrierStroke, false, 0);
+    for (let i = 0; i < es.barriers.length; i++) {
+      if (state.isDoorsOpen && es.passablesMap[getCoordIndex(es.barriers[i].vec)]) continue;
+      renderer.drawSquareBorderStatic(gfxFG, es.barriers[i].vec.x, es.barriers[i].vec.y, 'dark', PALETTE.deathInvert.barrierStroke, false, 0);
     }
-    for (let i = 0; i < barriers.length; i++) {
-      if (state.isDoorsOpen && passablesMap[getCoordIndex(barriers[i].vec)]) continue;
-      renderer.drawXStatic(gfxFG, barriers[i].vec.x, barriers[i].vec.y, PALETTE.deathInvert.barrierStroke, 5, 0);
+    for (let i = 0; i < es.barriers.length; i++) {
+      if (state.isDoorsOpen && es.passablesMap[getCoordIndex(es.barriers[i].vec)]) continue;
+      renderer.drawXStatic(gfxFG, es.barriers[i].vec.x, es.barriers[i].vec.y, PALETTE.deathInvert.barrierStroke, 5, 0);
     }
   }
 
   function drawPassableBarriers() {
     if (!state.isDoorsOpen) return;
     if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
-      for (let i = 0; i < barriers.length; i++) {
-        if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
-        renderer.drawGraphicalComponent1x1Static(gfxFG, graphicalComponents.barrierPassable, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
+      for (let i = 0; i < es.barriers.length; i++) {
+        if (!es.passablesMap[getCoordIndex(es.barriers[i].vec)]) continue;
+        renderer.drawGraphicalComponent1x1Static(gfxFG, graphicalComponents.barrierPassable, es.barriers[i].vec.x, es.barriers[i].vec.y, 1, 0);
         // draw passable glass overlay
-        if (!keysMap[getCoordIndex(barriers[i].vec)]) {
-          spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 10);
+        if (!es.keysMap[getCoordIndex(es.barriers[i].vec)]) {
+          spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, es.barriers[i].vec.x, es.barriers[i].vec.y, 10);
         }
       }
       return;
     }
-    for (let i = 0; i < barriers.length; i++) {
-      if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
-      renderer.drawSquare(barriers[i].vec.x, barriers[i].vec.y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptions);
+    for (let i = 0; i < es.barriers.length; i++) {
+      if (!es.passablesMap[getCoordIndex(es.barriers[i].vec)]) continue;
+      renderer.drawSquare(es.barriers[i].vec.x, es.barriers[i].vec.y, PALETTE.deathInvert.barrier, PALETTE.deathInvert.barrierStroke, drawBasicOptions);
     }
-    for (let i = 0; i < barriers.length; i++) {
-      if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
-      renderer.drawSquareBorder(barriers[i].vec.x, barriers[i].vec.y, 'light', PALETTE.deathInvert.barrierStroke, true);
+    for (let i = 0; i < es.barriers.length; i++) {
+      if (!es.passablesMap[getCoordIndex(es.barriers[i].vec)]) continue;
+      renderer.drawSquareBorder(es.barriers[i].vec.x, es.barriers[i].vec.y, 'light', PALETTE.deathInvert.barrierStroke, true);
     }
-    for (let i = 0; i < barriers.length; i++) {
-      if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
-      renderer.drawSquareBorder(barriers[i].vec.x, barriers[i].vec.y, 'dark', PALETTE.deathInvert.barrierStroke, true);
+    for (let i = 0; i < es.barriers.length; i++) {
+      if (!es.passablesMap[getCoordIndex(es.barriers[i].vec)]) continue;
+      renderer.drawSquareBorder(es.barriers[i].vec.x, es.barriers[i].vec.y, 'dark', PALETTE.deathInvert.barrierStroke, true);
     }
   }
 
   function drawDoors() {
     if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
-      for (let i = 0; i < doors.length; i++) {
-        const x = doors[i].x;
-        const y = doors[i].y;
+      for (let i = 0; i < es.doors.length; i++) {
+        const x = es.doors[i].x;
+        const y = es.doors[i].y;
         const isThemedDoor = isAtMapEdge(x, y, 1);
         const isNonDoorLevel = false
-          || level === START_LEVEL
-          || level === START_LEVEL_COBRA
-          || level === WARP_ZONE_01
-          || level === WARP_ZONE_02
-          || level === WARP_ZONE_03;
+          || es.level === START_LEVEL
+          || es.level === START_LEVEL_COBRA
+          || es.level === WARP_ZONE_01
+          || es.level === WARP_ZONE_02
+          || es.level === WARP_ZONE_03;
         if (isThemedDoor && !isNonDoorLevel) {
           spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedDoor, x, y, 0, 1, 0);
         } else if (!isNonDoorLevel) {
@@ -3580,19 +3226,19 @@ export function engine({
       }
       return;
     }
-    for (let i = 0; i < doors.length; i++) {
-      renderer.drawSquare(doors[i].x, doors[i].y, PALETTE.deathInvert.door, PALETTE.deathInvert.doorStroke, drawBasicOptions);
+    for (let i = 0; i < es.doors.length; i++) {
+      renderer.drawSquare(es.doors[i].x, es.doors[i].y, PALETTE.deathInvert.door, PALETTE.deathInvert.doorStroke, drawBasicOptions);
     }
-    for (let i = 0; i < doors.length; i++) {
-      renderer.drawSquareBorder(doors[i].x, doors[i].y, 'light', PALETTE.deathInvert.doorStroke);
+    for (let i = 0; i < es.doors.length; i++) {
+      renderer.drawSquareBorder(es.doors[i].x, es.doors[i].y, 'light', PALETTE.deathInvert.doorStroke);
     }
-    for (let i = 0; i < doors.length; i++) {
-      renderer.drawSquareBorder(doors[i].x, doors[i].y, 'dark', PALETTE.deathInvert.doorStroke);
+    for (let i = 0; i < es.doors.length; i++) {
+      renderer.drawSquareBorder(es.doors[i].x, es.doors[i].y, 'dark', PALETTE.deathInvert.doorStroke);
     }
   }
 
   function drawKey(key: Key) {
-    if (!state.isDoorsOpen && passablesMap[getCoordIndex(key.position)]) return;
+    if (!state.isDoorsOpen && es.passablesMap[getCoordIndex(key.position)]) return;
     if (!drawState.shouldDrawKeysLocks && !state.isInvertedColors) return;
     if (state.isInvertedColors) {
       spriteRenderer.drawImage3x3(Image.KeyGrey, key.position.x, key.position.y);
@@ -3621,7 +3267,7 @@ export function engine({
   function drawDecorative1(vec: Vector) {
     if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
       renderer.drawGraphicalComponent1x1Static(gfxBG, graphicalComponents.deco1, vec.x, vec.y, 1, 0);
-      // renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptionsNoShake);
+      // renderer.drawSquareStatic(gfxBG, vec.x, vec.y, es.level.colors.deco1, es.level.colors.deco1Stroke, drawBasicOptionsNoShake);
     } else {
       renderer.drawSquare(vec.x, vec.y, PALETTE.deathInvert.deco1, PALETTE.deathInvert.deco1Stroke, drawBasicOptions);
     }
@@ -3630,17 +3276,17 @@ export function engine({
   function drawDecorative2(vec: Vector) {
     if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
       renderer.drawGraphicalComponent1x1Static(gfxBG, graphicalComponents.deco2, vec.x, vec.y, 1, 0);
-      // renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptionsNoShake);
+      // renderer.drawSquareStatic(gfxBG, vec.x, vec.y, es.level.colors.deco2, es.level.colors.deco2Stroke, drawBasicOptionsNoShake);
     } else {
       renderer.drawSquare(vec.x, vec.y, PALETTE.deathInvert.deco2, PALETTE.deathInvert.deco2Stroke, drawBasicOptions);
     }
   }
 
   function drawParticlesTest(coord: number) {
-    if (barriersMap[coord] && !passablesMap[coord]) return false;
-    if (doorsMap[coord]) return false;
-    if (portalsMap[coord]) return false;
-    if (locksMap[coord]) return false;
+    if (es.barriersMap[coord] && !es.passablesMap[coord]) return false;
+    if (es.doorsMap[coord]) return false;
+    if (es.portalsMap[coord]) return false;
+    if (es.locksMap[coord]) return false;
     if (segments.containsCoord(coord)) return false;
     return true;
   }
@@ -3691,10 +3337,10 @@ export function engine({
 
   function drawPortals() {
     for (let i = 0; i <= 9; i++) {
-      for (let j = 0; j < portals[i as PortalChannel].length; j++) {
-        const portalPosition = portals[i as PortalChannel][j];
+      for (let j = 0; j < es.portals[i as PortalChannel].length; j++) {
+        const portalPosition = es.portals[i as PortalChannel][j];
         if (!portalPosition) continue;
-        const portal = portalsMap[getCoordIndex(portalPosition)];
+        const portal = es.portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
         renderer.drawPortal(portal, state.isInvertedColors && replay.mode !== ReplayMode.Playback, drawPortalOptions, gfxBG);
         // if (drawState.shouldDrawKeysLocks) {
@@ -3706,10 +3352,10 @@ export function engine({
 
   function startPortalParticles() {
     for (let i = 0; i <= 9; i++) {
-      for (let j = 0; j < portals[i as PortalChannel].length; j++) {
-        const portalPosition = portals[i as PortalChannel][j];
+      for (let j = 0; j < es.portals[i as PortalChannel].length; j++) {
+        const portalPosition = es.portals[i as PortalChannel][j];
         if (!portalPosition) continue;
-        const portal = portalsMap[getCoordIndex(portalPosition)];
+        const portal = es.portalsMap[getCoordIndex(portalPosition)];
         if (!portal) continue;
         portalParticleSystem.emit(portal.position.x, portal.position.y, portal.channel);
       }
@@ -3719,7 +3365,7 @@ export function engine({
   function startExitParticles() {
     if (state.appMode !== AppMode.Game) return;
     if (replay.mode === ReplayMode.Playback) return;
-    if (!state.isDoorsOpen && (level.type || 0) === LevelType.Level) return;
+    if (!state.isDoorsOpen && (es.level.type || 0) === LevelType.Level) return;
     if (state.isExitingLevel) return;
     if (state.isExited) return;
     if (state.isGameWon) return;
@@ -3728,10 +3374,10 @@ export function engine({
       for (let x = 0; x < GRIDCOUNT_X; x++) {
         if (x !== 0 && y !== 0 && x !== GRIDCOUNT_X - 1 && y !== GRIDCOUNT_Y - 1) continue;
         const coord = getCoordIndex2(x, y);
-        // if (barriersMap[coord] && !passablesMap[coord]) continue;
-        if (barriersMap[coord]) continue;
-        if (portalsMap[coord]) continue;
-        if (nospawnsMap[coord] && !locksMap[coord] && !doorsMap[coord]) continue;
+        // if (es.barriersMap[coord] && !es.passablesMap[coord]) continue;
+        if (es.barriersMap[coord]) continue;
+        if (es.portalsMap[coord]) continue;
+        if (es.nospawnsMap[coord] && !es.locksMap[coord] && !es.doorsMap[coord]) continue;
         exitLightParticleSystem.emit(x, y, 0);
       }
     }
@@ -3760,12 +3406,12 @@ export function engine({
     state.isLost = true;
     state.timeSinceHurt = Infinity;
     if (replay.mode !== ReplayMode.Playback) {
-      // musicPlayer.stop(level.musicTrack);
+      // musicPlayer.stop(es.level.musicTrack);
       state.lives = 0;
       stats.numDeaths += 1;
       stopAction(Action.FadeMusic);
       musicPlayer.setVolume(0);
-      musicPlayer.halfSpeed(level.musicTrack);
+      musicPlayer.halfSpeed(es.level.musicTrack);
     }
     switch (state.lastHurtBy) {
       case HitType.HitBarrier:
@@ -3872,7 +3518,7 @@ export function engine({
   }
 
   function getIsStartLevel() {
-    return level === START_LEVEL || level == START_LEVEL_COBRA;
+    return es.level === START_LEVEL || es.level == START_LEVEL_COBRA;
   }
 
   return {

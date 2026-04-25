@@ -256,6 +256,31 @@ export interface GameState {
   inputType: InputType,
 }
 
+export interface EngineState {
+  level: Level,
+  difficulty: Difficulty,
+  moves: DIR[], // moves that the player has queued up
+  recentMoves: RecentMoves, // most recent moves that the snake has performed
+  recentInputs: RecentMoves, // most recent inputs that the player has performed
+  recentInputTimes: RecentMoveTimings, // timing of the most recent inputs that the player has performed
+  barriers: Barrier[], // permanent structures that damage the snake
+  doors: Vector[], // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
+  decoratives1: Vector[], // bg decorative elements
+  decoratives2: Vector[], // bg decorative elements
+  keys: Key[], // unlock locks
+  locks: Lock[], // unlockable barriers
+  passablesMap: Record<number, boolean>, // map of barriers that become passable when doors open
+  barriersMap: Record<number, BarrierType>, // map of barriers (obstacles or walls that the snake can hit)
+  doorsMap: Record<number, boolean>, // map of doors - blocks that disappear once conditions are met
+  pickupsMap: Record<number, Pickup | null>, // map of pickup items, powerups, etc.
+  nospawnsMap: Record<number, boolean>, // no-spawns are designated spots on the map where an apple cannot spawn
+  keysMap: Record<number, Key | null>,
+  locksMap: Record<number, Lock | null>,
+  diffSelectMap: Record<number, number>,
+  portals: Record<PortalChannel, Vector[]>,
+  portalsMap: Record<number, Portal>,
+}
+
 export interface Outfit {
   exclusive: WearableFrame, // pirate costume, luchador masks, etc.
   hat: WearableFrame,

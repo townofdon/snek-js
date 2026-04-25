@@ -1,5 +1,7 @@
 import { IS_LOCALHOST } from "@/constants";
 import { Level } from "../types";
+import { shuffleArray } from "../utils";
+
 import { LEVEL_01 } from "./campaign/level01";
 import { LEVEL_01_HARD } from "./campaign/level01hard";
 import { LEVEL_01_ULTRA } from "./campaign/level01ultra";
@@ -54,7 +56,6 @@ import { X_TOO_SIMPLE } from "./challenge/tooSimple";
 import { X_UNDERGROUND } from "./challenge/underground";
 import { X_UNWIND } from "./challenge/unwind";
 import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from "./levelConstants";
-import { shuffleArray } from "../utils";
 import { LEVEL_WIN_GAME } from "./winGame";
 import { X_GAUNTLET } from "./challenge/gauntlet";
 import { X_SNEKCITY } from "./challenge/snekcity";
