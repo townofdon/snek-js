@@ -13,6 +13,8 @@
     "deploy": "echo \"Don't forget to bump the version!\n\" && git push --tags",
     "deploy-gh-pages": "echo \"Deprecated: run 'npm run deploy'\" && exit 1",
     "deploy-prod-manual": "npm run build && cd bin && ./deploy.sh",
+    "package": "cd bin && ./package.sh",
+    "nwbuild": "nwbuild --mode=build --version=stable --glob=false --flavor=normal ./dist-prod",
     "watch": "NODE_ENV=development webpack --watch --config-node-env=development"
   },
   "browser": {
@@ -67,6 +69,7 @@
     "jsdom-global": "3.0.2",
     "mini-css-extract-plugin": "^2.10.2",
     "mocha": "^12.0.0-beta-10",
+    "nw-builder": "^4.17.7",
     "sass": "^1.98.0",
     "sass-loader": "^16.0.7",
     "style-loader": "^4.0.0",

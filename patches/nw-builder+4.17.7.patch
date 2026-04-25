@@ -1,0 +1,32 @@
+diff --git a/node_modules/nw-builder/src/bld/osx.js b/node_modules/nw-builder/src/bld/osx.js
+index 41f01c7..dc29a34 100644
+--- a/node_modules/nw-builder/src/bld/osx.js
++++ b/node_modules/nw-builder/src/bld/osx.js
+@@ -77,7 +77,7 @@ export default async function setOsxConfig({ app, outDir, releaseInfo }) {
+     const helperApps = [
+       { name: 'nwjs Helper (Alerts).app', id: 'helper.alert' },
+       { name: 'nwjs Helper (GPU).app', id: 'helper.gpu' },
+-      { name: 'nwjs Helper (Plugin).app', id: 'helper.plugin' },
++      // { name: 'nwjs Helper (Plugin).app', id: 'helper.plugin' },
+       { name: 'nwjs Helper (Renderer).app', id: 'helper.renderer' },
+       { name: 'nwjs Helper.app', id: 'helper' },
+     ];
+diff --git a/node_modules/nw-builder/src/index.js b/node_modules/nw-builder/src/index.js
+index 8ff0676..37b73bd 100644
+--- a/node_modules/nw-builder/src/index.js
++++ b/node_modules/nw-builder/src/index.js
+@@ -50,12 +50,13 @@ async function nwbuild(options) {
+   try {
+     /* Parse options */
+     options = await util.parse(options, manifest);
++
+     util.log('debug', 'info', 'Parse initial options');
+ 
+     util.log('debug', 'info', 'Get node manifest...');
+     manifest = await util.getNodeManifest({ srcDir: options.srcDir, glob: options.glob });
+     if (typeof manifest.json?.nwbuild === 'object') {
+-      options = manifest.json.nwbuild;
++      options = { ...options, ...manifest.json.nwbuild };
+     }
+ 
+     util.log('info', options.logLevel, 'Parse final options using node manifest');

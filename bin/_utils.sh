@@ -58,6 +58,12 @@ assertVarExists() {
       exit 1
   fi
 }
+assertEqual() {
+  if [ "$1" != "$2" ]; then
+    error "$1 does not equal $2. $3"
+    exit 1
+  fi
+}
 readEnvVar() {
   VAR=$(grep "^$1=" "../.env" | xargs)
   IFS="=" read -ra VAR <<< "$VAR"
@@ -65,7 +71,7 @@ readEnvVar() {
   echo ${VAR[1]}
 }
 parseVersion() {
-  VERSION=$(cat ../package.json \
+  VERSION=$(cat $1 \
     | grep version \
     | head -1 \
     | awk -F: '{ print $2 }' \

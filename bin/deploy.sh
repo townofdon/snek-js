@@ -6,8 +6,8 @@ source "./_utils.sh"
 #
 # ARGS
 #
-CLEANUP=false
-VERSION=$(parseVersion)
+CLEANUP=true
+VERSION=$(parseVersion "../package.json")
 assertVarExists $VERSION
 
 #

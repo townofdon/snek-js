@@ -235,6 +235,10 @@ canvas {
   align-items: center;
 }
 
+.overflow-hidden {
+  overflow: hidden;
+}
+
 .stretch {
   width: 100%;
   height: 100%;

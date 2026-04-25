@@ -19,6 +19,7 @@ import {
   DISABLE_TRANSITIONS,
   DIFFICULTY_MEDIUM,
   IS_DEV,
+  IS_NWJS_PACKAGE,
 } from './constants';
 import {
   DEFAULT_BASE_STATS,
@@ -837,7 +838,16 @@ export const sketch = (p5: P5) => {
     const handleYes = () => {
       modal.hide();
       sfx.play(Sound.xpound);
-      setTimeout(() => window.location.reload(), 500)
+      setTimeout(() => {
+        const app = (typeof nw !== 'undefined' && nw && nw.App) || undefined;
+        if (app) {
+          // native app
+          app.quit();
+        } else {
+          // web
+          window.location.reload();
+        }
+      }, 500)
     }
     const handleNo = () => {
       modal.hide();

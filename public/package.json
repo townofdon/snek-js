@@ -1,0 +1,44 @@
+{
+  "name": "snek",
+  "version": "1.28.2",
+  "main": "index.html",
+  "author": "Don Townsend <townofdon@gmail.com> (https://dontownsendcreative.com/)",
+  "company": "Creative Juice LLC",
+  "country": "US",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/townofdon/snek-js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/townofdon/snek-js/issues"
+  },
+  "homepage": "https://github.com/townofdon/snek-js#readme",
+  "nwbuild": {
+    "mode": "build",
+    "version": "stable",
+    "flavor": "sdk",
+    "glob": false,
+    "ffmpeg": false,
+    "logLevel": "info",
+    "srcDir": "./dist-prod",
+    "app": {
+      "LSApplicationCategoryType": "public.app-category.games",
+      "NSHumanReadableCopyright": "© 2026, Creative Juice LLC"
+    }
+  },
+  "window": {
+    "title": "SNEK",
+    "width": 1200,
+    "height": 800,
+    "fullscreen": true,
+    "kiosk": false,
+    "resizable": true,
+    "always_on_top": false,
+    "show_in_taskbar": true,
+    "frame": true,
+    "transparent": false,
+    "position": "center",
+    "icon": "public/assets/graphics/snek-favicon.png"
+  }
+}

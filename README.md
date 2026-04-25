@@ -56,6 +56,21 @@ git subtree push --prefix dist origin gh-pages
 
 If you need to force push subtree changes, [see here](https://gist.github.com/tduarte/eac064b4778711b116bb827f8c9bef7b).
 
+## Packaging for Native Builds (Steam, etc.)
+
+SNEK uses [nw-builder](https://github.com/nwutils/nw-builder) to bundle the application as an native executable binary for various platforms (linux, osx, windows).
+
+Install `jq` (used to synchronize `package.json` versions):
+
+```bash
+homebrew install jq
+```
+
+Install `nw-builder`:
+
+```bash
+npm i nw-builder --save-dev
+```
 
 ## Convert WAV to MP3
 

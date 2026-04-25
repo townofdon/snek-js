@@ -144,3 +144,7 @@ archives
 TODO.md
 
 public/assets/music/*.wav
+
+# nwjs packaging
+cache/
+dist-pkg/

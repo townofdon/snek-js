@@ -23,6 +23,7 @@ export const VERSION = process.env.__VERSION__;
 export const COMMIT_HASH = process.env.__COMMIT_HASH__;
 export const IS_DEV = window.location.href.includes('localhost') || process.env.NODE_ENV === 'test' || process.env.NODE_ENV === 'development';
 export const IS_LOCALHOST = window.location.href.includes('localhost');
+export const IS_NWJS_PACKAGE = process.env.__NWJS_PACKAGE__ || false;
 const IS_EDITOR = window.location.pathname.includes('editor') || window.location.pathname.includes('astar-tester');
 
 export const LEADERBOARD_API_HOST = 'https://dontownsendcreative.com/snek-leaderboard';
