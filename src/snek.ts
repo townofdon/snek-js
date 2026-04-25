@@ -173,6 +173,7 @@ export const sketch = (p5: P5) => {
   const winLevelScene = new WinLevelScene(p5, gfxPresentation, state, sfx, fonts, unlockedMusicStore, spriteRenderer, { onSceneEnded: gotoNextLevel });
 
   const {
+    initEngine,
     setLevel,
     setDifficulty,
     getLevel,
@@ -350,6 +351,7 @@ export const sketch = (p5: P5) => {
     if (!canvas) throw new Error('could not find canvas with id="game-canvas"');
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
     p5.frameRate(FRAMERATE);
+    initEngine();
     initLevel(false);
     state.isPreloaded = true;
     window.addEventListener('beforeunload', () => {

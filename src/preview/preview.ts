@@ -128,6 +128,7 @@ export const sketch = (p5: P5) => {
   const loadingScene = new LoadingScene(p5, gfxPresentation, fonts);
 
   const {
+    initEngine,
     setLevel,
     setDifficulty,
     getMaybeTitleScene,
@@ -254,6 +255,7 @@ export const sketch = (p5: P5) => {
     if (!canvas) throw new Error('could not find canvas with id="game-canvas"');
     p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
     p5.frameRate(FRAMERATE);
+    initEngine();
     setLevel(level.current);
     state.isPreloaded = true;
   }

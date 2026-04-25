@@ -75,6 +75,7 @@ import {
   RARITY_RARE,
   PITY_INCREMENT,
   BASE_PICKUP_RARITY,
+  STROKE_SIZE,
 } from "../constants";
 import {
   Action,
@@ -383,13 +384,13 @@ export function engine({
   const preyList = new PreyList({ astar, onLifetimeExpire: onMineLifetimeExpire });
 
   // hack P5's "offscreen canvas" to layer multiple canvases for MAX PERF - see: https://p5js.org/reference/#/p5/createGraphics
-  const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  const gfxExitLights: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  const gfxKeysLocks: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  const gfxApples: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  const gfxFGAction: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
-  const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
+  const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
+  const gfxExitLights: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
+  const gfxKeysLocks: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
+  const gfxApples: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
+  const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
+  const gfxFGAction: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
+  const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
   const gfxUIRight: P5.Graphics = p5.createGraphics(BLOCK_SIZE.x, DIMENSIONS.y, p5.P2D, document.getElementById(UI_CANVAS_RIGHT));
   gfxBG.addClass('static-gfx-canvas').addClass('bg').parent(UI_PARENT_ID).addClass('gfx-bg').id('canvas-bg');
   gfxExitLights.addClass('static-gfx-canvas').addClass('fg0').parent(UI_PARENT_ID).addClass('gfx-exit-lights');
@@ -401,30 +402,16 @@ export function engine({
   // move gfxPresentation so that it is on top of everything else
   document.getElementById('gfx-presentation').after(document.getElementById('canvas-lighting'));
   const graphicalComponents: GraphicalComponents = {
-    deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-    deco2: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-    barrier: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-    barrierPassable: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-    door: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
+    deco1: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
+    deco2: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
+    barrier: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
+    barrierPassable: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
+    door: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
+    snakeHead: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
+    snakeSegment: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
     // @ts-ignore
     apple: null,
-    snakeHead: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-    // note - unused for main engine
-    snakeSegment: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
   };
-  // set pixel density for a perf boost. see - https://p5js.org/reference/p5/pixelDensity/
-  [
-    p5,
-    gfxPresentation,
-    gfxBG,
-    gfxExitLights,
-    gfxKeysLocks,
-    gfxApples,
-    gfxFG,
-    gfxFGAction,
-    gfxLighting,
-    gfxUIRight,
-  ].forEach(gfx => gfx.pixelDensity(1));
   const gradients = new Gradients(p5);
   const particles = new Particles(p5, gradients, screenShake); // z-index 0
   const particles10 = new Particles(p5, gradients, screenShake); // z-index 10
@@ -504,6 +491,25 @@ export function engine({
       },
     },
   } satisfies AcquirePickupSceneConstructorArgs);
+
+  function initEngine() {
+    [
+      p5,
+      gfxPresentation,
+      gfxBG,
+      gfxExitLights,
+      gfxKeysLocks,
+      gfxApples,
+      gfxFG,
+      gfxFGAction,
+      gfxLighting,
+      gfxUIRight,
+    ].forEach((gfx: P5.Graphics) => {
+      // set pixel density for a perf boost. see - https://p5js.org/reference/p5/pixelDensity/
+      gfx.pixelDensity(1);
+      gfx.noSmooth();
+    });
+  }
 
   function setLevel(incoming: Level) {
     level = incoming;
@@ -2895,41 +2901,62 @@ export function engine({
   }
 
   function cacheGraphicalComponents() {
+    graphicalComponents.barrier.push();
+    graphicalComponents.barrier.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.barrier);
-    renderer.drawSquareCustom(graphicalComponents.barrier, 1, 1, level.colors.barrier, level.colors.barrierStroke, drawBasicOptionsNoShake);
-    renderer.drawSquareBorderCustom(graphicalComponents.barrier, 1, 1, 'light', level.colors.barrierBorderLight, true);
-    renderer.drawSquareBorderCustom(graphicalComponents.barrier, 1, 1, 'dark', level.colors.barrierBorderDark, true);
-    renderer.drawXCustom(graphicalComponents.barrier, 1, 1, level.colors.barrierStroke);
+    renderer.drawSquareCustom(graphicalComponents.barrier, 0, 0, level.colors.barrier, level.colors.barrierStroke, drawBasicOptionsNoShake);
+    renderer.drawSquareBorderCustom(graphicalComponents.barrier, 0, 0, 'light', level.colors.barrierBorderLight, true);
+    renderer.drawSquareBorderCustom(graphicalComponents.barrier, 0, 0, 'dark', level.colors.barrierBorderDark, true);
+    renderer.drawXCustom(graphicalComponents.barrier, 0, 0, level.colors.barrierStroke);
+    graphicalComponents.barrier.pop();
 
+    graphicalComponents.barrierPassable.push();
+    graphicalComponents.barrierPassable.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.barrierPassable);
-    renderer.drawSquareCustom(graphicalComponents.barrierPassable, 1, 1, level.colors.passableStroke, level.colors.passableStroke, drawBasicOptionsNoShake);
-    renderer.drawSquareBorderCustom(graphicalComponents.barrierPassable, 1, 1, 'light', level.colors.passableBorderLight, true);
-    renderer.drawSquareBorderCustom(graphicalComponents.barrierPassable, 1, 1, 'dark', level.colors.passableBorderDark, true);
+    renderer.drawSquareCustom(graphicalComponents.barrierPassable, 0, 0, level.colors.passableStroke, level.colors.passableStroke, drawBasicOptionsNoShake);
+    renderer.drawSquareBorderCustom(graphicalComponents.barrierPassable, 0, 0, 'light', level.colors.passableBorderLight, true);
+    renderer.drawSquareBorderCustom(graphicalComponents.barrierPassable, 0, 0, 'dark', level.colors.passableBorderDark, true);
+    graphicalComponents.barrierPassable.pop();
 
+    graphicalComponents.door.push();
+    graphicalComponents.door.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.door);
-    renderer.drawSquareCustom(graphicalComponents.door, 1, 1, level.colors.door, level.colors.doorStroke, drawBasicOptionsNoShake);
-    renderer.drawSquareBorderCustom(graphicalComponents.door, 1, 1, 'light', level.colors.doorStroke, false);
-    renderer.drawSquareBorderCustom(graphicalComponents.door, 1, 1, 'dark', level.colors.doorStroke, false);
+    renderer.drawSquareCustom(graphicalComponents.door, 0, 0, level.colors.door, level.colors.doorStroke, drawBasicOptionsNoShake);
+    renderer.drawSquareBorderCustom(graphicalComponents.door, 0, 0, 'light', level.colors.doorStroke, false);
+    renderer.drawSquareBorderCustom(graphicalComponents.door, 0, 0, 'dark', level.colors.doorStroke, false);
+    graphicalComponents.door.pop();
 
+    graphicalComponents.snakeHead.push();
+    graphicalComponents.snakeHead.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.snakeHead);
     if (state.gameMode === GameMode.Cobra) {
-      renderer.drawSquareCustom(graphicalComponents.snakeHead, 1, 1, PALETTE.cobra.playerHead, PALETTE.cobra.playerHead, drawPlayerOptions);
+      renderer.drawSquareCustom(graphicalComponents.snakeHead, 0, 0, PALETTE.cobra.playerHead, PALETTE.cobra.playerHead, drawPlayerOptions);
     } else {
-      renderer.drawSquareCustom(graphicalComponents.snakeHead, 1, 1, level.colors.playerHead, level.colors.playerHead, drawPlayerOptions);
+      renderer.drawSquareCustom(graphicalComponents.snakeHead, 0, 0, level.colors.playerHead, level.colors.playerHead, drawPlayerOptions);
     }
+    graphicalComponents.snakeHead.pop();
 
+    graphicalComponents.snakeSegment.push();
+    graphicalComponents.snakeSegment.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.snakeSegment);
     if (state.gameMode === GameMode.Cobra) {
-      renderer.drawSquareCustom(graphicalComponents.snakeSegment, 1, 1, PALETTE.cobra.playerTail, PALETTE.cobra.playerTailStroke, drawPlayerOptions);
+      renderer.drawSquareCustom(graphicalComponents.snakeSegment, 0, 0, PALETTE.cobra.playerTail, PALETTE.cobra.playerTailStroke, drawPlayerOptions);
     } else {
-      renderer.drawSquareCustom(graphicalComponents.snakeSegment, 1, 1, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
+      renderer.drawSquareCustom(graphicalComponents.snakeSegment, 0, 0, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
     }
+    graphicalComponents.snakeSegment.pop();
 
+    graphicalComponents.deco1.push();
+    graphicalComponents.deco1.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.deco1);
-    renderer.drawSquareCustom(graphicalComponents.deco1, 1, 1, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptionsNoShake);
+    renderer.drawSquareCustom(graphicalComponents.deco1, 0, 0, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptionsNoShake);
+    graphicalComponents.deco1.pop();
 
+    graphicalComponents.deco2.push();
+    graphicalComponents.deco2.translate(STROKE_SIZE / 2, STROKE_SIZE / 2);
     renderer.clearGraphicalComponent(graphicalComponents.deco2);
-    renderer.drawSquareCustom(graphicalComponents.deco2, 1, 1, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptionsNoShake);
+    renderer.drawSquareCustom(graphicalComponents.deco2, 0, 0, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptionsNoShake);
+    graphicalComponents.deco2.pop();
   }
 
   function clearBackground() {
@@ -2966,9 +2993,9 @@ export function engine({
     } else if (!state.isExitingLevel && state.timeSinceInvincibleStart < difficulty.invincibilityTime) {
       renderer.drawSquare(vec.x, vec.y, PALETTE.cobra.playerHead, PALETTE.cobra.playerHead, drawPlayerOptions);
     } else if (state.isLost) {
-      renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.snakeHead, vec.x, vec.y, 0.5, -1);
+      renderer.drawGraphicalComponent1x1Static(gfxFG, graphicalComponents.snakeHead, vec.x, vec.y, 0.5, -1);
     } else {
-      renderer.drawGraphicalComponent(graphicalComponents.snakeHead, vec.x, vec.y);
+      renderer.drawGraphicalComponent1x1Custom(renderer.getMainGfx(), graphicalComponents.snakeHead, vec.x, vec.y);
     }
     const dir: DIR = (!state.isLost && moves.length > 0) ? (moves[0] as DIR) : player.direction;
     if (state.isLost) {
@@ -3100,19 +3127,18 @@ export function engine({
         renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'NW', drawPlayerOptionsDeath.screenshakeMul);
       }
     } else {
+      const gfx = renderer.getMainGfx();
       // draw normal segment
       if (cornerNE) {
-        spriteRenderer.drawImage3x3Custom(p5, Image.ThemedSegmentNE, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentNE, vec.x, vec.y, 0, 1, 0);
       } else if (cornerSE) {
-        spriteRenderer.drawImage3x3Custom(p5, Image.ThemedSegmentSE, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentSE, vec.x, vec.y, 0, 1, 0);
       } else if (cornerSW) {
-        spriteRenderer.drawImage3x3Custom(p5, Image.ThemedSegmentSW, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentSW, vec.x, vec.y, 0, 1, 0);
       } else if (cornerNW) {
-        spriteRenderer.drawImage3x3Custom(p5, Image.ThemedSegmentNW, vec.x, vec.y, 0, 1, 0);
-      } else if (state.gameMode === GameMode.Cobra) {
-        renderer.drawSquare(vec.x, vec.y, PALETTE.cobra.playerTail, PALETTE.cobra.playerTailStroke, drawPlayerOptions);
+        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentNW, vec.x, vec.y, 0, 1, 0);
       } else {
-        renderer.drawSquare(vec.x, vec.y, level.colors.playerTail, level.colors.playerTailStroke, drawPlayerOptions);
+        renderer.drawGraphicalComponent1x1Custom(gfx, graphicalComponents.snakeSegment, vec.x, vec.y);
       }
       // draw decorative segment overlay
       const decoInterval = 9;
@@ -3466,7 +3492,7 @@ export function engine({
           default:
           case BarrierType.Unset:
           case BarrierType.Default:
-            renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrier, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
+            renderer.drawGraphicalComponent1x1Static(gfxFG, graphicalComponents.barrier, x, y, 1, 0);
             break;
         }
       }
@@ -3496,7 +3522,7 @@ export function engine({
     if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
       for (let i = 0; i < barriers.length; i++) {
         if (!passablesMap[getCoordIndex(barriers[i].vec)]) continue;
-        renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.barrierPassable, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
+        renderer.drawGraphicalComponent1x1Static(gfxFG, graphicalComponents.barrierPassable, barriers[i].vec.x, barriers[i].vec.y, 1, 0);
         // draw passable glass overlay
         if (!keysMap[getCoordIndex(barriers[i].vec)]) {
           spriteRenderer.drawSprite1x1Static(gfxFG, Image.TileSheet16, barriers[i].vec.x, barriers[i].vec.y, 10);
@@ -3535,7 +3561,7 @@ export function engine({
         } else if (!isNonDoorLevel) {
           spriteRenderer.drawImage1x1Static(gfxFG, Image.ThemedDoorAlt, x, y, 0, 1, 0);
         } else {
-          renderer.drawGraphicalComponentStatic(gfxFG, graphicalComponents.door, x, y, 1, 0);
+          renderer.drawGraphicalComponent1x1Static(gfxFG, graphicalComponents.door, x, y, 1, 0);
         }
       }
       // door open effect
@@ -3594,7 +3620,7 @@ export function engine({
 
   function drawDecorative1(vec: Vector) {
     if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
-      renderer.drawGraphicalComponentStatic(gfxBG, graphicalComponents.deco1, vec.x, vec.y, 1, 0);
+      renderer.drawGraphicalComponent1x1Static(gfxBG, graphicalComponents.deco1, vec.x, vec.y, 1, 0);
       // renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco1, level.colors.deco1Stroke, drawBasicOptionsNoShake);
     } else {
       renderer.drawSquare(vec.x, vec.y, PALETTE.deathInvert.deco1, PALETTE.deathInvert.deco1Stroke, drawBasicOptions);
@@ -3603,7 +3629,7 @@ export function engine({
 
   function drawDecorative2(vec: Vector) {
     if (!state.isInvertedColors || replay.mode === ReplayMode.Playback) {
-      renderer.drawGraphicalComponentStatic(gfxBG, graphicalComponents.deco2, vec.x, vec.y, 1, 0);
+      renderer.drawGraphicalComponent1x1Static(gfxBG, graphicalComponents.deco2, vec.x, vec.y, 1, 0);
       // renderer.drawSquareStatic(gfxBG, vec.x, vec.y, level.colors.deco2, level.colors.deco2Stroke, drawBasicOptionsNoShake);
     } else {
       renderer.drawSquare(vec.x, vec.y, PALETTE.deathInvert.deco2, PALETTE.deathInvert.deco2Stroke, drawBasicOptions);
@@ -3850,6 +3876,7 @@ export function engine({
   }
 
   return {
+    initEngine,
     setLevel,
     setDifficulty,
     getLevel,
