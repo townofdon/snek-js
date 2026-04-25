@@ -72,6 +72,12 @@ Install `nw-builder`:
 npm i nw-builder --save-dev
 ```
 
+To build native binaries, run:
+
+```bash
+cd bin && ./package.sh
+```
+
 ## Convert WAV to MP3
 
 bitrate=[128k|256k]
