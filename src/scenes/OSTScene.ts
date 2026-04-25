@@ -186,8 +186,8 @@ export class OSTScene extends BaseScene {
       this.stopAllCoroutines();
       onEscapePress();
       this.cleanupUI();
-      this.cleanup();
       this.clearTransition();
+      this.cleanup();
     }
   }
 

@@ -1060,6 +1060,7 @@ export const sketch = (p5: P5) => {
     sfx.stop(Sound.invincibleLoop);
     sfx.play(Sound.doorOpen);
     clearUI(true);
+    resetGraphics();
     UI.hideGfxCanvas();
     stopReplay();
     coroutines.stopAll();
@@ -1087,11 +1088,12 @@ export const sketch = (p5: P5) => {
   function enterOstMode() {
     state.appMode = AppMode.OST;
     clearUI(true);
+    resetGraphics();
     UI.hideGfxCanvas();
     stopReplay();
     coroutines.stopAll();
     actions.stopAll();
-    const prevMusicVolume = settings.musicVolume;
+    const prevMusicVolume = settings.musicVolume || 1;
     settings.musicVolume = 1;
     const onEscapePress = () => {
       state.appMode = AppMode.Game;

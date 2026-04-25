@@ -20,10 +20,10 @@ export class SettingsStore extends BaseStore<GameSettings> implements GameSettin
     this.setStore(this.state);
   };
 
-  public get musicVolume() { return this.state.musicVolume; }
+  public get musicVolume() { return this.state.musicVolume ?? this.defaultValue.musicVolume; }
   public set musicVolume(val: number) { this.set({ musicVolume: val }); }
 
-  public get sfxVolume() { return this.state.sfxVolume; }
+  public get sfxVolume() { return this.state.sfxVolume ?? this.defaultValue.sfxVolume; }
   public set sfxVolume(val: number) { this.set({ sfxVolume: val }); }
 
   public get isScreenShakeDisabled() { return this.state.isScreenShakeDisabled; }
