@@ -1,7 +1,7 @@
 import { ANIMATIONS, GRIDCOUNT_X, PREY_LIFETIME, PREY_MOVE_TIME_ANT, PREY_MOVE_TIME_GRASSHOPPER, PREY_MOVE_TIME_GRUB, PREY_MOVE_TIME_MOUSE } from "../constants";
 import { AnimationData, ICollection, Image, PreyType } from "../types";
 import { getCoordIndex2, getCoordX, getCoordY, getManhattanDistance, shouldBlinkExpiringPickup } from "../utils";
-import { AStar } from "../astar/astar";
+import { AStar, AStarSearchOptions } from "../astar/astar";
 
 export const MAX_NUM_PREY = 10;
 
@@ -65,6 +65,13 @@ export class PreyList implements ICollection {
       if (this.timeUntilNextMove[i] <= 0) {
         const preyType = this.type[i];
         this.timeUntilNextMove[i] += this.moveTime(preyType);
+        const searchOpts: AStarSearchOptions = {
+          seed: this.seed[i],
+          sightRange: this.sightRange(preyType),
+          ignoreThreats: preyType === PreyType.Ant || preyType === PreyType.Grub,
+          allowDiagonals: preyType !== PreyType.Ant,
+          ignoreObstacles: preyType === PreyType.FieldMouse,
+        } satisfies AStarSearchOptions;
         let solutionFound = false;
         if (this.targetCoord[i] >= 0 && this.targetCoord[i] !== this.coord[i]) {
           // seek target
@@ -72,20 +79,10 @@ export class PreyList implements ICollection {
           const py = getCoordY(this.coord[i]);
           const tx = getCoordX(this.targetCoord[i]);
           const ty = getCoordY(this.targetCoord[i]);
-          solutionFound = astar.search(px, py, tx, ty, {
-            seed: this.seed[i],
-            sightRange: this.sightRange(preyType),
-            ignoreThreats: preyType === PreyType.Ant,
-            allowDiagonals: preyType !== PreyType.Ant,
-          });
+          solutionFound = astar.search(px, py, tx, ty, searchOpts);
         } else {
           // flee to acquire a target
-          solutionFound = astar.fleeFromCoord(this.coord[i], {
-            seed: this.seed[i],
-            sightRange: 99,
-            ignoreThreats: preyType === PreyType.Ant,
-            allowDiagonals: preyType !== PreyType.Ant,
-          });
+          solutionFound = astar.fleeFromCoord(this.coord[i], { ...searchOpts, sightRange: 99 });
         }
         if (solutionFound) {
           // move along astar solution path

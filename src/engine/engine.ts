@@ -871,6 +871,18 @@ export function engine({
     es.doors.forEach(door => {
       astar.setWall(door.x, door.y);
     });
+    for (let i = 0; i <= 9; i++) {
+      for (let j = 0; j < es.portals[i as PortalChannel].length; j++) {
+        const portalPosition = es.portals[i as PortalChannel][j];
+        if (!portalPosition) continue;
+        const portal = es.portalsMap[getCoordIndex(portalPosition)];
+        if (!portal) continue;
+        astar.setWall(portal.position.x, portal.position.y);
+      }
+    }
+    es.locks.forEach(lock => {
+      astar.setObstacle(lock.position.x, lock.position.y);
+    })
 
     resetLightmap(lightMap, es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
     startPortalParticles();

@@ -11,6 +11,7 @@ const DIAG_COST = 1.41421;
 const FLAG_WALL = 1;
 const FLAG_CLOSED = 2;
 const FLAG_VISITED = 4;
+const FLAG_OBSTACLE = 8; // certain prey can overcome obstacles; others cannot.
 
 export const ASTAR_GRID_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
@@ -28,11 +29,12 @@ const DEFAULT_OPTIONS = {
   randomizeWeights: false,
 } satisfies AStarOptions;
 
-export interface SearchOptions {
+export interface AStarSearchOptions {
   seed?: number,
   minWeight?: number,
   maxWeight?: number,
   ignoreThreats?: boolean,
+  ignoreObstacles?: boolean,
   sightRange?: number,
   allowDiagonals?: boolean,
 }
@@ -126,6 +128,14 @@ export class AStar {
     this.flags[getCoordIndex2(x, y)] &= ~FLAG_WALL;
   }
 
+  public setObstacle(x: number, y: number) {
+    this.flags[getCoordIndex2(x, y)] |= FLAG_OBSTACLE;
+  }
+
+  public removeObstacle(x: number, y: number) {
+    this.flags[getCoordIndex2(x, y)] &= ~FLAG_OBSTACLE;
+  }
+
   public setWallByCoord(coord: number) {
     this.flags[coord] |= FLAG_WALL;
   }
@@ -162,21 +172,22 @@ export class AStar {
     return this.path[this.pathLength - 1];
   }
 
-  public fleeFromCoord(coord: number, opts: SearchOptions = {}) {
+  public fleeFromCoord(coord: number, opts: AStarSearchOptions = {}) {
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     return this.search(x, y, -1, -1, opts);
   }
 
-  public fleeFrom(x: number, y: number, opts: SearchOptions = {}) {
+  public fleeFrom(x: number, y: number, opts: AStarSearchOptions = {}) {
     return this.search(x, y, -1, -1, opts);
   }
 
-  public search(startx: number, starty: number, endx: number, endy: number, opts: SearchOptions = {}): boolean {
+  public search(startx: number, starty: number, endx: number, endy: number, opts: AStarSearchOptions = {}): boolean {
     const {
       seed = 0,
       sightRange = 5,
       ignoreThreats = false,
+      ignoreObstacles = false,
       minWeight = 0.5,
       maxWeight = 1.5,
       allowDiagonals = this.options.allowDiagonals,
@@ -264,7 +275,8 @@ export class AStar {
         const isWall = !!(flags[neighbor] & FLAG_WALL);
         const isClosed = !!(flags[neighbor] & FLAG_CLOSED);
         const isVisited = !!(flags[neighbor] & FLAG_VISITED);
-        if (isClosed || isWall || isSegment || isPlayerHead) {
+        const isObstacle = !ignoreObstacles && !!(flags[neighbor] & FLAG_OBSTACLE);
+        if (isClosed || isWall || isSegment || isPlayerHead || isObstacle) {
           continue;
         }
         const nx = Math.floor(neighbor % GRIDCOUNT_X);
