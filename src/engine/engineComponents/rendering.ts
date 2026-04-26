@@ -11,6 +11,7 @@ import {
   INVINCIBILITY_COLOR_CYCLE_MS,
   INVINCIBILITY_EXPIRE_FLASH_MS,
   INVINCIBILITY_EXPIRE_WARN_MS,
+  INVINCIBILITY_PICKUP_LIFETIME_MS,
   NUM_SNAKE_INVINCIBLE_COLORS,
   PICKUP_LIFETIME_MS,
   PICKUP_SPRITE_FRAME_MAP,
@@ -538,7 +539,7 @@ export function engineRendering({
       const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
       const color = gradients.calc(invincibleColorGradient, (cycle % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
       renderer.drawSquare(x, y, color.toString(), color.toString(), drawInvincibilityPickupOptions);
-      if (timeLeft <= PICKUP_LIFETIME_MS) {
+      if (timeLeft <= INVINCIBILITY_PICKUP_LIFETIME_MS) {
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
     } else if (isReversibility) {
@@ -551,13 +552,20 @@ export function engineRendering({
       if (timeLeft <= PICKUP_LIFETIME_MS) {
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
-    } else if (specialPickupType) {
+    } else if (specialPickupType === PickupType.HealthPack || specialPickupType === PickupType.WeightLossPill) {
       if (shouldBlinkExpiringPickup(timeLeft)) {
         return;
       }
       spriteRenderer.drawSprite3x3(renderer.getMainGfx(), Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+      if (timeLeft <= PICKUP_LIFETIME_MS) {
+        spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
+      }
     } else if (drawState.shouldDrawApples) {
-      spriteRenderer.drawImage3x3Custom(gfxApples, Image.ThemedApple, x, y, 0, 1, 0);
+      if (specialPickupType) {
+        spriteRenderer.drawSprite3x3(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+      } else {
+        spriteRenderer.drawImage3x3Custom(gfxApples, Image.ThemedApple, x, y, 0, 1, 0);
+      }
     }
   }
 
@@ -635,6 +643,31 @@ export function engineRendering({
           const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = explosions.getElapsedByCoord(coord);
           spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.ExplosionSheet, x, y, elapsed);
+        }
+      }
+    }
+  }
+
+  function drawPickupOutlines(pickupOutlines: AnimationList) {
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (pickupOutlines.existsAtCoord(coord)) {
+        const x = Math.floor(coord % GRIDCOUNT_X);
+        const y = Math.floor(coord / GRIDCOUNT_X);
+        const elapsed = pickupOutlines.getElapsedByCoord(coord);
+        const rarity = toRarity(pickupOutlines.getTypeByCoord(coord));
+        switch (rarity) {
+          case PickupRarity.Galactic:
+          case PickupRarity.Legendary:
+            spriteRenderer.drawSpritesheetAnim3x3(renderer.getMainGfx(), Image.PickupOutlineYellowSheet, x, y, elapsed);
+            break;
+          case PickupRarity.Epic:
+            spriteRenderer.drawSpritesheetAnim3x3(renderer.getMainGfx(), Image.PickupOutlineBlueSheet, x, y, elapsed);
+            break;
+          case PickupRarity.Rare:
+          case PickupRarity.Common: 
+          case PickupRarity.None:
+          default:
+            break;
         }
       }
     }
@@ -1017,6 +1050,7 @@ export function engineRendering({
     drawFireTiles,
     drawExplosions,
     drawShields,
+    drawPickupOutlines,
     drawExitLights,
     drawBarriers,
     drawPassableBarriers,

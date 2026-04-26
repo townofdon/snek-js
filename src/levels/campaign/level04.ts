@@ -1,5 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
-import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
+import { Level, MusicTrack, ItemDropType, TitleVariant, PickupType } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { VARIANT_LEVEL_05 } from "../bonusLevels/variantLevel05";
 
@@ -64,4 +64,23 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     65: { likelihood: 1, type: ItemDropType.Invincibility },
   },
   armorDrop: getCoordIndex2(27, 17),
+  pickupTypes: [
+    PickupType.Broccoli,
+    PickupType.Burger,
+    PickupType.ChiliPepper,
+    PickupType.ChocolateBar,
+    PickupType.Candy,
+    PickupType.Cabbage,
+    PickupType.Watermelon,
+    PickupType.Strawberry,
+    PickupType.RainbowCake,
+    PickupType.Popsicle,
+    PickupType.Pear,
+    PickupType.Peach,
+    PickupType.Orange,
+    PickupType.Milkshake,
+    PickupType.Kiwi,
+    PickupType.Lime,
+    PickupType.Lollipop,
+  ],
 };

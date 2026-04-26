@@ -89,6 +89,8 @@ export class SpriteRenderer {
     [Image.Points10000]: null,
     [Image.Shield]: null,
     [Image.ShieldSpawn]: null,
+    [Image.PickupOutlineBlueSheet]: null,
+    [Image.PickupOutlineYellowSheet]: null,
   }
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -285,6 +287,8 @@ export class SpriteRenderer {
       this.loadImage(Image.Points10000);
       this.loadImage(Image.Shield);
       this.loadImage(Image.ShieldSpawn);
+      this.loadImage(Image.PickupOutlineBlueSheet);
+      this.loadImage(Image.PickupOutlineYellowSheet);
     } catch (err) {
       console.error(err)
     }

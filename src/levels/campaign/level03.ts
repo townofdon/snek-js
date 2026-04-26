@@ -57,6 +57,12 @@ XXXXXXXXXXXXXXJXXXXXXXXXXXXXXX
   pickupDrops: {
     [ItemDropType.Invincibility]: true,
   },
+  pickupDropsByFrame: {
+    24: { likelihood: 0.8, type: ItemDropType.WeightLossPill },
+    40: { likelihood: 0.8, type: ItemDropType.WeightLossPill },
+    50: { likelihood: 0.5, type: ItemDropType.WeightLossPill },
+    60: { likelihood: 0.8, type: ItemDropType.WeightLossPill },
+  },
   pickupTypes: [
     PickupType.Cabbage,
     PickupType.Cheese,

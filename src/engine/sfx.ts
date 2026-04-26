@@ -23,6 +23,10 @@ export class SFX implements SFXInstance {
 
   private sounds: SoundVariants = {
     acquireShield: null,
+    acquireHealth: null,
+    acquireEpicItem: null,
+    acquireRareItem: null,
+    acquireLegendaryItem: null,
     death: null,
     doorOpen: null,
     doorOpenHuge: null,
@@ -39,6 +43,7 @@ export class SFX implements SFXInstance {
     pickupInvincibility: null,
     rewindLoop: null,
     shieldSpawn: null,
+    spawnPickup: null,
     step1: null,
     step2: null,
     uiBlip: null,
@@ -48,6 +53,7 @@ export class SFX implements SFXInstance {
     unlock: null,
     unlockAbility: null,
     warp: null,
+    waterSplash: null,
     winGame: null,
     winLevel: null,
     xplode: null,
@@ -106,6 +112,10 @@ export class SFX implements SFXInstance {
       // const loadSound = (soundFile: string) => new Howl({ src: [`${relativeDir}assets/sounds/${soundFile}`] });
       const loadSound = (soundFile: string) => loadSfxAudio({src: [`${relativeDir}assets/sounds/${soundFile}`] })
       this.sounds.acquireShield = await loadSound('acquire-shield.wav');
+      this.sounds.acquireHealth = await loadSound('acquire-health.wav');
+      this.sounds.acquireEpicItem = await loadSound('acquire-epic-item.wav');
+      this.sounds.acquireRareItem = await loadSound('acquire-rare-item.wav');
+      this.sounds.acquireLegendaryItem = await loadSound('acquire-legendary.wav');
       this.sounds.death = await loadSound('death.wav');
       this.sounds.doorOpen = await loadSound('door-open.wav');
       this.sounds.doorOpenHuge = await loadSound('door-open-huge.wav');
@@ -122,6 +132,7 @@ export class SFX implements SFXInstance {
       this.sounds.pickupInvincibility = await loadSound('pickup-invincibility.wav');
       this.sounds.rewindLoop = await loadSound('rewind-loop.wav');
       this.sounds.shieldSpawn = await loadSound('shield-spawn.wav');
+      this.sounds.spawnPickup = await loadSound('spawn-pickup.wav');
       this.sounds.step1 = await loadSound('step-1.wav');
       this.sounds.step2 = await loadSound('step-2.wav');
       this.sounds.uiBlip = await loadSound('ui-blip.wav');
@@ -131,6 +142,7 @@ export class SFX implements SFXInstance {
       this.sounds.unlock = await loadSound('unlock.wav');
       this.sounds.unlockAbility = await loadSound('unlock-ability.wav');
       this.sounds.warp = await loadSound('warp.wav');
+      this.sounds.waterSplash = await loadSound('water-splash.wav');
       this.sounds.winLevel = await loadSound('winlevel.wav');
       this.sounds.winGame = await loadSound('wingame.wav');
       this.sounds.xplode = await loadSound('xplode.wav');

@@ -397,7 +397,7 @@ export function getLevelProgress(stats: Stats, level: Level, difficulty: Difficu
 }
 
 export function toRarity(num: number): PickupRarity {
-  if (num <= 0) return PickupRarity.None;
+  if (!num || num <= 0) return PickupRarity.None;
   if (num > PickupRarity.Galactic) return PickupRarity.None;
   return num as PickupRarity;
 }

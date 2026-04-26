@@ -28,19 +28,13 @@ import {
   NUM_APPLES_START,
   NUM_SNAKE_INVINCIBLE_COLORS,
   PERFECT_BONUS,
-  DROP_LIKELIHOOD_INVINCIBILITY,
-  DROP_LIKELIHOOD_MINE,
   PICKUP_INVINCIBILITY_BONUS,
-  PICKUP_LIFETIME_MS,
-  PICKUP_SPAWN_COOLDOWN,
   SCORE_INCREMENT,
   SCREEN_SHAKE_DURATION_MS,
   SCREEN_SHAKE_MAGNITUDE_PX,
   SNAKE_INVINCIBLE_COLORS,
   SNAKE_REWIND_COLORS,
   START_SNAKE_SIZE,
-  PREY_SPAWN_WAIT_TIME_MIN,
-  PREY_SPAWN_WAIT_TIME_MAX,
   PICKUP_COMMON_BONUS,
   PICKUP_COMMON_ITEMS,
   PICKUP_RARE_ITEMS,
@@ -54,13 +48,10 @@ import {
   KEYCODE_F10,
   IS_DEV,
   ARMOR_PICKUP_FREEZE_MS,
-  DROP_LIKELIHOOD_ARMOR,
   PICKUP_TYPE_RARITY_MAP,
   RARITY_LEGENDARY,
-  RARITY_COMMON,
   RARITY_EPIC,
-  PITY_INCREMENT,
-  BASE_PICKUP_RARITY,
+  RARITY_RARE,
 } from "../constants";
 import {
   Action,
@@ -85,7 +76,6 @@ import {
   Lock,
   LoopState,
   MusicTrack,
-  ItemDropType,
   PlayerState,
   PortalChannel,
   Replay,
@@ -111,13 +101,10 @@ import {
   getCoordIndex,
   getCoordIndex2,
   getDifficultyFromIndex,
-  getDropLikelihood,
   getLevelProgress,
-  getManhattanDistance,
   invertDirection,
   isOrthogonalDirection,
   isWithinBlockDistance,
-  lerp,
   removeArrayElement,
   getCoordX,
   getCoordY,
@@ -169,7 +156,7 @@ import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/
 import { withErrorReporting } from '@/reporting';
 import { AcquirePickupParticleSystem } from './particleSystems/AcquirePickupParticleSystem';
 import { AcquirePickupScene, AcquirePickupSceneConstructorArgs } from '@/scenes/AcquirePickupScene';
-import { DEFAULT_ENGINE_STATE, DEFAULT_PICKUP_TYPES } from '@/defaults';
+import { DEFAULT_ENGINE_STATE } from '@/defaults';
 import { engineMovement } from './engineComponents/movement';
 import { engineRendering } from './engineComponents/rendering';
 import { engineSpawning } from './engineComponents/spawning';
@@ -309,6 +296,7 @@ export function engine({
   const pointsAnim = new AnimationList();
   const shields = new AnimationList();
   const shieldSpawns = new AnimationList({ onLifetimeExpire: onShieldSpawnLifetimeExpire});
+  const pickupOutlines = new AnimationList();
   const lightMap = createLightmap();
 
   const preySpawn: PreySpawn = {
@@ -356,6 +344,7 @@ export function engine({
     drawFireTiles,
     drawExplosions,
     drawShields,
+    drawPickupOutlines,
     drawExitLights,
     drawBarriers,
     drawPassableBarriers,
@@ -436,6 +425,7 @@ export function engine({
     mines,
     preyList,
     shieldSpawns,
+    pickupOutlines,
     openDoors,
     playSound,
     explodeMine,
@@ -674,6 +664,7 @@ export function engine({
     mines.reset();
     shields.reset();
     shieldSpawns.reset();
+    pickupOutlines.reset();
     doorsOpening.reset();
     explosions.reset();
     fireTiles.reset();
@@ -970,8 +961,22 @@ export function engine({
       } else if (es.pickupsMap[coord]?.type === PickupType.HealthPack) {
         acquireHealth();
         incrementPickupBonus(PickupType.HealthPack, coord);
+      } else if (es.pickupsMap[coord]?.type === PickupType.WeightLossPill) {
+        acquireWeightLoss();
+        incrementPickupBonus(PickupType.WeightLossPill, coord);
       } else if (es.pickupsMap[coord]) {
+        const rarity = PICKUP_TYPE_RARITY_MAP[es.pickupsMap[coord]?.type];
+        if (rarity === RARITY_LEGENDARY) {
+          playSound(Sound.acquireLegendaryItem, 0.3);
+        } else if (rarity === RARITY_EPIC) {
+          playSound(Sound.acquireEpicItem, 0.3);
+        } else if (rarity === RARITY_RARE) {
+          // playSound(Sound.acquireRareItem, 0.3);
+        }
         incrementPickupBonus(es.pickupsMap[coord]?.type, coord);
+      }
+      if (pickupOutlines.existsAtCoord(coord)) {
+        pickupOutlines.removeByCoord(coord);
       }
       es.pickupsMap[coord] = null;
       drawState.shouldDrawApples = true;
@@ -1217,6 +1222,7 @@ export function engine({
     }
 
     drawPortals();
+    drawPickupOutlines(pickupOutlines);
 
     for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
       if (apples.existsAtCoord(i)) {
@@ -1273,6 +1279,9 @@ export function engine({
     }
     if (shieldSpawns.tick(p5.deltaTime)) {
       drawState.shouldDrawActionFG = true;
+    }
+    if (pickupOutlines.tick(p5.deltaTime)) {
+      // draws each frame
     }
 
     if (
@@ -1395,7 +1404,7 @@ export function engine({
     if (state.isExitingLevel) return;
     if (state.isExited) return;
     startAction(invincibilityRoutine(), Action.Invincibility);
-    state.lives = Math.min(state.lives + 1, MAX_LIVES);
+    // state.lives = Math.min(state.lives + 1, MAX_LIVES);
     renderHeartsUI();
   }
 
@@ -1445,7 +1454,7 @@ export function engine({
   }
 
   function* armorRoutine(): IEnumerator {
-    playSound(Sound.acquireShield, 0.6);
+    playSound(Sound.acquireShield, 0.4);
     sfx.stop(Sound.invincibleLoop);
     musicPlayer.setPlaybackRate(es.level.musicTrack, 0);
     musicPlayer.setVolume(0);
@@ -1471,7 +1480,7 @@ export function engine({
     if (state.isGameWon) return;
     if (state.isExitingLevel) return;
     if (state.isExited) return;
-    playSound(Sound.pickup, 0.35);
+    playSound(Sound.acquireHealth, 0.35);
     state.lives = Math.min(state.lives + 1, MAX_LIVES);
     renderHeartsUI();
   }
@@ -1482,24 +1491,25 @@ export function engine({
     if (state.isGameWon) return;
     if (state.isExitingLevel) return;
     if (state.isExited) return;
-    state.isMoving = false;
+    state.currentSpeed = 1;
     // TODO: add uniq sound
     playSound(Sound.pickup, 0.35);
     startAction(weightLossRoutine(), Action.WeightLoss);
   }
 
   function* weightLossRoutine(): IEnumerator {
-    const targetNumSegments = Math.max(Math.floor(segments.length * 0.75), START_SNAKE_SIZE);
+    const targetNumSegments = Math.max(Math.floor(segments.length * 0.7), START_SNAKE_SIZE);
     loopState.timeScale = 0;
-    playSound(Sound.rewindLoop);
     startScreenShake(0.5, -20, 0.8);
     while (segments.length > targetNumSegments) {
+      playSound(Sound.waterSplash);
+      const vec = segments.get(segments.length - 1);
+      impactParticleSystem.emit(vec.x, vec.y);
       segments.remove(segments.length - 1);
-      yield* coroutines.waitForTime(60);
+      yield* coroutines.waitForTime(100);
     }
     loopState.timeScale = 1;
     startScreenShake(0, 1);
-    sfx.stop(Sound.rewindLoop);
   }
 
   function spawnAppleParticles(position: Vector | undefined) {

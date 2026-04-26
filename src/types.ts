@@ -756,6 +756,10 @@ export interface SFXInstance {
 
 export enum Sound {
   acquireShield = 'acquireShield',
+  acquireHealth = 'acquireHealth',
+  acquireEpicItem = 'acquireEpicItem',
+  acquireRareItem = 'acquireRareItem',
+  acquireLegendaryItem = 'acquireLegendaryItem',
   death = 'death',
   doorOpen = 'doorOpen',
   doorOpenHuge = 'doorOpenHuge',
@@ -772,6 +776,7 @@ export enum Sound {
   pickupInvincibility = 'pickupInvincibility',
   rewindLoop = 'rewindLoop',
   shieldSpawn = 'shieldSpawn',
+  spawnPickup = 'spawnPickup',
   step1 = 'step1',
   step2 = 'step2',
   uiBlip = 'uiBlip',
@@ -781,6 +786,7 @@ export enum Sound {
   unlock = 'unlock',
   unlockAbility = 'unlockAbility',
   warp = 'warp',
+  waterSplash = 'waterSplash',
   winGame = 'winGame',
   winLevel = 'winLevel',
   xplode = 'xplode',
@@ -919,6 +925,8 @@ export enum Image {
   TileSheet16 = 'snek-tiles-16.png',
   TileSheet48 = 'snek-tiles-48.png',
   PickupsSheet = 'snek-pickups.png',
+  PickupOutlineYellowSheet = 'snek-pickup-outline-yellow.png',
+  PickupOutlineBlueSheet = 'snek-pickup-outline-blue.png',
   Points500 = 'snek-points-500.png',
   Points1000 = 'snek-points-1000.png',
   Points2000 = 'snek-points-2000.png',
@@ -966,6 +974,8 @@ export type SpritesheetImage =
   | Image.Points10000
   | Image.Shield
   | Image.ShieldSpawn
+  | Image.PickupOutlineYellowSheet
+  | Image.PickupOutlineBlueSheet
 ;
 
 export enum WearableFrame {

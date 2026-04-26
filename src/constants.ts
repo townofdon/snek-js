@@ -83,23 +83,25 @@ export const DROP_LIKELIHOOD_INVINCIBILITY = 0.04;
 export const DROP_LIKELIHOOD_MINE = 0.08;
 export const DROP_LIKELIHOOD_ARMOR = 0.02;
 export const DROP_LIKELIHOOD_HEALTHPACK = 0.08;
-export const DROP_LIKELIHOOD_ITEM_BASE = 0.2;
-export const DROP_LIKELIHOOD_ITEM_COMMON = 0.6; // applied on top of base
-export const DROP_LIKELIHOOD_ITEM_RARE = 0.03; // applied on top of base
-export const DROP_LIKELIHOOD_ITEM_EPIC = 0.09; // applied on top of base
-export const DROP_LIKELIHOOD_ITEM_LEGENDARY = 0.001; // applied on top of base
+export const DROP_LIKELIHOOD_WEIGHTLOSSPILL = 0.08;
+export const DROP_LIKELIHOOD_ITEM_COMMON = 0.6;
+export const DROP_LIKELIHOOD_ITEM_RARE = 0.03;
+export const DROP_LIKELIHOOD_ITEM_EPIC = 0.09;
+export const DROP_LIKELIHOOD_ITEM_LEGENDARY = 0.001;
 
-export const PICKUP_LIFETIME_MS = 8000;
+export const PICKUP_LIFETIME_MS = 12000;
 export const PICKUP_EXPIRE_WARN_MS = 3500;
-export const PICKUP_SPAWN_COOLDOWN = 15000;
+export const PICKUP_SPAWN_COOLDOWN = 10000;
+export const PICKUP_SPAWN_SFX_DELAY = 200;
 
-export const BASE_PICKUP_RARITY = 0.3;
+export const BASE_PICKUP_RARITY = 0.5;
 export const RARITY_COMMON = 0.6;
 export const RARITY_RARE = 0.3;
 export const RARITY_EPIC = 0.09;
 export const RARITY_LEGENDARY = 0.01;
 export const PITY_INCREMENT = 1 / 30;
 
+export const INVINCIBILITY_PICKUP_LIFETIME_MS = 8000;
 export const INVINCIBILITY_PICKUP_FREEZE_MS = 1000;
 export const INVINCIBILITY_EXPIRE_WARN_MS = 2000;
 export const INVINCIBILITY_EXPIRE_FLASH_MS = 200;
@@ -468,7 +470,15 @@ export const ANIMATIONS = {
   [Image.ShieldSpawn]: {
     frames: 13,
     timePerFrame: 100,
-  } satisfies AnimationData
+  } satisfies AnimationData,
+  [Image.PickupOutlineBlueSheet]: {
+    frames: 4,
+    timePerFrame: 200,
+  } satisfies AnimationData,
+  [Image.PickupOutlineYellowSheet]: {
+    frames: 4,
+    timePerFrame: 200,
+  } satisfies AnimationData,
 } as const satisfies Record<SpritesheetImage, AnimationData>;
 
 export const PICKUP_COMMON_ITEMS: PickupType[] = [

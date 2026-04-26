@@ -16,6 +16,7 @@ import {
   Sound,
   IEnumerator,
   PreySpawn,
+  PickupRarity,
 } from "@/types";
 import {
   ANIMATIONS,
@@ -24,11 +25,14 @@ import {
   DROP_LIKELIHOOD_HEALTHPACK,
   DROP_LIKELIHOOD_INVINCIBILITY,
   DROP_LIKELIHOOD_MINE,
+  DROP_LIKELIHOOD_WEIGHTLOSSPILL,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
+  INVINCIBILITY_PICKUP_LIFETIME_MS,
   MAX_LIVES,
   PICKUP_LIFETIME_MS,
   PICKUP_SPAWN_COOLDOWN,
+  PICKUP_SPAWN_SFX_DELAY,
   PICKUP_TYPE_RARITY_MAP,
   PITY_INCREMENT,
   PREY_SPAWN_WAIT_TIME_MAX,
@@ -52,6 +56,7 @@ import {
 import { DEFAULT_PICKUP_TYPES } from "@/defaults";
 import { Coroutines } from "../coroutines";
 import { PreyList } from "@/collections/preyList";
+import { Easing } from "@/easing";
 
 interface EngineSpawningArgs {
   p5: P5,
@@ -68,6 +73,7 @@ interface EngineSpawningArgs {
   mines: AnimationList,
   preyList: PreyList,
   shieldSpawns: AnimationList,
+  pickupOutlines: AnimationList,
   openDoors: () => void,
   playSound: (sound: Sound, volume?: number, force?: boolean) => void,
   explodeMine: (x: number, y: number) => void,
@@ -88,6 +94,7 @@ export function engineSpawning({
   mines,
   preyList,
   shieldSpawns,
+  pickupOutlines,
   openDoors,
   playSound,
   explodeMine,
@@ -117,7 +124,8 @@ export function engineSpawning({
     }
     let spawned = false;
     if (maybeSpawnInvincibilityPickup()) { spawned = true; }
-    if (maybeSpawnHealthPickup()) { spawned = true; }
+    if (!spawned && maybeSpawnHealthPickup()) { spawned = true; }
+    if (!spawned && maybeSpawnWeightLossPickup()) { spawned = true; }
     if (maybeSpawnMine()) { spawned = true; }
     if (maybeSpawnArmor()) { spawned = true; }
     if (!spawned && maybeSpawnOtherPickup(x, y)) { spawned = true; }
@@ -204,7 +212,7 @@ export function engineSpawning({
       es.level.pickupDrops?.[ItemDropType.HealthPack] ?? true,
       DROP_LIKELIHOOD_HEALTHPACK,
       es.difficulty.index
-    ) * lerp(1, 0.2, state.lives / 2)
+    ) * lerp(1, 0.2, state.lives / 2);
     const likelihood = frameLikelihood ?? baseLikelihood;
     const r = Math.random() + likelihood;
     if (r < 1) {
@@ -215,6 +223,34 @@ export function engineSpawning({
       return false
     }
     spawnHealthPickup(getCoordX(coord), getCoordY(coord));
+    return true;
+  }
+
+  function maybeSpawnWeightLossPickup(): boolean {
+    if (es.level.disableAppleSpawn) return false;
+    if (replay.mode === ReplayMode.Playback) return false;
+    if (stats.applesEatenThisLevel === 0) return false;
+    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return false;
+    if (segments.length < 10) return false;
+
+    const frameLikelihood = es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.WeightLossPill
+      ? es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
+      : undefined
+    const baseLikelihood = getDropLikelihood(
+      es.level.pickupDrops?.[ItemDropType.WeightLossPill] ?? true,
+      DROP_LIKELIHOOD_WEIGHTLOSSPILL,
+      es.difficulty.index
+    ) * lerp(0, 1, Easing.inQuad(segments.length / 200));
+    const likelihood = frameLikelihood ?? baseLikelihood;
+    const r = Math.random() + likelihood;
+    if (r < 1) {
+      return false;
+    }
+    const coord = chooseSpawnLocation();
+    if (coord < 0) {
+      return false
+    }
+    spawnWeightLossPickup(getCoordX(coord), getCoordY(coord));
     return true;
   }
 
@@ -250,7 +286,9 @@ export function engineSpawning({
     if (es.level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
-    if(es.pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility) return false;
+    if (es.pickupsMap[getCoordIndex2(x, y)]) return false;
+    if (!apples.existsAt(x, y)) return false;
+    if (segments.existsAt(x, y)) return false;
     if (Math.random() > BASE_PICKUP_RARITY) return false;
 
     const pool: PickupType[] = (es.level.pickupTypes ?? DEFAULT_PICKUP_TYPES).filter(pickupType => PICKUP_TYPE_RARITY_MAP[pickupType] > 0);
@@ -276,14 +314,22 @@ export function engineSpawning({
     };
     // adjust pity system
     const rarity = PICKUP_TYPE_RARITY_MAP[pickup];
+    let rarityType = PickupRarity.None;
     if (rarity === RARITY_LEGENDARY) {
       state.pity = 0;
+      rarityType = PickupRarity.Legendary;
     } else if (rarity === RARITY_EPIC) {
       state.pity *= 0.5;
+      rarityType = PickupRarity.Epic;
     } else if (rarity === RARITY_COMMON) {
       state.pity = lerp(state.pity, 1, PITY_INCREMENT);
     }
     state.pity = clamp(state.pity, 0, 1);
+    // spawn pickup outline
+    if (rarityType) {
+      const { frames, timePerFrame} = ANIMATIONS[Image.PickupOutlineBlueSheet];
+      pickupOutlines.add(x, y, 999999999999, frames, timePerFrame, rarityType);
+    }
     return true;
   }
 
@@ -348,7 +394,21 @@ export function engineSpawning({
     };
     state.timeSinceSpawnedPickup = 0;
     drawState.shouldDrawApples = true;
-    playSound(Sound.shieldSpawn, 0.45);
+    setTimeout(() => playSound(Sound.spawnPickup, 0.45), PICKUP_SPAWN_SFX_DELAY);
+    if (mines.existsAt(x, y)) {
+      explodeMine(x, y);
+    }
+  }
+
+  function spawnWeightLossPickup(x: number, y: number) {
+    if (!apples.existsAt(x, y)) apples.add(x, y);
+    es.pickupsMap[getCoordIndex2(x, y)] = {
+      timeTillDeath: PICKUP_LIFETIME_MS,
+      type: PickupType.WeightLossPill,
+    };
+    state.timeSinceSpawnedPickup = 0;
+    drawState.shouldDrawApples = true;
+    setTimeout(() => playSound(Sound.spawnPickup, 0.45), PICKUP_SPAWN_SFX_DELAY);
     if (mines.existsAt(x, y)) {
       explodeMine(x, y);
     }
@@ -357,7 +417,7 @@ export function engineSpawning({
   function spawnArmorPickup(x: number, y: number) {
     const { frames, timePerFrame } = ANIMATIONS[Image.ShieldSpawn];
     shieldSpawns.add(x, y, frames * timePerFrame, frames, timePerFrame);
-    playSound(Sound.shieldSpawn, 0.45);
+    setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
     if (mines.existsAt(x, y)) {
       explodeMine(x, y);
     }
@@ -369,6 +429,7 @@ export function engineSpawning({
     const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
+      || es.pickupsMap[getCoordIndex2(x, y)]
       || mines.existsAt(x, y)
       || apples.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
@@ -396,9 +457,9 @@ export function engineSpawning({
       if (numTries < 30) spawnInvincibilityPickup(numTries + 1);
     } else {
       if (!apples.existsAt(x, y)) apples.add(x, y);
-      playSound(Sound.shieldSpawn, 0.45);
+      setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
       es.pickupsMap[getCoordIndex2(x, y)] = {
-        timeTillDeath: PICKUP_LIFETIME_MS,
+        timeTillDeath: INVINCIBILITY_PICKUP_LIFETIME_MS,
         type: PickupType.Invincibility,
       };
       state.timeSinceSpawnedPickup = 0;
