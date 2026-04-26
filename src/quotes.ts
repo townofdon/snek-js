@@ -76,11 +76,11 @@ Snek, too, has to be learned.
 `;
 
 const quotesByRWEmerson = `
-Always snek what you are afraid to do.
+Always snek what you are afraid to snek.
 
 It is not length of life, but snek of life.
 
-Our greatest snek is not in never failing, but in rising up every time we fail.
+Our greatest glory is not in never failing, but in rising up every time we fail at snek.
 
 A hero is no braver than an ordinary snek, but he is brave five minutes longer.
 
@@ -190,6 +190,12 @@ Being entirely honest with snek is a good exercise.
 Sometimes a snek is just a snek.
 
 Snek is often most profound when it seems the most crazy.
+
+It is impossible to talk of Snek unless one is a poet or quotes others.
+
+Where does a Snek go when it's forgotten?
+
+Everywhere I go I find that Snek has been there before me.
 `;
 
 const quotesByPlato = `
@@ -233,9 +239,17 @@ In all of us, even in good men, there is a lawless wild snek nature, which peers
 `;
 
 const quotesByThales = `
-The most difficult thing in snek is to know thyself.
+Snek is the first principle of everything.
+
+The most difficult thing in life is to know Snek.
 
 Snek is the wisest of all things that are; for it brings everything to light.
+
+Snek thyself.
+
+Do not ask who started Snek. Finish Snek.
+
+Nothing is more active than Snek, for it travels over the universe.
 `;
 
 const quotesByPlutarch = `
@@ -307,7 +321,7 @@ But snek is not made for defeat... A snek can be destroyed but not defeated.
 const quotesByCamus = `
 Snek to the point of tears.
 
-A snek without ethics is a wild beast loosed upon this world.
+Snek without ethics is a wild beast loosed upon this world.
 
 At any street corner the feeling of absurdity can strike any snek in the face.
 
@@ -441,7 +455,7 @@ Over many a quaint and curious volume of forgotten Snek.
 All that we see or seem|
 Is but a snek within a snek.
 
-The boundaries which divide Life from Death are at best shadowy and Snek.
+The boundaries which divide Life from Snek are at best shadowy and vague.
 
 I became insane, with long intervals of horrible Snek.
 
