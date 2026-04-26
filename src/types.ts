@@ -25,6 +25,7 @@ export enum Action {
   GameOver = 'GameOver',
   Invincibility = 'Invincibility',
   AcquireArmor = 'AcquireArmor',
+  WeightLoss = 'WeightLoss',
 }
 
 export type ActionKey = keyof typeof Action

@@ -351,6 +351,7 @@ export function engineRendering({
 
   function drawPlayerSegment(vec: Vector | undefined, i = 0) {
     if (!vec) return;
+    if (i >= 1 && vec.equals(segments.get(i - 1))) return;
     const isMiddle = i < segments.length - 1;
     const dirPrev = i === 0
       ? getDirectionBetween(segments.get(i), player.position)
@@ -470,6 +471,7 @@ export function engineRendering({
 
   function erasePlayerSegmentCorner(vec: Vector | undefined, i = 0) {
     if (!vec) return;
+    if (i >= 1 && vec.equals(segments.get(i - 1))) return;
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
     const acquiringArmor = state.timeSinceArmorPickup < ARMOR_PICKUP_FREEZE_MS;
     const armorUsed = state.timeSinceArmorProtection < HURT_STUN_TIME;

@@ -102,6 +102,7 @@ export const sketch = (p5: P5) => {
     [Action.GameOver]: null,
     [Action.Invincibility]: null,
     [Action.AcquireArmor]: null,
+    [Action.WeightLoss]: null,
   };
   const startAction = (enumerator: IEnumerator, actionKey: Action, force = false) => {
     actions.stop(actionIds[actionKey]);
