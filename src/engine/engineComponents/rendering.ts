@@ -702,6 +702,17 @@ export function engineRendering({
     if (state.isExited) return;
     if (state.isGameWon) return;
 
+    let exitCount = 0;
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        if (x !== 0 && y !== 0 && x !== GRIDCOUNT_X - 1 && y !== GRIDCOUNT_Y - 1) continue;
+        const coord = getCoordIndex2(x, y);
+        if (es.barriersMap[coord] && !es.passablesMap[coord]) continue;
+        if (es.portalsMap[coord]) continue;
+        if (es.nospawnsMap[coord] && !es.locksMap[coord]) continue;
+        exitCount++;
+      }
+    }
     for (let y = 0; y < GRIDCOUNT_Y; y++) {
       for (let x = 0; x < GRIDCOUNT_X; x++) {
         if (x !== 0 && y !== 0 && x !== GRIDCOUNT_X - 1 && y !== GRIDCOUNT_Y - 1) continue;
@@ -715,19 +726,27 @@ export function engineRendering({
         const secondaryLightAlpha = 0.3;
         if (x === 0) {
           renderer.drawExitLight(gfxExitLights, x + 1, y, DIR.RIGHT, lightIndex(y), 1);
-          renderer.drawExitLight(gfxExitLights, x + 2, y, DIR.RIGHT, lightIndex(y), secondaryLightAlpha);
+          if (exitCount <= 60) {
+            renderer.drawExitLight(gfxExitLights, x + 2, y, DIR.RIGHT, lightIndex(y), secondaryLightAlpha);
+          }
         }
         if (x === GRIDCOUNT_X - 1) {
           renderer.drawExitLight(gfxExitLights, x - 1, y, DIR.LEFT, lightIndex(y), 1);
-          renderer.drawExitLight(gfxExitLights, x - 2, y, DIR.LEFT, lightIndex(y), secondaryLightAlpha);
+          if (exitCount <= 60) {
+            renderer.drawExitLight(gfxExitLights, x - 2, y, DIR.LEFT, lightIndex(y), secondaryLightAlpha);
+          }
         }
         if (y === 0) {
           renderer.drawExitLight(gfxExitLights, x, y + 1, DIR.DOWN, lightIndex(x), 1);
-          renderer.drawExitLight(gfxExitLights, x, y + 2, DIR.DOWN, lightIndex(x), secondaryLightAlpha);
+          if (exitCount <= 60) {
+            renderer.drawExitLight(gfxExitLights, x, y + 2, DIR.DOWN, lightIndex(x), secondaryLightAlpha);
+          }
         }
         if (y === GRIDCOUNT_Y - 1) {
           renderer.drawExitLight(gfxExitLights, x, y - 1, DIR.UP, lightIndex(x), 1);
-          renderer.drawExitLight(gfxExitLights, x, y - 2, DIR.UP, lightIndex(x), secondaryLightAlpha);
+          if (exitCount <= 60) {
+            renderer.drawExitLight(gfxExitLights, x, y - 2, DIR.UP, lightIndex(x), secondaryLightAlpha);
+          }
         }
       }
     }

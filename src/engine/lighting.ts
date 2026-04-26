@@ -191,33 +191,19 @@ function addSpotlight(lightMap: Float32Array, x: number, y: number, {
   strength = 1,
 }: AddSpotlightOptions = {}) {
   resetLightmap(lightBuffer, 0);
-
-  // iterate outwards, drawing circles of light to staging buffer
-  let r = 0;
-  while (r <= (radius + falloff) * LIGHTMAP_RESOLUTION) {
-    let angle = 0;
-    while (angle < TAU) {
-      const lx = x * LIGHTMAP_RESOLUTION + Math.round(Math.cos(angle) * r / LIGHTMAP_RESOLUTION);
-      const ly = y * LIGHTMAP_RESOLUTION + Math.round(Math.sin(angle) * r / LIGHTMAP_RESOLUTION);
+  // iterate over grid at extents of radius + falloff
+  let extent = Math.ceil((radius + falloff) * LIGHTMAP_RESOLUTION);
+  // force extend to be an odd number so that our spotlight is perfectly centered
+  if (extent % 2 === 0) extent += 1;
+  for (let dx = -extent; dx <= extent; dx++) {
+    for (let dy = -extent; dy <= extent; dy++) {
+      const lx = x * LIGHTMAP_RESOLUTION + dx;
+      const ly = y * LIGHTMAP_RESOLUTION + dy;
+      const r = Math.hypot(dx, dy);
       const i = toQuantizedIndex(lx, ly);
-      // don't draw here if buffer already has a value
       if (inBounds(lx, ly) && lightBuffer[i] === 0) {
         lightBuffer[i] = getSpotlightValue(r / LIGHTMAP_RESOLUTION, radius, falloff) * strength;
       }
-      if (r < 2) {
-        angle += LIGHT_ANGLE_STEP * 16;
-      } else if (r < 4) {
-        angle += LIGHT_ANGLE_STEP * 4;
-      } else if (r < 5) {
-        angle += LIGHT_ANGLE_STEP * 2;
-      } else {
-        angle += LIGHT_ANGLE_STEP;
-      }
-    }
-    if (r <= 5 * LIGHTMAP_RESOLUTION) {
-      r += 1;
-    } else {
-      r += LIGHT_RADIUS_STEP;
     }
   }
   commitStagedLight(lightBuffer, lightMap);
