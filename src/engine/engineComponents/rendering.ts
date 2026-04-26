@@ -12,6 +12,8 @@ import {
   INVINCIBILITY_EXPIRE_FLASH_MS,
   INVINCIBILITY_EXPIRE_WARN_MS,
   INVINCIBILITY_PICKUP_LIFETIME_MS,
+  IS_DEV,
+  IS_NWJS_PACKAGE,
   NUM_SNAKE_INVINCIBLE_COLORS,
   PICKUP_LIFETIME_MS,
   PICKUP_SPRITE_FRAME_MAP,
@@ -70,6 +72,7 @@ import { WARP_ZONE_02 } from "@/levels/bonusLevels/warpZone02";
 import { WARP_ZONE_03 } from "@/levels/bonusLevels/warpZone03";
 import { Emitters } from "@/collections/emitters";
 import { Particles } from "@/collections/particles";
+import { DEFAULT_FRAMEBUFFER_OPTIONS } from "@/defaults";
 
 interface EngineRenderingArgs {
   p5: P5,
@@ -118,7 +121,7 @@ export function engineRendering({
   const gfxBG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
   const gfxExitLights: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
   const gfxKeysLocks: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
-  const gfxApples: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
+  const gfxApples: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.WEBGL);
   const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
   const gfxFGAction: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
   const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
@@ -144,6 +147,11 @@ export function engineRendering({
     apple: null,
   };
 
+  const ctx = (gfxApples.drawingContext as WebGLRenderingContext);
+  ctx.disable(ctx.CULL_FACE);
+  const bufApples: P5.Framebuffer = gfxApples.createFramebuffer(DEFAULT_FRAMEBUFFER_OPTIONS) as unknown as P5.Framebuffer;
+  bufApples.pixelDensity(1);
+
   const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true };
   const drawPlayerOptionsAcquire: DrawSquareOptions = { is3d: false, optimize: true };
   const drawPlayerOptionsDeath: DrawSquareOptions = { is3d: true, optimize: true, screenshakeMul: -1 };
@@ -155,6 +163,10 @@ export function engineRendering({
   const drawPortalOptions: DrawSquareOptions = {};
 
   function initGraphics() {
+    if (!IS_DEV || IS_NWJS_PACKAGE) {
+      // see: https://p5js.org/tutorials/how-to-optimize-your-sketches/#disable-the-friendly-error-system-fes
+      p5.disableFriendlyErrors = true;
+    }
     [
       p5,
       gfxPresentation,
@@ -560,7 +572,7 @@ export function engineRendering({
       if (timeLeft <= PICKUP_LIFETIME_MS) {
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
-    } else if (drawState.shouldDrawApples) {
+    } else if (true || drawState.shouldDrawApples) {
       if (specialPickupType) {
         spriteRenderer.drawSprite3x3(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
       } else {
@@ -570,7 +582,7 @@ export function engineRendering({
   }
 
   function drawMines(mines: AnimationList) {
-    if (drawState.shouldDrawApples) {
+    if (true || drawState.shouldDrawApples) {
       for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         if (mines.existsAtCoord(coord)) {
           const x = Math.floor(coord % GRIDCOUNT_X);
@@ -1036,6 +1048,7 @@ export function engineRendering({
     gfxFGAction,
     gfxLighting,
     gfxUIRight,
+    bufApples,
     initGraphics,
     resetGraphics,
     cacheGraphicalComponents,

@@ -1,9 +1,10 @@
-import { DEFAULT_PORTALS, DIFFICULTY_EASY, MAX_LIVES } from "./constants";
+import { DEFAULT_PORTALS, DIFFICULTY_EASY, DIMENSIONS, MAX_LIVES } from "./constants";
 import { MAIN_TITLE_SCREEN_LEVEL } from "./levels/levelConstants";
 import {
   AppMode,
   BaseStats,
   EngineState,
+  FrameBufferOptions,
   GameMode,
   GameState,
   HeldItems,
@@ -129,3 +130,12 @@ export const DEFAULT_PICKUP_TYPES: PickupType[] = [
   PickupType.BreadLoaf,
   PickupType.Cucumber,
 ]
+
+export const DEFAULT_FRAMEBUFFER_OPTIONS: FrameBufferOptions = {
+  depth: false,
+  antialias: false,
+  textureFiltering: 'nearest',
+  channels: 'rgba',
+  width: DIMENSIONS.x,
+  height: DIMENSIONS.y,
+} satisfies FrameBufferOptions;

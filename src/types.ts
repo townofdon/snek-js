@@ -507,6 +507,67 @@ export interface IRenderer {
   drawPortal: (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions) => void
 }
 
+export interface FrameBufferOptions {
+  /**
+   *   - format: The data format of the texture, either
+   *   UNSIGNED_BYTE, FLOAT, or HALF_FLOAT. The default
+   *   is UNSIGNED_BYTE.
+   */
+  format?: P5.UNSIGNED_BYTE | P5.FLOAT | P5.HALF_FLOAT,
+  /**
+   *   - channels: What color channels to store, either
+   *   RGB or RGBA. The default is to match the channels
+   *   in the main canvas (with alpha unless disabled
+   *   with setAttributes.)
+   */
+  channels?: P5.RGB | P5.RGBA,
+  /**
+   *   - depth: A boolean, whether or not to include a
+   *   depth buffer. Defaults to true.
+   */
+  depth?: boolean,
+  /**
+   *   - depthFormat: The data format for depth
+   *   information, either UNSIGNED_INT or FLOAT. The
+   *   default is FLOAT if available, or UNSIGNED_INT
+   *   otherwise.
+   */
+  depthFormat?: P5.UNSIGNED_INT | P5.FLOAT,
+  /**
+   *   - antialias: Boolean or Number, whether or not to
+   *   render with antialiased edges, and if so,
+   *   optionally the number of samples to use. Defaults
+   *   to whether or not the main canvas is antialiased,
+   *   using a default of 2 samples if so. Antialiasing
+   *   is only supported when WebGL 2 is available.
+   */
+  antialias?: boolean | number
+  /**
+   *   - width: The width of the texture. Defaults to
+   *   matching the main canvas.
+   */
+  width?: number
+  /**
+   *   - height: The height of the texture. Defaults to
+   *   matching the main canvas.
+   */
+  height?: number
+  /**
+   *   - density: The pixel density of the texture.
+   *   Defaults to the pixel density of the main canvas.
+   */
+  density?: number
+  /**
+   *   - textureFiltering: Either LINEAR (nearby pixels
+   *   will be interpolated when reading values from the
+   *   color texture) or NEAREST (no interpolation.)
+   *   Generally, use LINEAR when using the texture as an
+   *   image, and use NEAREST if reading the texture as
+   *   data. Defaults to LINEAR.
+   */
+  textureFiltering?: P5.LINEAR | P5.NEAREST,
+}
+
 export interface DrawSquareOptions {
   is3d?: boolean,
   size?: number,

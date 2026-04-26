@@ -52,6 +52,8 @@ import {
   RARITY_LEGENDARY,
   RARITY_EPIC,
   RARITY_RARE,
+  DIMENSIONS,
+  BLOCK_SIZE,
 } from "../constants";
 import {
   Action,
@@ -330,6 +332,7 @@ export function engine({
     gfxFGAction,
     gfxLighting,
     gfxUIRight,
+    bufApples,
     initGraphics,
     resetGraphics,
     cacheGraphicalComponents,
@@ -1224,6 +1227,17 @@ export function engine({
     drawPortals();
     drawPickupOutlines(pickupOutlines);
 
+    function begin2D(gfx: P5 | P5.Graphics) {
+      gfx.resetMatrix();
+      gfx.translate(-gfx.width / 2, -gfx.height / 2);
+      gfx.scale(1, -1);
+      gfx.translate(0, -gfx.height);
+    }
+
+    bufApples.begin();
+    gfxApples.clear();
+    gfxApples.push();
+    begin2D(gfxApples);
     for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
       if (apples.existsAtCoord(i)) {
         const x = Math.floor(i % GRIDCOUNT_X);
@@ -1231,9 +1245,31 @@ export function engine({
         drawApple(x, y);
       }
     }
+    drawMines(mines);
+    // TODO: REMOVE
+    {
+      const x = 1 * BLOCK_SIZE.x;
+      const y = 1 * BLOCK_SIZE.y;
+      const w = BLOCK_SIZE.x;
+      const h = BLOCK_SIZE.y;
+      gfxApples.fill("#fa0");
+      gfxApples.rect(x, y, w, h);
+    }
+    gfxApples.pop();
+    bufApples.end();
+
+    gfxApples.push();
+    gfxApples.resetMatrix();
+    gfxApples.ortho();
+    gfxApples.imageMode(p5.CENTER)
+    gfxApples.image(bufApples, 0, 0, gfxApples.width, gfxApples.height);
+    gfxApples.pop();
+
+    p5.push();
+    p5.image(gfxApples, -p5.width / 2, -p5.height / 2);
+    p5.pop();
 
     drawShields(shieldSpawns, shields);
-    drawMines(mines);
     drawPrey(preyList);
     drawFireTiles(fireTiles);
     drawExplosions(explosions);

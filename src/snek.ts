@@ -19,7 +19,6 @@ import {
   DISABLE_TRANSITIONS,
   DIFFICULTY_MEDIUM,
   IS_DEV,
-  IS_NWJS_PACKAGE,
 } from './constants';
 import {
   DEFAULT_BASE_STATS,
@@ -350,7 +349,7 @@ export const sketch = (p5: P5) => {
     setLevel(MAIN_TITLE_SCREEN_LEVEL);
     const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
     if (!canvas) throw new Error('could not find canvas with id="game-canvas"');
-    p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
+    p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.WEBGL, canvas);
     p5.frameRate(FRAMERATE);
     initGraphics();
     initLevel(false);

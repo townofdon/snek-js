@@ -252,9 +252,17 @@ export const sketch = (p5: P5) => {
     state.appMode = AppMode.StartScreen;
     state.isGameStarted = false;
     state.isGameStarting = false;
-    const canvas = document.getElementById("game-canvas");
-    if (!canvas) throw new Error('could not find canvas with id="game-canvas"');
-    p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D, canvas);
+    // const canvas = document.getElementById("game-canvas");
+    // if (!canvas) throw new Error('could not find canvas with id="game-canvas"');
+    const parent = document.getElementById(UI_PARENT_ID);
+    if (!parent) throw new Error("Missing parent container");
+    p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.WEBGL).id('game-canvas');
+    setTimeout(() => {
+      const canvas = document.getElementById('game-canvas');
+      if (!canvas) throw new Error('could not find canvas with id="game-canvas"');
+      parent.prepend(canvas);
+      canvas.classList.add('p5Canvas');
+    }, 0);
     p5.frameRate(FRAMERATE);
     initGraphics();
     setLevel(level.current);
