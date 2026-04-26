@@ -1194,7 +1194,6 @@ export enum PickupType {
   Watermelon,
   Mango,
   Grapes,
-  Strawberry,
   Kiwi,
   Orange,
   Cherries,
@@ -1203,6 +1202,7 @@ export enum PickupType {
   Lemon,
   Lime,
   // legendary items
+  Strawberry,
   GoldenApple,
   RainbowCake,
   Sushi,

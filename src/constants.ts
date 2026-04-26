@@ -517,7 +517,6 @@ export const PICKUP_EPIC_ITEMS: PickupType[] = [
   PickupType.Watermelon,
   PickupType.Mango,
   PickupType.Grapes,
-  PickupType.Strawberry,
   PickupType.Kiwi,
   PickupType.Orange,
   PickupType.Cherries,
@@ -527,6 +526,7 @@ export const PICKUP_EPIC_ITEMS: PickupType[] = [
   PickupType.Lime,
 ];
 export const PICKUP_LEGENDARY_ITEMS: PickupType[] = [
+  PickupType.Strawberry,
   PickupType.GoldenApple,
   PickupType.RainbowCake,
   PickupType.Sushi,

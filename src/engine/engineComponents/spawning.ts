@@ -202,7 +202,7 @@ export function engineSpawning({
     if (es.level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
-    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return false;
+    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN / 4) return false;
     if (state.lives === MAX_LIVES) return false;
 
     const frameLikelihood = es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.HealthPack
@@ -230,7 +230,7 @@ export function engineSpawning({
     if (es.level.disableAppleSpawn) return false;
     if (replay.mode === ReplayMode.Playback) return false;
     if (stats.applesEatenThisLevel === 0) return false;
-    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return false;
+    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN / 2) return false;
     if (segments.length < 10) return false;
 
     const frameLikelihood = es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.WeightLossPill
