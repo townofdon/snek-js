@@ -21,10 +21,12 @@ import {
   ANIMATIONS,
   BASE_PICKUP_RARITY,
   DROP_LIKELIHOOD_ARMOR,
+  DROP_LIKELIHOOD_HEALTHPACK,
   DROP_LIKELIHOOD_INVINCIBILITY,
   DROP_LIKELIHOOD_MINE,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
+  MAX_LIVES,
   PICKUP_LIFETIME_MS,
   PICKUP_SPAWN_COOLDOWN,
   PICKUP_TYPE_RARITY_MAP,
@@ -102,6 +104,7 @@ export function engineSpawning({
     const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
+      || es.pickupsMap[getCoordIndex2(x, y)]
       || mines.existsAt(x, y);
     if (spawnedInsideOfSomething) {
       if (numTries < 30) spawnApple(numTries + 1);
@@ -110,9 +113,11 @@ export function engineSpawning({
     apples.add(x, y);
     if (replay.mode === ReplayMode.Capture) {
       replay.applesToSpawn.push([x, y]);
+      return;
     }
     let spawned = false;
     if (maybeSpawnInvincibilityPickup()) { spawned = true; }
+    if (maybeSpawnHealthPickup()) { spawned = true; }
     if (maybeSpawnMine()) { spawned = true; }
     if (maybeSpawnArmor()) { spawned = true; }
     if (!spawned && maybeSpawnOtherPickup(x, y)) { spawned = true; }
@@ -182,6 +187,34 @@ export function engineSpawning({
       return false;
     }
     spawnInvincibilityPickup()
+    return true;
+  }
+
+  function maybeSpawnHealthPickup(): boolean {
+    if (es.level.disableAppleSpawn) return false;
+    if (replay.mode === ReplayMode.Playback) return false;
+    if (stats.applesEatenThisLevel === 0) return false;
+    if (state.timeSinceSpawnedPickup < PICKUP_SPAWN_COOLDOWN) return false;
+    if (state.lives === MAX_LIVES) return false;
+
+    const frameLikelihood = es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.HealthPack
+      ? es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
+      : undefined
+    const baseLikelihood = getDropLikelihood(
+      es.level.pickupDrops?.[ItemDropType.HealthPack] ?? true,
+      DROP_LIKELIHOOD_HEALTHPACK,
+      es.difficulty.index
+    ) * lerp(1, 0.2, state.lives / 2)
+    const likelihood = frameLikelihood ?? baseLikelihood;
+    const r = Math.random() + likelihood;
+    if (r < 1) {
+      return false;
+    }
+    const coord = chooseSpawnLocation();
+    if (coord < 0) {
+      return false
+    }
+    spawnHealthPickup(getCoordX(coord), getCoordY(coord));
     return true;
   }
 
@@ -307,6 +340,20 @@ export function engineSpawning({
     return -1;
   }
 
+  function spawnHealthPickup(x: number, y: number) {
+    if (!apples.existsAt(x, y)) apples.add(x, y);
+    es.pickupsMap[getCoordIndex2(x, y)] = {
+      timeTillDeath: PICKUP_LIFETIME_MS,
+      type: PickupType.HealthPack,
+    };
+    state.timeSinceSpawnedPickup = 0;
+    drawState.shouldDrawApples = true;
+    playSound(Sound.shieldSpawn, 0.45);
+    if (mines.existsAt(x, y)) {
+      explodeMine(x, y);
+    }
+  }
+
   function spawnArmorPickup(x: number, y: number) {
     const { frames, timePerFrame } = ANIMATIONS[Image.ShieldSpawn];
     shieldSpawns.add(x, y, frames * timePerFrame, frames, timePerFrame);
@@ -349,6 +396,7 @@ export function engineSpawning({
       if (numTries < 30) spawnInvincibilityPickup(numTries + 1);
     } else {
       if (!apples.existsAt(x, y)) apples.add(x, y);
+      playSound(Sound.shieldSpawn, 0.45);
       es.pickupsMap[getCoordIndex2(x, y)] = {
         timeTillDeath: PICKUP_LIFETIME_MS,
         type: PickupType.Invincibility,

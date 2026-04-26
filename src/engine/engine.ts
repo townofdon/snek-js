@@ -967,6 +967,9 @@ export function engine({
         startInvincibility();
       } else if (es.pickupsMap[coord]?.type === PickupType.Armor) {
         // handled below via shieldSpawns / shields
+      } else if (es.pickupsMap[coord]?.type === PickupType.HealthPack) {
+        acquireHealth();
+        incrementPickupBonus(PickupType.HealthPack, coord);
       } else if (es.pickupsMap[coord]) {
         incrementPickupBonus(es.pickupsMap[coord]?.type, coord);
       }
@@ -1468,7 +1471,7 @@ export function engine({
     if (state.isGameWon) return;
     if (state.isExitingLevel) return;
     if (state.isExited) return;
-    playSound(Sound.pickup);
+    playSound(Sound.pickup, 0.35);
     state.lives = Math.min(state.lives + 1, MAX_LIVES);
     renderHeartsUI();
   }
@@ -1481,7 +1484,7 @@ export function engine({
     if (state.isExited) return;
     state.isMoving = false;
     // TODO: add uniq sound
-    playSound(Sound.pickup);
+    playSound(Sound.pickup, 0.35);
     startAction(weightLossRoutine(), Action.WeightLoss);
   }
 
@@ -2218,6 +2221,10 @@ export function engine({
       image = Image.Points1000;
       rarity = PickupRarity.Rare;
     } else if (pickupType === PickupType.Armor) {
+      points = PICKUP_INVINCIBILITY_BONUS;
+      image = Image.Points1000;
+      rarity = PickupRarity.Rare;
+    } else if (pickupType === PickupType.HealthPack) {
       points = PICKUP_INVINCIBILITY_BONUS;
       image = Image.Points1000;
       rarity = PickupRarity.Rare;

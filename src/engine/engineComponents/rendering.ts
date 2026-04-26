@@ -524,13 +524,14 @@ export function engineRendering({
   function drawApple(x: number, y: number) {
     const isInvincibility = es.pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility;
     const isReversibility = es.pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Armor;
+    const timeLeft = es.pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
+    const specialPickupType = es.pickupsMap[getCoordIndex2(x, y)]?.type || PickupType.None;
     if (state.isInvertedColors && replay.mode !== ReplayMode.Playback && isInvincibility) {
       renderer.drawSquare(x, y,
         PALETTE.deathInvert.apple,
         PALETTE.deathInvert.appleStroke,
         drawAppleOptions);
     } else if (isInvincibility) {
-      const timeLeft = es.pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
       if (shouldBlinkExpiringPickup(timeLeft)) {
         return;
       }
@@ -541,7 +542,6 @@ export function engineRendering({
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
     } else if (isReversibility) {
-      const timeLeft = es.pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
       if (shouldBlinkExpiringPickup(timeLeft)) {
         return;
       }
@@ -551,13 +551,13 @@ export function engineRendering({
       if (timeLeft <= PICKUP_LIFETIME_MS) {
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
-    } else if (drawState.shouldDrawApples) {
-      const specialPickupType = es.pickupsMap[getCoordIndex2(x, y)]?.type;
-      if (specialPickupType) {
-        spriteRenderer.drawSprite3x3(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
-      } else {
-        spriteRenderer.drawImage3x3Custom(gfxApples, Image.ThemedApple, x, y, 0, 1, 0);
+    } else if (specialPickupType) {
+      if (shouldBlinkExpiringPickup(timeLeft)) {
+        return;
       }
+      spriteRenderer.drawSprite3x3(renderer.getMainGfx(), Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+    } else if (drawState.shouldDrawApples) {
+      spriteRenderer.drawImage3x3Custom(gfxApples, Image.ThemedApple, x, y, 0, 1, 0);
     }
   }
 
