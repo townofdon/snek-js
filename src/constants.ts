@@ -384,10 +384,10 @@ export const SLIME_CONTROL_TRACKS: MusicTrack[] = [
 
 export const ANIMATIONS = {
   [Image.ThemedAppleSheet]: {
-    frames: 12,
+    frames: 13,
     timePerFrame: 100,
     durations: [
-      3000,
+      1000,
       100,
       100,
       100,
@@ -399,8 +399,9 @@ export const ANIMATIONS = {
       100,
       100,
       100,
+      9000,
     ],
-  } as const satisfies AnimationData<12>,
+  } as const satisfies AnimationData<13>,
   [Image.SegmentsSheet]: {
     frames: 3,
     timePerFrame: 100,
