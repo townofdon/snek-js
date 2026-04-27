@@ -383,103 +383,121 @@ export const SLIME_CONTROL_TRACKS: MusicTrack[] = [
 ];
 
 export const ANIMATIONS = {
+  [Image.ThemedAppleSheet]: {
+    frames: 12,
+    timePerFrame: 100,
+    durations: [
+      3000,
+      100,
+      100,
+      100,
+      400,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+      100,
+    ],
+  } as const satisfies AnimationData<12>,
   [Image.SegmentsSheet]: {
     frames: 3,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.MineSheet]: {
     frames: 2,
     timePerFrame: 400,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.ExplosionSheet]: {
     frames: 4,
     timePerFrame: 200,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.FireSheet]: {
     frames: 3,
     timePerFrame: 200,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.TileSheet16]: {
     frames: 27,
     timePerFrame: 200,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.TileSheet48]: {
     frames: 7,
     timePerFrame: 200,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.PickupsSheet]: {
     frames: 56,
     timePerFrame: 200,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.WearablesSheet]: {
     frames: 27,
     timePerFrame: 200,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.UIKeysSheet]: {
     frames: 5,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.DoorLightSheet]: {
     frames: 9,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.DoorOpenSheet]: {
     frames: 13,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.Points500]: {
     frames: 14,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.Points1000]: {
     frames: 13,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.Points2000]: {
     frames: 13,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.Points5000]: {
     frames: 16,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.Points10000]: {
     frames: 17,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.PreyGrubSheet]: {
     frames: 4,
     timePerFrame: PREY_MOVE_TIME_GRUB / 2,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.PreyAntSheet]: {
     frames: 2,
     timePerFrame: PREY_MOVE_TIME_ANT / 2,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.PreyMouseSheet]: {
     frames: 4,
     timePerFrame: PREY_MOVE_TIME_MOUSE / 2,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.PreyGrasshopperSheet]: {
     frames: 2,
     timePerFrame: PREY_MOVE_TIME_GRASSHOPPER / 2,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.Shield]: {
     frames: 6,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.ShieldSpawn]: {
     frames: 13,
     timePerFrame: 100,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.PickupOutlineBlueSheet]: {
     frames: 4,
     timePerFrame: 200,
-  } satisfies AnimationData,
+  } as const satisfies AnimationData,
   [Image.PickupOutlineYellowSheet]: {
     frames: 4,
     timePerFrame: 200,
-  } satisfies AnimationData,
-} as const satisfies Record<SpritesheetImage, AnimationData>;
+  } as const satisfies AnimationData,
+} as const;
 
 export const PICKUP_COMMON_ITEMS: PickupType[] = [
   PickupType.Cheese,

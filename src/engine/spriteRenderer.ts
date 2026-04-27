@@ -29,7 +29,7 @@ export class SpriteRenderer {
     [Image.ControlsGamepadTurn]: null,
     [Image.ControlsGamepadSprint]: null,
     [Image.ControlsMouseLeft]: null,
-    [Image.ThemedApple]: null,
+    [Image.ThemedAppleSheet]: null,
     [Image.ThemedBarrierSkull]: null,
     [Image.ThemedBarrierIndent]: null,
     [Image.ThemedDoor]: null,
@@ -43,7 +43,7 @@ export class SpriteRenderer {
     [Image.ThemedBarrierBrick]: null,
     [Image.ThemedBarrierStone]: null,
     [Image.ThemedPortalColumns]: null,
-    [Image.AppleTemplate]: null,
+    [Image.AppleTemplateSheet]: null,
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
     [Image.SnekSegmentDark]: null,
@@ -136,7 +136,7 @@ export class SpriteRenderer {
       main: this.p5.color(palette.apple),
       alt: this.p5.color(palette.appleStroke), // unused
     } satisfies ColorReplacementPalette;
-    this.setThemedImageFromSprite(colors, 48, Image.ThemedApple, Image.AppleTemplate, 0);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedAppleSheet, Image.AppleTemplateSheet, 0, true);
   }
 
   setThemedBorderImages = (palette: ExtendedPalette) => {
@@ -183,13 +183,16 @@ export class SpriteRenderer {
     this.setThemedImageFromSprite(colors, 48, Image.ThemedSegmentNW, Image.TileSheet48, 6);
   }
 
-  private setThemedImageFromSprite(colors: ColorReplacementPalette, size: 16 | 48, dest: ThemedImage, sourceSprite: Image, frame: number) {
+  private setThemedImageFromSprite(colors: ColorReplacementPalette, size: 16 | 48, dest: ThemedImage, sourceSprite: Image, frame: number, matchSize = false) {
     if (!this.images[sourceSprite]) {
       throw new Error(`source image is not loaded: ${sourceSprite}`);
     }
-    const img = this.p5.createImage(size, size);
+    const loaded = this.images[sourceSprite];
+    let w = matchSize ? (loaded.width || 1) : size;
+    let h = matchSize ? (loaded.height || 1) : size;
+    const img = this.p5.createImage(w, h);
     // copy template image pixels to new image (assumes dest img and src rect are same dims)
-    img.copy(this.images[sourceSprite], size * frame, 0, size, size, 0, 0, size, size);
+    img.copy(this.images[sourceSprite], size * frame, 0, w, h, 0, 0, w, h);
     // iterate through all pixels, replacing with theme colors
     img.loadPixels();
     for (let x = 0; x < img.width; x += 1) {
@@ -244,7 +247,7 @@ export class SpriteRenderer {
       this.loadImage(Image.ControlsGamepadTurn);
       this.loadImage(Image.ControlsGamepadSprint);
       this.loadImage(Image.ControlsMouseLeft);
-      this.loadImage(Image.AppleTemplate);
+      this.loadImage(Image.AppleTemplateSheet);
       this.loadImage(Image.SnekHead);
       this.loadImage(Image.SnekHeadDead);
       this.loadImage(Image.SnekSegmentDark);
@@ -434,28 +437,22 @@ export class SpriteRenderer {
       throw new Error(`no animation data found for image "${image}"`);
     }
     const { frames, timePerFrame } = ANIMATIONS[image];
-    this.drawImage1x1(gfx, image, x, y, 0, 1, 0, frames, timePerFrame, elapsed);
+    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${image}`);
+    const frame = Math.floor(elapsed / timePerFrame) % frames;
+    this.drawImage1x1(gfx, image, x, y, 0, 1, 0, frame, frames);
   }
 
   public drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1) => {
     if (!ANIMATIONS[image]) {
       throw new Error(`no animation data found for image "${image}"`);
     }
-    const { frames, timePerFrame } = ANIMATIONS[image];
-    this.drawImage1x1(gfx, image, x, y, rotation, alpha, 0.5, frames, timePerFrame, timePerFrame * frame);
+    const { frames } = ANIMATIONS[image];
+    this.drawImage1x1(gfx, image, x, y, rotation, alpha, 0.5, frame, frames);
   }
 
   public drawSprite1x1Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {
     if (this.isStaticCached) return;
     this.drawSprite1x1(gfx, image, x, y, frame);
-  }
-
-  public debugDrawImage1x1 = (gfx: P5 | P5.Graphics,) => {
-    const { frames } = ANIMATIONS[Image.SegmentsSheet];
-    this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 15, Math.PI * 0.0, 1, 1, frames, 1000, 0);
-    this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 16, Math.PI * 0.5, 1, 1, frames, 1000, 0);
-    this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 17, Math.PI * 1.0, 1, 1, frames, 1000, 0);
-    this.drawImage1x1(gfx, Image.SegmentsSheet, 15, 18, Math.PI * 1.5, 1, 1, frames, 1000, 0);
   }
 
   public drawImage1x1Static = (...args: Parameters<SpriteRenderer['drawImage1x1']>) => {
@@ -471,12 +468,10 @@ export class SpriteRenderer {
     rotation: number = 0,
     alpha = 1,
     screenshakeMul = 1,
+    frame = 0,
     frames = 1,
-    timePerFrame = 1000,
-    elapsed = 0,
   ) => {
     if (!frames) throw new Error(`frames cannot be zero. val=${frames},img=${image}`);
-    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${image}`);
     const loaded = this.images[image];
     if (!loaded) {
       return;
@@ -507,7 +502,6 @@ export class SpriteRenderer {
     if (alpha !== 1) {
       gfx.tint(255, 255, 255, lerp(0, 255, alpha));
     }
-    const frame = Math.floor(elapsed / timePerFrame) % frames;
     const frameWidth = loaded.width / frames;
     gfx.image(
       loaded,

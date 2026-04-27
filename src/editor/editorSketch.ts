@@ -513,7 +513,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           }
 
           if (data.applesMap[coord]) {
-            spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedApple, x, y, 0, 1, 0);
+            spriteRenderer.drawSprite1x1(gfx, Image.ThemedAppleSheet, x, y, 0, 0, 1);
           }
 
           if (data.minesMap[coord]) {

@@ -560,12 +560,24 @@ export function engineRendering({
       if (timeLeft <= PICKUP_LIFETIME_MS) {
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
-    } else if (drawState.shouldDrawApples) {
-      if (specialPickupType) {
-        spriteRenderer.drawSprite3x3(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
-      } else {
-        spriteRenderer.drawImage3x3Custom(gfxApples, Image.ThemedApple, x, y, 0, 1, 0);
+    } else if (specialPickupType && drawState.shouldDrawApples) {
+      spriteRenderer.drawSprite3x3(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+    } else if (!specialPickupType) {
+      const elapsed = state.actualTimeElapsed;
+      const { durations } = ANIMATIONS[Image.ThemedAppleSheet];
+      const totalDuration = durations.reduce((a, b) => a + b, 0);
+      const t = elapsed % totalDuration;
+      // get current frame
+      let frame = 0;
+      let sum = 0;
+      for (let i = 0; i < durations.length; i++) {
+        sum += durations[i];
+        if (t < sum) {
+          frame = i;
+          break;
+        }
       }
+      spriteRenderer.drawSprite1x1(renderer.getMainGfx(), Image.ThemedAppleSheet, x, y, frame, 0, 1);
     }
   }
 

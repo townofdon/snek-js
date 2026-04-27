@@ -855,13 +855,21 @@ export enum MusicTrack {
 
 export type UnlockedMusicTracks = Record<MusicTrack, boolean>
 
-export interface AnimationData {
-  frames: number,
+// don't ask me what this does. something something build a dynamic tuple type using recursion.
+type BuildTuple<N extends number, T, R extends T[] = []> =
+  R['length'] extends N ? R : BuildTuple<N, T, [T, ...R]>;
+
+export interface AnimationData<T extends number = number> {
+  frames: T,
   timePerFrame: number,
+  /**
+   * Set explicit time per each frame. Array length must match number of frames.
+   */
+  durations?: BuildTuple<T, number>,
 }
 
 export enum Image {
-  ThemedApple = '__apple-rendered-at-runtime__',
+  ThemedAppleSheet = '__apple-sheet-rendered-at-runtime__',
   ThemedBarrierSkull = '__barrier-skull-rendered-at-runtime__',
   ThemedBarrierIndent = '__barrier-indent-rendered-at-runtime__',
   ThemedBarrierFlat = '__barrier-flat-rendered-at-runtime__',
@@ -869,13 +877,13 @@ export enum Image {
   ThemedBarrierBrick = '__barrier-bricks-rendered-at-runtime__',
   ThemedBarrierStone = '__barrier-stone-rendered-at-runtime__',
   ThemedPortalColumns = '__barrier-portal-columns-rendered-at-runtime__',
-  ThemedDoor = 'door-rendered-at-runtime__',
-  ThemedDoorAlt = 'door-alt-rendered-at-runtime__',
-  ThemedSegmentNE = 'segment-ne-rendered-at-runtime__',
-  ThemedSegmentSE = 'segment-se-rendered-at-runtime__',
-  ThemedSegmentSW = 'segment-sw-rendered-at-runtime__',
-  ThemedSegmentNW = 'segment-nw-rendered-at-runtime__',
-  AppleTemplate = 'snek-apple-template.png',
+  ThemedDoor = '__door-rendered-at-runtime__',
+  ThemedDoorAlt = '__door-alt-rendered-at-runtime__',
+  ThemedSegmentNE = '__segment-ne-rendered-at-runtime__',
+  ThemedSegmentSE = '__segment-se-rendered-at-runtime__',
+  ThemedSegmentSW = '__segment-sw-rendered-at-runtime__',
+  ThemedSegmentNW = '__segment-nw-rendered-at-runtime__',
+  AppleTemplateSheet = 'snek-apple-sheet.png',
   SnekHead = 'snek-head.png',
   SnekHeadDead = 'snek-head-dead.png',
   SnekSegmentDark = 'snek-segment-dark.png',
@@ -935,7 +943,7 @@ export enum Image {
 }
 
 export type ThemedImage =
-  | Image.ThemedApple
+  | Image.ThemedAppleSheet
   | Image.ThemedBarrierIndent
   | Image.ThemedBarrierSkull
   | Image.ThemedBarrierFlat
@@ -952,6 +960,7 @@ export type ThemedImage =
 ;
 
 export type SpritesheetImage =
+  | Image.ThemedAppleSheet
   | Image.DoorOpenSheet
   | Image.SegmentsSheet
   | Image.MineSheet
