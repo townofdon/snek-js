@@ -72,7 +72,12 @@ export function updateLighting(
   for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
     const isInvincibilityAtCoord = (
       apples?.existsAtCoord(i) &&
-      pickupsMap[i]?.type === PickupType.Invincibility &&
+      (
+        pickupsMap[i]?.type === PickupType.Invincibility ||
+        pickupsMap[i]?.type === PickupType.Armor ||
+        pickupsMap[i]?.type === PickupType.HealthPack ||
+        pickupsMap[i]?.type === PickupType.WeightLossPill
+      ) &&
       !shouldBlinkExpiringPickup(pickupsMap[i]?.timeTillDeath)
     );
     if (isInvincibilityAtCoord || explosions?.existsAtCoord(i)) {

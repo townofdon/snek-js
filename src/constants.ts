@@ -556,6 +556,7 @@ export const PICKUP_LEGENDARY_ITEMS: PickupType[] = [
 export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
   [PickupType.None]: 0,
   [PickupType.Invincibility]: 0,
+  [PickupType.Reversibility]: 0,
   [PickupType.Armor]: 0,
   [PickupType.HealthPack]: 55,
   [PickupType.WeightLossPill]: 56,
@@ -611,6 +612,7 @@ Object.entries(PickupType).forEach(([key, pickupType]) => {
   if ([
     PickupType.None,
     PickupType.Invincibility,
+    PickupType.Reversibility,
     PickupType.Armor,
     PickupType.HealthPack,
     PickupType.WeightLossPill,

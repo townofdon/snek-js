@@ -1166,7 +1166,8 @@ export enum PickupRarity {
 export enum PickupType {
   None = 0,
   Invincibility,
-  Armor, // needed for animated points
+  Reversibility,
+  Armor,
   HealthPack,
   WeightLossPill,
   // common items

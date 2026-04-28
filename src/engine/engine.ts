@@ -284,6 +284,10 @@ export function engine({
     const { frames, timePerFrame } = ANIMATIONS[Image.Shield];
     const isEndOfLevelDrop = state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && es.level.armorDrop;
     const lifetime = isEndOfLevelDrop ? 99999999 : es.difficulty.invincibilityTime;
+    es.pickupsMap[getCoordIndex2(x, y)] = {
+      timeTillDeath: lifetime,
+      type: PickupType.Armor,
+    };
     shields.add(x, y, lifetime, frames, timePerFrame);
     drawState.shouldDrawActionFG = true;
   };

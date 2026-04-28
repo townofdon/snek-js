@@ -417,6 +417,10 @@ export function engineSpawning({
   function spawnArmorPickup(x: number, y: number) {
     const { frames, timePerFrame } = ANIMATIONS[Image.ShieldSpawn];
     shieldSpawns.add(x, y, frames * timePerFrame, frames, timePerFrame);
+    es.pickupsMap[getCoordIndex2(x, y)] = {
+      timeTillDeath: frames * timePerFrame,
+      type: PickupType.Armor,
+    };
     setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
     if (mines.existsAt(x, y)) {
       explodeMine(x, y);
