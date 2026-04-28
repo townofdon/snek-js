@@ -36,6 +36,7 @@ import {
   getCoordIndex,
   getDirectionBetween,
   invertDirection,
+  isBreakableBarrier,
   lerp,
   rotateSystemAfterPortalTraverse,
 } from "@/utils";
@@ -223,8 +224,11 @@ export function engineMovement({
     const willHitSomething = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
     const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     const canAutoRewind = rewindAllowed(invincible && heldItems.armor === 0);
+    const futureCoord = getCoordIndex(futurePosition);
+    const isBreakable = !es.passablesMap[futureCoord] && isBreakableBarrier(es.barriersMap[futureCoord]);
+    const extraGraceTime = (isBreakable && heldItems.armor > 0) ? 0 : es.level.extraHurtGraceTime ?? 0;
     const hurtGraceTime = Math.max(
-      HURT_GRACE_TIME + (es.level.extraHurtGraceTime ?? 0) + (es.difficulty.index === 4 ? 12 : 0),
+      HURT_GRACE_TIME + extraGraceTime + (es.difficulty.index === 4 ? 12 : 0),
       // if currently invincible or in casual mode, wait a bit longer before starting rewind
       canAutoRewind ? TIME_WAIT_BEFORE_REWIND : 0,
     );

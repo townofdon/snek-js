@@ -55,6 +55,7 @@ XXXXXXXXXXXXXDDDXXXXXXXXXXXXXX
     20: { likelihood: 1, type: ItemDropType.Invincibility },
     25: { likelihood: 1, type: ItemDropType.Invincibility },
   },
+  armorDrop: getCoordIndex2(14, 14),
   nextLevelMap: {
     [getCoordIndex2(0, 9)]: null,
     [getCoordIndex2(0, 10)]: null,

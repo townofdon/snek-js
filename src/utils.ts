@@ -517,6 +517,17 @@ export const isValidBarrierType = (barrierType: number): barrierType is BarrierT
   return Number.isInteger(barrierType) && barrierType >= 0 && barrierType < BARRIER_TYPE_MAX;
 }
 
+export const isBreakableBarrier = (barrierType: BarrierType): boolean => {
+  if (!barrierType) return false;
+  return (
+    barrierType === BarrierType.Brick ||
+    barrierType === BarrierType.BrickThemed ||
+    barrierType === BarrierType.BrickWhite ||
+    barrierType === BarrierType.Stone ||
+    barrierType === BarrierType.StoneThemed
+  );
+}
+
 export const isValidKeyChannel = (channel: number): channel is KeyChannel => {
   if (channel === null || channel === undefined) return false;
   return Number.isInteger(channel) && channel >= 0 && channel <= 2

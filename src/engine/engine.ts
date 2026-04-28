@@ -108,6 +108,7 @@ import {
   removeArrayElement,
   getCoordX,
   getCoordY,
+  isBreakableBarrier,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -1978,9 +1979,6 @@ export function engine({
     if (heldItems.armor <= 0) return false;
 
     const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
-    if (!invincible) {
-      heldItems.armor -= 1;
-    }
     state.timeSinceArmorProtection = 0;
 
     // check if barrier at player position is breakable
@@ -1988,13 +1986,7 @@ export function engine({
     const coord = getCoordIndex(vec);
     const isPassableBarrier = state.isDoorsOpen && es.passablesMap[coord];
     if (!isPassableBarrier && es.barriersMap[coord]) {
-      isBreakable = es.barriersMap[coord] && (
-        es.barriersMap[coord] === BarrierType.Brick ||
-        es.barriersMap[coord] === BarrierType.BrickThemed ||
-        es.barriersMap[coord] === BarrierType.BrickWhite ||
-        es.barriersMap[coord] === BarrierType.Stone ||
-        es.barriersMap[coord] === BarrierType.StoneThemed
-      );
+      isBreakable = es.barriersMap[coord] && isBreakableBarrier(es.barriersMap[coord]);
     }
     if (isBreakable) {
       const barrierIdx = es.barriers.findIndex(barrier => getCoordIndex(barrier.vec) === coord);
@@ -2006,13 +1998,13 @@ export function engine({
       playSound(Sound.xplodeLong);
       startScreenShake(2, 0, 0.8);
       reboundSnake(segments.length > 3 ? 2 : 1);
-    } else {
+    } else if (invincible) {
       startAutoRewind()
       startScreenShake(0.3, 0.8);
-    }
-    if (!invincible) {
-      // TODO: ADD UNIQ SOUND
+    } else {
+      heldItems.armor -= 1;
       playSound(Sound.hurtSave);
+      reboundSnake(segments.length > 3 ? 2 : 1);
     }
     return true;
   }
