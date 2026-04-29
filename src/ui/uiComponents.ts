@@ -171,7 +171,8 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
     warpButton("18", x += offset, yRow3, 18, 'pauseButtonWarp18');
     x = xInitial;
     warpButton("19", x + 0.00000, yRow4, 19, 'pauseButtonWarp19');
-    warpButton("20", x += offset, yRow4, 99, 'pauseButtonWarp20');
+    warpButton("20", x += offset, yRow4, 20, 'pauseButtonWarp20');
+    warpButton("99", x += offset, yRow4, 99, 'pauseButtonWarp99');
     warpButton("S1", x += offset, yRow4, 110, 'pauseButtonWarpS1');
     warpButton("S2", x += offset, yRow4, 120, 'pauseButtonWarpS2');
     warpButton("S3", x += offset, yRow4, 130, 'pauseButtonWarpS3');

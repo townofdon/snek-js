@@ -3,56 +3,60 @@ import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, PortalExitMode, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
 
-const name = 'ruins'
+const name = 'bait&switch'
 
 export const LEVEL_17: Level = {
   id: 'C17',
   name,
-  timeToClear: 1000 * 60 * 1.3,
-  parTime: toTime({ minutes: 0, seconds: 60 }),
-  applesToClear: 20,
+  timeToClear: 1000 * 60 * 3.0,
+  parTime: toTime({ minutes: 0, seconds: 55 }),
+  applesToClear: 60,
   numApplesStart: 0,
-  growthMod: 0.01,
-  disableAppleSpawn: true,
-  snakeStartSizeOverride: 2,
-  extraHurtGraceTime: 40,
+  growthMod: 0.2,
+  extraHurtGraceTime: 20,
+  snakeStartSizeOverride: 5,
   layout: `
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
-X  k  XX -=aaaaa-aaaaa=- XXXXX
-X XXX XX -=XXXXXXXXXXX=- x - X
-X XXX d  -=XXX-- --XXX=- --X-X
-X XXX d  -=XXXXXXXXXXX=- x - X
-X  -  d  -=aaaaa-aaaaa=- XXKXX
-XXXKXXXXXXXXXXX-=-XXXXXXXXXKXX
-X - - xaaaax    =    xaaax - X
-X-=-=-XXXXxx ==-=-== xxXXX-=-X
-X-=-=-XXXX      X  aaa XXX-=-X
-X - - XXXX ==== X ==== XXX - X
-XXXdXXX -X --O  -      XXXXxXX
-XXXdXX -=X== =aXXX = ==X=-   X
-XXXKXX -=X   =aX-X =   X=-a  X
-dLLKJJ -=X = =aX-X = = X=-a  X
-dLKKKJ---d =   =-=   = d-a-a-X
-dLLKJJ -=X = = X-Xa= = X=-a  X
-XXXKXX -=X   = X-Xa=   X=-a  X
-XXXdXX -=X== = XXXa= ==X=-   X
-XXXdXXX -X      -      XXXxXXX
-X - - XXXX ==== X ==== X  j  X
-X-=-=-XXXX aaa  X      X  X  X
-X-=-=-XXXXxx ==-=-== xxX  X  X
-X - - xaaaax    =    xaJ     X
-XXXLXXXXXXXXXXX-=-XXXXXXXXXLXX
-X  -  d  -=aaaaa-aaaaa=- x a X
-X XXX d  -=XXXXXXXXXXX=- xaXaX
-X XXX XX -=XXXXXXXXXXX=- XaXaX
-X  l  XX -=aaaaa-aaaaa=- X a X
+XXXXXXXXXXXX+_KK_+XXXXXXXXXXXX
+X~aaaa~~~~1X+_KK_+X3~~~~aaaa~X
+X~XXXXXXXXXXXX__XXXXXXXXXXXX~X
+X~XX+X+__+X+XXLLXX+X+__+X+XX~X
+X~XX+X+__+X+XXLLXX+X+__+X+XX~X
+X~XXXXXXXXXXXX__XXXXXXXXXXXX~X
+X~X    j      --           X~X
+X~X XXXXXXXX==--==XXXXXXXX X~X
+X~X-X_~d~~3X  --  X1~~d~_X-X~X
+XJX=K+_l____-=--=-____k_+L=XJX
+X~X-XXXdXXXX  --  XXXXdXXX-X~X
+X~X XXXXXXXX==--==XXXXXXXX X~X
+X~X           --           X~X
+X~X           --           X~X
+XaX=-X~       --       ~X-=XaX
+XaX=-XX-=--=O --  =--=-XX-=XaX
+XaX=-X~ -     --     - ~X-=XaX
+X~X  -  -     --     -  -  X~X
+X~X  =  - ~X  --  X~ -  =  X~X
+X~X  -  =-XX-=--=-XX-=  -  X~X
+X~X  =  - ~X  --  X~ -  =  X~X
+X~X  -  -     --     -  -  X~X
+XaX=-X~ -     --     - ~X-=XaX
+XaX=-XX-=--=  --  =--=-XX-=XaX
+XaX=-X~       --       ~X-=XaX
+X~X           --           X~X
+X~X           --           X~X
+X~XXXXXXXXXdd+__+ddXXXXXXXXX~X
+X~~~~~~~~~~~~~~~~~~~~~~~~~~~~X
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   `,
-  layoutV2: 'ClpaWigKZmshWE1PKFgqTVhUTXBYVChiKFhVTnhhd2QhKV9ULU4tLSg9Ti0tVC0qTVRUTWQhKShfYihYVU54YSpmLSFkIU9YVEtYKihLWl8pLVpLWFlleGFTdlgpLXEoZiEhRiFleigpLXQoYSooZCggLU0tLVYtISEhWFRfeFgqKGRwVT0nQSgnaEZfS3BmJ0FULVgnVlVvYydBYi1iJ1diPW9kTEtLS0otLS1kJyEnKSFXZC1BLUEtUgpjV2ItYm1XYj1vRl9LcFQhV1gtWG1WVW8oZHBVPVcobWgoZCggLWYhIS0hISFfdnh2WHRmaiFxKE1lQSFGISEhZmZTIWZZSiFWKihMWl8pLShfVChMWCpmLSFkIU94IHoqTVRiTWQhKShfYl9UWFVOeEFiQXdYdiApKF9iWFQoPU52QWJBKmZsIVhNT016KlpaWigKfDM0M3xSSUdIVHxydWluc3w3ODAwfjJ%252BM3wxfDJ8MC4wMXw0fjAuNXwjRjA5MTU2UEVENzkzMXk2MDU3NzBQNkQ2MjdGUDQwM0Q1Mnk0OTQ1NUVQNDAzRDUyUDlFNzY4MlBlODg5MlBFMWU1MVBEQzk5MkVQRURDQjk2fGdnZzF8MTJ8MVYgVz0oX1gpLT0qWApNWGEtIE8pZWVBLWVlbU5QLSNRJz09PSBTcV92dnh4Jz0pKT0geHh2VVg9ViEgVycgWSpNTk54ZWV4ISE9ISF4QVooKChfWFhhIE5jZExMS0pKICliJ2VBQWZYIWcxLTEtMS1oJz1UPS1WKm1BPW8tQSEqcFhNKXEqWCkpLXQqTU5OKFhRVFF3Kk1UYlQgeVAzNzM0NDZQekEgfjB8AX56eXd0cXBvbWhnZmVjYV9aWVdWVVNRUE9OTSopKCchXw%253D%253D',
+  layoutV2: 'CmUqbUtLbmUqClgoQUFBQVoxWG1LS25YM1pBQUFBWVgoZSpfX2VYWClPWExMWE8pT1hMTFhPKWVYWF9fZVhYKSEhaiEhIWchIU1XLVhfKGQoKDNYIWdYMSgoZChfWC1YWVhKWD1LbWxfX19fLVAtUF9fX19rbkw9WEpYClh1LSpkKlghZypYZCotV1YpVlhZcCFNZ01OfnVVWHV4ZlN4UFhiLVAtUGJYcVN4ZnhYWXB%252BTiFNZ011VVh1VilWKSoqdnZkZG1uZGR2dioqWFlYWlpaWlpaKCgoWWVlZSoKfDQ2MnxSSUdIVHxiYWl0JnN3aXRjaHwxODAwMHI2cjN8cjV8MC4yfDJyMXwjRTc2RjUxUUUyNEQyOHk3NTA1QVEyRjQ0NER6eTAzNDM2elEyQTlEOEZRMkZCMUEyUUY0QTI2MVFFOUM0NkFRRTlEM0E3fG9vbzF8MTh8MyEgICgsJylYWVh1KlhYWE0hISBOdVV2QXZQYlgtUHEhZ1AtUFhiVXBPWCt2bW52K1hQPS1RLSNTeCkhPSEtIHUhZ1goIC0hPSEpVXF2QXYKViEhIU1nISFNVykgKnYqWD1QcT0qWHYqIClZdQpaKCgoKGUqKipmLU0tLU0tZy0tIW0rX25fK28xLTEtMS1wdkF2UFgocS09cjB8dShYeCEtIXlRMUQyMDIwUTN6UTI2MkEyQn4gZiABfnp5eHVycXBvbm1nZmVaWVdWVVNRUE9OTSopKCFf',
   colors: getExtendedPalette({
-    // ...PALETTE.hospital,
-    ...PALETTE.forest,
-    ...PALETTE.violetSunset,
+    ...PALETTE.boxcar,
+    barrier: Color(PALETTE.boxcar.barrier).lighten(0.2).desaturate(0.35).hex(),
+    barrierStroke: Color(PALETTE.boxcar.barrierStroke).lighten(0.2).darken(0.15).desaturate(0.35).hex(),
+    background: PALETTE.darkStar.background,
+    deco1: PALETTE.darkStar.deco1,
+    deco1Stroke: PALETTE.darkStar.deco1Stroke,
+    deco2: PALETTE.darkStar.deco2,
+    deco2Stroke: PALETTE.darkStar.deco2Stroke,
   }),
   portalExitConfig: {
     1: PortalExitMode.SameDirection,
@@ -68,10 +72,9 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   },
   showTitle: true,
   titleVariant: TitleVariant.GrayBlue,
-  musicTrack: MusicTrack.stonemaze,
-  globalLight: 0.5,
+  musicTrack: MusicTrack.slyguy,
   pickupDrops: {
     [ItemDropType.Invincibility]: true,
-    [ItemDropType.Mine]: false,
+    [ItemDropType.Mine]: true,
   },
 };

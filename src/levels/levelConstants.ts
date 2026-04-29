@@ -16,9 +16,9 @@ import { LEVEL_13 } from "./campaign/level13";
 import { LEVEL_14 } from "./campaign/level14";
 import { LEVEL_15 } from "./campaign/level15";
 import { LEVEL_17 } from "./campaign/level17";
-import { LEVEL_16 } from "./campaign/level16";
 import { LEVEL_18 } from "./campaign/level18";
 import { LEVEL_19 } from "./campaign/level19";
+import { LEVEL_20 } from "./campaign/level20";
 import { LEVEL_99 } from "./campaign/level99";
 import { TUTORIAL_LEVEL_10 } from "./campaign/tutorialLevel10";
 import { TUTORIAL_LEVEL_11 } from "./campaign/tutorialLevel11";
@@ -89,10 +89,10 @@ export const LEVELS: Level[] = [
     LEVEL_14,
     LEVEL_15,
     TUTORIAL_LEVEL_40,
-    LEVEL_16,
     LEVEL_17,
     LEVEL_18,
     LEVEL_19,
+    LEVEL_20,
     LEVEL_99,
     LEVEL_WIN_GAME,
 ];
