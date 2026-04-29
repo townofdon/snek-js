@@ -1,7 +1,7 @@
 import { Vector } from "p5";
 
 import { SetStateValue, Tile } from "./editorTypes";
-import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PortalChannel } from "../types";
+import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PortalChannel } from "../types";
 import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidBarrierType, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
 import { deepCloneData, getEditorDataFromLevel, mergeData, mergeDataSlice } from "./utils/editorUtils";
 import { tileFloodFill } from "./utils/floodFill";
@@ -41,7 +41,7 @@ abstract class SetElementCommand implements Command {
       coord: this.coord,
       apple: data.applesMap[this.coord],
       mine: data.minesMap[this.coord],
-      invincibility: data.invincibilitiesMap[this.coord],
+      pickup: data.pickupsMap[this.coord],
       barrier: data.barriersMap[this.coord],
       deco1: data.decoratives1Map[this.coord],
       deco2: data.decoratives2Map[this.coord],
@@ -53,12 +53,12 @@ abstract class SetElementCommand implements Command {
       portal: data.portalsMap[this.coord],
       playerSpawnPosition: data.playerSpawnPosition.copy(),
       startDirection: data.startDirection,
-    };
+    } satisfies EditorDataSlice;
     this.newData = {
       coord: this.coord,
       apple: false,
       mine: false,
-      invincibility: false,
+      pickup: 0,
       barrier: 0,
       deco1: false,
       deco2: false,
@@ -105,6 +105,7 @@ export class SetPlayerSpawnCommand extends SetElementCommand {
       this.newData.nospawn = data.nospawnsMap[this.coord];
       this.newData.passable = data.passablesMap[this.coord];
       this.newData.portal = data.portalsMap[this.coord];
+      this.newData.pickup = data.pickupsMap[this.coord];
     }
   }
 }
@@ -116,7 +117,7 @@ export class DeleteElementCommand extends SetElementCommand {
     if (
       !data.applesMap[this.coord] &&
       !data.minesMap[this.coord] &&
-      !data.invincibilitiesMap[this.coord] &&
+      !data.pickupsMap[this.coord] &&
       !data.barriersMap[this.coord] &&
       !data.decoratives1Map[this.coord] &&
       !data.decoratives2Map[this.coord] &&
@@ -160,10 +161,22 @@ export class SetInvincibilityCommand extends SetElementCommand {
   public readonly name = 'Draw Invincibility';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.invincibilitiesMap[this.coord]) {
+    if (data.pickupsMap[this.coord] === PickupType.Invincibility) {
       this.newData = null;
     } else {
-      this.newData.invincibility = true;
+      this.newData.pickup = PickupType.Invincibility;
+    }
+  }
+}
+
+export class SetArmorCommand extends SetElementCommand {
+  public readonly name = 'Draw Armor';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (data.pickupsMap[this.coord] === PickupType.Armor) {
+      this.newData = null;
+    } else {
+      this.newData.pickup = PickupType.Armor;
     }
   }
 }
@@ -324,7 +337,7 @@ abstract class SetBatchElementsCommand implements Command {
       coord: -1,
       apple: false,
       mine: false,
-      invincibility: false,
+      pickup: 0,
       barrier: 0,
       deco1: false,
       deco2: false,
@@ -361,6 +374,9 @@ abstract class SetBatchElementsCommand implements Command {
     }
     this.setData(mergeData(this.dataRef.current, this.prevData));
   };
+  /**
+   * Determine whether the command should be executed.
+   */
   protected abstract test: (coord: number) => boolean;
 }
 
@@ -434,7 +450,7 @@ export class DeleteLineCommand extends SetLineCommand {
     return (
       this.dataRef.current.applesMap[coord] ||
       this.dataRef.current.minesMap[coord] ||
-      this.dataRef.current.invincibilitiesMap[coord] ||
+      !!this.dataRef.current.pickupsMap[coord] ||
       !!this.dataRef.current.barriersMap[coord] ||
       this.dataRef.current.decoratives1Map[coord] ||
       this.dataRef.current.decoratives2Map[coord] ||
@@ -474,10 +490,21 @@ export class SetLineInvincibilityCommand extends SetLineCommand {
   public readonly name = 'Draw Invincibility';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
-    this.newData.invincibility = true;
+    this.newData.pickup = PickupType.Invincibility;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.invincibilitiesMap[coord];
+    return this.dataRef.current.pickupsMap[coord] !== PickupType.Invincibility;
+  };
+}
+
+export class SetLineArmorCommand extends SetLineCommand {
+  public readonly name = 'Draw Armor';
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.newData.pickup = PickupType.Armor;
+  }
+  protected test = (coord: number) => {
+    return this.dataRef.current.pickupsMap[coord] !== PickupType.Armor;
   };
 }
 
@@ -650,7 +677,7 @@ export class DeleteRectangleCommand extends SetRectangleCommand {
     return (
       this.dataRef.current.applesMap[coord] ||
       this.dataRef.current.minesMap[coord] ||
-      this.dataRef.current.invincibilitiesMap[coord] ||
+      !!this.dataRef.current.pickupsMap ||
       !!this.dataRef.current.barriersMap[coord] ||
       this.dataRef.current.decoratives1Map[coord] ||
       this.dataRef.current.decoratives2Map[coord] ||
@@ -690,10 +717,21 @@ export class SetRectangleInvincibilityCommand extends SetRectangleCommand {
   public readonly name = 'Draw Invincibility';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.newData.invincibility = true;
+    this.newData.pickup = PickupType.Invincibility;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.invincibilitiesMap[coord];
+    return this.dataRef.current.pickupsMap[coord] !== PickupType.Invincibility;
+  };
+}
+
+export class SetRectangleArmorCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Armor';
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.pickup = PickupType.Armor;
+  }
+  protected test = (coord: number) => {
+    return this.dataRef.current.pickupsMap[coord] !== PickupType.Armor;
   };
 }
 
@@ -906,7 +944,7 @@ export class ClearAllCommand implements Command {
       const newData: EditorData = {
         applesMap: {},
         minesMap: {},
-        invincibilitiesMap: {},
+        pickupsMap: {},
         barriersMap: {},
         decoratives1Map: {},
         decoratives2Map: {},

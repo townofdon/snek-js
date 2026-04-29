@@ -22,7 +22,7 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
   data: {
     applesMap: {},
     minesMap: {},
-    invincibilitiesMap: {},
+    pickupsMap: {},
     barriersMap: { ...levelData.barriersMap },
     decoratives1Map: { ...levelData.decoratives1Map },
     decoratives2Map: { ...levelData.decoratives2Map },

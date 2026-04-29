@@ -1,7 +1,7 @@
 import { Tile } from "../editorTypes";
 
 export const getTileLabel = (tile: Tile): string | null => {
-  return {
+  return ({
     [Tile.None]: null,
     [Tile.Barrier]: 'barrier',
     [Tile.Passable]: 'passable barrier',
@@ -16,11 +16,12 @@ export const getTileLabel = (tile: Tile): string | null => {
     [Tile.Spawn]: 'snek spawn',
     [Tile.Mine]: 'landmine',
     [Tile.Invincibility]: 'invincibility',
-  }[tile];
+    [Tile.Armor]: 'armor',
+  } satisfies Record<Tile, string>)[tile];
 }
 
 export const getTileExplanation = (tile: Tile): string => {
-  return {
+  return ({
     [Tile.None]: '',
     [Tile.Barrier]: 'permanent obstruction',
     [Tile.Passable]: 'becomes passable when doors open',
@@ -35,5 +36,6 @@ export const getTileExplanation = (tile: Tile): string => {
     [Tile.Spawn]: 'spawn snek at location on map start',
     [Tile.Mine]: 'explodes when collided with',
     [Tile.Invincibility]: 'makes the player invincible for a short time',
-  }[tile];
+    [Tile.Armor]: 'gives the player damage protection',
+  } satisfies Record<Tile, string>)[tile];
 }

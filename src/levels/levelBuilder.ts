@@ -3,7 +3,7 @@ import { DEFAULT_PORTALS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { BarrierType, Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./campaign/level01";
-import { TILE_CHAR_TO_BARRIER_TYPE, TILECHAR } from "./levelConstants";
+import { TILE_CHAR_TO_BARRIER_TYPE, TILE_CHAR_TO_PICKUP_TYPE, TILECHAR } from "./levelConstants";
 
 export function buildLevel(level: Level, isEditor = false): LevelData {
   const data: LevelData = {
@@ -14,7 +14,7 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
     doorsMap: {},
     apples: [],
     mines: [],
-    invincibilities: [],
+    pickups: [],
     fireTiles: [],
     decoratives1: [],
     decoratives1Map: {},
@@ -84,6 +84,12 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
         continue;
       }
 
+      const pickupType = TILE_CHAR_TO_PICKUP_TYPE[char];
+      if (pickupType) {
+        data.pickups.push({ vec, type: pickupType });
+        continue;
+      }
+
       switch (char) {
         case TILECHAR.Door:
         case TILECHAR.DoorAlt:
@@ -135,11 +141,6 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
         case TILECHAR.Mine:
           data.mines.push(vec);
           data.decoratives2.push(vec);
-          break;
-
-        // invincibility pickups
-        case TILECHAR.Invincibility:
-          data.invincibilities.push(vec);
           break;
 
         // keys / locks

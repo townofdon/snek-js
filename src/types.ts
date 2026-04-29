@@ -567,10 +567,15 @@ export enum BarrierType {
   ExhaustPlate,
   MetalPlate2,
 }
-export const BARRIER_TYPE_MAX = BarrierType.MetalPlate2 + 1;
+export const BARRIER_TYPE_MAX = Math.max(...Object.values(BarrierType).filter(v => typeof v === 'number')) + 1;
 
 export interface Barrier {
   type: BarrierType,
+  vec: Vector,
+}
+
+export interface LevelPickup {
+  type: PickupType,
   vec: Vector,
 }
 
@@ -632,7 +637,11 @@ export enum FloodFillTile {
   LockBlue,
   Nospawn,
   Mine,
-  Invincibility,
+  PickupInvincibility,
+  PickupReversibility,
+  PickupArmor,
+  PickupHealthPack,
+  PickupWeightLossPill,
 };
 
 export enum InputAction {
@@ -684,7 +693,7 @@ export type Maybe<T> = T | null | undefined;
 export interface EditorData {
   applesMap: Record<number, Maybe<boolean>>,
   minesMap: Record<number, Maybe<boolean>>,
-  invincibilitiesMap: Record<number, Maybe<boolean>>,
+  pickupsMap: Record<number, PickupType>,
   barriersMap: Record<number, Maybe<BarrierType>>,
   decoratives1Map: Record<number, Maybe<boolean>>,
   decoratives2Map: Record<number, Maybe<boolean>>,
@@ -702,7 +711,7 @@ export interface EditorDataSlice {
   coord: number,
   apple: Maybe<boolean>,
   mine: Maybe<boolean>,
-  invincibility: Maybe<boolean>,
+  pickup: Maybe<PickupType>,
   barrier: Maybe<BarrierType>,
   deco1: Maybe<boolean>,
   deco2: Maybe<boolean>,
@@ -721,7 +730,7 @@ export interface LevelData {
   doors: Vector[],
   apples: Vector[],
   mines: Vector[],
-  invincibilities: Vector[],
+  pickups: LevelPickup[],
   fireTiles: Vector[],
   decoratives1: Vector[],
   decoratives2: Vector[],
@@ -1235,6 +1244,7 @@ export enum PickupType {
   Milkshake,
   ChiliPepper,
 }
+export const PICKUP_TYPE_MAX = Math.max(...Object.values(PickupType).filter(v => typeof v === 'number')) + 1;
 
 export enum PreyType {
   None = 0,
@@ -1252,7 +1262,7 @@ export interface PreySpawn {
 }
 
 export interface Pickup {
-  timeTillDeath: number,
+  lifetime: number,
   type: PickupType,
 }
 

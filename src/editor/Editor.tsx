@@ -19,6 +19,7 @@ import {
   FloodFillEmptyCommand,
   NoOpCommand,
   SetAppleCommand,
+  SetArmorCommand,
   SetBarrierCommand,
   SetDecorative1Command,
   SetDecorative2Command,
@@ -26,6 +27,7 @@ import {
   SetInvincibilityCommand,
   SetKeyCommand,
   SetLineAppleCommand,
+  SetLineArmorCommand,
   SetLineBarrierCommand,
   SetLineDeco1Command,
   SetLineDeco2Command,
@@ -44,6 +46,7 @@ import {
   SetPlayerSpawnCommand,
   SetPortalCommand,
   SetRectangleAppleCommand,
+  SetRectangleArmorCommand,
   SetRectangleBarrierCommand,
   SetRectangleDeco1Command,
   SetRectangleDeco2Command,
@@ -160,7 +163,7 @@ export const Editor = () => {
     if (direction < 0) {
       setTile({
         [Tile.None]: Tile.Barrier,
-        [Tile.Barrier]: Tile.Invincibility,
+        [Tile.Barrier]: Tile.Armor,
         [Tile.Passable]: Tile.Barrier,
         [Tile.Door]: Tile.Passable,
         [Tile.Deco1]: Tile.Door,
@@ -173,6 +176,7 @@ export const Editor = () => {
         [Tile.Spawn]: Tile.Portal,
         [Tile.Mine]: Tile.Spawn,
         [Tile.Invincibility]: Tile.Mine,
+        [Tile.Armor]: Tile.Invincibility,
       }[tileRef.current]);
     } else {
       setTile({
@@ -189,7 +193,8 @@ export const Editor = () => {
         [Tile.Portal]: Tile.Spawn,
         [Tile.Spawn]: Tile.Mine,
         [Tile.Mine]: Tile.Invincibility,
-        [Tile.Invincibility]: Tile.Barrier,
+        [Tile.Invincibility]: Tile.Armor,
+        [Tile.Armor]: Tile.Barrier,
       }[tileRef.current]);
     }
   }
@@ -210,6 +215,8 @@ export const Editor = () => {
         return new SetMineCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Invincibility:
         return new SetInvincibilityCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.Armor:
+        return new SetArmorCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
         return new SetBarrierCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, barrierTypeRef.current);
       case Tile.Door:
@@ -247,6 +254,8 @@ export const Editor = () => {
         return new SetLineMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Invincibility:
         return new SetLineInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Armor:
+        return new SetLineArmorCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
         return new SetLineBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, barrierTypeRef.current);
       case Tile.Door:
@@ -284,6 +293,8 @@ export const Editor = () => {
         return new SetRectangleMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Invincibility:
         return new SetRectangleInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Armor:
+        return new SetRectangleArmorCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
         return new SetRectangleBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, barrierTypeRef.current);
       case Tile.Door:

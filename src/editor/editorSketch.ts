@@ -23,6 +23,7 @@ import {
   Portal,
   PortalChannel,
   BarrierType,
+  PickupType,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -88,7 +89,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     nospawnsMap: {},
     applesMap: {},
     minesMap: {},
-    invincibilitiesMap: {},
+    pickupsMap: {},
     keysMap: {},
     locksMap: {},
     portalsMap: {},
@@ -152,7 +153,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         case 'locksMap':
         case 'portalsMap':
         case 'minesMap':
-        case 'invincibilitiesMap':
+        case 'pickupsMap':
           if (getIsDiff(key)) {
             // @ts-ignore
             data[key] = { ...incoming[key] };
@@ -544,8 +545,12 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.MineSheet, x, y, 0);
           }
 
-          if (data.invincibilitiesMap[coord]) {
+          if (data.pickupsMap[coord] === PickupType.Invincibility) {
             drawInvincibilityPickup(x, y);
+          }
+
+          if (data.pickupsMap[coord] === PickupType.Armor) {
+            spriteRenderer.drawSprite1x1(gfx, Image.Shield, x, y, 0, 0, 1);
           }
 
           if (hasSegmentAt(x, y)) {

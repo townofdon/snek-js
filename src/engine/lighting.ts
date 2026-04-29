@@ -70,17 +70,16 @@ export function updateLighting(
     }
   }
   for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
-    const isInvincibilityAtCoord = (
-      apples?.existsAtCoord(i) &&
+    const isPickupAtCoord = (
       (
         pickupsMap[i]?.type === PickupType.Invincibility ||
         pickupsMap[i]?.type === PickupType.Armor ||
         pickupsMap[i]?.type === PickupType.HealthPack ||
         pickupsMap[i]?.type === PickupType.WeightLossPill
       ) &&
-      !shouldBlinkExpiringPickup(pickupsMap[i]?.timeTillDeath)
+      !shouldBlinkExpiringPickup(pickupsMap[i]?.lifetime)
     );
-    if (isInvincibilityAtCoord || explosions?.existsAtCoord(i)) {
+    if (isPickupAtCoord || explosions?.existsAtCoord(i)) {
       const x = Math.floor(i % GRIDCOUNT_X);
       const y = Math.floor(i / GRIDCOUNT_X);
       addBlocklight(lightMap, x, y, { strength: 0.7 });

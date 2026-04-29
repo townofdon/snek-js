@@ -1,9 +1,9 @@
 import { GRIDCOUNT_X, GRIDCOUNT_Y } from "../../constants";
 import { BarrierType, EditorData, EditorDataSlice, FloodFillTile, KeyChannel, PortalChannel } from "../../types";
 import { Tile } from "../editorTypes";
-import { getCoordIndex2, isValidBarrierType, isValidKeyChannel, isValidPortalChannel } from "../../utils";
+import { getCoordIndex2, isValidBarrierType, isValidKeyChannel, isValidPickupType, isValidPortalChannel } from "../../utils";
 import { deepCloneData } from "./editorUtils";
-import { BARRIER_TYPE_TO_FLOOD_FILL_TILE, FLOOD_FILL_TILE_TO_BARRIER_TYPE } from "@/levels/levelConstants";
+import { BARRIER_TYPE_TO_FLOOD_FILL_TILE, FLOOD_FILL_TILE_TO_BARRIER_TYPE, FLOOD_FILL_TILE_TO_PICKUP_TYPE, PICKUP_TYPE_TO_TILE } from "@/levels/levelConstants";
 
 
 interface GetTileArgs {
@@ -17,7 +17,8 @@ function getTile({ tile, portalChannel, keyChannel, barrierType }: GetTileArgs) 
   if (tile === Tile.Door) return FloodFillTile.Door;
   if (tile === Tile.Apple) return FloodFillTile.Apple;
   if (tile === Tile.Mine) return FloodFillTile.Mine;
-  if (tile === Tile.Invincibility) return FloodFillTile.Invincibility;
+  if (tile === Tile.Invincibility) return FloodFillTile.PickupInvincibility;
+  if (tile === Tile.Armor) return FloodFillTile.PickupArmor;
   if (tile === Tile.Deco2) return FloodFillTile.Deco2;
   if (tile === Tile.Deco1) return FloodFillTile.Deco1;
   if (tile === Tile.Barrier && isValidBarrierType(barrierType)) {
@@ -79,12 +80,13 @@ function getTile({ tile, portalChannel, keyChannel, barrierType }: GetTileArgs) 
 
 function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
   const barrierType = data.barriersMap[coord];
+  const pickupType = data.pickupsMap[coord];
   if (data.passablesMap[coord]) return getTile({ tile: Tile.Passable });
   if (data.barriersMap[coord] && isValidBarrierType(barrierType)) return getTile({ tile: Tile.Barrier, barrierType });
   if (data.doorsMap[coord]) return getTile({ tile: Tile.Door });
   if (data.applesMap[coord]) return getTile({ tile: Tile.Apple });
   if (data.minesMap[coord]) return getTile({ tile: Tile.Mine });
-  if (data.invincibilitiesMap[coord]) return getTile({ tile: Tile.Invincibility });
+  if (data.pickupsMap[coord] && isValidPickupType(pickupType) && PICKUP_TYPE_TO_TILE[pickupType]) return getTile({ tile: PICKUP_TYPE_TO_TILE[pickupType] });
   const portalChannel = data.portalsMap[coord];
   const keyChannel = data.keysMap[coord];
   const lockChannel = data.locksMap[coord];
@@ -108,7 +110,7 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
     coord,
     apple: undefined,
     mine: undefined,
-    invincibility: undefined,
+    pickup: undefined,
     barrier: undefined,
     deco1: undefined,
     deco2: undefined,
@@ -123,6 +125,8 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
   }
   if (FLOOD_FILL_TILE_TO_BARRIER_TYPE[tile]) {
     slice.barrier = FLOOD_FILL_TILE_TO_BARRIER_TYPE[tile];
+  } else if (FLOOD_FILL_TILE_TO_PICKUP_TYPE[tile]) {
+    slice.pickup = FLOOD_FILL_TILE_TO_PICKUP_TYPE[tile];
   } else {
     switch (tile) {
       case FloodFillTile.None:
@@ -145,9 +149,6 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
         break;
       case FloodFillTile.Mine:
         slice.mine = true;
-        break;
-      case FloodFillTile.Invincibility:
-        slice.invincibility = true;
         break;
       case FloodFillTile.Portal0:
         slice.portal = 0;
@@ -212,7 +213,7 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
   }
   data.applesMap[coord] = slice.apple;
   data.minesMap[coord] = slice.mine;
-  data.invincibilitiesMap[coord] = slice.invincibility;
+  data.pickupsMap[coord] = slice.pickup;
   data.barriersMap[coord] = slice.barrier;
   data.decoratives1Map[coord] = slice.deco1;
   data.decoratives2Map[coord] = slice.deco2;

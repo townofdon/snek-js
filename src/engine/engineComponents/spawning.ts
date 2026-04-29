@@ -309,7 +309,7 @@ export function engineSpawning({
       return false;
     }
     es.pickupsMap[getCoordIndex2(x, y)] = {
-      timeTillDeath: 999999999999,
+      lifetime: 999999999999,
       type: pickup,
     };
     // adjust pity system
@@ -389,7 +389,7 @@ export function engineSpawning({
   function spawnHealthPickup(x: number, y: number) {
     if (!apples.existsAt(x, y)) apples.add(x, y);
     es.pickupsMap[getCoordIndex2(x, y)] = {
-      timeTillDeath: PICKUP_LIFETIME_MS,
+      lifetime: PICKUP_LIFETIME_MS,
       type: PickupType.HealthPack,
     };
     state.timeSinceSpawnedPickup = 0;
@@ -403,7 +403,7 @@ export function engineSpawning({
   function spawnWeightLossPickup(x: number, y: number) {
     if (!apples.existsAt(x, y)) apples.add(x, y);
     es.pickupsMap[getCoordIndex2(x, y)] = {
-      timeTillDeath: PICKUP_LIFETIME_MS,
+      lifetime: PICKUP_LIFETIME_MS,
       type: PickupType.WeightLossPill,
     };
     state.timeSinceSpawnedPickup = 0;
@@ -418,7 +418,7 @@ export function engineSpawning({
     const { frames, timePerFrame } = ANIMATIONS[Image.ShieldSpawn];
     shieldSpawns.add(x, y, frames * timePerFrame, frames, timePerFrame);
     es.pickupsMap[getCoordIndex2(x, y)] = {
-      timeTillDeath: frames * timePerFrame,
+      lifetime: frames * timePerFrame,
       type: PickupType.Armor,
     };
     setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
@@ -453,6 +453,7 @@ export function engineSpawning({
     const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
+      || es.pickupsMap[getCoordIndex2(x, y)]
       || mines.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
@@ -463,7 +464,7 @@ export function engineSpawning({
       if (!apples.existsAt(x, y)) apples.add(x, y);
       setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
       es.pickupsMap[getCoordIndex2(x, y)] = {
-        timeTillDeath: INVINCIBILITY_PICKUP_LIFETIME_MS,
+        lifetime: INVINCIBILITY_PICKUP_LIFETIME_MS,
         type: PickupType.Invincibility,
       };
       state.timeSinceSpawnedPickup = 0;

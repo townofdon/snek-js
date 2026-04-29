@@ -16,4 +16,5 @@ export enum Tile {
   Passable,
   Mine,
   Invincibility,
+  Armor,
 }

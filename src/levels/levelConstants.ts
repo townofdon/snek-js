@@ -1,4 +1,4 @@
-import { BarrierType, FloodFillTile, Level } from "../types";
+import { BarrierType, FloodFillTile, Level, PickupType } from "../types";
 import { LEVEL_00 } from "./campaign/level00";
 import { LEVEL_01 } from "./campaign/level01";
 import { LEVEL_02 } from "./campaign/level02";
@@ -66,6 +66,7 @@ import { MAZE_04_LOOT_ROOM } from "./mazes/maze04-lootroom";
 import { MAZE_03_STORAGE } from "./mazes/maze03-storage";
 import { LEVEL_01_HARD } from "./campaign/level01hard";
 import { LEVEL_01_ULTRA } from "./campaign/level01ultra";
+import { Tile } from "@/editor/editorTypes";
 
 export const LEVELS: Level[] = [
     MAZE_01,
@@ -230,6 +231,10 @@ export enum TILECHAR {
   Nospawn = '~',
   Mine = '*',
   Invincibility = '!',
+  Reversibility = '@',
+  Armor = '#',
+  HealthPack = '$',
+  WeightLossPill = '%',
   PlayerSpawn = 'O',
 }
 
@@ -363,6 +368,10 @@ export const TILE_CHAR_TO_BARRIER_TYPE = {
   [TILECHAR.Mine]: 0,
   [TILECHAR.Invincibility]: 0,
   [TILECHAR.PlayerSpawn]: 0,
+  [TILECHAR.Reversibility]: 0,
+  [TILECHAR.Armor]: 0,
+  [TILECHAR.HealthPack]: 0,
+  [TILECHAR.WeightLossPill]: 0,
 } satisfies Record<TILECHAR, BarrierType>;
 
 export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
@@ -402,7 +411,7 @@ export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
   [BarrierType.MetalPlate2]: FloodFillTile.BarrierMetalPlate2,
 } satisfies Record<BarrierType, FloodFillTile>;
 
-export const FLOOD_FILL_TILE_TO_BARRIER_TYPE = {
+export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<FloodFillTile, BarrierType> = {
   [FloodFillTile.None]: 0,
   [FloodFillTile.Passable]: 0,
   [FloodFillTile.Barrier]: BarrierType.Default,
@@ -460,5 +469,165 @@ export const FLOOD_FILL_TILE_TO_BARRIER_TYPE = {
   [FloodFillTile.LockBlue]: 0,
   [FloodFillTile.Nospawn]: 0,
   [FloodFillTile.Mine]: 0,
-  [FloodFillTile.Invincibility]: 0,
+  [FloodFillTile.PickupInvincibility]: 0,
+  [FloodFillTile.PickupReversibility]: 0,
+  [FloodFillTile.PickupArmor]: 0,
+  [FloodFillTile.PickupHealthPack]: 0,
+  [FloodFillTile.PickupWeightLossPill]: 0,
 } satisfies Record<FloodFillTile, BarrierType>;
+
+type PowerupPickup =
+  | PickupType.Invincibility
+  | PickupType.Reversibility
+  | PickupType.Armor
+  | PickupType.HealthPack
+  | PickupType.WeightLossPill;
+
+export const PICKUP_TYPE_TO_TILE_CHAR: Record<PowerupPickup, TILECHAR> = {
+  [PickupType.Invincibility]: TILECHAR.Invincibility,
+  [PickupType.Reversibility]: TILECHAR.Reversibility,
+  [PickupType.Armor]: TILECHAR.Armor,
+  [PickupType.HealthPack]: TILECHAR.HealthPack,
+  [PickupType.WeightLossPill]: TILECHAR.WeightLossPill,
+} satisfies Record<PowerupPickup, TILECHAR>;
+
+export const PICKUP_TYPE_TO_TILE: Record<PowerupPickup, Tile> = {
+  [PickupType.Invincibility]: Tile.Invincibility,
+  [PickupType.Reversibility]: 0,
+  [PickupType.Armor]: Tile.Armor,
+  [PickupType.HealthPack]: 0,
+  [PickupType.WeightLossPill]: 0,
+} satisfies Record<PowerupPickup, Tile>;
+
+type PickupTileChar =
+  | TILECHAR.Invincibility
+  | TILECHAR.Reversibility
+  | TILECHAR.Armor
+  | TILECHAR.HealthPack
+  | TILECHAR.WeightLossPill;
+
+export const TILE_CHAR_TO_PICKUP_TYPE: Record<PickupTileChar, 0 | PowerupPickup> = {
+  [TILECHAR.Invincibility]: PickupType.Invincibility,
+  [TILECHAR.Reversibility]: PickupType.Reversibility,
+  [TILECHAR.Armor]: PickupType.Armor,
+  [TILECHAR.HealthPack]: PickupType.HealthPack,
+  [TILECHAR.WeightLossPill]: PickupType.WeightLossPill,
+} satisfies Record<PickupTileChar, 0 | PowerupPickup>;
+
+export const PICKUP_TYPE_TO_FLOOD_FILL_TILE: Record<PickupType, FloodFillTile> = {
+  [PickupType.Invincibility]: FloodFillTile.PickupInvincibility,
+  [PickupType.Reversibility]: FloodFillTile.PickupReversibility,
+  [PickupType.Armor]: FloodFillTile.PickupArmor,
+  [PickupType.HealthPack]: FloodFillTile.PickupHealthPack,
+  [PickupType.WeightLossPill]: FloodFillTile.PickupWeightLossPill,
+  [PickupType.None]: 0,
+  [PickupType.Cheese]: 0,
+  [PickupType.Carrot]: 0,
+  [PickupType.Potato]: 0,
+  [PickupType.Tomato]: 0,
+  [PickupType.Onion]: 0,
+  [PickupType.Cabbage]: 0,
+  [PickupType.Broccoli]: 0,
+  [PickupType.Mushroom]: 0,
+  [PickupType.BreadLoaf]: 0,
+  [PickupType.Cucumber]: 0,
+  [PickupType.Pretzel]: 0,
+  [PickupType.Taco]: 0,
+  [PickupType.Drumstick]: 0,
+  [PickupType.Burger]: 0,
+  [PickupType.PizzaSlice]: 0,
+  [PickupType.HotDog]: 0,
+  [PickupType.Egg]: 0,
+  [PickupType.Fries]: 0,
+  [PickupType.Candy]: 0,
+  [PickupType.ChocolateBar]: 0,
+  [PickupType.Popsicle]: 0,
+  [PickupType.Lollipop]: 0,
+  [PickupType.Muffin]: 0,
+  [PickupType.Croisant]: 0,
+  [PickupType.Baguette]: 0,
+  [PickupType.Cupcake]: 0,
+  [PickupType.Donut]: 0,
+  [PickupType.Banana]: 0,
+  [PickupType.Watermelon]: 0,
+  [PickupType.Mango]: 0,
+  [PickupType.Grapes]: 0,
+  [PickupType.Kiwi]: 0,
+  [PickupType.Orange]: 0,
+  [PickupType.Cherries]: 0,
+  [PickupType.Pear]: 0,
+  [PickupType.Peach]: 0,
+  [PickupType.Lemon]: 0,
+  [PickupType.Lime]: 0,
+  [PickupType.Strawberry]: 0,
+  [PickupType.GoldenApple]: 0,
+  [PickupType.RainbowCake]: 0,
+  [PickupType.Sushi]: 0,
+  [PickupType.Milkshake]: 0,
+  [PickupType.ChiliPepper]: 0,
+} satisfies Record<PickupType, FloodFillTile>;
+
+export const FLOOD_FILL_TILE_TO_PICKUP_TYPE: Record<FloodFillTile, 0 | PowerupPickup> = {
+  [FloodFillTile.None]: 0,
+  [FloodFillTile.Passable]: 0,
+  [FloodFillTile.Barrier]: 0,
+  [FloodFillTile.BarrierSkull]: 0,
+  [FloodFillTile.BarrierSkullThemed]: 0,
+  [FloodFillTile.BarrierIndent]: 0,
+  [FloodFillTile.BarrierIndentThemed]: 0,
+  [FloodFillTile.BarrierFireTile]: 0,
+  [FloodFillTile.BarrierFlat]: 0,
+  [FloodFillTile.BarrierFlatThemed]: 0,
+  [FloodFillTile.BarrierPyramid]: 0,
+  [FloodFillTile.BarrierPyramidThemed]: 0,
+  [FloodFillTile.BarrierExitSign]: 0,
+  [FloodFillTile.BarrierRadar]: 0,
+  [FloodFillTile.BarrierComputerChip]: 0,
+  [FloodFillTile.BarrierMetalPlate]: 0,
+  [FloodFillTile.BarrierPanel0]: 0,
+  [FloodFillTile.BarrierPanel1]: 0,
+  [FloodFillTile.BarrierPanel2]: 0,
+  [FloodFillTile.BarrierPanel3]: 0,
+  [FloodFillTile.BarrierPanel4]: 0,
+  [FloodFillTile.BarrierPanel5]: 0,
+  [FloodFillTile.BarrierBrick]: 0,
+  [FloodFillTile.BarrierBrickWhite]: 0,
+  [FloodFillTile.BarrierBrickThemed]: 0,
+  [FloodFillTile.BarrierStone]: 0,
+  [FloodFillTile.BarrierStoneThemed]: 0,
+  [FloodFillTile.BarrierPanelWhite]: 0,
+  [FloodFillTile.BarrierCompPanel]: 0,
+  [FloodFillTile.BarrierGrateWhite]: 0,
+  [FloodFillTile.BarrierGrateYellow]: 0,
+  [FloodFillTile.BarrierRuby]: 0,
+  [FloodFillTile.BarrierFanDuct]: 0,
+  [FloodFillTile.BarrierExhaustPlate]: 0,
+  [FloodFillTile.BarrierMetalPlate2]: 0,
+  [FloodFillTile.Door]: 0,
+  [FloodFillTile.Deco1]: 0,
+  [FloodFillTile.Deco2]: 0,
+  [FloodFillTile.Apple]: 0,
+  [FloodFillTile.Portal0]: 0,
+  [FloodFillTile.Portal1]: 0,
+  [FloodFillTile.Portal2]: 0,
+  [FloodFillTile.Portal3]: 0,
+  [FloodFillTile.Portal4]: 0,
+  [FloodFillTile.Portal5]: 0,
+  [FloodFillTile.Portal6]: 0,
+  [FloodFillTile.Portal7]: 0,
+  [FloodFillTile.Portal8]: 0,
+  [FloodFillTile.Portal9]: 0,
+  [FloodFillTile.KeyYellow]: 0,
+  [FloodFillTile.KeyRed]: 0,
+  [FloodFillTile.KeyBlue]: 0,
+  [FloodFillTile.LockYellow]: 0,
+  [FloodFillTile.LockRed]: 0,
+  [FloodFillTile.LockBlue]: 0,
+  [FloodFillTile.Nospawn]: 0,
+  [FloodFillTile.Mine]: 0,
+  [FloodFillTile.PickupInvincibility]: PickupType.Invincibility,
+  [FloodFillTile.PickupReversibility]: PickupType.Reversibility,
+  [FloodFillTile.PickupArmor]: PickupType.Armor,
+  [FloodFillTile.PickupHealthPack]: PickupType.HealthPack,
+  [FloodFillTile.PickupWeightLossPill]: PickupType.WeightLossPill,
+} satisfies Record<FloodFillTile, 0 | PowerupPickup>;

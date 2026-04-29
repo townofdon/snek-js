@@ -5,7 +5,7 @@ import { buildLevel } from "../../levels/levelBuilder";
 import { LEVEL_01 } from "../../levels/campaign/level01";
 import { LEVEL_10 } from "../../levels/campaign/level10";
 import { LEVELS } from "../../levels/levelConstants";
-import { BarrierType, DIR, EditorData, EditorOptions, KeyChannel, Level, LevelType, MusicTrack, PortalExitMode } from "../../types"
+import { BarrierType, DIR, EditorData, EditorOptions, KeyChannel, Level, LevelType, MusicTrack, PickupType, PortalExitMode } from "../../types"
 import { coordToVec, getCoordIndex2 } from "../../utils";
 
 import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "./editorUtils"
@@ -68,7 +68,7 @@ describe('editorUtils', () => {
         nospawnsMap: {},
         applesMap: {},
         minesMap: {},
-        invincibilitiesMap: {},
+        pickupsMap: {},
         keysMap: {},
         locksMap: {},
         portalsMap: {},
@@ -90,6 +90,7 @@ describe('editorUtils', () => {
       expect(decodedData.keysMap).toEqual({});
       expect(decodedData.locksMap).toEqual({});
       expect(decodedData.portalsMap).toEqual({});
+      expect(decodedData.pickupsMap).toEqual({});
     });
 
     it('should encode map data for filled values', () => {
@@ -130,7 +131,7 @@ describe('editorUtils', () => {
         nospawnsMap: { 11: true, 12: true },
         applesMap: { 13: true, 14: true },
         minesMap: {},
-        invincibilitiesMap: {},
+        pickupsMap: {},
         keysMap: { 15: KeyChannel.Yellow, 16: KeyChannel.Red, 17: KeyChannel.Blue },
         locksMap: { 18: KeyChannel.Yellow, 19: KeyChannel.Red, 20: KeyChannel.Blue },
         portalsMap: {
@@ -225,7 +226,7 @@ describe('editorUtils', () => {
         nospawnsMap: {},
         applesMap: {},
         minesMap: {},
-        invincibilitiesMap: {},
+        pickupsMap: {},
         keysMap: {},
         locksMap: {},
         portalsMap: {},
@@ -320,7 +321,7 @@ describe('editorUtils', () => {
       const data: EditorData = {
         applesMap: { 0: true },
         minesMap: { 60: true },
-        invincibilitiesMap: { 61: true },
+        pickupsMap: { 61: PickupType.Invincibility },
         barriersMap: {
           1: BarrierType.Default,
           2: BarrierType.Default,
@@ -410,7 +411,7 @@ describe('editorUtils', () => {
           const data: EditorData = {
             applesMap: {},
             minesMap: {},
-            invincibilitiesMap: {},
+            pickupsMap: {},
             barriersMap: { ...levelData.barriersMap },
             passablesMap: { ...levelData.passablesMap },
             doorsMap: { ...levelData.doorsMap },
@@ -440,15 +441,15 @@ describe('editorUtils', () => {
           levelData.apples.forEach(apple => {
             const coord = getCoordIndex2(apple.x, apple.y);
             data.applesMap[coord] = true;
-          })
+          });
           levelData.mines.forEach(mine => {
             const coord = getCoordIndex2(mine.x, mine.y);
             data.minesMap[coord] = true;
-          })
-          levelData.invincibilities.forEach(item => {
-            const coord = getCoordIndex2(item.x, item.y);
-            data.invincibilitiesMap[coord] = true;
-          })
+          });
+          levelData.pickups.forEach(item => {
+            const coord = getCoordIndex2(item.vec.x, item.vec.y);
+            data.pickupsMap[coord] = item.type;
+          });
           const layout = buildMapLayout(data);
           expectLayoutMatches(layout, expectedLayout);
 

@@ -31,6 +31,8 @@ import {
   PickupRarity,
   PreyType,
   MOVE,
+  PickupType,
+  PICKUP_TYPE_MAX,
 } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
@@ -515,6 +517,11 @@ export const isValidPortalChannel = (portalChannel: number): portalChannel is Po
 export const isValidBarrierType = (barrierType: number): barrierType is BarrierType => {
   if (barrierType === null || barrierType === undefined) return false;
   return Number.isInteger(barrierType) && barrierType >= 0 && barrierType < BARRIER_TYPE_MAX;
+}
+
+export const isValidPickupType = (pickupType: number): pickupType is PickupType => {
+  if (pickupType === null || pickupType === undefined) return false;
+  return Number.isInteger(pickupType) && pickupType >= 0 && pickupType < PICKUP_TYPE_MAX;
 }
 
 export const isBreakableBarrier = (barrierType: BarrierType): boolean => {

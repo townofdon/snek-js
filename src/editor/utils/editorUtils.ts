@@ -3,7 +3,7 @@ import { Buffer } from 'buffer'
 
 import JSONCrush from './JSONCrush/JSONCrush';
 
-import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, ItemDropType, PortalChannel, PortalExitMode } from '../../types'
+import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, ItemDropType, PortalChannel, PortalExitMode, PickupType } from '../../types'
 import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../../utils';
 import { GRIDCOUNT_X, GRIDCOUNT_Y, START_SNAKE_SIZE } from '../../constants';
 import { bton, ntob } from './Base64';
@@ -11,7 +11,7 @@ import { buildLevel } from '../../levels/levelBuilder';
 import { LEVEL_01 } from '../../levels/campaign/level01';
 import { EDITOR_DEFAULTS } from '../editorConstants';
 import { indexToMusicTrack, musicTracktoIndex } from './musicTrackUtils';
-import { BARRIER_TYPE_TO_TILE_CHAR, TILECHAR } from '@/levels/levelConstants';
+import { BARRIER_TYPE_TO_TILE_CHAR, PICKUP_TYPE_TO_TILE_CHAR, TILECHAR } from '@/levels/levelConstants';
 
 const MASK_BASE_64 = true;
 
@@ -184,7 +184,7 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     decoratives2Map: { ...levelData.decoratives2Map },
     nospawnsMap: { ...levelData.nospawnsMap },
     minesMap: {},
-    invincibilitiesMap: {},
+    pickupsMap: {},
     applesMap: {},
     keysMap: {},
     locksMap: {},
@@ -214,10 +214,10 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     const coord = getCoordIndex2(mine.x, mine.y);
     data.minesMap[coord] = true;
   });
-  levelData.invincibilities.forEach(item => {
-    const coord = getCoordIndex2(item.x, item.y);
-    data.invincibilitiesMap[coord] = true;
-  })
+  levelData.pickups.forEach(item => {
+    const coord = getCoordIndex2(item.vec.x, item.vec.y);
+    data.pickupsMap[coord] = item.type;
+  });
   return data;
 }
 
@@ -336,8 +336,8 @@ export function buildMapLayout(data: EditorData): string {
     if (data.minesMap[coord]) {
       return TILECHAR.Mine;
     }
-    if (data.invincibilitiesMap[coord]) {
-      return TILECHAR.Invincibility;
+    if (data.pickupsMap[coord]) {
+      return PICKUP_TYPE_TO_TILE_CHAR[data.pickupsMap[coord]] || TILECHAR.Mine;
     }
     if (data.decoratives1Map[coord]) {
       if (data.nospawnsMap[coord]) {
@@ -395,7 +395,7 @@ export function deepCloneData(data: EditorData): EditorData {
     nospawnsMap: getMapSliceWithDefaults(data.nospawnsMap),
     applesMap: getMapSliceWithDefaults(data.applesMap),
     minesMap: getMapSliceWithDefaults(data.minesMap),
-    invincibilitiesMap: getMapSliceWithDefaults(data.invincibilitiesMap),
+    pickupsMap: getMapSliceWithDefaults(data.pickupsMap),
     keysMap: getMapSliceWithDefaults(data.keysMap),
     locksMap: getMapSliceWithDefaults(data.locksMap),
     portalsMap: getMapSliceWithDefaults(data.portalsMap),
@@ -414,7 +414,7 @@ export function mergeData(data: EditorData, incoming: Partial<EditorData>): Edit
     nospawnsMap: { ...data.nospawnsMap, ...incoming.nospawnsMap },
     applesMap: { ...data.applesMap, ...incoming.applesMap },
     minesMap: { ...data.minesMap, ...incoming.minesMap },
-    invincibilitiesMap: { ...data.invincibilitiesMap, ...incoming.invincibilitiesMap },
+    pickupsMap: { ...data.pickupsMap, ...incoming.pickupsMap },
     keysMap: { ...data.keysMap, ...incoming.keysMap },
     locksMap: { ...data.locksMap, ...incoming.locksMap },
     portalsMap: { ...data.portalsMap, ...incoming.portalsMap },
@@ -427,7 +427,7 @@ export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coor
   const newData: EditorData = {
     applesMap: { [coord ?? incoming.coord]: incoming.apple },
     minesMap: { [coord ?? incoming.coord]: incoming.mine },
-    invincibilitiesMap: { [coord ?? incoming.coord]: incoming.invincibility },
+    pickupsMap: { [coord ?? incoming.coord]: incoming.pickup },
     barriersMap: { [coord ?? incoming.coord]: incoming.barrier },
     decoratives1Map: { [coord ?? incoming.coord]: incoming.deco1 },
     decoratives2Map: { [coord ?? incoming.coord]: incoming.deco2 },
@@ -443,7 +443,7 @@ export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coor
   return {
     applesMap: { ...data.applesMap, ...newData.applesMap },
     minesMap: { ...data.minesMap, ...newData.minesMap },
-    invincibilitiesMap: { ...data.invincibilitiesMap, ...newData.invincibilitiesMap },
+    pickupsMap: { ...data.pickupsMap, ...newData.pickupsMap },
     barriersMap: { ...data.barriersMap, ...newData.barriersMap },
     decoratives1Map: { ...data.decoratives1Map, ...newData.decoratives1Map },
     decoratives2Map: { ...data.decoratives2Map, ...newData.decoratives2Map },

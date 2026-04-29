@@ -286,7 +286,7 @@ export function engine({
     const isEndOfLevelDrop = state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && es.level.armorDrop;
     const lifetime = isEndOfLevelDrop ? 99999999 : es.difficulty.invincibilityTime;
     es.pickupsMap[getCoordIndex2(x, y)] = {
-      timeTillDeath: lifetime,
+      lifetime: lifetime,
       type: PickupType.Armor,
     };
     shields.add(x, y, lifetime, frames, timePerFrame);
@@ -838,15 +838,22 @@ export function engine({
       mines.add(x, y, lifetime, ANIMATIONS[Image.MineSheet].frames, ANIMATIONS[Image.MineSheet].timePerFrame);
     }
 
-    // add initial invincibility pickups
-    for (let i = 0; i < levelData.invincibilities.length; i++) {
-      const x = levelData.invincibilities[i].x;
-      const y = levelData.invincibilities[i].y;
-      if (!apples.existsAt(x, y)) apples.add(x, y);
+    // add initial pickups
+    for (let i = 0; i < levelData.pickups.length; i++) {
+      const x = levelData.pickups[i].vec.x;
+      const y = levelData.pickups[i].vec.y;
+      const pickupType = levelData.pickups[i].type;
+      if ([PickupType.Invincibility, PickupType.HealthPack, PickupType.WeightLossPill, PickupType.Reversibility].includes(pickupType)) {
+        if (!apples.existsAt(x, y)) apples.add(x, y);
+      }
       es.pickupsMap[getCoordIndex2(x, y)] = {
-        timeTillDeath: 99999999, // improbably high lifetime = never despawn
-        type: PickupType.Invincibility,
+        lifetime: 99999999, // improbably high lifetime = never despawn
+        type: pickupType,
       };
+      if (pickupType === PickupType.Armor) {
+        const { frames, timePerFrame } = ANIMATIONS[Image.Shield];
+        shields.add(x, y, 99999999, frames, timePerFrame);
+      }
     }
 
     // add initial apples
@@ -1006,6 +1013,7 @@ export function engine({
       shields.removeByCoord(coord);
       incrementPickupBonus(PickupType.Armor, coord);
       acquireArmor();
+      es.pickupsMap[coord] = null;
     }
 
     // check if head has reached any prey
@@ -1040,8 +1048,8 @@ export function engine({
       for (let y = 0; y < GRIDCOUNT_Y; y++) {
         const i = getCoordIndex2(x, y);
         if (es.pickupsMap[i]) {
-          es.pickupsMap[i].timeTillDeath -= loopState.deltaTime;
-          if (es.pickupsMap[i].timeTillDeath <= 0) {
+          es.pickupsMap[i].lifetime -= loopState.deltaTime;
+          if (es.pickupsMap[i].lifetime <= 0) {
             es.pickupsMap[i] = null;
             apples.removeByCoord(i);
             drawState.shouldDrawApples = true;

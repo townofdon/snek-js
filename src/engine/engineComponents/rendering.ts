@@ -525,7 +525,7 @@ export function engineRendering({
   function drawApple(x: number, y: number) {
     const isInvincibility = es.pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Invincibility;
     const isReversibility = es.pickupsMap[getCoordIndex2(x, y)]?.type === PickupType.Reversibility;
-    const timeLeft = es.pickupsMap[getCoordIndex2(x, y)]?.timeTillDeath || 0;
+    const timeLeft = es.pickupsMap[getCoordIndex2(x, y)]?.lifetime || 0;
     const specialPickupType = es.pickupsMap[getCoordIndex2(x, y)]?.type || PickupType.None;
     if (state.isInvertedColors && replay.mode !== ReplayMode.Playback && isInvincibility) {
       renderer.drawSquare(x, y,
