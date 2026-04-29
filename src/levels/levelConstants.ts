@@ -190,6 +190,14 @@ export enum TILECHAR {
   BarrierBrickWhite = 'E',
   BarrierStone = 'R',
   BarrierStoneThemed = 'T',
+  BarrierCompPanelWhite = 'Y',
+  BarrierCompPanel = 'g',
+  BarrierGrateWhite = 'G',
+  BarrierGrateYellow = 'h',
+  BarrierRuby = 'H',
+  BarrierFanDuct = 'f',
+  BarrierExhaustPlate = 'p',
+  BarrierMetalPlate2 = 's',
   Door = 'D',
   DoorAlt = 'd',
   Deco1 = '-',
@@ -232,7 +240,22 @@ export enum TILECHAR {
     }
     found[v] = true;
   });
-})()
+  // // Un-comment to get remaining available letters for tiles.
+  // // Loop from 'a' to 'z'
+  // for (let i = 97; i <= 122; i++) {
+  //   const char = String.fromCharCode(i);
+  //   if (!found[char]) console.log(char);
+  // }
+  // // Loop from 'A' to 'Z'
+  // for (let i = 65; i <= 90; i++) {
+  //   const char = String.fromCharCode(i);
+  //   if (!found[char]) console.log(char);
+  // }
+  // `[]\;',./{}|:"<>?!@#$%^&*()_+-=`.split('').forEach(char => {
+  //   if (!found[char]) console.log(char);
+  // });
+})();
+
 
 export const BARRIER_TYPE_TO_TILE_CHAR = {
   [BarrierType.Unset]: TILECHAR.None,
@@ -261,6 +284,14 @@ export const BARRIER_TYPE_TO_TILE_CHAR = {
   [BarrierType.BrickThemed]: TILECHAR.BarrierBrickThemed,
   [BarrierType.Stone]: TILECHAR.BarrierStone,
   [BarrierType.StoneThemed]: TILECHAR.BarrierStoneThemed,
+  [BarrierType.PanelWhite]: TILECHAR.BarrierCompPanelWhite,
+  [BarrierType.CompPanel]: TILECHAR.BarrierCompPanel,
+  [BarrierType.GrateWhite]: TILECHAR.BarrierGrateWhite,
+  [BarrierType.GrateYellow]: TILECHAR.BarrierGrateYellow,
+  [BarrierType.Ruby]: TILECHAR.BarrierRuby,
+  [BarrierType.FanDuct]: TILECHAR.BarrierFanDuct,
+  [BarrierType.ExhaustPlate]: TILECHAR.BarrierExhaustPlate,
+  [BarrierType.MetalPlate2]: TILECHAR.BarrierMetalPlate2,
 } satisfies Record<BarrierType, TILECHAR>;
 
 export const TILE_CHAR_TO_BARRIER_TYPE = {
@@ -291,6 +322,14 @@ export const TILE_CHAR_TO_BARRIER_TYPE = {
   [TILECHAR.BarrierBrickThemed]: BarrierType.BrickThemed,
   [TILECHAR.BarrierStone]: BarrierType.Stone,
   [TILECHAR.BarrierStoneThemed]: BarrierType.StoneThemed,
+  [TILECHAR.BarrierCompPanelWhite]: BarrierType.PanelWhite,
+  [TILECHAR.BarrierCompPanel]: BarrierType.CompPanel,
+  [TILECHAR.BarrierGrateWhite]: BarrierType.GrateWhite,
+  [TILECHAR.BarrierGrateYellow]: BarrierType.GrateYellow,
+  [TILECHAR.BarrierRuby]: BarrierType.Ruby,
+  [TILECHAR.BarrierFanDuct]: BarrierType.FanDuct,
+  [TILECHAR.BarrierExhaustPlate]: BarrierType.ExhaustPlate,
+  [TILECHAR.BarrierMetalPlate2]: BarrierType.MetalPlate2,
   [TILECHAR.Door]: 0,
   [TILECHAR.DoorAlt]: 0,
   [TILECHAR.Deco1]: 0,
@@ -351,4 +390,73 @@ export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
   [BarrierType.BrickThemed]: FloodFillTile.BarrierBrickThemed,
   [BarrierType.Stone]: FloodFillTile.BarrierStone,
   [BarrierType.StoneThemed]: FloodFillTile.BarrierStoneThemed,
+  [BarrierType.PanelWhite]: FloodFillTile.BarrierPanelWhite,
+  [BarrierType.CompPanel]: FloodFillTile.BarrierCompPanel,
+  [BarrierType.GrateWhite]: FloodFillTile.BarrierGrateWhite,
+  [BarrierType.GrateYellow]: FloodFillTile.BarrierGrateYellow,
+  [BarrierType.Ruby]: FloodFillTile.BarrierRuby,
+  [BarrierType.FanDuct]: FloodFillTile.BarrierFanDuct,
+  [BarrierType.ExhaustPlate]: FloodFillTile.BarrierExhaustPlate,
+  [BarrierType.MetalPlate2]: FloodFillTile.BarrierMetalPlate2,
 } satisfies Record<BarrierType, FloodFillTile>;
+
+export const FLOOD_FILL_TILE_TO_BARRIER_TYPE = {
+  [FloodFillTile.None]: 0,
+  [FloodFillTile.Passable]: 0,
+  [FloodFillTile.Barrier]: BarrierType.Default,
+  [FloodFillTile.BarrierSkull]: BarrierType.Skull,
+  [FloodFillTile.BarrierSkullThemed]: BarrierType.SkullThemed,
+  [FloodFillTile.BarrierIndent]: BarrierType.Indent,
+  [FloodFillTile.BarrierIndentThemed]: BarrierType.IndentThemed,
+  [FloodFillTile.BarrierFireTile]: BarrierType.FireTile,
+  [FloodFillTile.BarrierFlat]: BarrierType.Flat,
+  [FloodFillTile.BarrierFlatThemed]: BarrierType.FlatThemed,
+  [FloodFillTile.BarrierPyramid]: BarrierType.Pyramid,
+  [FloodFillTile.BarrierPyramidThemed]: BarrierType.PyramidThemed,
+  [FloodFillTile.BarrierExitSign]: BarrierType.ExitSign,
+  [FloodFillTile.BarrierRadar]: BarrierType.Radar,
+  [FloodFillTile.BarrierComputerChip]: BarrierType.ComputerChip,
+  [FloodFillTile.BarrierMetalPlate]: BarrierType.MetalPlate,
+  [FloodFillTile.BarrierPanel0]: BarrierType.Panel0,
+  [FloodFillTile.BarrierPanel1]: BarrierType.Panel1,
+  [FloodFillTile.BarrierPanel2]: BarrierType.Panel2,
+  [FloodFillTile.BarrierPanel3]: BarrierType.Panel3,
+  [FloodFillTile.BarrierPanel4]: BarrierType.Panel4,
+  [FloodFillTile.BarrierPanel5]: BarrierType.Panel5,
+  [FloodFillTile.BarrierBrick]: BarrierType.Brick,
+  [FloodFillTile.BarrierBrickWhite]: BarrierType.BrickWhite,
+  [FloodFillTile.BarrierBrickThemed]: BarrierType.BrickThemed,
+  [FloodFillTile.BarrierStone]: BarrierType.Stone,
+  [FloodFillTile.BarrierStoneThemed]: BarrierType.StoneThemed,
+  [FloodFillTile.BarrierPanelWhite]: BarrierType.PanelWhite,
+  [FloodFillTile.BarrierCompPanel]: BarrierType.CompPanel,
+  [FloodFillTile.BarrierGrateWhite]: BarrierType.GrateWhite,
+  [FloodFillTile.BarrierGrateYellow]: BarrierType.GrateYellow,
+  [FloodFillTile.BarrierRuby]: BarrierType.Ruby,
+  [FloodFillTile.BarrierFanDuct]: BarrierType.FanDuct,
+  [FloodFillTile.BarrierExhaustPlate]: BarrierType.ExhaustPlate,
+  [FloodFillTile.BarrierMetalPlate2]: BarrierType.MetalPlate2,
+  [FloodFillTile.Door]: 0,
+  [FloodFillTile.Deco1]: 0,
+  [FloodFillTile.Deco2]: 0,
+  [FloodFillTile.Apple]: 0,
+  [FloodFillTile.Portal0]: 0,
+  [FloodFillTile.Portal1]: 0,
+  [FloodFillTile.Portal2]: 0,
+  [FloodFillTile.Portal3]: 0,
+  [FloodFillTile.Portal4]: 0,
+  [FloodFillTile.Portal5]: 0,
+  [FloodFillTile.Portal6]: 0,
+  [FloodFillTile.Portal7]: 0,
+  [FloodFillTile.Portal8]: 0,
+  [FloodFillTile.Portal9]: 0,
+  [FloodFillTile.KeyYellow]: 0,
+  [FloodFillTile.KeyRed]: 0,
+  [FloodFillTile.KeyBlue]: 0,
+  [FloodFillTile.LockYellow]: 0,
+  [FloodFillTile.LockRed]: 0,
+  [FloodFillTile.LockBlue]: 0,
+  [FloodFillTile.Nospawn]: 0,
+  [FloodFillTile.Mine]: 0,
+  [FloodFillTile.Invincibility]: 0,
+} satisfies Record<FloodFillTile, BarrierType>;

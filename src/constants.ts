@@ -419,7 +419,7 @@ export const ANIMATIONS = {
     timePerFrame: 200,
   } as const satisfies AnimationData,
   [Image.TileSheet16]: {
-    frames: 27,
+    frames: 35,
     timePerFrame: 200,
   } as const satisfies AnimationData,
   [Image.TileSheet48]: {

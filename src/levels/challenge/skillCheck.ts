@@ -12,6 +12,8 @@ export const X_SKILL_CHECK = challengeLevel({
   musicTrack: MusicTrack.observer,
   pickupDrops: {
     [ItemDropType.Invincibility]: false,
-    [ItemDropType.Mine]: false,
+    [ItemDropType.Mine]: true,
+    [ItemDropType.HealthPack]: true,
+    [ItemDropType.WeightLossPill]: true,
   },
 });

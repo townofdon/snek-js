@@ -45,6 +45,14 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
     [BarrierType.BrickThemed]: useRef<HTMLCanvasElement>(null),
     [BarrierType.Stone]: useRef<HTMLCanvasElement>(null),
     [BarrierType.StoneThemed]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.PanelWhite]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.CompPanel]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.GrateWhite]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.GrateYellow]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Ruby]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.FanDuct]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.ExhaustPlate]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.MetalPlate2]: useRef<HTMLCanvasElement>(null),
   } satisfies Record<BarrierType, React.MutableRefObject<HTMLCanvasElement>>;
 
   useLayoutEffect(() => {
@@ -95,7 +103,15 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
       [BarrierType.BrickWhite]: "22",
       [BarrierType.BrickThemed]: "23",
       [BarrierType.Stone]: "24",
-      [BarrierType.StoneThemed]: "25"
+      [BarrierType.StoneThemed]: "25",
+      [BarrierType.PanelWhite]: "26",
+      [BarrierType.CompPanel]: "27",
+      [BarrierType.GrateWhite]: "28",
+      [BarrierType.GrateYellow]: "29",
+      [BarrierType.Ruby]: "30",
+      [BarrierType.FanDuct]: "31",
+      [BarrierType.ExhaustPlate]: "32",
+      [BarrierType.MetalPlate2]: "33",
     } satisfies Record<BarrierType, string>)[barrierType];
     const color = barrierType === activeBarrierType ? '#ffffff' : '#444'
     return (
@@ -140,6 +156,10 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
           {renderButton(BarrierType.BrickThemed, true)}
           {renderButton(BarrierType.Stone, true)}
           {renderButton(BarrierType.StoneThemed, true)}
+          {renderButton(BarrierType.Ruby, true)}
+          {renderButton(BarrierType.FanDuct, true)}
+          {renderButton(BarrierType.ExhaustPlate, true)}
+          {renderButton(BarrierType.MetalPlate2, true)}
         </div>
         <div>
           {renderButton(BarrierType.Default)}
@@ -155,6 +175,10 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
           {renderButton(BarrierType.ExitSign)}
           {renderButton(BarrierType.Radar)}
           {renderButton(BarrierType.ComputerChip)}
+          {renderButton(BarrierType.PanelWhite)}
+          {renderButton(BarrierType.CompPanel)}
+          {renderButton(BarrierType.GrateWhite)}
+          {renderButton(BarrierType.GrateYellow)}
         </div>
       </Stack>
     </div>
@@ -188,7 +212,15 @@ const barrierTypeLabel = (barrierType: BarrierType) => {
     [BarrierType.BrickWhite]: "White Brick",
     [BarrierType.BrickThemed]: "Themed Brick",
     [BarrierType.Stone]: "Stone",
-    [BarrierType.StoneThemed]: "Themed Stone"
+    [BarrierType.StoneThemed]: "Themed Stone",
+    [BarrierType.PanelWhite]: "White Panel",
+    [BarrierType.CompPanel]: "Computer Panel",
+    [BarrierType.GrateWhite]: "White Grate",
+    [BarrierType.GrateYellow]: "Yellow Grate",
+    [BarrierType.Ruby]: "Ruby",
+    [BarrierType.FanDuct]: "Fan Duct",
+    [BarrierType.ExhaustPlate]: "Exhaust Plate",
+    [BarrierType.MetalPlate2]: "Metal Plate 2",
   } satisfies Record<BarrierType, string>)[barrierType];
   return tooltipText || 'Unknown';
 }

@@ -3,7 +3,7 @@ import { BarrierType, EditorData, EditorDataSlice, FloodFillTile, KeyChannel, Po
 import { Tile } from "../editorTypes";
 import { getCoordIndex2, isValidBarrierType, isValidKeyChannel, isValidPortalChannel } from "../../utils";
 import { deepCloneData } from "./editorUtils";
-import { BARRIER_TYPE_TO_FLOOD_FILL_TILE } from "@/levels/levelConstants";
+import { BARRIER_TYPE_TO_FLOOD_FILL_TILE, FLOOD_FILL_TILE_TO_BARRIER_TYPE } from "@/levels/levelConstants";
 
 
 interface GetTileArgs {
@@ -121,165 +121,94 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
     playerSpawnPosition: data.playerSpawnPosition,
     startDirection: data.startDirection,
   }
-  switch (tile) {
-    case FloodFillTile.None:
-      break;
-    case FloodFillTile.Passable:
-      slice.passable = true;
-      slice.barrier = BarrierType.Default;
-      break;
-    case FloodFillTile.Barrier:
-      slice.barrier = BarrierType.Default;
-      break;
-    case FloodFillTile.BarrierSkull:
-      slice.barrier = BarrierType.Skull;
-      break;
-    case FloodFillTile.BarrierSkullThemed:
-      slice.barrier = BarrierType.SkullThemed;
-      break;
-    case FloodFillTile.BarrierIndent:
-      slice.barrier = BarrierType.Indent;
-      break;
-    case FloodFillTile.BarrierIndentThemed:
-      slice.barrier = BarrierType.IndentThemed;
-      break;
-    case FloodFillTile.BarrierFireTile:
-      slice.barrier = BarrierType.FireTile;
-      break;
-    case FloodFillTile.BarrierFlat:
-      slice.barrier = BarrierType.Flat;
-      break;
-    case FloodFillTile.BarrierFlatThemed:
-      slice.barrier = BarrierType.FlatThemed;
-      break;
-    case FloodFillTile.BarrierPyramid:
-      slice.barrier = BarrierType.Pyramid;
-      break;
-    case FloodFillTile.BarrierPyramidThemed:
-      slice.barrier = BarrierType.PyramidThemed;
-      break;
-    case FloodFillTile.BarrierExitSign:
-      slice.barrier = BarrierType.ExitSign;
-      break;
-    case FloodFillTile.BarrierRadar:
-      slice.barrier = BarrierType.Radar;
-      break;
-    case FloodFillTile.BarrierComputerChip:
-      slice.barrier = BarrierType.ComputerChip;
-      break;
-    case FloodFillTile.BarrierMetalPlate:
-      slice.barrier = BarrierType.MetalPlate;
-      break;
-    case FloodFillTile.BarrierPanel0:
-      slice.barrier = BarrierType.Panel0;
-      break;
-    case FloodFillTile.BarrierPanel1:
-      slice.barrier = BarrierType.Panel1;
-      break;
-    case FloodFillTile.BarrierPanel2:
-      slice.barrier = BarrierType.Panel2;
-      break;
-    case FloodFillTile.BarrierPanel3:
-      slice.barrier = BarrierType.Panel3;
-      break;
-    case FloodFillTile.BarrierPanel4:
-      slice.barrier = BarrierType.Panel4;
-      break;
-    case FloodFillTile.BarrierPanel5:
-      slice.barrier = BarrierType.Panel5;
-      break;
-    case FloodFillTile.BarrierBrick:
-      slice.barrier = BarrierType.Brick;
-      break;
-    case FloodFillTile.BarrierBrickWhite:
-      slice.barrier = BarrierType.BrickWhite;
-      break;
-    case FloodFillTile.BarrierBrickThemed:
-      slice.barrier = BarrierType.BrickThemed;
-      break;
-    case FloodFillTile.BarrierStone:
-      slice.barrier = BarrierType.Stone;
-      break;
-    case FloodFillTile.BarrierStoneThemed:
-      slice.barrier = BarrierType.StoneThemed;
-      break;
-    case FloodFillTile.Door:
-      slice.door = true;
-      break;
-    case FloodFillTile.Deco1:
-      slice.deco1 = true;
-      break;
-    case FloodFillTile.Deco2:
-      slice.deco2 = true;
-      break;
-    case FloodFillTile.Apple:
-      slice.apple = true;
-      break;
-    case FloodFillTile.Mine:
-      slice.mine = true;
-      break;
-    case FloodFillTile.Invincibility:
-      slice.invincibility = true;
-      break;
-    case FloodFillTile.Portal0:
-      slice.portal = 0;
-      break;
-    case FloodFillTile.Portal1:
-      slice.portal = 1;
-      break;
-    case FloodFillTile.Portal2:
-      slice.portal = 2;
-      break;
-    case FloodFillTile.Portal3:
-      slice.portal = 3;
-      break;
-    case FloodFillTile.Portal4:
-      slice.portal = 4;
-      break;
-    case FloodFillTile.Portal5:
-      slice.portal = 5;
-      break;
-    case FloodFillTile.Portal6:
-      slice.portal = 6;
-      break;
-    case FloodFillTile.Portal7:
-      slice.portal = 7;
-      break;
-    case FloodFillTile.Portal8:
-      slice.portal = 8;
-      break;
-    case FloodFillTile.Portal9:
-      slice.portal = 9;
-      break;
-    case FloodFillTile.KeyYellow:
-      slice.key = KeyChannel.Yellow;
-      break;
-    case FloodFillTile.KeyRed:
-      slice.key = KeyChannel.Red;
-      break;
-    case FloodFillTile.KeyBlue:
-      slice.key = KeyChannel.Blue;
-      break;
-    case FloodFillTile.LockYellow:
-      slice.lock = KeyChannel.Yellow;
-      break;
-    case FloodFillTile.LockRed:
-      slice.lock = KeyChannel.Red;
-      break;
-    case FloodFillTile.LockBlue:
-      slice.lock = KeyChannel.Blue;
-      break;
-    case FloodFillTile.Nospawn:
-      slice.nospawn = true;
-      if (data.decoratives1Map[coord]) {
+  if (FLOOD_FILL_TILE_TO_BARRIER_TYPE[tile]) {
+    slice.barrier = FLOOD_FILL_TILE_TO_BARRIER_TYPE[tile];
+  } else {
+    switch (tile) {
+      case FloodFillTile.None:
+        break;
+      case FloodFillTile.Passable:
+        slice.passable = true;
+        slice.barrier = BarrierType.Default;
+        break;
+      case FloodFillTile.Door:
+        slice.door = true;
+        break;
+      case FloodFillTile.Deco1:
         slice.deco1 = true;
-      }
-      if (data.decoratives2Map[coord]) {
+        break;
+      case FloodFillTile.Deco2:
         slice.deco2 = true;
-      }
-      break;
-    default:
-      break;
+        break;
+      case FloodFillTile.Apple:
+        slice.apple = true;
+        break;
+      case FloodFillTile.Mine:
+        slice.mine = true;
+        break;
+      case FloodFillTile.Invincibility:
+        slice.invincibility = true;
+        break;
+      case FloodFillTile.Portal0:
+        slice.portal = 0;
+        break;
+      case FloodFillTile.Portal1:
+        slice.portal = 1;
+        break;
+      case FloodFillTile.Portal2:
+        slice.portal = 2;
+        break;
+      case FloodFillTile.Portal3:
+        slice.portal = 3;
+        break;
+      case FloodFillTile.Portal4:
+        slice.portal = 4;
+        break;
+      case FloodFillTile.Portal5:
+        slice.portal = 5;
+        break;
+      case FloodFillTile.Portal6:
+        slice.portal = 6;
+        break;
+      case FloodFillTile.Portal7:
+        slice.portal = 7;
+        break;
+      case FloodFillTile.Portal8:
+        slice.portal = 8;
+        break;
+      case FloodFillTile.Portal9:
+        slice.portal = 9;
+        break;
+      case FloodFillTile.KeyYellow:
+        slice.key = KeyChannel.Yellow;
+        break;
+      case FloodFillTile.KeyRed:
+        slice.key = KeyChannel.Red;
+        break;
+      case FloodFillTile.KeyBlue:
+        slice.key = KeyChannel.Blue;
+        break;
+      case FloodFillTile.LockYellow:
+        slice.lock = KeyChannel.Yellow;
+        break;
+      case FloodFillTile.LockRed:
+        slice.lock = KeyChannel.Red;
+        break;
+      case FloodFillTile.LockBlue:
+        slice.lock = KeyChannel.Blue;
+        break;
+      case FloodFillTile.Nospawn:
+        slice.nospawn = true;
+        if (data.decoratives1Map[coord]) {
+          slice.deco1 = true;
+        }
+        if (data.decoratives2Map[coord]) {
+          slice.deco2 = true;
+        }
+        break;
+      default:
+        break;
+    }
   }
   data.applesMap[coord] = slice.apple;
   data.minesMap[coord] = slice.mine;

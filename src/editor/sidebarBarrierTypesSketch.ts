@@ -84,6 +84,14 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       [BarrierType.BrickThemed]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.BrickThemed].current),
       [BarrierType.Stone]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Stone].current),
       [BarrierType.StoneThemed]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.StoneThemed].current),
+      [BarrierType.PanelWhite]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.PanelWhite].current),
+      [BarrierType.CompPanel]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.CompPanel].current),
+      [BarrierType.GrateWhite]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.GrateWhite].current),
+      [BarrierType.GrateYellow]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.GrateYellow].current),
+      [BarrierType.Ruby]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Ruby].current),
+      [BarrierType.FanDuct]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.FanDuct].current),
+      [BarrierType.ExhaustPlate]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ExhaustPlate].current),
+      [BarrierType.MetalPlate2]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.MetalPlate2].current),
     } satisfies Record<BarrierType, P5.Graphics>;
     const graphicalComponents: Pick<EditorGraphicalComponents, 'barrier'> = {
       barrier: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
@@ -174,6 +182,14 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       spriteRenderer.drawImage1x1Static(gfx[BarrierType.BrickThemed], Image.ThemedBarrierBrick, x, y, 0, 1, 0);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Stone], Image.TileSheet16, x, y, 24);
       spriteRenderer.drawImage1x1Static(gfx[BarrierType.StoneThemed], Image.ThemedBarrierStone, x, y, 0, 1, 0);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.PanelWhite], Image.TileSheet16, x, y, 27);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.CompPanel], Image.TileSheet16, x, y, 28);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.GrateWhite], Image.TileSheet16, x, y, 29);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.GrateYellow], Image.TileSheet16, x, y, 30);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Ruby], Image.TileSheet16, x, y, 31);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.FanDuct], Image.TileSheet16, x, y, 32);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.ExhaustPlate], Image.TileSheet16, x, y, 33);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.MetalPlate2], Image.TileSheet16, x, y, 34);
       renderer.drawGraphicalComponentCustom(gfx[BarrierType.Default], graphicalComponents.barrier, x, y);
     }
   }

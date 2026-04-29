@@ -558,8 +558,16 @@ export enum BarrierType {
   BrickThemed,
   Stone,
   StoneThemed,
+  PanelWhite,
+  CompPanel,
+  GrateWhite,
+  GrateYellow,
+  Ruby,
+  FanDuct,
+  ExhaustPlate,
+  MetalPlate2,
 }
-export const BARRIER_TYPE_MAX = BarrierType.StoneThemed + 1;
+export const BARRIER_TYPE_MAX = BarrierType.MetalPlate2 + 1;
 
 export interface Barrier {
   type: BarrierType,
@@ -594,6 +602,14 @@ export enum FloodFillTile {
   BarrierBrickThemed,
   BarrierStone,
   BarrierStoneThemed,
+  BarrierPanelWhite,
+  BarrierCompPanel,
+  BarrierGrateWhite,
+  BarrierGrateYellow,
+  BarrierRuby,
+  BarrierFanDuct,
+  BarrierExhaustPlate,
+  BarrierMetalPlate2,
   Door,
   Deco1,
   Deco2,

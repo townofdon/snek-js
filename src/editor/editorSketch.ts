@@ -483,6 +483,30 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
               case BarrierType.StoneThemed:
                 spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierStone, x, y, 0, 1, 0);
                 break;
+              case BarrierType.PanelWhite:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 27);
+                break;
+              case BarrierType.CompPanel:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 28);
+                break;
+              case BarrierType.GrateWhite:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 29);
+                break;
+              case BarrierType.GrateYellow:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 30);
+                break;
+              case BarrierType.Ruby:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 31);
+                break;
+              case BarrierType.FanDuct:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 32);
+                break;
+              case BarrierType.ExhaustPlate:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 33);
+                break;
+              case BarrierType.MetalPlate2:
+                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 34);
+                break;
               case BarrierType.Default:
               default:
                 renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);
