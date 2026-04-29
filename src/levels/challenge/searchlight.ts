@@ -1,10 +1,10 @@
 import { MusicTrack } from "../../types";
 import { toTime } from "../../utils";
-import { challengeLevel } from "./_challengeLevel";
+import { v2Level } from "../v2Level";
 
 const name = 'searchlight';
 
-export const X_SEARCHLIGHT = challengeLevel({
+export const X_SEARCHLIGHT = v2Level({
   id: 'X421',
   name,
   parTime: toTime({ minutes: 1, seconds: 30 }),

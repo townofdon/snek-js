@@ -1,10 +1,10 @@
 import { MusicTrack } from "../../types";
 import { toTime } from "../../utils";
-import { challengeLevel } from "./_challengeLevel";
+import { v2Level } from "../v2Level";
 
 const name = 'quantum\nentanglement';
 
-export const X_QUANTUM_ENTANGLEMENT = challengeLevel({
+export const X_QUANTUM_ENTANGLEMENT = v2Level({
   id: 'X411',
   name,
   parTime: toTime({ minutes: 0, seconds: 28 }),

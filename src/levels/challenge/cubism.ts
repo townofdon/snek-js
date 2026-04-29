@@ -1,8 +1,8 @@
 import { MusicTrack } from "../../types";
 import { toTime } from "../../utils";
-import { challengeLevel } from "./_challengeLevel";
+import { v2Level } from "../v2Level";
 
-export const X_CUBISM = challengeLevel({
+export const X_CUBISM = v2Level({
   id: 'X418',
   name: 'cubism',
   parTime: toTime({ minutes: 1, seconds: 20 }),

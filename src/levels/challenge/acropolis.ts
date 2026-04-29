@@ -1,10 +1,10 @@
 import { MusicTrack } from "../../types";
 import { toTime } from "../../utils";
-import { challengeLevel } from "./_challengeLevel";
+import { v2Level } from "../v2Level";
 
 const name = 'acropolis';
 
-export const X_ACROPOLIS = challengeLevel({
+export const X_ACROPOLIS = v2Level({
   id: 'X401',
   name,
   parTime: toTime({ minutes: 0, seconds: 57 }),

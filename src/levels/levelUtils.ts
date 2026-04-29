@@ -68,6 +68,7 @@ import { MAZE_03_STORAGE } from "./mazes/maze03-storage";
 import { MAZE_04_LOOT_ROOM } from "./mazes/maze04-lootroom";
 import { MAZE_01 } from "./mazes/maze01";
 import { MAZE_01_COBRA } from "./mazes/maze01-cobra";
+import { LEVEL_16 } from "./campaign/level16";
 
 const WARP_INDEX_TO_LEVEL = {
   1: LEVEL_01,
@@ -85,6 +86,7 @@ const WARP_INDEX_TO_LEVEL = {
   13: LEVEL_13,
   14: LEVEL_14,
   15: LEVEL_15,
+  16: LEVEL_16,
   17: LEVEL_17,
   18: LEVEL_18,
   19: LEVEL_19,

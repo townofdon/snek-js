@@ -2,12 +2,12 @@ import { MusicTrack } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { VARIANT_LEVEL_08 } from "../bonusLevels/variantLevel08";
 
-import { challengeLevel } from "../challenge/_challengeLevel";
+import { v2Level } from "../v2Level";
 import { MAZE_04_LOOT_ROOM } from "./maze04-lootroom";
 
 const name = 'ordnance vault';
 
-export const MAZE_03_STORAGE = challengeLevel({
+export const MAZE_03_STORAGE = v2Level({
   id: 'S152',
   name,
   parTime: toTime({ minutes: 0, seconds: 15 }),

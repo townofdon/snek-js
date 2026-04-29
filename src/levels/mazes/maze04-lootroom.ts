@@ -2,11 +2,11 @@ import { MusicTrack } from "../../types";
 import { toTime } from "../../utils";
 import { VARIANT_LEVEL_08 } from "../bonusLevels/variantLevel08";
 
-import { challengeLevel } from "../challenge/_challengeLevel";
+import { v2Level } from "../v2Level";
 
 const name = 'loot room';
 
-export const MAZE_04_LOOT_ROOM = challengeLevel({
+export const MAZE_04_LOOT_ROOM = v2Level({
   id: 'S153',
   name,
   parTime: toTime({ minutes: 0, seconds: 30 }),

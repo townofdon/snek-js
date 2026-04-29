@@ -1,8 +1,8 @@
 import { MusicTrack } from "../../types";
 import { toTime } from "../../utils";
-import { challengeLevel } from "./_challengeLevel";
+import { v2Level } from "../v2Level";
 
-export const X_DIGIN = challengeLevel({
+export const X_DIGIN = v2Level({
   id: 'X419',
   name: 'dig in',
   parTime: toTime({ minutes: 1, seconds: 8 }),

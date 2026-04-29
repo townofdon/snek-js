@@ -1,10 +1,10 @@
 import { MusicTrack, ItemDropType, PortalExitMode } from "../../types";
 import { toTime } from "../../utils";
-import { challengeLevel } from "./_challengeLevel";
+import { v2Level } from "../v2Level";
 
 const name = 'beacons';
 
-export const X_BEACONS = challengeLevel({
+export const X_BEACONS = v2Level({
   id: 'X402',
   name,
   parTime: toTime({ minutes: 0, seconds: 55 }),

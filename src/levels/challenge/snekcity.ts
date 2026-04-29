@@ -1,11 +1,11 @@
 
 import { MusicTrack, ItemDropType } from "../../types";
 import { toTime } from "../../utils";
-import { challengeLevel } from "./_challengeLevel";
+import { v2Level } from "../v2Level";
 
 const name = 'snek city';
 
-export const X_SNEKCITY = challengeLevel({
+export const X_SNEKCITY = v2Level({
   id: 'X417',
   name,
   parTime: toTime({ minutes: 1, seconds: 5 }),

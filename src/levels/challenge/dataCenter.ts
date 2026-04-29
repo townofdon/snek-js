@@ -1,8 +1,8 @@
 import { MusicTrack, ItemDropType } from "../../types";
 import { toTime } from "../../utils";
-import { challengeLevel } from "./_challengeLevel";
+import { v2Level } from "../v2Level";
 
-export const X_DATACENTER = challengeLevel({
+export const X_DATACENTER = v2Level({
   id: 'X420',
   name: 'datacenter',
   parTime: toTime({ minutes: 1, seconds: 15 }),

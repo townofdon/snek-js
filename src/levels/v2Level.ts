@@ -1,10 +1,10 @@
-import { getExtendedPalette, PALETTE } from "../../palettes";
-import { Level } from "../../types";
+import { getExtendedPalette, PALETTE } from "../palettes";
+import { Level } from "../types";
 
 type ChallengeFields = 'id' | 'name' | 'layoutV2'
 type ChallengeLevel = Pick<Level, ChallengeFields> & Partial<Omit<Level, ChallengeFields>>
 
-export const challengeLevel =  (level: ChallengeLevel): Level => ({
+export const v2Level =  (level: ChallengeLevel): Level => ({
   name: level.name,
   timeToClear: 0,
   applesToClear: 0,

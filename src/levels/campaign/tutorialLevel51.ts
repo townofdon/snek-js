@@ -2,11 +2,11 @@ import { MusicTrack, ItemDropType } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { VARIANT_LEVEL_07 } from "../bonusLevels/variantLevel07";
 import { MAZE_03_STORAGE } from "../mazes/maze03-storage";
-import { challengeLevel } from "../challenge/_challengeLevel";
+import { v2Level } from "../v2Level";
 
 const name = 'minemeld';
 
-export const TUTORIAL_LEVEL_51 = challengeLevel({
+export const TUTORIAL_LEVEL_51 = v2Level({
   id: 'C151',
   name,
   parTime: toTime({ minutes: 0, seconds: 20 }),
