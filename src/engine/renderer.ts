@@ -15,6 +15,7 @@ import {
   Replay,
   ReplayMode,
   ScreenShakeState,
+  SpritesheetImage,
   Tutorial,
 } from "../types";
 import {
@@ -773,7 +774,7 @@ export class Renderer implements IRenderer {
     gfx.text(text, textX, textY);
   }
 
-  drawRightUI = (gfx: P5 | P5.Graphics, armorCount: number) => {
+  drawRightUI = (gfx: P5 | P5.Graphics, armorCount: number, reversiblesCount: number) => {
     if (this.replay.mode === ReplayMode.Playback) return;
     if (this.gameState.isGameWon) return;
     if (!this.gameState.isGameStarted) return;
@@ -786,8 +787,12 @@ export class Renderer implements IRenderer {
       offsetY += 4;
     }
     if (armorCount > 0) {
-      this.drawArmor(gfx, offsetY, armorCount, paused);
+      this.drawItem(gfx, Image.UIShieldSheet, 0, offsetY, armorCount, paused);
       offsetY += armorCount + 1;
+    }
+    if (reversiblesCount > 0) {
+      this.drawItem(gfx, Image.UIShieldSheet, 1, offsetY, reversiblesCount, paused);
+      offsetY += reversiblesCount + 1;
     }
   }
 
@@ -813,20 +818,18 @@ export class Renderer implements IRenderer {
     }
   }
 
-  private drawArmor(gfx: P5 | P5.Graphics, offsetY: number, armorCount: number, paused: boolean) {
+  private drawItem(gfx: P5 | P5.Graphics, image: SpritesheetImage, frame: number, offsetY: number, count: number, paused: boolean) {
     const x = 0;
     const y = 1 + offsetY;
     const x0 = MAP_OFFSET + BLOCK_SIZE.x * x - STROKE_SIZE * 0.5;
     const y0 = MAP_OFFSET + BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
     const x1 = MAP_OFFSET + x0 + BLOCK_SIZE.x * 1 + STROKE_SIZE * 0.5;
-    const y1 = MAP_OFFSET + y0 + BLOCK_SIZE.y * armorCount + STROKE_SIZE * 0.5;
+    const y1 = MAP_OFFSET + y0 + BLOCK_SIZE.y * Math.min(count, 10) + STROKE_SIZE * 0.5;
     gfx.fill("#00000099");
     gfx.noStroke();
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
-    for (let i = 0; i < armorCount && i < 10; i++) {
-      const imgX = BLOCK_SIZE.x * x + 1;
-      const imgY = BLOCK_SIZE.y * (y + i) + 1;
-      this.spriteRenderer.drawImage(Image.UIShield, imgX, imgY, gfx);
+    for (let i = 0; i < count && i < 10; i++) {
+      this.spriteRenderer.drawSprite1x1(gfx, image, x, y + i, frame);
     }
     if (paused) {
       gfx.fill("#070b0fbf");

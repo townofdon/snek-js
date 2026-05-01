@@ -17,6 +17,7 @@ export const getTileLabel = (tile: Tile): string | null => {
     [Tile.Mine]: 'landmine',
     [Tile.Invincibility]: 'invincibility',
     [Tile.Armor]: 'armor',
+    [Tile.Reversibility]: 'reversibility',
   } satisfies Record<Tile, string>)[tile];
 }
 
@@ -37,5 +38,6 @@ export const getTileExplanation = (tile: Tile): string => {
     [Tile.Mine]: 'explodes when collided with',
     [Tile.Invincibility]: 'makes the player invincible for a short time',
     [Tile.Armor]: 'gives the player damage protection',
+    [Tile.Reversibility]: 'allows player to reverse at will',
   } satisfies Record<Tile, string>)[tile];
 }

@@ -8,6 +8,7 @@ import {
   GRIDCOUNT_Y,
   INVINCIBILITY_COLOR_CYCLE_MS,
   NUM_SNAKE_INVINCIBLE_COLORS,
+  PICKUP_SPRITE_FRAME_MAP,
   SNAKE_INVINCIBLE_COLORS,
 } from "../constants";
 import {
@@ -545,12 +546,20 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.MineSheet, x, y, 0);
           }
 
-          if (data.pickupsMap[coord] === PickupType.Invincibility) {
-            drawInvincibilityPickup(x, y);
-          }
-
-          if (data.pickupsMap[coord] === PickupType.Armor) {
-            spriteRenderer.drawSprite1x1(gfx, Image.Shield, x, y, 0, 0, 1);
+          switch (data.pickupsMap[coord]) {
+            case PickupType.Invincibility:
+              drawInvincibilityPickup(x, y);
+              break;
+            case PickupType.Armor:
+              spriteRenderer.drawSprite1x1(gfx, Image.Shield, x, y, 0, 0, 1);
+              break;
+            case PickupType.Reversibility:
+              spriteRenderer.drawSprite1x1(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Reversibility] - 1, 0, 1);
+              break;
+            case PickupType.HealthPack:
+            case PickupType.WeightLossPill:
+            default:
+              break;
           }
 
           if (hasSegmentAt(x, y)) {

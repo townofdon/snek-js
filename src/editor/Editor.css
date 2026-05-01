@@ -1,7 +1,7 @@
 
 :root {
   --editor-tile-sprite-img: url('assets/graphics/editor-tiles.png');
-  --editor-tile-sprite-background-size: 896px 32px;
+  --editor-tile-sprite-background-size: 928px 32px;
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url('assets/graphics/editor-tools-200.png');
@@ -274,6 +274,9 @@ button,
   }
   &.shield {
     background-position-x: calc(-13 * var(--editor-tile-sprite-width));
+  }
+  &.reversibility {
+    background-position-x: calc(-14 * var(--editor-tile-sprite-width));
   }
 }
 

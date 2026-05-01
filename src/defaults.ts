@@ -42,6 +42,7 @@ export const DEFAULT_GAME_STATE: GameState = {
   timeSinceHurtForgiveness: Infinity,
   timeSinceLastInput: Infinity,
   timeSinceInvincibleStart: Infinity,
+  timeSinceReverseStart: Infinity,
   timeSinceSpawnedPickup: Infinity,
   timeSinceGraceStarted: 0,
   timeSinceArmorProtection: Infinity,
@@ -115,6 +116,7 @@ export const DEFAULT_OUTFIT: Outfit = {
 
 export const DEFAULT_HELD_ITEMS = {
   armor: 0,
+  reversibles: 0,
 } satisfies HeldItems;
 
 export const DEFAULT_PICKUP_TYPES: PickupType[] = [

@@ -18,6 +18,7 @@ function getTile({ tile, portalChannel, keyChannel, barrierType }: GetTileArgs) 
   if (tile === Tile.Apple) return FloodFillTile.Apple;
   if (tile === Tile.Mine) return FloodFillTile.Mine;
   if (tile === Tile.Invincibility) return FloodFillTile.PickupInvincibility;
+  if (tile === Tile.Reversibility) return FloodFillTile.PickupReversibility;
   if (tile === Tile.Armor) return FloodFillTile.PickupArmor;
   if (tile === Tile.Deco2) return FloodFillTile.Deco2;
   if (tile === Tile.Deco1) return FloodFillTile.Deco1;

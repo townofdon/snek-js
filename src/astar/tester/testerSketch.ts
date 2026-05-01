@@ -226,16 +226,16 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
             const preyType = data.agents[coord];
             switch (preyType) {
               case PreyType.Grub:
-                spriteRenderer.drawSprite3x3(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Burger] - 1);
+                spriteRenderer.drawSprite1x1(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Burger] - 1);
                 break;
               case PreyType.FieldMouse:
-                spriteRenderer.drawSprite3x3(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Cheese] - 1);
+                spriteRenderer.drawSprite1x1(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Cheese] - 1);
                 break;
               case PreyType.Ant:
-                spriteRenderer.drawSprite3x3(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Egg] - 1);
+                spriteRenderer.drawSprite1x1(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Egg] - 1);
                 break;
               case PreyType.Grasshopper:
-                spriteRenderer.drawSprite3x3(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Broccoli] - 1);
+                spriteRenderer.drawSprite1x1(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Broccoli] - 1);
                 break;
             }
           }

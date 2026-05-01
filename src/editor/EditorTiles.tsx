@@ -14,7 +14,7 @@ interface EditorTilesProps {
 export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
   const renderTile = (tile: Tile) => {
     const tileLabel = getTileLabel(tile);
-    const tileClassName = {
+    const tileClassName = ({
       [Tile.None]: undefined,
       [Tile.Barrier]: styles.barrier,
       [Tile.Passable]: styles.passable,
@@ -29,9 +29,10 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Spawn]: styles.spawn,
       [Tile.Mine]: styles.mine,
       [Tile.Invincibility]: styles.invincibility,
+      [Tile.Reversibility]: styles.reversibility,
       [Tile.Armor]: styles.shield,
-    }[tile]
-    const tileShortcut = {
+    } satisfies Record<Tile, any>)[tile]
+    const tileShortcut = ({
       [Tile.None]: null,
       [Tile.Barrier]: 1,
       [Tile.Passable]: 2,
@@ -46,8 +47,9 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Spawn]: '~',
       [Tile.Mine]: null,
       [Tile.Invincibility]: null,
+      [Tile.Reversibility]: null,
       [Tile.Armor]: null,
-    }[tile]
+    } satisfies Record<Tile, any>)[tile]
     return (
       <div className={cx(styles.stack, styles.justifyEnd)}>
         <span className={styles.shortcut}>{tileShortcut}</span>
@@ -76,6 +78,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       {renderTile(Tile.Mine)}
       {renderTile(Tile.Invincibility)}
       {renderTile(Tile.Armor)}
+      {renderTile(Tile.Reversibility)}
     </div>
   )
 }

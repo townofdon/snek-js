@@ -212,9 +212,13 @@ export interface GameState {
   timeSinceHurtForgiveness: number,
   timeSinceLastInput: number,
   timeSinceInvincibleStart: number,
+  /**
+   * Time elapsed since the player initiated a reversal (via the Reversible pickup)
+   */
+  timeSinceReverseStart: number,
   timeSinceSpawnedPickup: number,
   /**
-   * The time elapsed since the player would have moved into an obstacle (hit grace period).
+   * Time elapsed since the player would have moved into an obstacle (hit grace period).
   */
   timeSinceGraceStarted: number,
   /**
@@ -292,6 +296,7 @@ export interface Outfit {
 
 export interface HeldItems {
   armor: number,
+  reversibles: number,
 }
 
 export interface DrawState {
@@ -503,7 +508,7 @@ export interface IRenderer {
   drawSprintControls: (gfx: P5 | P5.Graphics, x: number, y: number) => void
   drawDifficultySelect: (gfx: P5 | P5.Graphics, backgroundColor: string) => void
   drawDifficultySelectCobra: (gfx: P5 | P5.Graphics, backgroundColor: string) => void
-  drawRightUI: (gfx: P5 | P5.Graphics, armorCount: number) => void
+  drawRightUI: (gfx: P5 | P5.Graphics, armorCount: number, reversablesCount: number) => void
   drawPortal: (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions) => void
 }
 
@@ -880,17 +885,13 @@ export enum MusicTrack {
 
 export type UnlockedMusicTracks = Record<MusicTrack, boolean>
 
-// don't ask me what this does. something something build a dynamic tuple type using recursion.
-type BuildTuple<N extends number, T, R extends T[] = []> =
-  R['length'] extends N ? R : BuildTuple<N, T, [T, ...R]>;
-
-export interface AnimationData<T extends number = number> {
-  frames: T,
+export interface AnimationData {
+  frames: number,
   timePerFrame: number,
   /**
    * Set explicit time per each frame. Array length must match number of frames.
    */
-  durations?: BuildTuple<T, number>,
+  durations?: number[],
 }
 
 export enum Image {
@@ -938,7 +939,7 @@ export enum Image {
   ShieldSpawn = 'snek-shield-spawn.png',
   PickupArrows = 'pickup-arrows.png',
   UIKeysSheet = 'snek-smkey2-sheet.png',
-  UIShield = 'snek-shield-sm.png',
+  UIShieldSheet = 'snek-shield-sm.png',
   UILocked = 'ui-locked.png',
   UIFlamesheet = 'ui-flame-sheet-2.png',
   Darken = 'darken2.png',
@@ -1010,6 +1011,7 @@ export type SpritesheetImage =
   | Image.ShieldSpawn
   | Image.PickupOutlineYellowSheet
   | Image.PickupOutlineBlueSheet
+  | Image.UIShieldSheet
 ;
 
 export enum WearableFrame {
@@ -1245,6 +1247,9 @@ export enum PickupType {
   ChiliPepper,
 }
 export const PICKUP_TYPE_MAX = Math.max(...Object.values(PickupType).filter(v => typeof v === 'number')) + 1;
+
+// TODO: REMOVE
+console.log(PickupType.ChiliPepper, PICKUP_TYPE_MAX);
 
 export enum PreyType {
   None = 0,

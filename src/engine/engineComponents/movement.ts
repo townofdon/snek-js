@@ -101,7 +101,7 @@ export function engineMovement({
     // back that thing up
     const timeNeededUntilNextMove = _getTimeNeededUntilNextMove();
     const canRewind = rewindAllowed(
-      state.timeSinceArmorProtection < es.difficulty.invincibilityTime ||
+      state.timeSinceReverseStart < es.difficulty.invincibilityTime ||
       state.timeSinceInvincibleStart < es.difficulty.invincibilityTime
     );
     if (!canRewind) {
@@ -223,7 +223,7 @@ export function engineMovement({
     // determine if next move will be into something, allow for grace period before injuring snakey
     const willHitSomething = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
     const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
-    const canAutoRewind = rewindAllowed(invincible && heldItems.armor === 0);
+    const canAutoRewind = rewindAllowed(invincible);
     const futureCoord = getCoordIndex(futurePosition);
     const isBreakable = !es.passablesMap[futureCoord] && isBreakableBarrier(es.barriersMap[futureCoord]);
     const extraGraceTime = (isBreakable && heldItems.armor > 0) ? 0 : es.level.extraHurtGraceTime ?? 0;

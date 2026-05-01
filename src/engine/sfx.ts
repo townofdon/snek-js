@@ -92,7 +92,8 @@ export class SFX implements SFXInstance {
         return;
       }
       this.sounds[sound].loop(true);
-      this.play(sound, volume);
+      this.sounds[sound].stop();
+      this.play(sound, volume * this.globalVolume);
     } catch (err) {
       console.error(err);
     }

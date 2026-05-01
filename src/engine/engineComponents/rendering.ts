@@ -33,7 +33,6 @@ import {
   WearableFrame,
   HeldItems,
   PickupType,
-  ICollection,
   PreyType,
   AppMode,
   LevelType,
@@ -474,7 +473,7 @@ export function engineRendering({
     if (!vec) return;
     if (i >= 1 && vec.equals(segments.get(i - 1))) return;
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
-    const acquiringArmor = state.timeSinceArmorPickup < ARMOR_PICKUP_FREEZE_MS;
+    const acquiringArmor = state.timeSinceArmorPickup < 100;
     const armorUsed = state.timeSinceArmorProtection < HURT_STUN_TIME;
     const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     const acquiringOther = state.acquireProgression > 0;
@@ -546,9 +545,15 @@ export function engineRendering({
       if (shouldBlinkExpiringPickup(timeLeft)) {
         return;
       }
-      const cycle = Math.floor(state.actualTimeElapsed / INVINCIBILITY_COLOR_CYCLE_MS);
-      const color = gradients.calc(reversibleColorGradient, (cycle % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
-      renderer.drawSquare(x, y, color.toString(), color.toString(), drawReversibilityPickupOptions);
+
+      const cycle = Math.floor(state.actualTimeElapsed / ANIMATIONS[Image.PickupsSheet].timePerFrame) % 2;
+      if (!cycle) {
+        spriteRenderer.drawSprite1x1(renderer.getMainGfx(), Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Reversibility] - 1);
+      } else {
+        spriteRenderer.drawSprite1x1(renderer.getMainGfx(), Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Reversibility]);
+      }
+      // const color = gradients.calc(reversibleColorGradient, (cycle % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
+      // renderer.drawSquare(x, y, color.toString(), color.toString(), drawReversibilityPickupOptions);
       if (timeLeft <= PICKUP_LIFETIME_MS) {
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
@@ -556,12 +561,12 @@ export function engineRendering({
       if (shouldBlinkExpiringPickup(timeLeft)) {
         return;
       }
-      spriteRenderer.drawSprite3x3(renderer.getMainGfx(), Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+      spriteRenderer.drawSprite1x1(renderer.getMainGfx(), Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
       if (timeLeft <= PICKUP_LIFETIME_MS) {
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
     } else if (specialPickupType && drawState.shouldDrawApples) {
-      spriteRenderer.drawSprite3x3(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+      spriteRenderer.drawSprite1x1(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
     } else if (!specialPickupType) {
       const elapsed = state.actualTimeElapsed;
       const { durations } = ANIMATIONS[Image.ThemedAppleSheet];

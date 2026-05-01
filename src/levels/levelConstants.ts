@@ -493,7 +493,7 @@ export const PICKUP_TYPE_TO_TILE_CHAR: Record<PowerupPickup, TILECHAR> = {
 
 export const PICKUP_TYPE_TO_TILE: Record<PowerupPickup, Tile> = {
   [PickupType.Invincibility]: Tile.Invincibility,
-  [PickupType.Reversibility]: 0,
+  [PickupType.Reversibility]: Tile.Reversibility,
   [PickupType.Armor]: Tile.Armor,
   [PickupType.HealthPack]: 0,
   [PickupType.WeightLossPill]: 0,

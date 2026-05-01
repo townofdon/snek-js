@@ -39,6 +39,7 @@ import {
   SetLineNospawnCommand,
   SetLinePassableCommand,
   SetLinePortalCommand,
+  SetLineReversibilityCommand,
   SetLockCommand,
   SetMineCommand,
   SetNospawnCommand,
@@ -58,6 +59,8 @@ import {
   SetRectangleNospawnCommand,
   SetRectanglePassableCommand,
   SetRectanglePortalCommand,
+  SetRectangleReversibilityCommand,
+  SetReversibilityCommand,
 } from "./commands";
 import { MouseButton, SpecialKey, findNumberPressed, getIsOutside, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
 import { EditorCanvas } from "./EditorCanvas";
@@ -163,7 +166,7 @@ export const Editor = () => {
     if (direction < 0) {
       setTile({
         [Tile.None]: Tile.Barrier,
-        [Tile.Barrier]: Tile.Armor,
+        [Tile.Barrier]: Tile.Reversibility,
         [Tile.Passable]: Tile.Barrier,
         [Tile.Door]: Tile.Passable,
         [Tile.Deco1]: Tile.Door,
@@ -177,6 +180,7 @@ export const Editor = () => {
         [Tile.Mine]: Tile.Spawn,
         [Tile.Invincibility]: Tile.Mine,
         [Tile.Armor]: Tile.Invincibility,
+        [Tile.Reversibility]: Tile.Armor,
       }[tileRef.current]);
     } else {
       setTile({
@@ -194,7 +198,8 @@ export const Editor = () => {
         [Tile.Spawn]: Tile.Mine,
         [Tile.Mine]: Tile.Invincibility,
         [Tile.Invincibility]: Tile.Armor,
-        [Tile.Armor]: Tile.Barrier,
+        [Tile.Armor]: Tile.Reversibility,
+        [Tile.Reversibility]: Tile.Barrier,
       }[tileRef.current]);
     }
   }
@@ -215,6 +220,8 @@ export const Editor = () => {
         return new SetMineCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Invincibility:
         return new SetInvincibilityCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.Reversibility:
+        return new SetReversibilityCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Armor:
         return new SetArmorCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
@@ -254,6 +261,8 @@ export const Editor = () => {
         return new SetLineMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Invincibility:
         return new SetLineInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Reversibility:
+        return new SetLineReversibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Armor:
         return new SetLineArmorCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:
@@ -293,6 +302,8 @@ export const Editor = () => {
         return new SetRectangleMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Invincibility:
         return new SetRectangleInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Reversibility:
+        return new SetRectangleReversibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Armor:
         return new SetRectangleArmorCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Barrier:

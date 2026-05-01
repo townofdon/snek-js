@@ -401,7 +401,7 @@ export const ANIMATIONS = {
       100,
       9000,
     ],
-  } as const satisfies AnimationData<13>,
+  } as const satisfies AnimationData,
   [Image.SegmentsSheet]: {
     frames: 3,
     timePerFrame: 100,
@@ -427,7 +427,7 @@ export const ANIMATIONS = {
     timePerFrame: 200,
   } as const satisfies AnimationData,
   [Image.PickupsSheet]: {
-    frames: 56,
+    frames: 57,
     timePerFrame: 200,
   } as const satisfies AnimationData,
   [Image.WearablesSheet]: {
@@ -498,7 +498,11 @@ export const ANIMATIONS = {
     frames: 4,
     timePerFrame: 200,
   } as const satisfies AnimationData,
-} as const;
+  [Image.UIShieldSheet]: {
+    frames: 2,
+    timePerFrame: 200,
+  } as const satisfies AnimationData,
+} as const satisfies Record<SpritesheetImage, AnimationData>;
 
 export const PICKUP_COMMON_ITEMS: PickupType[] = [
   PickupType.Cheese,
@@ -556,10 +560,10 @@ export const PICKUP_LEGENDARY_ITEMS: PickupType[] = [
 export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
   [PickupType.None]: 0,
   [PickupType.Invincibility]: 0,
-  [PickupType.Reversibility]: 0,
+  [PickupType.Reversibility]: 56,
   [PickupType.Armor]: 0,
-  [PickupType.HealthPack]: 55,
-  [PickupType.WeightLossPill]: 56,
+  [PickupType.HealthPack]: 54,
+  [PickupType.WeightLossPill]: 55,
   [PickupType.Cheese]: 1,
   [PickupType.Carrot]: 2,
   [PickupType.Potato]: 3,

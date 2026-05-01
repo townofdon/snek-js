@@ -169,6 +169,18 @@ export class SetInvincibilityCommand extends SetElementCommand {
   }
 }
 
+export class SetReversibilityCommand extends SetElementCommand {
+  public readonly name = 'Draw Reversibility';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (data.pickupsMap[this.coord] === PickupType.Reversibility) {
+      this.newData = null;
+    } else {
+      this.newData.pickup = PickupType.Reversibility;
+    }
+  }
+}
+
 export class SetArmorCommand extends SetElementCommand {
   public readonly name = 'Draw Armor';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
@@ -497,6 +509,17 @@ export class SetLineInvincibilityCommand extends SetLineCommand {
   };
 }
 
+export class SetLineReversibilityCommand extends SetLineCommand {
+  public readonly name = 'Draw Reversibility';
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.newData.pickup = PickupType.Reversibility;
+  }
+  protected test = (coord: number) => {
+    return this.dataRef.current.pickupsMap[coord] !== PickupType.Reversibility;
+  };
+}
+
 export class SetLineArmorCommand extends SetLineCommand {
   public readonly name = 'Draw Armor';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
@@ -721,6 +744,17 @@ export class SetRectangleInvincibilityCommand extends SetRectangleCommand {
   }
   protected test = (coord: number) => {
     return this.dataRef.current.pickupsMap[coord] !== PickupType.Invincibility;
+  };
+}
+
+export class SetRectangleReversibilityCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Reversibility';
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.pickup = PickupType.Reversibility;
+  }
+  protected test = (coord: number) => {
+    return this.dataRef.current.pickupsMap[coord] !== PickupType.Reversibility;
   };
 }
 

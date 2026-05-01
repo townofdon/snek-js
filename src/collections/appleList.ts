@@ -91,11 +91,6 @@ export class AppleList {
         return;
       }
     }
-
-    // apple not found
-    if (IS_DEV) {
-      console.warn(`removeApple could not find matching apple for x=${x},y=${y}`);
-    }
   }
 
   public existsAtVec = (vec: Vector): boolean => {

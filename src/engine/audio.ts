@@ -220,10 +220,11 @@ export async function loadSfxAudio({ src }: { src: [string] }) {
   const state = {
     playing: false,
     volume: 1,
+    timeout: null,
   }
 
   const play = () => {
-    setTimeout(() => {
+    state.timeout = setTimeout(() => {
       if (state.playing) stop();
       state.playing = true;
       const onended = () => {
@@ -234,12 +235,14 @@ export async function loadSfxAudio({ src }: { src: [string] }) {
       } catch (err) {
         console.warn(`err on playSfx(${path}): ${err}`);
         state.playing = false;
+        clearTimeout(state.timeout);
       }
     }, 0)
   }
   const stop = () => {
     if (!state.playing) return;
     stopAudio(path);
+    clearTimeout(state.timeout);
     state.playing = false;
   }
   const volume = (val?: number): number => {
