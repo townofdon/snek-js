@@ -1248,9 +1248,6 @@ export enum PickupType {
 }
 export const PICKUP_TYPE_MAX = Math.max(...Object.values(PickupType).filter(v => typeof v === 'number')) + 1;
 
-// TODO: REMOVE
-console.log(PickupType.ChiliPepper, PICKUP_TYPE_MAX);
-
 export enum PreyType {
   None = 0,
   Grub,

@@ -109,6 +109,7 @@ import {
   getCoordX,
   getCoordY,
   isBreakableBarrier,
+  coordToVec,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -275,7 +276,6 @@ export function engine({
     const y = Math.floor(coord / GRIDCOUNT_X);
     const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
     explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
-    state.lastHurtBy = HitType.HitMine;
     playSound(Sound.xpound);
     drawState.shouldDrawActionFG = true;
   };
@@ -1033,6 +1033,19 @@ export function engine({
       increaseSpeed();
       playSound(Sound.eat);
       preyList.removeByCoord(coord);
+      drawState.shouldDrawActionFG = true;
+      didEat = true;
+    }
+
+    // check for En Passant for prey
+    const passantCoord = preyList.wasAtCoord(coord, FRAME_DUR_MS * 2);
+    if (passantCoord >= 0) {
+      spawnAppleParticles(coordToVec(passantCoord));
+      incrementPreyBonus(preyList.getTypeByCoord(coord), coord);
+      growSnake(coord);
+      increaseSpeed();
+      playSound(Sound.eat);
+      preyList.removeByCoord(passantCoord);
       drawState.shouldDrawActionFG = true;
       didEat = true;
     }

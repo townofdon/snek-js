@@ -14,8 +14,10 @@ export class PreyList implements ICollection {
   private type: PreyType[] = [];
   private targetCoord: Int16Array = new Int16Array(MAX_NUM_PREY);
   private coord: Uint16Array = new Uint16Array(MAX_NUM_PREY);
+  private prevCoord: Int16Array = new Int16Array(MAX_NUM_PREY);
   private seed: Float32Array = new Float32Array(MAX_NUM_PREY);
   private timeUntilNextMove: Float32Array = new Float32Array(MAX_NUM_PREY);
+  private timeSinceLastMove: Float32Array = new Float32Array(MAX_NUM_PREY);
   private lifetime: Float32Array = new Float32Array(MAX_NUM_PREY);
   private elapsed: Float32Array = new Float32Array(MAX_NUM_PREY);
   private flipx: Uint8Array = new Uint8Array(MAX_NUM_PREY);
@@ -42,7 +44,9 @@ export class PreyList implements ICollection {
       this.type[i] = PreyType.None;
       this.targetCoord[i] = -1;
       this.coord[i] = 0;
+      this.prevCoord[i] = -1;
       this.timeUntilNextMove[i] = 0;
+      this.timeSinceLastMove[i] = Infinity;
       this.lifetime[i] = 0;
       this.elapsed[i] = 0;
       this.flipx[i] = 0;
@@ -60,6 +64,7 @@ export class PreyList implements ICollection {
     for (let i = 0; i < this._length; i++) {
       const prevElapsed = this.elapsed[i];
       this.elapsed[i] += deltaTime;
+      this.timeSinceLastMove[i] += deltaTime;
       this.timeUntilNextMove[i] -= deltaTime;
       // handle prey movement
       if (this.timeUntilNextMove[i] <= 0) {
@@ -104,6 +109,10 @@ export class PreyList implements ICollection {
             }
           }
           didChange = coord !== this.coord[i];
+          if (didChange) {
+            this.prevCoord[i] = coord;
+            this.timeSinceLastMove[i] = 0;
+          }
         }
       };
       // determine did animation frame change
@@ -136,6 +145,22 @@ export class PreyList implements ICollection {
     return idx >= 0 && idx < this._length;
   }
 
+  public wasAt = (x: number, y: number, timeWindow: number): number => {
+    return this.wasAtCoord(getCoordIndex2(x, y), timeWindow);
+  }
+
+  public wasAtCoord = (coord: number, timeWindow: number): number => {
+    const idx = this.prevCoord.indexOf(coord);
+    const exists = idx >= 0 && idx < this._length;
+    if (!exists) {
+      return -1;
+    }
+    if (this.timeSinceLastMove[idx] > timeWindow) {
+      return -1;
+    }
+    return this.coord[idx];
+  }
+
   public getClosestTraversalDistance = (x: number, y: number): number => {
     let min = Infinity;
     for (let i = 0; i < this._length; i++) {
@@ -160,8 +185,10 @@ export class PreyList implements ICollection {
     }
     this.type[this._length] = preyType;
     this.targetCoord[this._length] = -1;
+    this.prevCoord[this._length] = -1;
     this.coord[this._length] = coord;
     this.timeUntilNextMove[this._length] = this.moveTime(preyType);
+    this.timeSinceLastMove[this._length] = Infinity;
     this.lifetime[this._length] = PREY_LIFETIME;
     this.elapsed[this._length] = 0;
     this.flipx[this._length] = 0;
@@ -189,7 +216,9 @@ export class PreyList implements ICollection {
       this.type[i] = this.type[i + 1];
       this.coord[i] = this.coord[i + 1];
       this.targetCoord[i] = this.coord[i + 1];
+      this.prevCoord[i] = this.coord[i + 1];
       this.timeUntilNextMove[i] = this.timeUntilNextMove[i + 1];
+      this.timeSinceLastMove[i] = this.timeSinceLastMove[i + 1];
       this.lifetime[i] = this.lifetime[i + 1];
       this.elapsed[i] = this.elapsed[i + 1];
       this.flipx[i] = this.flipx[i + 1];
@@ -198,7 +227,9 @@ export class PreyList implements ICollection {
     this.type[this._length - 1] = PreyType.None;
     this.coord[this._length - 1] = 0;
     this.targetCoord[this._length - 1] = -1;
+    this.prevCoord[this._length - 1] = -1;
     this.timeUntilNextMove[this._length - 1] = 0;
+    this.timeSinceLastMove[this._length - 1] = Infinity;
     this.lifetime[this._length - 1] = 0;
     this.elapsed[this._length - 1] = 0;
     this.flipx[this._length - 1] = 0;
