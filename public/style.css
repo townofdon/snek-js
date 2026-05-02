@@ -134,6 +134,9 @@ html, body, main {
 main div {
   cursor: none;
 }
+canvas {
+  filter: none;
+}
 canvas:not('#editor-canvas') {
   cursor: none;
 }
@@ -184,6 +187,9 @@ p, button, .button {
 }
 .game.hide-gfx-canvas > .static-gfx-canvas {
   display: none!important;
+}
+.game.showing-death-colors > .containment > canvas {
+  filter: grayscale(1);
 }
 .game.showing-death-colors > .containment > .static-gfx-canvas {
   filter: grayscale(1);
