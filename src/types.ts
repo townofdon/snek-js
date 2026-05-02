@@ -216,7 +216,8 @@ export interface GameState {
    * Time elapsed since the player initiated a reversal (via the Reversible pickup)
    */
   timeSinceReverseStart: number,
-  timeSinceSpawnedPickup: number,
+  timeSinceSpawnedWeightLossPillPickup: number,
+  timeSinceSpawnedAnyPickup: number,
   /**
    * Time elapsed since the player would have moved into an obstacle (hit grace period).
   */
@@ -1175,6 +1176,9 @@ export enum ItemDropType {
   Invincibility,
   Armor,
   Mine,
+  ExplodableBarrel,
+  LaserDiode,
+  Spikes,
   HealthPack,
   WeightLossPill,
   Reversibility,

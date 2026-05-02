@@ -627,8 +627,11 @@ export function engine({
     state.timeSinceHurt = Infinity;
     state.timeSinceHurtForgiveness = Infinity;
     state.timeSinceInvincibleStart = Infinity;
+    state.timeSinceReverseStart = Infinity;
     state.timeSinceArmorPickup = Infinity;
     state.timeSinceArmorProtection = Infinity;
+    state.timeSinceSpawnedAnyPickup = Infinity;
+    state.timeSinceSpawnedWeightLossPillPickup = Infinity;
     state.timeSinceGraceStarted = 0;
     state.lives = state.gameMode === GameMode.Cobra ? state.lives : MAX_LIVES;
     state.collisions = 0;
@@ -1128,7 +1131,8 @@ export function engine({
     state.timeSinceReverseStart += loopState.deltaTime;
     state.timeSinceArmorPickup += loopState.deltaTime;
     state.timeSinceArmorProtection += loopState.deltaTime;
-    state.timeSinceSpawnedPickup += loopState.deltaTime;
+    state.timeSinceSpawnedAnyPickup += loopState.deltaTime;
+    state.timeSinceSpawnedWeightLossPillPickup += loopState.deltaTime;
     state.timeSinceLastInput += loopState.deltaTime;
     state.timeSinceLastTeleport += loopState.deltaTime;
     state.frameCount += 1;
