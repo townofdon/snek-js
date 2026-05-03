@@ -30,6 +30,7 @@ import {
 } from "@/types";
 import {
   checkHasPortalAtLocation,
+  checkIsMoving,
   clamp,
   dirToUnitVector,
   getBestPortalExitDirection,
@@ -188,7 +189,7 @@ export function engineMovement({
       state.isLost = true;
       state.lastHurtBy = HitType.QuantumEntanglement;
     }
-    // apply system rotation to es.recentInputs and es.recentMoves so that special es.moves (u-turn, etc) still work
+    // apply system rotation to es.recentInputs and es.recentMoves so that special moves (u-turn, etc) still work
     if (prevDir !== newDir) {
       for (let i = 0; i < es.recentMoves.length; i++) {
         es.recentMoves[i] = rotateSystemAfterPortalTraverse(prevDir, newDir, es.recentMoves[i]);
@@ -348,10 +349,7 @@ export function engineMovement({
     if (state.isGameWon) {
       return SPEED_LIMIT_ULTRA_SPRINT;
     }
-    if (state.timeSinceHurt < HURT_STUN_TIME) {
-      return Infinity;
-    }
-    if (state.timeSinceArmorProtection < HURT_STUN_TIME && !state.isRewinding) {
+    if (!checkIsMoving(state, loopState)) {
       return Infinity;
     }
     if (es.difficulty.index === 4 && state.isSprinting) {

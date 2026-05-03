@@ -1015,6 +1015,16 @@ export type SpritesheetImage =
   | Image.UIShieldSheet
 ;
 
+export enum SegmentFrame {
+  None = 0,
+  Test,
+  Path,
+  SkelSegment1,
+  SkelSegment2,
+  SkelSegTurn,
+  SkelHead,
+}
+
 export enum WearableFrame {
   None = 0,
   CowboyHat = 1,

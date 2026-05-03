@@ -405,7 +405,7 @@ export const ANIMATIONS = {
     ],
   } as const satisfies AnimationData,
   [Image.SegmentsSheet]: {
-    frames: 3,
+    frames: 6,
     timePerFrame: 100,
   } as const satisfies AnimationData,
   [Image.MineSheet]: {

@@ -8,6 +8,7 @@ import {
   FRAME_DUR_MS,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
+  HURT_STUN_TIME,
   INVINCIBILITY_EXPIRE_FLASH_MS,
   IS_DEV,
   PICKUP_EXPIRE_WARN_MS,
@@ -33,6 +34,8 @@ import {
   MOVE,
   PickupType,
   PICKUP_TYPE_MAX,
+  GameState,
+  LoopState,
 } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
@@ -124,6 +127,14 @@ export function getDifficultyName(index: number) {
     default:
       throw new Error(`Unexpected difficulty index: ${index}`)
   }
+}
+
+export function checkIsMoving(state: GameState, loopState: LoopState): boolean {
+  if (!state.isMoving) return false;
+  if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+  if (state.timeSinceArmorProtection < HURT_STUN_TIME && !state.isRewinding) return false;
+  if (loopState.timeScale === 0) return false;
+  return true;
 }
 
 export function moveToDir(move: MOVE): DIR | null {

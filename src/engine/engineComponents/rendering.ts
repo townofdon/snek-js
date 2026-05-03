@@ -42,12 +42,16 @@ import {
   Lock,
   PickupRarity,
   PortalChannel,
+  SegmentFrame,
+  LoopState,
 } from "@/types";
 import { UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
 import { Renderer } from "../renderer";
 import { PALETTE } from "@/palettes";
 import { SpriteRenderer } from "../spriteRenderer";
 import {
+  checkIsMoving,
+  dirToUnitVector,
   getCoordIndex,
   getCoordIndex2,
   getDirectionBetween,
@@ -75,6 +79,7 @@ interface EngineRenderingArgs {
   state: GameState,
   es: EngineState,
   drawState: DrawState,
+  loopState: LoopState,
   player: PlayerState,
   segments: VectorList,
   outfit: Outfit,
@@ -97,6 +102,7 @@ export function engineRendering({
   state,
   es,
   drawState,
+  loopState,
   player,
   segments,
   outfit,
@@ -269,6 +275,25 @@ export function engineRendering({
     }
     if (drawState.shouldDrawActionFG) {
       gfxFGAction.clear(0, 0, 0, 0);
+    }
+  }
+
+  let showPlannedMoves = false;
+  function drawPlayerPlannedMoves() {
+    if (!es.moves.length) {
+      showPlannedMoves = false;
+      return;
+    }
+    if (!showPlannedMoves && es.moves.length < 3 && checkIsMoving(state, loopState)) {
+      return;
+    }
+    showPlannedMoves = true;
+    let pos = player.position.copy();
+    for (let i = 0; i < es.moves.length; i++) {
+        const move = es.moves[i];
+        pos.add(dirToUnitVector(move));
+        const { frames } = ANIMATIONS[Image.SegmentsSheet];
+        spriteRenderer.drawImage1x1(gfxPresentation, Image.SegmentsSheet, pos.x, pos.y, 0, 1, 0, SegmentFrame.Path - 1, frames);
     }
   }
 
@@ -1102,6 +1127,7 @@ export function engineRendering({
     cacheGraphicalComponents,
     clearBackground,
     drawBackground,
+    drawPlayerPlannedMoves,
     drawPlayerHead,
     drawPlayerSegment,
     erasePlayerSegmentCorner,

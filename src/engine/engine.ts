@@ -52,6 +52,7 @@ import {
   RARITY_LEGENDARY,
   RARITY_EPIC,
   RARITY_RARE,
+  IS_LOCALHOST,
 } from "../constants";
 import {
   Action,
@@ -239,6 +240,7 @@ export function engine({
   } satisfies DrawState;
   const metrics = {
     gameLoopProcessingTime: 0,
+    gameLoopProcessingTimeMax: 0,
   }
   const player: PlayerState = {
     position: new Vector(0, 0),
@@ -340,6 +342,7 @@ export function engine({
     cacheGraphicalComponents,
     clearBackground,
     drawBackground,
+    drawPlayerPlannedMoves,
     drawPlayerHead,
     drawPlayerSegment,
     erasePlayerSegmentCorner,
@@ -366,6 +369,7 @@ export function engine({
     state,
     es,
     drawState,
+    loopState,
     player,
     segments,
     outfit,
@@ -1291,6 +1295,7 @@ export function engine({
     drawExplosions(explosions);
 
     renderer.drawPlayerMoveArrows(p5, player.position, es.moves.length > 0 ? es.moves[0] : player.direction);
+    drawPlayerPlannedMoves();
 
     for (let i = 0; i < segments.length; i++) {
       drawPlayerSegment(segments.get(i), i);
@@ -1353,7 +1358,7 @@ export function engine({
     renderer.drawRightUI(gfxUIRight, heldItems.armor, heldItems.reversibles);
     renderer.drawTutorialMoveControls(gfxPresentation);
     renderer.drawTutorialRewindControls(gfxPresentation, player.position, rewindAllowed());
-    renderer.drawFps(metrics.gameLoopProcessingTime);
+    renderer.drawFps(gfxPresentation, metrics.gameLoopProcessingTime);
 
     if (state.isLost && state.gameMode !== GameMode.Cobra) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
@@ -1367,7 +1372,16 @@ export function engine({
     handleSnakeExitLevelUI();
 
     renderer.tick();
-    metrics.gameLoopProcessingTime = performance.now() - timeFrameStart;
+
+    if (IS_DEV || IS_LOCALHOST) {
+      metrics.gameLoopProcessingTime = performance.now() - timeFrameStart;
+      if (metrics.gameLoopProcessingTime > metrics.gameLoopProcessingTimeMax) {
+        metrics.gameLoopProcessingTimeMax = metrics.gameLoopProcessingTime;
+        if (metrics.gameLoopProcessingTimeMax > 10) {
+          console.warn(`Long render frame! ${metrics.gameLoopProcessingTimeMax.toFixed(4)}ms`);
+        }
+      }
+    }
 
     return true;
   }

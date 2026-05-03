@@ -26,6 +26,8 @@ import {
   GRIDCOUNT_Y,
   HURT_STUN_TIME,
   INVALID_PORTAL_COLOR,
+  IS_DEV,
+  IS_LOCALHOST,
   MAP_OFFSET,
   NUM_PORTAL_GRADIENT_COLORS,
   PORTAL_CHANNEL_COLORS,
@@ -83,6 +85,7 @@ export class Renderer implements IRenderer {
     this.elapsed = 0;
     this.isStaticCached = false;
     this.spriteRenderer.setIsStaticCached(false);
+    this.perfAllTimeMax = 0;
   }
 
   tick = () => {
@@ -892,18 +895,19 @@ export class Renderer implements IRenderer {
   }
 
   private fpsFrames: number[] = [];
-  drawFps = (gameLoopProcessingTime: number) => {
+  drawFps = (gfx: P5 | P5.Graphics, gameLoopProcessingTime: number) => {
     if (!SHOW_FPS) return;
+    if (!IS_DEV && !IS_LOCALHOST) return;
 
-    this.drawPerf(gameLoopProcessingTime);
+    this.drawPerf(gfx, gameLoopProcessingTime);
     const textX = BLOCK_SIZE.x * (25);
     const textY = BLOCK_SIZE.y * (1);
-    this.p5.fill("#fff");
-    this.p5.stroke("#111");
-    this.p5.strokeWeight(2 * 2);
-    this.p5.textSize(2 * 10);
-    this.p5.textAlign(this.p5.LEFT, this.p5.TOP);
-    this.p5.textFont(this.fonts.variants.miniMood);
+    gfx.fill("#fff");
+    gfx.stroke("#111");
+    gfx.strokeWeight(2 * 2);
+    gfx.textSize(2 * 10);
+    gfx.textAlign(this.p5.LEFT, this.p5.TOP);
+    gfx.textFont(this.fonts.variants.miniMood);
     if (!this.fpsFrames?.length) {
       this.fpsFrames = new Array<number>(20).map(() => this.p5.frameRate());
     } else {
@@ -917,22 +921,23 @@ export class Renderer implements IRenderer {
     const max = Math.max(...this.fpsFrames);
     const padding = 16;
     let y = 0;
-    this.p5.text("FPS", textX, textY);
-    this.p5.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
-    this.p5.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
-    this.p5.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
+    gfx.text("FPS", textX, textY);
+    gfx.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
+    gfx.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
+    gfx.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
   }
 
+  private perfAllTimeMax = 0;
   private perfFrames: number[] = [];
-  private drawPerf = (gameLoopProcessingTime: number) => {
+  private drawPerf = (gfx: P5 | P5.Graphics, gameLoopProcessingTime: number) => {
     const textX = BLOCK_SIZE.x * (21);
     const textY = BLOCK_SIZE.y * (1);
-    this.p5.fill("#fff");
-    this.p5.stroke("#111");
-    this.p5.strokeWeight(2 * 2);
-    this.p5.textSize(2 * 10);
-    this.p5.textAlign(this.p5.LEFT, this.p5.TOP);
-    this.p5.textFont(this.fonts.variants.miniMood);
+    gfx.fill("#fff");
+    gfx.stroke("#111");
+    gfx.strokeWeight(2 * 2);
+    gfx.textSize(2 * 10);
+    gfx.textAlign(this.p5.LEFT, this.p5.TOP);
+    gfx.textFont(this.fonts.variants.miniMood);
     if (!this.perfFrames?.length) {
       this.perfFrames = new Array<number>(20).map(() => gameLoopProcessingTime);
     } else {
@@ -941,15 +946,20 @@ export class Renderer implements IRenderer {
         this.perfFrames[i] = this.perfFrames[i - 1];
       }
     }
+    if (gameLoopProcessingTime > this. perfAllTimeMax) {
+      this.perfAllTimeMax = gameLoopProcessingTime;
+    }
     const avg = this.perfFrames.reduce((acc, cur) => acc + cur, 0) / this.perfFrames.length;
     const min = Math.min(...this.perfFrames);
     const max = Math.max(...this.perfFrames);
+    const atm  = this.perfAllTimeMax;
     const padding = 16;
     let y = 0;
-    this.p5.text("MS", textX, textY);
-    this.p5.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
-    this.p5.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
-    this.p5.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
+    gfx.text("MS", textX, textY);
+    gfx.text("avg=" + avg.toFixed(2), textX, textY + padding * (++y));
+    gfx.text("max=" + max.toFixed(2), textX, textY + padding * (++y));
+    gfx.text("min=" + min.toFixed(2), textX, textY + padding * (++y));
+    gfx.text("atm=" + atm.toFixed(2), textX, textY + padding * (++y));
   }
 
   private getBorderColor = (color: string, variant: 'light' | 'dark'): string => {
