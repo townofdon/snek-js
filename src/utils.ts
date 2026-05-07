@@ -36,6 +36,8 @@ import {
   PICKUP_TYPE_MAX,
   GameState,
   LoopState,
+  ThreatType,
+  THREAT_TYPE_MAX,
 } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
@@ -532,7 +534,12 @@ export const isValidBarrierType = (barrierType: number): barrierType is BarrierT
 
 export const isValidPickupType = (pickupType: number): pickupType is PickupType => {
   if (pickupType === null || pickupType === undefined) return false;
-  return Number.isInteger(pickupType) && pickupType >= 0 && pickupType < PICKUP_TYPE_MAX;
+  return Number.isInteger(pickupType) && pickupType > 0 && pickupType < PICKUP_TYPE_MAX;
+}
+
+export const isValidThreatType = (threatType: number): threatType is ThreatType => {
+  if (threatType === null || threatType === undefined) return false;
+  return Number.isInteger(threatType) && threatType > 0 && threatType < THREAT_TYPE_MAX;
 }
 
 export const isBreakableBarrier = (barrierType: BarrierType): boolean => {

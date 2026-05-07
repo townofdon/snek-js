@@ -1,4 +1,4 @@
-import { BarrierType, FloodFillTile, Level, PickupType } from "../types";
+import { BarrierType, FloodFillTile, Level, PickupType, ThreatType } from "../types";
 import { LEVEL_00 } from "./campaign/level00";
 import { LEVEL_01 } from "./campaign/level01";
 import { LEVEL_02 } from "./campaign/level02";
@@ -235,6 +235,8 @@ export enum TILECHAR {
   Armor = '#',
   HealthPack = '$',
   WeightLossPill = '%',
+  LaserDiode = '^',
+  ExplodableBarrel = '&',
   PlayerSpawn = 'O',
 }
 
@@ -263,6 +265,26 @@ export enum TILECHAR {
   // });
 })();
 
+export const TILE_TO_FLOOD_FILL_TILE: Record<Tile, FloodFillTile> = {
+  [Tile.None]: 0,
+  [Tile.Barrier]: 0,
+  [Tile.Door]: FloodFillTile.Door,
+  [Tile.Deco1]: FloodFillTile.Deco1,
+  [Tile.Deco2]: FloodFillTile.Deco2,
+  [Tile.Apple]: FloodFillTile.Apple,
+  [Tile.Portal]: 0,
+  [Tile.Key]: 0,
+  [Tile.Lock]: 0,
+  [Tile.Spawn]: 0,
+  [Tile.Nospawn]: FloodFillTile.Nospawn,
+  [Tile.Passable]: FloodFillTile.Passable,
+  [Tile.Mine]: FloodFillTile.ThreatMine,
+  [Tile.LaserDiode]: FloodFillTile.ThreatLaserDiode,
+  [Tile.ExplodableBarrel]: FloodFillTile.ThreatExplodableBarrel,
+  [Tile.Invincibility]: FloodFillTile.PickupInvincibility,
+  [Tile.Reversibility]: FloodFillTile.PickupReversibility,
+  [Tile.Armor]: FloodFillTile.PickupArmor,
+} satisfies Record<Tile, FloodFillTile>;
 
 export const BARRIER_TYPE_TO_TILE_CHAR = {
   [BarrierType.Unset]: TILECHAR.None,
@@ -301,8 +323,43 @@ export const BARRIER_TYPE_TO_TILE_CHAR = {
   [BarrierType.MetalPlate2]: TILECHAR.BarrierMetalPlate2,
 } satisfies Record<BarrierType, TILECHAR>;
 
-export const TILE_CHAR_TO_BARRIER_TYPE = {
-  [TILECHAR.None]: 0,
+type TileBarrierType =
+  | TILECHAR.Barrier
+  | TILECHAR.BarrierPassable
+  | TILECHAR.BarrierSkull
+  | TILECHAR.BarrierSkullThemed
+  | TILECHAR.BarrierIndent
+  | TILECHAR.BarrierIndentThemed
+  | TILECHAR.BarrierFireTile
+  | TILECHAR.BarrierFlat
+  | TILECHAR.BarrierFlatThemed
+  | TILECHAR.BarrierPyramid
+  | TILECHAR.BarrierPyramidThemed
+  | TILECHAR.BarrierExitSign
+  | TILECHAR.BarrierRadar
+  | TILECHAR.BarrierComputerChip
+  | TILECHAR.BarrierMetalPlate
+  | TILECHAR.BarrierPanel0
+  | TILECHAR.BarrierPanel1
+  | TILECHAR.BarrierPanel2
+  | TILECHAR.BarrierPanel3
+  | TILECHAR.BarrierPanel4
+  | TILECHAR.BarrierPanel5
+  | TILECHAR.BarrierBrick
+  | TILECHAR.BarrierBrickWhite
+  | TILECHAR.BarrierBrickThemed
+  | TILECHAR.BarrierStone
+  | TILECHAR.BarrierStoneThemed
+  | TILECHAR.BarrierCompPanelWhite
+  | TILECHAR.BarrierCompPanel
+  | TILECHAR.BarrierGrateWhite
+  | TILECHAR.BarrierGrateYellow
+  | TILECHAR.BarrierRuby
+  | TILECHAR.BarrierFanDuct
+  | TILECHAR.BarrierExhaustPlate
+  | TILECHAR.BarrierMetalPlate2;
+
+export const TILE_CHAR_TO_BARRIER_TYPE: Record<TileBarrierType, BarrierType> = {
   [TILECHAR.Barrier]: BarrierType.Default,
   [TILECHAR.BarrierPassable]: BarrierType.Default,
   [TILECHAR.BarrierSkull]: BarrierType.Skull,
@@ -337,42 +394,7 @@ export const TILE_CHAR_TO_BARRIER_TYPE = {
   [TILECHAR.BarrierFanDuct]: BarrierType.FanDuct,
   [TILECHAR.BarrierExhaustPlate]: BarrierType.ExhaustPlate,
   [TILECHAR.BarrierMetalPlate2]: BarrierType.MetalPlate2,
-  [TILECHAR.Door]: 0,
-  [TILECHAR.DoorAlt]: 0,
-  [TILECHAR.Deco1]: 0,
-  [TILECHAR.Deco2]: 0,
-  [TILECHAR.Deco1Alt]: 0,
-  [TILECHAR.Deco2Alt]: 0,
-  [TILECHAR.Apple]: 0,
-  [TILECHAR.AppleAlt]: 0,
-  [TILECHAR.Portal0]: 0,
-  [TILECHAR.Portal1]: 0,
-  [TILECHAR.Portal2]: 0,
-  [TILECHAR.Portal3]: 0,
-  [TILECHAR.Portal4]: 0,
-  [TILECHAR.Portal5]: 0,
-  [TILECHAR.Portal6]: 0,
-  [TILECHAR.Portal7]: 0,
-  [TILECHAR.Portal8]: 0,
-  [TILECHAR.Portal9]: 0,
-  [TILECHAR.BarrierKeyYellow]: 0,
-  [TILECHAR.BarrierKeyRed]: 0,
-  [TILECHAR.BarrierKeyBlue]: 0,
-  [TILECHAR.KeyYellow]: 0,
-  [TILECHAR.KeyRed]: 0,
-  [TILECHAR.KeyBlue]: 0,
-  [TILECHAR.LockYellow]: 0,
-  [TILECHAR.LockRed]: 0,
-  [TILECHAR.LockBlue]: 0,
-  [TILECHAR.Nospawn]: 0,
-  [TILECHAR.Mine]: 0,
-  [TILECHAR.Invincibility]: 0,
-  [TILECHAR.PlayerSpawn]: 0,
-  [TILECHAR.Reversibility]: 0,
-  [TILECHAR.Armor]: 0,
-  [TILECHAR.HealthPack]: 0,
-  [TILECHAR.WeightLossPill]: 0,
-} satisfies Record<TILECHAR, BarrierType>;
+} satisfies Record<TileBarrierType, BarrierType>;
 
 export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
   [BarrierType.Unset]: FloodFillTile.None,
@@ -468,7 +490,9 @@ export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<FloodFillTile, BarrierType>
   [FloodFillTile.LockRed]: 0,
   [FloodFillTile.LockBlue]: 0,
   [FloodFillTile.Nospawn]: 0,
-  [FloodFillTile.Mine]: 0,
+  [FloodFillTile.ThreatMine]: 0,
+  [FloodFillTile.ThreatLaserDiode]: 0,
+  [FloodFillTile.ThreatExplodableBarrel]: 0,
   [FloodFillTile.PickupInvincibility]: 0,
   [FloodFillTile.PickupReversibility]: 0,
   [FloodFillTile.PickupArmor]: 0,
@@ -567,67 +591,62 @@ export const PICKUP_TYPE_TO_FLOOD_FILL_TILE: Record<PickupType, FloodFillTile> =
   [PickupType.ChiliPepper]: 0,
 } satisfies Record<PickupType, FloodFillTile>;
 
-export const FLOOD_FILL_TILE_TO_PICKUP_TYPE: Record<FloodFillTile, 0 | PowerupPickup> = {
-  [FloodFillTile.None]: 0,
-  [FloodFillTile.Passable]: 0,
-  [FloodFillTile.Barrier]: 0,
-  [FloodFillTile.BarrierSkull]: 0,
-  [FloodFillTile.BarrierSkullThemed]: 0,
-  [FloodFillTile.BarrierIndent]: 0,
-  [FloodFillTile.BarrierIndentThemed]: 0,
-  [FloodFillTile.BarrierFireTile]: 0,
-  [FloodFillTile.BarrierFlat]: 0,
-  [FloodFillTile.BarrierFlatThemed]: 0,
-  [FloodFillTile.BarrierPyramid]: 0,
-  [FloodFillTile.BarrierPyramidThemed]: 0,
-  [FloodFillTile.BarrierExitSign]: 0,
-  [FloodFillTile.BarrierRadar]: 0,
-  [FloodFillTile.BarrierComputerChip]: 0,
-  [FloodFillTile.BarrierMetalPlate]: 0,
-  [FloodFillTile.BarrierPanel0]: 0,
-  [FloodFillTile.BarrierPanel1]: 0,
-  [FloodFillTile.BarrierPanel2]: 0,
-  [FloodFillTile.BarrierPanel3]: 0,
-  [FloodFillTile.BarrierPanel4]: 0,
-  [FloodFillTile.BarrierPanel5]: 0,
-  [FloodFillTile.BarrierBrick]: 0,
-  [FloodFillTile.BarrierBrickWhite]: 0,
-  [FloodFillTile.BarrierBrickThemed]: 0,
-  [FloodFillTile.BarrierStone]: 0,
-  [FloodFillTile.BarrierStoneThemed]: 0,
-  [FloodFillTile.BarrierPanelWhite]: 0,
-  [FloodFillTile.BarrierCompPanel]: 0,
-  [FloodFillTile.BarrierGrateWhite]: 0,
-  [FloodFillTile.BarrierGrateYellow]: 0,
-  [FloodFillTile.BarrierRuby]: 0,
-  [FloodFillTile.BarrierFanDuct]: 0,
-  [FloodFillTile.BarrierExhaustPlate]: 0,
-  [FloodFillTile.BarrierMetalPlate2]: 0,
-  [FloodFillTile.Door]: 0,
-  [FloodFillTile.Deco1]: 0,
-  [FloodFillTile.Deco2]: 0,
-  [FloodFillTile.Apple]: 0,
-  [FloodFillTile.Portal0]: 0,
-  [FloodFillTile.Portal1]: 0,
-  [FloodFillTile.Portal2]: 0,
-  [FloodFillTile.Portal3]: 0,
-  [FloodFillTile.Portal4]: 0,
-  [FloodFillTile.Portal5]: 0,
-  [FloodFillTile.Portal6]: 0,
-  [FloodFillTile.Portal7]: 0,
-  [FloodFillTile.Portal8]: 0,
-  [FloodFillTile.Portal9]: 0,
-  [FloodFillTile.KeyYellow]: 0,
-  [FloodFillTile.KeyRed]: 0,
-  [FloodFillTile.KeyBlue]: 0,
-  [FloodFillTile.LockYellow]: 0,
-  [FloodFillTile.LockRed]: 0,
-  [FloodFillTile.LockBlue]: 0,
-  [FloodFillTile.Nospawn]: 0,
-  [FloodFillTile.Mine]: 0,
+type PickupFloodFillTile =
+  | FloodFillTile.PickupInvincibility
+  | FloodFillTile.PickupReversibility
+  | FloodFillTile.PickupArmor
+  | FloodFillTile.PickupHealthPack
+  | FloodFillTile.PickupWeightLossPill;
+
+export const FLOOD_FILL_TILE_TO_PICKUP_TYPE: Record<PickupFloodFillTile, 0 | PowerupPickup> = {
   [FloodFillTile.PickupInvincibility]: PickupType.Invincibility,
   [FloodFillTile.PickupReversibility]: PickupType.Reversibility,
   [FloodFillTile.PickupArmor]: PickupType.Armor,
   [FloodFillTile.PickupHealthPack]: PickupType.HealthPack,
   [FloodFillTile.PickupWeightLossPill]: PickupType.WeightLossPill,
-} satisfies Record<FloodFillTile, 0 | PowerupPickup>;
+} satisfies Record<PickupFloodFillTile, 0 | PowerupPickup>;
+
+type ThreatTileChar =
+  | TILECHAR.Mine
+  | TILECHAR.LaserDiode
+  | TILECHAR.ExplodableBarrel;
+
+type ThreatFloodFillTile =
+  | FloodFillTile.None
+  | FloodFillTile.ThreatMine
+  | FloodFillTile.ThreatLaserDiode
+  | FloodFillTile.ThreatExplodableBarrel;
+
+export const THREAT_TYPE_TO_TILE_CHAR: Record<ThreatType, TILECHAR> = {
+  [ThreatType.None]: TILECHAR.None,
+  [ThreatType.Mine]: TILECHAR.Mine,
+  [ThreatType.LaserDiode]: TILECHAR.LaserDiode,
+  [ThreatType.ExplodableBarrel]: TILECHAR.ExplodableBarrel,
+} satisfies Record<ThreatType, TILECHAR>;
+
+export const TILE_CHAR_TO_THREAT_TYPE = {
+  [TILECHAR.Mine]: ThreatType.Mine,
+  [TILECHAR.LaserDiode]: ThreatType.LaserDiode,
+  [TILECHAR.ExplodableBarrel]: ThreatType.ExplodableBarrel,
+} satisfies Record<ThreatTileChar, ThreatType>;
+
+export const THREAT_TYPE_TO_TILE: Record<ThreatType, Tile> = {
+  [ThreatType.None]: 0,
+  [ThreatType.Mine]: Tile.Mine,
+  [ThreatType.LaserDiode]: Tile.LaserDiode,
+  [ThreatType.ExplodableBarrel]: Tile.ExplodableBarrel,
+} satisfies Record<ThreatType, Tile>;
+
+export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> = {
+  [ThreatType.None]: 0,
+  [ThreatType.Mine]: FloodFillTile.ThreatMine,
+  [ThreatType.LaserDiode]: FloodFillTile.ThreatLaserDiode,
+  [ThreatType.ExplodableBarrel]: FloodFillTile.ThreatExplodableBarrel,
+} satisfies Record<ThreatType, FloodFillTile>
+
+export const FLOOD_FILL_TILE_TO_THREAT_TYPE: Record<ThreatFloodFillTile, ThreatType> = {
+  [FloodFillTile.None]: 0,
+  [FloodFillTile.ThreatMine]: ThreatType.Mine,
+  [FloodFillTile.ThreatLaserDiode]: ThreatType.LaserDiode,
+  [FloodFillTile.ThreatExplodableBarrel]: ThreatType.ExplodableBarrel,
+} satisfies Record<ThreatFloodFillTile, ThreatType>;

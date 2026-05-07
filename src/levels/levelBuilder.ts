@@ -3,7 +3,7 @@ import { DEFAULT_PORTALS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { BarrierType, Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./campaign/level01";
-import { TILE_CHAR_TO_BARRIER_TYPE, TILE_CHAR_TO_PICKUP_TYPE, TILECHAR } from "./levelConstants";
+import { TILE_CHAR_TO_BARRIER_TYPE, TILE_CHAR_TO_PICKUP_TYPE, TILE_CHAR_TO_THREAT_TYPE, TILECHAR } from "./levelConstants";
 
 export function buildLevel(level: Level, isEditor = false): LevelData {
   const data: LevelData = {
@@ -13,7 +13,7 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
     doors: [],
     doorsMap: {},
     apples: [],
-    mines: [],
+    threats: [],
     pickups: [],
     fireTiles: [],
     decoratives1: [],
@@ -75,7 +75,7 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
       const vec = new Vector(x, y);
       const coord = getCoordIndex(vec);
 
-      const barrierType = TILE_CHAR_TO_BARRIER_TYPE[char];
+      const barrierType: BarrierType = TILE_CHAR_TO_BARRIER_TYPE[char] || BarrierType.Unset;
       if (barrierType) {
         if (char === TILECHAR.BarrierPassable) {
           passables.push(vec);
@@ -88,6 +88,12 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
       if (pickupType) {
         data.pickups.push({ vec, type: pickupType });
         continue;
+      }
+
+      const threatType = TILE_CHAR_TO_THREAT_TYPE[char];
+      if (threatType) {
+        data.threats.push({ vec, type: threatType });
+        data.decoratives2.push(vec);
       }
 
       switch (char) {
@@ -134,13 +140,6 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
         case TILECHAR.AppleAlt:
           data.nospawns.push(vec);
           data.apples.push(vec);
-          break;
-
-
-        // mines
-        case TILECHAR.Mine:
-          data.mines.push(vec);
-          data.decoratives2.push(vec);
           break;
 
         // keys / locks

@@ -95,6 +95,7 @@ import {
   Outfit,
   HeldItems,
   EngineState,
+  ThreatType,
 } from "../types";
 import {
   clamp,
@@ -838,11 +839,18 @@ export function engine({
     });
 
     // add initial mines
-    for (let i = 0; i < levelData.mines.length; i++) {
-      const x = levelData.mines[i].x;
-      const y = levelData.mines[i].y;
+    for (let i = 0; i < levelData.threats.length; i++) {
+      const x = levelData.threats[i].vec.x;
+      const y = levelData.threats[i].vec.y;
+      const threatType = levelData.threats[i].type;
       const lifetime = 99999999; // improbably high lifetime = never despawn
-      mines.add(x, y, lifetime, ANIMATIONS[Image.MineSheet].frames, ANIMATIONS[Image.MineSheet].timePerFrame);
+      if (threatType === ThreatType.Mine) {
+        mines.add(x, y, lifetime, ANIMATIONS[Image.MineSheet].frames, ANIMATIONS[Image.MineSheet].timePerFrame);
+      } else if (threatType === ThreatType.LaserDiode) {
+        // TODO: ADD DIODE
+      } else if (threatType === ThreatType.ExplodableBarrel) {
+        // TODO: ADD EXPLODABLE BARRELS
+      }
     }
 
     // add initial pickups

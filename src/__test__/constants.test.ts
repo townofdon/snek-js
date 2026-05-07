@@ -1,5 +1,5 @@
 import assert from "assert";
-import { DEBUG_EASY_LEVEL_EXIT } from "@/constants";
+import { DEBUG_EASY_LEVEL_EXIT, RECORD_REPLAY_STATE, SHOW_FPS } from "@/constants";
 
 describe("Constants", () => {
   describe("DEBUG_EASY_LEVEL_EXIT", () => {

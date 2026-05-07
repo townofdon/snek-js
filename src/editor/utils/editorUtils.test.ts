@@ -5,7 +5,7 @@ import { buildLevel } from "../../levels/levelBuilder";
 import { LEVEL_01 } from "../../levels/campaign/level01";
 import { LEVEL_10 } from "../../levels/campaign/level10";
 import { LEVELS } from "../../levels/levelConstants";
-import { BarrierType, DIR, EditorData, EditorOptions, KeyChannel, Level, LevelType, MusicTrack, PickupType, PortalExitMode } from "../../types"
+import { BarrierType, DIR, EditorData, EditorOptions, KeyChannel, Level, LevelType, MusicTrack, PickupType, PortalExitMode, ThreatType } from "../../types"
 import { coordToVec, getCoordIndex2 } from "../../utils";
 
 import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "./editorUtils"
@@ -67,7 +67,7 @@ describe('editorUtils', () => {
         decoratives2Map: {},
         nospawnsMap: {},
         applesMap: {},
-        minesMap: {},
+        threatsMap: {},
         pickupsMap: {},
         keysMap: {},
         locksMap: {},
@@ -130,7 +130,7 @@ describe('editorUtils', () => {
         decoratives2Map: { 9: true, 10: true },
         nospawnsMap: { 11: true, 12: true },
         applesMap: { 13: true, 14: true },
-        minesMap: {},
+        threatsMap: {},
         pickupsMap: {},
         keysMap: { 15: KeyChannel.Yellow, 16: KeyChannel.Red, 17: KeyChannel.Blue },
         locksMap: { 18: KeyChannel.Yellow, 19: KeyChannel.Red, 20: KeyChannel.Blue },
@@ -225,7 +225,7 @@ describe('editorUtils', () => {
         decoratives2Map: {},
         nospawnsMap: {},
         applesMap: {},
-        minesMap: {},
+        threatsMap: {},
         pickupsMap: {},
         keysMap: {},
         locksMap: {},
@@ -320,7 +320,7 @@ describe('editorUtils', () => {
     it('should build a map layout correctly for all possible types', () => {
       const data: EditorData = {
         applesMap: { 0: true },
-        minesMap: { 60: true },
+        threatsMap: { 60: ThreatType.Mine },
         pickupsMap: { 61: PickupType.Invincibility },
         barriersMap: {
           1: BarrierType.Default,
@@ -410,7 +410,7 @@ describe('editorUtils', () => {
           const expectedLayout = level.layout;
           const data: EditorData = {
             applesMap: {},
-            minesMap: {},
+            threatsMap: {},
             pickupsMap: {},
             barriersMap: { ...levelData.barriersMap },
             passablesMap: { ...levelData.passablesMap },
@@ -442,9 +442,9 @@ describe('editorUtils', () => {
             const coord = getCoordIndex2(apple.x, apple.y);
             data.applesMap[coord] = true;
           });
-          levelData.mines.forEach(mine => {
-            const coord = getCoordIndex2(mine.x, mine.y);
-            data.minesMap[coord] = true;
+          levelData.threats.forEach(threat => {
+            const coord = getCoordIndex2(threat.vec.x, threat.vec.y);
+            data.threatsMap[coord] = threat.type;
           });
           levelData.pickups.forEach(item => {
             const coord = getCoordIndex2(item.vec.x, item.vec.y);

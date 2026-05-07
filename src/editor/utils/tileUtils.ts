@@ -18,6 +18,8 @@ export const getTileLabel = (tile: Tile): string | null => {
     [Tile.Invincibility]: 'invincibility',
     [Tile.Armor]: 'armor',
     [Tile.Reversibility]: 'reversibility',
+    [Tile.LaserDiode]: 'laser diode',
+    [Tile.ExplodableBarrel]: 'explodable barrel',
   } satisfies Record<Tile, string>)[tile];
 }
 
@@ -39,5 +41,7 @@ export const getTileExplanation = (tile: Tile): string => {
     [Tile.Invincibility]: 'makes the player invincible for a short time',
     [Tile.Armor]: 'gives the player damage protection',
     [Tile.Reversibility]: 'allows player to reverse at will',
+    [Tile.LaserDiode]: 'emits damaging beam to nearby adjacent diodes',
+    [Tile.ExplodableBarrel]: 'explodes upon impact',
   } satisfies Record<Tile, string>)[tile];
 }

@@ -585,6 +585,19 @@ export interface LevelPickup {
   vec: Vector,
 }
 
+export interface LevelThreat {
+  type: ThreatType,
+  vec: Vector,
+}
+
+export enum ThreatType {
+  None = 0,
+  Mine,
+  LaserDiode,
+  ExplodableBarrel,
+}
+export const THREAT_TYPE_MAX = Math.max(...Object.values(ThreatType).filter(v => typeof v === 'number')) + 1;
+
 export enum FloodFillTile {
   None,
   Passable,
@@ -642,7 +655,9 @@ export enum FloodFillTile {
   LockRed,
   LockBlue,
   Nospawn,
-  Mine,
+  ThreatMine,
+  ThreatLaserDiode,
+  ThreatExplodableBarrel,
   PickupInvincibility,
   PickupReversibility,
   PickupArmor,
@@ -698,7 +713,7 @@ export type Maybe<T> = T | null | undefined;
 
 export interface EditorData {
   applesMap: Record<number, Maybe<boolean>>,
-  minesMap: Record<number, Maybe<boolean>>,
+  threatsMap: Record<number, ThreatType>,
   pickupsMap: Record<number, PickupType>,
   barriersMap: Record<number, Maybe<BarrierType>>,
   decoratives1Map: Record<number, Maybe<boolean>>,
@@ -716,7 +731,7 @@ export interface EditorData {
 export interface EditorDataSlice {
   coord: number,
   apple: Maybe<boolean>,
-  mine: Maybe<boolean>,
+  threat: Maybe<ThreatType>,
   pickup: Maybe<PickupType>,
   barrier: Maybe<BarrierType>,
   deco1: Maybe<boolean>,
@@ -735,7 +750,7 @@ export interface LevelData {
   barriers: Barrier[],
   doors: Vector[],
   apples: Vector[],
-  mines: Vector[],
+  threats: LevelThreat[],
   pickups: LevelPickup[],
   fireTiles: Vector[],
   decoratives1: Vector[],
@@ -948,6 +963,8 @@ export enum Image {
   EditorSelectionBlue = 'editor-selection-blue.png',
   EditorSelectionRed = 'editor-selection-red.png',
   MineSheet = 'snek-mine-sheet.png',
+  ThreatSheet16 = 'snek-threats-16.png',
+  ThreatSheet48 = 'snek-threats-48.png',
   ExplosionSheet = 'snek-explosion-sheet.png',
   WearablesSheet = 'snek-wearables.png',
   DoorLightSheet = 'snek-door-light-sheet.png',
@@ -1014,6 +1031,63 @@ export type SpritesheetImage =
   | Image.PickupOutlineBlueSheet
   | Image.UIShieldSheet
 ;
+
+export enum Threat48Frame {
+  None = 0,
+  RedTarget0,
+  RedTarget1,
+  RedTarget2,
+  YellowTarget0,
+  YellowTarget1,
+  YellowTarget2,
+  Barrel,
+  BarrelFireA0,
+  BarrelFireA1,
+  BarrelFireA2,
+  BarrelFireA3,
+  BarrelFireB0,
+  BarrelFireB1,
+  BarrelFireB2,
+  BarrelFireB3,
+  BarrelRupture0,
+  BarrelRupture1,
+  BarrelRupture2,
+  BarrelRupture3,
+}
+export const FRAME_COUNT_THREAT_48 = Math.max(...Object.values(Threat48Frame).filter(v => typeof v === 'number'));
+
+export enum Threat16Frame {
+  None = 0,
+  DiodeOff,
+  DiodeCrit0,
+  DiodeCrit1,
+  DiodeLightRed,
+  DiodeLightBlue,
+  DiodeRed0,
+  DiodeRed1,
+  DiodeRed2,
+  DiodeRed3,
+  DiodeBlue0,
+  DiodeBlue1,
+  DiodeBlue2,
+  DiodeBlue3,
+  LaserRed0,
+  LaserRed1,
+  LaserRed2,
+  LaserRed3,
+  LaserBlue0,
+  LaserBlue1,
+  LaserBlue2,
+  LaserBlue3,
+  ClawMount,
+  ClawArm,
+  ClawOpen,
+  ClawClosed,
+  WarningSignYellow,
+  WarningSignRed0,
+  WarningSignRed1,
+}
+export const FRAME_COUNT_THREAT_16 = Math.max(...Object.values(Threat16Frame).filter(v => typeof v === 'number'));
 
 export enum SegmentFrame {
   None = 0,

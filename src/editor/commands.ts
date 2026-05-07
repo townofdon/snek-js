@@ -1,7 +1,7 @@
 import { Vector } from "p5";
 
 import { SetStateValue, Tile } from "./editorTypes";
-import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PortalChannel } from "../types";
+import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PortalChannel, ThreatType } from "../types";
 import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidBarrierType, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
 import { deepCloneData, getEditorDataFromLevel, mergeData, mergeDataSlice } from "./utils/editorUtils";
 import { tileFloodFill } from "./utils/floodFill";
@@ -40,7 +40,7 @@ abstract class SetElementCommand implements Command {
     this.initial = {
       coord: this.coord,
       apple: data.applesMap[this.coord],
-      mine: data.minesMap[this.coord],
+      threat: data.threatsMap[this.coord],
       pickup: data.pickupsMap[this.coord],
       barrier: data.barriersMap[this.coord],
       deco1: data.decoratives1Map[this.coord],
@@ -57,7 +57,7 @@ abstract class SetElementCommand implements Command {
     this.newData = {
       coord: this.coord,
       apple: false,
-      mine: false,
+      threat: 0,
       pickup: 0,
       barrier: 0,
       deco1: false,
@@ -116,7 +116,7 @@ export class DeleteElementCommand extends SetElementCommand {
     super(coord, data, setData, rollbackLastCoordUpdated);
     if (
       !data.applesMap[this.coord] &&
-      !data.minesMap[this.coord] &&
+      !data.threatsMap[this.coord] &&
       !data.pickupsMap[this.coord] &&
       !data.barriersMap[this.coord] &&
       !data.decoratives1Map[this.coord] &&
@@ -149,10 +149,34 @@ export class SetMineCommand extends SetElementCommand {
   public readonly name = 'Draw Mine';
   public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.minesMap[this.coord]) {
+    if (data.threatsMap[this.coord]) {
       this.newData = null;
     } else {
-      this.newData.mine = true;
+      this.newData.threat = ThreatType.Mine;
+    }
+  }
+}
+
+export class SetLaserDiodeCommand extends SetElementCommand {
+  public readonly name = 'Draw Laser Diode';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (data.threatsMap[this.coord]) {
+      this.newData = null;
+    } else {
+      this.newData.threat = ThreatType.LaserDiode;
+    }
+  }
+}
+
+export class SetExplodableBarrelCommand extends SetElementCommand {
+  public readonly name = 'Draw Explodable Barrel';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (data.threatsMap[this.coord]) {
+      this.newData = null;
+    } else {
+      this.newData.threat = ThreatType.ExplodableBarrel;
     }
   }
 }
@@ -348,7 +372,7 @@ abstract class SetBatchElementsCommand implements Command {
     this.newData = {
       coord: -1,
       apple: false,
-      mine: false,
+      threat: 0,
       pickup: 0,
       barrier: 0,
       deco1: false,
@@ -461,7 +485,7 @@ export class DeleteLineCommand extends SetLineCommand {
   protected test = (coord: number) => {
     return (
       this.dataRef.current.applesMap[coord] ||
-      this.dataRef.current.minesMap[coord] ||
+      !!this.dataRef.current.threatsMap[coord] ||
       !!this.dataRef.current.pickupsMap[coord] ||
       !!this.dataRef.current.barriersMap[coord] ||
       this.dataRef.current.decoratives1Map[coord] ||
@@ -491,10 +515,32 @@ export class SetLineMineCommand extends SetLineCommand {
   public readonly name = 'Draw Mine';
   public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
-    this.newData.mine = true;
+    this.newData.threat = ThreatType.Mine;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.minesMap[coord];
+    return !this.dataRef.current.threatsMap[coord];
+  };
+}
+
+export class SetLineLaserDiodeCommand extends SetLineCommand {
+  public readonly name = 'Draw Laser Diode';
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.newData.threat = ThreatType.LaserDiode;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.threatsMap[coord];
+  };
+}
+
+export class SetLineExplodableBarrelCommand extends SetLineCommand {
+  public readonly name = 'Draw Explodable Barrel';
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.newData.threat = ThreatType.ExplodableBarrel;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.threatsMap[coord];
   };
 }
 
@@ -699,7 +745,7 @@ export class DeleteRectangleCommand extends SetRectangleCommand {
   protected test = (coord: number) => {
     return (
       this.dataRef.current.applesMap[coord] ||
-      this.dataRef.current.minesMap[coord] ||
+      !!this.dataRef.current.threatsMap[coord] ||
       !!this.dataRef.current.pickupsMap ||
       !!this.dataRef.current.barriersMap[coord] ||
       this.dataRef.current.decoratives1Map[coord] ||
@@ -729,10 +775,32 @@ export class SetRectangleMineCommand extends SetRectangleCommand {
   public readonly name = 'Draw Mine';
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.newData.mine = true;
+    this.newData.threat = ThreatType.Mine;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.minesMap[coord];
+    return !this.dataRef.current.threatsMap[coord];
+  };
+}
+
+export class SetRectangleLaserDiodeCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Laser Diode';
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.threat = ThreatType.LaserDiode;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.threatsMap[coord];
+  };
+}
+
+export class SetRectangleExplodableBarrelCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Explodable Barrel';
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.threat = ThreatType.ExplodableBarrel;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.threatsMap[coord];
   };
 }
 
@@ -977,7 +1045,7 @@ export class ClearAllCommand implements Command {
     try {
       const newData: EditorData = {
         applesMap: {},
-        minesMap: {},
+        threatsMap: {},
         pickupsMap: {},
         barriersMap: {},
         decoratives1Map: {},

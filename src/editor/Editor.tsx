@@ -24,16 +24,20 @@ import {
   SetDecorative1Command,
   SetDecorative2Command,
   SetDoorCommand,
+  SetExplodableBarrelCommand,
   SetInvincibilityCommand,
   SetKeyCommand,
+  SetLaserDiodeCommand,
   SetLineAppleCommand,
   SetLineArmorCommand,
   SetLineBarrierCommand,
   SetLineDeco1Command,
   SetLineDeco2Command,
   SetLineDoorCommand,
+  SetLineExplodableBarrelCommand,
   SetLineInvincibilityCommand,
   SetLineKeyCommand,
+  SetLineLaserDiodeCommand,
   SetLineLockCommand,
   SetLineMineCommand,
   SetLineNospawnCommand,
@@ -52,8 +56,10 @@ import {
   SetRectangleDeco1Command,
   SetRectangleDeco2Command,
   SetRectangleDoorCommand,
+  SetRectangleExplodableBarrelCommand,
   SetRectangleInvincibilityCommand,
   SetRectangleKeyCommand,
+  SetRectangleLaserDiodeCommand,
   SetRectangleLockCommand,
   SetRectangleMineCommand,
   SetRectangleNospawnCommand,
@@ -178,7 +184,9 @@ export const Editor = () => {
         [Tile.Portal]: Tile.Key,
         [Tile.Spawn]: Tile.Portal,
         [Tile.Mine]: Tile.Spawn,
-        [Tile.Invincibility]: Tile.Mine,
+        [Tile.LaserDiode]: Tile.Mine,
+        [Tile.ExplodableBarrel]: Tile.LaserDiode,
+        [Tile.Invincibility]: Tile.ExplodableBarrel,
         [Tile.Armor]: Tile.Invincibility,
         [Tile.Reversibility]: Tile.Armor,
       }[tileRef.current]);
@@ -196,7 +204,9 @@ export const Editor = () => {
         [Tile.Key]: Tile.Portal,
         [Tile.Portal]: Tile.Spawn,
         [Tile.Spawn]: Tile.Mine,
-        [Tile.Mine]: Tile.Invincibility,
+        [Tile.Mine]: Tile.LaserDiode,
+        [Tile.LaserDiode]: Tile.ExplodableBarrel,
+        [Tile.ExplodableBarrel]: Tile.Invincibility,
         [Tile.Invincibility]: Tile.Armor,
         [Tile.Armor]: Tile.Reversibility,
         [Tile.Reversibility]: Tile.Barrier,
@@ -218,6 +228,10 @@ export const Editor = () => {
         return new SetAppleCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Mine:
         return new SetMineCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.LaserDiode:
+        return new SetLaserDiodeCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.ExplodableBarrel:
+        return new SetExplodableBarrelCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Invincibility:
         return new SetInvincibilityCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Reversibility:
@@ -259,6 +273,10 @@ export const Editor = () => {
         return new SetLineAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Mine:
         return new SetLineMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.LaserDiode:
+        return new SetLineLaserDiodeCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.ExplodableBarrel:
+        return new SetLineExplodableBarrelCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Invincibility:
         return new SetLineInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Reversibility:
@@ -300,6 +318,10 @@ export const Editor = () => {
         return new SetRectangleAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Mine:
         return new SetRectangleMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.LaserDiode:
+        return new SetRectangleLaserDiodeCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.ExplodableBarrel:
+        return new SetRectangleExplodableBarrelCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Invincibility:
         return new SetRectangleInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Reversibility:

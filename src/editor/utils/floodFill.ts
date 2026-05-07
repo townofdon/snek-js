@@ -1,29 +1,51 @@
 import { GRIDCOUNT_X, GRIDCOUNT_Y } from "../../constants";
-import { BarrierType, EditorData, EditorDataSlice, FloodFillTile, KeyChannel, PortalChannel } from "../../types";
+import {
+  BarrierType,
+  EditorData,
+  EditorDataSlice,
+  FloodFillTile,
+  KeyChannel,
+  PortalChannel,
+} from "../../types";
 import { Tile } from "../editorTypes";
-import { getCoordIndex2, isValidBarrierType, isValidKeyChannel, isValidPickupType, isValidPortalChannel } from "../../utils";
+import {
+  getCoordIndex2,
+  isValidBarrierType,
+  isValidKeyChannel,
+  isValidPickupType,
+  isValidPortalChannel,
+  isValidThreatType,
+} from "../../utils";
 import { deepCloneData } from "./editorUtils";
-import { BARRIER_TYPE_TO_FLOOD_FILL_TILE, FLOOD_FILL_TILE_TO_BARRIER_TYPE, FLOOD_FILL_TILE_TO_PICKUP_TYPE, PICKUP_TYPE_TO_TILE } from "@/levels/levelConstants";
-
+import {
+  BARRIER_TYPE_TO_FLOOD_FILL_TILE,
+  FLOOD_FILL_TILE_TO_BARRIER_TYPE,
+  FLOOD_FILL_TILE_TO_PICKUP_TYPE,
+  FLOOD_FILL_TILE_TO_THREAT_TYPE,
+  PICKUP_TYPE_TO_TILE,
+  THREAT_TYPE_TO_TILE,
+  TILE_TO_FLOOD_FILL_TILE,
+} from "@/levels/levelConstants";
 
 interface GetTileArgs {
   tile: Tile;
   portalChannel?: PortalChannel;
   keyChannel?: KeyChannel;
-  barrierType?: BarrierType
+  barrierType?: BarrierType;
 }
-function getTile({ tile, portalChannel, keyChannel, barrierType }: GetTileArgs) {
-  if (tile === Tile.Passable) return FloodFillTile.Passable;
-  if (tile === Tile.Door) return FloodFillTile.Door;
-  if (tile === Tile.Apple) return FloodFillTile.Apple;
-  if (tile === Tile.Mine) return FloodFillTile.Mine;
-  if (tile === Tile.Invincibility) return FloodFillTile.PickupInvincibility;
-  if (tile === Tile.Reversibility) return FloodFillTile.PickupReversibility;
-  if (tile === Tile.Armor) return FloodFillTile.PickupArmor;
-  if (tile === Tile.Deco2) return FloodFillTile.Deco2;
-  if (tile === Tile.Deco1) return FloodFillTile.Deco1;
+function getTile({
+  tile,
+  portalChannel,
+  keyChannel,
+  barrierType,
+}: GetTileArgs) {
+  if (TILE_TO_FLOOD_FILL_TILE[tile]) {
+    return TILE_TO_FLOOD_FILL_TILE[tile];
+  }
   if (tile === Tile.Barrier && isValidBarrierType(barrierType)) {
-    return BARRIER_TYPE_TO_FLOOD_FILL_TILE[barrierType] || FloodFillTile.Barrier;
+    return (
+      BARRIER_TYPE_TO_FLOOD_FILL_TILE[barrierType] || FloodFillTile.Barrier
+    );
   }
   if (tile === Tile.Portal && isValidPortalChannel(portalChannel)) {
     switch (portalChannel) {
@@ -82,12 +104,17 @@ function getTile({ tile, portalChannel, keyChannel, barrierType }: GetTileArgs) 
 function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
   const barrierType = data.barriersMap[coord];
   const pickupType = data.pickupsMap[coord];
+  const threatType = data.threatsMap[coord];
   if (data.passablesMap[coord]) return getTile({ tile: Tile.Passable });
-  if (data.barriersMap[coord] && isValidBarrierType(barrierType)) return getTile({ tile: Tile.Barrier, barrierType });
+  if (data.barriersMap[coord] && isValidBarrierType(barrierType))
+    return getTile({ tile: Tile.Barrier, barrierType });
   if (data.doorsMap[coord]) return getTile({ tile: Tile.Door });
   if (data.applesMap[coord]) return getTile({ tile: Tile.Apple });
-  if (data.minesMap[coord]) return getTile({ tile: Tile.Mine });
-  if (data.pickupsMap[coord] && isValidPickupType(pickupType) && PICKUP_TYPE_TO_TILE[pickupType]) return getTile({ tile: PICKUP_TYPE_TO_TILE[pickupType] });
+  if (data.threatsMap[coord]) return getTile({ tile: Tile.Mine });
+  if (isValidThreatType(threatType) && THREAT_TYPE_TO_TILE[threatType])
+    return getTile({ tile: THREAT_TYPE_TO_TILE[threatType] });
+  if (isValidPickupType(pickupType) && PICKUP_TYPE_TO_TILE[pickupType])
+    return getTile({ tile: PICKUP_TYPE_TO_TILE[pickupType] });
   const portalChannel = data.portalsMap[coord];
   const keyChannel = data.keysMap[coord];
   const lockChannel = data.locksMap[coord];
@@ -96,21 +123,25 @@ function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
   }
   if (isValidKeyChannel(lockChannel)) {
     return getTile({ tile: Tile.Lock, keyChannel: lockChannel });
-  };
+  }
   if (isValidKeyChannel(keyChannel)) {
     return getTile({ tile: Tile.Key, keyChannel });
-  };
+  }
   if (data.decoratives2Map[coord]) return getTile({ tile: Tile.Deco2 });
   if (data.decoratives1Map[coord]) return getTile({ tile: Tile.Deco1 });
   if (data.nospawnsMap[coord]) return getTile({ tile: Tile.Nospawn });
   return FloodFillTile.None;
 }
 
-function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void {
+function commitTile(
+  tile: FloodFillTile,
+  coord: number,
+  data: EditorData,
+): void {
   const slice: EditorDataSlice = {
     coord,
     apple: undefined,
-    mine: undefined,
+    threat: undefined,
     pickup: undefined,
     barrier: undefined,
     deco1: undefined,
@@ -123,11 +154,13 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
     portal: undefined,
     playerSpawnPosition: data.playerSpawnPosition,
     startDirection: data.startDirection,
-  }
+  };
   if (FLOOD_FILL_TILE_TO_BARRIER_TYPE[tile]) {
     slice.barrier = FLOOD_FILL_TILE_TO_BARRIER_TYPE[tile];
   } else if (FLOOD_FILL_TILE_TO_PICKUP_TYPE[tile]) {
     slice.pickup = FLOOD_FILL_TILE_TO_PICKUP_TYPE[tile];
+  } else if (FLOOD_FILL_TILE_TO_THREAT_TYPE[tile]) {
+    slice.threat = FLOOD_FILL_TILE_TO_THREAT_TYPE[tile];
   } else {
     switch (tile) {
       case FloodFillTile.None:
@@ -147,9 +180,6 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
         break;
       case FloodFillTile.Apple:
         slice.apple = true;
-        break;
-      case FloodFillTile.Mine:
-        slice.mine = true;
         break;
       case FloodFillTile.Portal0:
         slice.portal = 0;
@@ -213,7 +243,7 @@ function commitTile(tile: FloodFillTile, coord: number, data: EditorData): void 
     }
   }
   data.applesMap[coord] = slice.apple;
-  data.minesMap[coord] = slice.mine;
+  data.threatsMap[coord] = slice.threat;
   data.pickupsMap[coord] = slice.pickup;
   data.barriersMap[coord] = slice.barrier;
   data.decoratives1Map[coord] = slice.deco1;
@@ -237,7 +267,12 @@ export function tileFloodFill(
   data: EditorData,
 ): EditorData | null {
   const prev = getTileAtLocation(getCoordIndex2(x, y), data);
-  const next = getTile({ tile: tileToSet, portalChannel, keyChannel, barrierType });
+  const next = getTile({
+    tile: tileToSet,
+    portalChannel,
+    keyChannel,
+    barrierType,
+  });
   const newData = deepCloneData(data);
 
   if (prev === next) {
@@ -271,11 +306,18 @@ export function tileFloodFill(
   return newData;
 }
 
-
 /**
  * See: https://www.geeksforgeeks.org/flood-fill-algorithm/
  */
-function floodFill<T>(screen: T[][], m: number, n: number, x: number, y: number, prev: T, next: T) {
+function floodFill<T>(
+  screen: T[][],
+  m: number,
+  n: number,
+  x: number,
+  y: number,
+  prev: T,
+  next: T,
+) {
   function isValid(x: number, y: number) {
     if (
       x < 0 ||

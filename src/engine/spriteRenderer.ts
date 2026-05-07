@@ -91,7 +91,9 @@ export class SpriteRenderer {
     [Image.ShieldSpawn]: null,
     [Image.PickupOutlineBlueSheet]: null,
     [Image.PickupOutlineYellowSheet]: null,
-  }
+    [Image.ThreatSheet16]: null,
+    [Image.ThreatSheet48]: null,
+  } satisfies Record<Image, P5.Image | null>;
 
   constructor(props: SpriteRendererConstructorProps) {
     this.p5 = props.p5;
@@ -292,6 +294,8 @@ export class SpriteRenderer {
       this.loadImage(Image.ShieldSpawn);
       this.loadImage(Image.PickupOutlineBlueSheet);
       this.loadImage(Image.PickupOutlineYellowSheet);
+      this.loadImage(Image.ThreatSheet16);
+      this.loadImage(Image.ThreatSheet48);
     } catch (err) {
       console.error(err)
     }
@@ -310,23 +314,23 @@ export class SpriteRenderer {
   /**
    * Imperatively draw a 3x3 image (normally 48x48 px)
    */
-  drawImage3x3 = (image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 1) => {
-    this.drawImage3x3Impl(this.p5, image, x, y, rotation, alpha, screenshakeMul);
+  drawImage3x3 = (image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 1, frame = 0, frames = 1) => {
+    this.drawImage3x3Impl(this.p5, image, x, y, rotation, alpha, screenshakeMul, frame, frames);
   }
 
   /**
    * Imperatively draw a 3x3 image (normally 48x48 px) providing a P5 or Graphics instant on which to draw
    */
-  drawImage3x3Custom = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 0) => {
-    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, screenshakeMul, 1, 1000, 0);
+  drawImage3x3Custom = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 0, frame = 0, frames = 1) => {
+    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, screenshakeMul, frame, frames);
   }
 
   /**
    * Draw a 3x3 image if not cached.
    */
-  drawImage3x3Static = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 0) => {
+  drawImage3x3Static = (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation: number = 0, alpha = 1, screenshakeMul = 0, frame = 0, frames = 1) => {
     if (this.isStaticCached) return;
-    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, screenshakeMul);
+    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, screenshakeMul, frame, frames);
   }
 
   /**
@@ -337,7 +341,9 @@ export class SpriteRenderer {
       throw new Error(`no animation data found for image "${image}"`);
     }
     const { frames, timePerFrame } = ANIMATIONS[image];
-    this.drawImage3x3Impl(gfx, image, x, y, 0, 1, 0, frames, timePerFrame, elapsed);
+    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${image}`);
+    const frame = Math.floor(elapsed / timePerFrame) % frames;
+    this.drawImage3x3Impl(gfx, image, x, y, 0, 1, 0, frame, frames);
   }
 
   drawSpritesheetAnim3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, elapsed = 0) => {
@@ -352,8 +358,8 @@ export class SpriteRenderer {
     if (!ANIMATIONS[image]) {
       throw new Error(`no animation data found for image "${image}"`);
     }
-    const { frames, timePerFrame } = ANIMATIONS[image];
-    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, 0.5, frames, timePerFrame, timePerFrame * frame);
+    const { frames } = ANIMATIONS[image];
+    this.drawImage3x3Impl(gfx, image, x, y, rotation, alpha, 0.5, frame, frames);
   }
 
   drawSprite3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {
@@ -369,12 +375,10 @@ export class SpriteRenderer {
     rotation: number = 0,
     alpha = 1,
     screenshakeMul = 1,
+    frame = 0,
     frames = 1,
-    timePerFrame = 1000,
-    elapsed = 0,
   ) => {
     if (!frames) throw new Error(`frames cannot be zero. val=${frames},img=${image}`);
-    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${image}`);
     const loaded = this.images[image];
     if (!loaded) {
       return;
@@ -405,7 +409,6 @@ export class SpriteRenderer {
     if (alpha !== 1) {
       gfx.tint(255, 255, 255, lerp(0, 255, alpha));
     }
-    const frame = Math.floor(elapsed / timePerFrame) % frames;
     const frameWidth = loaded.width / frames;
     gfx.image(
       loaded,

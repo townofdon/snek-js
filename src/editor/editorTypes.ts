@@ -15,6 +15,8 @@ export enum Tile {
   Nospawn,
   Passable,
   Mine,
+  LaserDiode,
+  ExplodableBarrel,
   Invincibility,
   Reversibility,
   Armor,
