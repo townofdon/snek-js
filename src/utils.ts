@@ -12,6 +12,7 @@ import {
   INVINCIBILITY_EXPIRE_FLASH_MS,
   IS_DEV,
   PICKUP_EXPIRE_WARN_MS,
+  THREAT_LASER_MAX_SPAN,
 } from "./constants";
 import {
   BARRIER_TYPE_MAX,
@@ -38,6 +39,9 @@ import {
   LoopState,
   ThreatType,
   THREAT_TYPE_MAX,
+  LaserCell,
+  Orientation,
+  LaserType,
 } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
@@ -726,7 +730,98 @@ export function wait(duration: number) {
   })
 }
 
-export const shouldBlinkExpiringPickup = (timeLeft: number, warnTime = PICKUP_EXPIRE_WARN_MS) => !!timeLeft && timeLeft <= warnTime && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0
+export const shouldBlinkExpiringPickup = (timeLeft: number, warnTime = PICKUP_EXPIRE_WARN_MS) =>
+  !!timeLeft
+  && timeLeft <= warnTime
+  && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0;
+
+export const recalculateLasersMap = (
+  lasersMap: Record<number, LaserCell>,
+  threatsMap: Record<number, ThreatType>,
+  barriersMap: Record<number, BarrierType>,
+  doorsMap: Record<number, boolean>,
+  locksMap: Record<number, Lock | null | KeyChannel>,
+  portalsMap: Record<number, Portal | PortalChannel>
+) => {
+  const valid = (coord: number) => true
+    && threatsMap[coord] !== ThreatType.Mine
+    && threatsMap[coord] !== ThreatType.ExplodableBarrel
+    && !barriersMap[coord]
+    && !doorsMap[coord]
+    && (locksMap[coord] === undefined || locksMap[coord] === null)
+    && (portalsMap[coord] === undefined || portalsMap[coord] === null);
+  // first clear map
+  for (let y = 0; y < GRIDCOUNT_Y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
+      lasersMap[getCoordIndex2(x, y)] = undefined;
+    }
+  }
+  for (let y = 0; y < GRIDCOUNT_Y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
+      if (!valid(getCoordIndex2(x, y))) {
+        continue;
+      }
+      // always start from a diode
+      if (threatsMap[getCoordIndex2(x, y)] !== ThreatType.LaserDiode) {
+        continue;
+      }
+      // walk right
+      let xDiodeRight = -1;
+      for (let dx = 1; dx < THREAT_LASER_MAX_SPAN && (x + dx < GRIDCOUNT_X); dx++) {
+        const coord = getCoordIndex2(x + dx, y);
+        if (!valid(coord)) {
+          break;
+        }
+        if (threatsMap[coord] === ThreatType.LaserDiode) {
+          xDiodeRight = x + dx;
+          break;
+        }
+      }
+      // fill right
+      for (let x2 = x + 1; x2 < xDiodeRight; x2++) {
+        const coord = getCoordIndex2(x2, y);
+        if (lasersMap[coord]?.orientation === Orientation.Vertical) {
+          lasersMap[coord] = {
+            orientation: Orientation.Mixed,
+            type: LaserType.Blue,
+          } satisfies LaserCell;
+        } else {
+          lasersMap[coord] = {
+            orientation: Orientation.Horizontal,
+            type: LaserType.Blue,
+          } satisfies LaserCell;
+        }
+      }
+      // walk down
+      let yDiodeDown = -1;
+      for (let dy = 1; dy < THREAT_LASER_MAX_SPAN && (y + dy < GRIDCOUNT_Y); dy++) {
+        const coord = getCoordIndex2(x, y + dy);
+        if (!valid(coord)) {
+          break;
+        }
+        if (threatsMap[coord] === ThreatType.LaserDiode) {
+          yDiodeDown = y + dy;
+          break;
+        }
+      }
+      // fill down
+      for (let y2 = y + 1; y2 < yDiodeDown; y2++) {
+        const coord = getCoordIndex2(x, y2);
+        if (lasersMap[coord]?.orientation === Orientation.Horizontal) {
+          lasersMap[coord] = {
+            orientation: Orientation.Mixed,
+            type: LaserType.Blue,
+          } satisfies LaserCell;
+        } else {
+          lasersMap[coord] = {
+            orientation: Orientation.Vertical,
+            type: LaserType.Blue,
+          } satisfies LaserCell;
+        }
+      }
+    }
+  }
+}
 
 interface ToTimeParams {
   minutes: number,

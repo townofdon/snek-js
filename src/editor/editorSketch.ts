@@ -30,6 +30,9 @@ import {
   Threat16Frame,
   FRAME_COUNT_THREAT_16,
   FRAME_COUNT_THREAT_48,
+  LaserCell,
+  LaserType,
+  Orientation,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -40,7 +43,15 @@ import { SpriteRenderer } from '../engine/spriteRenderer';
 import { Renderer } from '../engine/renderer';
 import { Fonts } from '../fonts';
 import { PALETTE, getExtendedPalette } from '../palettes';
-import { coordToVec, getCoordIndex2, getRotationFromDirection, isAtMapEdge, isValidKeyChannel, isValidPortalChannel } from '../utils';
+import {
+  coordToVec,
+  getCoordIndex2,
+  getRotationFromDirection,
+  isAtMapEdge,
+  isValidKeyChannel,
+  isValidPortalChannel,
+  recalculateLasersMap,
+} from "../utils";
 import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
 import { createLightmap, drawLighting, initLighting, updateLighting } from '../engine/lighting';
 import { AnimationList } from '../collections/animationList';
@@ -85,8 +96,12 @@ export interface EditorSketchReturn {
   cleanup: () => void,
 }
 
+interface ExtendedSketchData extends EditorData {
+  lasersMap: Record<number, LaserCell>,
+}
+
 export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): EditorSketchReturn => {
-  const data: EditorData = {
+  const data: ExtendedSketchData = {
     barriersMap: {},
     passablesMap: {},
     doorsMap: {},
@@ -99,9 +114,10 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     keysMap: {},
     locksMap: {},
     portalsMap: {},
+    lasersMap: {},
     playerSpawnPosition: EDITOR_DEFAULTS.data.playerSpawnPosition.copy(),
     startDirection: EDITOR_DEFAULTS.data.startDirection,
-  };
+  } satisfies ExtendedSketchData;
   const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig'> = {
     globalLight: EDITOR_DEFAULTS.options.globalLight,
     palette: { ...EDITOR_DEFAULTS.options.palette },
@@ -328,6 +344,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         state.dirty = true;
       }
       if (state.dirty) {
+        recalculateLasersMap(data.lasersMap, data.threatsMap, data.barriersMap, data.doorsMap, data.locksMap, data.portalsMap);
         state.dirty = false;
         renderer.invalidateStaticCache();
         // come on baby, light my fire
@@ -592,6 +609,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
       drawParticles(0);
       renderer.drawStaticGraphics(gfx);
+      drawLasers();
       drawPortals();
       drawParticles(10);
 
@@ -651,6 +669,47 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             }
             renderer.drawPortal(portal, false, drawPortalOptions);
             channelCounts[portalChannel]++;
+          }
+        }
+      }
+    }
+
+    function drawLasers() {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
+          const coord = getCoordIndex2(x, y);
+          const gfxlsr = renderer.getMainGfx();
+          const laser = data.lasersMap[coord];
+          if (laser?.type === LaserType.Blue) {
+            const frames = [
+              Threat16Frame.LaserBlue0,
+              Threat16Frame.LaserBlue1,
+              Threat16Frame.LaserBlue2,
+              Threat16Frame.LaserBlue3,
+            ];
+            const frame = Math.floor(renderer.getElapsed() / 200) % frames.length;
+            const laserFrame = frames[frame] - 1;
+            if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Horizontal) {
+              spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+            }
+            if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Vertical) {
+              spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0.5 * Math.PI, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+            }
+          } else if (laser?.type === LaserType.Red) {
+            const frames = [
+              Threat16Frame.LaserRed0,
+              Threat16Frame.LaserRed1,
+              Threat16Frame.LaserRed2,
+              Threat16Frame.LaserRed3,
+            ];
+            const frame = Math.floor(renderer.getElapsed() / 200) % frames.length;
+            const laserFrame = frames[frame] - 1;
+            if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Horizontal) {
+              spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+            }
+            if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Vertical) {
+              spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0.5 * Math.PI, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+            }
           }
         }
       }
@@ -731,7 +790,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           const portalChannel = data.portalsMap[coord];
           if (isValidPortalChannel(portalChannel)) {
             portalParticleSystem.emit(x, y, portalChannel);
-            portalVortexParticleSystem.emit(x, y, portalChannel);
+            // portalVortexParticleSystem.emit(x, y, portalChannel);
           }
         }
       }

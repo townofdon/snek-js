@@ -100,6 +100,8 @@ export class Renderer implements IRenderer {
     return this.gfxOverride || this.p5;
   }
 
+  public getElapsed = () => this.elapsed;
+
   // Static gfx (e.g. barriers) are cached in an OffscreenCanvas and re-drawn if things change (e.g. due to screen shake)
   // See: P5.createGraphics - see: https://p5js.org/reference/#/p5/createGraphics
   drawStaticGraphics = (gfx: P5.Graphics) => {

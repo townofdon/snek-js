@@ -103,6 +103,8 @@ export const RARITY_EPIC = 0.09;
 export const RARITY_LEGENDARY = 0.01;
 export const PITY_INCREMENT = 1 / 30;
 
+export const THREAT_LASER_MAX_SPAN = 5;
+
 export const INVINCIBILITY_PICKUP_LIFETIME_MS = 8000;
 export const INVINCIBILITY_PICKUP_FREEZE_MS = 1000;
 export const INVINCIBILITY_EXPIRE_WARN_MS = 2000;

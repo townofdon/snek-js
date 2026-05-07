@@ -14,6 +14,12 @@ import P5, { Vector } from "p5";
  */
 export type IEnumerator = Generator<IEnumerator | null, IEnumerator | void, null | undefined>;
 
+export enum Orientation {
+  Vertical,
+  Horizontal,
+  Mixed,
+}
+
 /**
  * actions are unique, singleton coroutines, meaning that only one coroutine of a type can run at a time
  */
@@ -597,6 +603,17 @@ export enum ThreatType {
   ExplodableBarrel,
 }
 export const THREAT_TYPE_MAX = Math.max(...Object.values(ThreatType).filter(v => typeof v === 'number')) + 1;
+
+export enum LaserType {
+  None = 0,
+  Red,
+  Blue,
+}
+
+export interface LaserCell {
+  orientation: Orientation,
+  type: LaserType,
+}
 
 export enum FloodFillTile {
   None,
