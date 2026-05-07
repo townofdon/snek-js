@@ -2059,6 +2059,7 @@ export function engine({
       const barrierIdx = es.barriers.findIndex(barrier => getCoordIndex(barrier.vec) === coord);
       es.barriers = removeArrayElement(es.barriers, barrierIdx);
       es.barriersMap[coord] = BarrierType.Unset;
+      astar.removeWall(vec.x, vec.y);
       renderer.invalidateStaticCache();
       const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
       explosions.add(vec.x, vec.y, frames * timePerFrame, frames, timePerFrame);
