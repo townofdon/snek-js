@@ -2,7 +2,8 @@ import P5, { Vector } from "p5";
 import {
   ANIMATIONS,
   ARMOR_PICKUP_FREEZE_MS,
-  BLOCK_SIZE,
+  BLOCK_SIZE_X,
+  BLOCK_SIZE_Y,
   DIMENSIONS,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
@@ -138,7 +139,7 @@ export function engineRendering({
   const gfxFG: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
   const gfxFGAction: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
   const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
-  const gfxUIRight: P5.Graphics = p5.createGraphics(BLOCK_SIZE.x, DIMENSIONS.y, p5.P2D, document.getElementById(UI_CANVAS_RIGHT));
+  const gfxUIRight: P5.Graphics = p5.createGraphics(BLOCK_SIZE_X, DIMENSIONS.y, p5.P2D, document.getElementById(UI_CANVAS_RIGHT));
   gfxBG.addClass('static-gfx-canvas').addClass('bg').parent(UI_PARENT_ID).addClass('gfx-bg').id('canvas-bg');
   gfxExitLights.addClass('static-gfx-canvas').addClass('fg0').parent(UI_PARENT_ID).addClass('gfx-exit-lights');
   gfxKeysLocks.addClass('static-gfx-canvas').addClass('fg1').parent(UI_PARENT_ID).addClass('gfx-keys-locks').id('canvas-keys-locks');
@@ -149,13 +150,13 @@ export function engineRendering({
   // move gfxPresentation so that it is on top of everything else
   document.getElementById('gfx-presentation').after(document.getElementById('canvas-lighting'));
   const graphicalComponents: GraphicalComponents = {
-    deco1: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
-    deco2: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
-    barrier: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
-    barrierPassable: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
-    door: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
-    snakeHead: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
-    snakeSegment: p5.createGraphics(BLOCK_SIZE.x + STROKE_SIZE*2, BLOCK_SIZE.y + STROKE_SIZE*2),
+    deco1: p5.createGraphics(BLOCK_SIZE_X + STROKE_SIZE*2, BLOCK_SIZE_Y + STROKE_SIZE*2),
+    deco2: p5.createGraphics(BLOCK_SIZE_X + STROKE_SIZE*2, BLOCK_SIZE_Y + STROKE_SIZE*2),
+    barrier: p5.createGraphics(BLOCK_SIZE_X + STROKE_SIZE*2, BLOCK_SIZE_Y + STROKE_SIZE*2),
+    barrierPassable: p5.createGraphics(BLOCK_SIZE_X + STROKE_SIZE*2, BLOCK_SIZE_Y + STROKE_SIZE*2),
+    door: p5.createGraphics(BLOCK_SIZE_X + STROKE_SIZE*2, BLOCK_SIZE_Y + STROKE_SIZE*2),
+    snakeHead: p5.createGraphics(BLOCK_SIZE_X + STROKE_SIZE*2, BLOCK_SIZE_Y + STROKE_SIZE*2),
+    snakeSegment: p5.createGraphics(BLOCK_SIZE_X + STROKE_SIZE*2, BLOCK_SIZE_Y + STROKE_SIZE*2),
     // @ts-ignore
     apple: null,
   };

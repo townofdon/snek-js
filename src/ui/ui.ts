@@ -2,11 +2,11 @@ import P5, { Element } from 'p5';
 
 import { DOM, parseElementLevelNum, requireElementById } from './uiUtils';
 import { emitUIEvent, UIAction } from './uiEvents';
-import { DifficultyIndex, LevelCompletion, LevelId } from '../types';
+import { DifficultyIndex } from '../types';
 import { getWarpLevelFromNum } from '../levels/levelUtils';
 import { SaveDataStore } from '../stores/SaveDataStore';
 import { GameModeMenuElement } from './uiTypes';
-import { BLOCK_SIZE, DIMENSIONS } from '@/constants';
+import { BLOCK_SIZE_X, DIMENSIONS } from '@/constants';
 
 export const UI_PARENT_ID = 'game-container';
 export const UI_CANVAS_RIGHT = 'ui-canvas-right';
@@ -44,7 +44,7 @@ export class UI {
     $GAME.style.height = String(DIMENSIONS.y) + 'px';
     $GAME_CONTAINER.style.width = String(DIMENSIONS.x) + 'px';
     $GAME_CONTAINER.style.height = String(DIMENSIONS.y) + 'px';
-    $UI_CANVAS_RIGHT.style.width = `${BLOCK_SIZE.x}px`;
+    $UI_CANVAS_RIGHT.style.width = `${BLOCK_SIZE_X}px`;
   }
 
   static showGfxCanvas() {

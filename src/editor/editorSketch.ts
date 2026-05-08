@@ -1,8 +1,8 @@
 import P5, { Vector } from 'p5';
 
 import {
-  ANIMATIONS,
-  BLOCK_SIZE,
+  BLOCK_SIZE_X,
+  BLOCK_SIZE_Y,
   DIMENSIONS,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
@@ -266,15 +266,15 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     const { gameState, replay, screenShake, tutorial } = SKETCH_DEFAULTS
     const gfx: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y);
     const graphicalComponents: EditorGraphicalComponents = {
-      deco1: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-      deco2: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-      barrier: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-      barrierPassable: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-      door: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-      apple: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-      snakeHead: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-      snakeSegment: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
-      nospawn: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
+      deco1: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
+      deco2: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
+      barrier: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
+      barrierPassable: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
+      door: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
+      apple: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
+      snakeHead: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
+      snakeSegment: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
+      nospawn: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
     }
     const gradients = new Gradients(p5);
     const particles = new Particles(p5, gradients, screenShake); // z-index 0

@@ -2,7 +2,7 @@ import React, { useLayoutEffect, useRef } from "react";
 import cx from 'classnames';
 
 import { BarrierType, EditorOptions } from "../types";
-import { BLOCK_SIZE } from "../constants";
+import { BLOCK_SIZE_X, BLOCK_SIZE_Y } from "../constants";
 import { sidebarBarrierTypesSketch, SidebarBarrierTypesSketchReturn } from "./sidebarBarrierTypesSketch";
 
 import * as styles from "./Editor.css";
@@ -126,8 +126,8 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
               ref={canvasRef[barrierType]}
               id={`editor-tile-preview-barrier-${barrierType}`}
               className={styles.barrierPreview}
-              width={BLOCK_SIZE.x}
-              height={BLOCK_SIZE.y}
+              width={BLOCK_SIZE_X}
+              height={BLOCK_SIZE_Y}
             />
           )}
           {text}

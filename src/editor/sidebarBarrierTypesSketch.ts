@@ -14,7 +14,7 @@ import { Renderer } from '../engine/renderer';
 import { Fonts } from '../fonts';
 import { getExtendedPalette } from '../palettes';
 import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
-import { BLOCK_SIZE } from '@/constants';
+import { BLOCK_SIZE_X, BLOCK_SIZE_Y } from '@/constants';
 
 export interface EditorState {
   dirty: boolean,
@@ -52,8 +52,8 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
     }
   }
 
-  const canvasSizeX = BLOCK_SIZE.x;
-  const canvasSizeY = BLOCK_SIZE.y;
+  const canvasSizeX = BLOCK_SIZE_X;
+  const canvasSizeY = BLOCK_SIZE_Y;
 
   const sketch = (p5: P5) => {
     const { gameState, replay, screenShake, tutorial } = SKETCH_DEFAULTS;
@@ -94,7 +94,7 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       [BarrierType.MetalPlate2]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.MetalPlate2].current),
     } satisfies Record<BarrierType, P5.Graphics>;
     const graphicalComponents: Pick<EditorGraphicalComponents, 'barrier'> = {
-      barrier: p5.createGraphics(BLOCK_SIZE.x * 3, BLOCK_SIZE.y * 3),
+      barrier: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
     }
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });

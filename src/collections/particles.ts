@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
 
-import { BLOCK_SIZE, IS_DEV, MAP_OFFSET } from "../constants";
+import { BLOCK_SIZE_X, BLOCK_SIZE_Y, IS_DEV, MAP_OFFSET } from "../constants";
 import { clamp, getCoordIndex2, lerp } from "../utils";
 import { Gradients } from "./gradients";
 import { ScreenShakeState } from "../types";
@@ -225,16 +225,16 @@ export class Particles {
     const position = Vector.lerp(positionStart, positionEnd, t);
 
     const orbitOffset = this.getOrbitOffset(this.orbit[i], origin, positionStart, position, t);
-    const x = MAP_OFFSET + Math.floor(position.x * BLOCK_SIZE.x + this.screenShake.offset.x + orbitOffset.x);
-    const y = MAP_OFFSET + Math.floor(position.y * BLOCK_SIZE.y + this.screenShake.offset.y + orbitOffset.y);
-    const coord = getCoordIndex2(position.x + (this.screenShake.offset.x + orbitOffset.x) / BLOCK_SIZE.x, position.y + (this.screenShake.offset.x + orbitOffset.x) / BLOCK_SIZE.y);
+    const x = MAP_OFFSET + Math.floor(position.x * BLOCK_SIZE_X + this.screenShake.offset.x + orbitOffset.x);
+    const y = MAP_OFFSET + Math.floor(position.y * BLOCK_SIZE_Y + this.screenShake.offset.y + orbitOffset.y);
+    const coord = getCoordIndex2(position.x + (this.screenShake.offset.x + orbitOffset.x) / BLOCK_SIZE_X, position.y + (this.screenShake.offset.x + orbitOffset.x) / BLOCK_SIZE_Y);
     if (test && !test(coord)) return;
 
     this.gfx.fill(color);
     this.gfx.stroke(color);
     this.gfx.strokeWeight(0);
     this.gfx.noStroke();
-    this.gfx.square(x, y, Math.round(BLOCK_SIZE.x * scale));
+    this.gfx.square(x, y, Math.round(BLOCK_SIZE_X * scale));
   }
 
   private getOrbitOffset = (orbit: number, origin: Vector, positionStart: Vector, position: Vector, t: number): { x: number, y: number } => {
@@ -244,7 +244,7 @@ export class Particles {
     const diff = Vector.sub(positionStart, origin);
     const diffStartFromOrigin = diff;
     const radianStart = Math.atan2(diff.y, diff.x);
-    const magnitude = Vector.sub(position, origin).mag() * BLOCK_SIZE.x;
+    const magnitude = Vector.sub(position, origin).mag() * BLOCK_SIZE_X;
     const orbitOffset = {
       x: (Math.cos(t * Math.PI + radianStart) - diffStartFromOrigin.x) * orbit * magnitude,
       y: (Math.sin(t * Math.PI + radianStart) - diffStartFromOrigin.y) * orbit * magnitude,

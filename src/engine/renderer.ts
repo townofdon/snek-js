@@ -20,7 +20,8 @@ import {
 } from "../types";
 import {
   ACCENT_COLOR,
-  BLOCK_SIZE,
+  BLOCK_SIZE_X,
+  BLOCK_SIZE_Y,
   DIMENSIONS,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
@@ -151,23 +152,23 @@ export class Renderer implements IRenderer {
     const offset = -STROKE_SIZE * 0.5;
     const sizeOffset = STROKE_SIZE;
     // destination
-    const dx = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + offset;
-    const dy = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + offset;
+    const dx = x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul + offset;
+    const dy = y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul + offset;
     // source
-    const sx = 1 * BLOCK_SIZE.x + offset;
-    const sy = 1 * BLOCK_SIZE.y + offset;
+    const sx = 1 * BLOCK_SIZE_X + offset;
+    const sy = 1 * BLOCK_SIZE_Y + offset;
     if (alpha !== 1) gfx.tint(255, 255, 255, lerp(0, 255, alpha));
     gfx.image(
       component,
       // MAP_OFFSET not needed here, as graphical components have already been drawn including this offset
       Math.round(dx),
       Math.round(dy),
-      Math.round(BLOCK_SIZE.x + sizeOffset),
-      Math.round(BLOCK_SIZE.y + sizeOffset),
+      Math.round(BLOCK_SIZE_X + sizeOffset),
+      Math.round(BLOCK_SIZE_Y + sizeOffset),
       sx,
       sy,
-      BLOCK_SIZE.x + sizeOffset,
-      BLOCK_SIZE.y + sizeOffset,
+      BLOCK_SIZE_X + sizeOffset,
+      BLOCK_SIZE_Y + sizeOffset,
       this.p5.COVER,
       this.p5.LEFT,
       this.p5.TOP
@@ -188,8 +189,8 @@ export class Renderer implements IRenderer {
     const offset = -STROKE_SIZE * 0.5;
     const sizeOffset = STROKE_SIZE;
     // destination
-    const dx = x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + offset;
-    const dy = y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + offset;
+    const dx = x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul + offset;
+    const dy = y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul + offset;
     // source
     const sx = 0;
     const sy = 0;
@@ -199,12 +200,12 @@ export class Renderer implements IRenderer {
       // MAP_OFFSET not needed here, as graphical components have already been drawn including this offset
       Math.round(dx),
       Math.round(dy),
-      Math.round(BLOCK_SIZE.x + sizeOffset),
-      Math.round(BLOCK_SIZE.y + sizeOffset),
+      Math.round(BLOCK_SIZE_X + sizeOffset),
+      Math.round(BLOCK_SIZE_Y + sizeOffset),
       sx,
       sy,
-      BLOCK_SIZE.x + sizeOffset,
-      BLOCK_SIZE.y + sizeOffset,
+      BLOCK_SIZE_X + sizeOffset,
+      BLOCK_SIZE_Y + sizeOffset,
       this.p5.COVER,
       this.p5.LEFT,
       this.p5.TOP
@@ -240,11 +241,11 @@ export class Renderer implements IRenderer {
     this.p5CachedStroke(gfx, lineColor, optimize);
     gfx.strokeWeight(strokeSize);
     const strokeOffset = STROKE_SIZE - strokeSize;
-    const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
-    const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
-    const px = MAP_OFFSET + Math.floor((x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + strokeOffset) + sizeOffsetX);
-    const py = MAP_OFFSET + Math.floor((y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + strokeOffset) + sizeOffsetY);
-    const squareSize = Math.floor((BLOCK_SIZE.x - strokeSize - strokeOffset * 2) * size);
+    const sizeOffsetX = (1 - size) * BLOCK_SIZE_X * 0.5;
+    const sizeOffsetY = (1 - size) * BLOCK_SIZE_Y * 0.5;
+    const px = MAP_OFFSET + Math.floor((x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul + strokeOffset) + sizeOffsetX);
+    const py = MAP_OFFSET + Math.floor((y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul + strokeOffset) + sizeOffsetY);
+    const squareSize = Math.floor((BLOCK_SIZE_X - strokeSize - strokeOffset * 2) * size);
     gfx.push();
     gfx.translate(px, py);
     if (rotation) {
@@ -256,10 +257,10 @@ export class Renderer implements IRenderer {
     gfx.pop();
     if (is3d) {
       const borderSize = STROKE_SIZE * 0.5;
-      const x0 = Math.floor(x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX);
-      const y0 = Math.floor(y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY);
-      const x1 = Math.floor(x0 + (BLOCK_SIZE.x * size) - strokeOffset);
-      const y1 = Math.floor(y0 + (BLOCK_SIZE.y * size) - strokeOffset);
+      const x0 = Math.floor(x * BLOCK_SIZE_X - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX);
+      const y0 = Math.floor(y * BLOCK_SIZE_Y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY);
+      const x1 = Math.floor(x0 + (BLOCK_SIZE_X * size) - strokeOffset);
+      const y1 = Math.floor(y0 + (BLOCK_SIZE_Y * size) - strokeOffset);
       const x0i = Math.floor(x0 + borderSize);
       const y0i = Math.floor(y0 + borderSize);
       const x1i = Math.floor(x1 - borderSize);
@@ -294,12 +295,12 @@ export class Renderer implements IRenderer {
     const strokeSize = STROKE_SIZE;
     const strokeOffset = 0;
     const borderSize = STROKE_SIZE * 0.5;
-    const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
-    const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
-    const x0 = Math.floor(x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX);
-    const y0 = Math.floor(y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY);
-    const x1 = Math.floor(x0 + (BLOCK_SIZE.x * size) - strokeOffset);
-    const y1 = Math.floor(y0 + (BLOCK_SIZE.y * size) - strokeOffset);
+    const sizeOffsetX = (1 - size) * BLOCK_SIZE_X * 0.5;
+    const sizeOffsetY = (1 - size) * BLOCK_SIZE_Y * 0.5;
+    const x0 = Math.floor(x * BLOCK_SIZE_X - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX);
+    const y0 = Math.floor(y * BLOCK_SIZE_Y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY);
+    const x1 = Math.floor(x0 + (BLOCK_SIZE_X * size) - strokeOffset);
+    const y1 = Math.floor(y0 + (BLOCK_SIZE_Y * size) - strokeOffset);
     // inner rect
     const x0i = Math.floor(x0 + borderSize);
     const y0i = Math.floor(y0 + borderSize);
@@ -357,12 +358,12 @@ export class Renderer implements IRenderer {
     const strokeSize = STROKE_SIZE;
     const borderSize = STROKE_SIZE * 0.5;
     const strokeOffset = STROKE_SIZE - strokeSize;
-    const sizeOffsetX = (1 - size) * BLOCK_SIZE.x * 0.5;
-    const sizeOffsetY = (1 - size) * BLOCK_SIZE.y * 0.5;
-    const x0 = Math.floor(x * BLOCK_SIZE.x - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX);
-    const y0 = Math.floor(y * BLOCK_SIZE.y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY);
-    const x1 = Math.floor(x0 + (BLOCK_SIZE.x * size) - strokeOffset);
-    const y1 = Math.floor(y0 + (BLOCK_SIZE.y * size) - strokeOffset);
+    const sizeOffsetX = (1 - size) * BLOCK_SIZE_X * 0.5;
+    const sizeOffsetY = (1 - size) * BLOCK_SIZE_Y * 0.5;
+    const x0 = Math.floor(x * BLOCK_SIZE_X - strokeSize * 0.5 + this.screenShake.offset.x * screenshakeMul + strokeOffset + sizeOffsetX);
+    const y0 = Math.floor(y * BLOCK_SIZE_Y - strokeSize * 0.5 + this.screenShake.offset.y * screenshakeMul + strokeOffset + sizeOffsetY);
+    const x1 = Math.floor(x0 + (BLOCK_SIZE_X * size) - strokeOffset);
+    const y1 = Math.floor(y0 + (BLOCK_SIZE_Y * size) - strokeOffset);
     const x0i = Math.floor(x0 + borderSize);
     const y0i = Math.floor(y0 + borderSize);
     const x1i = Math.floor(x1 - borderSize);
@@ -412,17 +413,17 @@ export class Renderer implements IRenderer {
   }
 
   private drawXImpl = (gfx: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5, screenshakeMul = 1) => {
-    const sizeX = (BLOCK_SIZE.x - STROKE_SIZE) / blockDivisions;
-    const sizeY = (BLOCK_SIZE.y - STROKE_SIZE) / blockDivisions;
+    const sizeX = (BLOCK_SIZE_X - STROKE_SIZE) / blockDivisions;
+    const sizeY = (BLOCK_SIZE_Y - STROKE_SIZE) / blockDivisions;
     this.p5CachedFill(gfx, color);
     // p5.randomSeed(x + y * 500000);
     // p5.fill(p5.color(p5.random(0, 255), p5.random(0, 255), p5.random(0, 255)));
     gfx.noStroke();
     for (let i = 0; i < blockDivisions; i++) {
-      const px0 = MAP_OFFSET + Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + i * sizeX);
-      const py0 = MAP_OFFSET + Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + i * sizeY);
-      const px1 = MAP_OFFSET + Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul + i * sizeX);
-      const py1 = MAP_OFFSET + Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul + (blockDivisions - 1 - i) * sizeY);
+      const px0 = MAP_OFFSET + Math.floor(x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul + i * sizeX);
+      const py0 = MAP_OFFSET + Math.floor(y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul + i * sizeY);
+      const px1 = MAP_OFFSET + Math.floor(x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul + i * sizeX);
+      const py1 = MAP_OFFSET + Math.floor(y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul + (blockDivisions - 1 - i) * sizeY);
       gfx.square(px0, py0, Math.floor(Math.max(sizeX, sizeY)));
       gfx.square(px1, py1, Math.floor(Math.max(sizeX, sizeY)));
     }
@@ -444,10 +445,10 @@ export class Renderer implements IRenderer {
     const borderSize = STROKE_SIZE * 0.5;
     const widthAddLastX = MAP_OFFSET * (x >= GRIDCOUNT_X - 1 ? 1 : 0);
     const heightAddLastY = MAP_OFFSET * (y >= GRIDCOUNT_Y - 1 ? 1 : 0);
-    const width = BLOCK_SIZE.x + widthAddLastX;
-    const height = BLOCK_SIZE.y + heightAddLastY;
-    const x0 = x * BLOCK_SIZE.x - borderSize;
-    const y0 = y * BLOCK_SIZE.y - borderSize;
+    const width = BLOCK_SIZE_X + widthAddLastX;
+    const height = BLOCK_SIZE_Y + heightAddLastY;
+    const x0 = x * BLOCK_SIZE_X - borderSize;
+    const y0 = y * BLOCK_SIZE_Y - borderSize;
     gfx.fill(color);
     gfx.noStroke();
     // DEBUG RECT FILL (LIGHTING, ETC.) (two methods below)
@@ -463,12 +464,12 @@ export class Renderer implements IRenderer {
   }
 
   drawLine(gfx: P5 | P5.Graphics, x0: number, y0: number, x1: number, y1: number, color: string) {
-    const width = BLOCK_SIZE.x;
-    const height = BLOCK_SIZE.y;
-    const px0 = MAP_OFFSET + x0 * BLOCK_SIZE.x + width * 0.5;
-    const py0 = MAP_OFFSET + y0 * BLOCK_SIZE.y + height * 0.5;
-    const px1 = MAP_OFFSET + x1 * BLOCK_SIZE.x + width * 0.5;
-    const py1 = MAP_OFFSET + y1 * BLOCK_SIZE.y + height * 0.5;
+    const width = BLOCK_SIZE_X;
+    const height = BLOCK_SIZE_Y;
+    const px0 = MAP_OFFSET + x0 * BLOCK_SIZE_X + width * 0.5;
+    const py0 = MAP_OFFSET + y0 * BLOCK_SIZE_Y + height * 0.5;
+    const px1 = MAP_OFFSET + x1 * BLOCK_SIZE_X + width * 0.5;
+    const py1 = MAP_OFFSET + y1 * BLOCK_SIZE_Y + height * 0.5;
     gfx.stroke(color);
     gfx.strokeWeight(5);
     gfx.strokeCap(this.p5.SQUARE);
@@ -531,8 +532,8 @@ export class Renderer implements IRenderer {
       const arrow = arrowBlocks[i];
       if (!arrow.show) continue;
       const position = {
-        x: MAP_OFFSET + arrow.x * BLOCK_SIZE.x + BLOCK_SIZE.x * 0.4 + this.screenShake.offset.x,
-        y: MAP_OFFSET + arrow.y * BLOCK_SIZE.y + BLOCK_SIZE.y * 0.35 + this.screenShake.offset.y,
+        x: MAP_OFFSET + arrow.x * BLOCK_SIZE_X + BLOCK_SIZE_X * 0.4 + this.screenShake.offset.x,
+        y: MAP_OFFSET + arrow.y * BLOCK_SIZE_Y + BLOCK_SIZE_Y * 0.35 + this.screenShake.offset.y,
       }
       gfx.fill("#fff");
       gfx.stroke("#000");
@@ -559,17 +560,17 @@ export class Renderer implements IRenderer {
       x: 10,
       y: 12.3,
     };
-    const x0 = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x - 5);
-    const y0 = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y);
-    const x1 = MAP_OFFSET + x0 + bannerWidth * BLOCK_SIZE.x - STROKE_SIZE;
-    const y1 = MAP_OFFSET + y0 + bannerHeight * BLOCK_SIZE.y - STROKE_SIZE;
+    const x0 = MAP_OFFSET + BLOCK_SIZE_X * (bannerPosition.x - 5);
+    const y0 = MAP_OFFSET + BLOCK_SIZE_Y * (bannerPosition.y);
+    const x1 = MAP_OFFSET + x0 + bannerWidth * BLOCK_SIZE_X - STROKE_SIZE;
+    const y1 = MAP_OFFSET + y0 + bannerHeight * BLOCK_SIZE_Y - STROKE_SIZE;
     gfx.fill('#000000aa');
     gfx.stroke("#000");
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // // text
-    const textX = MAP_OFFSET + x0 + BLOCK_SIZE.x * 1.7;
-    const textY = MAP_OFFSET + y0 + BLOCK_SIZE.y * 3.7;
+    const textX = MAP_OFFSET + x0 + BLOCK_SIZE_X * 1.7;
+    const textY = MAP_OFFSET + y0 + BLOCK_SIZE_Y * 3.7;
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
@@ -578,13 +579,13 @@ export class Renderer implements IRenderer {
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("MOVE", textX, textY);
     // image
-    const imgX = x0 + BLOCK_SIZE.x * 0.5;
-    const imgY = y0 + BLOCK_SIZE.y * 0.1;
+    const imgX = x0 + BLOCK_SIZE_X * 0.5;
+    const imgY = y0 + BLOCK_SIZE_Y * 0.1;
     const { inputType } = this.gameState;
     if (inputType === InputType.Keyboard) {
       this.spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY, gfx);
     } else {
-      this.spriteRenderer.drawImage(Image.ControlsGamepadMove, imgX + BLOCK_SIZE.x * 0.75, imgY, gfx);
+      this.spriteRenderer.drawImage(Image.ControlsGamepadMove, imgX + BLOCK_SIZE_X * 0.75, imgY, gfx);
     }
   }
 
@@ -620,17 +621,17 @@ export class Renderer implements IRenderer {
     }
     bannerPosition.x = clamp(bannerPosition.x, bounds.min.x, bounds.max.x);
     bannerPosition.y = clamp(bannerPosition.y, bounds.min.y, bounds.max.y);
-    const x0 = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x);
-    const x1 = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
-    const y0 = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y);
-    const y1 = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
+    const x0 = MAP_OFFSET + BLOCK_SIZE_X * (bannerPosition.x);
+    const x1 = MAP_OFFSET + BLOCK_SIZE_X * (bannerPosition.x + bannerWidth);
+    const y0 = MAP_OFFSET + BLOCK_SIZE_Y * (bannerPosition.y);
+    const y1 = MAP_OFFSET + BLOCK_SIZE_Y * (bannerPosition.y + bannerHeight);
     gfx.fill('#000000aa');
     gfx.stroke("#000");
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
-    const textX = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x + 3);
-    const textY = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
+    const textX = MAP_OFFSET + BLOCK_SIZE_X * (bannerPosition.x + 3);
+    const textY = MAP_OFFSET + BLOCK_SIZE_Y * (bannerPosition.y + bannerHeight * 0.5);
     gfx.fill("#fff");
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
@@ -639,8 +640,8 @@ export class Renderer implements IRenderer {
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("REWIND", textX, textY);
     // image
-    const imgX = BLOCK_SIZE.x * (bannerPosition.x + 0.6);
-    const imgY = BLOCK_SIZE.y * (bannerPosition.y + 0.6);
+    const imgX = BLOCK_SIZE_X * (bannerPosition.x + 0.6);
+    const imgY = BLOCK_SIZE_Y * (bannerPosition.y + 0.6);
     const { inputType } = this.gameState;
     if (inputType === InputType.Keyboard) {
       this.spriteRenderer.drawImage(Image.ControlsKeyboardDelete, imgX, imgY, gfx);
@@ -657,21 +658,21 @@ export class Renderer implements IRenderer {
     // banner background
     const bannerWidth = isKeyboard ? 5.8 : 7.8;
     const bannerHeight = isKeyboard ? 5.8 : 2.8;
-    const x0 = MAP_OFFSET + BLOCK_SIZE.x * (x);
-    const x1 = MAP_OFFSET + BLOCK_SIZE.x * (x + bannerWidth);
-    const y0 = MAP_OFFSET + BLOCK_SIZE.y * (y);
-    const y1 = MAP_OFFSET + BLOCK_SIZE.y * (y + bannerHeight);
+    const x0 = MAP_OFFSET + BLOCK_SIZE_X * (x);
+    const x1 = MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth);
+    const y0 = MAP_OFFSET + BLOCK_SIZE_Y * (y);
+    const y1 = MAP_OFFSET + BLOCK_SIZE_Y * (y + bannerHeight);
     gfx.fill('#000000aa');
     gfx.stroke("#000");
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
     const textX = isKeyboard
-     ? MAP_OFFSET + BLOCK_SIZE.x * (x + bannerWidth * 0.5)
-     : MAP_OFFSET + BLOCK_SIZE.x * (x + 3.5);
+     ? MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth * 0.5)
+     : MAP_OFFSET + BLOCK_SIZE_X * (x + 3.5);
     const textY = isKeyboard
-     ? MAP_OFFSET + BLOCK_SIZE.y * (y + 4.5)
-     : MAP_OFFSET + BLOCK_SIZE.y * (y + bannerHeight * 0.5);
+     ? MAP_OFFSET + BLOCK_SIZE_Y * (y + 4.5)
+     : MAP_OFFSET + BLOCK_SIZE_Y * (y + bannerHeight * 0.5);
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
@@ -681,11 +682,11 @@ export class Renderer implements IRenderer {
     gfx.text("U-TURN", textX, textY);
     // image
     const imgX = isKeyboard
-      ? BLOCK_SIZE.x * (x + 0.6)
-      : BLOCK_SIZE.x * (x + 0.6);
+      ? BLOCK_SIZE_X * (x + 0.6)
+      : BLOCK_SIZE_X * (x + 0.6);
     const imgY = isKeyboard
-     ? BLOCK_SIZE.y * (y + 0.4)
-     : BLOCK_SIZE.y * (y + bannerHeight * 0.5) - 48;
+     ? BLOCK_SIZE_Y * (y + 0.4)
+     : BLOCK_SIZE_Y * (y + bannerHeight * 0.5) - 48;
     if (inputType === InputType.Keyboard) {
       this.spriteRenderer.drawImage(Image.ControlsKeyboardTurn, imgX, imgY, gfx);
     } else {
@@ -701,17 +702,17 @@ export class Renderer implements IRenderer {
     const bannerWidth = 7.8;
     const bannerHeight = 2.8;
     const bannerPosition = { x, y };
-    const x0 = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x);
-    const x1 = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x + bannerWidth);
-    const y0 = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y);
-    const y1 = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y + bannerHeight);
+    const x0 = MAP_OFFSET + BLOCK_SIZE_X * (bannerPosition.x);
+    const x1 = MAP_OFFSET + BLOCK_SIZE_X * (bannerPosition.x + bannerWidth);
+    const y0 = MAP_OFFSET + BLOCK_SIZE_Y * (bannerPosition.y);
+    const y1 = MAP_OFFSET + BLOCK_SIZE_Y * (bannerPosition.y + bannerHeight);
     gfx.fill('#000000aa');
     gfx.stroke("#000");
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
-    const textX = MAP_OFFSET + BLOCK_SIZE.x * (bannerPosition.x + 3.5);
-    const textY = MAP_OFFSET + BLOCK_SIZE.y * (bannerPosition.y + bannerHeight * 0.5);
+    const textX = MAP_OFFSET + BLOCK_SIZE_X * (bannerPosition.x + 3.5);
+    const textY = MAP_OFFSET + BLOCK_SIZE_Y * (bannerPosition.y + bannerHeight * 0.5);
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
@@ -720,8 +721,8 @@ export class Renderer implements IRenderer {
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("SPRINT", textX, textY);
     // image
-    const imgX = BLOCK_SIZE.x * (bannerPosition.x + 0.6);
-    const imgY = BLOCK_SIZE.y * (bannerPosition.y + 0.6);
+    const imgX = BLOCK_SIZE_X * (bannerPosition.x + 0.6);
+    const imgY = BLOCK_SIZE_Y * (bannerPosition.y + 0.6);
     if (inputType === InputType.Keyboard) {
       this.spriteRenderer.drawImage(Image.ControlsKeyboardSprint, imgX, imgY, gfx);
     } else {
@@ -758,18 +759,18 @@ export class Renderer implements IRenderer {
     textColor = "#fff",
     backgroundColor = "#000000aa",
   } = {}) => {
-    const x0 = MAP_OFFSET + BLOCK_SIZE.x * x;
-    const x1 = MAP_OFFSET + BLOCK_SIZE.x * (x + bannerWidth) - STROKE_SIZE * 0.5;
-    const y0 = MAP_OFFSET + BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
-    const y1 = MAP_OFFSET + BLOCK_SIZE.y * (y + bannerHeight) - STROKE_SIZE;
+    const x0 = MAP_OFFSET + BLOCK_SIZE_X * x;
+    const x1 = MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth) - STROKE_SIZE * 0.5;
+    const y0 = MAP_OFFSET + BLOCK_SIZE_Y * y - STROKE_SIZE * 0.5;
+    const y1 = MAP_OFFSET + BLOCK_SIZE_Y * (y + bannerHeight) - STROKE_SIZE;
     gfx.fill(backgroundColor);
     gfx.noStroke();
     // gfx.stroke("#000");
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
-    const textX = MAP_OFFSET + BLOCK_SIZE.x * x + 2 * 5 + BLOCK_SIZE.x * textXOffset;
-    const textY = MAP_OFFSET + BLOCK_SIZE.y * y + 2 * 7;
+    const textX = MAP_OFFSET + BLOCK_SIZE_X * x + 2 * 5 + BLOCK_SIZE_X * textXOffset;
+    const textY = MAP_OFFSET + BLOCK_SIZE_Y * y + 2 * 7;
     gfx.fill(textColor);
     // gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
@@ -804,10 +805,10 @@ export class Renderer implements IRenderer {
   private drawKeys(gfx: P5 | P5.Graphics, offsetY: number, paused: boolean) {
     const x = 0;
     const y = 1 + offsetY;
-    const x0 = MAP_OFFSET + BLOCK_SIZE.x * x - STROKE_SIZE * 0.5;
-    const y0 = MAP_OFFSET + BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
-    const x1 = MAP_OFFSET + x0 + BLOCK_SIZE.x * 1 + STROKE_SIZE * 0.5;
-    const y1 = MAP_OFFSET + y0 + BLOCK_SIZE.y * 3 + STROKE_SIZE * 0.5;
+    const x0 = MAP_OFFSET + BLOCK_SIZE_X * x - STROKE_SIZE * 0.5;
+    const y0 = MAP_OFFSET + BLOCK_SIZE_Y * y - STROKE_SIZE * 0.5;
+    const x1 = MAP_OFFSET + x0 + BLOCK_SIZE_X * 1 + STROKE_SIZE * 0.5;
+    const y1 = MAP_OFFSET + y0 + BLOCK_SIZE_Y * 3 + STROKE_SIZE * 0.5;
     gfx.fill("#00000099");
     gfx.noStroke();
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
@@ -826,10 +827,10 @@ export class Renderer implements IRenderer {
   private drawItem(gfx: P5 | P5.Graphics, image: SpritesheetImage, frame: number, offsetY: number, count: number, paused: boolean) {
     const x = 0;
     const y = 1 + offsetY;
-    const x0 = MAP_OFFSET + BLOCK_SIZE.x * x - STROKE_SIZE * 0.5;
-    const y0 = MAP_OFFSET + BLOCK_SIZE.y * y - STROKE_SIZE * 0.5;
-    const x1 = MAP_OFFSET + x0 + BLOCK_SIZE.x * 1 + STROKE_SIZE * 0.5;
-    const y1 = MAP_OFFSET + y0 + BLOCK_SIZE.y * Math.min(count, 10) + STROKE_SIZE * 0.5;
+    const x0 = MAP_OFFSET + BLOCK_SIZE_X * x - STROKE_SIZE * 0.5;
+    const y0 = MAP_OFFSET + BLOCK_SIZE_Y * y - STROKE_SIZE * 0.5;
+    const x1 = MAP_OFFSET + x0 + BLOCK_SIZE_X * 1 + STROKE_SIZE * 0.5;
+    const y1 = MAP_OFFSET + y0 + BLOCK_SIZE_Y * Math.min(count, 10) + STROKE_SIZE * 0.5;
     gfx.fill("#00000099");
     gfx.noStroke();
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
@@ -902,8 +903,8 @@ export class Renderer implements IRenderer {
     if (!IS_DEV && !IS_LOCALHOST) return;
 
     this.drawPerf(gfx, gameLoopProcessingTime);
-    const textX = BLOCK_SIZE.x * (25);
-    const textY = BLOCK_SIZE.y * (1);
+    const textX = BLOCK_SIZE_X * (25);
+    const textY = BLOCK_SIZE_Y * (1);
     gfx.fill("#fff");
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 2);
@@ -932,8 +933,8 @@ export class Renderer implements IRenderer {
   private perfAllTimeMax = 0;
   private perfFrames: number[] = [];
   private drawPerf = (gfx: P5 | P5.Graphics, gameLoopProcessingTime: number) => {
-    const textX = BLOCK_SIZE.x * (21);
-    const textY = BLOCK_SIZE.y * (1);
+    const textX = BLOCK_SIZE_X * (21);
+    const textY = BLOCK_SIZE_Y * (1);
     gfx.fill("#fff");
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 2);

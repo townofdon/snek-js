@@ -1,8 +1,16 @@
 import P5, { Vector } from "p5";
 import Color from "color";
 
-import { ScreenShakeState, Image, Palette, ExtendedPalette, AnimationData, SpritesheetImage, ThemedImage, ColorReplacementPalette, SpritesheetRange } from "../types";
-import { ANIMATIONS, BLOCK_SIZE, MAP_OFFSET, STROKE_SIZE } from "../constants";
+import {
+  ScreenShakeState,
+  Image,
+  ExtendedPalette,
+  SpritesheetImage,
+  ThemedImage,
+  ColorReplacementPalette,
+  SpritesheetRange,
+} from "../types";
+import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y, MAP_OFFSET, STROKE_SIZE } from "../constants";
 import { getCurrentFrame, getRelativeDir, lerp, isValidSpritesheetRange } from "../utils";
 import { getBorderColorVariant } from "@/palettes";
 
@@ -403,11 +411,11 @@ export class SpriteRenderer {
     if (!loaded) {
       return;
     }
-    const widthX = Math.floor(BLOCK_SIZE.x);
-    const widthY = Math.floor(BLOCK_SIZE.y);
+    const widthX = Math.floor(BLOCK_SIZE_X);
+    const widthY = Math.floor(BLOCK_SIZE_Y);
     const offset = -STROKE_SIZE * 0.5;
-    const posx = Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE.x * IMAGE_SCALE) + MAP_OFFSET + 1;
-    const posy = Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE.y * IMAGE_SCALE) + MAP_OFFSET;
+    const posx = Math.floor(x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE_X * IMAGE_SCALE) + MAP_OFFSET + 1;
+    const posy = Math.floor(y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE_Y * IMAGE_SCALE) + MAP_OFFSET;
 
     gfx.push();
     gfx.noSmooth();
@@ -502,11 +510,11 @@ export class SpriteRenderer {
     if (!loaded) {
       return;
     }
-    const widthX = Math.floor(BLOCK_SIZE.x) + STROKE_SIZE;
-    const widthY = Math.floor(BLOCK_SIZE.y) + STROKE_SIZE;
+    const widthX = Math.floor(BLOCK_SIZE_X) + STROKE_SIZE;
+    const widthY = Math.floor(BLOCK_SIZE_Y) + STROKE_SIZE;
     const offset = -STROKE_SIZE * 0.5;
-    const posx = Math.floor(x * BLOCK_SIZE.x + this.screenShake.offset.x * screenshakeMul) + offset + MAP_OFFSET + 1;
-    const posy = Math.floor(y * BLOCK_SIZE.y + this.screenShake.offset.y * screenshakeMul) + offset + MAP_OFFSET;
+    const posx = Math.floor(x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul) + offset + MAP_OFFSET + 1;
+    const posy = Math.floor(y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul) + offset + MAP_OFFSET;
 
     gfx.push();
     gfx.noSmooth();

@@ -49,13 +49,18 @@ export const FRAMERATE = 90;
 export const FRAME_DUR_MS = (1 / FRAMERATE) * 1000;
 
 /**
- * BLOCK SIZE IS TYPICALLY 20x20
+ * SPRITE SIZE IS TYPICALLY 16X16 - 20x20 WAS LEGACY BUT KEPT FOR EDITOR DIMENSIONS FOR SIMPLICITY
  */
+// export const DIMENSIONS = IS_EDITOR ? { x: 600, y: 600 } as const : { x: 960, y: 960 } as const;
 export const DIMENSIONS = IS_EDITOR ? { x: 600, y: 600 } as const : { x: 1200, y: 1200 } as const;
 export const GRIDCOUNT_X = 30;
 export const GRIDCOUNT_Y = 30;
 export const STROKE_SIZE = IS_EDITOR ? 4 : 8;
-export const BLOCK_SIZE = { x: DIMENSIONS.x / GRIDCOUNT_X, y: DIMENSIONS.y / GRIDCOUNT_Y } as const;
+
+// export const BLOCK_SIZE_X = IS_EDITOR ? 20 : 32;
+// export const BLOCK_SIZE_Y = IS_EDITOR ? 20 : 32;
+export const BLOCK_SIZE_X = IS_EDITOR ? 20 : 40;
+export const BLOCK_SIZE_Y = IS_EDITOR ? 20 : 40;
 export const MAP_OFFSET = IS_EDITOR ? 2 : 4;
 
 export const MAX_MOVES_GAMEPAD = 8;
