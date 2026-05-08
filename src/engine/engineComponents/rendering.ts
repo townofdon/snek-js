@@ -660,7 +660,7 @@ export function engineRendering({
             spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeCrit, x, y, elapsed);
           } else {
             // spriteRenderer.drawImage1x1(gfxFGAction, Image.ThreatSheet16, x, y, 0, 1, 0, Threat16Frame.DiodeBlue0 - 1, FRAME_COUNT_THREAT_16);
-            spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeBlue, x, y, elapsed, true);
+            spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeBlue, x, y, elapsed);
           }
         } else if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
           const x = Math.floor(coord % GRIDCOUNT_X);
