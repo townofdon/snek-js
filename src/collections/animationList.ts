@@ -1,8 +1,8 @@
 import { Vector } from "p5";
-import { GRIDCOUNT_X,
+import { ANIMATIONS, GRIDCOUNT_X,
 GRIDCOUNT_Y, IS_DEV } from "../constants";
-import { getCoordIndex2, getManhattanDistance, shouldBlinkExpiringPickup } from "../utils";
-import { ICollection } from "../types";
+import { getCoordIndex2, getCurrentFrame, getManhattanDistance, isNil, shouldBlinkExpiringPickup } from "../utils";
+import { ICollection, SpritesheetImage, SpritesheetRange } from "../types";
 
 export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
@@ -23,9 +23,8 @@ export class AnimationList implements ICollection {
   private free: Uint8Array;
   private lifetime: Float32Array;
   private elapsed: Float32Array;
-  private frames: Uint8Array;
-  private timePerFrame: Float32Array;
   private type: Uint8Array;
+  private img: Record<number, SpritesheetImage | SpritesheetRange>;
   private activeLength: number;
   private maxLength: number;
   private coordMap: Record<number, boolean>;
@@ -44,11 +43,10 @@ export class AnimationList implements ICollection {
     this.free = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(1);
     this.lifetime = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.elapsed = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
-    this.frames = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(1);
-    this.timePerFrame = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.type = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.activeLength = 0;
     this.coordMap = {};
+    this.img = {};
     this.numTimesDidChange = 0;
     this.reset();
   }
@@ -62,21 +60,20 @@ export class AnimationList implements ICollection {
       this.elapsed[i] = 0;
       this.coordMap[i] = false;
       this.lifetime[i] = 0;
-      this.frames[i] = 0;
-      this.timePerFrame[i] = 0;
+      this.img[i] = undefined;
       this.type[i] = 0;
     }
     this.activeLength = 0;
     this.numTimesDidChange = 0;
   }
 
-  public fillFromMap = (map: Record<number, boolean>, lifetime: number, frames: number, timePerFrame: number) => {
+  public fillFromMap = (map: Record<number, boolean>, lifetime: number, img: SpritesheetImage | SpritesheetRange) => {
     this.reset();
     for (let y = 0; y < GRIDCOUNT_Y; y++) {
       for (let x = 0; x < GRIDCOUNT_X; x++) {
         const coord = getCoordIndex2(x, y);
         if (map[coord]) {
-          this.add(x, y, lifetime, frames, timePerFrame)
+          this.add(x, y, lifetime, img);
         }
       }
     }
@@ -113,8 +110,10 @@ export class AnimationList implements ICollection {
       }
       const prevElapsed = this.elapsed[i];
       this.elapsed[i] += deltaTime;
-      const framePrev = Math.floor(prevElapsed / this.timePerFrame[i]) % this.frames[i];
-      const frameCurrent = Math.floor(this.elapsed[i] / this.timePerFrame[i]) % this.frames[i];
+      const sprite = this.img[i];
+      const { frames = 1, timePerFrame = 0, durations } = ANIMATIONS[sprite] || {};
+      const framePrev = getCurrentFrame(frames, timePerFrame, durations, prevElapsed);
+      const frameCurrent = getCurrentFrame(frames, timePerFrame, durations, this.elapsed[i]);
       if (framePrev !== frameCurrent) {
         didChange = true;
       }
@@ -136,10 +135,10 @@ export class AnimationList implements ICollection {
     return didChange;
   }
 
-  public add = (x: number, y: number, lifetime: number, frames: number, timePerFrame: number, type = 0) => {
+  public add = (x: number, y: number, lifetime: number, img: SpritesheetImage | SpritesheetRange, type = 0) => {
     this.validate();
     if (!frames) throw new Error(`invalid frames value. val=${frames}`)
-    if (!timePerFrame) throw new Error(`invalid timePerFrame value. val=${timePerFrame}`)
+    if (!img) throw new Error(`invalid img value. val=${img}`)
     const coord = getCoordIndex2(x, y);
     if (this.existsAt(x, y)) {
       return;
@@ -152,8 +151,7 @@ export class AnimationList implements ICollection {
         this.elapsed[i] = 0;
         this.coordMap[coord] = true;
         this.lifetime[i] = lifetime;
-        this.frames[i] = frames;
-        this.timePerFrame[i] = timePerFrame;
+        this.img[i] = img;
         this.type[i] = type;
         this.recalculateLength();
         return;
@@ -168,8 +166,7 @@ export class AnimationList implements ICollection {
     this.elapsed[i] = 0;
     this.coordMap[coord] = true;
     this.lifetime[i] = lifetime;
-    this.frames[i] = frames;
-    this.timePerFrame[i] = timePerFrame;
+    this.img[i] = img;
     this.type[i] = type;
     this.recalculateLength();
   }
@@ -210,8 +207,7 @@ export class AnimationList implements ICollection {
     this.free[i] = 1;
     this.elapsed[i] = 0;
     this.lifetime[i] = 0;
-    this.frames[i] = 0;
-    this.timePerFrame[i] = 0;
+    this.img[i] = undefined;
     this.type[i] = 0;
     this.recalculateLength();
     return;
@@ -221,15 +217,19 @@ export class AnimationList implements ICollection {
     return this.existsAt(vec.x, vec.y);
   }
 
-  public existsAtCoord = (coord: number): boolean => {
+  public existsAtCoord = (coord: number, type?: number): boolean => {
     coord = Math.floor(coord);
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
-    return this.existsAt(x, y);
+    return this.existsAt(x, y, type);
   }
 
-  public existsAt = (x: number, y: number): boolean => {
-    return this.coordMap[getCoordIndex2(x, y)] || false;
+  public existsAt = (x: number, y: number, type?: number): boolean => {
+    const exists = this.coordMap[getCoordIndex2(x, y)] || false;
+    if (isNil(type)) {
+      return exists;
+    }
+    return exists && type === this.getType(x, y);
   }
 
   public getElapsedByVec = (vec: Vector): number => {
@@ -319,8 +319,6 @@ export class AnimationList implements ICollection {
     const free = new Uint8Array(this.maxLength).fill(1);
     const lifetime = new Float32Array(this.maxLength).fill(0);
     const elapsed = new Float32Array(this.maxLength).fill(0);
-    const frames = new Uint8Array(this.maxLength).fill(1);
-    const timePerFrame = new Float32Array(this.maxLength).fill(0);
 
     for (let i = 0; i < this.free.length; i++) {
       x[i] = this.x[i];
@@ -328,16 +326,12 @@ export class AnimationList implements ICollection {
       free[i] = this.free[i];
       lifetime[i] = this.lifetime[i];
       elapsed[i] = this.elapsed[i];
-      frames[i] = this.frames[i];
-      timePerFrame[i] = this.timePerFrame[i];
     }
     this.x = x;
     this.y = y;
     this.free = free;
     this.lifetime = lifetime;
     this.elapsed = elapsed;
-    this.frames = frames;
-    this.timePerFrame = timePerFrame;
   }
 
   private validate() {
@@ -346,8 +340,6 @@ export class AnimationList implements ICollection {
       if (this.x.length !== this.free.length) throw new Error(`lengths diverged: x.length=${this.x.length},free.length=${this.free.length}`);
       if (this.x.length !== this.lifetime.length) throw new Error(`lengths diverged: x.length=${this.x.length},lifetime.length=${this.lifetime.length}`);
       if (this.x.length !== this.elapsed.length) throw new Error(`lengths diverged: x.length=${this.x.length},elapsed.length=${this.elapsed.length}`);
-      if (this.x.length !== this.frames.length) throw new Error(`lengths diverged: x.length=${this.x.length},frames.length=${this.frames.length}`);
-      if (this.x.length !== this.timePerFrame.length) throw new Error(`lengths diverged: x.length=${this.x.length},timePerFrame.length=${this.timePerFrame.length}`);
     }
   }
 }

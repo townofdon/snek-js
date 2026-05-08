@@ -3,15 +3,20 @@ import Color from "color";
 
 import {
   AnimationData,
+  AnimationDataForRange,
   Difficulty,
   Image,
   MusicTrack,
   PickupType,
   PortalChannel,
   SpritesheetImage,
+  SpritesheetRange,
+  Threat16Frame,
+  Threat48Frame,
   WearableFrame,
   WearableType,
 } from "./types";
+import { isValidSpritesheetRange } from "./utils";
 
 export const TITLE = 'SNEK';
 
@@ -386,7 +391,11 @@ export const SLIME_CONTROL_TRACKS: MusicTrack[] = [
   MusicTrack.slime_rollcredits,
 ];
 
-export const ANIMATIONS = {
+export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<SpritesheetRange, AnimationDataForRange> = {
+  [Image.__TEST__]: {
+    frames: 1,
+    timePerFrame: 1,
+  },
   [Image.ThemedAppleSheet]: {
     frames: 13,
     timePerFrame: 100,
@@ -405,108 +414,191 @@ export const ANIMATIONS = {
       100,
       9000,
     ],
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.SegmentsSheet]: {
     frames: 6,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.MineSheet]: {
     frames: 2,
     timePerFrame: 400,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.ExplosionSheet]: {
     frames: 4,
     timePerFrame: 200,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.FireSheet]: {
     frames: 3,
     timePerFrame: 200,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.TileSheet16]: {
     frames: 35,
     timePerFrame: 200,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.TileSheet48]: {
     frames: 7,
     timePerFrame: 200,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.PickupsSheet]: {
     frames: 57,
     timePerFrame: 200,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.WearablesSheet]: {
     frames: 27,
     timePerFrame: 200,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.UIKeysSheet]: {
     frames: 5,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.DoorLightSheet]: {
     frames: 9,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.DoorOpenSheet]: {
     frames: 13,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.Points500]: {
     frames: 14,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.Points1000]: {
     frames: 13,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.Points2000]: {
     frames: 13,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.Points5000]: {
     frames: 16,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.Points10000]: {
     frames: 17,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.PreyGrubSheet]: {
     frames: 4,
     timePerFrame: PREY_MOVE_TIME_GRUB / 2,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.PreyAntSheet]: {
     frames: 2,
     timePerFrame: PREY_MOVE_TIME_ANT / 2,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.PreyMouseSheet]: {
     frames: 4,
     timePerFrame: PREY_MOVE_TIME_MOUSE / 2,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.PreyGrasshopperSheet]: {
     frames: 2,
     timePerFrame: PREY_MOVE_TIME_GRASSHOPPER / 2,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.Shield]: {
     frames: 6,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.ShieldSpawn]: {
     frames: 13,
     timePerFrame: 100,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.PickupOutlineBlueSheet]: {
     frames: 4,
     timePerFrame: 200,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.PickupOutlineYellowSheet]: {
     frames: 4,
     timePerFrame: 200,
-  } as const satisfies AnimationData,
+  } satisfies AnimationData,
   [Image.UIShieldSheet]: {
     frames: 2,
     timePerFrame: 200,
-  } as const satisfies AnimationData,
-} as const satisfies Record<SpritesheetImage, AnimationData>;
+  } satisfies AnimationData,
+  [Image.ThreatSheet16]: {
+    frames: 28,
+    timePerFrame: 200,
+  } satisfies AnimationData,
+  [Image.ThreatSheet48]: {
+    frames: 19,
+    timePerFrame: 200,
+  } satisfies AnimationData,
+  [SpritesheetRange.None]: {
+    src: Image.SegmentsSheet,
+    offset: 0,
+    frames: 1,
+    timePerFrame: 100,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.DiodeCrit]: {
+    src: Image.ThreatSheet16,
+    offset: Threat16Frame.DiodeCrit0 - 1,
+    frames: 2,
+    timePerFrame: 200,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.DiodeBlue]: {
+    src: Image.ThreatSheet16,
+    offset: Threat16Frame.DiodeBlue0 - 1,
+    frames: 4,
+    timePerFrame: 200,
+    durations: [400, 200, 200, 200],
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.DiodeRed]: {
+    src: Image.ThreatSheet16,
+    offset: Threat16Frame.DiodeRed0 - 1,
+    frames: 4,
+    timePerFrame: 200,
+    durations: [400, 200, 200, 200],
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.LaserBlue]: {
+    src: Image.ThreatSheet16,
+    offset: Threat16Frame.LaserBlue0 - 1,
+    frames: 4,
+    timePerFrame: 100,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.LaserRed]: {
+    src: Image.ThreatSheet16,
+    offset: Threat16Frame.LaserRed0 - 1,
+    frames: 4,
+    timePerFrame: 100,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.Barrel]: {
+    src: Image.ThreatSheet48,
+    offset: Threat48Frame.Barrel - 1,
+    frames: 1,
+    timePerFrame: 100,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.BarrelFireA]: {
+    src: Image.ThreatSheet48,
+    offset: Threat48Frame.BarrelFireA0 - 1,
+    frames: 4,
+    timePerFrame: 200,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.BarrelFireB]: {
+    src: Image.ThreatSheet48,
+    offset: Threat48Frame.BarrelFireB0 - 1,
+    frames: 4,
+    timePerFrame: 200,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.BarrelRupture]: {
+    src: Image.ThreatSheet48,
+    offset: Threat48Frame.BarrelRupture0 - 1,
+    frames: 4,
+    timePerFrame: 200,
+  } satisfies AnimationDataForRange,
+} satisfies (Record<SpritesheetImage, AnimationData> & Record<SpritesheetRange, AnimationDataForRange>);
+
+// validate ANIMATIONS data
+Object.entries(ANIMATIONS).forEach(([key, val]) => {
+  const offset = (val as AnimationDataForRange).offset || 0;
+  const name = (val as AnimationDataForRange).src || key;
+  const add = offset ? ` <${key}>(+${offset})` : ''
+  if (!val.timePerFrame) {
+    throw new Error(`timePerFrame cannot be zero. val=${val.timePerFrame},img="${name}${add}"`);
+  }
+  if (val.durations && (val.durations.length !== val.frames)) {
+    throw new Error(`Inconsistent animation data for "${name}${add}": frames (${frames}) did not match durations.length (${val.durations.length})`);
+  }
+})
 
 export const PICKUP_COMMON_ITEMS: PickupType[] = [
   PickupType.Cheese,

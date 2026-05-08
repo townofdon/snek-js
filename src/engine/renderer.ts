@@ -589,7 +589,7 @@ export class Renderer implements IRenderer {
   }
 
   drawTutorialRewindControls = (gfx: P5 | P5.Graphics, playerPosition: Vector, canRewind: boolean) => {
-    const hasNeverBeenHurt = this.gameState.lastHurtBy === HitType.Unknown;
+    const hasNeverBeenHurt = this.gameState.lastHurtBy === HitType.None;
     if (hasNeverBeenHurt) return;
     if (this.tutorial.needsMoveControls) return;
     if (!this.tutorial.needsRewindControls) return;

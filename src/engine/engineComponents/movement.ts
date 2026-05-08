@@ -27,6 +27,7 @@ import {
   ReplayMode,
   Sound,
   Stats,
+  ThreatType,
 } from "@/types";
 import {
   checkHasPortalAtLocation,
@@ -290,41 +291,55 @@ export function engineMovement({
     }
   }
 
-  function checkHasHit(vec: Vector, updateLastHurtBy = true): boolean {
-    if (state.isExitingLevel) return false;
-    if (state.isExited) return false;
-    if (state.isGameWon) return false;
-    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+  function checkCollision(vec: Vector): HitType {
+    if (state.isExitingLevel) return HitType.None;
+    if (state.isExited) return HitType.None;
+    if (state.isGameWon) return HitType.None;
     const coord = getCoordIndex(vec);
     // self
     const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     const rewindingFromArmor = state.isRewinding && state.timeSinceArmorProtection < es.difficulty.invincibilityTime;
     if (segments.containsCoord(coord) && !invincible && !rewindingFromArmor) {
-      if (updateLastHurtBy) state.lastHurtBy = HitType.HitSelf;
-      return true;
+      return HitType.HitSelf;
     }
     // clip reality
-    if (es.level.disableWallCollision) return false;
+    if (es.level.disableWallCollision) return HitType.None;
     // door
     if (es.doorsMap[coord]) {
-      if (updateLastHurtBy) state.lastHurtBy = HitType.HitDoor;
-      return true;
+      return HitType.HitDoor;
     }
     // barrier
     const isPassableBarrier = state.isDoorsOpen && es.passablesMap[coord];
     if (!isPassableBarrier && es.barriersMap[coord]) {
-      if (updateLastHurtBy) state.lastHurtBy = HitType.HitBarrier;
-      return true;
+      return HitType.HitBarrier;
     }
     // lock
     if (es.locksMap[coord]) {
-      if (es.locksMap[coord].channel === KeyChannel.Yellow && state.hasKeyYellow) return false;
-      if (es.locksMap[coord].channel === KeyChannel.Red && state.hasKeyRed) return false;
-      if (es.locksMap[coord].channel === KeyChannel.Blue && state.hasKeyBlue) return false;
-      if (updateLastHurtBy) state.lastHurtBy = HitType.HitLock;
-      return true;
+      if (es.locksMap[coord].channel === KeyChannel.Yellow && state.hasKeyYellow) return HitType.None;
+      if (es.locksMap[coord].channel === KeyChannel.Red && state.hasKeyRed) return HitType.None;
+      if (es.locksMap[coord].channel === KeyChannel.Blue && state.hasKeyBlue) return HitType.None;
+      return HitType.HitLock;
     }
-    return false;
+    // threats
+    if (es.threatsMap[coord] === ThreatType.LaserDiode) {
+      return HitType.HitBarrier;
+    }
+    if (es.threatsMap[coord] === ThreatType.ExplodableBarrel) {
+      return HitType.HitBarrier;
+    }
+    return HitType.None;
+  }
+
+  function checkHasHit(vec: Vector, updateLastHurtBy = true): boolean {
+    if (state.isExitingLevel) return false;
+    if (state.isExited) return false;
+    if (state.isGameWon) return false;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+    const hit = checkCollision(vec);
+    if (hit && updateLastHurtBy) {
+      state.lastHurtBy = hit;
+    }
+    return !!hit;
   }
 
   function checkPortalTeleportWillHit(position: Vector, dir: DIR): boolean {
@@ -433,6 +448,7 @@ export function engineMovement({
     reboundSnake,
     rewindAllowed,
     checkHasHit,
+    checkCollision,
     checkPortalTeleportWillHit,
     getDirectionSnakeForward,
     getDirectionSnakeBackward,

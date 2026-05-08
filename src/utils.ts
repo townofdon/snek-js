@@ -42,6 +42,9 @@ import {
   LaserCell,
   Orientation,
   LaserType,
+  AnimationData,
+  SpritesheetRange,
+  SPRITESHEET_RANGE_MAX,
 } from "./types";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
@@ -136,7 +139,7 @@ export function getDifficultyName(index: number) {
 }
 
 export function checkIsMoving(state: GameState, loopState: LoopState): boolean {
-  if (!state.isMoving) return false;
+  if (!state.isMoving && !state.isRewinding) return false;
   if (state.timeSinceHurt < HURT_STUN_TIME) return false;
   if (state.timeSinceArmorProtection < HURT_STUN_TIME && !state.isRewinding) return false;
   if (loopState.timeScale === 0) return false;
@@ -526,6 +529,11 @@ export const getGraphicsDir = (appendPath = '') => {
   return `${getRelativeDir()}/assets/graphics/${appendPath}`;;
 }
 
+export function isValidSpritesheetRange(val: any): val is SpritesheetRange {
+  if (typeof val !== 'number') return false;
+  return Number.isInteger(val) && val >= SpritesheetRange.None && val < SPRITESHEET_RANGE_MAX;
+}
+
 export const isValidPortalChannel = (portalChannel: number): portalChannel is PortalChannel => {
   if (portalChannel === null || portalChannel === undefined) return false;
   return Number.isInteger(portalChannel) && portalChannel >= 0 && portalChannel <= 9
@@ -730,26 +738,49 @@ export function wait(duration: number) {
   })
 }
 
+export const isNil = (val: any): boolean => val === undefined || val === null;
+
 export const shouldBlinkExpiringPickup = (timeLeft: number, warnTime = PICKUP_EXPIRE_WARN_MS) =>
   !!timeLeft
   && timeLeft <= warnTime
   && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0;
+
+export const getCurrentFrame = (frames: number, timePerFrame: number, durations: number[] | undefined, elapsed: number): number => {
+  if (!frames || !timePerFrame) return 0;
+  let frame = Math.floor(elapsed / timePerFrame) % frames;
+  // `durations` overrides `frame`, `timePerFrame`
+  if (durations?.length) {
+    const totalDuration = durations.reduce((a, b) => a + b, 0);
+    const t = elapsed % totalDuration;
+    // get current frame
+    frame = 0;
+    let sum = 0;
+    for (let i = 0; i < durations.length; i++) {
+      sum += durations[i];
+      if (t < sum) {
+        frame = i;
+        break;
+      }
+    }
+  }
+  return frame;
+}
 
 export const recalculateLasersMap = (
   lasersMap: Record<number, LaserCell>,
   threatsMap: Record<number, ThreatType>,
   barriersMap: Record<number, BarrierType>,
   doorsMap: Record<number, boolean>,
-  locksMap: Record<number, Lock | null | KeyChannel>,
-  portalsMap: Record<number, Portal | PortalChannel>
+  locksMap: Record<number, any>,
+  portalsMap: Record<number, any>,
 ) => {
   const valid = (coord: number) => true
     && threatsMap[coord] !== ThreatType.Mine
     && threatsMap[coord] !== ThreatType.ExplodableBarrel
     && !barriersMap[coord]
     && !doorsMap[coord]
-    && (locksMap[coord] === undefined || locksMap[coord] === null)
-    && (portalsMap[coord] === undefined || portalsMap[coord] === null);
+    && isNil(locksMap[coord])
+    && isNil(portalsMap[coord]);
   // first clear map
   for (let y = 0; y < GRIDCOUNT_Y; y++) {
     for (let x = 0; x < GRIDCOUNT_X; x++) {

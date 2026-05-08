@@ -354,7 +354,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           if (barrierType === BarrierType.FireTile) { acc[coord] = true; }
           return acc;
         }, {} as Record<number, boolean>);
-        fireTiles.fillFromMap(fireBarriersMap, 99999999, ANIMATIONS[Image.FireSheet].frames, ANIMATIONS[Image.FireSheet].timePerFrame);
+        fireTiles.fillFromMap(fireBarriersMap, 99999999, Image.FireSheet);
         updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, null, fireTiles);
         startPortalParticles();
       }
@@ -569,7 +569,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
               spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.MineSheet, x, y, 0);
               break;
             case ThreatType.LaserDiode:
-              spriteRenderer.drawImage1x1Static(gfx, Image.ThreatSheet16, x, y, 0, 1, 0, Threat16Frame.DiodeBlue0 - 1, FRAME_COUNT_THREAT_16)
+              spriteRenderer.drawImage1x1Static(gfx, Image.ThreatSheet16, x, y, 0, 1, 0, Threat16Frame.DiodeBlue0 - 1, FRAME_COUNT_THREAT_16);
               break;
             case ThreatType.ExplodableBarrel:
               spriteRenderer.drawImage3x3Static(gfx, Image.ThreatSheet48, x, y, 0, 1, 0, Threat48Frame.Barrel - 1, FRAME_COUNT_THREAT_48);

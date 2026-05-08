@@ -13,6 +13,7 @@ import {
   INVINCIBILITY_EXPIRE_WARN_MS,
   INVINCIBILITY_PICKUP_LIFETIME_MS,
   NUM_SNAKE_INVINCIBLE_COLORS,
+  PICKUP_EXPIRE_WARN_MS,
   PICKUP_LIFETIME_MS,
   PICKUP_SPRITE_FRAME_MAP,
   STROKE_SIZE,
@@ -44,6 +45,15 @@ import {
   PortalChannel,
   SegmentFrame,
   LoopState,
+  ThreatType,
+  Threat16Frame,
+  FRAME_COUNT_THREAT_16,
+  Threat48Frame,
+  FRAME_COUNT_THREAT_48,
+  SpritesheetRange,
+  LaserType,
+  Orientation,
+  HitType,
 } from "@/types";
 import { UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
 import { Renderer } from "../renderer";
@@ -58,6 +68,7 @@ import {
   getRotationFromDirection,
   invertDirection,
   isAtMapEdge,
+  isNil,
   lerp,
   shouldBlinkExpiringPickup,
   toRarity,
@@ -279,21 +290,40 @@ export function engineRendering({
   }
 
   let showPlannedMoves = false;
-  function drawPlayerPlannedMoves() {
+  function drawPlayerPlannedMoves(
+    portalsMap: Record<number, any>,
+    checkCollision: (vec: Vector) => HitType,
+  ) {
     if (!es.moves.length) {
       showPlannedMoves = false;
       return;
     }
-    if (!showPlannedMoves && es.moves.length < 3 && checkIsMoving(state, loopState)) {
+    if (!showPlannedMoves && es.moves.length < 3 && state.isMoving && checkIsMoving(state, loopState)) {
       return;
     }
     showPlannedMoves = true;
     let pos = player.position.copy();
+    let dir = player.direction;
+    let numMoves = 0;
     for (let i = 0; i < es.moves.length; i++) {
-        const move = es.moves[i];
-        pos.add(dirToUnitVector(move));
-        const { frames } = ANIMATIONS[Image.SegmentsSheet];
-        spriteRenderer.drawImage1x1(gfxPresentation, Image.SegmentsSheet, pos.x, pos.y, 0, 1, 0, SegmentFrame.Path - 1, frames);
+      const move = es.moves[i];
+      const tmp = pos.copy().add(dirToUnitVector(move));
+      if (!isNil(portalsMap[getCoordIndex(tmp)]) || checkCollision(tmp)) {
+        continue;
+      }
+      dir = move;
+      numMoves++;
+      pos.add(dirToUnitVector(move));
+      const { frames } = ANIMATIONS[Image.SegmentsSheet];
+      spriteRenderer.drawImage1x1(gfxPresentation, Image.SegmentsSheet, pos.x, pos.y, 0, 1, 0, SegmentFrame.Path - 1, frames);
+    }
+    for (let i = numMoves; i < 6; i++) {
+      pos.add(dirToUnitVector(dir));
+      if (!isNil(portalsMap[getCoordIndex(pos)]) || checkCollision(pos)) {
+        break;
+      }
+      const { frames } = ANIMATIONS[Image.SegmentsSheet];
+      spriteRenderer.drawImage1x1(gfxPresentation, Image.SegmentsSheet, pos.x, pos.y, 0, 1, 0, SegmentFrame.Path - 1, frames);
     }
   }
 
@@ -611,17 +641,77 @@ export function engineRendering({
     }
   }
 
-  function drawMines(mines: AnimationList) {
-    if (drawState.shouldDrawApples) {
+  function drawThreats(threats: AnimationList) {
+    if (drawState.shouldDrawActionFG) {
       for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
-        if (mines.existsAtCoord(coord)) {
+        if (threats.existsAtCoord(coord, ThreatType.Mine)) {
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
-          const elapsed = mines.getElapsedByCoord(coord);
-          if (shouldBlinkExpiringPickup(mines.getTimeRemaining(x, y))) {
+          const elapsed = threats.getElapsedByCoord(coord);
+          if (shouldBlinkExpiringPickup(threats.getTimeRemaining(x, y))) {
             continue;
           }
-          spriteRenderer.drawSpritesheetAnim3x3(gfxApples, Image.MineSheet, x, y, elapsed);
+          spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.MineSheet, x, y, elapsed);
+        } else if (threats.existsAtCoord(coord, ThreatType.LaserDiode)) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const elapsed = threats.getElapsedByCoord(coord);
+          if (threats.getTimeRemaining(x, y) <= PICKUP_EXPIRE_WARN_MS) {
+            spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeCrit, x, y, elapsed);
+          } else {
+            // spriteRenderer.drawImage1x1(gfxFGAction, Image.ThreatSheet16, x, y, 0, 1, 0, Threat16Frame.DiodeBlue0 - 1, FRAME_COUNT_THREAT_16);
+            spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeBlue, x, y, elapsed, true);
+          }
+        } else if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const elapsed = threats.getElapsedByCoord(coord);
+          if (threats.getTimeRemaining(x, y) <= PICKUP_EXPIRE_WARN_MS) {
+            spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, SpritesheetRange.BarrelFireB, x, y, elapsed);
+          } else {
+            spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, SpritesheetRange.Barrel, x, y, elapsed);
+          }
+        }
+      }
+    }
+  }
+
+  function drawLasers() {
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        const coord = getCoordIndex2(x, y);
+        const gfxlsr = renderer.getMainGfx();
+        const laser = es.lasersMap[coord];
+        if (laser?.type === LaserType.Blue) {
+          const frames = [
+            Threat16Frame.LaserBlue0,
+            Threat16Frame.LaserBlue1,
+            Threat16Frame.LaserBlue2,
+            Threat16Frame.LaserBlue3,
+          ];
+          const frame = Math.floor(renderer.getElapsed() / 200) % frames.length;
+          const laserFrame = frames[frame] - 1;
+          if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Horizontal) {
+            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+          }
+          if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Vertical) {
+            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0.5 * Math.PI, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+          }
+        } else if (laser?.type === LaserType.Red) {
+          const frames = [
+            Threat16Frame.LaserRed0,
+            Threat16Frame.LaserRed1,
+            Threat16Frame.LaserRed2,
+            Threat16Frame.LaserRed3,
+          ];
+          const frame = Math.floor(renderer.getElapsed() / 200) % frames.length;
+          const laserFrame = frames[frame] - 1;
+          if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Horizontal) {
+            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+          }
+          if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Vertical) {
+            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0.5 * Math.PI, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+          }
         }
       }
     }
@@ -1132,7 +1222,8 @@ export function engineRendering({
     drawPlayerSegment,
     erasePlayerSegmentCorner,
     drawApple,
-    drawMines,
+    drawThreats,
+    drawLasers,
     drawPrey,
     drawFireTiles,
     drawExplosions,

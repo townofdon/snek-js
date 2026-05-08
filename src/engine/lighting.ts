@@ -71,6 +71,7 @@ export function updateLighting(
   }
   for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
     const isPickupAtCoord = (
+      pickupsMap &&
       (
         pickupsMap[i]?.type === PickupType.Invincibility ||
         pickupsMap[i]?.type === PickupType.Armor ||

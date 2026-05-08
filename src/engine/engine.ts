@@ -96,6 +96,7 @@ import {
   HeldItems,
   EngineState,
   ThreatType,
+  SpritesheetRange,
 } from "../types";
 import {
   clamp,
@@ -112,6 +113,7 @@ import {
   getCoordY,
   isBreakableBarrier,
   coordToVec,
+  recalculateLasersMap,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -274,30 +276,40 @@ export function engine({
     lastFrame: 0,
   } satisfies Replay;
 
-  const onMineLifetimeExpire = (coord: number) => {
+  const onPreyLifetimeExpire = (coord: number) => {
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
-    const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
-    explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
+    const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
+    explosions.add(x, y, lifetime, Image.ExplosionSheet);
     playSound(Sound.xpound);
     drawState.shouldDrawActionFG = true;
   };
   const onShieldSpawnLifetimeExpire = (coord: number) => {
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
-    const { frames, timePerFrame } = ANIMATIONS[Image.Shield];
     const isEndOfLevelDrop = state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && es.level.armorDrop;
     const lifetime = isEndOfLevelDrop ? 99999999 : es.difficulty.invincibilityTime;
     es.pickupsMap[getCoordIndex2(x, y)] = {
       lifetime: lifetime,
       type: PickupType.Armor,
     };
-    shields.add(x, y, lifetime, frames, timePerFrame);
+    shields.add(x, y, lifetime, Image.Shield);
+    drawState.shouldDrawActionFG = true;
+  };
+  const onThreatLifetimeExpire = (coord: number) => {
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
+    if (es.threatsMap[coord] === ThreatType.LaserDiode || es.threatsMap[coord] === ThreatType.Mine) {
+      const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
+      explosions.add(x, y, lifetime, Image.ExplosionSheet);
+      playSound(Sound.xpound);
+    }
+    es.threatsMap[coord] = undefined;
     drawState.shouldDrawActionFG = true;
   };
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
-  const mines = new AnimationList({ onLifetimeExpire: onMineLifetimeExpire });
+  const threats = new AnimationList({ onLifetimeExpire: onThreatLifetimeExpire })
   const doorsOpening = new AnimationList();
   const fireTiles = new AnimationList();
   const explosions = new AnimationList();
@@ -310,8 +322,8 @@ export function engine({
   const preySpawn: PreySpawn = {
     dropsByFrame: undefined
   } satisfies PreySpawn;
-  const astar = new AStar({ allowDiagonals: true, allowClosest: true, randomizeWeights: true, mines, segments });
-  const preyList = new PreyList({ astar, onLifetimeExpire: onMineLifetimeExpire });
+  const astar = new AStar({ allowDiagonals: true, allowClosest: true, randomizeWeights: true, threats, segments });
+  const preyList = new PreyList({ astar, onLifetimeExpire: onPreyLifetimeExpire });
 
   const gradients = new Gradients(p5);
   const particles = new Particles(p5, gradients, screenShake); // z-index 0
@@ -348,7 +360,8 @@ export function engine({
     drawPlayerSegment,
     erasePlayerSegmentCorner,
     drawApple,
-    drawMines,
+    drawThreats,
+    drawLasers,
     drawPrey,
     drawFireTiles,
     drawExplosions,
@@ -397,6 +410,7 @@ export function engine({
     reboundSnake,
     rewindAllowed,
     checkHasHit,
+    checkCollision,
     checkPortalTeleportWillHit,
     getDirectionSnakeForward,
     getDirectionSnakeBackward,
@@ -432,7 +446,7 @@ export function engine({
     coroutines,
     preySpawn,
     apples,
-    mines,
+    threats,
     preyList,
     shieldSpawns,
     pickupOutlines,
@@ -652,7 +666,7 @@ export function engine({
     state.pity = 0;
     state.frameCount = 0;
     state.numTeleports = 0;
-    state.lastHurtBy = HitType.Unknown;
+    state.lastHurtBy = HitType.None;
     state.hasKeyYellow = false;
     state.hasKeyRed = false;
     state.hasKeyBlue = false;
@@ -665,16 +679,22 @@ export function engine({
     es.decoratives1 = [];
     es.decoratives2 = [];
     es.keys = [];
-    es.passablesMap = {};
-    es.barriersMap = {};
-    es.doorsMap = {};
-    es.pickupsMap = {};
-    es.nospawnsMap = {};
     es.portals = { ...DEFAULT_PORTALS() };
-    es.portalsMap = {};
-    es.keysMap = {};
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        es.passablesMap[getCoordIndex2(x, y)] = undefined;
+        es.barriersMap[getCoordIndex2(x, y)] = undefined;
+        es.doorsMap[getCoordIndex2(x, y)] = undefined;
+        es.pickupsMap[getCoordIndex2(x, y)] = undefined;
+        es.nospawnsMap[getCoordIndex2(x, y)] = undefined;
+        es.portalsMap[getCoordIndex2(x, y)] = undefined;
+        es.keysMap[getCoordIndex2(x, y)] = undefined;
+        es.threatsMap[getCoordIndex2(x, y)] = undefined;
+        es.lasersMap[getCoordIndex2(x, y)] = undefined;
+      }
+    }
     apples.reset();
-    mines.reset();
+    threats.reset();
     shields.reset();
     shieldSpawns.reset();
     pickupOutlines.reset();
@@ -835,21 +855,30 @@ export function engine({
       const x = barrier.vec.x;
       const y = barrier.vec.y;
       const lifetime = 99999999; // improbably high lifetime = never despawn
-      fireTiles.add(x, y, lifetime, ANIMATIONS[Image.FireSheet].frames, ANIMATIONS[Image.FireSheet].timePerFrame);
+      fireTiles.add(x, y, lifetime, Image.FireSheet);
     });
 
-    // add initial mines
+    // add initial threats
     for (let i = 0; i < levelData.threats.length; i++) {
       const x = levelData.threats[i].vec.x;
       const y = levelData.threats[i].vec.y;
       const threatType = levelData.threats[i].type;
       const lifetime = 99999999; // improbably high lifetime = never despawn
-      if (threatType === ThreatType.Mine) {
-        mines.add(x, y, lifetime, ANIMATIONS[Image.MineSheet].frames, ANIMATIONS[Image.MineSheet].timePerFrame);
-      } else if (threatType === ThreatType.LaserDiode) {
-        // TODO: ADD DIODE
-      } else if (threatType === ThreatType.ExplodableBarrel) {
-        // TODO: ADD EXPLODABLE BARRELS
+      if (threatType) {
+        es.threatsMap[getCoordIndex2(x, y)] = threatType;
+        switch (threatType) {
+          case ThreatType.Mine:
+            threats.add(x, y, lifetime, Image.MineSheet, ThreatType.Mine);
+            break;
+          case ThreatType.LaserDiode:
+            threats.add(x, y, lifetime, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode);
+            break;
+          case ThreatType.ExplodableBarrel:
+            threats.add(x, y, lifetime, SpritesheetRange.Barrel, ThreatType.ExplodableBarrel);
+            break;
+          default:
+            break;
+        }
       }
     }
 
@@ -866,8 +895,7 @@ export function engine({
         type: pickupType,
       };
       if (pickupType === PickupType.Armor) {
-        const { frames, timePerFrame } = ANIMATIONS[Image.Shield];
-        shields.add(x, y, 99999999, frames, timePerFrame);
+        shields.add(x, y, 99999999, Image.Shield);
       }
     }
 
@@ -911,6 +939,7 @@ export function engine({
       astar.setObstacle(lock.position.x, lock.position.y);
     })
 
+    recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
     resetLightmap(lightMap, es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
     startPortalParticles();
     if (es.level.type === LevelType.WarpZone || (es.level.type === LevelType.Maze && es.level !== START_LEVEL && es.level !== START_LEVEL_COBRA)) {
@@ -1081,6 +1110,7 @@ export function engine({
     }
 
     // tick time for all pickups
+    let didChange = false;
     for (let x = 0; x < GRIDCOUNT_X; x++) {
       for (let y = 0; y < GRIDCOUNT_Y; y++) {
         const i = getCoordIndex2(x, y);
@@ -1093,6 +1123,9 @@ export function engine({
           }
         }
       }
+    }
+    if (didChange) {
+      recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
     }
 
     handlePortalTravel();
@@ -1297,13 +1330,14 @@ export function engine({
     }
 
     drawShields(shieldSpawns, shields);
-    drawMines(mines);
+    drawThreats(threats);
+    drawLasers();
     drawPrey(preyList);
     drawFireTiles(fireTiles);
     drawExplosions(explosions);
 
     renderer.drawPlayerMoveArrows(p5, player.position, es.moves.length > 0 ? es.moves[0] : player.direction);
-    drawPlayerPlannedMoves();
+    drawPlayerPlannedMoves(es.portalsMap, checkCollision);
 
     for (let i = 0; i < segments.length; i++) {
       drawPlayerSegment(segments.get(i), i);
@@ -1330,8 +1364,8 @@ export function engine({
     if (doorsOpening.tick(p5.deltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (!state.isInvertedColors && mines.tick(p5.deltaTime)) {
-      drawState.shouldDrawApples = true;
+    if (!state.isInvertedColors && threats.tick(p5.deltaTime)) {
+      drawState.shouldDrawActionFG = true;
     }
     if (fireTiles.tick(p5.deltaTime)) {
       drawState.shouldDrawActionFG = true;
@@ -1696,7 +1730,7 @@ export function engine({
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     const coord = getCoordIndex(vec);
-    if (mines.existsAtCoord(coord)) {
+    if (threats.existsAtCoord(coord, ThreatType.Mine)) {
       explodeMine(vec.x, vec.y);
       // check invincible
       const isInvincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
@@ -1720,14 +1754,15 @@ export function engine({
   }
 
   function explodeMine(x: number, y: number) {
-    if (!mines.existsAt(x, y)) return;
+    if (!threats.existsAt(x, y, ThreatType.Mine)) return;
     const coord = getCoordIndex2(x, y);
-    mines.removeByCoord(coord);
-    const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
-    explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
+    threats.removeByCoord(coord);
+    es.threatsMap[getCoordIndex2(x, y)] = undefined;
+    const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
+    explosions.add(x, y, lifetime, Image.ExplosionSheet);
     playSound(Sound.xpound);
-    drawState.shouldDrawApples = true;
     drawState.shouldDrawActionFG = true;
+    recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
   }
 
   function checkPlayerWillHit(dir: DIR, numMoves = 1): boolean {
@@ -1868,22 +1903,21 @@ export function engine({
       }
     }
     // blow up all mines currently on the level
-    const numExplosionsAtLevelExit = mines.length + preyList.length;
+    let numExplosionsAtLevelExit = preyList.length;
     for (let x = 0; x < GRIDCOUNT_X; x++) {
       for (let y = 0; y < GRIDCOUNT_Y; y++) {
         const coord = getCoordIndex2(x, y);
-        if (mines.existsAtCoord(coord)) {
-          mines.removeByCoord(coord);
-          const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
-          explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
-          drawState.shouldDrawApples = true;
+        if (threats.existsAtCoord(coord, ThreatType.Mine)) {
+          threats.removeByCoord(coord);
+          const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
+          explosions.add(x, y, lifetime, Image.ExplosionSheet);
           drawState.shouldDrawActionFG = true;
+          numExplosionsAtLevelExit++;
         }
         if (preyList.existsAtCoord(coord)) {
           preyList.removeByCoord(coord);
-          const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
-          explosions.add(x, y, frames * timePerFrame, frames, timePerFrame);
-          drawState.shouldDrawApples = true;
+          const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
+          explosions.add(x, y, lifetime, Image.ExplosionSheet);
           drawState.shouldDrawActionFG = true;
         }
       }
@@ -2061,11 +2095,12 @@ export function engine({
       es.barriersMap[coord] = BarrierType.Unset;
       astar.removeWall(vec.x, vec.y);
       renderer.invalidateStaticCache();
-      const { frames, timePerFrame } = ANIMATIONS[Image.ExplosionSheet];
-      explosions.add(vec.x, vec.y, frames * timePerFrame, frames, timePerFrame);
+      const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
+      explosions.add(vec.x, vec.y, lifetime, Image.ExplosionSheet);
       playSound(Sound.xplodeLong);
       startScreenShake(2, 0, 0.8);
       reboundSnake(segments.length > 3 ? 2 : 1);
+      recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
     } else if (invincible) {
       state.timeSinceArmorProtection = 0;
       startAutoRewind()
@@ -2300,14 +2335,8 @@ export function engine({
         break;
     }
     if (image) {
-      pointsAnim.add(
-        x,
-        y,
-        ANIMATIONS[image].frames * ANIMATIONS[image].timePerFrame,
-        ANIMATIONS[image].frames,
-        ANIMATIONS[image].timePerFrame,
-        rarity,
-      );
+      const lifetime = ANIMATIONS[image].frames * ANIMATIONS[image].timePerFrame;
+      pointsAnim.add(x, y, lifetime, image, rarity);
     }
     stats.applesEatenThisLevel += 1;
     stats.numApplesEverEaten += 1;
@@ -2357,14 +2386,8 @@ export function engine({
       rarity = PickupRarity.Legendary;
     }
     if (image) {
-      pointsAnim.add(
-        x,
-        y,
-        ANIMATIONS[image].frames * ANIMATIONS[image].timePerFrame,
-        ANIMATIONS[image].frames,
-        ANIMATIONS[image].timePerFrame,
-        rarity,
-      );
+      const lifetime = ANIMATIONS[image].frames * ANIMATIONS[image].timePerFrame;
+      pointsAnim.add(x, y, lifetime, image, rarity);
     }
     addPoints(points);
     renderScoreUI();
@@ -2384,12 +2407,12 @@ export function engine({
   }
 
   function openDoors() {
-    const { frames, timePerFrame } = ANIMATIONS[Image.DoorOpenSheet];
+    const lifetime = ANIMATIONS[Image.DoorOpenSheet].frames * ANIMATIONS[Image.DoorOpenSheet].timePerFrame;
     es.doors.forEach(door => {
       astar.removeWall(door.x, door.y);
       const x = door.x;
       const y = door.y;
-      doorsOpening.add(x, y, frames * timePerFrame, frames, timePerFrame);
+      doorsOpening.add(x, y, lifetime, Image.DoorOpenSheet);
     });
     state.isDoorsOpen = true;
     startExitParticles();
@@ -2397,6 +2420,7 @@ export function engine({
     es.doorsMap = {};
     renderer.invalidateStaticCache();
     drawState.shouldDrawKeysLocks = true;
+    recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
   }
 
   function addSnakeSegment() {

@@ -19,7 +19,7 @@ interface AStarOptions {
   allowDiagonals: boolean,
   allowClosest: boolean,
   randomizeWeights: boolean,
-  mines?: ICollection,
+  threats?: ICollection,
   segments?: ICollection,
 }
 
@@ -72,14 +72,14 @@ export class AStar {
 
   // threats
   private segments: ICollection;
-  private mines: ICollection;
+  private threats: ICollection;
   private snekCoord: number;
 
   private closest: number;
 
   constructor(_options?: Partial<AStarOptions>) {
     this.options = { ...DEFAULT_OPTIONS, ..._options};
-    this.mines = _options?.mines;
+    this.threats = _options?.threats;
     this.segments = _options?.segments;
 
     this.openList = new Uint16Array(ASTAR_GRID_SIZE);
@@ -219,7 +219,7 @@ export class AStar {
     const gScores = this.gScore;
     const hScores = this.hScore;
     const weights = this.weights;
-    const mines = this.mines;
+    const threats = this.threats;
     const segments = this.segments;
 
     const distance = allowDiagonals ? getEuclidianDistance : getManhattanDistance;
@@ -282,7 +282,7 @@ export class AStar {
         const nx = Math.floor(neighbor % GRIDCOUNT_X);
         const ny = Math.floor(neighbor / GRIDCOUNT_X);
         // calculate threat costs
-        const distToClosestMine = mines?.getClosestTraversalDistance(nx, ny) ?? Infinity;
+        const distToClosestThreat = threats?.getClosestTraversalDistance(nx, ny) ?? Infinity;
         const distToSnekHead = (() => {
           if (snekCoord < 0) return Infinity;
           return getManhattanDistance(nx, ny, snekx, sneky);
@@ -290,8 +290,8 @@ export class AStar {
         const isDiagonal = idx >= 4;
         const diagCostMultiplier = isDiagonal ? DIAG_COST : 1;
         // see: https://www.desmos.com/calculator/w2r2szwtmz
-        const threatCostMine = distToClosestMine <= 2
-          ? (THREAT_COST_MINE / (distToClosestMine + 1)) || 0
+        const threatCostMine = distToClosestThreat <= 2
+          ? (THREAT_COST_MINE / (distToClosestThreat + 1)) || 0
           : 0;
         const threatCostSnek = distToSnekHead <= sightRange
           ? (THREAT_COST_SNEK / (distToSnekHead + 1)) || 0
@@ -389,7 +389,7 @@ export class AStar {
         const coord = getCoordIndex2(x, y);
         const isWall = !!(this.flags[coord] & FLAG_WALL);
         const isSnekThreat = coord === this.snekCoord;
-        const isMineThreat = this.mines?.existsAtCoord(coord) || false;
+        const isMineThreat = this.threats?.existsAtCoord(coord) || false;
         const isPathNode = (() => {
           for (let i = 0; i < this.pathLength; i++) {
             if (this.path[i] === coord) return true;

@@ -57,7 +57,7 @@ export const DEFAULT_GAME_STATE: GameState = {
   steps: 0,
   frameCount: 0,
   numTeleports: 0,
-  lastHurtBy: HitType.Unknown,
+  lastHurtBy: HitType.None,
   hasKeyYellow: false,
   hasKeyRed: false,
   hasKeyBlue: false,
@@ -88,6 +88,8 @@ export const DEFAULT_ENGINE_STATE: EngineState = {
   diffSelectMap: {},
   portals: { ...DEFAULT_PORTALS() },
   portalsMap: {},
+  threatsMap: {},
+  lasersMap: {},
 } satisfies EngineState;
 
 export const DEFAULT_BASE_STATS = {

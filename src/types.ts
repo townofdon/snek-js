@@ -137,7 +137,7 @@ export interface Difficulty {
 
 
 export enum HitType {
-  Unknown,
+  None,
   HitBarrier,
   HitDoor,
   HitSelf,
@@ -291,6 +291,8 @@ export interface EngineState {
   diffSelectMap: Record<number, number>,
   portals: Record<PortalChannel, Vector[]>,
   portalsMap: Record<number, Portal>,
+  threatsMap: Record<number, ThreatType>,
+  lasersMap: Record<number, LaserCell>,
 }
 
 export interface Outfit {
@@ -927,7 +929,13 @@ export interface AnimationData {
   durations?: number[],
 }
 
+export interface AnimationDataForRange extends AnimationData {
+  src: SpritesheetImage,
+  offset: number,
+}
+
 export enum Image {
+  __TEST__ = '__TEST__',
   ThemedAppleSheet = '__apple-sheet-rendered-at-runtime__',
   ThemedBarrierSkull = '__barrier-skull-rendered-at-runtime__',
   ThemedBarrierIndent = '__barrier-indent-rendered-at-runtime__',
@@ -1020,7 +1028,23 @@ export type ThemedImage =
   | Image.ThemedSegmentNW
 ;
 
+// a range of sprites selected from a larger spritesheet
+export enum SpritesheetRange {
+  None = 1000, // segment test
+  DiodeCrit,
+  DiodeBlue,
+  DiodeRed,
+  LaserBlue,
+  LaserRed,
+  Barrel,
+  BarrelFireA,
+  BarrelFireB,
+  BarrelRupture,
+}
+export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange).filter(v => typeof v === 'number')) + 1;
+
 export type SpritesheetImage =
+  | Image.__TEST__
   | Image.ThemedAppleSheet
   | Image.DoorOpenSheet
   | Image.SegmentsSheet
@@ -1047,6 +1071,8 @@ export type SpritesheetImage =
   | Image.PickupOutlineYellowSheet
   | Image.PickupOutlineBlueSheet
   | Image.UIShieldSheet
+  | Image.ThreatSheet16
+  | Image.ThreatSheet48
 ;
 
 export enum Threat48Frame {
@@ -1368,10 +1394,12 @@ export interface PreySpawn {
   dropsByFrame: Record<number, PreyType> | undefined,
 }
 
-export interface Pickup {
+export interface WithLifetime<T> {
   lifetime: number,
-  type: PickupType,
+  type: T,
 }
+
+export interface Pickup extends WithLifetime<PickupType> {}
 
 export interface PickupDrop {
   likelihood: number,

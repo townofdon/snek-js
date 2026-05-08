@@ -17,6 +17,7 @@ import {
   IEnumerator,
   PreySpawn,
   PickupRarity,
+  ThreatType,
 } from "@/types";
 import {
   ANIMATIONS,
@@ -72,7 +73,7 @@ interface EngineSpawningArgs {
   coroutines: Coroutines,
   preySpawn: PreySpawn,
   apples: AppleList,
-  mines: AnimationList,
+  threats: AnimationList,
   preyList: PreyList,
   shieldSpawns: AnimationList,
   pickupOutlines: AnimationList,
@@ -93,7 +94,7 @@ export function engineSpawning({
   coroutines,
   preySpawn,
   apples,
-  mines,
+  threats,
   preyList,
   shieldSpawns,
   pickupOutlines,
@@ -114,7 +115,7 @@ export function engineSpawning({
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.pickupsMap[getCoordIndex2(x, y)]
-      || mines.existsAt(x, y);
+      || threats.existsAt(x, y);
     if (spawnedInsideOfSomething) {
       if (numTries < 30) spawnApple(numTries + 1);
       return;
@@ -331,8 +332,7 @@ export function engineSpawning({
     state.pity = clamp(state.pity, 0, 1);
     // spawn pickup outline
     if (rarityType) {
-      const { frames, timePerFrame} = ANIMATIONS[Image.PickupOutlineBlueSheet];
-      pickupOutlines.add(x, y, 999999999999, frames, timePerFrame, rarityType);
+      pickupOutlines.add(x, y, 999999999999, Image.PickupOutlineBlueSheet, rarityType);
     }
     return true;
   }
@@ -359,7 +359,7 @@ export function engineSpawning({
         || es.doorsMap[getCoordIndex2(x, y)]
         || es.nospawnsMap[getCoordIndex2(x, y)]
         || es.pickupsMap[getCoordIndex2(x, y)]
-        || mines.existsAt(x, y)
+        || threats.existsAt(x, y)
         || apples.existsAt(x, y)
         || segments.containsCoord(getCoordIndex2(x, y))
         || player.position.equals(x, y);
@@ -399,7 +399,7 @@ export function engineSpawning({
     state.timeSinceSpawnedAnyPickup = 0;
     drawState.shouldDrawApples = true;
     setTimeout(() => playSound(Sound.spawnPickup, 0.45), PICKUP_SPAWN_SFX_DELAY);
-    if (mines.existsAt(x, y)) {
+    if (threats.existsAt(x, y, ThreatType.Mine)) {
       explodeMine(x, y);
     }
   }
@@ -414,20 +414,20 @@ export function engineSpawning({
     state.timeSinceSpawnedWeightLossPillPickup = 0;
     drawState.shouldDrawApples = true;
     setTimeout(() => playSound(Sound.spawnPickup, 0.45), PICKUP_SPAWN_SFX_DELAY);
-    if (mines.existsAt(x, y)) {
+    if (threats.existsAt(x, y, ThreatType.Mine)) {
       explodeMine(x, y);
     }
   }
 
   function spawnArmorPickup(x: number, y: number) {
-    const { frames, timePerFrame } = ANIMATIONS[Image.ShieldSpawn];
-    shieldSpawns.add(x, y, frames * timePerFrame, frames, timePerFrame);
+    const lifetime = ANIMATIONS[Image.ShieldSpawn].frames * ANIMATIONS[Image.ShieldSpawn].timePerFrame;
+    shieldSpawns.add(x, y, lifetime, Image.ShieldSpawn);
     es.pickupsMap[getCoordIndex2(x, y)] = {
-      lifetime: frames * timePerFrame,
+      lifetime,
       type: PickupType.Armor,
     };
     setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
-    if (mines.existsAt(x, y)) {
+    if (threats.existsAt(x, y, ThreatType.Mine)) {
       explodeMine(x, y);
     }
   }
@@ -439,7 +439,7 @@ export function engineSpawning({
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.pickupsMap[getCoordIndex2(x, y)]
-      || mines.existsAt(x, y)
+      || threats.existsAt(x, y)
       || apples.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
@@ -447,8 +447,8 @@ export function engineSpawning({
     if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
       if (numTries < 30) spawnMine(numTries + 1);
     } else {
-      const { frames, timePerFrame } = ANIMATIONS[Image.MineSheet];
-      mines.add(x, y, PICKUP_LIFETIME_MS, frames, timePerFrame);
+      threats.add(x, y, PICKUP_LIFETIME_MS, Image.MineSheet, ThreatType.Mine);
+      drawState.shouldDrawActionFG = true;
     }
   }
 
@@ -459,7 +459,7 @@ export function engineSpawning({
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.pickupsMap[getCoordIndex2(x, y)]
-      || mines.existsAt(x, y)
+      || threats.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
     const spawnedTooCloseToPlayer = getManhattanDistance(x, y, player.position.x, player.position.y) < 20;
@@ -489,7 +489,7 @@ export function engineSpawning({
     const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
-      || mines.existsAt(x, y)
+      || threats.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
     const spawnedTooCloseToPlayer = getManhattanDistance(x, y, player.position.x, player.position.y) < 20;

@@ -1,9 +1,9 @@
 import P5, { Vector } from "p5";
 import Color from "color";
 
-import { ScreenShakeState, Image, Palette, ExtendedPalette, AnimationData, SpritesheetImage, ThemedImage, ColorReplacementPalette } from "../types";
+import { ScreenShakeState, Image, Palette, ExtendedPalette, AnimationData, SpritesheetImage, ThemedImage, ColorReplacementPalette, SpritesheetRange } from "../types";
 import { ANIMATIONS, BLOCK_SIZE, MAP_OFFSET, STROKE_SIZE } from "../constants";
-import { getRelativeDir, lerp } from "../utils";
+import { getCurrentFrame, getRelativeDir, lerp, isValidSpritesheetRange } from "../utils";
 import { getBorderColorVariant } from "@/palettes";
 
 const IMAGE_SCALE = 1.01;
@@ -20,6 +20,7 @@ export class SpriteRenderer {
   private isStaticCached = false;
 
   private images: Record<Image, P5.Image | null> = {
+    [Image.__TEST__]: null,
     [Image.ControlsKeyboardDelete]: null,
     [Image.ControlsKeyboardMove]: null,
     [Image.ControlsKeyboardTurn]: null,
@@ -104,6 +105,7 @@ export class SpriteRenderer {
       magnitude: 0,
       timeScale: 0
     };
+    this.setTestImage();
   }
 
   private fullPath(image: Image): string {
@@ -122,6 +124,21 @@ export class SpriteRenderer {
 
   setIsStaticCached = (value: boolean) => {
     this.isStaticCached = value;
+  }
+
+  private setTestImage = () => {
+    let w = 48;
+    let h = 48;
+    const img = this.p5.createImage(w, h);
+    // iterate through all pixels, replacing with debug color
+    img.loadPixels();
+    for (let x = 0; x < img.width; x += 1) {
+      for (let y = 0; y < img.height; y += 1) {
+        img.set(x, y, this.p5.color('pink'));
+      }
+    }
+    img.updatePixels();
+    this.images[Image.__TEST__] = img;
   }
 
   /**
@@ -190,8 +207,8 @@ export class SpriteRenderer {
       throw new Error(`source image is not loaded: ${sourceSprite}`);
     }
     const loaded = this.images[sourceSprite];
-    let w = matchSize ? (loaded.width || 1) : size;
-    let h = matchSize ? (loaded.height || 1) : size;
+    const w = matchSize ? (loaded.width || 1) : size;
+    const h = matchSize ? (loaded.height || 1) : size;
     const img = this.p5.createImage(w, h);
     // copy template image pixels to new image (assumes dest img and src rect are same dims)
     img.copy(this.images[sourceSprite], size * frame, 0, w, h, 0, 0, w, h);
@@ -336,17 +353,20 @@ export class SpriteRenderer {
   /**
    * Draw an animation from a 3x3 (48x48) spritesheet
    */
-  drawSpritesheetAnim3x3 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, elapsed = 0) => {
-    if (!ANIMATIONS[image]) {
-      throw new Error(`no animation data found for image "${image}"`);
+  drawSpritesheetAnim3x3 = (gfx: P5 | P5.Graphics, sprite: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed = 0) => {
+    if (!ANIMATIONS[sprite]) {
+      throw new Error(`no animation data found for image "${sprite}"`);
     }
-    const { frames, timePerFrame } = ANIMATIONS[image];
-    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${image}`);
-    const frame = Math.floor(elapsed / timePerFrame) % frames;
-    this.drawImage3x3Impl(gfx, image, x, y, 0, 1, 0, frame, frames);
+    const { frames, timePerFrame, durations } = ANIMATIONS[sprite];
+    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${sprite}`);
+    const src = isValidSpritesheetRange(sprite) ? (ANIMATIONS[sprite].src || Image.__TEST__) : sprite;
+    const offset = isValidSpritesheetRange(sprite) ? ANIMATIONS[sprite].offset || 0 : 0;
+    const frame = getCurrentFrame(frames, timePerFrame, durations, elapsed) + offset;
+    const spriteFrames = ANIMATIONS[src]?.frames || frames;
+    this.drawImage3x3Impl(gfx, src, x, y, 0, 1, 0, frame, spriteFrames);
   }
 
-  drawSpritesheetAnim3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, elapsed = 0) => {
+  drawSpritesheetAnim3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed = 0) => {
     if (this.isStaticCached) return;
     this.drawSpritesheetAnim3x3(gfx, image, x, y, elapsed);
   }
@@ -435,14 +455,17 @@ export class SpriteRenderer {
   /**
    * Draw an animation from a 1x1 (16x16) spritesheet
    */
-  drawSpritesheetAnim1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, elapsed = 0) => {
-    if (!ANIMATIONS[image]) {
-      throw new Error(`no animation data found for image "${image}"`);
+  drawSpritesheetAnim1x1 = (gfx: P5 | P5.Graphics, sprite: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed = 0) => {
+    if (!ANIMATIONS[sprite]) {
+      throw new Error(`no animation data found for image "${sprite}"`);
     }
-    const { frames, timePerFrame } = ANIMATIONS[image];
-    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${image}`);
-    const frame = Math.floor(elapsed / timePerFrame) % frames;
-    this.drawImage1x1(gfx, image, x, y, 0, 1, 0, frame, frames);
+    const { frames, timePerFrame, durations } = ANIMATIONS[sprite];
+    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${sprite}`);
+    const src = isValidSpritesheetRange(sprite) ? (ANIMATIONS[sprite].src || Image.__TEST__) : sprite;
+    const offset = isValidSpritesheetRange(sprite) ? (ANIMATIONS[sprite].offset || 0) : 0;
+    const frame = getCurrentFrame(frames, timePerFrame, durations, elapsed) + offset;
+    const spriteFrames = ANIMATIONS[src]?.frames || frames;
+    this.drawImage1x1(gfx, src, x, y, 0, 1, 0, frame, spriteFrames);
   }
 
   public drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1) => {
