@@ -583,7 +583,7 @@ export class Renderer implements IRenderer {
     if (inputType === InputType.Keyboard) {
       this.spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY, gfx);
     } else {
-      this.spriteRenderer.drawImage(Image.ControlsGamepadMove, Math.floor(imgX + BLOCK_SIZE_X * 0.75), imgY, gfx);
+      this.spriteRenderer.drawImage(Image.ControlsGamepadMove, Math.floor(imgX + BLOCK_SIZE_X * 0.4), Math.floor(imgY - BLOCK_SIZE_X * 0.5), gfx);
     }
   }
 
@@ -630,10 +630,10 @@ export class Renderer implements IRenderer {
     // text
     const textX = MAP_OFFSET + BLOCK_SIZE_X * (bannerPosition.x + 3);
     const textY = MAP_OFFSET + BLOCK_SIZE_Y * (bannerPosition.y + bannerHeight * 0.5);
-    gfx.fill("#fff");
+    gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
-    gfx.textSize(2 * 12);
+    gfx.textSize(2 * 9);
     gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("REWIND", textX, textY);
@@ -655,7 +655,7 @@ export class Renderer implements IRenderer {
     const isKeyboard = inputType === InputType.Keyboard;
     // banner background
     const bannerWidth = isKeyboard ? 7.8 : 7.8;
-    const bannerHeight = isKeyboard ? 5.8 : 2.8;
+    const bannerHeight = isKeyboard ? 5.8 : 4.8;
     const x0 = MAP_OFFSET + BLOCK_SIZE_X * (x);
     const x1 = MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth);
     const y0 = MAP_OFFSET + BLOCK_SIZE_Y * (y);
@@ -665,30 +665,28 @@ export class Renderer implements IRenderer {
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
-    const textX = isKeyboard
-     ? MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth * 0.5)
-     : MAP_OFFSET + BLOCK_SIZE_X * (x + 3.5);
-    const textY = isKeyboard
-     ? MAP_OFFSET + BLOCK_SIZE_Y * (y + 5)
-     : MAP_OFFSET + BLOCK_SIZE_Y * (y + bannerHeight * 0.5);
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
     gfx.textSize(2 * 12);
-    gfx.textAlign(isKeyboard ? this.p5.CENTER : this.p5.LEFT, this.p5.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
-    gfx.text("U-TURN", textX, textY);
     // image
-    const imgX = isKeyboard
-      ? BLOCK_SIZE_X * (x + 1.4)
-      : BLOCK_SIZE_X * (x + 0.6);
-    const imgY = isKeyboard
-     ? BLOCK_SIZE_Y * (y + 0.4)
-     : BLOCK_SIZE_Y * (y + bannerHeight * 0.5) - 48;
     if (inputType === InputType.Keyboard) {
-      this.spriteRenderer.drawImage(Image.ControlsKeyboardTurn, imgX, imgY, gfx);
+      const tx = MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth * 0.5);
+      const ty = MAP_OFFSET + BLOCK_SIZE_Y * (y + 5);
+      const imgx = BLOCK_SIZE_X * (x + 1.4);
+      const imgy = BLOCK_SIZE_Y * (y + 0.4);
+      gfx.textAlign(this.p5.CENTER, this.p5.CENTER);
+      gfx.text("U-TURN", tx, ty);
+      this.spriteRenderer.drawImage(Image.ControlsKeyboardTurn, imgx, imgy, gfx);
     } else {
-      this.spriteRenderer.drawImage(Image.ControlsGamepadTurn, imgX, imgY, gfx);
+      const imgx = BLOCK_SIZE_X * (x + 0.5);
+      const imgy = BLOCK_SIZE_Y * (y + 0.8);
+      const tx = MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth * 0.5);
+      const ty = MAP_OFFSET + BLOCK_SIZE_Y * (y + 3.5);
+      gfx.textAlign(this.p5.CENTER, this.p5.CENTER);
+      gfx.text("U-TURN", tx, ty);
+      this.spriteRenderer.drawImage(Image.ControlsGamepadTurn, imgx, imgy, gfx);
     }
   }
 
@@ -719,12 +717,14 @@ export class Renderer implements IRenderer {
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("SPRINT", textX, textY);
     // image
-    const imgX = Math.floor(BLOCK_SIZE_X * (bannerPosition.x + 0.35));
-    const imgY = Math.floor(BLOCK_SIZE_Y * (bannerPosition.y + 0.5));
     if (inputType === InputType.Keyboard) {
-      this.spriteRenderer.drawImage(Image.ControlsKeyboardSprint, imgX, imgY, gfx);
+      const imgx = Math.floor(BLOCK_SIZE_X * (bannerPosition.x + 0.35));
+      const imgy = Math.floor(BLOCK_SIZE_Y * (bannerPosition.y + 0.5));
+      this.spriteRenderer.drawImage(Image.ControlsKeyboardSprint, imgx, imgy, gfx);
     } else {
-      this.spriteRenderer.drawImage(Image.ControlsGamepadSprint, imgX, imgY, gfx);
+      const imgx = Math.floor(BLOCK_SIZE_X * (bannerPosition.x + 0.8));
+      const imgy = Math.floor(BLOCK_SIZE_Y * (bannerPosition.y + 0.5));
+      this.spriteRenderer.drawImage(Image.ControlsGamepadSprint, imgx, imgy, gfx);
     }
   }
 
