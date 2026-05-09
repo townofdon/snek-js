@@ -75,7 +75,7 @@ export function handleKeyPressed(
     return;
   }
 
-  if (state.isLost && state.timeSinceHurt > 20) {
+  if (state.isLost && state.timeSinceHurt > 200) {
     if (keyCode === ENTER && state.gameMode !== GameMode.Cobra) callAction(InputAction.RetryLevel);
     return;
   }

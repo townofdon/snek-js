@@ -1,7 +1,7 @@
 import { HURT_MOVE_RESET_INITIAL_DELAY, HURT_MOVE_RESET_INPUT_DELAY, HURT_STUN_TIME, MAX_MOVES_GAMEPAD } from "../../constants";
 import { Easing } from "../../easing";
 import { AppMode, DIR, GameMode, GameState, InputAction, MOVE, UINavDir } from "../../types";
-import { invertDirection, rotateDirection, clamp, moveToDir } from "../../utils";
+import { invertDirection, rotateDirection, clamp } from "../../utils";
 import { InputCallbacks, validateMove } from "../controls";
 import {
   Axis,
@@ -11,7 +11,9 @@ import {
 const TRIGGER_THRESHOLD = 0.25;
 const AXIS_DEADZONE = 0.33;
 
-const waitingForRelease: Record<Button, number> = {
+// When a button is pressed, the CURRENT FRAME number is assigned to that button.
+// WAS_PRESSED_THIS_FRAME is only true when button_frame_pressed > current_frame
+const framePressed: Record<Button, number> = {
   [Button.South]: -1,
   [Button.East]: -1,
   [Button.West]: -1,
@@ -31,24 +33,35 @@ const waitingForRelease: Record<Button, number> = {
   [Button.XboxButton]: -1,
 }
 
-const state = {
-  currentFrame: 0,
+const gamepadState = {
+  frame: 0,
+}
+
+export function getGamepad(): Gamepad | null {
+  return navigator.getGamepads()?.[0];
 }
 
 export function tickGamepad() {
-  state.currentFrame += 1;
+  const gamepad = getGamepad();
+  if (!gamepad) return;
+  if (!gamepad.connected) return;
+  gamepadState.frame += 1;
+  gamepad.buttons.forEach((_, id) => {
+    const pressed = gamepadPressed(gamepad, id);
+    if (!pressed) framePressed[id] = -1;
+  });
 }
 
 export function resetGamepad() {
   const gamepad = getGamepad();
   if (!gamepad) return false;
   if (!gamepad.connected) return false;
-  state.currentFrame = 0;
-  gamepad.buttons.forEach((_, id) => waitingForRelease[id as Button] = 0);
+  gamepadState.frame = 0;
+  gamepad.buttons.forEach((_, id) => framePressed[id as Button] = -1);
 }
 
 export function applyGamepadRumble(duration: number, weakMagnitude: number, strongMagnitude: number) {
-  const gamepad = navigator.getGamepads()?.[0];
+  const gamepad = getGamepad();
   if (!gamepad) return;
   if (!gamepad.connected) return;
   if (!gamepad.vibrationActuator) return;
@@ -58,6 +71,43 @@ export function applyGamepadRumble(duration: number, weakMagnitude: number, stro
     weakMagnitude: clamp(weakMagnitude, 0, 1),
     strongMagnitude: Easing.inCubic(clamp(strongMagnitude, 0, 1)),
   }).catch(err => { console.warn(err); })
+}
+
+export function gamepadPressed(gamepad: Gamepad, id: Button) {
+  if (!gamepad) return false;
+  if (!gamepad.connected) return false;
+  if (id === Button.TriggerLeft || id === Button.TriggerRight) {
+    return gamepad.buttons[id]?.value > TRIGGER_THRESHOLD;
+  }
+  return !!gamepad.buttons[id]?.pressed || !!gamepad.buttons[id]?.touched;
+}
+
+export function wasPressedThisFrame(gamepad: Gamepad, id: Button) {
+  if (!gamepad) return false;
+  if (!gamepad.connected) return false;
+  const pressed = gamepadPressed(gamepad, id);
+  if (!pressed) {
+    framePressed[id] = -1;
+    return false;
+  }
+  if (framePressed[id] > -1 && framePressed[id] < gamepadState.frame) {
+    return false;
+  }
+  framePressed[id] = gamepadState.frame;
+  return true;
+}
+
+export function anyButtonPressedThisFrame(gamepad: Gamepad) {
+  if (!gamepad) return false;
+  if (!gamepad.connected) return false;
+  return gamepad.buttons.some((_, id) => wasPressedThisFrame(gamepad, id))
+}
+
+export function getCurrentGamepadSprint() {
+  const gamepad = getGamepad();
+  if (!gamepad) return false;
+  if (!gamepad.connected) return false;
+  return gamepad.buttons[Button.TriggerLeft]?.value > TRIGGER_THRESHOLD;
 }
 
 /**
@@ -72,6 +122,10 @@ export function applyGamepadMove(
   callbacks: InputCallbacks,
   callAction: (action: InputAction) => void,
 ): boolean {
+  const gamepad = getGamepad();
+  if (!gamepad) return false;
+  if (!gamepad.connected) return false;
+
   if (state.appMode !== AppMode.Game) {
     return false;
   }
@@ -137,7 +191,7 @@ export function applyGamepadMove(
 
   // casual mode / invincibility rewind
   const didPressBackwards = desiredMoves.length === 1 && desiredMoves[0] === playerDirectionToFirstSegment;
-  if (isRewindAllowed && (wasPressedThisFrame(getGamepad(), Button.TriggerRight) || didPressBackwards)) {
+  if (isRewindAllowed && (wasPressedThisFrame(getGamepad(), Button.Select) || didPressBackwards)) {
     callAction(InputAction.StartRewinding);
     return;
   }
@@ -194,7 +248,7 @@ export function applyGamepadUIActions(
   onUIInteract: () => boolean,
   onUICancel: () => boolean,
 ): boolean {
-  const gamepad = navigator.getGamepads()?.[0];
+  const gamepad = getGamepad();
   if (!gamepad) return false;
   if (!gamepad.connected) return false;
 
@@ -228,6 +282,18 @@ export function applyGamepadUIActions(
   }
 
   const isGameOver = state.isLost && state.timeSinceHurt > 20;
+  if (true
+    && isGameOver
+    && state.timeSinceHurt > 200
+    && state.gameMode !== GameMode.Cobra
+    && !state.isExitingLevel
+    && !state.isExited
+    && wasPressedThisFrame(gamepad, Button.Start)
+  ) {
+    callAction(InputAction.RetryLevel);
+    return true;
+  }
+
   const proceed = !state.isGameStarted || state.isPaused || isGameOver || state.isGameWon
   if (!proceed) {
     return false;
@@ -263,45 +329,11 @@ export function applyGamepadUIActions(
   return false;
 }
 
-export function getGamepad(): Gamepad | null {
-  return navigator.getGamepads()?.[0];
-}
-
-export function gamepadPressed(gamepad: Gamepad, id: Button) {
-  if (!gamepad) return false;
-  if (!gamepad.connected) return false;
-  if (id === Button.TriggerLeft || id === Button.TriggerRight) {
-    return gamepad.buttons[id]?.value > TRIGGER_THRESHOLD;
-  }
-  return !!gamepad.buttons[id]?.pressed || !!gamepad.buttons[id]?.touched;
-}
-
-export function wasPressedThisFrame(gamepad: Gamepad, id: Button) {
-  if (!gamepad) return false;
-  if (!gamepad.connected) return false;
-  const pressed = gamepadPressed(gamepad, id);
-  if (!pressed) {
-    waitingForRelease[id] = -1;
-    return false;
-  }
-  if (waitingForRelease[id] > -1 && waitingForRelease[id] <= state.currentFrame) {
-    return false;
-  }
-  waitingForRelease[id] = state.currentFrame + 1;
-  return true;
-}
-
-export function anyButtonPressedThisFrame(gamepad: Gamepad) {
-  if (!gamepad) return false;
-  if (!gamepad.connected) return false;
-  return gamepad.buttons.some((_, id) => wasPressedThisFrame(gamepad, id))
-}
-
 /**
  * Process gamepad buttons and axes and return the desired direction
  */
 function getCurrentGamepadMove(playerDirection: DIR): MOVE {
-  const gamepad = navigator.getGamepads()?.[0];
+  const gamepad = getGamepad();
   if (!gamepad) return MOVE.Nil;
   if (!gamepad.connected) return MOVE.Nil;
 
@@ -362,13 +394,6 @@ function getCurrentGamepadMove(playerDirection: DIR): MOVE {
   }
 
   return MOVE.Nil;
-}
-
-export function getCurrentGamepadSprint() {
-  const gamepad = navigator.getGamepads()?.[0];
-  if (!gamepad) return false;
-  if (!gamepad.connected) return false;
-  return gamepad.buttons[Button.TriggerLeft]?.value > TRIGGER_THRESHOLD;
 }
 
 function handleGamepadConnected(event: GamepadEvent) {

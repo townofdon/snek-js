@@ -63,7 +63,7 @@ export const IMG_X_OFFSET = IS_EDITOR ? 1 : 0;
 export const IMG_SCALE = IS_EDITOR ? 1.01 : 1;
 
 export const MAX_MOVES_GAMEPAD = 8;
-export const MAX_MOVES = 4;
+export const MAX_MOVES = 5;
 export const MAX_LIVES = 3;
 export const MAX_SNAKE_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y * 0.40;
 export const START_SNAKE_SIZE = 3;

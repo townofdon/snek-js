@@ -385,7 +385,9 @@ export const sketch = (p5: P5) => {
       state.inputType = InputType.Gamepad;
     }
     renderLoop(handled);
-    if (!state.isGameStarted) leaderboardScene.draw();
+    if (!state.isGameStarted) {
+      leaderboardScene.draw();
+    }
     handleRenderWinGameScene();
     tickGamepad();
   }

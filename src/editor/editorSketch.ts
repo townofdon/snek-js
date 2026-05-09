@@ -355,7 +355,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           return acc;
         }, {} as Record<number, boolean>);
         fireTiles.fillFromMap(fireBarriersMap, 99999999, Image.FireSheet);
-        updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, null, fireTiles);
+        updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, fireTiles, null, null);
         startPortalParticles();
       }
       renderElements();

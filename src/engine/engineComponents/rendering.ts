@@ -299,6 +299,9 @@ export function engineRendering({
       showPlannedMoves = false;
       return;
     }
+    if (state.isLost) {
+      return;
+    }
     if (!showPlannedMoves && es.moves.length < 3 && state.isMoving && checkIsMoving(state, loopState)) {
       return;
     }
@@ -318,7 +321,7 @@ export function engineRendering({
       const { frames } = ANIMATIONS[Image.SegmentsSheet];
       spriteRenderer.drawImage1x1(gfxPresentation, Image.SegmentsSheet, pos.x, pos.y, 0, 1, 0, SegmentFrame.Path - 1, frames);
     }
-    for (let i = numMoves; i < 6; i++) {
+    for (let i = numMoves; i < 5; i++) {
       pos.add(dirToUnitVector(dir));
       if (!isNil(portalsMap[getCoordIndex(pos)]) || checkCollision(pos)) {
         break;

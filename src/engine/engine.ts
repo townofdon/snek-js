@@ -145,7 +145,7 @@ import { Renderer } from './renderer';
 import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
 import { MusicPlayer } from './musicPlayer';
 import { InputCallbacks, handleKeyPressed, validateMove } from './controls';
-import { applyGamepadRumble, applyGamepadMove, getCurrentGamepadSprint } from './gamepad'
+import { applyGamepadRumble, applyGamepadMove, getCurrentGamepadSprint, resetGamepad } from './gamepad'
 import { Easing } from '../easing';
 import { getExtendedPalette, PALETTE } from '../palettes';
 import { Coroutines } from './coroutines';
@@ -743,6 +743,7 @@ export function engine({
       }
     }
 
+    resetGamepad();
     renderer.reset();
     renderer.invalidateStaticCache();
     spriteRenderer.setThemedAppleImage(es.level.colors);
@@ -1251,7 +1252,7 @@ export function engine({
     const fg = document.getElementById("canvas-fg") as HTMLCanvasElement;
     // const apples = document.getElementById("canvas-apples") as HTMLCanvasElement;
     const action = document.getElementById("canvas-action") as HTMLCanvasElement;
-    const keysLocks = document.getElementById("canvas-es.keys-es.locks") as HTMLCanvasElement;
+    const keysLocks = document.getElementById("canvas-keys-locks") as HTMLCanvasElement;
     const dest = document.getElementById("canvas-bg") as HTMLCanvasElement;
     const sourceDimensions = [DIMENSIONS.x, DIMENSIONS.y] as const;
     const destinationDimensions = [DIMENSIONS.x, DIMENSIONS.y] as const;
@@ -1391,7 +1392,7 @@ export function engine({
       !state.isInvertedColors &&
       state.timeSinceInvincibleStart >= es.difficulty.invincibilityTime
     ) {
-      updateLighting(p5.deltaTime, lightMap, globalLight, player.position, es.portals, apples, es.pickupsMap, explosions, fireTiles);
+      updateLighting(p5.deltaTime, lightMap, globalLight, player.position, es.portals, es.pickupsMap, explosions, fireTiles, state, es);
       drawLighting(lightMap, renderer, gfxLighting);
     }
 

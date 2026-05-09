@@ -9,9 +9,10 @@ import {
 import { Renderer } from "./renderer";
 import { clamp, getCoordIndex3, lerp, shouldBlinkExpiringPickup } from "../utils";
 import { Easing } from "../easing";
-import { Pickup, ItemDropType, PortalChannel, PickupType } from "../types";
+import { Pickup, ItemDropType, PortalChannel, PickupType, EngineState, GameState } from "../types";
 import { AppleList } from "../collections/appleList";
 import { AnimationList } from "../collections/animationList";
+import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE } from "@/defaults";
 
 const LIGHTMAP_SIZE = (
   GRIDCOUNT_X * Math.floor(LIGHTMAP_RESOLUTION) *
@@ -53,11 +54,14 @@ export function updateLighting(
   globalLight: number,
   playerPosition: Vector,
   portals: Record<PortalChannel, Vector[]>,
-  apples: AppleList | null,
   pickupsMap: Record<number, Pickup> | null,
   explosions: AnimationList | null,
   fireTiles: AnimationList | null,
+  gameState: GameState,
+  es: EngineState,
 ) {
+  if (!gameState) gameState = DEFAULT_GAME_STATE;
+  if (!es) es = DEFAULT_ENGINE_STATE;
   resetLightmap(lightMap, globalLight);
   if (globalLight >= 1) return;
   addSpotlight(lightMap, playerPosition.x, playerPosition.y, { radius: 2, falloff: 12 });
@@ -70,6 +74,15 @@ export function updateLighting(
     }
   }
   for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
+    const x = Math.floor(i % GRIDCOUNT_X);
+    const y = Math.floor(i / GRIDCOUNT_X);
+    const isExitAtCoord = (
+      gameState.isDoorsOpen
+      && ((x === 0 || y === 0 || x === GRIDCOUNT_X - 1 || y === GRIDCOUNT_Y - 1))
+      && (!es.barriersMap[i] || es.passablesMap[i])
+      && !es.portalsMap[i]
+      && (!es.nospawnsMap[i] || es.locksMap[i])
+    );
     const isPickupAtCoord = (
       pickupsMap &&
       (
@@ -80,9 +93,7 @@ export function updateLighting(
       ) &&
       !shouldBlinkExpiringPickup(pickupsMap[i]?.lifetime)
     );
-    if (isPickupAtCoord || explosions?.existsAtCoord(i)) {
-      const x = Math.floor(i % GRIDCOUNT_X);
-      const y = Math.floor(i / GRIDCOUNT_X);
+    if (isExitAtCoord || isPickupAtCoord || explosions?.existsAtCoord(i)) {
       addBlocklight(lightMap, x, y, { strength: 0.7 });
       addBlocklight(lightMap, x, y + 1, { strength: 0.3 });
       addBlocklight(lightMap, x, y - 1, { strength: 0.3 });

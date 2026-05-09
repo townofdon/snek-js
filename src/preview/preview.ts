@@ -62,6 +62,7 @@ import { getExtendedPalette } from '../palettes';
 import { LEVEL_01 } from '../levels/campaign/level01';
 import { LEVEL_02 } from '../levels/campaign/level02';
 import { requireElementById } from '../ui/uiUtils';
+import { tickGamepad } from '@/engine/gamepad';
 
 interface PreviewLevel {
   loading: boolean,
@@ -270,6 +271,7 @@ export const sketch = (p5: P5) => {
     // prevent freezing due to animation frame build up if tab loses focus
     if (p5.deltaTime > 3000) return;
     renderLoop();
+    tickGamepad();
     if (level.loading) {
       loadingScene.draw();
     }
