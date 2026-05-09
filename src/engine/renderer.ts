@@ -654,7 +654,7 @@ export class Renderer implements IRenderer {
     const { inputType } = this.gameState;
     const isKeyboard = inputType === InputType.Keyboard;
     // banner background
-    const bannerWidth = isKeyboard ? 5.8 : 7.8;
+    const bannerWidth = isKeyboard ? 7.8 : 7.8;
     const bannerHeight = isKeyboard ? 5.8 : 2.8;
     const x0 = MAP_OFFSET + BLOCK_SIZE_X * (x);
     const x1 = MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth);
@@ -680,7 +680,7 @@ export class Renderer implements IRenderer {
     gfx.text("U-TURN", textX, textY);
     // image
     const imgX = isKeyboard
-      ? BLOCK_SIZE_X * (x + 0.4)
+      ? BLOCK_SIZE_X * (x + 1.4)
       : BLOCK_SIZE_X * (x + 0.6);
     const imgY = isKeyboard
      ? BLOCK_SIZE_Y * (y + 0.4)
