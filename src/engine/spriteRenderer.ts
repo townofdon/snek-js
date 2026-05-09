@@ -10,11 +10,9 @@ import {
   ColorReplacementPalette,
   SpritesheetRange,
 } from "../types";
-import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y, MAP_OFFSET, STROKE_SIZE } from "../constants";
+import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y, IMG_SCALE, IMG_X_OFFSET, MAP_OFFSET, STROKE_SIZE } from "../constants";
 import { getCurrentFrame, getRelativeDir, lerp, isValidSpritesheetRange } from "../utils";
 import { getBorderColorVariant } from "@/palettes";
-
-const IMAGE_SCALE = 1.01;
 
 interface SpriteRendererConstructorProps {
   p5: P5
@@ -61,14 +59,8 @@ export class SpriteRenderer {
     [Image.SnekSegmentE]: null,
     [Image.SegmentsSheet]: null,
     [Image.SnekButt]: null,
-    [Image.KeyGrey]: null,
-    [Image.KeyYellow]: null,
-    [Image.KeyRed]: null,
-    [Image.KeyBlue]: null,
-    [Image.LockGrey]: null,
-    [Image.LockYellow]: null,
-    [Image.LockRed]: null,
-    [Image.LockBlue]: null,
+    [Image.KeySheet]: null,
+    [Image.LockSheet]: null,
     [Image.PickupArrows]: null,
     [Image.UIKeysSheet]: null,
     [Image.UILocked]: null,
@@ -283,14 +275,8 @@ export class SpriteRenderer {
       this.loadImage(Image.SnekSegmentE);
       this.loadImage(Image.SegmentsSheet);
       this.loadImage(Image.SnekButt);
-      this.loadImage(Image.KeyGrey);
-      this.loadImage(Image.KeyYellow);
-      this.loadImage(Image.KeyRed);
-      this.loadImage(Image.KeyBlue);
-      this.loadImage(Image.LockGrey);
-      this.loadImage(Image.LockYellow);
-      this.loadImage(Image.LockRed);
-      this.loadImage(Image.LockBlue);
+      this.loadImage(Image.KeySheet);
+      this.loadImage(Image.LockSheet);
       this.loadImage(Image.PickupArrows);
       this.loadImage(Image.UIKeysSheet);
       this.loadImage(Image.UIShieldSheet);
@@ -414,8 +400,8 @@ export class SpriteRenderer {
     const widthX = Math.floor(BLOCK_SIZE_X);
     const widthY = Math.floor(BLOCK_SIZE_Y);
     const offset = -STROKE_SIZE * 0.5;
-    const posx = Math.floor(x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE_X * IMAGE_SCALE) + MAP_OFFSET + 1;
-    const posy = Math.floor(y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE_Y * IMAGE_SCALE) + MAP_OFFSET;
+    const posx = Math.floor(x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE_X * IMG_SCALE) + MAP_OFFSET + IMG_X_OFFSET;
+    const posy = Math.floor(y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE_Y * IMG_SCALE) + MAP_OFFSET;
 
     gfx.push();
     gfx.noSmooth();
@@ -425,13 +411,13 @@ export class SpriteRenderer {
     );
     if (rotation) {
       gfx.translate(
-        (widthX * 1.5 + offset) * IMAGE_SCALE,
-        (widthY * 1.5 + offset) * IMAGE_SCALE,
+        (widthX * 1.5 + offset) * IMG_SCALE,
+        (widthY * 1.5 + offset) * IMG_SCALE,
       );
       gfx.rotate(rotation);
       gfx.translate(
-        (-widthX * 1.5 - offset) * IMAGE_SCALE,
-        (-widthY * 1.5 - offset) * IMAGE_SCALE,
+        (-widthX * 1.5 - offset) * IMG_SCALE,
+        (-widthY * 1.5 - offset) * IMG_SCALE,
       );
     }
     if (alpha !== 1) {
@@ -443,8 +429,8 @@ export class SpriteRenderer {
       // destination (x, y, w, h)
       0,
       0,
-      (widthX * 3 - STROKE_SIZE) * IMAGE_SCALE,
-      (widthY * 3 - STROKE_SIZE) * IMAGE_SCALE,
+      (widthX * 3 - STROKE_SIZE) * IMG_SCALE,
+      (widthY * 3 - STROKE_SIZE) * IMG_SCALE,
       // source (x, y, w, h)
       frame * frameWidth,
       0,
@@ -513,7 +499,7 @@ export class SpriteRenderer {
     const widthX = Math.floor(BLOCK_SIZE_X) + STROKE_SIZE;
     const widthY = Math.floor(BLOCK_SIZE_Y) + STROKE_SIZE;
     const offset = -STROKE_SIZE * 0.5;
-    const posx = Math.floor(x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul) + offset + MAP_OFFSET + 1;
+    const posx = Math.floor(x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul) + offset + MAP_OFFSET + IMG_X_OFFSET;
     const posy = Math.floor(y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul) + offset + MAP_OFFSET;
 
     gfx.push();
@@ -524,13 +510,13 @@ export class SpriteRenderer {
     );
     if (rotation) {
       gfx.translate(
-        (widthX * 0.5 + offset) * IMAGE_SCALE,
-        (widthY * 0.5 + offset) * IMAGE_SCALE,
+        (widthX * 0.5 + offset) * IMG_SCALE,
+        (widthY * 0.5 + offset) * IMG_SCALE,
       );
       gfx.rotate(rotation);
       gfx.translate(
-        (-widthX * 0.5 - offset) * IMAGE_SCALE,
-        (-widthY * 0.5 - offset) * IMAGE_SCALE,
+        (-widthX * 0.5 - offset) * IMG_SCALE,
+        (-widthY * 0.5 - offset) * IMG_SCALE,
       );
     }
     if (alpha !== 1) {
@@ -542,8 +528,8 @@ export class SpriteRenderer {
       // destination (x, y, w, h)
       0,
       0,
-      (widthX - STROKE_SIZE) * IMAGE_SCALE,
-      (widthY - STROKE_SIZE) * IMAGE_SCALE,
+      (widthX - STROKE_SIZE) * IMG_SCALE,
+      (widthY - STROKE_SIZE) * IMG_SCALE,
       // source (x, y, w, h)
       frame * frameWidth,
       0,

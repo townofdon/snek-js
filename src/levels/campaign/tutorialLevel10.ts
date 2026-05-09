@@ -2,6 +2,7 @@ import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
 import { WARP_ZONE_01 } from "../bonusLevels/warpZone01";
+import { LEVEL_01_D } from "./level01d";
 
 const name = 'turnaround';
 
@@ -47,9 +48,10 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXxxXDDXXDDXxxXXXXXXXXX
 XXXXXXXXX==X++XX++X++XXXXXXXXX
   `,
+  layoutV2: 'bUtLWEtLcSFOdk8hbVFPTUV6an5FamtrV09PIVlwZycpcy1iTGdNRUUnVk5kX19fX2RtTk5oU3MtYiFNRWotJ1ZkZ2pweVlMVSF5IVVMTCpOZGhTc2VZTFBWZFlFTSFYYk5OaClQTwpkX19fX19QVlRZaihnWGJQKVBYZU9PIVhXamtOVE5ZRVh%252BWXpFTU9RcVFxIU52anFLS1hLWFNPTXw1NzR8UklHSFR8dHVybmFyb3VuZHwzMDAwMDB8MjJ8LWlpMjVjY2MuNXwjMTVDMkNCSjExOURBNGYyQzJDNjNKMzMzMzcxbGYxOTE5MzhsSjRCM0Y3Mko1NjQ4ODR3QjQxRndDODU3d0REOTl8WlpaaTRjIWdnJyA9PSAoeE1MKS0tUypYTkVMWUotI0tYKytMWHhNWApOZGRPISFzLSdRKip2KlMgIFVYKEVYLScpLS1oTmRFWChWKWhOTldFWChPdnZPZyhFWXh4WjEtMS0xLWN8MGVMTFgoZkowRDBEMUNKZ1hYaEFBaTF8akx4a054TllsSjEzMTMyQW0KT3AoTExxT01Pc1Atdlgqd0pGRnkqZGgpc3pFKk9ORX5wTFFMZQF%252Benl3dnNxcG1sa2ppaGdmZWNaWVdWVVNRUE9OTUxLSkUqKSgnIV8%253D',
   colors: getExtendedPalette(PALETTE.hospital),
   renderInstructions: (gfx, renderer, state, palette) => {
-    renderer.drawTutorialTurnControls(gfx, 21, 17);
+    if (!state.isDoorsOpen) renderer.drawTutorialTurnControls(gfx, 0, 10);
   },
   showTitle: true,
   extraLoseMessages: [
@@ -65,13 +67,9 @@ XXXXXXXXX==X++XX++X++XXXXXXXXX
     [ItemDropType.Invincibility]: false,
     [ItemDropType.Mine]: false,
   },
+  armorDrop: getCoordIndex2(14, 14),
   nextLevelMap: {
-    [getCoordIndex2(9, 29)]: WARP_ZONE_01,
-    [getCoordIndex2(10, 29)]: WARP_ZONE_01,
-    [getCoordIndex2(12, 29)]: WARP_ZONE_01,
-    [getCoordIndex2(13, 29)]: WARP_ZONE_01,
-    [getCoordIndex2(16, 29)]: WARP_ZONE_01,
-    [getCoordIndex2(17, 29)]: WARP_ZONE_01,
+    [getCoordIndex2(0, 19)]: LEVEL_01_D,
     [getCoordIndex2(19, 29)]: WARP_ZONE_01,
     [getCoordIndex2(20, 29)]: WARP_ZONE_01,
   },

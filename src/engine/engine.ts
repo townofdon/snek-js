@@ -53,6 +53,7 @@ import {
   RARITY_EPIC,
   RARITY_RARE,
   IS_LOCALHOST,
+  DIMENSIONS,
 } from "../constants";
 import {
   Action,
@@ -621,7 +622,7 @@ export function engine({
     stats.applesEatenThisLevel = 0;
     stats.totalLevelTimeElapsed = 0;
 
-    // init state for new es.level
+    // init state for new level
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
     drawState.shouldDrawActionFG = true;
@@ -1094,13 +1095,6 @@ export function engine({
       didEat = true;
     }
 
-    if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && es.level.armorDrop && replay.mode !== ReplayMode.Playback) {
-      const loc = chooseSpawnLocation(es.level.armorDrop);
-      if (loc >= 0) {
-        spawnArmorPickup(getCoordX(getCoordX(loc)), getCoordY(loc));
-      }
-    }
-
     // tick time for prey
     if (!state.isInvertedColors) {
       astar.setSnekCoord(getCoordIndex(player.position));
@@ -1163,6 +1157,13 @@ export function engine({
     if (getHasClearedLevel() && !state.isDoorsOpen) {
       openDoors();
       playSound(Sound.doorOpen);
+    }
+
+    if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && es.level.armorDrop && replay.mode !== ReplayMode.Playback) {
+      const loc = chooseSpawnLocation(es.level.armorDrop);
+      if (loc >= 0) {
+        spawnArmorPickup(getCoordX(getCoordX(loc)), getCoordY(loc));
+      }
     }
 
     handleSnakeExitLevelStart();
@@ -1252,8 +1253,8 @@ export function engine({
     const action = document.getElementById("canvas-action") as HTMLCanvasElement;
     const keysLocks = document.getElementById("canvas-es.keys-es.locks") as HTMLCanvasElement;
     const dest = document.getElementById("canvas-bg") as HTMLCanvasElement;
-    const sourceDimensions = [1200, 1200] as const;
-    const destinationDimensions = [1200, 1200] as const;
+    const sourceDimensions = [DIMENSIONS.x, DIMENSIONS.y] as const;
+    const destinationDimensions = [DIMENSIONS.x, DIMENSIONS.y] as const;
     // await overlayOntoCanvas(mainCanvas, dest, ...sourceDimensions, ...destinationDimensions);
     await overlayOntoCanvas(fg, dest, ...sourceDimensions, ...destinationDimensions);
     await overlayOntoCanvas(keysLocks, dest, ...sourceDimensions, ...destinationDimensions);

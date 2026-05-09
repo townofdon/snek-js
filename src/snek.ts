@@ -721,7 +721,7 @@ export const sketch = (p5: P5) => {
 
   function onGameOver() {
     UI.enableScreenScroll();
-    showGameOverUI(getNextLoseMessage(), uiElements, state, { confirmShowMainMenu, initLevel });
+    showGameOverUI(getNextLoseMessage(), uiElements);
     uiBindings.onGameOver();
     stats.numLevelsCleared = 0;
     recordSnekalyticsEvent({

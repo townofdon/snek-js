@@ -20,10 +20,11 @@ import { getGamepad, tickGamepad, wasPressedThisFrame } from "../engine/gamepad"
 import { Button } from "../engine/gamepad/StandardGamepadMapping";
 import { musicTrackFadeoutOverride } from "../editor/utils/musicTrackUtils";
 
+const TSMOD = 2 * 0.8;
 const VISUALIZER = {
-  width: 2 * 360,
-  height: 2 * 360,
-  y: 2 * 80,
+  width: TSMOD * 360,
+  height: TSMOD * 360,
+  y: TSMOD * 80,
   sweepCycleTimeMs: 4000,
 }
 
@@ -276,7 +277,7 @@ export class OSTScene extends BaseScene {
     p5.fill('#777');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 12);
+    p5.textSize(TSMOD * 12);
     p5.textAlign(p5.RIGHT, p5.TOP);
     p5.text('[OST MODE]', ...this.getPosition(0.98, 0.02));
   }
@@ -286,7 +287,7 @@ export class OSTScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 12);
+    p5.textSize(TSMOD * 12);
     p5.textAlign(p5.LEFT, p5.TOP);
     p5.text('[DEL] EXIT', ...this.getPosition(0.02, 0.02));
   }
@@ -298,7 +299,7 @@ export class OSTScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 32);
+    p5.textSize(TSMOD * 32);
     p5.textAlign(p5.CENTER, p5.TOP);
     if (this.state.locked) {
       p5.fill('#555');
@@ -321,7 +322,7 @@ export class OSTScene extends BaseScene {
     // time elapsed, track number
     p5.textFont(fonts.variants.miniMood);
     p5.fill('#ccc');
-    p5.textSize(2 * 12);
+    p5.textSize(TSMOD * 12);
 
     this.drawTimeElapsed();
     this.drawTrackNumber();
@@ -363,7 +364,7 @@ export class OSTScene extends BaseScene {
     const y = VISUALIZER.y + (VISUALIZER.height * 0.5) - (imgHeight * 0.5);
     this.spriteRenderer.drawImage(image, x, y, undefined, 1, 0);
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 14);
+    p5.textSize(TSMOD * 14);
     p5.textAlign(p5.CENTER, p5.TOP);
     p5.fill('#ccc');
     p5.text('locked', ...this.getPosition(0.5, 0.54));
@@ -374,7 +375,7 @@ export class OSTScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 14);
+    p5.textSize(TSMOD * 14);
     p5.textAlign(p5.CENTER, p5.TOP);
     p5.fill('#fff');
     p5.text('<- PREV           NEXT ->', ...this.getPosition(0.5, 0.9));

@@ -26,6 +26,7 @@ const STATE_CLEAR_Y_START = -1; // normalized position
 const COL_LEFT = 0.48;
 const COL_RIGHT = 0.52;
 const NUM_ITEMS_TO_LOOP_SOUND = 15;
+const TSMOD = 2 * 0.8;
 
 const LEADERBOARD_COLORS = [
   "#FFB41F",
@@ -520,10 +521,10 @@ export class WinGameScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke(bgColor)
     gfx.strokeWeight(2 * 4);
-    gfx.textSize(2 * 32.5);
+    gfx.textSize(TSMOD * 32.5);
     gfx.fill(bgColor);
     gfx.text(title, ...this.getPosition(0.5, 0.21 + this.state.stageClearY));
-    gfx.textSize(2 * 32);
+    gfx.textSize(TSMOD * 32);
     gfx.fill(color);
     gfx.text(title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
   }
@@ -534,7 +535,7 @@ export class WinGameScene extends BaseScene {
     gfx.fill(color);
     gfx.stroke("#000");
     gfx.strokeWeight(2 * 2);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.text(message, ...this.getPosition(0.5, yPos + this.state.stageClearY));
     // p5.text(message, ...this.getRect(0.5, yPos + this.state.stageClearY, DIMENSIONS.x - 50, 250));
@@ -568,7 +569,7 @@ export class WinGameScene extends BaseScene {
     const { p5, gfx, fonts } = this.props;
     const valueDisplay = formatValue ? formatValue(value) : formatNumber(value, {}).trim();
     gfx.textFont(fonts.variants.miniMood);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     gfx.strokeCap(p5.PROJECT);
 
     if (bgStrokeSize !== strokeSize) {
@@ -607,7 +608,7 @@ export class WinGameScene extends BaseScene {
     gfx.stroke(Color(color).darken(0.4).hex());
     gfx.textFont(fonts.variants.miniMood);
     gfx.strokeWeight(2 * 2);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     gfx.textAlign(p5.LEFT, p5.TOP);
     gfx.text("NEW HIGHSCORE", ...this.getPosition(COL_RIGHT, yPos + this.state.stageClearY - 0.05));
   }
@@ -622,7 +623,7 @@ export class WinGameScene extends BaseScene {
     gfx.stroke(Color(color).darken(0.4).hex());
     gfx.textFont(fonts.variants.miniMood);
     gfx.strokeWeight(2 * 2);
-    gfx.textSize(2 * 12);
+    gfx.textSize(TSMOD * 12);
     gfx.textAlign(align, p5.TOP);
     // gfx.text(align === p5.RIGHT ? ">>>" : "<<<", ...this.getPosition(x, y));
     gfx.text("NEW!", ...this.getPosition(x, y));
@@ -741,7 +742,7 @@ export class WinGameScene extends BaseScene {
     gfx.stroke(Color(ACCENT_COLOR).darken(0.8).hex());
     gfx.textFont(fonts.variants.miniMood);
     gfx.strokeWeight(2 * 5);
-    gfx.textSize(2 * 12);
+    gfx.textSize(TSMOD * 12);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.textStyle(p5.BOLD);
     gfx.text("S N E K   Y E A H !", 0, 0);
@@ -755,7 +756,7 @@ export class WinGameScene extends BaseScene {
     gfx.stroke("#000");
     gfx.textFont(fonts.variants.miniMood);
     gfx.strokeWeight(2 * 5);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.fill('#fff');
     gfx.text('[PRESS ENTER TO CONTINUE]', ...this.getPosition(0.5, 0.8 + addY));

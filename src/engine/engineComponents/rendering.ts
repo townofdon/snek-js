@@ -1094,27 +1094,31 @@ export function engineRendering({
   function drawKey(key: Key) {
     if (!state.isDoorsOpen && es.passablesMap[getCoordIndex(key.position)]) return;
     if (!drawState.shouldDrawKeysLocks && !state.isInvertedColors) return;
+    const x = key.position.x;
+    const y = key.position.y;
     if (state.isInvertedColors) {
-      spriteRenderer.drawImage3x3(Image.KeyGrey, key.position.x, key.position.y);
+      spriteRenderer.drawSprite1x1(renderer.getMainGfx(), Image.KeySheet, x, y, 0, 0, 1);
     } else if (key.channel === KeyChannel.Yellow) {
-      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.KeyYellow, key.position.x, key.position.y, 0, 1, 0);
+      spriteRenderer.drawSprite1x1(gfxKeysLocks, Image.KeySheet, x, y, 3, 0, 1);
     } else if (key.channel === KeyChannel.Red) {
-      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.KeyRed, key.position.x, key.position.y, 0, 1, 0);
+      spriteRenderer.drawSprite1x1(gfxKeysLocks, Image.KeySheet, x, y, 2, 0, 1);
     } else if (key.channel === KeyChannel.Blue) {
-      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.KeyBlue, key.position.x, key.position.y, 0, 1, 0);
+      spriteRenderer.drawSprite1x1(gfxKeysLocks, Image.KeySheet, x, y, 1, 0, 1);
     }
   }
 
   function drawLock(lock: Lock) {
     if (!drawState.shouldDrawKeysLocks && !state.isInvertedColors) return;
+    const x = lock.position.x;
+    const y = lock.position.y;
     if (state.isInvertedColors) {
-      spriteRenderer.drawImage3x3(Image.LockGrey, lock.position.x, lock.position.y);
+      spriteRenderer.drawSprite1x1(renderer.getMainGfx(), Image.LockSheet, x, y, 0, 0, 1);
     } else if (lock.channel === KeyChannel.Yellow) {
-      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.LockYellow, lock.position.x, lock.position.y, 0, 1, 0);
+      spriteRenderer.drawSprite1x1(gfxKeysLocks, Image.LockSheet, x, y, 3, 0, 1);
     } else if (lock.channel === KeyChannel.Red) {
-      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.LockRed, lock.position.x, lock.position.y, 0, 1, 0);
+      spriteRenderer.drawSprite1x1(gfxKeysLocks, Image.LockSheet, x, y, 2, 0, 1);
     } else if (lock.channel === KeyChannel.Blue) {
-      spriteRenderer.drawImage3x3Custom(gfxKeysLocks, Image.LockBlue, lock.position.x, lock.position.y, 0, 1, 0);
+      spriteRenderer.drawSprite1x1(gfxKeysLocks, Image.LockSheet, x, y, 1, 0, 1);
     }
   }
 

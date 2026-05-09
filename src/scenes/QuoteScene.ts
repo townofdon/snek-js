@@ -5,6 +5,7 @@ import { getGamepad, tickGamepad, wasPressedThisFrame } from "../engine/gamepad"
 import { Button } from "../engine/gamepad/StandardGamepadMapping";
 
 const AUTHOR_PADDING = 15;
+const TSMOD = 2 * 0.8;
 
 export class QuoteScene extends BaseScene {
   _quotes: string[];
@@ -92,7 +93,7 @@ export class QuoteScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 14);
+    p5.textSize(TSMOD * 14);
     p5.textAlign(p5.LEFT, p5.TOP);
     p5.text(quote.substring(0, numLetters), ...this._getQuoteRect());
   }
@@ -103,7 +104,7 @@ export class QuoteScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 12);
+    p5.textSize(TSMOD * 12);
     p5.textAlign(p5.RIGHT, p5.TOP);
     p5.text('- ' + this._author, x, y + paragraphHeight + AUTHOR_PADDING, width, height);
   }
@@ -113,7 +114,7 @@ export class QuoteScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 14);
+    p5.textSize(TSMOD * 14);
     p5.textAlign(p5.CENTER, p5.TOP);
     p5.fill('#fff');
     p5.text('[PRESS ANY KEY]', ...this.getPosition(0.5, 0.8));
@@ -157,7 +158,7 @@ export class QuoteScene extends BaseScene {
     p5.fill('#777');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 12);
+    p5.textSize(TSMOD * 12);
     p5.textAlign(p5.RIGHT, p5.TOP);
     p5.text('[QUOTE MODE]', ...this.getPosition(0.98, 0.02));
   }
@@ -167,7 +168,7 @@ export class QuoteScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 12);
+    p5.textSize(TSMOD * 12);
     p5.textAlign(p5.LEFT, p5.TOP);
     p5.text('[DEL] EXIT', ...this.getPosition(0.02, 0.02));
   }
@@ -175,7 +176,7 @@ export class QuoteScene extends BaseScene {
   private _estimateNumLines = (paragraph: string, rectWidth: number, font: P5.Font, textSize: number) => {
     const { p5 } = this.props;
     p5.textFont(font);
-    p5.textSize(2 * textSize);
+    p5.textSize(TSMOD * textSize);
 
     paragraph = paragraph.trim();
     let cursorStart = 0;

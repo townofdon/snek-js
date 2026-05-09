@@ -17,6 +17,7 @@ const PHRASES = [
   'wicked!',
   'awesome!',
 ];
+const TSMOD = 2 * 0.8;
 
 interface TriggerLevelExitParams {
   score: number,
@@ -260,19 +261,19 @@ export class WinLevelScene extends BaseScene {
       this.drawScore(finalScore);
     }, true);
 
-    // unlock music track
-    if (this.levelMusicTrack && !this.unlockedMusicStore.getIsUnlocked(this.levelMusicTrack)) {
-      this.unlockedMusicStore.unlockTrack(this.levelMusicTrack);
-      if (OST_MODE_TRACKS_NOTIFY_UNLOCK.includes(this.levelMusicTrack)) {
-        sfx.play(Sound.doorOpenHuge, 1);
-        yield* coroutines.waitForTime(1500, (t) => {
-          // flash
-          const freq = 0.3;
-          const shouldShow = t % freq < freq * 0.5;
-          if (shouldShow) this.drawMusicTrackUnlocked(this.levelMusicTrack);
-        }, true);
-      }
-    }
+    // // unlock music track
+    // if (this.levelMusicTrack && !this.unlockedMusicStore.getIsUnlocked(this.levelMusicTrack)) {
+    //   this.unlockedMusicStore.unlockTrack(this.levelMusicTrack);
+    //   if (OST_MODE_TRACKS_NOTIFY_UNLOCK.includes(this.levelMusicTrack)) {
+    //     sfx.play(Sound.doorOpenHuge, 1);
+    //     yield* coroutines.waitForTime(1500, (t) => {
+    //       // flash
+    //       const freq = 0.3;
+    //       const shouldShow = t % freq < freq * 0.5;
+    //       if (shouldShow) this.drawMusicTrackUnlocked(this.levelMusicTrack);
+    //     }, true);
+    //   }
+    // }
 
     sfx.stop(Sound.doorOpenHuge);
 
@@ -305,11 +306,11 @@ export class WinLevelScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
     gfx.strokeWeight(2 * 4);
-    gfx.textSize(2 * 32.5);
+    gfx.textSize(TSMOD * 32.5);
     gfx.fill('#000');
     gfx.text(title, ...this.getPosition(0.5, this.stageClearY + 0.01));
     gfx.strokeWeight(2 * 4);
-    gfx.textSize(2 * 32);
+    gfx.textSize(TSMOD * 32);
     gfx.fill('#fff');
     gfx.text(title, ...this.getPosition(0.5, this.stageClearY + 0.0));
 
@@ -329,7 +330,7 @@ export class WinLevelScene extends BaseScene {
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg)
     gfx.strokeWeight(2 * 3);
-    gfx.textSize(2 * 16);
+    gfx.textSize(TSMOD * 16);
     const text = 'PERFECT!';
     if (hasOtherBonus) {
       gfx.textAlign(p5.CENTER, p5.TOP);
@@ -357,7 +358,7 @@ export class WinLevelScene extends BaseScene {
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg);
     gfx.strokeWeight(2 * 3);
-    gfx.textSize(2 * 16);
+    gfx.textSize(TSMOD * 16);
     const text = '100% Treats';
     if (hasOtherBonus) {
       gfx.textAlign(p5.CENTER, p5.TOP);
@@ -383,7 +384,7 @@ export class WinLevelScene extends BaseScene {
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg);
     gfx.strokeWeight(2 * 4);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     const text = '100% Locks';
     if (hasOtherBonus) {
       gfx.textAlign(p5.CENTER, p5.TOP);
@@ -401,7 +402,7 @@ export class WinLevelScene extends BaseScene {
     const shadowOffset = 0.004;
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     gfx.textAlign(p5.RIGHT, p5.TOP);
     // shadow
     gfx.fill('#000');
@@ -457,13 +458,13 @@ export class WinLevelScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
     gfx.textAlign(p5.LEFT, p5.TOP);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     gfx.strokeWeight(2 * 3);
     gfx.fill('#000');
     gfx.text('Lives Bonus', ...this.getPosition(0.6, 0.4 + this.statOffsetY + shadowOffset));
     gfx.text(`${lives} x ${bonus.toFixed(0)}`, ...this.getPosition(0.6, 0.45 + this.statOffsetY + shadowOffset));
     gfx.text(calcBonus.toFixed(0).padStart(5, '0'), ...this.getPosition(0.6, 0.5 + this.statOffsetY + shadowOffset));
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     gfx.strokeWeight(2 * 2);
     gfx.fill('#fff');
     gfx.text('Lives Bonus', ...this.getPosition(0.6, 0.4 + this.statOffsetY));
@@ -476,11 +477,11 @@ export class WinLevelScene extends BaseScene {
     gfx.textAlign(p5.CENTER, p5.CENTER);
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke("#000")
-    gfx.textSize(2 * 24.5);
+    gfx.textSize(TSMOD * 24.5);
     gfx.strokeWeight(2 * 4);
     gfx.fill('#000');
     gfx.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.611));
-    gfx.textSize(2 * 24);
+    gfx.textSize(TSMOD * 24);
     gfx.strokeWeight(2 * 2);
     gfx.fill('#fff');
     gfx.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.6));
@@ -495,22 +496,22 @@ export class WinLevelScene extends BaseScene {
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.fill('#111');
     gfx.stroke('#000');
-    gfx.textSize(2 * 16);
+    gfx.textSize(TSMOD * 16);
     gfx.strokeWeight(2 * 4);
     gfx.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY + shadowOffset * 0.5));
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg);
-    gfx.textSize(2 * 16);
+    gfx.textSize(TSMOD * 16);
     gfx.strokeWeight(2 * 4);
     gfx.text('Music track unlocked:', ...this.getPosition(0.5, 0.5 + this.statOffsetY));
     gfx.fill('#111');
     gfx.stroke('#000');
-    gfx.textSize(2 * 28);
+    gfx.textSize(TSMOD * 28);
     gfx.strokeWeight(2 * 6);
     gfx.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY + shadowOffset));
     gfx.fill(accentColor);
     gfx.stroke(accentColorBg);
-    gfx.textSize(2 * 28);
+    gfx.textSize(TSMOD * 28);
     gfx.strokeWeight(2 * 4);
     gfx.text(getTrackName(track), ...this.getPosition(0.5, 0.55 + this.statOffsetY));
   }
@@ -528,7 +529,7 @@ export class WinLevelScene extends BaseScene {
     gfx.stroke(Color(accentColorBg).darken(0.8).hex());
     gfx.textFont(fonts.variants.miniMood);
     gfx.strokeWeight(2 * 5);
-    gfx.textSize(2 * 12);
+    gfx.textSize(TSMOD * 12);
     gfx.textAlign(p5.RIGHT, p5.TOP);
     gfx.textStyle(p5.BOLD);
     gfx.text(text, 0, 0);
@@ -549,7 +550,7 @@ export class WinLevelScene extends BaseScene {
     gfx.stroke(Color(accentColorBg).darken(0.8).hex());
     gfx.textFont(fonts.variants.miniMood);
     gfx.strokeWeight(2 * 5);
-    gfx.textSize(2 * 12);
+    gfx.textSize(TSMOD * 12);
     gfx.textAlign(p5.LEFT, p5.TOP);
     gfx.textStyle(p5.BOLD);
     gfx.text(text, 0, 0);

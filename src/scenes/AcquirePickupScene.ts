@@ -45,6 +45,8 @@ enum FadeType {
   Blue,
 }
 
+const TSMOD = 0.8;
+
 const defaultShowing = {
   [RenderItem.Title]: false,
   [RenderItem.Text2]: false,
@@ -235,11 +237,11 @@ export class AcquirePickupScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke(bgColor);
     gfx.strokeWeight(8);
-    gfx.textSize(65);
+    gfx.textSize(TSMOD * 65);
     gfx.fill(bgColor);
     gfx.text(title, ...this.getPosition(0.5, yPos + 0.01));
     gfx.strokeWeight(0);
-    gfx.textSize(64);
+    gfx.textSize(TSMOD * 64);
     gfx.fill(color);
     gfx.text(title, ...this.getPosition(0.5, yPos));
   }
@@ -252,7 +254,7 @@ export class AcquirePickupScene extends BaseScene {
     gfx.fill(color);
     gfx.stroke("#000");
     gfx.strokeWeight(2 * 2);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 2 * 14);
     gfx.textAlign(p5.LEFT, p5.TOP);
     const rectWidth = 2 * 250;
     const rect = this.getRect(0.5, yPos, rectWidth, lineHeight);
@@ -297,7 +299,7 @@ export class AcquirePickupScene extends BaseScene {
     gfx.fill('#fff');
     gfx.noStroke();
     gfx.textFont(fonts.variants.miniMood);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 2 * 14);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.fill('#fff');
     gfx.text('[PRESS ANY KEY]', ...this.getPosition(0.5, yPos));
@@ -306,7 +308,7 @@ export class AcquirePickupScene extends BaseScene {
   private _getParagraphLines = (paragraph: string, rectWidth: number, font: P5.Font, textSize: number): string[] => {
       const { p5 } = this.props;
       p5.textFont(font);
-      p5.textSize(textSize);
+      p5.textSize(TSMOD * textSize);
 
       paragraph = paragraph.trim();
       let cursorStart = 0;

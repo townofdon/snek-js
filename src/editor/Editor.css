@@ -570,8 +570,8 @@ button,
 }
 
 .mapPreviewContainer {
-  width: 1200px;
-  height: 1200px;
+  width: 960px;
+  height: 960px;
   transform: scale(0.5);
   transform-origin: center center;
 

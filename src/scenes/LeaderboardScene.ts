@@ -20,6 +20,7 @@ const SHIMMER_CYCLE_TIME = 3500;
 const SHIMMER_OFFSET = 0.8;
 const COL_LEFT = 0.48;
 const COL_RIGHT = 0.52;
+const TSMOD = 2 * 0.8;
 
 const LEADERBOARD_COLORS = [
   "#FFB41F",
@@ -159,10 +160,10 @@ export class LeaderboardScene extends BaseScene {
     gfx.textFont(fonts.variants.miniMood);
     gfx.stroke(bgColor)
     gfx.strokeWeight(2 * 4);
-    gfx.textSize(2 * 32.5);
+    gfx.textSize(TSMOD * 32.5);
     gfx.fill(bgColor);
     gfx.text(title, ...this.getPosition(0.5, 0.21 + this.state.stageClearY));
-    gfx.textSize(2 * 32);
+    gfx.textSize(TSMOD * 32);
     gfx.fill(color);
     gfx.text(title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
   }
@@ -173,7 +174,7 @@ export class LeaderboardScene extends BaseScene {
     gfx.fill(color);
     gfx.stroke("#000");
     gfx.strokeWeight(2 * 2);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.text(message, ...this.getPosition(0.5, yPos + this.state.stageClearY * yMod));
   }
@@ -206,7 +207,7 @@ export class LeaderboardScene extends BaseScene {
     const { p5, gfx, fonts } = this.props;
     const valueDisplay = formatValue ? formatValue(value) : formatNumber(value, {}).trim();
     gfx.textFont(fonts.variants.miniMood);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     gfx.strokeCap(p5.PROJECT);
 
     if (bgStrokeSize !== strokeSize) {
@@ -268,7 +269,7 @@ export class LeaderboardScene extends BaseScene {
     gfx.stroke("#000");
     gfx.textFont(fonts.variants.miniMood);
     gfx.strokeWeight(2 * 5);
-    gfx.textSize(2 * 14);
+    gfx.textSize(TSMOD * 14);
     gfx.textAlign(p5.CENTER, p5.TOP);
     gfx.fill('#fff');
     gfx.text('[PRESS ANY KEY]', ...this.getPosition(0.5, 0.8 + addY));

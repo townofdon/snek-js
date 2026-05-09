@@ -1,5 +1,5 @@
 :root {
-  --hover-distance: 10px;
+  --hover-distance: 8px;
   --hover-duration: 3s;
   --selection-expand-duration: 1.5s;
 
@@ -35,9 +35,9 @@
   --ui-sprite-img-gear: url('assets/graphics/ui-gear3d.png');
   --ui-sprite-img-trophy: url('assets/graphics/ui-trophy.png');
   --ui-sprite-img-community: url('assets/graphics/ui-community.png');
-  --ui-sprite-background-size: 32px 32px;
-  --ui-sprite-width: 32px;
-  --ui-sprite-height: 32px;
+  --ui-sprite-background-size: 26px 26px;
+  --ui-sprite-width: 26px;
+  --ui-sprite-height: 26px;
 
   --ui-heart-img: url('assets/graphics/snek-heart.png');
   --ui-heart-background-size: 64px 16px;
@@ -129,6 +129,10 @@ body.preview {
 html, body, main {
   background: #030303;
   background: #181A1B;
+}
+
+main#main {
+  font-size: 0.8em;
 }
 
 main div {
@@ -297,7 +301,7 @@ main {
   top: 0;
   bottom: 0;
   /* width will be overridden in JS */
-  width: 20px;
+  width: 16px;
 }
 
 .blur {
@@ -325,7 +329,7 @@ p {
 @keyframes selection-expand {
   0%   { transform: scaleX(1) scaleY(1); }
   /* 50%  { transform: scaleX(1.05) scaleY(1.1); } */
-  50%  { transform: scaleX(1.02) scaleY(1.02); }
+  50%  { transform: scaleX(1.016) scaleY(1.016); }
   100% { transform: scaleX(1) scaleY(1); }
 }
 
@@ -357,13 +361,13 @@ p {
 button,
 .button {
   position: relative;
-  padding: 5px 20px;
-  padding-bottom: 4px;
+  padding: 4px 16px;
+  padding-bottom: 2px;
   border-radius: 2px;
   background: var(--button-bg);
   color: var(--button-color);
   border: solid 2px transparent;
-  box-shadow: 0px 3px 2px 2px black;
+  box-shadow: 0px 2px 2px 2px black;
   font-family: BIOSfontII, monospace;
   font-size: 1em;
   cursor: pointer;
@@ -373,8 +377,8 @@ button.minimood,
 .button.minimood {
   font-family: 'MiniMOOD', 'VT323', monospace;
   padding-bottom: 0;
-  padding-top: 6px;
-  font-size: 12px;
+  padding-top: 4.8px;
+  font-size: 9.6px;
 }
 button.focus-invert:focus,
 button.focus-invert:active,
@@ -393,10 +397,11 @@ button.focus-invert.active,
 .title-sprite-container {
   z-index: 10;
   position: absolute;
-  top: 90px;
+  top: 58px;
   width: 100%;
   display: block;
-  transform: scale(2);
+  transform: scale(1.6);
+  transform-origin: center center;
 }
 
 .title-sprite-container .variant {
@@ -477,9 +482,9 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: calc(-3 *
   z-index: 20;
   display: block;
   position: absolute;
-  left: 40px;
-  bottom: 40px;
-  right: 40px;
+  left: 32px;
+  bottom: 32px;
+  right: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -488,8 +493,8 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: calc(-3 *
 .main-ui-buttons .button-start-game {
   position: absolute;
   z-index: 10;
-  min-width: 150px;
-  transform: translateY(calc(-195px * 2)) scale(2);
+  min-width: 120px;
+  transform: translateY(calc(-156px * 2)) scale(2);
 }
 .main-ui-buttons .button-start-game:focus,
 .main-ui-buttons .button-start-game:active,
@@ -504,8 +509,8 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: calc(-3 *
 .main-ui-buttons .button-quit-game {
   position: absolute;
   z-index: 10;
-  min-width: 150px;
-  transform: translateY(calc(-145px * 2)) scale(2);
+  min-width: 120px;
+  transform: translateY(calc(-116px * 2)) scale(2);
 }
 .main-ui-buttons .button-quit-game:focus,
 .main-ui-buttons .button-quit-game:active,
@@ -609,7 +614,7 @@ button:focus:before,
   display: block;
   position: absolute;
   font-family: Casual, monospace;
-  font-size: 40px;
+  font-size: 32px;
   white-space: nowrap;
   color: var(--casual-mode-color);
   -webkit-text-fill-color: var(--casual-mode-color);
@@ -623,7 +628,7 @@ button:focus:before,
   display: block;
   position: absolute;
   font-family: Casual, monospace;
-  font-size: 40px;
+  font-size: 32px;
   white-space: nowrap;
   color: var(--cobra-mode-color);
   -webkit-text-fill-color: var(--cobra-mode-color);
@@ -690,8 +695,9 @@ button.ui-sprite.gear {
 button.ui-sprite.trophy {
   position: absolute;
   bottom: 0;
-  right: calc(2 * 42px);
-  background-size: 24px 24px; /* export trophy at 300% */
+  right: calc(2 * 34px);
+  background-size: 19px 19px; /* export trophy at 300% */
+  background-position: 1px center;
   background-repeat: no-repeat;
   background-color: #242b4a;
   transform-origin: bottom right;
@@ -699,13 +705,14 @@ button.ui-sprite.trophy {
 a.ui-sprite.community {
   position: absolute;
   bottom: 0;
-  right: calc(4 * 42px);
-  background-size: 24px 24px; /* export at 300% */
+  right: calc(4 * 34px);
+  background-size: 19px 19px; /* export at 300% */
+  background-position: 1px center;
   transform-origin: bottom right;
   background-repeat: no-repeat;
   background-color: #242b4a;
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
 }
 button.ui-sprite.headphones {
   position: absolute;
@@ -716,7 +723,7 @@ button.ui-sprite.headphones {
 button.ui-sprite.quote {
   position: absolute;
   bottom: 0;
-  left: calc(2 * 42px);
+  left: calc(2 * 34px);
   transform-origin: bottom left;
 }
 a > .tooltip,
@@ -735,7 +742,7 @@ button > .tooltip {
   border-radius: 4px;
   font-family: 'MiniMOOD', 'VT323', monospace;
   filter: invert(1);
-  font-size: 12px;
+  font-size: 9.6px;
   text-align: center;
 }
 a > .tooltip.invert,
@@ -783,24 +790,24 @@ button.game-mode.back {
   z-index: 30;
   display: block;
   position: absolute;
-  top: 20px;
-  left: 20px;
-  bottom: 20px;
-  right: 20px;
+  top: 16px;
+  left: 16px;
+  bottom: 16px;
+  right: 16px;
   border: 8px groove rgba(256,256,256,.5);
   border-radius: 4px;
   color: #fff;
   font-family: MiniMOOD, 'VT323', monospace;
-  font-size: 14px;
+  font-size: 11.2px;
   overflow: hidden;
 }
 
 .settings-menu > .content {
   position: absolute;
-  top: 20px;
-  left: 20px;
-  bottom: 20px;
-  right: 20px;
+  top: 16px;
+  left: 16px;
+  bottom: 16px;
+  right: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -809,11 +816,11 @@ button.game-mode.back {
 }
 
 .settings-menu > .content.gap {
-  gap: 16px;
+  gap: 13px;
 }
 
 .settings-menu > .content button {
-  min-width: 160px;
+  min-width: 128px;
   text-align: left;
 }
 
@@ -834,23 +841,23 @@ button.game-mode.back {
 }
 
 .settings-menu > .content > section {
-  width: 300px;
+  width: 240px;
   text-align: left;
 }
 
 .settings-menu > .content label {
   user-select: none;
-  font-size: 10px;
+  font-size: 8px;
 }
 
 .settings-menu > .content .field {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .settings-menu > .content .field .caption {
-  font-size: 12px;
+  font-size: 9.6px;
   font-family: BIOSfontII, monospace;
-  margin-left: 37px;
+  margin-left: 29.6px;
   display: block;
   font-weight: 100;
   -webkit-font-smoothing: antialiased;
@@ -858,7 +865,7 @@ button.game-mode.back {
 }
 
 .settings-menu > .content input[type="range"] + label {
-  transform: translate(10px, -4px);
+  transform: translate(6.4px, -5px);
   display: inline-block;
 }
 
@@ -885,10 +892,10 @@ button.game-mode.back {
 }
 .level-select-menu > .content > .level-name {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   transform: scale(3);
   color: #aac3c0;
-  margin-bottom: -90px;
+  margin-bottom: -72px;
   text-align: center;
 }
 .level-select-menu > .content > .level-name .num {
@@ -896,30 +903,30 @@ button.game-mode.back {
 }
 .level-select-menu > .content > .level-name .name {
   align-self: flex-start;
-  margin-top: 10px;
+  margin-top: 3px;
 }
 .level-select-menu > .content > .challenge-heading {
   position: absolute;
   /* color: #E76F51; */
   color: #8e6ced;
-  top: 300px;
+  top: 240px;
   transform: scale(2);
   font-style: italic;
-  margin-left: 130px;
+  margin-left: 104px;
 }
 .level-select-menu > .content > button.back {
   position: absolute;
   transform: scale(2);
-  bottom: 150px;
-  left: 270px;
+  bottom: 120px;
+  left: 216px;
 }
 .level-select-menu > .content > .levels {
   display: flex;
   flex-direction: row;
   overflow-x: hidden;
   width: 100%;
-  gap: 30px;
-  padding: 80px 190px;
+  gap: 24px;
+  padding: 64px 152px;
   box-sizing: border-box;
 }
 .show-cursor .level-select-menu > .content > .levels {
@@ -927,7 +934,7 @@ button.game-mode.back {
 }
 .level-select-menu button.select-level {
   position: relative;
-  padding: 10px;
+  padding: 8px;
   display: inline-flex;
   flex-shrink: 0;
   filter: brightness(0.3) grayscale(0.8) contrast(1);
@@ -940,7 +947,7 @@ button.game-mode.back {
 }
 .level-select-menu button.select-level img {
   display: block;
-  width: 300px;
+  width: 240px;
   height: auto;
   aspect-ratio: 1 / 1;
   pointer-events: none;
@@ -953,9 +960,9 @@ button.game-mode.back {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
-  gap: 10px;
-  margin-bottom: 10px;
-  transform: translateX(4px);
+  gap: 8px;
+  margin-bottom: 8px;
+  transform: translateX(3px);
 }
 .level-select-menu button.select-level > .completion-status > div {
   background-image: var(--lvl-status-sprite-img);
@@ -1011,7 +1018,7 @@ button.game-mode.back {
   padding: 10px;
   padding-bottom: 5px;
   font-family: MiniMOOD, 'VT323', monospace;
-  font-size: 12px;
+  font-size: 9.6px;
   border: 2px solid #fff;
   text-transform: uppercase;
   background-color: #181a1b94;
@@ -1058,9 +1065,9 @@ button.game-mode.back {
 .checkbox-label {
   display: block;
   position: relative;
-  padding-left: 35px;
-  margin-bottom: 12px;
-  margin-top: 16px;
+  padding-left: 28px;
+  margin-bottom: 9.6px;
+  margin-top: 12.8px;
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -1077,18 +1084,18 @@ button.game-mode.back {
 }
 .checkmark {
   position: absolute;
-  top: -8px;
+  top: -6.4px;
   left: 0;
-  height: 25px;
-  width: 25px;
+  height: 20px;
+  width: 20px;
   background-color: #eee;
-  font-size: 14px;
+  font-size: 11.2px;
 }
 .checkbox-label:hover input ~ .checkmark {
   background-color: #ccc;
 }
 .checkbox-label input[type='checkbox']:focus ~ .checkmark {
-  outline: 4px solid #2196F3;
+  outline: 3.2px solid #2196F3;
 }
 .checkbox-label input[type='checkbox']:checked ~ .checkmark {
   background-color: #2196F3;
@@ -1099,20 +1106,20 @@ button.game-mode.back {
 .checkmark:after {
   content: "x";
   position: absolute;
-  top: 7px;
-  left: 5px;
+  top: 5.6px;
+  left: 4px;
   display: none;
 }
 .checkbox-label input[type='checkbox']:checked ~ .checkmark:after {
   display: block;
 }
 .container input[type='checkbox']:after {
-  left: 9px;
-  top: 5px;
-  width: 5px;
-  height: 10px;
+  left: 7.2px;
+  top: 4px;
+  width: 4px;
+  height: 8px;
   border: solid white;
-  border-width: 0 3px 3px 0;
+  border-width: 0 2.4px 2.4px 0;
   -webkit-transform: rotate(45deg);
   -ms-transform: rotate(45deg);
   transform: rotate(45deg);
@@ -1129,7 +1136,7 @@ button.game-mode.back {
   position: absolute;
   bottom: 100%;
   width: auto;
-  min-width: 130px;
+  min-width: 104px;
   margin-bottom: 8px;
   padding: 6px;
   padding-bottom: 2px;
@@ -1138,7 +1145,7 @@ button.game-mode.back {
   border-radius: 4px;
   font-family: 'MiniMOOD', 'VT323', monospace;
   filter: invert(1);
-  font-size: 12px;
+  font-size: 9.6px;
 }
 .field.disabled:hover .tooltip,
 .field.disabled:active .tooltip,
@@ -1161,9 +1168,9 @@ button.game-mode.back {
 }
 
 .ui-label.difficulty {
-  left: 40px;
+  left: 32px;
   top: 0px;
-  padding: 1px 8px;
+  padding: 1px 6px;
   text-align: left;
   transform-origin: left top;
   transform: scale(2);
@@ -1175,14 +1182,14 @@ button.game-mode.back {
   justify-content: center;
   left: inherit;
   top: 0px;
-  right: 39px;
-  padding: 0px 5px;
+  right: 32px;
+  padding: 0px 4px;
   gap: 4px;
   transform-origin: right top;
   transform: scale(2);
-  font-size: 15px;
-  line-height: 12px;
-  min-width: 69px;
+  font-size: 12px;
+  line-height: 9.6px;
+  min-width: 55px;
 }
 .ui-heart {
   display: inline-block;
@@ -1207,7 +1214,7 @@ button.game-mode.back {
 
 .ui-label.casual {
   left: inherit;
-  right: 37px;
+  right: 30px;
   padding: 1px 8px;
   text-align: right;
   transform-origin: top right;
@@ -1215,10 +1222,10 @@ button.game-mode.back {
 }
 
 .ui-label.score {
-  left: 40px;
+  left: 32px;
   top: inherit;
   bottom: 0px;
-  padding: 1px 8px;
+  padding: 1px 6px;
   text-align: left;
   transform-origin: left bottom;
   transform: scale(2);
@@ -1228,8 +1235,8 @@ button.game-mode.back {
   left: inherit;
   top: inherit;
   bottom: 0px;
-  right: 37px;
-  padding: 1px 8px;
+  right: 30px;
+  padding: 1px 6px;
   text-align: right;
   z-index: 9;
   transform-origin: right bottom;
@@ -1317,8 +1324,8 @@ input[type="range"]:focus::-moz-range-thumb{
 
 /* === range theme and appearance === */
 input[type="range"] {
-	font-size: 1.5rem;
-	width: 14rem;
+	font-size: 1.2rem;
+	width: 11.2rem;
 }
 
 input[type="range"] {
@@ -1490,24 +1497,24 @@ input[type="range"]:disabled::-moz-range-thumb {
 .loader{
   display: block;
   position: relative;
-  height: 20px;
-  width: 140px;
+  height: 16px;
+  width: 112px;
   background-image: 
-  linear-gradient(var(--loader-color-bg) 20px, transparent 0), 
-  linear-gradient(var(--loader-color-bg) 20px, transparent 0), 
-  linear-gradient(var(--loader-color-bg) 20px, transparent 0), 
-  linear-gradient(var(--loader-color-bg) 20px, transparent 0);
+  linear-gradient(var(--loader-color-bg) 16px, transparent 0), 
+  linear-gradient(var(--loader-color-bg) 16px, transparent 0), 
+  linear-gradient(var(--loader-color-bg) 16px, transparent 0), 
+  linear-gradient(var(--loader-color-bg) 16px, transparent 0);
   background-repeat: no-repeat;
-  background-size: 20px auto;
-  background-position: 0 0, 40px 0, 80px 0, 120px 0;
+  background-size: 16px auto;
+  background-position: 0 0, 32px 0, 64px 0, 96px 0;
   animation: pgfill 1s linear infinite;
 }
 @keyframes pgfill {
-  0% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0); }
-  25% {   background-image: linear-gradient(var(--loader-color) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0); }
-  50% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0); }
-  75% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0); }
-  100% {   background-image: linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color-bg) 20px, transparent 0), linear-gradient(var(--loader-color) 20px, transparent 0); }
+  0% {   background-image: linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0); }
+  25% {   background-image: linear-gradient(var(--loader-color) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0); }
+  50% {   background-image: linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0); }
+  75% {   background-image: linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0); }
+  100% {   background-image: linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color-bg) 16px, transparent 0), linear-gradient(var(--loader-color) 16px, transparent 0); }
 }
 
 .fullscreen-button {
@@ -1576,7 +1583,7 @@ input[type="range"]:disabled::-moz-range-thumb {
 .compressor-controls {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 9.6px;
   position: absolute;
   left: 77%;
   z-index: 1000;

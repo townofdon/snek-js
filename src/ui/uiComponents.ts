@@ -10,26 +10,13 @@ interface GameOverCallbacks {
   initLevel(shouldShowTransitions?: boolean): void
 }
 
-export function showGameOverUI(loseMessage: string, uiElements: Element[], state: GameState, callbacks: GameOverCallbacks) {
-  const { confirmShowMainMenu, initLevel } = callbacks;
-
-  const drawButtonMainMenu = (x: number, y: number) => {
-    UI.drawButton("MAIN MENU", x, y, confirmShowMainMenu, uiElements).addClass('minimood').addClass('focus-invert').id('gameOverButtonMainMenu');
-  }
-  const drawButtonTryAgain = (x: number, y: number) => {
-    UI.drawButton("TRY AGAIN", x, y, () => initLevel(false), uiElements).addClass('minimood').addClass('focus-invert').id('gameOverButtonTryAgain')
-  }
-
+export function showGameOverUI(loseMessage: string, uiElements: Element[]) {
+  const yInit = 160;
+  const padding = 72;
   UI.drawDarkOverlay(uiElements);
-
-  if (state.gameMode !== GameMode.Cobra) {
-    drawButtonTryAgain(20, 20);
-    drawButtonMainMenu(440, 20);
-  }
-
-  const offset = -50
-  UI.drawText('YOU DIED!', '28px', 250 + offset, uiElements, { color: ACCENT_COLOR });
-  UI.drawText(loseMessage, '12px', 340 + offset, uiElements, { width: 500 });
+  UI.drawText('YOU DIED!', '22px', yInit, uiElements, { color: ACCENT_COLOR });
+  const height = UI.drawText(loseMessage, '9.6px', yInit + padding, uiElements, { width: 400 });
+  UI.drawText('[Press any key]', '6px', yInit + padding * 2 - 25 + height, uiElements, { width: 400, color: '#988473' })
 }
 
 interface ShowPauseMenuOptions {
@@ -48,8 +35,8 @@ interface ShowPauseMenuCallbacks {
 export function showPauseUIPreviewMode(uiElements: Element[], callbacks: Pick<ShowPauseMenuCallbacks, 'unpause'>) {
   const { unpause } = callbacks;
   UI.drawDarkOverlay(uiElements);
-  UI.drawText("PAUSED", '30px', 246, uiElements, { color: ACCENT_COLOR });
-  UI.drawButton("RESUME", 241, 350, unpause, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonResume');
+  UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR });
+  UI.drawButton("RESUME", 192, 280, unpause, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonResume');
   document.getElementById('pauseButtonResume').focus();
 }
 
@@ -57,10 +44,10 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
   const { hasWarpEnabledParam, isWarpDisabled, isChallengeLevel } = options;
   const { unpause, confirmShowMainMenu, showInGameSettingsMenu, warpToLevel } = callbacks;
   UI.drawDarkOverlay(uiElements);
-  UI.drawText("PAUSED", '30px', 246, uiElements, { color: ACCENT_COLOR });
-  UI.drawButton("RESUME", 20, 20, unpause, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonResume');
-  UI.drawButton("MAIN MENU", 221, 20, confirmShowMainMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonMainMenu');
-  UI.drawButton("SETTINGS", 445, 20, showInGameSettingsMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonSettings');
+  UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR });
+  UI.drawButton("RESUME", 16, 16, unpause, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonResume');
+  UI.drawButton("MAIN MENU", 176, 16, confirmShowMainMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonMainMenu');
+  UI.drawButton("SETTINGS", 356, 16, showInGameSettingsMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonSettings');
 
   if (isWarpDisabled) {
     return;
@@ -104,12 +91,13 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
   }
 
   if (isChallengeLevel) {
-    const xInitial = 100;
-    const offset = 80;
-    const yRow1 = 440;
-    const yRow2 = 480;
-    const yRow3 = 520;
-    const yRow4 = 560;
+    // multiplied by 0.8 to convert from 600x600 -> 480x480
+    const xInitial = 100 * 0.8;
+    const offset = 80 * 0.8;
+    const yRow1 = 440 * 0.8;
+    const yRow2 = 480 * 0.8;
+    const yRow3 = 520 * 0.8;
+    const yRow4 = 560 * 0.8;
     let x = xInitial - offset;
     let y = yRow1;
     let i = 1;
@@ -141,13 +129,13 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
     warpButton(name(), x += offset, y, 415, 'pauseButtonWarpX15');
     warpButton(name(), x += offset, y, 416, 'pauseButtonWarpX16');
   } else {
-    const xInitial = 120;
-    const offset = 60;
-    const yRow1 = 400;
-    const yRow2 = 440;
-    const yRow3 = 480;
-    const yRow4 = 520;
-    const yRow5 = 560;
+    const xInitial = 120 * 0.8;
+    const offset = 60 * 0.8;
+    const yRow1 = 400 * 0.8;
+    const yRow2 = 440 * 0.8;
+    const yRow3 = 480 * 0.8;
+    const yRow4 = 520 * 0.8;
+    const yRow5 = 560 * 0.8;
     let x = xInitial;
     warpButton("01", x + 0.00000, yRow1, 1, 'pauseButtonWarp01');
     warpButton("02", x += offset, yRow1, 2, 'pauseButtonWarp02');
@@ -185,7 +173,7 @@ export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions
   }
 
   if (anyWarpButtonsVisible) {
-    const yPos = isChallengeLevel ? 380 : 340
-    UI.drawText('WARP TO LEVEL', '24px', yPos, uiElements, { color: ACCENT_COLOR, margin: '48px auto' });
+    const yPos = isChallengeLevel ? (380 * 0.8) : (340 * 0.8)
+    UI.drawText('WARP TO LEVEL', '19px', yPos, uiElements, { color: ACCENT_COLOR, margin: '38px auto' });
   }
 }

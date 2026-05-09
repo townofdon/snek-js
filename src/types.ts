@@ -959,8 +959,8 @@ export enum Image {
   SnekSegmentE = 'snek-segment-e.png',
   SegmentsSheet = 'snek-segments-sheet.png',
   SnekButt = 'snek-butt.png',
-  ControlsKeyboardMove = 'controls-keyboard-move.png',
-  ControlsKeyboardTurn = 'controls-keyboard-turn.png',
+  ControlsKeyboardMove = 'controls-keyboard-move2.png',
+  ControlsKeyboardTurn = 'controls-keyboard-turn2.png',
   ControlsKeyboardDelete = 'controls-keyboard-delete.png',
   ControlsKeyboardSprint = 'controls-keyboard-sprint.png',
   ControlsGamepadMove = 'controls-gamepad-move.png',
@@ -968,14 +968,8 @@ export enum Image {
   ControlsGamepadRewind = 'controls-gamepad-rewind.png',
   ControlsGamepadSprint = 'controls-gamepad-sprint.png',
   ControlsMouseLeft = 'controls-mouse-left.png',
-  KeyGrey = 'snek-key2-grey.png',
-  KeyYellow = 'snek-key2-yellow.png',
-  KeyRed = 'snek-key2-red.png',
-  KeyBlue = 'snek-key2-blue.png',
-  LockGrey = 'snek-lock-grey.png',
-  LockYellow = 'snek-lock-yellow.png',
-  LockRed = 'snek-lock-red.png',
-  LockBlue = 'snek-lock-blue.png',
+  KeySheet = 'snek-key2.png',
+  LockSheet = 'snek-lock.png',
   Shield = 'snek-shield.png',
   ShieldSpawn = 'snek-shield-spawn.png',
   PickupArrows = 'pickup-arrows.png',
@@ -1047,6 +1041,8 @@ export type SpritesheetImage =
   | Image.__TEST__
   | Image.ThemedAppleSheet
   | Image.DoorOpenSheet
+  | Image.KeySheet
+  | Image.LockSheet
   | Image.SegmentsSheet
   | Image.MineSheet
   | Image.ExplosionSheet

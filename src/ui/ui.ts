@@ -228,7 +228,7 @@ export class UI {
     UI.p5.scale(2);
     p.id('title');
     p.style('font-size', '6em');
-    p.style('letter-spacing', '65px');
+    p.style('letter-spacing', '52px');
     p.style('color', textColor);
     p.style('line-height', '1em');
     p.style('font-family', "'Monofett', monospace");
@@ -237,7 +237,7 @@ export class UI {
     if (hasShadow) {
       p.style('text-shadow', '6px 6px 3px black');
     }
-    p.position(84 + offset, 7 + offset);
+    p.position(68 + offset, 5 + offset);
     p.parent(UI_PARENT_ID);
     p.addClass("main-title");
     uiElements.push(p);
@@ -431,13 +431,13 @@ export class UI {
     return button;
   }
 
-  static drawText(textStr = '', fontSize = '12px', y = 0, uiElements: Element[], { color = '#fff', width = 600, margin = '60px auto' } = {}) {
+  static drawText(textStr = '', fontSize = '9.6px', y = 0, uiElements: Element[], { color = '#fff', width = 480, margin = '48px auto' } = {}) {
     const element = UI.p5.createP(textStr);
     element.addClass('minimood');
     element.style('font-size', fontSize);
     element.style('color', color);
     element.style('text-shadow', '0px 3px 3px black');
-    element.style('padding', '0 20px');
+    element.style('padding', '0 16px');
     element.style('width', `${width}px`);
     element.style('text-align', 'center');
     element.style('transform-origin', 'top center');
@@ -447,6 +447,7 @@ export class UI {
     element.style('margin', margin);
     element.parent(UI_PARENT_ID);
     uiElements.push(element);
+    return element.height;
   }
 
   static drawDarkOverlay(uiElements: Element[]) {

@@ -21,7 +21,7 @@ export class LoadingScene extends BaseScene {
     this.gfx.fill('#fff');
     this.gfx.noStroke();
     this.gfx.textFont(fonts.variants.miniMood);
-    this.gfx.textSize(2 * 14);
+    this.gfx.textSize(0.8 * 2 * 14);
     this.gfx.textAlign(p5.CENTER, p5.TOP);
     this.gfx.text('loading...', ...this.getPosition(0.5, 0.4));
 

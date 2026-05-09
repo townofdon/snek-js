@@ -51,17 +51,16 @@ export const FRAME_DUR_MS = (1 / FRAMERATE) * 1000;
 /**
  * SPRITE SIZE IS TYPICALLY 16X16 - 20x20 WAS LEGACY BUT KEPT FOR EDITOR DIMENSIONS FOR SIMPLICITY
  */
-// export const DIMENSIONS = IS_EDITOR ? { x: 600, y: 600 } as const : { x: 960, y: 960 } as const;
-export const DIMENSIONS = IS_EDITOR ? { x: 600, y: 600 } as const : { x: 1200, y: 1200 } as const;
+export const DIMENSIONS = IS_EDITOR ? { x: 600, y: 600 } as const : { x: 960, y: 960 } as const;
 export const GRIDCOUNT_X = 30;
 export const GRIDCOUNT_Y = 30;
 export const STROKE_SIZE = IS_EDITOR ? 4 : 8;
 
-// export const BLOCK_SIZE_X = IS_EDITOR ? 20 : 32;
-// export const BLOCK_SIZE_Y = IS_EDITOR ? 20 : 32;
-export const BLOCK_SIZE_X = IS_EDITOR ? 20 : 40;
-export const BLOCK_SIZE_Y = IS_EDITOR ? 20 : 40;
+export const BLOCK_SIZE_X = IS_EDITOR ? 20 : 32;
+export const BLOCK_SIZE_Y = IS_EDITOR ? 20 : 32;
 export const MAP_OFFSET = IS_EDITOR ? 2 : 4;
+export const IMG_X_OFFSET = IS_EDITOR ? 1 : 0;
+export const IMG_SCALE = IS_EDITOR ? 1.01 : 1;
 
 export const MAX_MOVES_GAMEPAD = 8;
 export const MAX_MOVES = 4;
@@ -422,6 +421,14 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
   } satisfies AnimationData,
   [Image.SegmentsSheet]: {
     frames: 6,
+    timePerFrame: 100,
+  } satisfies AnimationData,
+  [Image.KeySheet]: {
+    frames: 4,
+    timePerFrame: 100,
+  } satisfies AnimationData,
+  [Image.LockSheet]: {
+    frames: 4,
     timePerFrame: 100,
   } satisfies AnimationData,
   [Image.MineSheet]: {

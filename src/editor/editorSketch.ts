@@ -541,22 +541,22 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           if (isValidKeyChannel(data.locksMap[coord])) {
             const channel = data.locksMap[coord];
             if (channel === KeyChannel.Yellow) {
-              spriteRenderer.drawImage3x3Static(gfx, Image.LockYellow, x, y);
+              spriteRenderer.drawSprite1x1Static(gfx, Image.LockSheet, x, y, 3);
             } else if (channel === KeyChannel.Red) {
-              spriteRenderer.drawImage3x3Static(gfx, Image.LockRed, x, y);
+              spriteRenderer.drawSprite1x1Static(gfx, Image.LockSheet, x, y, 2);
             } else if (channel === KeyChannel.Blue) {
-              spriteRenderer.drawImage3x3Static(gfx, Image.LockBlue, x, y);
+              spriteRenderer.drawSprite1x1Static(gfx, Image.LockSheet, x, y, 1);
             }
           }
 
           if (isValidKeyChannel(data.keysMap[coord])) {
             const channel = data.keysMap[coord];
             if (channel === KeyChannel.Yellow) {
-              spriteRenderer.drawImage3x3Static(gfx, Image.KeyYellow, x, y);
+              spriteRenderer.drawSprite1x1Static(gfx, Image.KeySheet, x, y, 3);
             } else if (channel === KeyChannel.Red) {
-              spriteRenderer.drawImage3x3Static(gfx, Image.KeyRed, x, y);
+              spriteRenderer.drawSprite1x1Static(gfx, Image.KeySheet, x, y, 2);
             } else if (channel === KeyChannel.Blue) {
-              spriteRenderer.drawImage3x3Static(gfx, Image.KeyBlue, x, y);
+              spriteRenderer.drawSprite1x1Static(gfx, Image.KeySheet, x, y, 1);
             }
           }
 

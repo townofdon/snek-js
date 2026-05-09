@@ -531,17 +531,15 @@ export class Renderer implements IRenderer {
     for (let i = 0; i < arrowBlocks.length; i++) {
       const arrow = arrowBlocks[i];
       if (!arrow.show) continue;
-      const position = {
-        x: MAP_OFFSET + arrow.x * BLOCK_SIZE_X + BLOCK_SIZE_X * 0.4 + this.screenShake.offset.x,
-        y: MAP_OFFSET + arrow.y * BLOCK_SIZE_Y + BLOCK_SIZE_Y * 0.35 + this.screenShake.offset.y,
-      }
+      const tx = Math.floor(MAP_OFFSET + arrow.x * BLOCK_SIZE_X + BLOCK_SIZE_X * 0.4 + this.screenShake.offset.x);
+      const ty = Math.floor(MAP_OFFSET + arrow.y * BLOCK_SIZE_Y + BLOCK_SIZE_Y * 0.35 + this.screenShake.offset.y);
       gfx.fill("#fff");
       gfx.stroke("#000");
       gfx.strokeWeight(2 * 4);
-      gfx.textSize(2 * 12);
+      gfx.textSize(2 * 9.6);
       gfx.textAlign(this.p5.CENTER, this.p5.CENTER);
       gfx.textFont(this.fonts.variants.zicons);
-      gfx.text(arrow.text, position.x, position.y);
+      gfx.text(arrow.text, tx, ty);
     }
   }
 
@@ -569,23 +567,23 @@ export class Renderer implements IRenderer {
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // // text
-    const textX = MAP_OFFSET + x0 + BLOCK_SIZE_X * 1.7;
-    const textY = MAP_OFFSET + y0 + BLOCK_SIZE_Y * 3.7;
+    const tx = Math.floor(MAP_OFFSET + x0 + BLOCK_SIZE_X * 1.7);
+    const ty = Math.floor(MAP_OFFSET + y0 + BLOCK_SIZE_Y * 3.7);
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
-    gfx.textSize(2 * 12);
+    gfx.textSize(2 * 9.6);
     gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
-    gfx.text("MOVE", textX, textY);
+    gfx.text("MOVE", tx, ty);
     // image
-    const imgX = x0 + BLOCK_SIZE_X * 0.5;
-    const imgY = y0 + BLOCK_SIZE_Y * 0.1;
+    const imgX = Math.floor(x0 + BLOCK_SIZE_X * 0.5);
+    const imgY = Math.floor(y0 + BLOCK_SIZE_Y * 0.1);
     const { inputType } = this.gameState;
     if (inputType === InputType.Keyboard) {
       this.spriteRenderer.drawImage(Image.ControlsKeyboardMove, imgX, imgY, gfx);
     } else {
-      this.spriteRenderer.drawImage(Image.ControlsGamepadMove, imgX + BLOCK_SIZE_X * 0.75, imgY, gfx);
+      this.spriteRenderer.drawImage(Image.ControlsGamepadMove, Math.floor(imgX + BLOCK_SIZE_X * 0.75), imgY, gfx);
     }
   }
 
@@ -671,7 +669,7 @@ export class Renderer implements IRenderer {
      ? MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth * 0.5)
      : MAP_OFFSET + BLOCK_SIZE_X * (x + 3.5);
     const textY = isKeyboard
-     ? MAP_OFFSET + BLOCK_SIZE_Y * (y + 4.5)
+     ? MAP_OFFSET + BLOCK_SIZE_Y * (y + 5)
      : MAP_OFFSET + BLOCK_SIZE_Y * (y + bannerHeight * 0.5);
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
@@ -682,7 +680,7 @@ export class Renderer implements IRenderer {
     gfx.text("U-TURN", textX, textY);
     // image
     const imgX = isKeyboard
-      ? BLOCK_SIZE_X * (x + 0.6)
+      ? BLOCK_SIZE_X * (x + 0.4)
       : BLOCK_SIZE_X * (x + 0.6);
     const imgY = isKeyboard
      ? BLOCK_SIZE_Y * (y + 0.4)
@@ -711,18 +709,18 @@ export class Renderer implements IRenderer {
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
-    const textX = MAP_OFFSET + BLOCK_SIZE_X * (bannerPosition.x + 3.5);
-    const textY = MAP_OFFSET + BLOCK_SIZE_Y * (bannerPosition.y + bannerHeight * 0.5);
+    const textX = Math.floor(MAP_OFFSET + BLOCK_SIZE_X * (bannerPosition.x + 3.85));
+    const textY = Math.floor(MAP_OFFSET + BLOCK_SIZE_Y * (bannerPosition.y + bannerHeight * 0.5));
     gfx.fill(ACCENT_COLOR);
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
-    gfx.textSize(2 * 12);
+    gfx.textSize(2 * 9.6);
     gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("SPRINT", textX, textY);
     // image
-    const imgX = BLOCK_SIZE_X * (bannerPosition.x + 0.6);
-    const imgY = BLOCK_SIZE_Y * (bannerPosition.y + 0.6);
+    const imgX = Math.floor(BLOCK_SIZE_X * (bannerPosition.x + 0.35));
+    const imgY = Math.floor(BLOCK_SIZE_Y * (bannerPosition.y + 0.5));
     if (inputType === InputType.Keyboard) {
       this.spriteRenderer.drawImage(Image.ControlsKeyboardSprint, imgX, imgY, gfx);
     } else {
@@ -769,12 +767,12 @@ export class Renderer implements IRenderer {
     gfx.strokeWeight(STROKE_SIZE);
     gfx.quad(x0, y0, x1, y0, x1, y1, x0, y1);
     // text
-    const textX = MAP_OFFSET + BLOCK_SIZE_X * x + 2 * 5 + BLOCK_SIZE_X * textXOffset;
-    const textY = MAP_OFFSET + BLOCK_SIZE_Y * y + 2 * 7;
+    const textX = MAP_OFFSET + BLOCK_SIZE_X * x + 8 + BLOCK_SIZE_X * textXOffset;
+    const textY = MAP_OFFSET + BLOCK_SIZE_Y * y + 10;
     gfx.fill(textColor);
     // gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
-    gfx.textSize(2 * 12);
+    gfx.textSize(2 * 9.6);
     gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text(text, textX, textY);
@@ -908,7 +906,7 @@ export class Renderer implements IRenderer {
     gfx.fill("#fff");
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 2);
-    gfx.textSize(2 * 10);
+    gfx.textSize(2 * 8);
     gfx.textAlign(this.p5.LEFT, this.p5.TOP);
     gfx.textFont(this.fonts.variants.miniMood);
     if (!this.fpsFrames?.length) {
@@ -938,7 +936,7 @@ export class Renderer implements IRenderer {
     gfx.fill("#fff");
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 2);
-    gfx.textSize(2 * 10);
+    gfx.textSize(2 * 8);
     gfx.textAlign(this.p5.LEFT, this.p5.TOP);
     gfx.textFont(this.fonts.variants.miniMood);
     if (!this.perfFrames?.length) {

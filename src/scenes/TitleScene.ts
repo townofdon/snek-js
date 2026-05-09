@@ -2,6 +2,8 @@ import P5 from "p5";
 import { FontsInstance, SFXInstance, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 
+const TSMOD = 2 * 0.8;
+
 export class TitleScene extends BaseScene {
   private title: string = 'UNTITLED';
   private annotation: string = '';
@@ -31,16 +33,16 @@ export class TitleScene extends BaseScene {
     p5.fill('#fff');
     p5.noStroke();
     p5.textFont(fonts.variants.miniMood);
-    p5.textSize(2 * 14);
+    p5.textSize(TSMOD * 14);
     p5.textAlign(p5.CENTER, p5.TOP);
 
     p5.text('now entering', ...this.getPosition(0.5, 0.4));
-    p5.textSize(2 * 32);
+    p5.textSize(TSMOD * 32);
     p5.fill('#fff');
     p5.text(this.title, ...this.getPosition(0.5, 0.5));
 
     if (this.annotation) {
-      p5.textSize(2 * 12);
+      p5.textSize(TSMOD * 12);
       p5.fill('#fff');
       p5.text(`${this.annotation}`, ...this.getPosition(0.5, 0.575));
     }
