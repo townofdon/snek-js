@@ -439,6 +439,10 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frames: 4,
     timePerFrame: 200,
   } satisfies AnimationData,
+  [Image.PuffSheet]: {
+    frames: 6,
+    timePerFrame: 100,
+  } satisfies AnimationData,
   [Image.FireSheet]: {
     frames: 3,
     timePerFrame: 200,

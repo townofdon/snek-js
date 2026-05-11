@@ -314,6 +314,7 @@ export function engine({
   const doorsOpening = new AnimationList();
   const fireTiles = new AnimationList();
   const explosions = new AnimationList();
+  const puffs = new AnimationList();
   const pointsAnim = new AnimationList();
   const shields = new AnimationList();
   const shieldSpawns = new AnimationList({ onLifetimeExpire: onShieldSpawnLifetimeExpire});
@@ -366,6 +367,7 @@ export function engine({
     drawPrey,
     drawFireTiles,
     drawExplosions,
+    drawPuffs,
     drawShields,
     drawPickupOutlines,
     drawExitLights,
@@ -701,6 +703,7 @@ export function engine({
     pickupOutlines.reset();
     doorsOpening.reset();
     explosions.reset();
+    puffs.reset();
     fireTiles.reset();
     segments.reset();
     emitters.reset();
@@ -1115,6 +1118,8 @@ export function engine({
             es.pickupsMap[i] = null;
             apples.removeByCoord(i);
             drawState.shouldDrawApples = true;
+            const lifetime = ANIMATIONS[Image.PuffSheet].frames * ANIMATIONS[Image.PuffSheet].timePerFrame;
+            puffs.add(x, y, lifetime, Image.PuffSheet);
           }
         }
       }
@@ -1337,6 +1342,7 @@ export function engine({
     drawPrey(preyList);
     drawFireTiles(fireTiles);
     drawExplosions(explosions);
+    drawPuffs(puffs);
 
     renderer.drawPlayerMoveArrows(p5, player.position, es.moves.length > 0 ? es.moves[0] : player.direction);
     drawPlayerPlannedMoves(es.portalsMap, checkCollision);
@@ -1373,6 +1379,9 @@ export function engine({
       drawState.shouldDrawActionFG = true;
     }
     if (explosions.tick(p5.deltaTime)) {
+      drawState.shouldDrawActionFG = true;
+    }
+    if (puffs.tick(p5.deltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
     if (shields.tick(p5.deltaTime)) {
@@ -2182,7 +2191,12 @@ export function engine({
     flashScreen();
     startScreenShake(1, 0.4);
     renderHeartsUI();
-    if (state.lastHurtBy !== HitType.HitMine) { spawnHurtParticles(); }
+    if (
+      state.lastHurtBy === HitType.HitBarrier ||
+      state.lastHurtBy === HitType.HitDoor ||
+      state.lastHurtBy === HitType.HitLock ||
+      state.lastHurtBy === HitType.HitSelf
+    ) { spawnHurtParticles(); }
     reboundSnake(segments.length > 3 ? 2 : 1);
     player.directionToFirstSegment = getDirectionSnakeBackward();
 
@@ -2222,7 +2236,11 @@ export function engine({
   }
 
   function spawnHurtParticles() {
-    impactParticleSystem.emit(player.position.x, player.position.y);
+    const x = player.position.x;
+    const y = player.position.y;
+    // impactParticleSystem.emit(x, y);
+    const lifetime = ANIMATIONS[Image.PuffSheet].frames * ANIMATIONS[Image.PuffSheet].timePerFrame;
+    puffs.add(x, y, lifetime, Image.PuffSheet);
   }
 
   /**

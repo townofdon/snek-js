@@ -78,6 +78,8 @@ export function updateLighting(
     const y = Math.floor(i / GRIDCOUNT_X);
     const isExitAtCoord = (
       gameState.isDoorsOpen
+      && !gameState.isExitingLevel
+      && !gameState.isExited
       && ((x === 0 || y === 0 || x === GRIDCOUNT_X - 1 || y === GRIDCOUNT_Y - 1))
       && (!es.barriersMap[i] || es.passablesMap[i])
       && !es.portalsMap[i]

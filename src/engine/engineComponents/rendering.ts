@@ -784,6 +784,19 @@ export function engineRendering({
     }
   }
 
+  function drawPuffs(puffs: AnimationList) {
+    if (drawState.shouldDrawActionFG) {
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+        if (puffs.existsAtCoord(coord)) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const elapsed = puffs.getElapsedByCoord(coord);
+          spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, Image.PuffSheet, x, y, elapsed);
+        }
+      }
+    }
+  }
+
   function drawPickupOutlines(pickupOutlines: AnimationList) {
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
       if (pickupOutlines.existsAtCoord(coord)) {
@@ -1235,6 +1248,7 @@ export function engineRendering({
     drawPrey,
     drawFireTiles,
     drawExplosions,
+    drawPuffs,
     drawShields,
     drawPickupOutlines,
     drawExitLights,
