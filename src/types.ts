@@ -985,6 +985,7 @@ export enum Image {
   ThreatSheet16 = 'snek-threats-16.png',
   ThreatSheet48 = 'snek-threats-48.png',
   ExplosionSheet = 'snek-explosion-sheet.png',
+  Explosion3Sheet = 'snek-explosion-3.png',
   PuffSheet = 'snek-puff.png',
   WearablesSheet = 'snek-wearables.png',
   DoorLightSheet = 'snek-door-light-sheet.png',
@@ -1047,6 +1048,7 @@ export type SpritesheetImage =
   | Image.SegmentsSheet
   | Image.MineSheet
   | Image.ExplosionSheet
+  | Image.Explosion3Sheet
   | Image.PuffSheet
   | Image.FireSheet
   | Image.TileSheet16
@@ -1176,6 +1178,12 @@ export enum WearableType {
   Eyes,
   Back,
   Hair,
+}
+
+export enum ExplosionType {
+  None = 0,
+  Small = 1,
+  Large = 2,
 }
 
 export interface Scene {

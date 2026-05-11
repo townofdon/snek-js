@@ -72,6 +72,7 @@ export class SpriteRenderer {
     [Image.EditorSelectionRed]: null,
     [Image.MineSheet]: null,
     [Image.ExplosionSheet]: null,
+    [Image.Explosion3Sheet]: null,
     [Image.PuffSheet]: null,
     [Image.FireSheet]: null,
     [Image.TileSheet16]: null,
@@ -286,6 +287,7 @@ export class SpriteRenderer {
       this.loadImage(Image.Darken);
       this.loadImage(Image.MineSheet);
       this.loadImage(Image.ExplosionSheet);
+      this.loadImage(Image.Explosion3Sheet);
       this.loadImage(Image.PuffSheet);
       this.loadImage(Image.FireSheet);
       this.loadImage(Image.TileSheet16);

@@ -98,6 +98,7 @@ import {
   EngineState,
   ThreatType,
   SpritesheetRange,
+  ExplosionType,
 } from "../types";
 import {
   clamp,
@@ -281,7 +282,7 @@ export function engine({
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
-    explosions.add(x, y, lifetime, Image.ExplosionSheet);
+    explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
     playSound(Sound.xpound);
     drawState.shouldDrawActionFG = true;
   };
@@ -302,7 +303,7 @@ export function engine({
     const y = Math.floor(coord / GRIDCOUNT_X);
     if (es.threatsMap[coord] === ThreatType.LaserDiode || es.threatsMap[coord] === ThreatType.Mine) {
       const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
-      explosions.add(x, y, lifetime, Image.ExplosionSheet);
+      explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
       playSound(Sound.xpound);
     }
     es.threatsMap[coord] = undefined;
@@ -1770,7 +1771,7 @@ export function engine({
     threats.removeByCoord(coord);
     es.threatsMap[getCoordIndex2(x, y)] = undefined;
     const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
-    explosions.add(x, y, lifetime, Image.ExplosionSheet);
+    explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
     playSound(Sound.xpound);
     drawState.shouldDrawActionFG = true;
     recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
@@ -1921,14 +1922,14 @@ export function engine({
         if (threats.existsAtCoord(coord, ThreatType.Mine)) {
           threats.removeByCoord(coord);
           const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
-          explosions.add(x, y, lifetime, Image.ExplosionSheet);
+          explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
           drawState.shouldDrawActionFG = true;
           numExplosionsAtLevelExit++;
         }
         if (preyList.existsAtCoord(coord)) {
           preyList.removeByCoord(coord);
           const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
-          explosions.add(x, y, lifetime, Image.ExplosionSheet);
+          explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
           drawState.shouldDrawActionFG = true;
         }
       }
@@ -2107,7 +2108,7 @@ export function engine({
       astar.removeWall(vec.x, vec.y);
       renderer.invalidateStaticCache();
       const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
-      explosions.add(vec.x, vec.y, lifetime, Image.ExplosionSheet);
+      explosions.add(vec.x, vec.y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
       playSound(Sound.xplodeLong);
       startScreenShake(2, 0, 0.8);
       reboundSnake(segments.length > 3 ? 2 : 1);

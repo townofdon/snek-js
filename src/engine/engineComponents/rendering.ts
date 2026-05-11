@@ -55,6 +55,7 @@ import {
   LaserType,
   Orientation,
   HitType,
+  ExplosionType,
 } from "@/types";
 import { UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
 import { Renderer } from "../renderer";
@@ -778,7 +779,15 @@ export function engineRendering({
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = explosions.getElapsedByCoord(coord);
-          spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.ExplosionSheet, x, y, elapsed);
+          const type = explosions.getTypeByCoord(coord) as ExplosionType;
+          switch (type) {
+            case ExplosionType.Small:
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.ExplosionSheet, x, y, elapsed);
+              break;
+            case ExplosionType.Large:
+              spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.Explosion3Sheet, x, y, elapsed);
+              break;
+          }
         }
       }
     }
