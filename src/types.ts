@@ -32,6 +32,7 @@ export enum Action {
   Invincibility = 'Invincibility',
   AcquireArmor = 'AcquireArmor',
   WeightLoss = 'WeightLoss',
+  Electrocution = 'Electrocution',
 }
 
 export type ActionKey = keyof typeof Action
@@ -136,7 +137,7 @@ export interface Difficulty {
 }
 
 
-export enum HitType {
+export enum DamageType {
   None,
   HitBarrier,
   HitDoor,
@@ -144,6 +145,7 @@ export enum HitType {
   HitLock,
   QuantumEntanglement,
   HitMine,
+  Electrocution,
 }
 
 export enum InputType {
@@ -218,6 +220,7 @@ export interface GameState {
   timeSinceHurtForgiveness: number,
   timeSinceLastInput: number,
   timeSinceInvincibleStart: number,
+  timeSinceElectrocutionStart: number,
   /**
    * Time elapsed since the player initiated a reversal (via the Reversible pickup)
    */
@@ -263,7 +266,7 @@ export interface GameState {
   pity: number,
   frameCount: number,
   numTeleports: number,
-  lastHurtBy: HitType,
+  lastHurtBy: DamageType,
   nextLevel: Level | null,
   inputType: InputType,
 }
@@ -615,6 +618,9 @@ export enum LaserType {
 export interface LaserCell {
   orientation: Orientation,
   type: LaserType,
+  coordDiodeA: number,
+  coordDiodeB: number,
+  damageActive: boolean,
 }
 
 export enum FloodFillTile {
@@ -825,10 +831,12 @@ export enum Sound {
   acquireEpicItem = 'acquireEpicItem',
   acquireRareItem = 'acquireRareItem',
   acquireLegendaryItem = 'acquireLegendaryItem',
+  alarm = 'alarm',
   death = 'death',
   doorOpen = 'doorOpen',
   doorOpenHuge = 'doorOpenHuge',
   eat = 'eat',
+  electrocuteLoop = 'electrocuteLoop',
   guitarRiff1 = 'guitarRiff1',
   guitarRiff2 = 'guitarRiff2',
   hurt1 = 'hurt1',

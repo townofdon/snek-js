@@ -1,6 +1,7 @@
 import P5, { Vector } from "p5";
 import { VectorList } from "@/collections/vectorList";
 import {
+  ELECTROCUTION_DURATION_MS,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
   HURT_GRACE_TIME,
@@ -19,7 +20,7 @@ import {
   GameMode,
   GameState,
   HeldItems,
-  HitType,
+  DamageType,
   KeyChannel,
   LoopState,
   PlayerState,
@@ -188,7 +189,7 @@ export function engineMovement({
       // kill the snake to prevent a soft lock due to infinite loop
       state.lives = 0;
       state.isLost = true;
-      state.lastHurtBy = HitType.QuantumEntanglement;
+      state.lastHurtBy = DamageType.QuantumEntanglement;
     }
     // apply system rotation to es.recentInputs and es.recentMoves so that special moves (u-turn, etc) still work
     if (prevDir !== newDir) {
@@ -291,43 +292,43 @@ export function engineMovement({
     }
   }
 
-  function checkCollision(vec: Vector): HitType {
-    if (state.isExitingLevel) return HitType.None;
-    if (state.isExited) return HitType.None;
-    if (state.isGameWon) return HitType.None;
+  function checkCollision(vec: Vector): DamageType {
+    if (state.isExitingLevel) return DamageType.None;
+    if (state.isExited) return DamageType.None;
+    if (state.isGameWon) return DamageType.None;
     const coord = getCoordIndex(vec);
     // self
     const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     const rewindingFromArmor = state.isRewinding && state.timeSinceArmorProtection < es.difficulty.invincibilityTime;
     if (segments.containsCoord(coord) && !invincible && !rewindingFromArmor) {
-      return HitType.HitSelf;
+      return DamageType.HitSelf;
     }
     // clip reality
-    if (es.level.disableWallCollision) return HitType.None;
+    if (es.level.disableWallCollision) return DamageType.None;
     // door
     if (es.doorsMap[coord]) {
-      return HitType.HitDoor;
+      return DamageType.HitDoor;
     }
     // barrier
     const isPassableBarrier = state.isDoorsOpen && es.passablesMap[coord];
     if (!isPassableBarrier && es.barriersMap[coord]) {
-      return HitType.HitBarrier;
+      return DamageType.HitBarrier;
     }
     // lock
     if (es.locksMap[coord]) {
-      if (es.locksMap[coord].channel === KeyChannel.Yellow && state.hasKeyYellow) return HitType.None;
-      if (es.locksMap[coord].channel === KeyChannel.Red && state.hasKeyRed) return HitType.None;
-      if (es.locksMap[coord].channel === KeyChannel.Blue && state.hasKeyBlue) return HitType.None;
-      return HitType.HitLock;
+      if (es.locksMap[coord].channel === KeyChannel.Yellow && state.hasKeyYellow) return DamageType.None;
+      if (es.locksMap[coord].channel === KeyChannel.Red && state.hasKeyRed) return DamageType.None;
+      if (es.locksMap[coord].channel === KeyChannel.Blue && state.hasKeyBlue) return DamageType.None;
+      return DamageType.HitLock;
     }
     // threats
     if (es.threatsMap[coord] === ThreatType.LaserDiode) {
-      return HitType.HitBarrier;
+      return DamageType.HitBarrier;
     }
     if (es.threatsMap[coord] === ThreatType.ExplodableBarrel) {
-      return HitType.HitBarrier;
+      return DamageType.HitBarrier;
     }
-    return HitType.None;
+    return DamageType.None;
   }
 
   function checkHasHit(vec: Vector, updateLastHurtBy = true): boolean {
@@ -357,12 +358,15 @@ export function engineMovement({
     return checkHasHit(portal.link.copy().add(dirToUnitVector(newDir)), false);
   }
 
-  function _getTimeNeededUntilNextMove() {
+  function _getTimeNeededUntilNextMove(): number {
     if (state.isExitingLevel) {
       return 0;
     }
     if (state.isGameWon) {
       return SPEED_LIMIT_ULTRA_SPRINT;
+    }
+    if (state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS * 2) {
+      return Infinity;
     }
     if (!checkIsMoving(state, loopState)) {
       return Infinity;

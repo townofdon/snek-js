@@ -54,6 +54,8 @@ import {
   RARITY_RARE,
   IS_LOCALHOST,
   DIMENSIONS,
+  ELECTROCUTION_DURATION_MS,
+  LASER_DIODE_CRIT_LIFETIME,
 } from "../constants";
 import {
   Action,
@@ -67,7 +69,7 @@ import {
   GameMode,
   GameSettings,
   GameState,
-  HitType,
+  DamageType,
   IEnumerator,
   Image,
   InputAction,
@@ -99,6 +101,8 @@ import {
   ThreatType,
   SpritesheetRange,
   ExplosionType,
+  LaserCell,
+  Orientation,
 } from "../types";
 import {
   clamp,
@@ -301,13 +305,18 @@ export function engine({
   const onThreatLifetimeExpire = (coord: number) => {
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
-    if (es.threatsMap[coord] === ThreatType.LaserDiode || es.threatsMap[coord] === ThreatType.Mine) {
+    const threatType = es.threatsMap[coord];
+    if (threatType === ThreatType.LaserDiode || threatType === ThreatType.Mine) {
       const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
       explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
       playSound(Sound.xpound);
     }
     es.threatsMap[coord] = undefined;
     drawState.shouldDrawActionFG = true;
+    if (threatType === ThreatType.LaserDiode) {
+      recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
+      sfx.stop(Sound.alarm);
+    }
   };
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
@@ -650,6 +659,7 @@ export function engine({
     state.timeSinceHurt = Infinity;
     state.timeSinceHurtForgiveness = Infinity;
     state.timeSinceInvincibleStart = Infinity;
+    state.timeSinceElectrocutionStart = Infinity;
     state.timeSinceReverseStart = Infinity;
     state.timeSinceArmorPickup = Infinity;
     state.timeSinceArmorProtection = Infinity;
@@ -670,7 +680,7 @@ export function engine({
     state.pity = 0;
     state.frameCount = 0;
     state.numTeleports = 0;
-    state.lastHurtBy = HitType.None;
+    state.lastHurtBy = DamageType.None;
     state.hasKeyYellow = false;
     state.hasKeyRed = false;
     state.hasKeyBlue = false;
@@ -1143,10 +1153,18 @@ export function engine({
     }
     handleSnakeTrapped(state.isLost && state.lives > 0);
     handleSnakeDamage(state.isLost && state.lives > 0);
+    handleSnakeElectrocution(!state.isLost);
 
     // handle snake death
-    if (state.isLost) {
-      spawnHurtParticles();
+    if (state.isLost || state.lives < 0) {
+      state.isLost = true;
+      state.lives = 0;
+      if (
+        state.lastHurtBy === DamageType.HitBarrier ||
+        state.lastHurtBy === DamageType.HitDoor ||
+        state.lastHurtBy === DamageType.HitLock ||
+        state.lastHurtBy === DamageType.HitSelf
+      ) { spawnHurtParticles(); }
       renderHeartsUI();
       flashScreen(HURT_FORGIVENESS_TIME);
       startScreenShake();
@@ -1181,6 +1199,7 @@ export function engine({
     state.timeSinceHurt += loopState.deltaTime;
     state.timeSinceHurtForgiveness += loopState.deltaTime;
     state.timeSinceInvincibleStart += loopState.deltaTime;
+    state.timeSinceElectrocutionStart += loopState.deltaTime;
     state.timeSinceReverseStart += loopState.deltaTime;
     state.timeSinceArmorPickup += loopState.deltaTime;
     state.timeSinceArmorProtection += loopState.deltaTime;
@@ -1759,7 +1778,7 @@ export function engine({
         playSound(Sound.hurtSave);
         return false;
       }
-      state.lastHurtBy = HitType.HitMine;
+      state.lastHurtBy = DamageType.HitMine;
       return true;
     }
     return false;
@@ -2042,7 +2061,9 @@ export function engine({
     if (replay.mode === ReplayMode.Playback) return;
     if (es.moves.length <= 0) return;
     if (segments.length <= 0) return;
-    if (state.lastHurtBy === HitType.HitMine) return;
+    if (state.lastHurtBy === DamageType.HitMine) return;
+    if (state.lastHurtBy === DamageType.QuantumEntanglement) return;
+    if (state.lastHurtBy === DamageType.Electrocution) return;
 
     const isGameOver = state.isLost && state.lives === 0;
     const move = es.moves[0];
@@ -2129,7 +2150,7 @@ export function engine({
   }
 
   function isSnakeTrapped() {
-    if (![HitType.HitBarrier, HitType.HitDoor, HitType.HitSelf, HitType.HitLock].includes(state.lastHurtBy)) return false;
+    if (![DamageType.HitBarrier, DamageType.HitDoor, DamageType.HitSelf, DamageType.HitLock].includes(state.lastHurtBy)) return false;
     const hasHit = checkHasHit(player.position);
     let trapped = true;
     outer:
@@ -2177,26 +2198,12 @@ export function engine({
     // const didReceiveDamage = state.isLost && state.lives > 0;
     if (!didReceiveDamage) return;
 
-    state.isLost = false;
-    if (state.gameMode === GameMode.Casual && replay.mode !== ReplayMode.Playback) {
-      state.isMoving = false;
-    } else {
-      state.lives -= 1;
-    }
-    state.timeSinceHurt = 0;
-    if (es.difficulty.index === 4) {
-      state.currentSpeed = 1;
-    } else {
-      state.currentSpeed = 2;
-    }
-    flashScreen();
-    startScreenShake(1, 0.4);
-    renderHeartsUI();
+    applyDamage(1);
     if (
-      state.lastHurtBy === HitType.HitBarrier ||
-      state.lastHurtBy === HitType.HitDoor ||
-      state.lastHurtBy === HitType.HitLock ||
-      state.lastHurtBy === HitType.HitSelf
+      state.lastHurtBy === DamageType.HitBarrier ||
+      state.lastHurtBy === DamageType.HitDoor ||
+      state.lastHurtBy === DamageType.HitLock ||
+      state.lastHurtBy === DamageType.HitSelf
     ) { spawnHurtParticles(); }
     reboundSnake(segments.length > 3 ? 2 : 1);
     player.directionToFirstSegment = getDirectionSnakeBackward();
@@ -2210,6 +2217,79 @@ export function engine({
     }
 
     es.moves = [];
+  }
+
+  function handleSnakeElectrocution(didReceiveDamage: boolean) {
+    if (!didReceiveDamage) return;
+    const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
+    if (invincible) return;
+    const coord = getCoordIndex(player.position);
+    const laserCell = es.lasersMap[coord];
+    if (!laserCell || !laserCell.damageActive) {
+      return;
+    }
+    // disable laser damage so that we only run electrocutionRoutine once.
+    laserCell.damageActive = false;
+    state.timeSinceElectrocutionStart = 0;
+    startAction(electrocutionRoutine(laserCell), Action.Electrocution);
+  }
+
+  function* electrocutionRoutine(laserCell: LaserCell): IEnumerator {
+    state.timeSinceElectrocutionStart = 0;
+    sfx.playLoop(Sound.electrocuteLoop);
+    yield* actions.waitForTime(ELECTROCUTION_DURATION_MS);
+    sfx.stop(Sound.electrocuteLoop);
+    state.timeSinceElectrocutionStart = Infinity;
+    state.lastHurtBy = DamageType.Electrocution;
+    applyDamage(1);
+    yield null;
+    laserCell.damageActive = false;
+    if (!state.isLost && state.lives >= 0 && (threats.existsAtCoord(laserCell.coordDiodeA) || threats.existsAtCoord(laserCell.coordDiodeB))) {
+      // disable and remove all adjacent lasers
+      const x0 = Math.min(getCoordX(laserCell.coordDiodeA), getCoordX(laserCell.coordDiodeB));
+      const x1 = Math.max(getCoordX(laserCell.coordDiodeA), getCoordX(laserCell.coordDiodeB));
+      const y0 = Math.min(getCoordY(laserCell.coordDiodeA), getCoordY(laserCell.coordDiodeB));
+      const y1 = Math.max(getCoordY(laserCell.coordDiodeA), getCoordY(laserCell.coordDiodeB));
+      const horizontal = y0 === y1;
+      for (let y = y0; y <= y1; y++) {
+        for (let x = x0; x <= x1; x++) {
+          // if two crossing beams exist at a cell, only remove one
+          if (es.lasersMap[getCoordIndex2(x, y)] && es.lasersMap[getCoordIndex2(x, y)].orientation === Orientation.Mixed) {
+            if (horizontal) {
+              es.lasersMap[getCoordIndex2(x, y)].orientation = Orientation.Vertical;
+            } else {
+              es.lasersMap[getCoordIndex2(x, y)].orientation = Orientation.Horizontal;
+            }
+            es.lasersMap[getCoordIndex2(x, y)].damageActive = true;
+          } else {
+            es.lasersMap[getCoordIndex2(x, y)] = undefined;
+          }
+        }
+      }
+      // overload diodes to blow!
+      threats.setLifetimeByCoord(laserCell.coordDiodeA, LASER_DIODE_CRIT_LIFETIME);
+      threats.setLifetimeByCoord(laserCell.coordDiodeB, LASER_DIODE_CRIT_LIFETIME);
+      yield* actions.waitForTime(500);
+      playSound(Sound.alarm, 0.5);
+    }
+  }
+
+  function applyDamage(amount: number) {
+    state.isLost = false;
+    if (state.gameMode === GameMode.Casual && replay.mode !== ReplayMode.Playback) {
+      state.isMoving = false;
+    } else {
+      state.lives -= Math.floor(amount);
+    }
+    state.timeSinceHurt = 0;
+    if (es.difficulty.index === 4) {
+      state.currentSpeed = 1;
+    } else {
+      state.currentSpeed = 2;
+    }
+    flashScreen();
+    startScreenShake(1, 0.4);
+    renderHeartsUI();
     startAction(duckMusicOnHurt(), Action.FadeMusic);
     switch (state.lives) {
       case 2:
@@ -2513,10 +2593,10 @@ export function engine({
       musicPlayer.halfSpeed(es.level.musicTrack);
     }
     switch (state.lastHurtBy) {
-      case HitType.HitBarrier:
-      case HitType.HitDoor:
-      case HitType.HitLock:
-      case HitType.HitSelf:
+      case DamageType.HitBarrier:
+      case DamageType.HitDoor:
+      case DamageType.HitLock:
+      case DamageType.HitSelf:
         reboundSnake(1);    
         break;
     }

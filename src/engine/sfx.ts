@@ -27,10 +27,12 @@ export class SFX implements SFXInstance {
     acquireEpicItem: null,
     acquireRareItem: null,
     acquireLegendaryItem: null,
+    alarm: null,
     death: null,
     doorOpen: null,
     doorOpenHuge: null,
     eat: null,
+    electrocuteLoop: null,
     guitarRiff1: null,
     guitarRiff2: null,
     hurt1: null,
@@ -117,10 +119,12 @@ export class SFX implements SFXInstance {
       this.sounds.acquireEpicItem = await loadSound('acquire-epic-item.wav');
       this.sounds.acquireRareItem = await loadSound('acquire-rare-item.wav');
       this.sounds.acquireLegendaryItem = await loadSound('acquire-legendary.wav');
+      this.sounds.alarm = await loadSound('alarm.wav');
       this.sounds.death = await loadSound('death.wav');
       this.sounds.doorOpen = await loadSound('door-open.wav');
       this.sounds.doorOpenHuge = await loadSound('door-open-huge.wav');
       this.sounds.eat = await loadSound('eat.wav');
+      this.sounds.electrocuteLoop = await loadSound('electrocute.wav');
       this.sounds.guitarRiff1 = await loadSound('guitar-riff-1.wav');
       this.sounds.guitarRiff2 = await loadSound('guitar-riff-2.wav');
       this.sounds.hurt1 = await loadSound('hurt-1.wav');

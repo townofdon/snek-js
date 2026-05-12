@@ -53,6 +53,7 @@ module.exports = (env) => {
               ignore: [
                 "**/music/*.wav",
                 "**/graphics/*.ase",
+                "**/graphics/promo",
                 "**/sounds/*.aup3",
                 "**/sounds/*.aup3-shm",
                 "**/sounds/*.aup3-wal",

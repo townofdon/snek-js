@@ -44,7 +44,7 @@ import {
   hydrateRandomLevels,
 } from './levels/levelUtils';
 import {
-  HitType,
+  DamageType,
   GameState,
   IEnumerator,
   Replay,
@@ -146,6 +146,7 @@ export const sketch = (p5: P5) => {
     [Action.Invincibility]: null,
     [Action.AcquireArmor]: null,
     [Action.WeightLoss]: null,
+    [Action.Electrocution]: null,
   };
   const startAction = (enumerator: IEnumerator, actionKey: Action, force = false) => {
     if (!force && replay.mode === ReplayMode.Playback) {
@@ -996,7 +997,7 @@ export const sketch = (p5: P5) => {
 
   // I will buy a beer for whoever can decipher my spaghetticode
   const getNextLoseMessage = (numIterations = 0): string => {
-    if (state.lastHurtBy === HitType.QuantumEntanglement) {
+    if (state.lastHurtBy === DamageType.QuantumEntanglement) {
       const messages = [
         'You caused a rift in the snektime continuum.',
         'Attempting to be in two places at once can have disastrous results.',
@@ -1011,7 +1012,7 @@ export const sketch = (p5: P5) => {
     const allMessages = (loseMessages[state.levelIndex] || []).concat(level.disableNormalLoseMessages ? [] : loseMessages[-1]);
     const relevantMessages = allMessages.filter(([message, callback]) => {
       if (callback) return callback(state, stats, difficulty);
-      return state.lastHurtBy !== HitType.HitLock && stats.numLevelsCleared <= 2;
+      return state.lastHurtBy !== DamageType.HitLock && stats.numLevelsCleared <= 2;
     }).map((contents) => contents[0]);
     if (relevantMessages.length <= 0) {
       if (numIterations > 0) {

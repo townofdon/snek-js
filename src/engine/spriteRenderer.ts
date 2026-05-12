@@ -466,12 +466,12 @@ export class SpriteRenderer {
     this.drawImage1x1(gfx, src, x, y, 0, 1, 0, frame, spriteFrames);
   }
 
-  public drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1) => {
+  public drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1, screenshakeMul = 0.5) => {
     if (!ANIMATIONS[image]) {
       throw new Error(`no animation data found for image "${image}"`);
     }
     const { frames } = ANIMATIONS[image];
-    this.drawImage1x1(gfx, image, x, y, rotation, alpha, 0.5, frame, frames);
+    this.drawImage1x1(gfx, image, x, y, rotation, alpha, screenshakeMul, frame, frames);
   }
 
   public drawSprite1x1Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {

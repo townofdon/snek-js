@@ -5,6 +5,8 @@ import {
   BLOCK_SIZE_X,
   BLOCK_SIZE_Y,
   DIMENSIONS,
+  ELECTROCUTION_DURATION_MS,
+  ELECTROCUTION_FLASH_RATE,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
   HURT_FLASH_RATE,
@@ -13,6 +15,7 @@ import {
   INVINCIBILITY_EXPIRE_FLASH_MS,
   INVINCIBILITY_EXPIRE_WARN_MS,
   INVINCIBILITY_PICKUP_LIFETIME_MS,
+  LASER_DIODE_CRIT_LIFETIME,
   NUM_SNAKE_INVINCIBLE_COLORS,
   PICKUP_EXPIRE_WARN_MS,
   PICKUP_LIFETIME_MS,
@@ -54,7 +57,7 @@ import {
   SpritesheetRange,
   LaserType,
   Orientation,
-  HitType,
+  DamageType,
   ExplosionType,
 } from "@/types";
 import { UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
@@ -294,7 +297,7 @@ export function engineRendering({
   let showPlannedMoves = false;
   function drawPlayerPlannedMoves(
     portalsMap: Record<number, any>,
-    checkCollision: (vec: Vector) => HitType,
+    checkCollision: (vec: Vector) => DamageType,
   ) {
     if (!es.moves.length) {
       showPlannedMoves = false;
@@ -333,6 +336,7 @@ export function engineRendering({
   }
 
   function drawPlayerHead(vec: Vector) {
+    const electrocuted = state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS && Math.floor(state.timeSinceElectrocutionStart / ELECTROCUTION_FLASH_RATE) % 2 === 0;
     if (state.isInvertedColors) {
       renderer.drawSquareStatic(gfxFG, vec.x, vec.y,
         PALETTE.deathInvert.playerHead,
@@ -375,34 +379,40 @@ export function engineRendering({
       }
     } else {
       const gfx = state.isInvertedColors ? gfxFG : renderer.getMainGfx();
+      const x = vec.x;
+      const y = vec.y;
       const screenshakeMul = state.isInvertedColors ? -1 : 1;
-      spriteRenderer.drawImage3x3Custom(gfx, Image.SnekHead, vec.x, vec.y, getRotationFromDirection(dir), 1, screenshakeMul);
+      if (electrocuted) {
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, x, y, SegmentFrame.SkelHead - 1, getRotationFromDirection(dir), 1, screenshakeMul);
+      } else {
+        spriteRenderer.drawImage3x3Custom(gfx, Image.SnekHead, x, y, getRotationFromDirection(dir), 1, screenshakeMul);
+      }
       if (replay.mode !== ReplayMode.Playback) {
         gfx.push();
         let rotation = getRotationFromDirection(dir);
-        let wx = vec.x;
+        let wx = x;
         if (dir === DIR.LEFT) {
           rotation = 0;
           gfx.scale(-1, 1);
           wx = -wx - 1;
         }
         if (outfit.hair && !outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, outfit.hair - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, y, outfit.hair - 1, rotation);
         }
         if (outfit.eyes && !outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, outfit.eyes - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, y, outfit.eyes - 1, rotation);
         }
         if (outfit.back && !outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, outfit.back - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, y, outfit.back - 1, rotation);
         }
         if (heldItems.armor > 0) {
-          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, WearableFrame.Crusher - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, y, WearableFrame.Crusher - 1, rotation);
         }
         if (outfit.hat && !outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, outfit.hat - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, y, outfit.hat - 1, rotation);
         }
         if (outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, vec.y, outfit.exclusive - 1, rotation);
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, y, outfit.exclusive - 1, rotation);
         }
         gfx.pop();
       }
@@ -416,7 +426,12 @@ export function engineRendering({
     const dirPrev = i === 0
       ? getDirectionBetween(segments.get(i), player.position)
       : getDirectionBetween(segments.get(i), segments.get(i - 1));
-    const dirNext = getDirectionBetween(segments.get(i), segments.get(i + 1));
+    let dirNext = invertDirection(dirPrev);
+    let j = i + 1;
+    do {
+      dirNext = getDirectionBetween(segments.get(i), segments.get(j));
+      j++;
+    } while (segments.get(i).equals(segments.get(j)) && j < segments.length - 1);
     const cornerNE = isMiddle && (
       (dirPrev === DIR.UP && dirNext === DIR.RIGHT) ||
       (dirPrev === DIR.RIGHT && dirNext === DIR.UP)
@@ -433,11 +448,28 @@ export function engineRendering({
       (dirPrev === DIR.UP && dirNext === DIR.LEFT) ||
       (dirPrev === DIR.LEFT && dirNext === DIR.UP)
     );
+    const x = vec.x;
+    const y = vec.y;
     const stunned = state.timeSinceHurt < HURT_STUN_TIME;
     const acquiringArmor = state.timeSinceArmorPickup < 100;
     const armorUsed = state.timeSinceArmorProtection < HURT_STUN_TIME;
     const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
-    if (stunned) {
+    const electrocuted = state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS && Math.floor(state.timeSinceElectrocutionStart / ELECTROCUTION_FLASH_RATE) % 2 === 0;
+    if (electrocuted) {
+      const gfx = renderer.getMainGfx();
+      if (cornerNE) {
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, x, y, SegmentFrame.SkelSegTurn - 1, Math.PI * 0.5, 1);
+      } else if (cornerSE) {
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, x, y, SegmentFrame.SkelSegTurn - 1, Math.PI * 1, 1);
+      } else if (cornerSW) {
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, x, y, SegmentFrame.SkelSegTurn - 1, Math.PI * 1.5, 1);
+      } else if (cornerNW) {
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, x, y, SegmentFrame.SkelSegTurn - 1, Math.PI * 0, 1);
+      } else {
+        const rotation = (dirPrev === DIR.LEFT || dirPrev === DIR.RIGHT) ? 0 : Math.PI * 0.5;
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, x, y, i % 2 === 0 ? SegmentFrame.SkelSegment1 - 1 : SegmentFrame.SkelSegment2 - 1, rotation, 1);
+      }
+    } else if (stunned) {
       // draw stunned
       if (Math.floor(state.timeSinceHurt / HURT_FLASH_RATE) % 2 === 0) {
         renderer.drawSquare(vec.x, vec.y, "#000", "#000", drawPlayerOptions);
@@ -661,10 +693,9 @@ export function engineRendering({
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = threats.getElapsedByCoord(coord);
-          if (threats.getTimeRemaining(x, y) <= PICKUP_EXPIRE_WARN_MS) {
+          if (threats.getTimeRemaining(x, y) <= LASER_DIODE_CRIT_LIFETIME) {
             spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeCrit, x, y, elapsed);
           } else {
-            // spriteRenderer.drawImage1x1(gfxFGAction, Image.ThreatSheet16, x, y, 0, 1, 0, Threat16Frame.DiodeBlue0 - 1, FRAME_COUNT_THREAT_16);
             spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeBlue, x, y, elapsed);
           }
         } else if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {

@@ -13,6 +13,7 @@ import { Pickup, ItemDropType, PortalChannel, PickupType, EngineState, GameState
 import { AppleList } from "../collections/appleList";
 import { AnimationList } from "../collections/animationList";
 import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE } from "@/defaults";
+import { ExtendedSketchData } from "@/editor/editorSketch";
 
 const LIGHTMAP_SIZE = (
   GRIDCOUNT_X * Math.floor(LIGHTMAP_RESOLUTION) *
@@ -58,7 +59,7 @@ export function updateLighting(
   explosions: AnimationList | null,
   fireTiles: AnimationList | null,
   gameState: GameState,
-  es: EngineState,
+  es: EngineState | ExtendedSketchData,
 ) {
   if (!gameState) gameState = DEFAULT_GAME_STATE;
   if (!es) es = DEFAULT_ENGINE_STATE;
@@ -76,6 +77,7 @@ export function updateLighting(
   for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
     const x = Math.floor(i % GRIDCOUNT_X);
     const y = Math.floor(i / GRIDCOUNT_X);
+    const isLaserAtCoord = es.lasersMap[i];
     const isExitAtCoord = (
       gameState.isDoorsOpen
       && !gameState.isExitingLevel
@@ -95,7 +97,7 @@ export function updateLighting(
       ) &&
       !shouldBlinkExpiringPickup(pickupsMap[i]?.lifetime)
     );
-    if (isExitAtCoord || isPickupAtCoord || explosions?.existsAtCoord(i)) {
+    if (isExitAtCoord || isPickupAtCoord || isLaserAtCoord || explosions?.existsAtCoord(i)) {
       addBlocklight(lightMap, x, y, { strength: 0.7 });
       addBlocklight(lightMap, x, y + 1, { strength: 0.3 });
       addBlocklight(lightMap, x, y - 1, { strength: 0.3 });

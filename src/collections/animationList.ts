@@ -263,6 +263,24 @@ export class AnimationList implements ICollection {
     return -1;
   }
 
+  public setLifetimeByCoord = (coord: number, lifetime: number) => {
+    coord = Math.floor(coord);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
+    this.setLifetime(x, y, lifetime);
+  }
+
+  public setLifetime = (x: number, y: number, lifetime: number) => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        this.lifetime[i] = lifetime;
+        this.elapsed[i] = 0;
+        break;
+      }
+    }
+  }
+
   public getTimeRemaining = (x: number, y: number): number => {
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) continue;

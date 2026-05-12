@@ -5,6 +5,7 @@ import {
   DIFFICULTY_HARD,
   DIFFICULTY_MEDIUM,
   DIFFICULTY_ULTRA,
+  ELECTROCUTION_DURATION_MS,
   FRAME_DUR_MS,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
@@ -796,6 +797,7 @@ export const recalculateLasersMap = (
       if (threatsMap[getCoordIndex2(x, y)] !== ThreatType.LaserDiode) {
         continue;
       }
+      const coordDiodeA = getCoordIndex2(x, y);
       // walk right
       let xDiodeRight = -1;
       for (let dx = 1; dx < THREAT_LASER_MAX_SPAN && (x + dx < GRIDCOUNT_X); dx++) {
@@ -811,15 +813,22 @@ export const recalculateLasersMap = (
       // fill right
       for (let x2 = x + 1; x2 < xDiodeRight; x2++) {
         const coord = getCoordIndex2(x2, y);
+        const coordDiodeB = getCoordIndex2(xDiodeRight, y);
         if (lasersMap[coord]?.orientation === Orientation.Vertical) {
           lasersMap[coord] = {
             orientation: Orientation.Mixed,
             type: LaserType.Blue,
+            coordDiodeA,
+            coordDiodeB,
+            damageActive: true,
           } satisfies LaserCell;
         } else {
           lasersMap[coord] = {
             orientation: Orientation.Horizontal,
             type: LaserType.Blue,
+            coordDiodeA,
+            coordDiodeB,
+            damageActive: true,
           } satisfies LaserCell;
         }
       }
@@ -838,15 +847,22 @@ export const recalculateLasersMap = (
       // fill down
       for (let y2 = y + 1; y2 < yDiodeDown; y2++) {
         const coord = getCoordIndex2(x, y2);
+        const coordDiodeB = getCoordIndex2(x, yDiodeDown);
         if (lasersMap[coord]?.orientation === Orientation.Horizontal) {
           lasersMap[coord] = {
             orientation: Orientation.Mixed,
             type: LaserType.Blue,
+            coordDiodeA,
+            coordDiodeB,
+            damageActive: true,
           } satisfies LaserCell;
         } else {
           lasersMap[coord] = {
             orientation: Orientation.Vertical,
             type: LaserType.Blue,
+            coordDiodeA,
+            coordDiodeB,
+            damageActive: true,
           } satisfies LaserCell;
         }
       }
