@@ -240,9 +240,9 @@ export async function loadSfxAudio({ src }: { src: [string] }) {
     }, 0)
   }
   const stop = () => {
+    clearTimeout(state.timeout);
     if (!state.playing) return;
     stopAudio(path);
-    clearTimeout(state.timeout);
     state.playing = false;
   }
   const volume = (val?: number): number => {
