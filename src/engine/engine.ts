@@ -2235,11 +2235,23 @@ export function engine({
     // disable laser damage so that we only run electrocutionRoutine once.
     laserCell.damageActive = false;
     state.timeSinceElectrocutionStart = 0;
-    startAction(electrocutionRoutine(laserCell), Action.Electrocution);
+    startAction(electrocutionRoutine(coord, laserCell), Action.Electrocution);
   }
 
-  function* electrocutionRoutine(laserCell: LaserCell): IEnumerator {
-    let times = laserCell.type === LaserType.Red ? 2 : 1;
+  /**
+   * Given this scenario:
+   *
+   * ```
+   * A--B--A
+   *    |
+   *    |
+   *    B
+   * ```
+   * If 'B' diodes blow up, then the AB/BA path would become AA,
+   * which means the laser cells along that path will have updated diode a/b coords.
+   */
+  function* electrocutionRoutine(coord: number, fallback: LaserCell): IEnumerator {
+    let times = es.lasersMap[coord]?.type === LaserType.Red ? 2 : 1;
     for (let i = 0; i < times; i++) {
       state.timeSinceElectrocutionStart = 0;
       sfx.playLoop(Sound.electrocuteLoop);
@@ -2248,8 +2260,10 @@ export function engine({
       state.lastHurtBy = DamageType.Electrocution;
       applyDamage(1);
     }
+    // do not yield so that we guarantee this routine completely finishes before recalculateLasersMap() is called again.
     state.timeSinceElectrocutionStart = Infinity;
-    yield null;
+    // get latest laser cell because the map may have changed (see note above)
+    const laserCell = es.lasersMap[coord] ?? fallback;
     if (!state.isLost && state.lives >= 0 && (threats.existsAtCoord(laserCell.coordDiodeA) || threats.existsAtCoord(laserCell.coordDiodeB))) {
       // disable and remove all adjacent lasers
       const x0 = Math.min(getCoordX(laserCell.coordDiodeA), getCoordX(laserCell.coordDiodeB));

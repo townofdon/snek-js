@@ -783,10 +783,6 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
   // first clear map
   for (let y = 0; y < GRIDCOUNT_Y; y++) {
     for (let x = 0; x < GRIDCOUNT_X; x++) {
-      // skip laser cells that are about to be removed in electrocutionRoutine
-      if (es.lasersMap[getCoordIndex2(x, y)] && !es.lasersMap[getCoordIndex2(x, y)].damageActive) {
-        continue;
-      }
       es.lasersMap[getCoordIndex2(x, y)] = undefined;
     }
   }
@@ -816,7 +812,6 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
       for (let x2 = x + 1; x2 < xDiodeRight; x2++) {
         const coord = getCoordIndex2(x2, y);
         const coordDiodeB = getCoordIndex2(xDiodeRight, y);
-        const damageActive = es.lasersMap[coord]?.damageActive ?? true;
         const orientation = es.lasersMap[coord]?.orientation === Orientation.Vertical
           ? Orientation.Mixed
           : Orientation.Horizontal;
@@ -830,7 +825,7 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
           type: LaserType.Blue,
           coordDiodeA,
           coordDiodeB,
-          damageActive,
+          damageActive: true,
         } satisfies LaserCell;
       }
       // walk down
@@ -849,7 +844,6 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
       for (let y2 = y + 1; y2 < yDiodeDown; y2++) {
         const coord = getCoordIndex2(x, y2);
         const coordDiodeB = getCoordIndex2(x, yDiodeDown);
-        const damageActive = es.lasersMap[coord]?.damageActive ?? true;
         const orientation = es.lasersMap[coord]?.orientation === Orientation.Horizontal
           ? Orientation.Mixed
           : Orientation.Vertical;
@@ -862,7 +856,7 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
           type: LaserType.Blue,
           coordDiodeA,
           coordDiodeB,
-          damageActive,
+          damageActive: true,
         } satisfies LaserCell;
       }
     }
