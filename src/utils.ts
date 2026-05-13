@@ -46,7 +46,12 @@ import {
   AnimationData,
   SpritesheetRange,
   SPRITESHEET_RANGE_MAX,
+  EngineState,
+  ICollection,
+  IFlaggable,
+  ThreatFlag,
 } from "./types";
+import { ExtendedSketchData } from "./editor/editorSketch";
 
 export function clamp(val: number, minVal: number, maxVal: number) {
   const clamped = Math.max(Math.min(val, maxVal), minVal);
@@ -767,25 +772,22 @@ export const getCurrentFrame = (frames: number, timePerFrame: number, durations:
   return frame;
 }
 
-export const recalculateLasersMap = (
-  lasersMap: Record<number, LaserCell>,
-  threatsMap: Record<number, ThreatType>,
-  barriersMap: Record<number, BarrierType>,
-  doorsMap: Record<number, boolean>,
-  locksMap: Record<number, any>,
-  portalsMap: Record<number, any>,
-) => {
+export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threats: ICollection & IFlaggable) => {
   const valid = (coord: number) => true
-    && threatsMap[coord] !== ThreatType.Mine
-    && threatsMap[coord] !== ThreatType.ExplodableBarrel
-    && !barriersMap[coord]
-    && !doorsMap[coord]
-    && isNil(locksMap[coord])
-    && isNil(portalsMap[coord]);
+    && es.threatsMap[coord] !== ThreatType.Mine
+    && es.threatsMap[coord] !== ThreatType.ExplodableBarrel
+    && !es.barriersMap[coord]
+    && !es.doorsMap[coord]
+    && isNil(es.locksMap[coord])
+    && isNil(es.portalsMap[coord]);
   // first clear map
   for (let y = 0; y < GRIDCOUNT_Y; y++) {
     for (let x = 0; x < GRIDCOUNT_X; x++) {
-      lasersMap[getCoordIndex2(x, y)] = undefined;
+      // skip laser cells that are about to be removed in electrocutionRoutine
+      if (es.lasersMap[getCoordIndex2(x, y)] && !es.lasersMap[getCoordIndex2(x, y)].damageActive) {
+        continue;
+      }
+      es.lasersMap[getCoordIndex2(x, y)] = undefined;
     }
   }
   for (let y = 0; y < GRIDCOUNT_Y; y++) {
@@ -794,7 +796,7 @@ export const recalculateLasersMap = (
         continue;
       }
       // always start from a diode
-      if (threatsMap[getCoordIndex2(x, y)] !== ThreatType.LaserDiode) {
+      if (es.threatsMap[getCoordIndex2(x, y)] !== ThreatType.LaserDiode) {
         continue;
       }
       const coordDiodeA = getCoordIndex2(x, y);
@@ -805,7 +807,7 @@ export const recalculateLasersMap = (
         if (!valid(coord)) {
           break;
         }
-        if (threatsMap[coord] === ThreatType.LaserDiode) {
+        if (es.threatsMap[coord] === ThreatType.LaserDiode) {
           xDiodeRight = x + dx;
           break;
         }
@@ -814,23 +816,22 @@ export const recalculateLasersMap = (
       for (let x2 = x + 1; x2 < xDiodeRight; x2++) {
         const coord = getCoordIndex2(x2, y);
         const coordDiodeB = getCoordIndex2(xDiodeRight, y);
-        if (lasersMap[coord]?.orientation === Orientation.Vertical) {
-          lasersMap[coord] = {
-            orientation: Orientation.Mixed,
-            type: LaserType.Blue,
-            coordDiodeA,
-            coordDiodeB,
-            damageActive: true,
-          } satisfies LaserCell;
-        } else {
-          lasersMap[coord] = {
-            orientation: Orientation.Horizontal,
-            type: LaserType.Blue,
-            coordDiodeA,
-            coordDiodeB,
-            damageActive: true,
-          } satisfies LaserCell;
+        const damageActive = es.lasersMap[coord]?.damageActive ?? true;
+        const orientation = es.lasersMap[coord]?.orientation === Orientation.Vertical
+          ? Orientation.Mixed
+          : Orientation.Horizontal;
+        // skip cells if both diodes are crit
+        const crit = byCoord(coordDiodeA)(threats.hasFlag, ThreatFlag.Crit) && byCoord(coordDiodeB)(threats.hasFlag, ThreatFlag.Crit);
+        if (crit) {
+          break;
         }
+        es.lasersMap[coord] = {
+          orientation: orientation,
+          type: LaserType.Blue,
+          coordDiodeA,
+          coordDiodeB,
+          damageActive,
+        } satisfies LaserCell;
       }
       // walk down
       let yDiodeDown = -1;
@@ -839,7 +840,7 @@ export const recalculateLasersMap = (
         if (!valid(coord)) {
           break;
         }
-        if (threatsMap[coord] === ThreatType.LaserDiode) {
+        if (es.threatsMap[coord] === ThreatType.LaserDiode) {
           yDiodeDown = y + dy;
           break;
         }
@@ -848,26 +849,31 @@ export const recalculateLasersMap = (
       for (let y2 = y + 1; y2 < yDiodeDown; y2++) {
         const coord = getCoordIndex2(x, y2);
         const coordDiodeB = getCoordIndex2(x, yDiodeDown);
-        if (lasersMap[coord]?.orientation === Orientation.Horizontal) {
-          lasersMap[coord] = {
-            orientation: Orientation.Mixed,
-            type: LaserType.Blue,
-            coordDiodeA,
-            coordDiodeB,
-            damageActive: true,
-          } satisfies LaserCell;
-        } else {
-          lasersMap[coord] = {
-            orientation: Orientation.Vertical,
-            type: LaserType.Blue,
-            coordDiodeA,
-            coordDiodeB,
-            damageActive: true,
-          } satisfies LaserCell;
+        const damageActive = es.lasersMap[coord]?.damageActive ?? true;
+        const orientation = es.lasersMap[coord]?.orientation === Orientation.Horizontal
+          ? Orientation.Mixed
+          : Orientation.Vertical;
+        const crit = byCoord(coordDiodeA)(threats.hasFlag, ThreatFlag.Crit) && byCoord(coordDiodeB)(threats.hasFlag, ThreatFlag.Crit);
+        if (crit) {
+          break;
         }
+        es.lasersMap[coord] = {
+          orientation: orientation,
+          type: LaserType.Blue,
+          coordDiodeA,
+          coordDiodeB,
+          damageActive,
+        } satisfies LaserCell;
       }
     }
   }
+}
+
+export const byCoord = (coord: number) => <T, Y extends Array<any>>(thunk: (x: number, y: number, ...params: Y) => T, ...params: Y): T => {
+  coord = Math.floor(coord);
+  const x = Math.floor(coord % GRIDCOUNT_X);
+  const y = Math.floor(coord / GRIDCOUNT_X);
+  return thunk(x, y, ...params);
 }
 
 interface ToTimeParams {

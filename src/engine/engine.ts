@@ -103,6 +103,8 @@ import {
   ExplosionType,
   LaserCell,
   Orientation,
+  ThreatFlag,
+  LaserType,
 } from "../types";
 import {
   clamp,
@@ -120,6 +122,7 @@ import {
   isBreakableBarrier,
   coordToVec,
   recalculateLasersMap,
+  byCoord,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -314,7 +317,7 @@ export function engine({
     es.threatsMap[coord] = undefined;
     drawState.shouldDrawActionFG = true;
     if (threatType === ThreatType.LaserDiode) {
-      recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
+      recalculateLasersMap(es, threats);
       sfx.stop(Sound.alarm);
     }
   };
@@ -955,7 +958,7 @@ export function engine({
       astar.setObstacle(lock.position.x, lock.position.y);
     })
 
-    recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
+    recalculateLasersMap(es, threats);
     resetLightmap(lightMap, es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
     startPortalParticles();
     if (es.level.type === LevelType.WarpZone || (es.level.type === LevelType.Maze && es.level !== START_LEVEL && es.level !== START_LEVEL_COBRA)) {
@@ -1136,7 +1139,7 @@ export function engine({
       }
     }
     if (didChange) {
-      recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
+      recalculateLasersMap(es, threats);
     }
 
     handlePortalTravel();
@@ -1793,7 +1796,7 @@ export function engine({
     explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
     playSound(Sound.xpound);
     drawState.shouldDrawActionFG = true;
-    recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
+    recalculateLasersMap(es, threats);
   }
 
   function checkPlayerWillHit(dir: DIR, numMoves = 1): boolean {
@@ -2133,7 +2136,7 @@ export function engine({
       playSound(Sound.xplodeLong);
       startScreenShake(2, 0, 0.8);
       reboundSnake(segments.length > 3 ? 2 : 1);
-      recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
+      recalculateLasersMap(es, threats);
     } else if (invincible) {
       state.timeSinceArmorProtection = 0;
       startAutoRewind()
@@ -2221,11 +2224,12 @@ export function engine({
 
   function handleSnakeElectrocution(didReceiveDamage: boolean) {
     if (!didReceiveDamage) return;
+    if (state.isButtonPressed) return;
     const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     if (invincible) return;
     const coord = getCoordIndex(player.position);
     const laserCell = es.lasersMap[coord];
-    if (!laserCell || !laserCell.damageActive) {
+    if (!laserCell || !laserCell.damageActive || state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS * 2) {
       return;
     }
     // disable laser damage so that we only run electrocutionRoutine once.
@@ -2235,15 +2239,17 @@ export function engine({
   }
 
   function* electrocutionRoutine(laserCell: LaserCell): IEnumerator {
-    state.timeSinceElectrocutionStart = 0;
-    sfx.playLoop(Sound.electrocuteLoop);
-    yield* actions.waitForTime(ELECTROCUTION_DURATION_MS);
-    sfx.stop(Sound.electrocuteLoop);
+    let times = laserCell.type === LaserType.Red ? 2 : 1;
+    for (let i = 0; i < times; i++) {
+      state.timeSinceElectrocutionStart = 0;
+      sfx.playLoop(Sound.electrocuteLoop);
+      yield* actions.waitForTime(ELECTROCUTION_DURATION_MS);
+      sfx.stop(Sound.electrocuteLoop);
+      state.lastHurtBy = DamageType.Electrocution;
+      applyDamage(1);
+    }
     state.timeSinceElectrocutionStart = Infinity;
-    state.lastHurtBy = DamageType.Electrocution;
-    applyDamage(1);
     yield null;
-    laserCell.damageActive = false;
     if (!state.isLost && state.lives >= 0 && (threats.existsAtCoord(laserCell.coordDiodeA) || threats.existsAtCoord(laserCell.coordDiodeB))) {
       // disable and remove all adjacent lasers
       const x0 = Math.min(getCoordX(laserCell.coordDiodeA), getCoordX(laserCell.coordDiodeB));
@@ -2267,6 +2273,8 @@ export function engine({
         }
       }
       // overload diodes to blow!
+      byCoord(laserCell.coordDiodeA)(threats.addFlag, ThreatFlag.Crit);
+      byCoord(laserCell.coordDiodeB)(threats.addFlag, ThreatFlag.Crit);
       threats.setLifetimeByCoord(laserCell.coordDiodeA, LASER_DIODE_CRIT_LIFETIME);
       threats.setLifetimeByCoord(laserCell.coordDiodeB, LASER_DIODE_CRIT_LIFETIME);
       yield* actions.waitForTime(500);
@@ -2521,7 +2529,7 @@ export function engine({
     es.doorsMap = {};
     renderer.invalidateStaticCache();
     drawState.shouldDrawKeysLocks = true;
-    recalculateLasersMap(es.lasersMap, es.threatsMap, es.barriersMap, es.doorsMap, es.locksMap, es.portalsMap);
+    recalculateLasersMap(es, threats);
   }
 
   function addSnakeSegment() {

@@ -2,7 +2,7 @@ import { Vector } from "p5";
 import { ANIMATIONS, GRIDCOUNT_X,
 GRIDCOUNT_Y, IS_DEV } from "../constants";
 import { getCoordIndex2, getCurrentFrame, getManhattanDistance, isNil, shouldBlinkExpiringPickup } from "../utils";
-import { ICollection, SpritesheetImage, SpritesheetRange } from "../types";
+import { ICollection, IFlaggable, SpritesheetImage, SpritesheetRange } from "../types";
 
 export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
@@ -17,13 +17,14 @@ interface AnimationListConstructorOptions {
  * Prevents garbage collection and buffs CPU perf.
  * Simple-to-use interface.
  */
-export class AnimationList implements ICollection {
+export class AnimationList implements ICollection, IFlaggable {
   private x: Uint8Array;
   private y: Uint8Array;
   private free: Uint8Array;
   private lifetime: Float32Array;
   private elapsed: Float32Array;
   private type: Uint8Array;
+  private flags: Uint8Array;
   private img: Record<number, SpritesheetImage | SpritesheetRange>;
   private activeLength: number;
   private maxLength: number;
@@ -44,6 +45,7 @@ export class AnimationList implements ICollection {
     this.lifetime = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.elapsed = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.type = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
+    this.flags = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.activeLength = 0;
     this.coordMap = {};
     this.img = {};
@@ -62,6 +64,7 @@ export class AnimationList implements ICollection {
       this.lifetime[i] = 0;
       this.img[i] = undefined;
       this.type[i] = 0;
+      this.flags[i] = 0;
     }
     this.activeLength = 0;
     this.numTimesDidChange = 0;
@@ -135,7 +138,7 @@ export class AnimationList implements ICollection {
     return didChange;
   }
 
-  public add = (x: number, y: number, lifetime: number, img: SpritesheetImage | SpritesheetRange, type = 0) => {
+  public add = (x: number, y: number, lifetime: number, img: SpritesheetImage | SpritesheetRange, type = 0, flags = 0) => {
     this.validate();
     if (!frames) throw new Error(`invalid frames value. val=${frames}`)
     if (!img) throw new Error(`invalid img value. val=${img}`)
@@ -153,6 +156,7 @@ export class AnimationList implements ICollection {
         this.lifetime[i] = lifetime;
         this.img[i] = img;
         this.type[i] = type;
+        this.flags[i] = flags;
         this.recalculateLength();
         return;
       }
@@ -168,6 +172,7 @@ export class AnimationList implements ICollection {
     this.lifetime[i] = lifetime;
     this.img[i] = img;
     this.type[i] = type;
+    this.flags[i] = flags;
     this.recalculateLength();
   }
 
@@ -209,6 +214,7 @@ export class AnimationList implements ICollection {
     this.lifetime[i] = 0;
     this.img[i] = undefined;
     this.type[i] = 0;
+    this.flags[i] = 0;
     this.recalculateLength();
     return;
   }
@@ -319,6 +325,34 @@ export class AnimationList implements ICollection {
       }
     }
     return -1;
+  }
+
+  public hasFlag = (x: number, y: number, flag: number): boolean => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        return !!(this.flags[i] & flag);
+      }
+    }
+    return false;
+  }
+
+  public addFlag = (x: number, y: number, flag: number): void => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        this.flags[i] |= flag;
+      }
+    }
+  }
+
+  public removeFlag = (x: number, y: number, flag: number): void => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        this.flags[i] &= ~flag;
+      }
+    }
   }
 
   private recalculateLength = () => {

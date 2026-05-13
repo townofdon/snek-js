@@ -288,6 +288,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     const renderer = new Renderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
     const lightMap = createLightmap();
     const fireTiles = new AnimationList();
+    const threats = new AnimationList();
 
     const invincibleColorGradient = gradients.addMultiple(SNAKE_INVINCIBLE_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
 
@@ -344,7 +345,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         state.dirty = true;
       }
       if (state.dirty) {
-        recalculateLasersMap(data.lasersMap, data.threatsMap, data.barriersMap, data.doorsMap, data.locksMap, data.portalsMap);
+        recalculateLasersMap(data, threats);
         state.dirty = false;
         renderer.invalidateStaticCache();
         // come on baby, light my fire

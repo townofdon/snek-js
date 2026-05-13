@@ -196,6 +196,7 @@ export interface GameState {
   isMoving: boolean,
   isSprinting: boolean, // is user holding down shift key?
   isRewinding: boolean,
+  isButtonPressed: boolean,
   isLost: boolean,
   isGameWon: boolean,
   isDoorsOpen: boolean,
@@ -221,6 +222,7 @@ export interface GameState {
   timeSinceLastInput: number,
   timeSinceInvincibleStart: number,
   timeSinceElectrocutionStart: number,
+  timeSinceLungeStart: number,
   /**
    * Time elapsed since the player initiated a reversal (via the Reversible pickup)
    */
@@ -608,6 +610,11 @@ export enum ThreatType {
   ExplodableBarrel,
 }
 export const THREAT_TYPE_MAX = Math.max(...Object.values(ThreatType).filter(v => typeof v === 'number')) + 1;
+
+export enum ThreatFlag {
+  None = 0, // default
+  Crit = 1,
+}
 
 export enum LaserType {
   None = 0,
@@ -1424,6 +1431,12 @@ export interface ICollection {
   existsAt: (x: number, y: number) => boolean,
   existsAtCoord: (coord: number) => boolean,
   getClosestTraversalDistance: (x: number, y: number) => number,
+}
+
+export interface IFlaggable {
+  hasFlag: (x: number, y: number, flag: number) => boolean,
+  addFlag: (x: number, y: number, flag: number) => void,
+  removeFlag: (x: number, y: number, flag: number) => void,
 }
 
 export enum SNEKALYTICS_EVENT_TYPE {
