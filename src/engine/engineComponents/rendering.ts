@@ -196,6 +196,7 @@ export function engineRendering({
 
   function resetGraphics() {
     renderer.invalidateStaticCache();
+    p5.clear(0, 0, 0, 0);
     gfxBG.clear(0, 0, 0, 0);
     gfxExitLights.clear(0, 0, 0, 0);
     gfxFG.clear(0, 0, 0, 0);

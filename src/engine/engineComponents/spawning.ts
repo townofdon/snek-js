@@ -115,6 +115,7 @@ export function engineSpawning({
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.pickupsMap[getCoordIndex2(x, y)]
+      || es.lasersMap[getCoordIndex2(x, y)]
       || threats.existsAt(x, y);
     if (spawnedInsideOfSomething) {
       if (numTries < 30) spawnApple(numTries + 1);
@@ -359,6 +360,7 @@ export function engineSpawning({
         || es.doorsMap[getCoordIndex2(x, y)]
         || es.nospawnsMap[getCoordIndex2(x, y)]
         || es.pickupsMap[getCoordIndex2(x, y)]
+        || es.lasersMap[getCoordIndex2(x, y)]
         || threats.existsAt(x, y)
         || apples.existsAt(x, y)
         || segments.containsCoord(getCoordIndex2(x, y))
@@ -423,7 +425,8 @@ export function engineSpawning({
     const lifetime = ANIMATIONS[Image.ShieldSpawn].frames * ANIMATIONS[Image.ShieldSpawn].timePerFrame;
     shieldSpawns.add(x, y, lifetime, Image.ShieldSpawn);
     es.pickupsMap[getCoordIndex2(x, y)] = {
-      lifetime,
+      // pickups up will be overridden in onShieldSpawnLifetimeExpire()
+      lifetime: 99999999,
       type: PickupType.Armor,
     };
     setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
@@ -439,6 +442,7 @@ export function engineSpawning({
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.pickupsMap[getCoordIndex2(x, y)]
+      || es.lasersMap[getCoordIndex2(x, y)]
       || threats.existsAt(x, y)
       || apples.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
@@ -459,6 +463,7 @@ export function engineSpawning({
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.pickupsMap[getCoordIndex2(x, y)]
+      || es.lasersMap[getCoordIndex2(x, y)]
       || threats.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
@@ -489,6 +494,7 @@ export function engineSpawning({
     const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
+      || es.lasersMap[getCoordIndex2(x, y)]
       || threats.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);

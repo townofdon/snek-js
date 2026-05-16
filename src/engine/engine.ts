@@ -780,6 +780,7 @@ export function engine({
     stopAction(Action.ChangeMusicLowpass);
     stopAction(Action.FadeMusic);
     stopAction(Action.GameOver);
+    stopAction(Action.Electrocution);
     startAction(fadeMusic(1, 100), Action.FadeMusic);
     sfx.setGlobalVolume(settings.sfxVolume);
     resetScreenShake();
@@ -901,6 +902,8 @@ export function engine({
       }
     }
 
+    recalculateLasersMap(es, threats);
+
     // add initial pickups
     for (let i = 0; i < levelData.pickups.length; i++) {
       const x = levelData.pickups[i].vec.x;
@@ -958,7 +961,6 @@ export function engine({
       astar.setObstacle(lock.position.x, lock.position.y);
     })
 
-    recalculateLasersMap(es, threats);
     resetLightmap(lightMap, es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
     startPortalParticles();
     if (es.level.type === LevelType.WarpZone || (es.level.type === LevelType.Maze && es.level !== START_LEVEL && es.level !== START_LEVEL_COBRA)) {
@@ -972,6 +974,7 @@ export function engine({
 
   function startLogicLoop() {
     if (loopState.interval) clearInterval(loopState.interval);
+    loopState.timeScale = 1;
     loopState.interval = setInterval(withErrorReporting(logicLoop), 1);
   }
 
@@ -1389,31 +1392,32 @@ export function engine({
     drawState.shouldDrawActionFG = false;
     drawState.shouldDrawKeysLocks = false;
 
-    if (!state.isInvertedColors && pointsAnim.tick(p5.deltaTime)) {
+    const animationDeltaTime = p5.deltaTime * Math.abs(Math.sign(loopState.deltaTime));
+    if (!state.isInvertedColors && pointsAnim.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (doorsOpening.tick(p5.deltaTime)) {
+    if (doorsOpening.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (!state.isInvertedColors && threats.tick(p5.deltaTime)) {
+    if (!state.isInvertedColors && threats.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (fireTiles.tick(p5.deltaTime)) {
+    if (fireTiles.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (explosions.tick(p5.deltaTime)) {
+    if (explosions.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (puffs.tick(p5.deltaTime)) {
+    if (puffs.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (shields.tick(p5.deltaTime)) {
+    if (shields.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (shieldSpawns.tick(p5.deltaTime)) {
+    if (shieldSpawns.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (pickupOutlines.tick(p5.deltaTime)) {
+    if (pickupOutlines.tick(animationDeltaTime)) {
       // draws each frame
     }
 
@@ -2225,6 +2229,8 @@ export function engine({
   function handleSnakeElectrocution(didReceiveDamage: boolean) {
     if (!didReceiveDamage) return;
     if (state.isButtonPressed) return;
+    if (state.isLost) return;
+    if (state.lives < 0) return;
     const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     if (invincible) return;
     const coord = getCoordIndex(player.position);
@@ -2630,6 +2636,7 @@ export function engine({
     if (state.gameMode !== GameMode.Cobra) {
       stats.score = parseInt(String(stats.score * 0.5), 10);
     }
+    loopState.timeScale = 0;
     startScreenShake(1, 0, 0.4);
     yield* coroutines.waitForTime(200);
     startScreenShake(3, -HURT_STUN_TIME / SCREEN_SHAKE_DURATION_MS, 0.1);
@@ -2641,7 +2648,6 @@ export function engine({
       UI.showDeathColors();
     }
     renderer.invalidateStaticCache();
-    // UI.renderHearts(0, true);
     yield* coroutines.waitForTime(HURT_STUN_TIME * 2.5);
     state.isInvertedColors = false;
     drawState.shouldDrawApples = true;
@@ -2649,7 +2655,7 @@ export function engine({
     drawState.shouldDrawKeysLocks = true;
     UI.hideDeathColors();
     renderer.invalidateStaticCache();
-    // UI.renderHearts(0, false);
+    loopState.timeScale = 1;
     startScreenShake(1, 0.4);
     if (replay.mode === ReplayMode.Playback) {
       yield* coroutines.waitForTime(1000);
@@ -2658,16 +2664,10 @@ export function engine({
       startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
       clearUI();
       UI.clearLabels();
-      // winGameScene.trigger();
-      // UI.enableScreenScroll();
       onGameOverCobra();
     } else {
       startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
       renderScoreUI(stats.score);
-      // UI.enableScreenScroll();
-      // showGameOverUI(getNextLoseMessage(), uiElements, state, { confirmShowMainMenu, initLevel });
-      // uiBindings.onGameOver();
-      // stats.numLevelsCleared = 0;
       onGameOver();
     }
   }
