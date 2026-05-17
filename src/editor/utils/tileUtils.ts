@@ -14,12 +14,10 @@ export const getTileLabel = (tile: Tile): string | null => {
     [Tile.Key]: 'key',
     [Tile.Portal]: 'portal',
     [Tile.Spawn]: 'snek spawn',
-    [Tile.Mine]: 'landmine',
+    [Tile.Threat]: 'threat',
     [Tile.Invincibility]: 'invincibility',
     [Tile.Armor]: 'armor',
     [Tile.Reversibility]: 'reversibility',
-    [Tile.LaserDiode]: 'laser diode',
-    [Tile.ExplodableBarrel]: 'explodable barrel',
   } satisfies Record<Tile, string>)[tile];
 }
 
@@ -37,11 +35,9 @@ export const getTileExplanation = (tile: Tile): string => {
     [Tile.Key]: 'opens lock of same channel',
     [Tile.Portal]: 'warp to portal with same channel',
     [Tile.Spawn]: 'spawn snek at location on map start',
-    [Tile.Mine]: 'explodes when collided with',
+    [Tile.Threat]: 'threats that damage snekky',
     [Tile.Invincibility]: 'makes the player invincible for a short time',
     [Tile.Armor]: 'gives the player damage protection',
     [Tile.Reversibility]: 'allows player to reverse at will',
-    [Tile.LaserDiode]: 'emits damaging beam to nearby adjacent diodes',
-    [Tile.ExplodableBarrel]: 'explodes upon impact',
   } satisfies Record<Tile, string>)[tile];
 }

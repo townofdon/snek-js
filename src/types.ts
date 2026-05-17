@@ -690,6 +690,7 @@ export enum FloodFillTile {
   LockBlue,
   Nospawn,
   ThreatMine,
+  ThreatBomb,
   ThreatLaserDiode,
   ThreatExplodableBarrel,
   PickupInvincibility,

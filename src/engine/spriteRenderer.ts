@@ -468,6 +468,11 @@ export class SpriteRenderer {
     this.drawImage1x1(gfx, src, x, y, 0, 1, 0, frame, spriteFrames);
   }
 
+  public drawSpritesheetAnim1x1Static = (...args: Parameters<SpriteRenderer['drawSpritesheetAnim1x1']>) => {
+    if (this.isStaticCached) return;
+    this.drawSpritesheetAnim1x1(...args);
+  }
+
   public drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1, screenshakeMul = 0.5) => {
     if (!ANIMATIONS[image]) {
       throw new Error(`no animation data found for image "${image}"`);

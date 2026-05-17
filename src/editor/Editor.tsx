@@ -6,7 +6,7 @@ import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, getRelativeDir, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { EDITOR_DEFAULTS } from "./editorConstants";
-import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel } from "../types";
+import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel, ThreatType } from "../types";
 import { Tile } from "./editorTypes";
 import { useRefState } from "./hooks/useRefState";
 import { useLoadMapData } from "./hooks/useLoadMapData";
@@ -24,28 +24,23 @@ import {
   SetDecorative1Command,
   SetDecorative2Command,
   SetDoorCommand,
-  SetExplodableBarrelCommand,
   SetInvincibilityCommand,
   SetKeyCommand,
-  SetLaserDiodeCommand,
   SetLineAppleCommand,
   SetLineArmorCommand,
   SetLineBarrierCommand,
   SetLineDeco1Command,
   SetLineDeco2Command,
   SetLineDoorCommand,
-  SetLineExplodableBarrelCommand,
   SetLineInvincibilityCommand,
   SetLineKeyCommand,
-  SetLineLaserDiodeCommand,
   SetLineLockCommand,
-  SetLineMineCommand,
   SetLineNospawnCommand,
   SetLinePassableCommand,
   SetLinePortalCommand,
   SetLineReversibilityCommand,
+  SetLineThreatCommand,
   SetLockCommand,
-  SetMineCommand,
   SetNospawnCommand,
   SetPassableCommand,
   SetPlayerSpawnCommand,
@@ -56,17 +51,16 @@ import {
   SetRectangleDeco1Command,
   SetRectangleDeco2Command,
   SetRectangleDoorCommand,
-  SetRectangleExplodableBarrelCommand,
   SetRectangleInvincibilityCommand,
   SetRectangleKeyCommand,
-  SetRectangleLaserDiodeCommand,
   SetRectangleLockCommand,
-  SetRectangleMineCommand,
   SetRectangleNospawnCommand,
   SetRectanglePassableCommand,
   SetRectanglePortalCommand,
   SetRectangleReversibilityCommand,
+  SetRectangleThreatCommand,
   SetReversibilityCommand,
+  SetThreatCommand,
 } from "./commands";
 import { MouseButton, SpecialKey, findNumberPressed, getIsOutside, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
 import { EditorCanvas } from "./EditorCanvas";
@@ -83,6 +77,7 @@ import { Stack } from "@/components/Stack";
 import { DropdownField, Option } from "@/components/Field";
 
 import * as styles from "./Editor.css";
+import { SidebarThreatTypes } from "./SidebarThreatTypes";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -94,7 +89,7 @@ export const Editor = () => {
   const [mapId, setMapId] = useState('');
   const [initialized, setInitialized] = useState(false);
   const [isPreviewShowing, setPreviewShowing] = useState(false);
-  const [difficulty, setDifficulty] = useState<DifficultyIndex>(2);
+  const [difficulty, setDifficulty] = useState<DifficultyIndex>(3);
   const [options, optionsRef, setOptions] = useRefState<EditorOptions>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
   const [pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
@@ -109,6 +104,7 @@ export const Editor = () => {
   const [tool, toolRef, setTool] = useRefState(EditorTool.Pencil);
   const [tile, tileRef, _setTile] = useRefState(Tile.Barrier);
   const [barrierType, barrierTypeRef, setBarrierType] = useRefState(BarrierType.Default);
+  const [threatType, threatTypeRef, setThreatType] = useRefState(ThreatType.Mine);
   const [keyChannel, keyChannelRef, setKeyChannel] = useRefState(KeyChannel.Yellow);
   const [portalChannel, portalChannelRef, setPortalChannel] = useRefState<PortalChannel>(0);
 
@@ -163,54 +159,45 @@ export const Editor = () => {
         btype = direction > 0 ? BarrierType.Default : (BARRIER_TYPE_MAX - 1)
       }
       setBarrierType(btype);
+    } else if (tileRef.current === Tile.Threat) {
+      const order: ThreatType[] = [
+        ThreatType.Mine,
+        ThreatType.Bomb,
+        ThreatType.LaserDiode,
+        ThreatType.ExplodableBarrel,
+      ]
+      const idx = order.indexOf(threatTypeRef.current);
+      setThreatType(idx >= 0 ? order[(idx + order.length + direction) % order.length] : ThreatType.Mine);
     }
   }
 
   const cycleTile = (direction: number) => {
     setMousePressed(false);
     setTriggerOnRelease(false);
-    if (direction < 0) {
-      setTile({
-        [Tile.None]: Tile.Barrier,
-        [Tile.Barrier]: Tile.Reversibility,
-        [Tile.Passable]: Tile.Barrier,
-        [Tile.Door]: Tile.Passable,
-        [Tile.Deco1]: Tile.Door,
-        [Tile.Deco2]: Tile.Deco1,
-        [Tile.Apple]: Tile.Deco2,
-        [Tile.Nospawn]: Tile.Apple,
-        [Tile.Lock]: Tile.Nospawn,
-        [Tile.Key]: Tile.Lock,
-        [Tile.Portal]: Tile.Key,
-        [Tile.Spawn]: Tile.Portal,
-        [Tile.Mine]: Tile.Spawn,
-        [Tile.LaserDiode]: Tile.Mine,
-        [Tile.ExplodableBarrel]: Tile.LaserDiode,
-        [Tile.Invincibility]: Tile.ExplodableBarrel,
-        [Tile.Armor]: Tile.Invincibility,
-        [Tile.Reversibility]: Tile.Armor,
-      }[tileRef.current]);
+    const order = [
+      Tile.Barrier,
+      Tile.Passable,
+      Tile.Door,
+      Tile.Deco1,
+      Tile.Deco2,
+      Tile.Apple,
+      Tile.Nospawn,
+      Tile.Lock,
+      Tile.Key,
+      Tile.Portal,
+      Tile.Spawn,
+      Tile.Threat,
+      Tile.Invincibility,
+      Tile.Armor,
+      Tile.Reversibility,
+    ];
+    const idx = order.indexOf(tileRef.current ?? Tile.None);
+    if (idx < 0 || tileRef.current === Tile.None) {
+      setTile(Tile.Barrier);
+    } else if (direction < 0) {
+      setTile(order[(idx + order.length - 1) % order.length]);
     } else {
-      setTile({
-        [Tile.None]: Tile.Barrier,
-        [Tile.Barrier]: Tile.Passable,
-        [Tile.Passable]: Tile.Door,
-        [Tile.Door]: Tile.Deco1,
-        [Tile.Deco1]: Tile.Deco2,
-        [Tile.Deco2]: Tile.Apple,
-        [Tile.Apple]: Tile.Nospawn,
-        [Tile.Nospawn]: Tile.Lock,
-        [Tile.Lock]: Tile.Key,
-        [Tile.Key]: Tile.Portal,
-        [Tile.Portal]: Tile.Spawn,
-        [Tile.Spawn]: Tile.Mine,
-        [Tile.Mine]: Tile.LaserDiode,
-        [Tile.LaserDiode]: Tile.ExplodableBarrel,
-        [Tile.ExplodableBarrel]: Tile.Invincibility,
-        [Tile.Invincibility]: Tile.Armor,
-        [Tile.Armor]: Tile.Reversibility,
-        [Tile.Reversibility]: Tile.Barrier,
-      }[tileRef.current]);
+      setTile(order[(idx + order.length + 1) % order.length]);
     }
   }
 
@@ -226,12 +213,8 @@ export const Editor = () => {
     switch (tileRef.current) {
       case Tile.Apple:
         return new SetAppleCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
-      case Tile.Mine:
-        return new SetMineCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
-      case Tile.LaserDiode:
-        return new SetLaserDiodeCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
-      case Tile.ExplodableBarrel:
-        return new SetExplodableBarrelCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.Threat:
+        return new SetThreatCommand(coord,dataRef.current, setData, rollbackLastCoordUpdated, threatTypeRef.current);
       case Tile.Invincibility:
         return new SetInvincibilityCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Reversibility:
@@ -271,12 +254,8 @@ export const Editor = () => {
     switch (tileRef.current) {
       case Tile.Apple:
         return new SetLineAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
-      case Tile.Mine:
-        return new SetLineMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
-      case Tile.LaserDiode:
-        return new SetLineLaserDiodeCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
-      case Tile.ExplodableBarrel:
-        return new SetLineExplodableBarrelCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Threat:
+        return new SetLineThreatCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, threatTypeRef.current);
       case Tile.Invincibility:
         return new SetLineInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Reversibility:
@@ -316,12 +295,8 @@ export const Editor = () => {
     switch (tileRef.current) {
       case Tile.Apple:
         return new SetRectangleAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
-      case Tile.Mine:
-        return new SetRectangleMineCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
-      case Tile.LaserDiode:
-        return new SetRectangleLaserDiodeCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
-      case Tile.ExplodableBarrel:
-        return new SetRectangleExplodableBarrelCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Threat:
+        return new SetRectangleThreatCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, threatTypeRef.current);
       case Tile.Invincibility:
         return new SetRectangleInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Reversibility:
@@ -396,9 +371,9 @@ export const Editor = () => {
       const x = Math.floor(mouseAtRef.current % GRIDCOUNT_X);
       const y = Math.floor(mouseAtRef.current / GRIDCOUNT_X);
       if (operation === Operation.Remove) {
-        return new FloodFillEmptyCommand(x, y, portalChannelRef.current, keyChannelRef.current, barrierTypeRef.current, dataRef, setData);
+        return new FloodFillEmptyCommand(x, y, portalChannelRef.current, keyChannelRef.current, barrierTypeRef.current, threatTypeRef.current, dataRef, setData);
       } else {
-        return new FloodFillCommand(tileRef.current, x, y, portalChannelRef.current, keyChannelRef.current, barrierTypeRef.current, dataRef, setData);
+        return new FloodFillCommand(tileRef.current, x, y, portalChannelRef.current, keyChannelRef.current, barrierTypeRef.current, threatTypeRef.current, dataRef, setData);
       }
     }
     throw Error('not implemented');
@@ -657,7 +632,7 @@ export const Editor = () => {
             // label="Preview Difficulty"
             options={difficultyOptions}
             value={String(difficulty)}
-            defaultValue="2" // easy
+            defaultValue="3" // hard
             onChange={(option: Option) => setDifficulty(parseInt(option.value, 10) as DifficultyIndex)}
           />
           <Stack>
@@ -716,6 +691,13 @@ export const Editor = () => {
                   activeBarrierType={barrierType}
                   options={options}
                   setBarrierType={setBarrierType}
+                />
+              }
+              sidebarThreatTypes={
+                <SidebarThreatTypes
+                  activeThreatType={threatType}
+                  options={options}
+                  setThreatType={setThreatType}
                 />
               }
             />

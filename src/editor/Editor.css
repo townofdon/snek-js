@@ -266,6 +266,9 @@ button,
   &.spawn {
     background-position-x: calc(-10 * var(--editor-tile-sprite-width));
   }
+  &.threat {
+    background-position-x: calc(-11 * var(--editor-tile-sprite-width));
+  }
   &.mine {
     background-position-x: calc(-11 * var(--editor-tile-sprite-width));
   }

@@ -279,9 +279,7 @@ export const TILE_TO_FLOOD_FILL_TILE: Record<Tile, FloodFillTile> = {
   [Tile.Spawn]: 0,
   [Tile.Nospawn]: FloodFillTile.Nospawn,
   [Tile.Passable]: FloodFillTile.Passable,
-  [Tile.Mine]: FloodFillTile.ThreatMine,
-  [Tile.LaserDiode]: FloodFillTile.ThreatLaserDiode,
-  [Tile.ExplodableBarrel]: FloodFillTile.ThreatExplodableBarrel,
+  [Tile.Threat]: 0,
   [Tile.Invincibility]: FloodFillTile.PickupInvincibility,
   [Tile.Reversibility]: FloodFillTile.PickupReversibility,
   [Tile.Armor]: FloodFillTile.PickupArmor,
@@ -492,6 +490,7 @@ export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<FloodFillTile, BarrierType>
   [FloodFillTile.LockBlue]: 0,
   [FloodFillTile.Nospawn]: 0,
   [FloodFillTile.ThreatMine]: 0,
+  [FloodFillTile.ThreatBomb]: 0,
   [FloodFillTile.ThreatLaserDiode]: 0,
   [FloodFillTile.ThreatExplodableBarrel]: 0,
   [FloodFillTile.PickupInvincibility]: 0,
@@ -616,6 +615,7 @@ type ThreatTileChar =
 type ThreatFloodFillTile =
   | FloodFillTile.None
   | FloodFillTile.ThreatMine
+  | FloodFillTile.ThreatBomb
   | FloodFillTile.ThreatLaserDiode
   | FloodFillTile.ThreatExplodableBarrel;
 
@@ -634,25 +634,18 @@ export const TILE_CHAR_TO_THREAT_TYPE = {
   [TILECHAR.Bomb]: ThreatType.Bomb,
 } satisfies Record<ThreatTileChar, ThreatType>;
 
-export const THREAT_TYPE_TO_TILE: Record<ThreatType, Tile> = {
-  [ThreatType.None]: 0,
-  [ThreatType.Mine]: Tile.Mine,
-  [ThreatType.LaserDiode]: Tile.LaserDiode,
-  [ThreatType.ExplodableBarrel]: Tile.ExplodableBarrel,
-  [ThreatType.Bomb]: 0,
-} satisfies Record<ThreatType, Tile>;
-
 export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> = {
   [ThreatType.None]: 0,
   [ThreatType.Mine]: FloodFillTile.ThreatMine,
   [ThreatType.LaserDiode]: FloodFillTile.ThreatLaserDiode,
   [ThreatType.ExplodableBarrel]: FloodFillTile.ThreatExplodableBarrel,
-  [ThreatType.Bomb]: 0,
+  [ThreatType.Bomb]: FloodFillTile.ThreatBomb,
 } satisfies Record<ThreatType, FloodFillTile>
 
 export const FLOOD_FILL_TILE_TO_THREAT_TYPE: Record<ThreatFloodFillTile, ThreatType> = {
   [FloodFillTile.None]: 0,
   [FloodFillTile.ThreatMine]: ThreatType.Mine,
+  [FloodFillTile.ThreatBomb]: ThreatType.Bomb,
   [FloodFillTile.ThreatLaserDiode]: ThreatType.LaserDiode,
   [FloodFillTile.ThreatExplodableBarrel]: ThreatType.ExplodableBarrel,
 } satisfies Record<ThreatFloodFillTile, ThreatType>;

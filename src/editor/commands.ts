@@ -2,7 +2,7 @@ import { Vector } from "p5";
 
 import { SetStateValue, Tile } from "./editorTypes";
 import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PortalChannel, ThreatType } from "../types";
-import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidBarrierType, isValidKeyChannel, isValidPortalChannel, lerp } from "../utils";
+import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidBarrierType, isValidKeyChannel, isValidPortalChannel, isValidThreatType, lerp } from "../utils";
 import { deepCloneData, getEditorDataFromLevel, mergeData, mergeDataSlice } from "./utils/editorUtils";
 import { tileFloodFill } from "./utils/floodFill";
 
@@ -145,38 +145,14 @@ export class SetAppleCommand extends SetElementCommand {
   }
 }
 
-export class SetMineCommand extends SetElementCommand {
-  public readonly name = 'Draw Mine';
-  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+export class SetThreatCommand extends SetElementCommand {
+  public readonly name = 'Draw Threat';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, threatType: ThreatType) {
     super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.threatsMap[this.coord]) {
+    if (isValidThreatType(data.threatsMap[this.coord]) && data.threatsMap[this.coord] === threatType && !data.passablesMap[this.coord]) {
       this.newData = null;
     } else {
-      this.newData.threat = ThreatType.Mine;
-    }
-  }
-}
-
-export class SetLaserDiodeCommand extends SetElementCommand {
-  public readonly name = 'Draw Laser Diode';
-  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
-    super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.threatsMap[this.coord]) {
-      this.newData = null;
-    } else {
-      this.newData.threat = ThreatType.LaserDiode;
-    }
-  }
-}
-
-export class SetExplodableBarrelCommand extends SetElementCommand {
-  public readonly name = 'Draw Explodable Barrel';
-  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
-    super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.threatsMap[this.coord]) {
-      this.newData = null;
-    } else {
-      this.newData.threat = ThreatType.ExplodableBarrel;
+      this.newData.threat = threatType;
     }
   }
 }
@@ -511,36 +487,18 @@ export class SetLineAppleCommand extends SetLineCommand {
   };
 }
 
-export class SetLineMineCommand extends SetLineCommand {
-  public readonly name = 'Draw Mine';
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+export class SetLineThreatCommand extends SetLineCommand {
+  public readonly name = 'Draw Threat';
+  private threatType: ThreatType;
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined, threatType: ThreatType) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
-    this.newData.threat = ThreatType.Mine;
+    this.newData.threat = threatType;
+    this.threatType = threatType;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.threatsMap[coord];
-  };
-}
-
-export class SetLineLaserDiodeCommand extends SetLineCommand {
-  public readonly name = 'Draw Laser Diode';
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
-    super(from, to, data, setData, rollbackLastCoordUpdated);
-    this.newData.threat = ThreatType.LaserDiode;
-  }
-  protected test = (coord: number) => {
-    return !this.dataRef.current.threatsMap[coord];
-  };
-}
-
-export class SetLineExplodableBarrelCommand extends SetLineCommand {
-  public readonly name = 'Draw Explodable Barrel';
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
-    super(from, to, data, setData, rollbackLastCoordUpdated);
-    this.newData.threat = ThreatType.ExplodableBarrel;
-  }
-  protected test = (coord: number) => {
-    return !this.dataRef.current.threatsMap[coord];
+    return false
+      ||!this.dataRef.current.threatsMap[coord]
+      || this.dataRef.current.threatsMap[coord] !== this.threatType;
   };
 }
 
@@ -771,36 +729,18 @@ export class SetRectangleAppleCommand extends SetRectangleCommand {
   };
 }
 
-export class SetRectangleMineCommand extends SetRectangleCommand {
-  public readonly name = 'Draw Mine';
-  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+export class SetRectangleThreatCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Threat';
+  private threatType: ThreatType;
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, threatType: ThreatType) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.newData.threat = ThreatType.Mine;
+    this.newData.threat = threatType;
+    this.threatType = threatType;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.threatsMap[coord];
-  };
-}
-
-export class SetRectangleLaserDiodeCommand extends SetRectangleCommand {
-  public readonly name = 'Draw Laser Diode';
-  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
-    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.newData.threat = ThreatType.LaserDiode;
-  }
-  protected test = (coord: number) => {
-    return !this.dataRef.current.threatsMap[coord];
-  };
-}
-
-export class SetRectangleExplodableBarrelCommand extends SetRectangleCommand {
-  public readonly name = 'Draw Explodable Barrel';
-  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
-    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.newData.threat = ThreatType.ExplodableBarrel;
-  }
-  protected test = (coord: number) => {
-    return !this.dataRef.current.threatsMap[coord];
+    return false
+      ||!this.dataRef.current.threatsMap[coord]
+      || this.dataRef.current.threatsMap[coord] !== this.threatType;
   };
 }
 
@@ -1080,6 +1020,7 @@ export class FloodFillCommand implements Command {
   private portalChannel: PortalChannel;
   private keyChannel: KeyChannel;
   private barrierType: BarrierType;
+  private threatType: ThreatType;
   private dataRef: React.MutableRefObject<EditorData>;
   private initialData: EditorData;
   private setData: (val: EditorData) => void;
@@ -1091,6 +1032,7 @@ export class FloodFillCommand implements Command {
     portalChannel: PortalChannel,
     keyChannel: KeyChannel,
     barrierType: BarrierType,
+    threatType: ThreatType,
     dataRef: React.MutableRefObject<EditorData>,
     setData: (val: EditorData) => void,
   ) {
@@ -1100,6 +1042,7 @@ export class FloodFillCommand implements Command {
     this.portalChannel = portalChannel;
     this.keyChannel = keyChannel;
     this.barrierType = barrierType;
+    this.threatType = threatType;
     this.dataRef = dataRef;
     this.initialData = dataRef.current;
     this.setData = setData;
@@ -1113,6 +1056,7 @@ export class FloodFillCommand implements Command {
         this.portalChannel,
         this.keyChannel,
         this.barrierType,
+        this.threatType,
         this.dataRef.current
       );
       if (!updates) {
@@ -1139,9 +1083,10 @@ export class FloodFillEmptyCommand extends FloodFillCommand {
     portalChannel: PortalChannel,
     keyChannel: KeyChannel,
     barrierType: BarrierType,
+    threatType: ThreatType,
     dataRef: React.MutableRefObject<EditorData>,
     setData: (val: EditorData) => void,
   ) {
-    super(Tile.None, x, y, portalChannel, keyChannel, barrierType, dataRef, setData);
+    super(Tile.None, x, y, portalChannel, keyChannel, barrierType, threatType, dataRef, setData);
   }
 }

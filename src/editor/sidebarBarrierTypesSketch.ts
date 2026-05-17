@@ -115,6 +115,8 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
      */
     p5.setup = setup;
     function setup() {
+      // create 1x1 canvas - p5 creates a default canvas and we don't need it.
+      p5.createCanvas(1, 1, p5.P2D).id("sidebar-barrier-types-canvas");
       Object.values(BarrierType).forEach(barrierType => {
         if (typeof barrierType === 'string') return;
         barrierType;

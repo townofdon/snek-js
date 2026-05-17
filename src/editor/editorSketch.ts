@@ -33,6 +33,7 @@ import {
   LaserCell,
   LaserType,
   Orientation,
+  SpritesheetRange,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -568,6 +569,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           switch (data.threatsMap[coord]) {
             case ThreatType.Mine:
               spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.MineSheet, x, y, 0);
+              break;
+            case ThreatType.Bomb:
+              spriteRenderer.drawSpritesheetAnim1x1Static(gfx, SpritesheetRange.Bomb, x, y, 0);
               break;
             case ThreatType.LaserDiode:
               spriteRenderer.drawImage1x1Static(gfx, Image.ThreatSheet16, x, y, 0, 1, 0, Threat16Frame.DiodeBlue0 - 1, FRAME_COUNT_THREAT_16);

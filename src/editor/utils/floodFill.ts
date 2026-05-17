@@ -6,6 +6,7 @@ import {
   FloodFillTile,
   KeyChannel,
   PortalChannel,
+  ThreatType,
 } from "../../types";
 import { Tile } from "../editorTypes";
 import {
@@ -23,7 +24,7 @@ import {
   FLOOD_FILL_TILE_TO_PICKUP_TYPE,
   FLOOD_FILL_TILE_TO_THREAT_TYPE,
   PICKUP_TYPE_TO_TILE,
-  THREAT_TYPE_TO_TILE,
+  THREAT_TYPE_TO_FLOOD_FILL_TILE,
   TILE_TO_FLOOD_FILL_TILE,
 } from "@/levels/levelConstants";
 
@@ -32,13 +33,15 @@ interface GetTileArgs {
   portalChannel?: PortalChannel;
   keyChannel?: KeyChannel;
   barrierType?: BarrierType;
+  threatType?: ThreatType;
 }
 function getTile({
   tile,
   portalChannel,
   keyChannel,
   barrierType,
-}: GetTileArgs) {
+  threatType,
+}: GetTileArgs): FloodFillTile {
   if (TILE_TO_FLOOD_FILL_TILE[tile]) {
     return TILE_TO_FLOOD_FILL_TILE[tile];
   }
@@ -46,6 +49,9 @@ function getTile({
     return (
       BARRIER_TYPE_TO_FLOOD_FILL_TILE[barrierType] || FloodFillTile.Barrier
     );
+  }
+  if (tile === Tile.Threat && isValidThreatType(threatType)) {
+    return THREAT_TYPE_TO_FLOOD_FILL_TILE[threatType];
   }
   if (tile === Tile.Portal && isValidPortalChannel(portalChannel)) {
     switch (portalChannel) {
@@ -110,9 +116,8 @@ function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
     return getTile({ tile: Tile.Barrier, barrierType });
   if (data.doorsMap[coord]) return getTile({ tile: Tile.Door });
   if (data.applesMap[coord]) return getTile({ tile: Tile.Apple });
-  if (data.threatsMap[coord]) return getTile({ tile: Tile.Mine });
-  if (isValidThreatType(threatType) && THREAT_TYPE_TO_TILE[threatType])
-    return getTile({ tile: THREAT_TYPE_TO_TILE[threatType] });
+  if (isValidThreatType(threatType))
+    return getTile({ tile: Tile.Threat, threatType });
   if (isValidPickupType(pickupType) && PICKUP_TYPE_TO_TILE[pickupType])
     return getTile({ tile: PICKUP_TYPE_TO_TILE[pickupType] });
   const portalChannel = data.portalsMap[coord];
@@ -264,6 +269,7 @@ export function tileFloodFill(
   portalChannel: PortalChannel,
   keyChannel: KeyChannel,
   barrierType: BarrierType,
+  threatType: ThreatType,
   data: EditorData,
 ): EditorData | null {
   const prev = getTileAtLocation(getCoordIndex2(x, y), data);
@@ -272,6 +278,7 @@ export function tileFloodFill(
     portalChannel,
     keyChannel,
     barrierType,
+    threatType,
   });
   const newData = deepCloneData(data);
 
