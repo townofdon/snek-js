@@ -37,11 +37,11 @@ describe("Collections", () => {
       assert.strictEqual(items.getLength(), 2);
       assert.strictEqual(items.existsAt(10, 1), true);
       assert.strictEqual(items.existsAt(1, 10), true);
-      items.remove(10, 1);
+      items.remove(10, 1, 0);
       assert.strictEqual(items.getLength(), 1);
       assert.strictEqual(items.existsAt(10, 1), false);
       assert.strictEqual(items.existsAt(1, 10), true);
-      items.remove(1, 10);
+      items.remove(1, 10, 0);
       assert.strictEqual(items.existsAt(10, 1), false);
       assert.strictEqual(items.existsAt(1, 10), false);
     });
@@ -94,7 +94,7 @@ describe("Collections", () => {
       assert.strictEqual(items.existsAt(3, 3), true);
       assert.strictEqual(items.existsAt(4, 4), true);
       assert.strictEqual(items.existsAt(5, 5), true);
-      items.removeByCoord(getCoordIndex2(3, 3));
+      items.removeByCoord(getCoordIndex2(3, 3), 0);
       assert.strictEqual(items.getLength(), 4);
       assert.strictEqual(items.existsAt(1, 1), true);
       assert.strictEqual(items.existsAt(2, 2), true);
@@ -151,10 +151,10 @@ describe("Collections", () => {
       assert(items.getClosestTraversalDistance(6, 7) === 3);
       assert(items.getClosestTraversalDistance(7, 7) === 4);
       assert(items.getClosestTraversalDistance(15, 15) === 20);
-      items.removeByCoord(getCoordIndex2(1, 1));
-      items.removeByCoord(getCoordIndex2(2, 2));
-      items.removeByCoord(getCoordIndex2(3, 3));
-      items.removeByCoord(getCoordIndex2(4, 4));
+      items.removeByCoord(getCoordIndex2(1, 1), 0);
+      items.removeByCoord(getCoordIndex2(2, 2), 0);
+      items.removeByCoord(getCoordIndex2(3, 3), 0);
+      items.removeByCoord(getCoordIndex2(4, 4), 0);
       assert(items.getClosestTraversalDistance(0, 0) === 10);
       assert(items.getClosestTraversalDistance(1, 1) === 8);
       assert(items.getClosestTraversalDistance(2, 2) === 6);
@@ -162,7 +162,7 @@ describe("Collections", () => {
       assert(items.getClosestTraversalDistance(4, 4) === 2);
       assert(items.getClosestTraversalDistance(5, 5) === 0);
       assert(items.getClosestTraversalDistance(15, 15) === 20);
-      items.removeByCoord(getCoordIndex2(5, 5));
+      items.removeByCoord(getCoordIndex2(5, 5), 0);
       assert(items.getClosestTraversalDistance(0, 0) === Infinity);
       assert(items.getClosestTraversalDistance(1, 1) === Infinity);
       assert(items.getClosestTraversalDistance(2, 2) === Infinity);
@@ -250,7 +250,7 @@ describe("Collections", () => {
 
       items.add(6, 6, 6, img);
       items.add(7, 7, 7, img);
-      items.remove(4, 4);
+      items.remove(4, 4, 0);
       assert.strictEqual(items.getLength(), 4);
       assert.strictEqual(items.existsAt(3, 3), true);
       assert.strictEqual(items.existsAt(5, 5), true);
