@@ -59,6 +59,7 @@ export class SFX implements SFXInstance {
     winGame: null,
     winLevel: null,
     xplode: null,
+    xplode3: null,
     xplodeLong: null,
     xpound: null,
   }
@@ -151,6 +152,7 @@ export class SFX implements SFXInstance {
       this.sounds.winLevel = await loadSound('winlevel.wav');
       this.sounds.winGame = await loadSound('wingame.wav');
       this.sounds.xplode = await loadSound('xplode.wav');
+      this.sounds.xplode3 = await loadSound('xplode3.wav');
       this.sounds.xplodeLong = await loadSound('xplode-long.wav');
       this.sounds.xpound = await loadSound('xpound.wav');
     } catch (err) {

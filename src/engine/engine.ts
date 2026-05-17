@@ -56,6 +56,11 @@ import {
   DIMENSIONS,
   ELECTROCUTION_DURATION_MS,
   LASER_DIODE_CRIT_LIFETIME,
+  SMOKE_LIFETIME,
+  PICKUP_LIFETIME_MS,
+  BARREL_WARN_LIFETIME,
+  BARREL_CASCADE_LIFETIME,
+  BARREL_CRIT_LIFETIME,
 } from "../constants";
 import {
   Action,
@@ -101,7 +106,6 @@ import {
   ThreatType,
   SpritesheetRange,
   ExplosionType,
-  LaserCell,
   Orientation,
   ThreatFlag,
   LaserType,
@@ -123,13 +127,14 @@ import {
   coordToVec,
   recalculateLasersMap,
   byCoord,
+  isValidThreatType,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
 import { Emitters } from '../collections/emitters';
 import { AppleList } from '../collections/appleList';
-import { AnimationList } from '../collections/animationList';
+import { AnimationList, RemovalReason } from '../collections/animationList';
 import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
 import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
@@ -305,14 +310,42 @@ export function engine({
     shields.add(x, y, lifetime, Image.Shield);
     drawState.shouldDrawActionFG = true;
   };
-  const onThreatLifetimeExpire = (coord: number) => {
+  const onThreatAdd = (coord: number, threatType: number) => {
+    if (isValidThreatType(threatType)) {
+      es.threatsMap[coord] = threatType;
+      drawState.shouldDrawActionFG = true;
+    }
+  }
+  const onThreatRemove = (coord: number, reason: RemovalReason) => {
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     const threatType = es.threatsMap[coord];
-    if (threatType === ThreatType.LaserDiode || threatType === ThreatType.Mine) {
+    if (threatType === ThreatType.ExplodableBarrel) {
+      const lifetime = ANIMATIONS[Image.Explosion3Sheet].frames * ANIMATIONS[Image.Explosion3Sheet].timePerFrame;
+      explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large);
+      smoke.add(x, y, SMOKE_LIFETIME, Image.SmokeSheet);
+      playSound(Sound.xplode3);
+      damageSurroundingTiles(coord, ExplosionType.Large);
+      if (screenShake.timeSinceStarted >= SCREEN_SHAKE_DURATION_MS) {
+        startScreenShake(2, 0, 0.8);
+      }
+    } else if (threatType === ThreatType.Bomb) {
+      const lifetime = ANIMATIONS[Image.Explosion3Sheet].frames * ANIMATIONS[Image.Explosion3Sheet].timePerFrame;
+      explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large);
+      smoke.add(x, y, SMOKE_LIFETIME, Image.SmokeSheet);
+      playSound(Sound.xplode3);
+      damageSurroundingTiles(coord, ExplosionType.Large);
+      if (screenShake.timeSinceStarted >= SCREEN_SHAKE_DURATION_MS) {
+        startScreenShake(2, 0, 0.8);
+      }
+    } else if (threatType === ThreatType.LaserDiode || threatType === ThreatType.Mine || reason === RemovalReason.Explode) {
       const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
       explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
       playSound(Sound.xpound);
+      damageSurroundingTiles(coord, ExplosionType.Small);
+      if (screenShake.timeSinceStarted >= SCREEN_SHAKE_DURATION_MS) {
+        startScreenShake(1, 0.5);
+      }
     }
     es.threatsMap[coord] = undefined;
     drawState.shouldDrawActionFG = true;
@@ -320,17 +353,18 @@ export function engine({
       recalculateLasersMap(es, threats);
       sfx.stop(Sound.alarm);
     }
-  };
+  }
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
-  const threats = new AnimationList({ onLifetimeExpire: onThreatLifetimeExpire })
+  const threats = new AnimationList({ onAdd: onThreatAdd, onRemove: onThreatRemove })
   const doorsOpening = new AnimationList();
   const fireTiles = new AnimationList();
   const explosions = new AnimationList();
   const puffs = new AnimationList();
+  const smoke = new AnimationList();
   const pointsAnim = new AnimationList();
   const shields = new AnimationList();
-  const shieldSpawns = new AnimationList({ onLifetimeExpire: onShieldSpawnLifetimeExpire});
+  const shieldSpawns = new AnimationList({ onLifetimeExpire: onShieldSpawnLifetimeExpire });
   const pickupOutlines = new AnimationList();
   const lightMap = createLightmap();
 
@@ -380,6 +414,7 @@ export function engine({
     drawPrey,
     drawFireTiles,
     drawExplosions,
+    drawSmoke,
     drawPuffs,
     drawShields,
     drawPickupOutlines,
@@ -468,7 +503,6 @@ export function engine({
     pickupOutlines,
     openDoors,
     playSound,
-    explodeMine,
   });
 
   spriteRenderer.setScreenShake(screenShake);
@@ -717,6 +751,7 @@ export function engine({
     pickupOutlines.reset();
     doorsOpening.reset();
     explosions.reset();
+    smoke.reset();
     puffs.reset();
     fireTiles.reset();
     segments.reset();
@@ -885,10 +920,12 @@ export function engine({
       const threatType = levelData.threats[i].type;
       const lifetime = 99999999; // improbably high lifetime = never despawn
       if (threatType) {
-        es.threatsMap[getCoordIndex2(x, y)] = threatType;
         switch (threatType) {
           case ThreatType.Mine:
             threats.add(x, y, lifetime, Image.MineSheet, ThreatType.Mine);
+            break;
+          case ThreatType.Bomb:
+            threats.add(x, y, PICKUP_LIFETIME_MS, SpritesheetRange.Bomb, ThreatType.Bomb);
             break;
           case ThreatType.LaserDiode:
             threats.add(x, y, lifetime, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode);
@@ -1074,7 +1111,7 @@ export function engine({
         if (!state.isDoorsOpen) renderLevelName();
       }
       if (pickupOutlines.existsAtCoord(coord)) {
-        pickupOutlines.removeByCoord(coord);
+        pickupOutlines.removeByCoord(coord, RemovalReason.PickedUp);
       }
       apples.removeByCoord(coord);
       es.pickupsMap[coord] = null;
@@ -1084,8 +1121,8 @@ export function engine({
 
     // check if head has reached a shield pickup
     if (shieldSpawns.existsAtCoord(coord) || shields.existsAtCoord(coord)) {
-      shieldSpawns.removeByCoord(coord);
-      shields.removeByCoord(coord);
+      shieldSpawns.removeByCoord(coord, RemovalReason.PickedUp);
+      shields.removeByCoord(coord, RemovalReason.PickedUp);
       incrementPickupBonus(PickupType.Armor, coord);
       acquireArmor();
       es.pickupsMap[coord] = null;
@@ -1151,7 +1188,7 @@ export function engine({
     handleDifficultySelect();
     handleSetNextLevel();
 
-    const didHit = checkHasHit(player.position) || checkMineHit(player.position);
+    const didHit = checkHasHit(player.position) || checkMineHit(player.position) || checkExplosionHit(player.position);
     if (didHit) {
       player.directionLastHit = player.direction;
       state.collisions += 1;
@@ -1351,6 +1388,7 @@ export function engine({
       drawLock(es.locks[i])
     }
 
+    drawSmoke(smoke);
     drawPortals();
     drawPickupOutlines(pickupOutlines);
 
@@ -1411,6 +1449,9 @@ export function engine({
     if (puffs.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
+    if (smoke.tick(animationDeltaTime)) {
+      // draw to main gfx
+    }
     if (shields.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
@@ -1418,7 +1459,7 @@ export function engine({
       drawState.shouldDrawActionFG = true;
     }
     if (pickupOutlines.tick(animationDeltaTime)) {
-      // draws each frame
+      // draw to main gfx
     }
 
     if (
@@ -1768,8 +1809,8 @@ export function engine({
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
     const coord = getCoordIndex(vec);
-    if (threats.existsAtCoord(coord, ThreatType.Mine)) {
-      explodeMine(vec.x, vec.y);
+    if (threats.existsAtCoord(coord, ThreatType.Mine) || threats.existsAtCoord(coord, ThreatType.Bomb)) {
+      threats.removeByCoord(coord, RemovalReason.Explode);
       // check invincible
       const isInvincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
       if (isInvincible) {
@@ -1779,9 +1820,7 @@ export function engine({
       if (heldItems.armor > 0) {
         heldItems.armor -= 1;
         state.timeSinceArmorProtection = 0;
-        startScreenShake(1, 0.5);
         reboundSnake(segments.length > 3 ? 2 : 1);
-        // TODO: ADD UNIQ SOUND
         playSound(Sound.hurtSave);
         return false;
       }
@@ -1791,16 +1830,55 @@ export function engine({
     return false;
   }
 
-  function explodeMine(x: number, y: number) {
-    if (!threats.existsAt(x, y, ThreatType.Mine)) return;
-    const coord = getCoordIndex2(x, y);
-    threats.removeByCoord(coord);
-    es.threatsMap[getCoordIndex2(x, y)] = undefined;
-    const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
-    explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
-    playSound(Sound.xpound);
-    drawState.shouldDrawActionFG = true;
-    recalculateLasersMap(es, threats);
+  function checkExplosionHit(vec: Vector): boolean {
+    if (state.isExitingLevel) return false;
+    if (state.isExited) return false;
+    if (state.isGameWon) return false;
+    if (state.timeSinceInvincibleStart <= es.difficulty.invincibilityTime) return false;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+    if (state.timeSinceArmorProtection < HURT_STUN_TIME) return false;
+    const pos = getCoordIndex(vec);
+    let hit = false;
+    const checks = [
+      0, 0,
+      -1, 0,
+      1, 0,
+      0, -1,
+      0, 1,
+    ];
+    outer:
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        const coord = getCoordIndex2(x, y);
+        const explosiveDamage = explosions.existsAtCoord(coord, ExplosionType.Large) && byCoord(coord)(explosions.getFrame) === 0;
+        if (!explosiveDamage) {
+          continue;
+        }
+        for (let i = 0; i < Math.floor(checks.length / 2); i++) {
+          const damagex = x + checks[2 * i + 0];
+          const damagey = y + checks[2 * i + 1];
+          if (damagex < 0 || damagex >= GRIDCOUNT_X) continue;
+          if (damagey < 0 || damagey >= GRIDCOUNT_Y) continue;
+          const damageCoord = getCoordIndex2(damagex, damagey);
+          if (pos === damageCoord || segments.existsAtCoord(damageCoord)) {
+            hit = true;
+            break outer;
+          }
+        }
+      }
+    }
+    if (hit) {
+      // check armor
+      if (heldItems.armor > 0) {
+        heldItems.armor -= 1;
+        state.timeSinceArmorProtection = 0;
+        playSound(Sound.hurtSave);
+        return false;
+      }
+      state.lastHurtBy = DamageType.HitMine;
+      return true;
+    }
+    return false;
   }
 
   function checkPlayerWillHit(dir: DIR, numMoves = 1): boolean {
@@ -1945,11 +2023,8 @@ export function engine({
     for (let x = 0; x < GRIDCOUNT_X; x++) {
       for (let y = 0; y < GRIDCOUNT_Y; y++) {
         const coord = getCoordIndex2(x, y);
-        if (threats.existsAtCoord(coord, ThreatType.Mine)) {
-          threats.removeByCoord(coord);
-          const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
-          explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
-          drawState.shouldDrawActionFG = true;
+        if (threats.existsAtCoord(coord, ThreatType.Mine) || threats.existsAtCoord(coord, ThreatType.Bomb)) {
+          threats.removeByCoord(coord, RemovalReason.Explode);
           numExplosionsAtLevelExit++;
         }
         if (preyList.existsAtCoord(coord)) {
@@ -2130,17 +2205,10 @@ export function engine({
     }
     if (isBreakable) {
       state.timeSinceArmorProtection = 0;
-      const barrierIdx = es.barriers.findIndex(barrier => getCoordIndex(barrier.vec) === coord);
-      es.barriers = removeArrayElement(es.barriers, barrierIdx);
-      es.barriersMap[coord] = BarrierType.Unset;
-      astar.removeWall(vec.x, vec.y);
-      renderer.invalidateStaticCache();
-      const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
-      explosions.add(vec.x, vec.y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
+      removeBarrierTile(coord);
       playSound(Sound.xplodeLong);
       startScreenShake(2, 0, 0.8);
       reboundSnake(segments.length > 3 ? 2 : 1);
-      recalculateLasersMap(es, threats);
     } else if (invincible) {
       state.timeSinceArmorProtection = 0;
       startAutoRewind()
@@ -2154,6 +2222,19 @@ export function engine({
       reboundSnake(segments.length > 3 ? 2 : 1);
     }
     return true;
+  }
+
+  function removeBarrierTile(coord: number) {
+    const x = getCoordX(coord);
+    const y = getCoordY(coord);
+    const barrierIdx = es.barriers.findIndex(barrier => getCoordIndex(barrier.vec) === coord);
+    es.barriers = removeArrayElement(es.barriers, barrierIdx);
+    es.barriersMap[coord] = BarrierType.Unset;
+    astar.removeWall(x, y);
+    renderer.invalidateStaticCache();
+    const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
+    explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
+    recalculateLasersMap(es, threats);
   }
 
   function isSnakeTrapped() {
@@ -2187,6 +2268,11 @@ export function engine({
     if (!trapped) {
       return;
     }
+    const coord = getCoordIndex(player.position);
+    if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
+      threats.removeByCoord(coord, RemovalReason.Explode);
+      return;
+    }
     if (heldItems.reversibles > 0) {
       heldItems.reversibles -= 1;
       state.timeSinceReverseStart = 0;
@@ -2202,17 +2288,38 @@ export function engine({
   }
 
   function handleSnakeDamage(didReceiveDamage: boolean) {
-    // const didReceiveDamage = state.isLost && state.lives > 0;
     if (!didReceiveDamage) return;
 
+    // apply "damage" to explosive barrel
+    const coord = getCoordIndex(player.position);
+    if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
+      const timeRemaining = byCoord(coord)(threats.getTimeRemaining);
+      if (timeRemaining <= BARREL_CRIT_LIFETIME) {
+        threats.removeByCoord(coord, RemovalReason.Explode);
+      } else if (timeRemaining <= BARREL_WARN_LIFETIME) {
+        byCoord(coord)(threats.setLifetime, BARREL_CRIT_LIFETIME);
+      } else {
+        byCoord(coord)(threats.setLifetime, BARREL_WARN_LIFETIME);
+      }
+    }
     applyDamage(1);
     if (
       state.lastHurtBy === DamageType.HitBarrier ||
       state.lastHurtBy === DamageType.HitDoor ||
       state.lastHurtBy === DamageType.HitLock ||
       state.lastHurtBy === DamageType.HitSelf
-    ) { spawnHurtParticles(); }
-    reboundSnake(segments.length > 3 ? 2 : 1);
+    ) {
+      spawnHurtParticles();
+    }
+    if (
+      state.lastHurtBy === DamageType.HitBarrier ||
+      state.lastHurtBy === DamageType.HitDoor ||
+      state.lastHurtBy === DamageType.HitLock ||
+      state.lastHurtBy === DamageType.HitSelf ||
+      state.lastHurtBy === DamageType.HitMine
+    ) {
+      reboundSnake(segments.length > 3 ? 2 : 1);
+    }
     player.directionToFirstSegment = getDirectionSnakeBackward();
 
     // if snake will move backwards into itself:
@@ -2231,17 +2338,25 @@ export function engine({
     if (state.isButtonPressed) return;
     if (state.isLost) return;
     if (state.lives < 0) return;
-    const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
-    if (invincible) return;
-    const coord = getCoordIndex(player.position);
-    const laserCell = es.lasersMap[coord];
-    if (!laserCell || !laserCell.damageActive || state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS * 2) {
-      return;
+    if (state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) return;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+    if (state.timeSinceArmorProtection < HURT_STUN_TIME) return false;
+    if (state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS * 2) return;
+    let overlappingLaser = false;
+    let laserType = LaserType.Blue;
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (es.lasersMap[coord]?.damageActive && (coord === getCoordIndex(player.position) || segments.existsAtCoord(coord))) {
+        overlappingLaser = true;
+        // disable laser damage so that we only run electrocutionRoutine once.
+        es.lasersMap[coord].damageActive = false;
+        if (es.lasersMap[coord].type === LaserType.Red) { laserType = LaserType.Red; }
+        break;
+      }
     }
-    // disable laser damage so that we only run electrocutionRoutine once.
-    laserCell.damageActive = false;
-    state.timeSinceElectrocutionStart = 0;
-    startAction(electrocutionRoutine(coord, laserCell), Action.Electrocution);
+    if (overlappingLaser) {
+      state.timeSinceElectrocutionStart = 0;
+      startAction(electrocutionRoutine(laserType), Action.Electrocution);
+    }
   }
 
   /**
@@ -2256,8 +2371,16 @@ export function engine({
    * If 'B' diodes blow up, then the AB/BA path would become AA,
    * which means the laser cells along that path will have updated diode a/b coords.
    */
-  function* electrocutionRoutine(coord: number, fallback: LaserCell): IEnumerator {
-    let times = es.lasersMap[coord]?.type === LaserType.Red ? 2 : 1;
+  function* electrocutionRoutine(laserType: LaserType): IEnumerator {
+    let times = laserType === LaserType.Red ? 2 : 1;
+    const coord = getCoordIndex(player.position)
+    const laserCell = es.lasersMap[coord];
+    if (laserCell) {
+      // overload diodes to blow!
+      byCoord(laserCell.coordDiodeA)(threats.addFlag, ThreatFlag.Crit);
+      byCoord(laserCell.coordDiodeB)(threats.addFlag, ThreatFlag.Crit);
+      playSound(Sound.alarm, 0.5);
+    }
     for (let i = 0; i < times; i++) {
       state.timeSinceElectrocutionStart = 0;
       sfx.playLoop(Sound.electrocuteLoop);
@@ -2266,39 +2389,41 @@ export function engine({
       state.lastHurtBy = DamageType.Electrocution;
       applyDamage(1);
     }
+    if (state.isLost) return;
+    if (state.lives < 0) return;
     // do not yield so that we guarantee this routine completely finishes before recalculateLasersMap() is called again.
     state.timeSinceElectrocutionStart = Infinity;
-    // get latest laser cell because the map may have changed (see note above)
-    const laserCell = es.lasersMap[coord] ?? fallback;
-    if (!state.isLost && state.lives >= 0 && (threats.existsAtCoord(laserCell.coordDiodeA) || threats.existsAtCoord(laserCell.coordDiodeB))) {
-      // disable and remove all adjacent lasers
-      const x0 = Math.min(getCoordX(laserCell.coordDiodeA), getCoordX(laserCell.coordDiodeB));
-      const x1 = Math.max(getCoordX(laserCell.coordDiodeA), getCoordX(laserCell.coordDiodeB));
-      const y0 = Math.min(getCoordY(laserCell.coordDiodeA), getCoordY(laserCell.coordDiodeB));
-      const y1 = Math.max(getCoordY(laserCell.coordDiodeA), getCoordY(laserCell.coordDiodeB));
-      const horizontal = y0 === y1;
-      for (let y = y0; y <= y1; y++) {
-        for (let x = x0; x <= x1; x++) {
-          // if two crossing beams exist at a cell, only remove one
-          if (es.lasersMap[getCoordIndex2(x, y)] && es.lasersMap[getCoordIndex2(x, y)].orientation === Orientation.Mixed) {
-            if (horizontal) {
-              es.lasersMap[getCoordIndex2(x, y)].orientation = Orientation.Vertical;
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      const isPlayerAtCoord = coord === getCoordIndex(player.position) || segments.existsAtCoord(coord);
+      // get latest laser cell because the map may have changed (see note above)
+      const laserCell = es.lasersMap[coord];
+      if (isPlayerAtCoord && laserCell && (threats.existsAtCoord(laserCell.coordDiodeA) || threats.existsAtCoord(laserCell.coordDiodeB))) {
+        byCoord(laserCell.coordDiodeA)(threats.addFlag, ThreatFlag.Crit);
+        byCoord(laserCell.coordDiodeB)(threats.addFlag, ThreatFlag.Crit);
+        threats.setLifetimeByCoord(laserCell.coordDiodeA, 200);
+        threats.setLifetimeByCoord(laserCell.coordDiodeB, 200);
+        // disable and remove all adjacent lasers
+        const x0 = Math.min(getCoordX(laserCell.coordDiodeA), getCoordX(laserCell.coordDiodeB));
+        const x1 = Math.max(getCoordX(laserCell.coordDiodeA), getCoordX(laserCell.coordDiodeB));
+        const y0 = Math.min(getCoordY(laserCell.coordDiodeA), getCoordY(laserCell.coordDiodeB));
+        const y1 = Math.max(getCoordY(laserCell.coordDiodeA), getCoordY(laserCell.coordDiodeB));
+        const horizontal = y0 === y1;
+        for (let y = y0; y <= y1; y++) {
+          for (let x = x0; x <= x1; x++) {
+            // if two crossing beams exist at a cell, only remove one
+            if (es.lasersMap[getCoordIndex2(x, y)] && es.lasersMap[getCoordIndex2(x, y)].orientation === Orientation.Mixed) {
+              if (horizontal) {
+                es.lasersMap[getCoordIndex2(x, y)].orientation = Orientation.Vertical;
+              } else {
+                es.lasersMap[getCoordIndex2(x, y)].orientation = Orientation.Horizontal;
+              }
+              es.lasersMap[getCoordIndex2(x, y)].damageActive = true;
             } else {
-              es.lasersMap[getCoordIndex2(x, y)].orientation = Orientation.Horizontal;
+              es.lasersMap[getCoordIndex2(x, y)] = undefined;
             }
-            es.lasersMap[getCoordIndex2(x, y)].damageActive = true;
-          } else {
-            es.lasersMap[getCoordIndex2(x, y)] = undefined;
           }
         }
       }
-      // overload diodes to blow!
-      byCoord(laserCell.coordDiodeA)(threats.addFlag, ThreatFlag.Crit);
-      byCoord(laserCell.coordDiodeB)(threats.addFlag, ThreatFlag.Crit);
-      threats.setLifetimeByCoord(laserCell.coordDiodeA, LASER_DIODE_CRIT_LIFETIME);
-      threats.setLifetimeByCoord(laserCell.coordDiodeB, LASER_DIODE_CRIT_LIFETIME);
-      yield* actions.waitForTime(500);
-      playSound(Sound.alarm, 0.5);
     }
   }
 
@@ -2329,6 +2454,50 @@ export function engine({
       case 0:
         playSound(Sound.hurt3);
         break;
+    }
+  }
+
+  function damageSurroundingTiles(coord: number, explosionType: ExplosionType) {
+    const x = getCoordX(coord);
+    const y = getCoordY(coord);
+    const checks = [
+      -1, -1,
+      -1, 0,
+      -1, 1,
+      0, -1,
+      0, 1,
+      1, -1,
+      1, 0,
+      1, 1,
+    ];
+    for (let i = 0; i < Math.floor(checks.length / 2); i++) {
+      const tx = x + checks[2 * i + 0];
+      const ty = y + checks[2 * i + 1];
+      if (tx < 0 || tx >= GRIDCOUNT_X) continue;
+      if (ty < 0 || ty >= GRIDCOUNT_Y) continue;
+      const damageCoord = getCoordIndex2(tx, ty);
+      // cascade barrel explosions
+      const barrelLifetime = explosionType === ExplosionType.Large ? BARREL_CASCADE_LIFETIME : BARREL_WARN_LIFETIME;
+      if (threats.existsAtCoord(damageCoord, ThreatType.ExplodableBarrel) && threats.getTimeRemaining(tx, ty) > barrelLifetime) {
+        threats.setLifetime(tx, ty, barrelLifetime);
+      }
+      // destroy adjacent diodes
+      if (explosionType === ExplosionType.Large && threats.existsAtCoord(damageCoord, ThreatType.LaserDiode) && threats.getTimeRemaining(tx, ty) > LASER_DIODE_CRIT_LIFETIME) {
+        threats.setLifetime(tx, ty, LASER_DIODE_CRIT_LIFETIME);
+        playSound(Sound.alarm, 0.5);
+      }
+      // destroy adjacent mines
+      if (explosionType === ExplosionType.Large && threats.existsAtCoord(damageCoord, ThreatType.Mine)) {
+        threats.removeByCoord(damageCoord, RemovalReason.Explode);
+      }
+      // always destroy adjacent tiles if breakable
+      if (explosionType === ExplosionType.Large && isBreakableBarrier(es.barriersMap[damageCoord])) {
+        removeBarrierTile(damageCoord);
+      }
+      // small chance of destroying non-breakable adjacent tiles
+      if (explosionType === ExplosionType.Large && Math.random() < 0.0015) {
+        removeBarrierTile(damageCoord);
+      }
     }
   }
 

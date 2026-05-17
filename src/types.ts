@@ -145,6 +145,7 @@ export enum DamageType {
   HitLock,
   QuantumEntanglement,
   HitMine,
+  Explosive,
   Electrocution,
 }
 
@@ -606,6 +607,7 @@ export interface LevelThreat {
 export enum ThreatType {
   None = 0,
   Mine,
+  Bomb,
   LaserDiode,
   ExplodableBarrel,
 }
@@ -870,6 +872,7 @@ export enum Sound {
   winGame = 'winGame',
   winLevel = 'winLevel',
   xplode = 'xplode',
+  xplode3 = 'xplode3',
   xplodeLong = 'xplodeLong',
   xpound = 'xpound',
 }
@@ -1001,6 +1004,7 @@ export enum Image {
   ThreatSheet48 = 'snek-threats-48.png',
   ExplosionSheet = 'snek-explosion-sheet.png',
   Explosion3Sheet = 'snek-explosion-3.png',
+  SmokeSheet = 'snek-smoke.png',
   PuffSheet = 'snek-puff.png',
   WearablesSheet = 'snek-wearables.png',
   DoorLightSheet = 'snek-door-light-sheet.png',
@@ -1047,6 +1051,8 @@ export enum SpritesheetRange {
   DiodeRed,
   LaserBlue,
   LaserRed,
+  Bomb,
+  BombCrit,
   Barrel,
   BarrelFireA,
   BarrelFireB,
@@ -1064,6 +1070,7 @@ export type SpritesheetImage =
   | Image.MineSheet
   | Image.ExplosionSheet
   | Image.Explosion3Sheet
+  | Image.SmokeSheet
   | Image.PuffSheet
   | Image.FireSheet
   | Image.TileSheet16
@@ -1141,6 +1148,14 @@ export enum Threat16Frame {
   ClawArm,
   ClawOpen,
   ClawClosed,
+  Bomb0,
+  Bomb1,
+  Bomb2,
+  Bomb3,
+  BombCrit0,
+  BombCrit1,
+  BombCrit2,
+  BombCrit3,
   WarningSignYellow,
   WarningSignRed0,
   WarningSignRed1,
@@ -1324,6 +1339,7 @@ export enum ItemDropType {
   Invincibility,
   Armor,
   Mine,
+  Bomb,
   ExplodableBarrel,
   LaserDiode,
   Spikes,

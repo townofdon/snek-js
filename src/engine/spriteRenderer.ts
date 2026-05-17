@@ -73,6 +73,7 @@ export class SpriteRenderer {
     [Image.MineSheet]: null,
     [Image.ExplosionSheet]: null,
     [Image.Explosion3Sheet]: null,
+    [Image.SmokeSheet]: null,
     [Image.PuffSheet]: null,
     [Image.FireSheet]: null,
     [Image.TileSheet16]: null,
@@ -288,6 +289,7 @@ export class SpriteRenderer {
       this.loadImage(Image.MineSheet);
       this.loadImage(Image.ExplosionSheet);
       this.loadImage(Image.Explosion3Sheet);
+      this.loadImage(Image.SmokeSheet);
       this.loadImage(Image.PuffSheet);
       this.loadImage(Image.FireSheet);
       this.loadImage(Image.TileSheet16);

@@ -2,6 +2,8 @@ import P5, { Vector } from "p5";
 import {
   ANIMATIONS,
   ARMOR_PICKUP_FREEZE_MS,
+  BARREL_CRIT_LIFETIME,
+  BARREL_WARN_LIFETIME,
   BLOCK_SIZE_X,
   BLOCK_SIZE_Y,
   DIMENSIONS,
@@ -59,6 +61,7 @@ import {
   Orientation,
   DamageType,
   ExplosionType,
+  ThreatFlag,
 } from "@/types";
 import { UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
 import { Renderer } from "../renderer";
@@ -690,11 +693,20 @@ export function engineRendering({
             continue;
           }
           spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.MineSheet, x, y, elapsed);
+        } else if (threats.existsAtCoord(coord, ThreatType.Bomb)) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const elapsed = threats.getElapsedByCoord(coord);
+          if (threats.getTimeRemaining(x, y) <= PICKUP_EXPIRE_WARN_MS) {
+            spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.BombCrit, x, y, elapsed);
+          } else {
+            spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.Bomb, x, y, elapsed);
+          }
         } else if (threats.existsAtCoord(coord, ThreatType.LaserDiode)) {
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = threats.getElapsedByCoord(coord);
-          if (threats.getTimeRemaining(x, y) <= LASER_DIODE_CRIT_LIFETIME) {
+          if (threats.getTimeRemaining(x, y) <= LASER_DIODE_CRIT_LIFETIME || threats.hasFlag(x, y, ThreatFlag.Crit)) {
             spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeCrit, x, y, elapsed);
           } else {
             spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeBlue, x, y, elapsed);
@@ -703,8 +715,10 @@ export function engineRendering({
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = threats.getElapsedByCoord(coord);
-          if (threats.getTimeRemaining(x, y) <= PICKUP_EXPIRE_WARN_MS) {
+          if (threats.getTimeRemaining(x, y) <= BARREL_CRIT_LIFETIME) {
             spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, SpritesheetRange.BarrelFireB, x, y, elapsed);
+          } else if (threats.getTimeRemaining(x, y) <= BARREL_WARN_LIFETIME) {
+            spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, SpritesheetRange.BarrelFireA, x, y, elapsed);
           } else {
             spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, SpritesheetRange.Barrel, x, y, elapsed);
           }
@@ -834,6 +848,18 @@ export function engineRendering({
           const elapsed = puffs.getElapsedByCoord(coord);
           spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, Image.PuffSheet, x, y, elapsed);
         }
+      }
+    }
+  }
+
+  function drawSmoke(smoke: AnimationList) {
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (smoke.existsAtCoord(coord)) {
+        const gfx = renderer.getMainGfx();
+        const x = Math.floor(coord % GRIDCOUNT_X);
+        const y = Math.floor(coord / GRIDCOUNT_X);
+        const elapsed = smoke.getElapsedByCoord(coord);
+        spriteRenderer.drawSpritesheetAnim1x1(gfx, Image.SmokeSheet, x, y, elapsed);
       }
     }
   }
@@ -1289,6 +1315,7 @@ export function engineRendering({
     drawPrey,
     drawFireTiles,
     drawExplosions,
+    drawSmoke,
     drawPuffs,
     drawShields,
     drawPickupOutlines,

@@ -112,7 +112,6 @@ export const RARITY_EPIC = 0.09;
 export const RARITY_LEGENDARY = 0.01;
 export const PITY_INCREMENT = 1 / 30;
 
-export const THREAT_LASER_MAX_SPAN = 7;
 
 export const INVINCIBILITY_PICKUP_LIFETIME_MS = 8000;
 export const INVINCIBILITY_PICKUP_FREEZE_MS = 1000;
@@ -123,7 +122,12 @@ export const INVINCIBILITY_COLOR_CYCLE_MS = 20;
 export const ARMOR_PICKUP_FREEZE_MS = 1400;
 export const ELECTROCUTION_DURATION_MS = 1400;
 export const ELECTROCUTION_FLASH_RATE = 70;
-export const LASER_DIODE_CRIT_LIFETIME = 1400;
+export const LASER_DIODE_CRIT_LIFETIME = 3000;
+export const BARREL_WARN_LIFETIME = 10000;
+export const BARREL_CRIT_LIFETIME = 2000;
+export const BARREL_CASCADE_LIFETIME = 400;
+export const THREAT_LASER_MAX_SPAN = 7;
+export const SMOKE_LIFETIME = 4000;
 
 export const TIME_WAIT_BEFORE_REWIND = 80;
 export const TIME_REWIND_TAKEOVER_CONTROLS = 200;
@@ -446,6 +450,10 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frames: 11,
     timePerFrame: 140,
   } satisfies AnimationData,
+  [Image.SmokeSheet]: {
+    frames: 4,
+    timePerFrame: 200,
+  } satisfies AnimationData,
   [Image.PuffSheet]: {
     frames: 6,
     timePerFrame: 100,
@@ -539,7 +547,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ThreatSheet16]: {
-    frames: 28,
+    frames: 36,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ThreatSheet48]: {
@@ -583,6 +591,18 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     offset: Threat16Frame.LaserRed0 - 1,
     frames: 4,
     timePerFrame: 100,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.Bomb]: {
+    src: Image.ThreatSheet16,
+    offset: Threat16Frame.Bomb0 - 1,
+    frames: 4,
+    timePerFrame: 200,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.BombCrit]: {
+    src: Image.ThreatSheet16,
+    offset: Threat16Frame.BombCrit0 - 1,
+    frames: 4,
+    timePerFrame: 200,
   } satisfies AnimationDataForRange,
   [SpritesheetRange.Barrel]: {
     src: Image.ThreatSheet48,

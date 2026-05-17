@@ -237,6 +237,7 @@ export enum TILECHAR {
   WeightLossPill = '%',
   LaserDiode = '^',
   ExplodableBarrel = '&',
+  Bomb = '[',
   PlayerSpawn = 'O',
 }
 
@@ -609,7 +610,8 @@ export const FLOOD_FILL_TILE_TO_PICKUP_TYPE: Record<PickupFloodFillTile, 0 | Pow
 type ThreatTileChar =
   | TILECHAR.Mine
   | TILECHAR.LaserDiode
-  | TILECHAR.ExplodableBarrel;
+  | TILECHAR.ExplodableBarrel
+  | TILECHAR.Bomb;
 
 type ThreatFloodFillTile =
   | FloodFillTile.None
@@ -622,12 +624,14 @@ export const THREAT_TYPE_TO_TILE_CHAR: Record<ThreatType, TILECHAR> = {
   [ThreatType.Mine]: TILECHAR.Mine,
   [ThreatType.LaserDiode]: TILECHAR.LaserDiode,
   [ThreatType.ExplodableBarrel]: TILECHAR.ExplodableBarrel,
+  [ThreatType.Bomb]: TILECHAR.Bomb,
 } satisfies Record<ThreatType, TILECHAR>;
 
 export const TILE_CHAR_TO_THREAT_TYPE = {
   [TILECHAR.Mine]: ThreatType.Mine,
   [TILECHAR.LaserDiode]: ThreatType.LaserDiode,
   [TILECHAR.ExplodableBarrel]: ThreatType.ExplodableBarrel,
+  [TILECHAR.Bomb]: ThreatType.Bomb,
 } satisfies Record<ThreatTileChar, ThreatType>;
 
 export const THREAT_TYPE_TO_TILE: Record<ThreatType, Tile> = {
@@ -635,6 +639,7 @@ export const THREAT_TYPE_TO_TILE: Record<ThreatType, Tile> = {
   [ThreatType.Mine]: Tile.Mine,
   [ThreatType.LaserDiode]: Tile.LaserDiode,
   [ThreatType.ExplodableBarrel]: Tile.ExplodableBarrel,
+  [ThreatType.Bomb]: 0,
 } satisfies Record<ThreatType, Tile>;
 
 export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> = {
@@ -642,6 +647,7 @@ export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> =
   [ThreatType.Mine]: FloodFillTile.ThreatMine,
   [ThreatType.LaserDiode]: FloodFillTile.ThreatLaserDiode,
   [ThreatType.ExplodableBarrel]: FloodFillTile.ThreatExplodableBarrel,
+  [ThreatType.Bomb]: 0,
 } satisfies Record<ThreatType, FloodFillTile>
 
 export const FLOOD_FILL_TILE_TO_THREAT_TYPE: Record<ThreatFloodFillTile, ThreatType> = {

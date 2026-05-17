@@ -6,8 +6,17 @@ import { ICollection, IFlaggable, SpritesheetImage, SpritesheetRange } from "../
 
 export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
+export enum RemovalReason {
+  None = 0,
+  LifetimeExpired,
+  PickedUp,
+  Explode,
+}
+
 interface AnimationListConstructorOptions {
   onLifetimeExpire?: (coord: number) => void
+  onAdd?: (coord: number, type: number) => void
+  onRemove?: (coord: number, reason: RemovalReason) => void
 }
 
 /**
@@ -32,11 +41,19 @@ export class AnimationList implements ICollection, IFlaggable {
   private numTimesDidChange: number;
 
   private onLifetimeExpire: (coord: number) => void = () => {}
+  private onRemove: (coord: number, reason: RemovalReason) => void = () => {}
+  private onAdd: (coord: number, type: number) => void = () => {}
 
 
   constructor(opts: AnimationListConstructorOptions = {}) {
     if (opts.onLifetimeExpire) {
       this.onLifetimeExpire = opts.onLifetimeExpire;
+    }
+    if (opts.onAdd) {
+      this.onAdd = opts.onAdd;
+    }
+    if (opts.onRemove) {
+      this.onRemove = opts.onRemove;
     }
     this.maxLength = INITIAL_ANIMATIONS_POOL_SIZE;
     this.x = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
@@ -128,7 +145,7 @@ export class AnimationList implements ICollection, IFlaggable {
         const y = this.y[i];
         const coord = getCoordIndex2(x, y);
         this.onLifetimeExpire(coord);
-        this.removeByIndex(i);
+        this.removeByIndex(i, RemovalReason.LifetimeExpired);
         didChange = true;
       }
     }
@@ -158,6 +175,7 @@ export class AnimationList implements ICollection, IFlaggable {
         this.type[i] = type;
         this.flags[i] = flags;
         this.recalculateLength();
+        this.onAdd(getCoordIndex2(x, y), type);
         return;
       }
     }
@@ -174,23 +192,24 @@ export class AnimationList implements ICollection, IFlaggable {
     this.type[i] = type;
     this.flags[i] = flags;
     this.recalculateLength();
+    this.onAdd(getCoordIndex2(x, y), type);
   }
 
-  public removeByCoord = (coord: number) => {
+  public removeByCoord = (coord: number, reason: RemovalReason) => {
     coord = Math.floor(coord);
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
-    this.remove(x, y);
+    this.remove(x, y, reason);
   }
 
-  public remove = (x: number, y: number) => {
+  public remove = (x: number, y: number, reason: RemovalReason) => {
     this.validate();
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) {
         continue;
       }
       if (this.x[i] === x && this.y[i] === y) {
-        this.removeByIndex(i);
+        this.removeByIndex(i, reason);
         return;
       }
     }
@@ -201,12 +220,13 @@ export class AnimationList implements ICollection, IFlaggable {
     }
   }
 
-  private removeByIndex = (i: number) => {
+  private removeByIndex = (i: number, reason: RemovalReason) => {
     this.validate();
     if (this.free[i]) {
       return;
     }
-    this.coordMap[getCoordIndex2(this.x[i], this.y[i])] = false;
+    const coord = getCoordIndex2(this.x[i], this.y[i]);
+    this.coordMap[coord] = false;
     this.x[i] = 0;
     this.y[i] = 0;
     this.free[i] = 1;
@@ -216,6 +236,7 @@ export class AnimationList implements ICollection, IFlaggable {
     this.type[i] = 0;
     this.flags[i] = 0;
     this.recalculateLength();
+    this.onRemove(coord, reason);
     return;
   }
 
@@ -254,6 +275,19 @@ export class AnimationList implements ICollection, IFlaggable {
       if (this.free[i]) continue;
       if (this.x[i] === x && this.y[i] === y) {
         return this.elapsed[i];
+      }
+    }
+    return -1;
+  }
+
+  public getFrame = (x: number, y: number): number => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        const sprite = this.img[i];
+        const { frames = 1, timePerFrame = 100, durations } = ANIMATIONS[sprite] || {};
+        const frame = getCurrentFrame(frames, timePerFrame, durations, this.elapsed[i]);
+        return frame;
       }
     }
     return -1;

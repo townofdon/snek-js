@@ -18,6 +18,7 @@ import {
   PreySpawn,
   PickupRarity,
   ThreatType,
+  SpritesheetRange,
 } from "@/types";
 import {
   ANIMATIONS,
@@ -43,8 +44,9 @@ import {
   RARITY_COMMON,
   RARITY_EPIC,
   RARITY_LEGENDARY,
+  BARREL_WARN_LIFETIME,
 } from "@/constants";
-import { AnimationList } from "@/collections/animationList";
+import { AnimationList, RemovalReason } from "@/collections/animationList";
 import { AppleList } from "@/collections/appleList";
 import {
   clamp,
@@ -79,7 +81,6 @@ interface EngineSpawningArgs {
   pickupOutlines: AnimationList,
   openDoors: () => void,
   playSound: (sound: Sound, volume?: number, force?: boolean) => void,
-  explodeMine: (x: number, y: number) => void,
 }
 
 export function engineSpawning({
@@ -100,7 +101,6 @@ export function engineSpawning({
   pickupOutlines,
   openDoors,
   playSound,
-  explodeMine,
 }: EngineSpawningArgs) {
   function spawnApple(numTries = 0) {
     drawState.shouldDrawApples = true;
@@ -131,6 +131,7 @@ export function engineSpawning({
     if (!spawned && maybeSpawnHealthPickup()) { spawned = true; }
     if (!spawned && maybeSpawnWeightLossPickup()) { spawned = true; }
     if (maybeSpawnMine()) { spawned = true; }
+    if (!spawned && maybeSpawnBomb()) { spawned = true; }
     if (maybeSpawnArmor()) { spawned = true; }
     if (!spawned && maybeSpawnOtherPickup(x, y)) { spawned = true; }
     if (!spawned) {
@@ -172,7 +173,32 @@ export function engineSpawning({
     if (r < 1) {
       return false;
     }
-    spawnMine()
+    spawnThreat(ThreatType.Mine);
+    return true;
+  }
+
+  function maybeSpawnBomb() {
+    if (es.level.disableAppleSpawn) return false;
+    if (replay.mode === ReplayMode.Playback) return false;
+    if (stats.applesEatenThisLevel === 0) return false;
+    if (!es.level.pickupDropsByFrame && !es.level.pickupDrops?.[ItemDropType.Bomb] && state.gameMode !== GameMode.Cobra) return false;
+
+    const progress = getLevelProgress(stats, es.level, es.difficulty);
+    const frameLikelihood = es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.type === ItemDropType.Bomb
+      ? es.level.pickupDropsByFrame?.[stats.applesEatenThisLevel]?.likelihood
+      : undefined
+    const shouldSpawnDefault = state.gameMode === GameMode.Cobra;
+    const baseLikelihood = getDropLikelihood(
+      es.level.pickupDrops?.[ItemDropType.Bomb] ?? shouldSpawnDefault,
+      DROP_LIKELIHOOD_MINE,
+      es.difficulty.index
+    ) * lerp(0.4, 1, progress * 1.25) * (stats.applesEatenThisLevel >= 10 ? 1 : 0)
+    const likelihood = frameLikelihood ?? baseLikelihood;
+    const r = Math.random() + likelihood;
+    if (r < 1) {
+      return false;
+    }
+    spawnThreat(ThreatType.Bomb);
     return true;
   }
 
@@ -298,7 +324,7 @@ export function engineSpawning({
     if (Math.random() > BASE_PICKUP_RARITY) return false;
 
     const pool: PickupType[] = (es.level.pickupTypes ?? DEFAULT_PICKUP_TYPES).filter(pickupType => PICKUP_TYPE_RARITY_MAP[pickupType] > 0);
-    const weights: number[] = pool.map(pickupType => lerp(PICKUP_TYPE_RARITY_MAP[pickupType], RARITY_COMMON, state.pity));
+    const weights: number[] = pool.map(pickupType => lerp(PICKUP_TYPE_RARITY_MAP[pickupType], RARITY_COMMON, state.pity * 0.8));
     if (pool.length !== weights.length) throw new Error(`pool and weight lengths do not match: ${pool.length} vs ${weights.length}`);
     const totalWeight = weights.reduce((a, b) => a + b, 0);
     const r = Math.random() * totalWeight;
@@ -325,10 +351,11 @@ export function engineSpawning({
       state.pity = 0;
       rarityType = PickupRarity.Legendary;
     } else if (rarity === RARITY_EPIC) {
-      state.pity *= 0.5;
+      state.pity = 0;
       rarityType = PickupRarity.Epic;
     } else if (rarity === RARITY_COMMON) {
-      state.pity = lerp(state.pity, 1, PITY_INCREMENT);
+      // state.pity = lerp(state.pity, 1, PITY_INCREMENT);
+      state.pity += PITY_INCREMENT;
     }
     state.pity = clamp(state.pity, 0, 1);
     // spawn pickup outline
@@ -402,7 +429,7 @@ export function engineSpawning({
     drawState.shouldDrawApples = true;
     setTimeout(() => playSound(Sound.spawnPickup, 0.45), PICKUP_SPAWN_SFX_DELAY);
     if (threats.existsAt(x, y, ThreatType.Mine)) {
-      explodeMine(x, y);
+      threats.removeByCoord(getCoordIndex2(x, y), RemovalReason.Explode);
     }
   }
 
@@ -417,7 +444,7 @@ export function engineSpawning({
     drawState.shouldDrawApples = true;
     setTimeout(() => playSound(Sound.spawnPickup, 0.45), PICKUP_SPAWN_SFX_DELAY);
     if (threats.existsAt(x, y, ThreatType.Mine)) {
-      explodeMine(x, y);
+      threats.removeByCoord(getCoordIndex2(x, y), RemovalReason.Explode);
     }
   }
 
@@ -431,11 +458,11 @@ export function engineSpawning({
     };
     setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
     if (threats.existsAt(x, y, ThreatType.Mine)) {
-      explodeMine(x, y);
+      threats.removeByCoord(getCoordIndex2(x, y), RemovalReason.Explode);
     }
   }
 
-  function spawnMine(numTries = 0) {
+  function spawnThreat(threatType: ThreatType, numTries = 0) {
     const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
     const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
@@ -449,9 +476,22 @@ export function engineSpawning({
       || player.position.equals(x, y);
     const spawnedTooCloseToPlayer = getManhattanDistance(x, y, player.position.x, player.position.y) < 5;
     if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
-      if (numTries < 30) spawnMine(numTries + 1);
+      if (numTries < 30) spawnThreat(threatType, numTries + 1);
     } else {
-      threats.add(x, y, PICKUP_LIFETIME_MS, Image.MineSheet, ThreatType.Mine);
+      switch (threatType) {
+        case ThreatType.Mine:
+          threats.add(x, y, PICKUP_LIFETIME_MS, Image.MineSheet, ThreatType.Mine);
+          break;
+        case ThreatType.Bomb:
+          threats.add(x, y, PICKUP_LIFETIME_MS, SpritesheetRange.Bomb, ThreatType.Bomb);
+          break;
+        case ThreatType.LaserDiode:
+          threats.add(x, y, PICKUP_LIFETIME_MS, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode);
+          break;
+        case ThreatType.ExplodableBarrel:
+          threats.add(x, y, BARREL_WARN_LIFETIME, SpritesheetRange.Barrel, ThreatType.ExplodableBarrel);
+          break;
+      }
       drawState.shouldDrawActionFG = true;
     }
   }
