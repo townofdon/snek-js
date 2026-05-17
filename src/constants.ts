@@ -639,7 +639,7 @@ Object.entries(ANIMATIONS).forEach(([key, val]) => {
     throw new Error(`timePerFrame cannot be zero. val=${val.timePerFrame},img="${name}${add}"`);
   }
   if (val.durations && (val.durations.length !== val.frames)) {
-    throw new Error(`Inconsistent animation data for "${name}${add}": frames (${frames}) did not match durations.length (${val.durations.length})`);
+    throw new Error(`Inconsistent animation data for "${name}${add}": num_frames=${val.frames} did not match durations.length=${val.durations.length}`);
   }
 })
 

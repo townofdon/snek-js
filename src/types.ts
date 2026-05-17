@@ -946,6 +946,10 @@ export interface AnimationData {
    * Set explicit time per each frame. Array length must match number of frames.
    */
   durations?: number[],
+  /**
+   * Whether animation plays once and stops on the last frame. Default=false
+   */
+  oneShot?: boolean,
 }
 
 export interface AnimationDataForRange extends AnimationData {

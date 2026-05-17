@@ -1,6 +1,7 @@
 import { Vector } from "p5";
 import { ANIMATIONS, GRIDCOUNT_X,
-GRIDCOUNT_Y, IS_DEV } from "../constants";
+GRIDCOUNT_Y, IS_DEV, 
+IS_LOCALHOST} from "../constants";
 import { getCoordIndex2, getCurrentFrame, getManhattanDistance, isNil, shouldBlinkExpiringPickup } from "../utils";
 import { ICollection, IFlaggable, SpritesheetImage, SpritesheetRange } from "../types";
 
@@ -19,6 +20,27 @@ interface AnimationListConstructorOptions {
   onRemove?: (coord: number, reason: RemovalReason) => void
 }
 
+interface AddItemOptions {
+  /**
+   * Optional caller-provided flags to set per animation item.
+   */
+  flags?: number,
+  /**
+   * Whether animation is playing. Default=true
+   *
+   * When false, tick() does not increment elapsed time unless disabledImg is provided.
+   */
+  enabled?: boolean,
+  /**
+   * Optional image to use as a replacement when disabled. Otherwise, nothing will show.
+   */
+  disabledImg?: SpritesheetImage | SpritesheetRange,
+}
+
+// INTERNAL FLAGS
+const FLAG_ENABLED = 1;
+const DEFAULT_INTERNAL_FLAGS = 0 | FLAG_ENABLED;
+
 /**
  * Non-allocating collection of animations.
  * Each property is maintained as a primitive array.
@@ -34,16 +56,17 @@ export class AnimationList implements ICollection, IFlaggable {
   private elapsed: Float32Array;
   private type: Uint8Array;
   private flags: Uint8Array;
+  private internalFlags: Uint8Array;
   private img: Record<number, SpritesheetImage | SpritesheetRange>;
+  private disabledImg: Record<number, SpritesheetImage | SpritesheetRange>;
   private activeLength: number;
   private maxLength: number;
   private coordMap: Record<number, boolean>;
   private numTimesDidChange: number;
 
-  private onLifetimeExpire: (coord: number) => void = () => {}
-  private onRemove: (coord: number, reason: RemovalReason) => void = () => {}
-  private onAdd: (coord: number, type: number) => void = () => {}
-
+  private onLifetimeExpire: (coord: number) => void = () => {};
+  private onRemove: (coord: number, reason: RemovalReason) => void = () => {};
+  private onAdd: (coord: number, type: number) => void = () => {};
 
   constructor(opts: AnimationListConstructorOptions = {}) {
     if (opts.onLifetimeExpire) {
@@ -63,9 +86,11 @@ export class AnimationList implements ICollection, IFlaggable {
     this.elapsed = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.type = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.flags = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
+    this.internalFlags = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.activeLength = 0;
     this.coordMap = {};
     this.img = {};
+    this.disabledImg = {};
     this.numTimesDidChange = 0;
     this.reset();
   }
@@ -80,12 +105,14 @@ export class AnimationList implements ICollection, IFlaggable {
       this.coordMap[i] = false;
       this.lifetime[i] = 0;
       this.img[i] = undefined;
+      this.disabledImg[i] = undefined;
       this.type[i] = 0;
       this.flags[i] = 0;
+      this.internalFlags[i] = 0;
     }
     this.activeLength = 0;
     this.numTimesDidChange = 0;
-  }
+  };
 
   public fillFromMap = (map: Record<number, boolean>, lifetime: number, img: SpritesheetImage | SpritesheetRange) => {
     this.reset();
@@ -97,7 +124,7 @@ export class AnimationList implements ICollection, IFlaggable {
         }
       }
     }
-  }
+  };
 
   public getLength = () => this.activeLength;
   public getMaxLength = () => this.maxLength;
@@ -128,13 +155,21 @@ export class AnimationList implements ICollection, IFlaggable {
       if (this.free[i]) {
         continue;
       }
+      const enabled = this._hasInternalFlag(i, FLAG_ENABLED);
+      const shouldTick = enabled || !!this.disabledImg[i];
       const prevElapsed = this.elapsed[i];
-      this.elapsed[i] += deltaTime;
-      const sprite = this.img[i];
-      const { frames = 1, timePerFrame = 0, durations } = ANIMATIONS[sprite] || {};
+      if (shouldTick) {
+        this.elapsed[i] += deltaTime;
+      }
+      const sprite = enabled ? this.img[i] : this.disabledImg[i] || this.img[i];
+      const {
+        frames = 1,
+        timePerFrame = 0,
+        durations,
+      } = ANIMATIONS[sprite] || {};
       const framePrev = getCurrentFrame(frames, timePerFrame, durations, prevElapsed);
       const frameCurrent = getCurrentFrame(frames, timePerFrame, durations, this.elapsed[i]);
-      if (framePrev !== frameCurrent) {
+      if (prevElapsed === 0 || framePrev !== frameCurrent) {
         didChange = true;
       }
       if (shouldBlinkExpiringPickup(this.lifetime[i] - prevElapsed) !== shouldBlinkExpiringPickup(this.lifetime[i] - this.elapsed[i])) {
@@ -153,12 +188,19 @@ export class AnimationList implements ICollection, IFlaggable {
       this.numTimesDidChange++;
     }
     return didChange;
-  }
+  };
 
-  public add = (x: number, y: number, lifetime: number, img: SpritesheetImage | SpritesheetRange, type = 0, flags = 0) => {
+  public add = (
+    x: number,
+    y: number,
+    lifetime: number,
+    img: SpritesheetImage | SpritesheetRange,
+    type = 0,
+    opts: AddItemOptions = {},
+  ) => {
+    const { disabledImg, enabled = true, flags = 0 } = opts;
     this.validate();
-    if (!frames) throw new Error(`invalid frames value. val=${frames}`)
-    if (!img) throw new Error(`invalid img value. val=${img}`)
+    if (!img) throw new Error(`invalid img value. val=${img}`);
     const coord = getCoordIndex2(x, y);
     if (this.existsAt(x, y)) {
       return;
@@ -172,35 +214,32 @@ export class AnimationList implements ICollection, IFlaggable {
         this.coordMap[coord] = true;
         this.lifetime[i] = lifetime;
         this.img[i] = img;
+        this.disabledImg[i] = disabledImg || undefined;
         this.type[i] = type;
         this.flags[i] = flags;
+        this.internalFlags[i] = DEFAULT_INTERNAL_FLAGS;
         this.recalculateLength();
+        if (!enabled) {
+          this._removeInternalFlag(i, FLAG_ENABLED);
+        }
         this.onAdd(getCoordIndex2(x, y), type);
         return;
       }
     }
-    // no free elements; add one
-    const i = this.free.length;
-    this.doubleSize();
-    this.x[i] = x;
-    this.y[i] = y;
-    this.free[i] = 0;
-    this.elapsed[i] = 0;
-    this.coordMap[coord] = true;
-    this.lifetime[i] = lifetime;
-    this.img[i] = img;
-    this.type[i] = type;
-    this.flags[i] = flags;
-    this.recalculateLength();
-    this.onAdd(getCoordIndex2(x, y), type);
-  }
+    // no free elements - this should never happen.
+    if (IS_LOCALHOST) {
+      throw new Error(
+        `No more space left in AnimationList. length=${this.free.length},activeLength=${this.activeLength},new_idx=${this.free.length}`,
+      );
+    }
+  };
 
   public removeByCoord = (coord: number, reason: RemovalReason) => {
     coord = Math.floor(coord);
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     this.remove(x, y, reason);
-  }
+  };
 
   public remove = (x: number, y: number, reason: RemovalReason) => {
     this.validate();
@@ -215,10 +254,12 @@ export class AnimationList implements ICollection, IFlaggable {
     }
 
     // item not found
-    if (IS_DEV) {
-      console.warn(`[AnimationList] remove() could not find matching item for x=${x},y=${y}`);
+    if (IS_LOCALHOST) {
+      console.warn(
+        `[AnimationList] remove() could not find matching item for x=${x},y=${y}`,
+      );
     }
-  }
+  };
 
   private removeByIndex = (i: number, reason: RemovalReason) => {
     this.validate();
@@ -233,23 +274,25 @@ export class AnimationList implements ICollection, IFlaggable {
     this.elapsed[i] = 0;
     this.lifetime[i] = 0;
     this.img[i] = undefined;
+    this.disabledImg[i] = undefined;
     this.type[i] = 0;
     this.flags[i] = 0;
+    this.internalFlags[i] = 0;
     this.recalculateLength();
     this.onRemove(coord, reason);
     return;
-  }
+  };
 
   public existsAtVec = (vec: Vector): boolean => {
     return this.existsAt(vec.x, vec.y);
-  }
+  };
 
   public existsAtCoord = (coord: number, type?: number): boolean => {
     coord = Math.floor(coord);
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     return this.existsAt(x, y, type);
-  }
+  };
 
   public existsAt = (x: number, y: number, type?: number): boolean => {
     const exists = this.coordMap[getCoordIndex2(x, y)] || false;
@@ -257,18 +300,47 @@ export class AnimationList implements ICollection, IFlaggable {
       return exists;
     }
     return exists && type === this.getType(x, y);
-  }
+  };
+
+  public enabledAt = (x: number, y: number): boolean => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        return this._hasInternalFlag(i, FLAG_ENABLED);
+      }
+    }
+    return false;
+  };
+
+  public enable = (x: number, y: number): void => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        this._addInternalFlag(i, FLAG_ENABLED);
+      }
+    }
+  };
+
+  public disable = (x: number, y: number): void => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        this._removeInternalFlag(i, FLAG_ENABLED);
+        this.elapsed[i] = 0;
+      }
+    }
+  };
 
   public getElapsedByVec = (vec: Vector): number => {
     return this.getElapsed(vec.x, vec.y);
-  }
+  };
 
   public getElapsedByCoord = (coord: number): number => {
     coord = Math.floor(coord);
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     return this.getElapsed(x, y);
-  }
+  };
 
   public getElapsed = (x: number, y: number): number => {
     for (let i = 0; i < this.free.length; i++) {
@@ -278,7 +350,7 @@ export class AnimationList implements ICollection, IFlaggable {
       }
     }
     return -1;
-  }
+  };
 
   public getFrame = (x: number, y: number): number => {
     for (let i = 0; i < this.free.length; i++) {
@@ -291,7 +363,7 @@ export class AnimationList implements ICollection, IFlaggable {
       }
     }
     return -1;
-  }
+  };
 
   public getLifetime = (x: number, y: number): number => {
     for (let i = 0; i < this.free.length; i++) {
@@ -301,14 +373,14 @@ export class AnimationList implements ICollection, IFlaggable {
       }
     }
     return -1;
-  }
+  };
 
   public setLifetimeByCoord = (coord: number, lifetime: number) => {
     coord = Math.floor(coord);
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     this.setLifetime(x, y, lifetime);
-  }
+  };
 
   public setLifetime = (x: number, y: number, lifetime: number) => {
     for (let i = 0; i < this.free.length; i++) {
@@ -319,7 +391,7 @@ export class AnimationList implements ICollection, IFlaggable {
         break;
       }
     }
-  }
+  };
 
   public getTimeRemaining = (x: number, y: number): number => {
     for (let i = 0; i < this.free.length; i++) {
@@ -329,7 +401,7 @@ export class AnimationList implements ICollection, IFlaggable {
       }
     }
     return -1;
-  }
+  };
 
   public getClosestTraversalDistance = (x: number, y: number): number => {
     this.validate();
@@ -342,14 +414,14 @@ export class AnimationList implements ICollection, IFlaggable {
       }
     }
     return min;
-  }
+  };
 
   public getTypeByCoord = (coord: number): number => {
     coord = Math.floor(coord);
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
     return this.getType(x, y);
-  }
+  };
 
   public getType = (x: number, y: number): number => {
     for (let i = 0; i < this.free.length; i++) {
@@ -359,7 +431,7 @@ export class AnimationList implements ICollection, IFlaggable {
       }
     }
     return -1;
-  }
+  };
 
   public hasFlag = (x: number, y: number, flag: number): boolean => {
     for (let i = 0; i < this.free.length; i++) {
@@ -369,7 +441,7 @@ export class AnimationList implements ICollection, IFlaggable {
       }
     }
     return false;
-  }
+  };
 
   public addFlag = (x: number, y: number, flag: number): void => {
     for (let i = 0; i < this.free.length; i++) {
@@ -378,7 +450,7 @@ export class AnimationList implements ICollection, IFlaggable {
         this.flags[i] |= flag;
       }
     }
-  }
+  };
 
   public removeFlag = (x: number, y: number, flag: number): void => {
     for (let i = 0; i < this.free.length; i++) {
@@ -387,7 +459,22 @@ export class AnimationList implements ICollection, IFlaggable {
         this.flags[i] &= ~flag;
       }
     }
-  }
+  };
+
+  private _hasInternalFlag = (i: number, flag: number): boolean => {
+    if (this.free[i]) return false;
+    return !!(this.internalFlags[i] & flag);
+  };
+
+  private _addInternalFlag = (i: number, flag: number): void => {
+    if (this.free[i]) return;
+    this.internalFlags[i] |= flag;
+  };
+
+  private _removeInternalFlag = (i: number, flag: number): void => {
+    if (this.free[i]) return;
+    this.internalFlags[i] &= ~flag;
+  };
 
   private recalculateLength = () => {
     this.validate();
@@ -396,32 +483,10 @@ export class AnimationList implements ICollection, IFlaggable {
       if (!this.free[i]) numActive++;
     }
     this.activeLength = numActive;
-  }
-
-  private doubleSize = () => {
-    this.maxLength = this.maxLength * 2;
-    const x = new Uint8Array(this.maxLength).fill(0);
-    const y = new Uint8Array(this.maxLength).fill(0);
-    const free = new Uint8Array(this.maxLength).fill(1);
-    const lifetime = new Float32Array(this.maxLength).fill(0);
-    const elapsed = new Float32Array(this.maxLength).fill(0);
-
-    for (let i = 0; i < this.free.length; i++) {
-      x[i] = this.x[i];
-      y[i] = this.y[i];
-      free[i] = this.free[i];
-      lifetime[i] = this.lifetime[i];
-      elapsed[i] = this.elapsed[i];
-    }
-    this.x = x;
-    this.y = y;
-    this.free = free;
-    this.lifetime = lifetime;
-    this.elapsed = elapsed;
-  }
+  };
 
   private validate() {
-    if (IS_DEV) {
+    if (IS_DEV && IS_LOCALHOST) {
       if (this.x.length !== this.y.length) throw new Error(`lengths diverged: x.length=${this.x.length},y.length=${this.y.length}`);
       if (this.x.length !== this.free.length) throw new Error(`lengths diverged: x.length=${this.x.length},free.length=${this.free.length}`);
       if (this.x.length !== this.lifetime.length) throw new Error(`lengths diverged: x.length=${this.x.length},lifetime.length=${this.lifetime.length}`);

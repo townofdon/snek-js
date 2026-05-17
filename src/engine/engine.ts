@@ -128,6 +128,7 @@ import {
   recalculateLasersMap,
   byCoord,
   isValidThreatType,
+  lerp,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -319,11 +320,12 @@ export function engine({
   const onThreatRemove = (coord: number, reason: RemovalReason) => {
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
+    const smokeLifetime = lerp(SMOKE_LIFETIME * 0.5, SMOKE_LIFETIME, Math.random());
     const threatType = es.threatsMap[coord];
     if (threatType === ThreatType.ExplodableBarrel) {
       const lifetime = ANIMATIONS[Image.Explosion3Sheet].frames * ANIMATIONS[Image.Explosion3Sheet].timePerFrame;
       explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large);
-      smoke.add(x, y, SMOKE_LIFETIME, Image.SmokeSheet);
+      smoke.add(x, y, smokeLifetime, Image.SmokeSheet);
       playSound(Sound.xplode3);
       damageSurroundingTiles(coord, ExplosionType.Large);
       if (screenShake.timeSinceStarted >= SCREEN_SHAKE_DURATION_MS) {
@@ -332,7 +334,7 @@ export function engine({
     } else if (threatType === ThreatType.Bomb) {
       const lifetime = ANIMATIONS[Image.Explosion3Sheet].frames * ANIMATIONS[Image.Explosion3Sheet].timePerFrame;
       explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large);
-      smoke.add(x, y, SMOKE_LIFETIME, Image.SmokeSheet);
+      smoke.add(x, y, smokeLifetime, Image.SmokeSheet);
       playSound(Sound.xplode3);
       damageSurroundingTiles(coord, ExplosionType.Large);
       if (screenShake.timeSinceStarted >= SCREEN_SHAKE_DURATION_MS) {
