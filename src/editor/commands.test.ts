@@ -22,7 +22,9 @@ describe('commands', () => {
       passablesMap: {},
       portalsMap: {},
       playerSpawnPosition: new Vector(15, 15),
-      startDirection: DIR.UP
+      startDirection: DIR.UP,
+      switchesMap: {},
+      pipesMap: {},
     };
     return { ...data, ...overrides }
   };

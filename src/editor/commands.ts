@@ -1,8 +1,8 @@
 import { Vector } from "p5";
 
 import { SetStateValue, Tile } from "./editorTypes";
-import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PortalChannel, ThreatType } from "../types";
-import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidBarrierType, isValidKeyChannel, isValidPortalChannel, isValidThreatType, lerp } from "../utils";
+import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PortalChannel, SwitchType, ThreatType } from "../types";
+import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidBarrierType, isValidKeyChannel, isValidPortalChannel, isValidSwitchType, isValidThreatType, lerp } from "../utils";
 import { deepCloneData, getEditorDataFromLevel, mergeData, mergeDataSlice } from "./utils/editorUtils";
 import { tileFloodFill } from "./utils/floodFill";
 
@@ -53,13 +53,17 @@ abstract class SetElementCommand implements Command {
       portal: data.portalsMap[this.coord],
       playerSpawnPosition: data.playerSpawnPosition.copy(),
       startDirection: data.startDirection,
+      switch: data.switchesMap[this.coord],
+      pipe: data.pipesMap[this.coord],
     } satisfies EditorDataSlice;
     this.newData = {
       coord: this.coord,
       apple: false,
       threat: 0,
+      switch: 0,
       pickup: 0,
       barrier: 0,
+      pipe: false,
       deco1: false,
       deco2: false,
       door: false,
@@ -153,6 +157,30 @@ export class SetThreatCommand extends SetElementCommand {
       this.newData = null;
     } else {
       this.newData.threat = threatType;
+    }
+  }
+}
+
+export class SetSwitchCommand extends SetElementCommand {
+  public readonly name = 'Draw Switch';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, switchType: SwitchType) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (isValidSwitchType(data.switchesMap[this.coord]) && data.switchesMap[this.coord] === switchType && !data.passablesMap[this.coord]) {
+      this.newData = null;
+    } else {
+      this.newData.switch = switchType;
+    }
+  }
+}
+
+export class SetPipeCommand extends SetElementCommand {
+  public readonly name = 'Draw Pipe';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (data.pipesMap[this.coord]) {
+      this.newData = null;
+    } else {
+      this.newData.pipe = true;
     }
   }
 }
@@ -349,8 +377,10 @@ abstract class SetBatchElementsCommand implements Command {
       coord: -1,
       apple: false,
       threat: 0,
+      switch: 0,
       pickup: 0,
       barrier: 0,
+      pipe: false,
       deco1: false,
       deco2: false,
       door: false,
@@ -487,6 +517,17 @@ export class SetLineAppleCommand extends SetLineCommand {
   };
 }
 
+export class SetLinePipeCommand extends SetLineCommand {
+  public readonly name = 'Draw Pipe';
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.newData.pipe = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.pipesMap[coord];
+  };
+}
+
 export class SetLineThreatCommand extends SetLineCommand {
   public readonly name = 'Draw Threat';
   private threatType: ThreatType;
@@ -499,6 +540,21 @@ export class SetLineThreatCommand extends SetLineCommand {
     return false
       ||!this.dataRef.current.threatsMap[coord]
       || this.dataRef.current.threatsMap[coord] !== this.threatType;
+  };
+}
+
+export class SetLineSwitchCommand extends SetLineCommand {
+  public readonly name = 'Draw Switch';
+  private switchType: SwitchType;
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined, switchType: SwitchType) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.newData.switch = switchType;
+    this.switchType = switchType;
+  }
+  protected test = (coord: number) => {
+    return false
+      ||!this.dataRef.current.switchesMap[coord]
+      || this.dataRef.current.switchesMap[coord] !== this.switchType;
   };
 }
 
@@ -729,6 +785,17 @@ export class SetRectangleAppleCommand extends SetRectangleCommand {
   };
 }
 
+export class SetRectanglePipeCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Pipe';
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.pipe = true;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.pipesMap[coord];
+  };
+}
+
 export class SetRectangleThreatCommand extends SetRectangleCommand {
   public readonly name = 'Draw Threat';
   private threatType: ThreatType;
@@ -741,6 +808,21 @@ export class SetRectangleThreatCommand extends SetRectangleCommand {
     return false
       ||!this.dataRef.current.threatsMap[coord]
       || this.dataRef.current.threatsMap[coord] !== this.threatType;
+  };
+}
+
+export class SetRectangleSwitchCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Switch';
+  private switchType: SwitchType;
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, switchType: SwitchType) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.switch = switchType;
+    this.switchType = switchType;
+  }
+  protected test = (coord: number) => {
+    return false
+      ||!this.dataRef.current.switchesMap[coord]
+      || this.dataRef.current.switchesMap[coord] !== this.switchType;
   };
 }
 
@@ -997,7 +1079,9 @@ export class ClearAllCommand implements Command {
         passablesMap: {},
         portalsMap: {},
         playerSpawnPosition: new Vector(15, 15),
-        startDirection: DIR.RIGHT
+        startDirection: DIR.RIGHT,
+        switchesMap: {},
+        pipesMap: {},
       };
       this.setData(newData);
       return true;
@@ -1021,6 +1105,7 @@ export class FloodFillCommand implements Command {
   private keyChannel: KeyChannel;
   private barrierType: BarrierType;
   private threatType: ThreatType;
+  private switchType: SwitchType;
   private dataRef: React.MutableRefObject<EditorData>;
   private initialData: EditorData;
   private setData: (val: EditorData) => void;
@@ -1033,6 +1118,7 @@ export class FloodFillCommand implements Command {
     keyChannel: KeyChannel,
     barrierType: BarrierType,
     threatType: ThreatType,
+    switchType: SwitchType,
     dataRef: React.MutableRefObject<EditorData>,
     setData: (val: EditorData) => void,
   ) {
@@ -1043,6 +1129,7 @@ export class FloodFillCommand implements Command {
     this.keyChannel = keyChannel;
     this.barrierType = barrierType;
     this.threatType = threatType;
+    this.switchType = switchType;
     this.dataRef = dataRef;
     this.initialData = dataRef.current;
     this.setData = setData;
@@ -1057,6 +1144,7 @@ export class FloodFillCommand implements Command {
         this.keyChannel,
         this.barrierType,
         this.threatType,
+        this.switchType,
         this.dataRef.current
       );
       if (!updates) {
@@ -1080,13 +1168,9 @@ export class FloodFillEmptyCommand extends FloodFillCommand {
   public constructor(
     x: number,
     y: number,
-    portalChannel: PortalChannel,
-    keyChannel: KeyChannel,
-    barrierType: BarrierType,
-    threatType: ThreatType,
     dataRef: React.MutableRefObject<EditorData>,
     setData: (val: EditorData) => void,
   ) {
-    super(Tile.None, x, y, portalChannel, keyChannel, barrierType, threatType, dataRef, setData);
+    super(Tile.None, x, y, 0, 0, 0, 0, 0, dataRef, setData);
   }
 }

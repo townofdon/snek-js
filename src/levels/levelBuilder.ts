@@ -1,9 +1,9 @@
 import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
-import { BarrierType, Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode } from "../types";
+import { BarrierType, Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode, SwitchType } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./campaign/level01";
-import { TILE_CHAR_TO_BARRIER_TYPE, TILE_CHAR_TO_PICKUP_TYPE, TILE_CHAR_TO_THREAT_TYPE, TILECHAR } from "./levelConstants";
+import { TILE_CHAR_TO_BARRIER_TYPE, TILE_CHAR_TO_PICKUP_TYPE, TILE_CHAR_TO_SWITCH_TYPE, TILE_CHAR_TO_THREAT_TYPE, TILECHAR } from "./levelConstants";
 
 export function buildLevel(level: Level, isEditor = false): LevelData {
   const data: LevelData = {
@@ -14,6 +14,8 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
     doorsMap: {},
     apples: [],
     threats: [],
+    switches: [],
+    pipes: [],
     pickups: [],
     fireTiles: [],
     decoratives1: [],
@@ -96,7 +98,16 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
         data.decoratives2.push(vec);
       }
 
+      const switchType = TILE_CHAR_TO_SWITCH_TYPE[char];
+      if (switchType) {
+        data.switches.push({ type: switchType, vec });
+      }
+
       switch (char) {
+        case TILECHAR.Pipe:
+          data.pipes.push(vec);
+          break;
+
         case TILECHAR.Door:
         case TILECHAR.DoorAlt:
           data.doors.push(vec);

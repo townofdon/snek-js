@@ -74,6 +74,8 @@ describe('editorUtils', () => {
         portalsMap: {},
         playerSpawnPosition: new Vector(15, 15),
         startDirection: DIR.RIGHT,
+        switchesMap: {},
+        pipesMap: {},
       }
       const encoded = encodeMapData(data, options);
       const [decodedData, decodedOptions] = decodeMapData(encoded);
@@ -148,6 +150,8 @@ describe('editorUtils', () => {
         },
         playerSpawnPosition: new Vector(15, 15),
         startDirection: DIR.LEFT,
+        switchesMap: {},
+        pipesMap: {},
       }
       const encoded = encodeMapData(data, options);
       const [decodedData, decodedOptions] = decodeMapData(encoded);
@@ -232,6 +236,8 @@ describe('editorUtils', () => {
         portalsMap: {},
         playerSpawnPosition: new Vector(13, 13),
         startDirection: DIR.DOWN,
+        switchesMap: {},
+        pipesMap: {},
       }
       const B1 = BarrierType.Default;
       for (let i = 0; i < 29; i++) {
@@ -366,6 +372,8 @@ describe('editorUtils', () => {
         },
         playerSpawnPosition: new Vector(0, 0),
         startDirection: DIR.RIGHT,
+        switchesMap: {},
+        pipesMap: {},
       }
       const layout = buildMapLayout(data);
       const expected = `
@@ -423,6 +431,8 @@ describe('editorUtils', () => {
             locksMap: {},
             playerSpawnPosition: new Vector(0, 0),
             startDirection: DIR.RIGHT,
+            switchesMap: {},
+            pipesMap: {},
           };
           for (let y = 0; y < GRIDCOUNT_Y; y++) {
             for (let x = 0; x < GRIDCOUNT_X; x++) {

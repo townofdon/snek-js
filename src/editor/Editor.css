@@ -1,7 +1,7 @@
 
 :root {
   --editor-tile-sprite-img: url('assets/graphics/editor-tiles.png');
-  --editor-tile-sprite-background-size: 992px 32px;
+  --editor-tile-sprite-background-size: 1056px 32px;
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url('assets/graphics/editor-tools-200.png');
@@ -286,6 +286,12 @@ button,
   }
   &.explodableBarrel {
     background-position-x: calc(-16 * var(--editor-tile-sprite-width));
+  }
+  &.switch {
+    background-position-x: calc(-17 * var(--editor-tile-sprite-width));
+  }
+  &.pipe {
+    background-position-x: calc(-18 * var(--editor-tile-sprite-width));
   }
 }
 

@@ -1,4 +1,4 @@
-import { BarrierType, FloodFillTile, Level, PickupType, ThreatType } from "../types";
+import { BarrierType, FloodFillTile, Level, PickupType, SwitchType, ThreatType } from "../types";
 import { LEVEL_00 } from "./campaign/level00";
 import { LEVEL_01 } from "./campaign/level01";
 import { LEVEL_02 } from "./campaign/level02";
@@ -238,7 +238,14 @@ export enum TILECHAR {
   LaserDiode = '^',
   ExplodableBarrel = '&',
   Bomb = '[',
+  Spikes = '<',
+  WallSpikes = '>',
+  Saw = ']',
+  Flamethrower = '{',
+  Button = '?',
+  Pipe = 'P',
   PlayerSpawn = 'O',
+  // available chars: ISU;',.}|/:"()
 }
 
 // validate TILECHAR
@@ -268,7 +275,7 @@ export enum TILECHAR {
 
 export const TILE_TO_FLOOD_FILL_TILE: Record<Tile, FloodFillTile> = {
   [Tile.None]: 0,
-  [Tile.Barrier]: 0,
+  [Tile.Barrier]: 0, // handled by BARRIER_TYPE_TO_FLOOD_FILL_TILE
   [Tile.Door]: FloodFillTile.Door,
   [Tile.Deco1]: FloodFillTile.Deco1,
   [Tile.Deco2]: FloodFillTile.Deco2,
@@ -279,10 +286,12 @@ export const TILE_TO_FLOOD_FILL_TILE: Record<Tile, FloodFillTile> = {
   [Tile.Spawn]: 0,
   [Tile.Nospawn]: FloodFillTile.Nospawn,
   [Tile.Passable]: FloodFillTile.Passable,
-  [Tile.Threat]: 0,
+  [Tile.Threat]: 0, // handled by THREAT_TYPE_TO_FLOOD_FILL_TILE
   [Tile.Invincibility]: FloodFillTile.PickupInvincibility,
   [Tile.Reversibility]: FloodFillTile.PickupReversibility,
   [Tile.Armor]: FloodFillTile.PickupArmor,
+  [Tile.Switch]: 0, // handled by SWITCH_TYPE_TO_FLOOD_FILL_TILE
+  [Tile.Pipe]: FloodFillTile.Pipe,
 } satisfies Record<Tile, FloodFillTile>;
 
 export const BARRIER_TYPE_TO_TILE_CHAR = {
@@ -493,11 +502,17 @@ export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<FloodFillTile, BarrierType>
   [FloodFillTile.ThreatBomb]: 0,
   [FloodFillTile.ThreatLaserDiode]: 0,
   [FloodFillTile.ThreatExplodableBarrel]: 0,
+  [FloodFillTile.ThreatSpikes]: 0,
+  [FloodFillTile.ThreatWallSpikes]: 0,
+  [FloodFillTile.ThreatSaw]: 0,
+  [FloodFillTile.ThreatFlamethrower]: 0,
   [FloodFillTile.PickupInvincibility]: 0,
   [FloodFillTile.PickupReversibility]: 0,
   [FloodFillTile.PickupArmor]: 0,
   [FloodFillTile.PickupHealthPack]: 0,
   [FloodFillTile.PickupWeightLossPill]: 0,
+  [FloodFillTile.SwitchButton]: 0,
+  [FloodFillTile.Pipe]: 0,
 } satisfies Record<FloodFillTile, BarrierType>;
 
 type PowerupPickup =
@@ -610,14 +625,22 @@ type ThreatTileChar =
   | TILECHAR.Mine
   | TILECHAR.LaserDiode
   | TILECHAR.ExplodableBarrel
-  | TILECHAR.Bomb;
+  | TILECHAR.Bomb
+  | TILECHAR.Spikes
+  | TILECHAR.WallSpikes
+  | TILECHAR.Saw
+  | TILECHAR.Flamethrower;
 
 type ThreatFloodFillTile =
   | FloodFillTile.None
   | FloodFillTile.ThreatMine
   | FloodFillTile.ThreatBomb
   | FloodFillTile.ThreatLaserDiode
-  | FloodFillTile.ThreatExplodableBarrel;
+  | FloodFillTile.ThreatExplodableBarrel
+  | FloodFillTile.ThreatSpikes
+  | FloodFillTile.ThreatWallSpikes
+  | FloodFillTile.ThreatSaw
+  | FloodFillTile.ThreatFlamethrower;
 
 export const THREAT_TYPE_TO_TILE_CHAR: Record<ThreatType, TILECHAR> = {
   [ThreatType.None]: TILECHAR.None,
@@ -625,6 +648,10 @@ export const THREAT_TYPE_TO_TILE_CHAR: Record<ThreatType, TILECHAR> = {
   [ThreatType.LaserDiode]: TILECHAR.LaserDiode,
   [ThreatType.ExplodableBarrel]: TILECHAR.ExplodableBarrel,
   [ThreatType.Bomb]: TILECHAR.Bomb,
+  [ThreatType.Spikes]: TILECHAR.Spikes,
+  [ThreatType.WallSpikes]: TILECHAR.WallSpikes,
+  [ThreatType.Saw]: TILECHAR.Saw,
+  [ThreatType.Flamethrower]: TILECHAR.Flamethrower,
 } satisfies Record<ThreatType, TILECHAR>;
 
 export const TILE_CHAR_TO_THREAT_TYPE = {
@@ -632,6 +659,10 @@ export const TILE_CHAR_TO_THREAT_TYPE = {
   [TILECHAR.LaserDiode]: ThreatType.LaserDiode,
   [TILECHAR.ExplodableBarrel]: ThreatType.ExplodableBarrel,
   [TILECHAR.Bomb]: ThreatType.Bomb,
+  [TILECHAR.Spikes]: ThreatType.Spikes,
+  [TILECHAR.WallSpikes]: ThreatType.WallSpikes,
+  [TILECHAR.Saw]: ThreatType.Saw,
+  [TILECHAR.Flamethrower]: ThreatType.Flamethrower,
 } satisfies Record<ThreatTileChar, ThreatType>;
 
 export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> = {
@@ -640,6 +671,10 @@ export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> =
   [ThreatType.LaserDiode]: FloodFillTile.ThreatLaserDiode,
   [ThreatType.ExplodableBarrel]: FloodFillTile.ThreatExplodableBarrel,
   [ThreatType.Bomb]: FloodFillTile.ThreatBomb,
+  [ThreatType.Spikes]: FloodFillTile.ThreatSpikes,
+  [ThreatType.WallSpikes]: FloodFillTile.ThreatWallSpikes,
+  [ThreatType.Saw]: FloodFillTile.ThreatSaw,
+  [ThreatType.Flamethrower]: FloodFillTile.ThreatFlamethrower,
 } satisfies Record<ThreatType, FloodFillTile>
 
 export const FLOOD_FILL_TILE_TO_THREAT_TYPE: Record<ThreatFloodFillTile, ThreatType> = {
@@ -648,4 +683,34 @@ export const FLOOD_FILL_TILE_TO_THREAT_TYPE: Record<ThreatFloodFillTile, ThreatT
   [FloodFillTile.ThreatBomb]: ThreatType.Bomb,
   [FloodFillTile.ThreatLaserDiode]: ThreatType.LaserDiode,
   [FloodFillTile.ThreatExplodableBarrel]: ThreatType.ExplodableBarrel,
+  [FloodFillTile.ThreatSpikes]: ThreatType.Spikes,
+  [FloodFillTile.ThreatWallSpikes]: ThreatType.WallSpikes,
+  [FloodFillTile.ThreatSaw]: ThreatType.Saw,
+  [FloodFillTile.ThreatFlamethrower]: ThreatType.Flamethrower,
 } satisfies Record<ThreatFloodFillTile, ThreatType>;
+
+type SwitchTileChar =
+  | TILECHAR.Button;
+
+type SwitchFloodFillTile =
+  | FloodFillTile.None
+  | FloodFillTile.SwitchButton;
+
+export const SWITCH_TYPE_TO_TILE_CHAR: Record<SwitchType, TILECHAR> = {
+  [SwitchType.None]: TILECHAR.None,
+  [SwitchType.Button]: TILECHAR.Button,
+} satisfies Record<SwitchType, TILECHAR>
+
+export const TILE_CHAR_TO_SWITCH_TYPE: Record<SwitchTileChar, SwitchType> = {
+  [TILECHAR.Button]: SwitchType.Button,
+} satisfies Record<SwitchTileChar, SwitchType>
+
+export const SWITCH_TYPE_TO_FLOOD_FILL_TILE: Record<SwitchType, FloodFillTile> = {
+  [SwitchType.None]: FloodFillTile.None,
+  [SwitchType.Button]: FloodFillTile.SwitchButton,
+} satisfies Record<SwitchType, FloodFillTile>
+
+export const FLOOD_FILL_TILE_TO_SWITCH_TYPE: Record<SwitchFloodFillTile, SwitchType> = {
+  [FloodFillTile.None]: SwitchType.None,
+  [FloodFillTile.SwitchButton]: SwitchType.Button,
+} satisfies Record<SwitchFloodFillTile, SwitchType>

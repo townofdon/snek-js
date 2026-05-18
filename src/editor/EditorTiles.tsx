@@ -31,6 +31,8 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Invincibility]: styles.invincibility,
       [Tile.Reversibility]: styles.reversibility,
       [Tile.Armor]: styles.shield,
+      [Tile.Switch]: styles.switch,
+      [Tile.Pipe]: styles.pipe,
     } satisfies Record<Tile, any>)[tile]
     const tileShortcut = ({
       [Tile.None]: null,
@@ -49,6 +51,8 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Invincibility]: null,
       [Tile.Reversibility]: null,
       [Tile.Armor]: null,
+      [Tile.Switch]: null,
+      [Tile.Pipe]: null,
     } satisfies Record<Tile, any>)[tile]
     return (
       <div className={cx(styles.stack, styles.justifyEnd)}>
@@ -79,6 +83,8 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       {renderTile(Tile.Invincibility)}
       {renderTile(Tile.Armor)}
       {renderTile(Tile.Reversibility)}
+      {renderTile(Tile.Switch)}
+      {renderTile(Tile.Pipe)}
     </div>
   )
 }

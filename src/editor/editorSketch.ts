@@ -118,6 +118,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     lasersMap: {},
     playerSpawnPosition: EDITOR_DEFAULTS.data.playerSpawnPosition.copy(),
     startDirection: EDITOR_DEFAULTS.data.startDirection,
+    switchesMap: {},
+    pipesMap: {},
   } satisfies ExtendedSketchData;
   const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig'> = {
     globalLight: EDITOR_DEFAULTS.options.globalLight,
@@ -177,6 +179,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         case 'portalsMap':
         case 'threatsMap':
         case 'pickupsMap':
+        case 'switchesMap':
+        case 'pipesMap':
           if (getIsDiff(key)) {
             // @ts-ignore
             data[key] = { ...incoming[key] };
@@ -579,6 +583,10 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             case ThreatType.ExplodableBarrel:
               spriteRenderer.drawImage3x3Static(gfx, Image.ThreatSheet48, x, y, 0, 1, 0, Threat48Frame.Barrel - 1, FRAME_COUNT_THREAT_48);
               break;
+            // TODO: DRAW ADD'L THREATS
+            case ThreatType.Spikes:
+            case ThreatType.WallSpikes:
+            case ThreatType.Saw:
             default:
               break;
           }

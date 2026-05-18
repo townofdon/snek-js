@@ -11,7 +11,7 @@ import { buildLevel } from '../../levels/levelBuilder';
 import { LEVEL_01 } from '../../levels/campaign/level01';
 import { EDITOR_DEFAULTS } from '../editorConstants';
 import { indexToMusicTrack, musicTracktoIndex } from './musicTrackUtils';
-import { BARRIER_TYPE_TO_TILE_CHAR, PICKUP_TYPE_TO_TILE_CHAR, THREAT_TYPE_TO_TILE_CHAR, TILECHAR } from '@/levels/levelConstants';
+import { BARRIER_TYPE_TO_TILE_CHAR, PICKUP_TYPE_TO_TILE_CHAR, SWITCH_TYPE_TO_TILE_CHAR, THREAT_TYPE_TO_TILE_CHAR, TILECHAR } from '@/levels/levelConstants';
 
 const MASK_BASE_64 = true;
 
@@ -184,6 +184,8 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     decoratives2Map: { ...levelData.decoratives2Map },
     nospawnsMap: { ...levelData.nospawnsMap },
     threatsMap: {},
+    switchesMap: {},
+    pipesMap: {},
     pickupsMap: {},
     applesMap: {},
     keysMap: {},
@@ -336,6 +338,9 @@ export function buildMapLayout(data: EditorData): string {
     if (data.threatsMap[coord]) {
       return THREAT_TYPE_TO_TILE_CHAR[data.threatsMap[coord]] || TILECHAR.BarrierExitSign;
     }
+    if (data.switchesMap[coord]) {
+      return SWITCH_TYPE_TO_TILE_CHAR[data.switchesMap[coord]] || TILECHAR.Button;
+    }
     if (data.pickupsMap[coord]) {
       return PICKUP_TYPE_TO_TILE_CHAR[data.pickupsMap[coord]] || TILECHAR.Mine;
     }
@@ -395,6 +400,8 @@ export function deepCloneData(data: EditorData): EditorData {
     nospawnsMap: getMapSliceWithDefaults(data.nospawnsMap),
     applesMap: getMapSliceWithDefaults(data.applesMap),
     threatsMap: getMapSliceWithDefaults(data.threatsMap),
+    switchesMap: getMapSliceWithDefaults(data.switchesMap),
+    pipesMap: getMapSliceWithDefaults(data.pipesMap),
     pickupsMap: getMapSliceWithDefaults(data.pickupsMap),
     keysMap: getMapSliceWithDefaults(data.keysMap),
     locksMap: getMapSliceWithDefaults(data.locksMap),
@@ -414,6 +421,8 @@ export function mergeData(data: EditorData, incoming: Partial<EditorData>): Edit
     nospawnsMap: { ...data.nospawnsMap, ...incoming.nospawnsMap },
     applesMap: { ...data.applesMap, ...incoming.applesMap },
     threatsMap: { ...data.threatsMap, ...incoming.threatsMap },
+    switchesMap: { ...data.switchesMap, ...incoming.switchesMap },
+    pipesMap: { ...data.pipesMap, ...incoming.pipesMap },
     pickupsMap: { ...data.pickupsMap, ...incoming.pickupsMap },
     keysMap: { ...data.keysMap, ...incoming.keysMap },
     locksMap: { ...data.locksMap, ...incoming.locksMap },
@@ -427,6 +436,8 @@ export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coor
   const newData: EditorData = {
     applesMap: { [coord ?? incoming.coord]: incoming.apple },
     threatsMap: { [coord ?? incoming.coord]: incoming.threat },
+    switchesMap: { [coord ?? incoming.coord]: incoming.switch },
+    pipesMap: { [coord ?? incoming.coord]: incoming.pipe },
     pickupsMap: { [coord ?? incoming.coord]: incoming.pickup },
     barriersMap: { [coord ?? incoming.coord]: incoming.barrier },
     decoratives1Map: { [coord ?? incoming.coord]: incoming.deco1 },
@@ -440,20 +451,5 @@ export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coor
     playerSpawnPosition: incoming.playerSpawnPosition,
     startDirection: incoming.startDirection,
   }
-  return {
-    applesMap: { ...data.applesMap, ...newData.applesMap },
-    threatsMap: { ...data.threatsMap, ...newData.threatsMap },
-    pickupsMap: { ...data.pickupsMap, ...newData.pickupsMap },
-    barriersMap: { ...data.barriersMap, ...newData.barriersMap },
-    decoratives1Map: { ...data.decoratives1Map, ...newData.decoratives1Map },
-    decoratives2Map: { ...data.decoratives2Map, ...newData.decoratives2Map },
-    doorsMap: { ...data.doorsMap, ...newData.doorsMap },
-    keysMap: { ...data.keysMap, ...newData.keysMap },
-    locksMap: { ...data.locksMap, ...newData.locksMap },
-    nospawnsMap: { ...data.nospawnsMap, ...newData.nospawnsMap },
-    passablesMap: { ...data.passablesMap, ...newData.passablesMap },
-    portalsMap: { ...data.portalsMap, ...newData.portalsMap },
-    playerSpawnPosition: newData.playerSpawnPosition ? newData.playerSpawnPosition.copy() : data.playerSpawnPosition,
-    startDirection: newData.startDirection ? newData.startDirection : data.startDirection,
-  };
+  return mergeData(data, newData);
 }

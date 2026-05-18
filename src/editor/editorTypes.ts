@@ -18,4 +18,6 @@ export enum Tile {
   Invincibility,
   Reversibility,
   Armor,
+  Switch,
+  Pipe,
 }

@@ -594,6 +594,22 @@ export interface Barrier {
   vec: Vector,
 }
 
+export enum SwitchType {
+  None = 0,
+  Button,
+}
+export const SWITCH_TYPE_MAX = Math.max(...Object.values(SwitchType).filter(v => typeof v === 'number')) + 1;
+
+export enum PipeType {
+  None = 0,
+  Green,
+  Orange,
+  White,
+  Cobalt,
+  Flat,
+  Themed,
+}
+
 export interface LevelPickup {
   type: PickupType,
   vec: Vector,
@@ -604,12 +620,21 @@ export interface LevelThreat {
   vec: Vector,
 }
 
+export interface LevelSwitch {
+  type: SwitchType,
+  vec: Vector,
+}
+
 export enum ThreatType {
   None = 0,
   Mine,
   Bomb,
   LaserDiode,
   ExplodableBarrel,
+  Spikes,
+  WallSpikes,
+  Saw,
+  Flamethrower,
 }
 export const THREAT_TYPE_MAX = Math.max(...Object.values(ThreatType).filter(v => typeof v === 'number')) + 1;
 
@@ -693,11 +718,17 @@ export enum FloodFillTile {
   ThreatBomb,
   ThreatLaserDiode,
   ThreatExplodableBarrel,
+  ThreatSpikes,
+  ThreatWallSpikes,
+  ThreatSaw,
+  ThreatFlamethrower,
   PickupInvincibility,
   PickupReversibility,
   PickupArmor,
   PickupHealthPack,
   PickupWeightLossPill,
+  SwitchButton,
+  Pipe,
 };
 
 export enum InputAction {
@@ -748,7 +779,9 @@ export type Maybe<T> = T | null | undefined;
 
 export interface EditorData {
   applesMap: Record<number, Maybe<boolean>>,
-  threatsMap: Record<number, ThreatType>,
+  threatsMap: Record<number, Maybe<ThreatType>>,
+  switchesMap: Record<number, Maybe<SwitchType>>,
+  pipesMap: Record<number, Maybe<boolean>>,
   pickupsMap: Record<number, PickupType>,
   barriersMap: Record<number, Maybe<BarrierType>>,
   decoratives1Map: Record<number, Maybe<boolean>>,
@@ -767,6 +800,8 @@ export interface EditorDataSlice {
   coord: number,
   apple: Maybe<boolean>,
   threat: Maybe<ThreatType>,
+  switch: Maybe<SwitchType>,
+  pipe: Maybe<boolean>,
   pickup: Maybe<PickupType>,
   barrier: Maybe<BarrierType>,
   deco1: Maybe<boolean>,
@@ -787,6 +822,8 @@ export interface LevelData {
   apples: Vector[],
   threats: LevelThreat[],
   pickups: LevelPickup[],
+  switches: LevelSwitch[],
+  pipes: Vector[],
   fireTiles: Vector[],
   decoratives1: Vector[],
   decoratives2: Vector[],

@@ -24,6 +24,10 @@ export const SidebarThreatTypes = ({ activeThreatType, options, setThreatType }:
     [ThreatType.Bomb]: useRef<HTMLCanvasElement>(null),
     [ThreatType.LaserDiode]: useRef<HTMLCanvasElement>(null),
     [ThreatType.ExplodableBarrel]: useRef<HTMLCanvasElement>(null),
+    [ThreatType.Spikes]: useRef<HTMLCanvasElement>(null),
+    [ThreatType.WallSpikes]: useRef<HTMLCanvasElement>(null),
+    [ThreatType.Saw]: useRef<HTMLCanvasElement>(null),
+    [ThreatType.Flamethrower]: useRef<HTMLCanvasElement>(null),
   } satisfies Record<ThreatType, React.MutableRefObject<HTMLCanvasElement>>;
 
   useLayoutEffect(() => {
@@ -54,6 +58,10 @@ export const SidebarThreatTypes = ({ activeThreatType, options, setThreatType }:
       [ThreatType.Bomb]: "2",
       [ThreatType.LaserDiode]: "3",
       [ThreatType.ExplodableBarrel]: "4",
+      [ThreatType.Spikes]: "5",
+      [ThreatType.WallSpikes]: "6",
+      [ThreatType.Saw]: "7",
+      [ThreatType.Flamethrower]: "8",
     } satisfies Record<ThreatType, string>)[threatType];
     const color = threatType === activeThreatType ? '#ffffff' : '#444'
     return (
@@ -90,6 +98,10 @@ export const SidebarThreatTypes = ({ activeThreatType, options, setThreatType }:
           {renderButton(ThreatType.Bomb)}
           {renderButton(ThreatType.LaserDiode)}
           {renderButton(ThreatType.ExplodableBarrel)}
+          {renderButton(ThreatType.Spikes)}
+          {renderButton(ThreatType.WallSpikes)}
+          {renderButton(ThreatType.Saw)}
+          {renderButton(ThreatType.Flamethrower)}
         </div>
       </Stack>
     </div>
@@ -103,6 +115,10 @@ const threatTypeLabel = (threatType: ThreatType) => {
     [ThreatType.Bomb]: "Bomb",
     [ThreatType.LaserDiode]: "Laser Diode",
     [ThreatType.ExplodableBarrel]: "Explodable Barrel",
+    [ThreatType.Spikes]: "Spikes",
+    [ThreatType.WallSpikes]: "Wall Spikes",
+    [ThreatType.Saw]: "Saw",
+    [ThreatType.Flamethrower]: "Flamethrower",
   } satisfies Record<ThreatType, string>)[threatType];
   return tooltipText || 'Unknown';
 }

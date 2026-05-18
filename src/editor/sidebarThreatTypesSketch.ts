@@ -64,6 +64,10 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
       [ThreatType.Bomb]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Bomb].current),
       [ThreatType.LaserDiode]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.LaserDiode].current),
       [ThreatType.ExplodableBarrel]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.ExplodableBarrel].current),
+      [ThreatType.Spikes]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Spikes].current),
+      [ThreatType.WallSpikes]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.WallSpikes].current),
+      [ThreatType.Saw]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Saw].current),
+      [ThreatType.Flamethrower]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Flamethrower].current),
     } satisfies Record<ThreatType, P5.Graphics>;
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
@@ -120,6 +124,8 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
       spriteRenderer.drawSpritesheetAnim1x1(gfx[ThreatType.Bomb], SpritesheetRange.Bomb, x, y, 0);
       spriteRenderer.drawSpritesheetAnim1x1(gfx[ThreatType.LaserDiode], SpritesheetRange.DiodeBlue, x, y, 0);
       spriteRenderer.drawSpritesheetAnim3x3(gfx[ThreatType.ExplodableBarrel], SpritesheetRange.Barrel, x, y, 0);
+
+      // TODO: DRAW ADD'L THREATS
     }
   }
 

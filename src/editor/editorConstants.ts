@@ -34,6 +34,8 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
     portalsMap: {},
     playerSpawnPosition: levelData.playerSpawnPosition.copy(),
     startDirection: DIR.RIGHT,
+    switchesMap: {},
+    pipesMap: {},
   },
   options: {
     name: 'Untitled Map',

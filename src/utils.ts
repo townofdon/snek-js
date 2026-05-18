@@ -50,6 +50,8 @@ import {
   ICollection,
   IFlaggable,
   ThreatFlag,
+  SwitchType,
+  SWITCH_TYPE_MAX,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -558,6 +560,11 @@ export const isValidPickupType = (pickupType: number): pickupType is PickupType 
 export const isValidThreatType = (threatType: number): threatType is ThreatType => {
   if (threatType === null || threatType === undefined) return false;
   return Number.isInteger(threatType) && threatType > 0 && threatType < THREAT_TYPE_MAX;
+}
+
+export const isValidSwitchType = (switchType: number): switchType is SwitchType => {
+  if (switchType === null || switchType === undefined) return false;
+  return Number.isInteger(switchType) && switchType > 0 && switchType < SWITCH_TYPE_MAX;
 }
 
 export const isBreakableBarrier = (barrierType: BarrierType): boolean => {

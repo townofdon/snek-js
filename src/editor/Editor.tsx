@@ -6,7 +6,7 @@ import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, getRelativeDir, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { EDITOR_DEFAULTS } from "./editorConstants";
-import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel, ThreatType } from "../types";
+import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel, SwitchType, ThreatType } from "../types";
 import { Tile } from "./editorTypes";
 import { useRefState } from "./hooks/useRefState";
 import { useLoadMapData } from "./hooks/useLoadMapData";
@@ -37,12 +37,15 @@ import {
   SetLineLockCommand,
   SetLineNospawnCommand,
   SetLinePassableCommand,
+  SetLinePipeCommand,
   SetLinePortalCommand,
   SetLineReversibilityCommand,
+  SetLineSwitchCommand,
   SetLineThreatCommand,
   SetLockCommand,
   SetNospawnCommand,
   SetPassableCommand,
+  SetPipeCommand,
   SetPlayerSpawnCommand,
   SetPortalCommand,
   SetRectangleAppleCommand,
@@ -56,10 +59,13 @@ import {
   SetRectangleLockCommand,
   SetRectangleNospawnCommand,
   SetRectanglePassableCommand,
+  SetRectanglePipeCommand,
   SetRectanglePortalCommand,
   SetRectangleReversibilityCommand,
+  SetRectangleSwitchCommand,
   SetRectangleThreatCommand,
   SetReversibilityCommand,
+  SetSwitchCommand,
   SetThreatCommand,
 } from "./commands";
 import { MouseButton, SpecialKey, findNumberPressed, getIsOutside, isCharPressed, isNumberPressed } from "./utils/keyboardUtils";
@@ -105,6 +111,7 @@ export const Editor = () => {
   const [tile, tileRef, _setTile] = useRefState(Tile.Barrier);
   const [barrierType, barrierTypeRef, setBarrierType] = useRefState(BarrierType.Default);
   const [threatType, threatTypeRef, setThreatType] = useRefState(ThreatType.Mine);
+  const [switchType, switchTypeRef, setSwitchType] = useRefState(SwitchType.Button);
   const [keyChannel, keyChannelRef, setKeyChannel] = useRefState(KeyChannel.Yellow);
   const [portalChannel, portalChannelRef, setPortalChannel] = useRefState<PortalChannel>(0);
 
@@ -165,6 +172,10 @@ export const Editor = () => {
         ThreatType.Bomb,
         ThreatType.LaserDiode,
         ThreatType.ExplodableBarrel,
+        ThreatType.Spikes,
+        ThreatType.WallSpikes,
+        ThreatType.Saw,
+        ThreatType.Flamethrower,
       ]
       const idx = order.indexOf(threatTypeRef.current);
       setThreatType(idx >= 0 ? order[(idx + order.length + direction) % order.length] : ThreatType.Mine);
@@ -190,6 +201,8 @@ export const Editor = () => {
       Tile.Invincibility,
       Tile.Armor,
       Tile.Reversibility,
+      Tile.Switch,
+      Tile.Pipe,
     ];
     const idx = order.indexOf(tileRef.current ?? Tile.None);
     if (idx < 0 || tileRef.current === Tile.None) {
@@ -241,6 +254,11 @@ export const Editor = () => {
         return new SetNospawnCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Passable:
         return new SetPassableCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.Switch:
+        return new SetSwitchCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, switchTypeRef.current);
+      case Tile.Pipe:
+        return new SetPipeCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.None:
       default:
         throw new Error(`unhandled tile: ${tileRef.current}`);
     }
@@ -282,6 +300,11 @@ export const Editor = () => {
         return new SetLineNospawnCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Passable:
         return new SetLinePassableCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Switch:
+        return new SetLineSwitchCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, switchTypeRef.current);
+      case Tile.Pipe:
+        return new SetLinePipeCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.None:
       default:
         throw new Error(`unhandled tile: ${tileRef.current}`);
     }
@@ -323,6 +346,11 @@ export const Editor = () => {
         return new SetRectangleNospawnCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Passable:
         return new SetRectanglePassableCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Switch:
+        return new SetRectangleSwitchCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, switchTypeRef.current);
+      case Tile.Pipe:
+        return new SetRectanglePipeCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.None:
       default:
         throw new Error(`unhandled tile: ${tileRef.current}`);
     }
@@ -371,9 +399,20 @@ export const Editor = () => {
       const x = Math.floor(mouseAtRef.current % GRIDCOUNT_X);
       const y = Math.floor(mouseAtRef.current / GRIDCOUNT_X);
       if (operation === Operation.Remove) {
-        return new FloodFillEmptyCommand(x, y, portalChannelRef.current, keyChannelRef.current, barrierTypeRef.current, threatTypeRef.current, dataRef, setData);
+        return new FloodFillEmptyCommand(x, y, dataRef, setData);
       } else {
-        return new FloodFillCommand(tileRef.current, x, y, portalChannelRef.current, keyChannelRef.current, barrierTypeRef.current, threatTypeRef.current, dataRef, setData);
+        return new FloodFillCommand(
+          tileRef.current,
+          x,
+          y,
+          portalChannelRef.current,
+          keyChannelRef.current,
+          barrierTypeRef.current,
+          threatTypeRef.current,
+          switchTypeRef.current,
+          dataRef,
+          setData,
+        );
       }
     }
     throw Error('not implemented');
