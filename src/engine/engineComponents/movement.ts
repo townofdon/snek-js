@@ -331,13 +331,13 @@ export function engineMovement({
     if (es.threatsMap[coord] === ThreatType.Barricade && !state.isButtonPressed) {
       return DamageType.HitBarrier;
     }
-    if (es.threatsMap[coord] === ThreatType.Spikes && !state.isButtonPressed) {
+    if (es.threatsMap[coord] === ThreatType.Spikes && !state.isButtonPressed && !invincible) {
       return DamageType.SpikePierce;
     }
-    if (es.threatsMap[coord] === ThreatType.WallSpikes && !state.isButtonPressed) {
+    if (es.threatsMap[coord] === ThreatType.WallSpikes && !state.isButtonPressed && !invincible) {
       return DamageType.SpikePierce;
     }
-    if (es.threatsMap[coord] === ThreatType.Saw && !state.isButtonPressed) {
+    if (es.threatsMap[coord] === ThreatType.Saw && !state.isButtonPressed && !invincible) {
       return DamageType.SawCut;
     }
     return DamageType.None;

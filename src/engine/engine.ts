@@ -2383,6 +2383,7 @@ export function engine({
   function handleSnakeSpikeDeath() {
     if (state.isExitingLevel || state.isExited) return;
     if (state.isButtonPressed) return;
+    if (state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) return;
     if (state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY) return;
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
       const instadeath = false
