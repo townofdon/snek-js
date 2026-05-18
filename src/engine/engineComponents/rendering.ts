@@ -62,6 +62,7 @@ import {
   DamageType,
   ExplosionType,
   ThreatFlag,
+  ButtonSheetFrame,
 } from "@/types";
 import { UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
 import { Renderer } from "../renderer";
@@ -81,6 +82,7 @@ import {
   shouldBlinkExpiringPickup,
   toRarity,
   triangle,
+  withFlipx,
 } from "@/utils";
 import { VectorList } from "@/collections/vectorList";
 import { Gradients } from "@/collections/gradients";
@@ -358,12 +360,12 @@ export function engineRendering({
       spriteRenderer.drawImage3x3Static(gfxFG, Image.SnekHeadDead, vec.x, vec.y, getRotationFromDirection(dir), 1, -1);
       if (replay.mode !== ReplayMode.Playback) {
         // draw wearables
-        p5.push();
+        gfxFGAction.push();
         let rotation = getRotationFromDirection(dir);
         let wx = vec.x;
         if (dir === DIR.LEFT) {
           rotation = 0;
-          p5.scale(-1, 1);
+          gfxFGAction.scale(-1, 1);
           wx = -wx - 1;
         }
         if (outfit.exclusive) {
@@ -372,7 +374,7 @@ export function engineRendering({
         if (outfit.hair && !outfit.exclusive) {
           spriteRenderer.drawSprite3x3(gfxFGAction, Image.WearablesSheet, wx, vec.y, outfit.hair - 1, rotation);
         }
-        p5.pop();
+        gfxFGAction.pop();
         // show hat, eyewear as scattered across map
         if (outfit.eyes && !outfit.exclusive) {
           spriteRenderer.drawSprite3x3(gfxFGAction, Image.WearablesSheet, wx - 1, vec.y - 1, outfit.eyes - 1, 0);
@@ -682,6 +684,21 @@ export function engineRendering({
     }
   }
 
+  function drawSwitches() {
+    const gfx = renderer.getMainGfx();
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (es.switchesMap[coord]) {
+        const x = Math.floor(coord % GRIDCOUNT_X);
+        const y = Math.floor(coord / GRIDCOUNT_X);
+        if (state.isButtonPressed) {
+          spriteRenderer.drawSprite1x1(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.Button1Off - 1);
+        } else {
+          spriteRenderer.drawSprite1x1(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.Button1Ready - 1);
+        }
+      }
+    }
+  }
+
   function drawThreats(threats: AnimationList) {
     if (drawState.shouldDrawActionFG) {
       for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
@@ -722,12 +739,77 @@ export function engineRendering({
           } else {
             spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, SpritesheetRange.Barrel, x, y, elapsed);
           }
+        } else if (threats.existsAtCoord(coord, ThreatType.Spikes) && !state.isButtonPressed) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const elapsed = threats.getElapsedByCoord(coord);
+          spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.Spikes, x, y, elapsed);
+        } else if (threats.existsAtCoord(coord, ThreatType.WallSpikes) && !state.isButtonPressed) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const left = x > 0 ? getCoordIndex2(x - 1, y) : -1;
+          const right = x < GRIDCOUNT_X - 1 ? getCoordIndex2(x + 1, y) : -1;
+          const hasBarrierLeft = !!es.barriersMap[left];
+          const hasBarrierRight = !!es.barriersMap[right];
+          const elapsed = threats.getElapsedByCoord(coord);
+          withFlipx(gfxFGAction, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
+            spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, tx, ty, elapsed);
+          });
+        } else if (threats.existsAtCoord(coord, ThreatType.Saw) && !state.isButtonPressed) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const elapsed = threats.getElapsedByCoord(coord);
+          spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.SawActive, x, y, elapsed);
+        } else if (threats.existsAtCoord(coord, ThreatType.Flamethrower)) {
+          // TODO: DRAW ADD'L THREATS
+        }
+      }
+    }
+    // idle threats
+    if (state.isButtonPressed) {
+      const gfx = renderer.getMainGfx();
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+        if (threats.existsAtCoord(coord, ThreatType.Spikes)) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          spriteRenderer.drawSprite1x1(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeRetracted - 1);
+        } else if (threats.existsAtCoord(coord, ThreatType.WallSpikes)) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const left = x > 0 ? getCoordIndex2(x - 1, y) : -1;
+          const right = x < GRIDCOUNT_X - 1 ? getCoordIndex2(x + 1, y) : -1;
+          const hasBarrierLeft = !!es.barriersMap[left];
+          const hasBarrierRight = !!es.barriersMap[right];
+          const elapsed = threats.getElapsedByCoord(coord);
+          withFlipx(gfx, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
+            spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.WallSpikesRetract, tx, ty, elapsed);
+          })
+        } else if (threats.existsAtCoord(coord, ThreatType.Saw)) {
+          const x = Math.floor(coord % GRIDCOUNT_X);
+          const y = Math.floor(coord / GRIDCOUNT_X);
+          const elapsed = threats.getElapsedByCoord(coord);
+          spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.SawOff, x, y, elapsed);
+        }
+      }
+    }
+    // always drawn
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (threats.existsAtCoord(coord, ThreatType.Barricade)) {
+        const gfx = renderer.getMainGfx();
+        const x = Math.floor(coord % GRIDCOUNT_X);
+        const y = Math.floor(coord / GRIDCOUNT_X);
+        const elapsed = threats.getElapsedByCoord(coord);
+        if (state.isButtonPressed) {
+          spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.BarricadeRetract, x, y, elapsed);
+        } else {
+          spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.BarricadeDeploy, x, y, elapsed);
         }
       }
     }
   }
 
   function drawLasers() {
+    if (state.isButtonPressed) return;
     for (let y = 0; y < GRIDCOUNT_Y; y++) {
       for (let x = 0; x < GRIDCOUNT_X; x++) {
         const coord = getCoordIndex2(x, y);
@@ -1310,6 +1392,7 @@ export function engineRendering({
     drawPlayerSegment,
     erasePlayerSegmentCorner,
     drawApple,
+    drawSwitches,
     drawThreats,
     drawLasers,
     drawPrey,

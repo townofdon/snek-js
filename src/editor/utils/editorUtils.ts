@@ -216,6 +216,14 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     const coord = getCoordIndex2(threat.vec.x, threat.vec.y);
     data.threatsMap[coord] = threat.type;
   });
+  levelData.switches.forEach(item => {
+    const coord = getCoordIndex2(item.vec.x, item.vec.y);
+    data.switchesMap[coord] = item.type;
+  })
+  levelData.pipes.forEach(item => {
+    const coord = getCoordIndex2(item.x, item.y);
+    data.pipesMap[coord] = true;
+  })
   levelData.pickups.forEach(item => {
     const coord = getCoordIndex2(item.vec.x, item.vec.y);
     data.pickupsMap[coord] = item.type;

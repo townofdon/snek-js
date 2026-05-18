@@ -4,6 +4,7 @@ import Color from "color";
 import {
   AnimationData,
   AnimationDataForRange,
+  ButtonSheetFrame,
   Difficulty,
   Image,
   MusicTrack,
@@ -13,10 +14,11 @@ import {
   SpritesheetRange,
   Threat16Frame,
   Threat48Frame,
+  ThreatSawFrame,
+  ThreatWallSpikesFrame,
   WearableFrame,
   WearableType,
 } from "./types";
-import { isValidSpritesheetRange } from "./utils";
 
 export const TITLE = 'SNEK';
 
@@ -128,6 +130,7 @@ export const BARREL_CRIT_LIFETIME = 2000;
 export const BARREL_CASCADE_LIFETIME = 400;
 export const THREAT_LASER_MAX_SPAN = 7;
 export const SMOKE_LIFETIME = 4000;
+export const BUTTON_RELEASE_DAMAGE_DELAY = 400;
 
 export const TIME_WAIT_BEFORE_REWIND = 80;
 export const TIME_REWIND_TAKEOVER_CONTROLS = 200;
@@ -554,6 +557,18 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frames: 19,
     timePerFrame: 200,
   } satisfies AnimationData,
+  [Image.ButtonSheet]: {
+    frames: 20,
+    timePerFrame: 200,
+  } satisfies AnimationData,
+  [Image.ThreatWallSpikesSheet]: {
+    frames: 17,
+    timePerFrame: 200,
+  } satisfies AnimationData,
+  [Image.ThreatSawSheet]: {
+    frames: 12,
+    timePerFrame: 200,
+  } satisfies AnimationData,
   [SpritesheetRange.None]: {
     src: Image.SegmentsSheet,
     offset: 0,
@@ -627,6 +642,56 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     offset: Threat48Frame.BarrelRupture0 - 1,
     frames: 4,
     timePerFrame: 200,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.BarricadeDeploy]: {
+    src: Image.ButtonSheet,
+    offset: ButtonSheetFrame.BarricadeActive0 - 1,
+    frames: 3,
+    timePerFrame: 100,
+    oneShot: true,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.BarricadeRetract]: {
+    src: Image.ButtonSheet,
+    offset: ButtonSheetFrame.BarricadeCollapse0 - 1,
+    frames: 3,
+    timePerFrame: 100,
+    oneShot: true,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.Spikes]: {
+    src: Image.ButtonSheet,
+    offset: ButtonSheetFrame.SpikeActive0 - 1,
+    frames: 6,
+    timePerFrame: 100,
+    durations: [1200, 100, 100, 100, 100, 100],
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.WallSpikesDeploy]: {
+    src: Image.ThreatWallSpikesSheet,
+    offset: ThreatWallSpikesFrame.Active0 - 1,
+    frames: 10,
+    timePerFrame: 100,
+    loopFrameOffset: 4,
+    durations: [200, 200, 100, 100, 1200, 100, 100, 100, 100, 100],
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.WallSpikesRetract]: {
+    src: Image.ThreatWallSpikesSheet,
+    offset: ThreatWallSpikesFrame.Retract0 - 1,
+    frames: 4,
+    timePerFrame: 100,
+    oneShot: true,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.SawActive]: {
+    src: Image.ThreatSawSheet,
+    offset: ThreatSawFrame.Active0 - 1,
+    frames: 9,
+    timePerFrame: 100,
+    loopFrameOffset: 3,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.SawOff]: {
+    src: Image.ThreatSawSheet,
+    offset: ThreatSawFrame.Retract0 - 1,
+    frames: 2,
+    timePerFrame: 100,
+    oneShot: true,
   } satisfies AnimationDataForRange,
 } satisfies (Record<SpritesheetImage, AnimationData> & Record<SpritesheetRange, AnimationDataForRange>);
 

@@ -172,6 +172,7 @@ export const Editor = () => {
         ThreatType.Bomb,
         ThreatType.LaserDiode,
         ThreatType.ExplodableBarrel,
+        ThreatType.Barricade,
         ThreatType.Spikes,
         ThreatType.WallSpikes,
         ThreatType.Saw,

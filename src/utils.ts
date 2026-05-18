@@ -1,6 +1,7 @@
-import { Vector } from "p5";
+import P5, { Vector } from "p5";
 
 import {
+  ANIMATIONS,
   DIFFICULTY_EASY,
   DIFFICULTY_HARD,
   DIFFICULTY_MEDIUM,
@@ -52,6 +53,8 @@ import {
   ThreatFlag,
   SwitchType,
   SWITCH_TYPE_MAX,
+  SpritesheetImage,
+  Image as SnekImage,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -758,17 +761,34 @@ export const shouldBlinkExpiringPickup = (timeLeft: number, warnTime = PICKUP_EX
   && timeLeft <= warnTime
   && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0;
 
-export const getCurrentFrame = (frames: number, timePerFrame: number, durations: number[] | undefined, elapsed: number): number => {
+export const getCurrentFrame = (sprite: SpritesheetImage | SpritesheetRange, elapsed: number): number => {
+  if (!sprite) return 0;
+  if (!ANIMATIONS[sprite]) throw new Error(`no animation data found for image "${sprite}"`);
+  const { frames, timePerFrame, durations, oneShot = false, loopFrameOffset = 0 } = ANIMATIONS[sprite];
+  if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${sprite}`);
   if (!frames || !timePerFrame) return 0;
-  let frame = Math.floor(elapsed / timePerFrame) % frames;
+
+  const totalDuration = durations?.length ? durations.reduce((a, b) => a + b, 0) : frames * timePerFrame;
+  // oneshot: play once through and hold on the last frame
+  if (oneShot && elapsed >= totalDuration) {
+    return frames - 1;
+  }
+  // loop offset behavior: play from beginning, loop back to a specific frame offset
+  const loopOffset = elapsed >= totalDuration ? loopFrameOffset : 0;
+  // default behavior: continuously iterate through frames evenly
+  let frame = Math.floor((elapsed - loopOffset * timePerFrame) / timePerFrame) % (frames - loopOffset) + loopOffset;
   // `durations` overrides `frame`, `timePerFrame`
   if (durations?.length) {
-    const totalDuration = durations.reduce((a, b) => a + b, 0);
-    const t = elapsed % totalDuration;
-    // get current frame
-    frame = 0;
+    // get the total duration from the loop frame forward
+    const loopDuration = durations
+      .filter((_, i) => i >= loopOffset)
+      .reduce((a, b) => a + b, 0);
+    // time cursor
+    const t = (elapsed - loopOffset * timePerFrame) % loopDuration;
+    // find current frame where time_cursor < current_sum + current_frame_duration
+    frame = loopOffset;
     let sum = 0;
-    for (let i = 0; i < durations.length; i++) {
+    for (let i = loopOffset; i < durations.length; i++) {
       sum += durations[i];
       if (t < sum) {
         frame = i;
@@ -778,6 +798,27 @@ export const getCurrentFrame = (frames: number, timePerFrame: number, durations:
   }
   return frame;
 }
+
+export const getFrameOffset = (sprite: SpritesheetImage | SpritesheetRange) => {
+  if (!sprite) return 0;
+  if (!ANIMATIONS[sprite]) throw new Error(`no animation data found for image "${sprite}"`);
+  return isValidSpritesheetRange(sprite) ? (ANIMATIONS[sprite].offset || 0) : 0;
+}
+
+export const getDerivedSprite = (sprite: SpritesheetImage | SpritesheetRange): SpritesheetImage => {
+  if (!sprite) return SnekImage.__TEST__;
+  if (!ANIMATIONS[sprite]) throw new Error(`no animation data found for image "${sprite}"`);
+  return isValidSpritesheetRange(sprite) ? (ANIMATIONS[sprite].src || SnekImage.__TEST__) : sprite;
+}
+
+export const getNumFrames = (sprite: SpritesheetImage | SpritesheetRange) => {
+  if (!sprite) return 0;
+  if (!ANIMATIONS[sprite]) throw new Error(`no animation data found for image "${sprite}"`);
+  const { frames, timePerFrame } = ANIMATIONS[sprite];
+  if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${sprite}`);
+  const src = isValidSpritesheetRange(sprite) ? (ANIMATIONS[sprite].src || SnekImage.__TEST__) : sprite;
+  return ANIMATIONS[src]?.frames || frames;
+};
 
 export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threats: ICollection & IFlaggable) => {
   const valid = (coord: number) => true
@@ -875,6 +916,17 @@ export const byCoord = (coord: number) => <T, Y extends Array<any>>(thunk: (x: n
   const x = Math.floor(coord % GRIDCOUNT_X);
   const y = Math.floor(coord / GRIDCOUNT_X);
   return thunk(x, y, ...params);
+}
+
+export const withFlipx = (gfx: P5 | P5.Graphics, x: number, y: number, flipx: boolean, thunk: (tx: number, ty: number) => void) => {
+  gfx.push();
+  let tx = x;
+  if (flipx) {
+    gfx.scale(-1, 1);
+    tx = -tx - 1;
+  }
+  thunk(tx, y);
+  gfx.pop();
 }
 
 interface ToTimeParams {

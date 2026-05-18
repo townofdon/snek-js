@@ -328,6 +328,18 @@ export function engineMovement({
     if (es.threatsMap[coord] === ThreatType.ExplodableBarrel) {
       return DamageType.HitBarrier;
     }
+    if (es.threatsMap[coord] === ThreatType.Barricade && !state.isButtonPressed) {
+      return DamageType.HitBarrier;
+    }
+    if (es.threatsMap[coord] === ThreatType.Spikes && !state.isButtonPressed) {
+      return DamageType.SpikePierce;
+    }
+    if (es.threatsMap[coord] === ThreatType.WallSpikes && !state.isButtonPressed) {
+      return DamageType.SpikePierce;
+    }
+    if (es.threatsMap[coord] === ThreatType.Saw && !state.isButtonPressed) {
+      return DamageType.SawCut;
+    }
     return DamageType.None;
   }
 

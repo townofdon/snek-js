@@ -34,6 +34,10 @@ import {
   LaserType,
   Orientation,
   SpritesheetRange,
+  ButtonSheetFrame,
+  ThreatWallSpikesFrame,
+  ThreatSawFrame,
+  SwitchType,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -52,6 +56,7 @@ import {
   isValidKeyChannel,
   isValidPortalChannel,
   recalculateLasersMap,
+  withFlipx,
 } from "../utils";
 import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
 import { createLightmap, drawLighting, initLighting, updateLighting } from '../engine/lighting';
@@ -570,6 +575,10 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             spriteRenderer.drawSprite1x1(gfx, Image.ThemedAppleSheet, x, y, 0, 0, 1);
           }
 
+          const left = x > 0 ? getCoordIndex2(x - 1, y) : -1;
+          const right = x < GRIDCOUNT_X - 1 ? getCoordIndex2(x + 1, y) : -1;
+          const hasBarrierLeft = !!data.barriersMap[left];
+          const hasBarrierRight = !!data.barriersMap[right];
           switch (data.threatsMap[coord]) {
             case ThreatType.Mine:
               spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.MineSheet, x, y, 0);
@@ -583,10 +592,36 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             case ThreatType.ExplodableBarrel:
               spriteRenderer.drawImage3x3Static(gfx, Image.ThreatSheet48, x, y, 0, 1, 0, Threat48Frame.Barrel - 1, FRAME_COUNT_THREAT_48);
               break;
-            // TODO: DRAW ADD'L THREATS
+            case ThreatType.Barricade:
+              spriteRenderer.drawSprite1x1Static(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.BarricadeActive2 - 1);
+              break;
             case ThreatType.Spikes:
+              spriteRenderer.drawSprite1x1Static(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeActive0 - 1);
+              break;
             case ThreatType.WallSpikes:
+              withFlipx(gfx, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
+                spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatWallSpikesSheet, tx, ty, ThreatWallSpikesFrame.Active3 - 1);
+              });
+              break;
             case ThreatType.Saw:
+              spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSawSheet, x, y, ThreatSawFrame.Active1 - 1);
+              break;
+            // TODO: DRAW ADD'L THREATS
+            case ThreatType.Flamethrower:
+              // withFlipx(gfx, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
+              //   spriteRenderer.drawSprite1x1Static(gfx, Image.MyBadAssFlameThrower, tx, ty, ThreatWallSpikesFrame.FlameOnDude - 1);
+              // });
+              break;
+            case ThreatType.None:
+            default:
+              break;
+          }
+
+          switch (data.switchesMap[coord]) {
+            case SwitchType.Button:
+              spriteRenderer.drawSprite1x1Static(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.Button2Ready - 1);
+              break;
+            case SwitchType.None:
             default:
               break;
           }

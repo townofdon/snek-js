@@ -237,6 +237,7 @@ export enum TILECHAR {
   WeightLossPill = '%',
   LaserDiode = '^',
   ExplodableBarrel = '&',
+  Barricade = 'I',
   Bomb = '[',
   Spikes = '<',
   WallSpikes = '>',
@@ -245,7 +246,7 @@ export enum TILECHAR {
   Button = '?',
   Pipe = 'P',
   PlayerSpawn = 'O',
-  // available chars: ISU;',.}|/:"()
+  // available chars: SU;',.}|/:"()
 }
 
 // validate TILECHAR
@@ -502,6 +503,7 @@ export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<FloodFillTile, BarrierType>
   [FloodFillTile.ThreatBomb]: 0,
   [FloodFillTile.ThreatLaserDiode]: 0,
   [FloodFillTile.ThreatExplodableBarrel]: 0,
+  [FloodFillTile.ThreatBarricade]: 0,
   [FloodFillTile.ThreatSpikes]: 0,
   [FloodFillTile.ThreatWallSpikes]: 0,
   [FloodFillTile.ThreatSaw]: 0,
@@ -629,7 +631,8 @@ type ThreatTileChar =
   | TILECHAR.Spikes
   | TILECHAR.WallSpikes
   | TILECHAR.Saw
-  | TILECHAR.Flamethrower;
+  | TILECHAR.Flamethrower
+  | TILECHAR.Barricade;
 
 type ThreatFloodFillTile =
   | FloodFillTile.None
@@ -640,14 +643,16 @@ type ThreatFloodFillTile =
   | FloodFillTile.ThreatSpikes
   | FloodFillTile.ThreatWallSpikes
   | FloodFillTile.ThreatSaw
-  | FloodFillTile.ThreatFlamethrower;
+  | FloodFillTile.ThreatFlamethrower
+  | FloodFillTile.ThreatBarricade;
 
 export const THREAT_TYPE_TO_TILE_CHAR: Record<ThreatType, TILECHAR> = {
   [ThreatType.None]: TILECHAR.None,
+  [ThreatType.Bomb]: TILECHAR.Bomb,
   [ThreatType.Mine]: TILECHAR.Mine,
   [ThreatType.LaserDiode]: TILECHAR.LaserDiode,
   [ThreatType.ExplodableBarrel]: TILECHAR.ExplodableBarrel,
-  [ThreatType.Bomb]: TILECHAR.Bomb,
+  [ThreatType.Barricade]: TILECHAR.Barricade,
   [ThreatType.Spikes]: TILECHAR.Spikes,
   [ThreatType.WallSpikes]: TILECHAR.WallSpikes,
   [ThreatType.Saw]: TILECHAR.Saw,
@@ -656,9 +661,10 @@ export const THREAT_TYPE_TO_TILE_CHAR: Record<ThreatType, TILECHAR> = {
 
 export const TILE_CHAR_TO_THREAT_TYPE = {
   [TILECHAR.Mine]: ThreatType.Mine,
+  [TILECHAR.Bomb]: ThreatType.Bomb,
   [TILECHAR.LaserDiode]: ThreatType.LaserDiode,
   [TILECHAR.ExplodableBarrel]: ThreatType.ExplodableBarrel,
-  [TILECHAR.Bomb]: ThreatType.Bomb,
+  [TILECHAR.Barricade]: ThreatType.Barricade,
   [TILECHAR.Spikes]: ThreatType.Spikes,
   [TILECHAR.WallSpikes]: ThreatType.WallSpikes,
   [TILECHAR.Saw]: ThreatType.Saw,
@@ -668,9 +674,10 @@ export const TILE_CHAR_TO_THREAT_TYPE = {
 export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> = {
   [ThreatType.None]: 0,
   [ThreatType.Mine]: FloodFillTile.ThreatMine,
+  [ThreatType.Bomb]: FloodFillTile.ThreatBomb,
   [ThreatType.LaserDiode]: FloodFillTile.ThreatLaserDiode,
   [ThreatType.ExplodableBarrel]: FloodFillTile.ThreatExplodableBarrel,
-  [ThreatType.Bomb]: FloodFillTile.ThreatBomb,
+  [ThreatType.Barricade]: FloodFillTile.ThreatBarricade,
   [ThreatType.Spikes]: FloodFillTile.ThreatSpikes,
   [ThreatType.WallSpikes]: FloodFillTile.ThreatWallSpikes,
   [ThreatType.Saw]: FloodFillTile.ThreatSaw,
@@ -683,6 +690,7 @@ export const FLOOD_FILL_TILE_TO_THREAT_TYPE: Record<ThreatFloodFillTile, ThreatT
   [FloodFillTile.ThreatBomb]: ThreatType.Bomb,
   [FloodFillTile.ThreatLaserDiode]: ThreatType.LaserDiode,
   [FloodFillTile.ThreatExplodableBarrel]: ThreatType.ExplodableBarrel,
+  [FloodFillTile.ThreatBarricade]: ThreatType.Barricade,
   [FloodFillTile.ThreatSpikes]: ThreatType.Spikes,
   [FloodFillTile.ThreatWallSpikes]: ThreatType.WallSpikes,
   [FloodFillTile.ThreatSaw]: ThreatType.Saw,

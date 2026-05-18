@@ -162,13 +162,8 @@ export class AnimationList implements ICollection, IFlaggable {
         this.elapsed[i] += deltaTime;
       }
       const sprite = enabled ? this.img[i] : this.disabledImg[i] || this.img[i];
-      const {
-        frames = 1,
-        timePerFrame = 0,
-        durations,
-      } = ANIMATIONS[sprite] || {};
-      const framePrev = getCurrentFrame(frames, timePerFrame, durations, prevElapsed);
-      const frameCurrent = getCurrentFrame(frames, timePerFrame, durations, this.elapsed[i]);
+      const framePrev = getCurrentFrame(sprite, prevElapsed);
+      const frameCurrent = getCurrentFrame(sprite, this.elapsed[i]);
       if (prevElapsed === 0 || framePrev !== frameCurrent) {
         didChange = true;
       }
@@ -231,6 +226,16 @@ export class AnimationList implements ICollection, IFlaggable {
       throw new Error(
         `No more space left in AnimationList. length=${this.free.length},activeLength=${this.activeLength},new_idx=${this.free.length}`,
       );
+    }
+  };
+
+  public restart = (x: number, y: number) => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        this.elapsed[i] = 0;
+        break;
+      }
     }
   };
 
@@ -316,7 +321,10 @@ export class AnimationList implements ICollection, IFlaggable {
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) continue;
       if (this.x[i] === x && this.y[i] === y) {
+        if (this._hasInternalFlag(i, FLAG_ENABLED)) return;
         this._addInternalFlag(i, FLAG_ENABLED);
+        this.elapsed[i] = 0;
+        return;
       }
     }
   };
@@ -325,6 +333,7 @@ export class AnimationList implements ICollection, IFlaggable {
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) continue;
       if (this.x[i] === x && this.y[i] === y) {
+        if (!this._hasInternalFlag(i, FLAG_ENABLED)) return;
         this._removeInternalFlag(i, FLAG_ENABLED);
         this.elapsed[i] = 0;
       }
@@ -356,9 +365,9 @@ export class AnimationList implements ICollection, IFlaggable {
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) continue;
       if (this.x[i] === x && this.y[i] === y) {
-        const sprite = this.img[i];
-        const { frames = 1, timePerFrame = 100, durations } = ANIMATIONS[sprite] || {};
-        const frame = getCurrentFrame(frames, timePerFrame, durations, this.elapsed[i]);
+        const enabled = this._hasInternalFlag(i, FLAG_ENABLED);
+        const sprite = enabled ? this.img[i] : this.disabledImg[i] || this.img[i];
+        const frame = getCurrentFrame(sprite, this.elapsed[i]);
         return frame;
       }
     }

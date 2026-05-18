@@ -51,6 +51,7 @@ export const DEFAULT_GAME_STATE: GameState = {
   timeSinceArmorProtection: Infinity,
   timeSinceArmorPickup: Infinity,
   timeSinceLungeStart: Infinity,
+  timeSinceButtonPressChanged: Infinity,
   acquireProgression: 0,
   lives: MAX_LIVES,
   collisions: 0,
@@ -93,6 +94,7 @@ export const DEFAULT_ENGINE_STATE: EngineState = {
   portalsMap: {},
   threatsMap: {},
   lasersMap: {},
+  switchesMap: {},
 } satisfies EngineState;
 
 export const DEFAULT_BASE_STATS = {

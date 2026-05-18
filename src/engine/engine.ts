@@ -61,6 +61,7 @@ import {
   BARREL_WARN_LIFETIME,
   BARREL_CASCADE_LIFETIME,
   BARREL_CRIT_LIFETIME,
+  BUTTON_RELEASE_DAMAGE_DELAY,
 } from "../constants";
 import {
   Action,
@@ -411,6 +412,7 @@ export function engine({
     drawPlayerSegment,
     erasePlayerSegmentCorner,
     drawApple,
+    drawSwitches,
     drawThreats,
     drawLasers,
     drawPrey,
@@ -688,6 +690,7 @@ export function engine({
     state.isLost = false;
     state.isGameWon = false;
     state.isDoorsOpen = false;
+    state.isButtonPressed = false;
     state.isExitingLevel = false;
     state.isExited = false;
     state.isInvertedColors = false;
@@ -704,6 +707,8 @@ export function engine({
     state.timeSinceArmorProtection = Infinity;
     state.timeSinceSpawnedAnyPickup = Infinity;
     state.timeSinceSpawnedWeightLossPillPickup = Infinity;
+    state.timeSinceLungeStart = Infinity;
+    state.timeSinceButtonPressChanged = Infinity;
     state.timeSinceGraceStarted = 0;
     state.lives = state.gameMode === GameMode.Cobra ? state.lives : MAX_LIVES;
     state.collisions = 0;
@@ -915,25 +920,51 @@ export function engine({
       fireTiles.add(x, y, lifetime, Image.FireSheet);
     });
 
+    // add buttons / switches
+    levelData.switches.forEach(item => {
+      const coord = getCoordIndex2(item.vec.x, item.vec.y);
+      es.switchesMap[coord] = item.type;
+    });
+
     // add initial threats
     for (let i = 0; i < levelData.threats.length; i++) {
       const x = levelData.threats[i].vec.x;
       const y = levelData.threats[i].vec.y;
       const threatType = levelData.threats[i].type;
-      const lifetime = 99999999; // improbably high lifetime = never despawn
+      const forever = 99999999; // improbably high lifetime = never despawn
       if (threatType) {
         switch (threatType) {
           case ThreatType.Mine:
-            threats.add(x, y, lifetime, Image.MineSheet, ThreatType.Mine);
+            threats.add(x, y, forever, Image.MineSheet, ThreatType.Mine);
             break;
           case ThreatType.Bomb:
             threats.add(x, y, PICKUP_LIFETIME_MS, SpritesheetRange.Bomb, ThreatType.Bomb);
             break;
           case ThreatType.LaserDiode:
-            threats.add(x, y, lifetime, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode);
+            threats.add(x, y, forever, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode);
             break;
           case ThreatType.ExplodableBarrel:
-            threats.add(x, y, lifetime, SpritesheetRange.Barrel, ThreatType.ExplodableBarrel);
+            threats.add(x, y, forever, SpritesheetRange.Barrel, ThreatType.ExplodableBarrel);
+            break;
+          case ThreatType.Barricade:
+            threats.add(x, y, forever, SpritesheetRange.BarricadeDeploy, ThreatType.Barricade, {
+              disabledImg: SpritesheetRange.BarricadeRetract,
+            });
+            break;
+          case ThreatType.Spikes:
+            threats.add(x, y, forever, SpritesheetRange.Spikes, ThreatType.Spikes);
+            break;
+          case ThreatType.WallSpikes:
+            threats.add(x, y, forever, SpritesheetRange.WallSpikesDeploy, ThreatType.WallSpikes, {
+              disabledImg: SpritesheetRange.WallSpikesRetract,
+            });
+            break;
+          case ThreatType.Saw:
+            threats.add(x, y, forever, SpritesheetRange.SawActive, ThreatType.Saw, {
+              disabledImg: SpritesheetRange.SawOff,
+            });
+            break;
+          case ThreatType.Flamethrower:
             break;
           default:
             break;
@@ -1186,6 +1217,7 @@ export function engine({
 
     handlePortalTravel();
     handleKeyPickup();
+    handleSwitches();
     handleUnlock();
     handleDifficultySelect();
     handleSetNextLevel();
@@ -1196,9 +1228,10 @@ export function engine({
       state.collisions += 1;
       state.isLost = true;
     }
+    handleSnakeSpikeDeath();
     handleSnakeTrapped(state.isLost && state.lives > 0);
     handleSnakeDamage(state.isLost && state.lives > 0);
-    handleSnakeElectrocution(!state.isLost);
+    handleSnakeElectrocution();
 
     // handle snake death
     if (state.isLost || state.lives < 0) {
@@ -1252,6 +1285,8 @@ export function engine({
     state.timeSinceSpawnedWeightLossPillPickup += loopState.deltaTime;
     state.timeSinceLastInput += loopState.deltaTime;
     state.timeSinceLastTeleport += loopState.deltaTime;
+    state.timeSinceButtonPressChanged += loopState.deltaTime;
+    state.timeSinceLungeStart += loopState.deltaTime;
     state.frameCount += 1;
     for (let i = es.recentInputTimes.length - 1; i >= 0; i--) {
       es.recentInputTimes[i] += loopState.deltaTime;
@@ -1390,6 +1425,7 @@ export function engine({
       drawLock(es.locks[i])
     }
 
+    drawSwitches();
     drawSmoke(smoke);
     drawPortals();
     drawPickupOutlines(pickupOutlines);
@@ -1877,7 +1913,7 @@ export function engine({
         playSound(Sound.hurtSave);
         return false;
       }
-      state.lastHurtBy = DamageType.HitMine;
+      state.lastHurtBy = DamageType.Explosive;
       return true;
     }
     return false;
@@ -1892,6 +1928,61 @@ export function engine({
       if (willHit) return true;
     }
     return false;
+  }
+
+  function anySwitchPressed(): boolean {
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (!es.switchesMap[coord]) continue;
+      if (getCoordIndex(player.position) === coord) return true;
+      if (segments.existsAtCoord(coord)) return true;
+      if (preyList.existsAtCoord(coord)) return true;
+    }
+    return false;
+  }
+
+  function handleSwitches() {
+    const pressed = anySwitchPressed();
+    if (pressed && !state.isButtonPressed) {
+      state.isButtonPressed = true;
+      state.timeSinceButtonPressChanged = 0;
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+        if (false
+          || es.threatsMap[coord] === ThreatType.Barricade
+          || es.threatsMap[coord] === ThreatType.Spikes
+          || es.threatsMap[coord] === ThreatType.WallSpikes
+          || es.threatsMap[coord] === ThreatType.Saw
+        ) {
+          byCoord(coord)(threats.disable);
+        }
+      }
+      // TODO: ADD UNIQ SOUND
+      playSound(Sound.doorOpen);
+      drawState.shouldDrawActionFG = true;
+    } else if (!pressed && state.isButtonPressed) {
+      state.isButtonPressed = false;
+      state.timeSinceButtonPressChanged = 0;
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+        if (false
+          || es.threatsMap[coord] === ThreatType.Barricade
+          || es.threatsMap[coord] === ThreatType.Spikes
+          || es.threatsMap[coord] === ThreatType.WallSpikes
+          || es.threatsMap[coord] === ThreatType.Saw
+        ) {
+          byCoord(coord)(threats.enable);
+        }
+      }
+      // TODO: ADD UNIQ SOUND
+      playSound(Sound.moveStart);
+      drawState.shouldDrawActionFG = true;
+    }
+    // if segment is over a barricade when button is released, keep resetting that cell's elapsed time until segment leaves.
+    if (!state.isButtonPressed) {
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+        if (es.threatsMap[coord] === ThreatType.Barricade && segments.existsAtCoord(coord)) {
+          byCoord(coord)(threats.restart);
+        }
+      }
+    }
   }
 
   function handleKeyPickup() {
@@ -2289,6 +2380,24 @@ export function engine({
     playSound(Sound.hurt3);
   }
 
+  function handleSnakeSpikeDeath() {
+    if (state.isExitingLevel || state.isExited) return;
+    if (state.isButtonPressed) return;
+    if (state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY) return;
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      const instadeath = false
+        || es.threatsMap[coord] === ThreatType.Spikes
+        || es.threatsMap[coord] === ThreatType.WallSpikes
+        || es.threatsMap[coord] === ThreatType.Saw;
+      const playerAtCoord = getCoordIndex(player.position) === coord || segments.existsAtCoord(coord);
+      if (instadeath && playerAtCoord) {
+        applyDamage(5);
+        state.lastHurtBy = es.threatsMap[coord] === ThreatType.Saw ? DamageType.SawCut : DamageType.SpikePierce;
+        return;
+      }
+    }
+  }
+
   function handleSnakeDamage(didReceiveDamage: boolean) {
     if (!didReceiveDamage) return;
 
@@ -2304,7 +2413,11 @@ export function engine({
         byCoord(coord)(threats.setLifetime, BARREL_WARN_LIFETIME);
       }
     }
-    applyDamage(1);
+    if (state.lastHurtBy === DamageType.SawCut || state.lastHurtBy === DamageType.SpikePierce) {
+      applyDamage(5);
+    } else {
+      applyDamage(1);
+    }
     if (
       state.lastHurtBy === DamageType.HitBarrier ||
       state.lastHurtBy === DamageType.HitDoor ||
@@ -2335,14 +2448,15 @@ export function engine({
     es.moves = [];
   }
 
-  function handleSnakeElectrocution(didReceiveDamage: boolean) {
-    if (!didReceiveDamage) return;
+  function handleSnakeElectrocution(): void {
     if (state.isButtonPressed) return;
+    if (state.timeSinceButtonPressChanged < 400) return;
+    if (state.isExitingLevel) return;
     if (state.isLost) return;
     if (state.lives < 0) return;
     if (state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) return;
-    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
-    if (state.timeSinceArmorProtection < HURT_STUN_TIME) return false;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return;
+    if (state.timeSinceArmorProtection < HURT_STUN_TIME) return;
     if (state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS * 2) return;
     let overlappingLaser = false;
     let laserType = LaserType.Blue;
@@ -2430,12 +2544,12 @@ export function engine({
   }
 
   function applyDamage(amount: number) {
-    state.isLost = false;
     if (state.gameMode === GameMode.Casual && replay.mode !== ReplayMode.Playback) {
       state.isMoving = false;
     } else {
       state.lives -= Math.floor(amount);
     }
+    state.isLost = state.lives < 0;
     state.timeSinceHurt = 0;
     if (es.difficulty.index === 4) {
       state.currentSpeed = 1;
@@ -2446,16 +2560,12 @@ export function engine({
     startScreenShake(1, 0.4);
     renderHeartsUI();
     startAction(duckMusicOnHurt(), Action.FadeMusic);
-    switch (state.lives) {
-      case 2:
-        playSound(Sound.hurt1);
-        break;
-      case 1:
-        playSound(Sound.hurt2);
-        break;
-      case 0:
-        playSound(Sound.hurt3);
-        break;
+    if (state.lives >= 2) {
+      playSound(Sound.hurt1);
+    } else if (state.lives === 1) {
+      playSound(Sound.hurt2);
+    } else {
+      playSound(Sound.hurt3);
     }
   }
 

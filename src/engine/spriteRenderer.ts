@@ -11,7 +11,7 @@ import {
   SpritesheetRange,
 } from "../types";
 import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y, IMG_SCALE, IMG_X_OFFSET, MAP_OFFSET, STROKE_SIZE } from "../constants";
-import { getCurrentFrame, getRelativeDir, lerp, isValidSpritesheetRange } from "../utils";
+import { getCurrentFrame, getRelativeDir, lerp, isValidSpritesheetRange, getNumFrames, getDerivedSprite, getFrameOffset } from "../utils";
 import { getBorderColorVariant } from "@/palettes";
 
 interface SpriteRendererConstructorProps {
@@ -97,6 +97,9 @@ export class SpriteRenderer {
     [Image.PickupOutlineYellowSheet]: null,
     [Image.ThreatSheet16]: null,
     [Image.ThreatSheet48]: null,
+    [Image.ButtonSheet]: null,
+    [Image.ThreatWallSpikesSheet]: null,
+    [Image.ThreatSawSheet]: null,
   } satisfies Record<Image, P5.Image | null>;
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -313,6 +316,9 @@ export class SpriteRenderer {
       this.loadImage(Image.PickupOutlineYellowSheet);
       this.loadImage(Image.ThreatSheet16);
       this.loadImage(Image.ThreatSheet48);
+      this.loadImage(Image.ButtonSheet);
+      this.loadImage(Image.ThreatWallSpikesSheet);
+      this.loadImage(Image.ThreatSawSheet);
     } catch (err) {
       console.error(err)
     }
@@ -354,16 +360,10 @@ export class SpriteRenderer {
    * Draw an animation from a 3x3 (48x48) spritesheet
    */
   drawSpritesheetAnim3x3 = (gfx: P5 | P5.Graphics, sprite: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed = 0) => {
-    if (!ANIMATIONS[sprite]) {
-      throw new Error(`no animation data found for image "${sprite}"`);
-    }
-    const { frames, timePerFrame, durations } = ANIMATIONS[sprite];
-    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${sprite}`);
-    const src = isValidSpritesheetRange(sprite) ? (ANIMATIONS[sprite].src || Image.__TEST__) : sprite;
-    const offset = isValidSpritesheetRange(sprite) ? ANIMATIONS[sprite].offset || 0 : 0;
-    const frame = getCurrentFrame(frames, timePerFrame, durations, elapsed) + offset;
-    const spriteFrames = ANIMATIONS[src]?.frames || frames;
-    this.drawImage3x3Impl(gfx, src, x, y, 0, 1, 0, frame, spriteFrames);
+    const src = getDerivedSprite(sprite);
+    const frame = getCurrentFrame(sprite, elapsed) + getFrameOffset(sprite);
+    const frames = getNumFrames(sprite);
+    this.drawImage3x3Impl(gfx, src, x, y, 0, 1, 0, frame, frames);
   }
 
   drawSpritesheetAnim3x3Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed = 0) => {
@@ -456,16 +456,10 @@ export class SpriteRenderer {
    * Draw an animation from a 1x1 (16x16) spritesheet
    */
   drawSpritesheetAnim1x1 = (gfx: P5 | P5.Graphics, sprite: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed = 0) => {
-    if (!ANIMATIONS[sprite]) {
-      throw new Error(`no animation data found for image "${sprite}"`);
-    }
-    const { frames, timePerFrame, durations } = ANIMATIONS[sprite];
-    if (!timePerFrame) throw new Error(`timePerFrame cannot be zero. val=${timePerFrame},img=${sprite}`);
-    const src = isValidSpritesheetRange(sprite) ? (ANIMATIONS[sprite].src || Image.__TEST__) : sprite;
-    const offset = isValidSpritesheetRange(sprite) ? (ANIMATIONS[sprite].offset || 0) : 0;
-    const frame = getCurrentFrame(frames, timePerFrame, durations, elapsed) + offset;
-    const spriteFrames = ANIMATIONS[src]?.frames || frames;
-    this.drawImage1x1(gfx, src, x, y, 0, 1, 0, frame, spriteFrames);
+    const src = getDerivedSprite(sprite);
+    const frame = getCurrentFrame(sprite, elapsed) + getFrameOffset(sprite);
+    const frames = getNumFrames(sprite);
+    this.drawImage1x1(gfx, src, x, y, 0, 1, 0, frame, frames);
   }
 
   public drawSpritesheetAnim1x1Static = (...args: Parameters<SpriteRenderer['drawSpritesheetAnim1x1']>) => {

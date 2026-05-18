@@ -24,6 +24,7 @@ export const SidebarThreatTypes = ({ activeThreatType, options, setThreatType }:
     [ThreatType.Bomb]: useRef<HTMLCanvasElement>(null),
     [ThreatType.LaserDiode]: useRef<HTMLCanvasElement>(null),
     [ThreatType.ExplodableBarrel]: useRef<HTMLCanvasElement>(null),
+    [ThreatType.Barricade]: useRef<HTMLCanvasElement>(null),
     [ThreatType.Spikes]: useRef<HTMLCanvasElement>(null),
     [ThreatType.WallSpikes]: useRef<HTMLCanvasElement>(null),
     [ThreatType.Saw]: useRef<HTMLCanvasElement>(null),
@@ -52,16 +53,18 @@ export const SidebarThreatTypes = ({ activeThreatType, options, setThreatType }:
   }, [options]);
 
   const renderButton = (threatType: ThreatType) => {
+    let i = 1;
     const text = ({
       [ThreatType.None]: "None",
-      [ThreatType.Mine]: "1",
-      [ThreatType.Bomb]: "2",
-      [ThreatType.LaserDiode]: "3",
-      [ThreatType.ExplodableBarrel]: "4",
-      [ThreatType.Spikes]: "5",
-      [ThreatType.WallSpikes]: "6",
-      [ThreatType.Saw]: "7",
-      [ThreatType.Flamethrower]: "8",
+      [ThreatType.Mine]: String(i++),
+      [ThreatType.Bomb]: String(i++),
+      [ThreatType.LaserDiode]: String(i++),
+      [ThreatType.ExplodableBarrel]: String(i++),
+      [ThreatType.Barricade]: String(i++),
+      [ThreatType.Spikes]: String(i++),
+      [ThreatType.WallSpikes]: String(i++),
+      [ThreatType.Saw]: String(i++),
+      [ThreatType.Flamethrower]: String(i++),
     } satisfies Record<ThreatType, string>)[threatType];
     const color = threatType === activeThreatType ? '#ffffff' : '#444'
     return (
@@ -98,6 +101,7 @@ export const SidebarThreatTypes = ({ activeThreatType, options, setThreatType }:
           {renderButton(ThreatType.Bomb)}
           {renderButton(ThreatType.LaserDiode)}
           {renderButton(ThreatType.ExplodableBarrel)}
+          {renderButton(ThreatType.Barricade)}
           {renderButton(ThreatType.Spikes)}
           {renderButton(ThreatType.WallSpikes)}
           {renderButton(ThreatType.Saw)}
@@ -115,6 +119,7 @@ const threatTypeLabel = (threatType: ThreatType) => {
     [ThreatType.Bomb]: "Bomb",
     [ThreatType.LaserDiode]: "Laser Diode",
     [ThreatType.ExplodableBarrel]: "Explodable Barrel",
+    [ThreatType.Barricade]: "Barricade",
     [ThreatType.Spikes]: "Spikes",
     [ThreatType.WallSpikes]: "Wall Spikes",
     [ThreatType.Saw]: "Saw",

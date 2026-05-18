@@ -9,13 +9,16 @@ import {
   EditorGraphicalComponents,
   DrawSquareOptions,
   SpritesheetRange,
+  ButtonSheetFrame,
+  ThreatWallSpikesFrame,
+  ThreatSawFrame,
 } from '../types';
 import { SpriteRenderer } from '../engine/spriteRenderer';
 import { Renderer } from '../engine/renderer';
 import { Fonts } from '../fonts';
 import { getExtendedPalette } from '../palettes';
 import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
-import { BLOCK_SIZE_X, BLOCK_SIZE_Y } from '@/constants';
+import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y } from '@/constants';
 
 export interface EditorState {
   dirty: boolean,
@@ -64,6 +67,7 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
       [ThreatType.Bomb]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Bomb].current),
       [ThreatType.LaserDiode]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.LaserDiode].current),
       [ThreatType.ExplodableBarrel]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.ExplodableBarrel].current),
+      [ThreatType.Barricade]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Barricade].current),
       [ThreatType.Spikes]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Spikes].current),
       [ThreatType.WallSpikes]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.WallSpikes].current),
       [ThreatType.Saw]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Saw].current),
@@ -124,8 +128,12 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
       spriteRenderer.drawSpritesheetAnim1x1(gfx[ThreatType.Bomb], SpritesheetRange.Bomb, x, y, 0);
       spriteRenderer.drawSpritesheetAnim1x1(gfx[ThreatType.LaserDiode], SpritesheetRange.DiodeBlue, x, y, 0);
       spriteRenderer.drawSpritesheetAnim3x3(gfx[ThreatType.ExplodableBarrel], SpritesheetRange.Barrel, x, y, 0);
-
+      spriteRenderer.drawSprite1x1(gfx[ThreatType.Barricade], Image.ButtonSheet, x, y, ButtonSheetFrame.BarricadeActive2 - 1);
+      spriteRenderer.drawSprite1x1(gfx[ThreatType.Spikes], Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeActive0 - 1);
+      spriteRenderer.drawSprite1x1(gfx[ThreatType.WallSpikes], Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active4 - 1);
+      spriteRenderer.drawSprite1x1(gfx[ThreatType.Saw], Image.ThreatSawSheet, x, y, ThreatSawFrame.Active1 - 1);
       // TODO: DRAW ADD'L THREATS
+      // - flamethrower
     }
   }
 

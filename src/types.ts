@@ -147,6 +147,8 @@ export enum DamageType {
   HitMine,
   Explosive,
   Electrocution,
+  SpikePierce,
+  SawCut,
 }
 
 export enum InputType {
@@ -223,6 +225,7 @@ export interface GameState {
   timeSinceLastInput: number,
   timeSinceInvincibleStart: number,
   timeSinceElectrocutionStart: number,
+  timeSinceButtonPressChanged: number,
   timeSinceLungeStart: number,
   /**
    * Time elapsed since the player initiated a reversal (via the Reversible pickup)
@@ -299,6 +302,7 @@ export interface EngineState {
   portalsMap: Record<number, Portal>,
   threatsMap: Record<number, ThreatType>,
   lasersMap: Record<number, LaserCell>,
+  switchesMap: Record<number, SwitchType>,
 }
 
 export interface Outfit {
@@ -631,6 +635,7 @@ export enum ThreatType {
   Bomb,
   LaserDiode,
   ExplodableBarrel,
+  Barricade,
   Spikes,
   WallSpikes,
   Saw,
@@ -718,6 +723,7 @@ export enum FloodFillTile {
   ThreatBomb,
   ThreatLaserDiode,
   ThreatExplodableBarrel,
+  ThreatBarricade,
   ThreatSpikes,
   ThreatWallSpikes,
   ThreatSaw,
@@ -987,6 +993,10 @@ export interface AnimationData {
    * Whether animation plays once and stops on the last frame. Default=false
    */
   oneShot?: boolean,
+  /**
+   * Specify which frame to cycle back to for animation loop
+   */
+  loopFrameOffset?: number,
 }
 
 export interface AnimationDataForRange extends AnimationData {
@@ -1044,6 +1054,9 @@ export enum Image {
   MineSheet = 'snek-mine-sheet.png',
   ThreatSheet16 = 'snek-threats-16.png',
   ThreatSheet48 = 'snek-threats-48.png',
+  ButtonSheet = 'snek-button.png',
+  ThreatWallSpikesSheet = 'snek-threat-wall-blades.png',
+  ThreatSawSheet = 'snek-threat-saw-blade-16.png',
   ExplosionSheet = 'snek-explosion-sheet.png',
   Explosion3Sheet = 'snek-explosion-3.png',
   SmokeSheet = 'snek-smoke.png',
@@ -1099,6 +1112,13 @@ export enum SpritesheetRange {
   BarrelFireA,
   BarrelFireB,
   BarrelRupture,
+  BarricadeDeploy,
+  BarricadeRetract,
+  Spikes,
+  WallSpikesDeploy,
+  WallSpikesRetract,
+  SawActive,
+  SawOff,
 }
 export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange).filter(v => typeof v === 'number')) + 1;
 
@@ -1137,6 +1157,9 @@ export type SpritesheetImage =
   | Image.UIShieldSheet
   | Image.ThreatSheet16
   | Image.ThreatSheet48
+  | Image.ButtonSheet
+  | Image.ThreatWallSpikesSheet
+  | Image.ThreatSawSheet
 ;
 
 export enum Threat48Frame {
@@ -1203,6 +1226,66 @@ export enum Threat16Frame {
   WarningSignRed1,
 }
 export const FRAME_COUNT_THREAT_16 = Math.max(...Object.values(Threat16Frame).filter(v => typeof v === 'number'));
+
+export enum ButtonSheetFrame {
+  None = 0,
+  Button1Ready,
+  Button1Off,
+  Button2Ready,
+  Button2Off,
+  BarricadeActive0,
+  BarricadeActive1,
+  BarricadeActive2,
+  BarricadeCollapse0,
+  BarricadeCollapse1,
+  BarricadeCollapse2,
+  DeathOverlay,
+  SpikeBlood,
+  SpikeBloodRetracted,
+  SpikeRetracted,
+  SpikeActive0,
+  SpikeActive1,
+  SpikeActive2,
+  SpikeActive3,
+  SpikeActive4,
+  SpikeActive5,
+}
+
+export enum ThreatWallSpikesFrame {
+  None = 0,
+  Retracted,
+  Active0,
+  Active1,
+  Active2,
+  Active3,
+  Active4,
+  Active5,
+  Active6,
+  Active7,
+  Active8,
+  Active9,
+  Retract0,
+  Retract1,
+  Retract2,
+  Retract3,
+  DeathOverlay,
+}
+
+export enum ThreatSawFrame {
+  None = 0,
+  Retracted,
+  Active0,
+  Active1,
+  Active2,
+  Active3,
+  Active4,
+  Active5,
+  Active6,
+  Active7,
+  Active8,
+  Retract0,
+  Retract1,
+}
 
 export enum SegmentFrame {
   None = 0,
