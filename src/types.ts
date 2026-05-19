@@ -614,6 +614,32 @@ export enum PipeType {
   Themed,
 }
 
+export const PIPE_NORTH = 1;
+export const PIPE_SOUTH = 2;
+export const PIPE_WEST = 4;
+export const PIPE_EAST = 8;
+
+// note - ordering based on bitmask
+export enum PipeConnection {
+  Unset = 0,
+  N,
+  S,
+  NS,
+  W,
+  NW,
+  SW,
+  NSW,
+  E,
+  NE,
+  SE,
+  NSE,
+  WE,
+  NWE,
+  SWE,
+  NSWE,
+  Island, // no neighbors
+}
+
 export interface LevelPickup {
   type: PickupType,
   vec: Vector,

@@ -55,6 +55,11 @@ import {
   SWITCH_TYPE_MAX,
   SpritesheetImage,
   Image as SnekImage,
+  PipeConnection,
+  PIPE_NORTH,
+  PIPE_SOUTH,
+  PIPE_WEST,
+  PIPE_EAST,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -927,6 +932,33 @@ export const withFlipx = (gfx: P5 | P5.Graphics, x: number, y: number, flipx: bo
   }
   thunk(tx, y);
   gfx.pop();
+}
+
+export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConnection>) => {
+  for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+    pipesMap[coord] = undefined;
+  }
+  // first, add all pipes to map
+  pipes.forEach(pipe => {
+    pipesMap[getCoordIndex(pipe)] = PipeConnection.Island;
+  })
+  // assign island type by neighbor
+  for (let y = 0; y < GRIDCOUNT_Y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
+      if (!pipesMap[getCoordIndex2(x, y)]) continue;
+      const up = y > 0 ? !!pipesMap[getCoordIndex2(x, y - 1)] : false;
+      const down = y < GRIDCOUNT_Y - 1 ? !!pipesMap[getCoordIndex2(x, y + 1)] : false;
+      const left = x > 0 ? !!pipesMap[getCoordIndex2(x - 1, y)] : false;
+      const right = x < GRIDCOUNT_X - 1 ? !!pipesMap[getCoordIndex2(x + 1, y)] : false;
+      let idx = 0;
+      if (up) idx += PIPE_NORTH;
+      if (down) idx += PIPE_SOUTH;
+      if (left) idx += PIPE_WEST;
+      if (right) idx += PIPE_EAST;
+      if (!idx) continue;
+      pipesMap[getCoordIndex2(x, y)] = idx;
+    }
+  }
 }
 
 interface ToTimeParams {

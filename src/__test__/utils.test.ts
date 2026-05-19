@@ -1,13 +1,19 @@
 import assert from "assert";
 
 import {
+  buildPipesMap,
+  getCoordIndex2,
   getManhattanDistance,
   isOppositeDirection,
   isOrthogonalDirection,
   isSameDirection,
   rotateSystemAfterPortalTraverse,
 } from "../utils";
-import { DIR } from "../types";
+import { DIR, PipeConnection } from "../types";
+import { Vector } from "p5";
+import { GRIDCOUNT_X, GRIDCOUNT_Y } from "@/constants";
+
+const DEBUG = process.env.DEBUG;
 
 describe("Utils", () => {
   describe("getManhattanDistance", () => {
@@ -116,5 +122,159 @@ describe("Utils", () => {
       test(DIR.DOWN, DIR.RIGHT, expectations);
       test(DIR.LEFT, DIR.DOWN, expectations);
     });
-  })
+  });
+
+  const getPipeChar = (connection: PipeConnection) => {
+    switch (connection) {
+      case PipeConnection.N:
+        return'╵';
+      case PipeConnection.S:
+        return'╷';
+      case PipeConnection.NS:
+        return'│';
+      case PipeConnection.W:
+        return '╴';
+      case PipeConnection.NW:
+        return'┘';
+      case PipeConnection.SW:
+        return'┐';
+      case PipeConnection.NSW:
+        return'┤';
+      case PipeConnection.E:
+        return'╶';
+      case PipeConnection.NE:
+        return'└';
+      case PipeConnection.SE:
+        return'┌';
+      case PipeConnection.NSE:
+        return'├';
+      case PipeConnection.WE:
+        return'─';
+      case PipeConnection.NWE:
+        return'┴';
+      case PipeConnection.SWE:
+        return'┬';
+      case PipeConnection.NSWE:
+        return'┼';
+      case PipeConnection.Island:
+        return'*';
+      case PipeConnection.Unset:
+      default:
+        return'.';
+    }
+  }
+
+  const debugPipesMap = (pipesMap: Record<number, PipeConnection>) => {
+    console.log('-------------')
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      let str = '';
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        str += getPipeChar(pipesMap[getCoordIndex2(x, y)]);
+      }
+      console.log(str);
+    }
+  }
+
+  describe("buildPipesMap", () => {
+    it('should build islands correctly', () => {
+      const pipes: Vector[] = [
+        new Vector(3, 3),
+        new Vector(4, 4),
+        new Vector(5, 5),
+        new Vector(3, 6),
+        new Vector(4, 7),
+        new Vector(5, 8),
+      ];
+      const pipesMap: Record<number, PipeConnection> = {};
+      buildPipesMap(pipes, pipesMap);
+      assert.strictEqual(pipesMap[getCoordIndex2(3, 3)], PipeConnection.Island);
+      assert.strictEqual(pipesMap[getCoordIndex2(4, 4)], PipeConnection.Island);
+      assert.strictEqual(pipesMap[getCoordIndex2(5, 5)], PipeConnection.Island);
+      assert.strictEqual(pipesMap[getCoordIndex2(3, 6)], PipeConnection.Island);
+      assert.strictEqual(pipesMap[getCoordIndex2(4, 7)], PipeConnection.Island);
+      assert.strictEqual(pipesMap[getCoordIndex2(5, 8)], PipeConnection.Island);
+      if (DEBUG) {
+        debugPipesMap(pipesMap);
+      }
+    });
+    it('should build simple pipes map', () => {
+      const pipes: Vector[] = [
+        new Vector(15, 15),
+        new Vector(14, 15),
+        new Vector(14, 14),
+        new Vector(13, 14),
+        new Vector(15, 14),
+        new Vector(15, 13),
+        new Vector(16, 15),
+        new Vector(17, 15),
+        new Vector(17, 14),
+        new Vector(18, 14),
+        new Vector(17, 16),
+        new Vector(18, 16),
+      ];
+      const pipesMap: Record<number, PipeConnection> = {};
+      buildPipesMap(pipes, pipesMap);
+      if (DEBUG) {
+        debugPipesMap(pipesMap);
+      }
+    });
+    it('should build complex pipes map', () => {
+      const pipes: Vector[] = [
+        new Vector(15, 15),
+        new Vector(14, 15),
+        new Vector(14, 14),
+        new Vector(13, 14),
+        new Vector(15, 14),
+        new Vector(15, 13),
+        new Vector(16, 15),
+        new Vector(17, 15),
+        new Vector(17, 14),
+        new Vector(18, 14),
+        new Vector(17, 16),
+        new Vector(18, 16),
+        new Vector(19, 13),
+        new Vector(19, 14),
+        new Vector(19, 15),
+        new Vector(19, 16),
+        new Vector(19, 17),
+        new Vector(19, 18),
+        new Vector(19, 19),
+        new Vector(19, 20),
+        new Vector(20, 20),
+        new Vector(20, 21),
+        // ---
+        new Vector(10, 3),
+        new Vector(9, 3),
+        new Vector(8, 3),
+        new Vector(8, 4),
+        new Vector(8, 5),
+        new Vector(9, 5),
+        new Vector(10, 5),
+        new Vector(11, 5),
+        new Vector(12, 5),
+        new Vector(13, 5),
+        new Vector(14, 5),
+        new Vector(15, 5),
+        new Vector(16, 5),
+        new Vector(17, 5),
+        new Vector(18, 5),
+        new Vector(19, 5),
+        new Vector(20, 5),
+        new Vector(20, 4),
+        new Vector(20, 3),
+        new Vector(19, 3),
+        new Vector(18, 3),
+        // ---
+        new Vector(3, 27),
+        new Vector(4, 27),
+        new Vector(4, 28),
+        new Vector(3, 28),
+      ];
+      const pipesMap: Record<number, PipeConnection> = {};
+      buildPipesMap(pipes, pipesMap);
+      if (DEBUG) {
+        debugPipesMap(pipesMap);
+      }
+    });
+  });
 });
