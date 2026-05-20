@@ -130,6 +130,7 @@ import {
   byCoord,
   isValidThreatType,
   lerp,
+  buildPipesMap,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -410,6 +411,7 @@ export function engine({
     drawPlayerPlannedMoves,
     drawPlayerHead,
     drawPlayerSegment,
+    drawPipes,
     erasePlayerSegmentCorner,
     drawApple,
     drawSwitches,
@@ -926,6 +928,8 @@ export function engine({
       es.switchesMap[coord] = item.type;
     });
 
+    buildPipesMap(levelData.pipes, es.pipesMap);
+
     // add initial threats
     for (let i = 0; i < levelData.threats.length; i++) {
       const x = levelData.threats[i].vec.x;
@@ -1018,6 +1022,9 @@ export function engine({
     es.doors.forEach(door => {
       astar.setWall(door.x, door.y);
     });
+    levelData.pipes.forEach(pipe => {
+      astar.setWall(pipe.x, pipe.y);
+    })
     for (let i = 0; i <= 9; i++) {
       for (let j = 0; j < es.portals[i as PortalChannel].length; j++) {
         const portalPosition = es.portals[i as PortalChannel][j];
@@ -1416,6 +1423,7 @@ export function engine({
     drawPointsText(pointsAnim);
     drawBarriers();
     drawDoors(doorsOpening);
+    drawPipes();
 
     for (let i = 0; i < es.keys.length; i++) {
       drawKey(es.keys[i])
@@ -2385,22 +2393,33 @@ export function engine({
     if (state.isButtonPressed) return;
     if (state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) return;
     if (state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY) return;
+    let instadeath = false;
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
-      const instadeath = false
+      const mortalRuin = false
         || es.threatsMap[coord] === ThreatType.Spikes
         || es.threatsMap[coord] === ThreatType.WallSpikes
         || es.threatsMap[coord] === ThreatType.Saw;
       const playerAtCoord = getCoordIndex(player.position) === coord || segments.existsAtCoord(coord);
-      if (instadeath && playerAtCoord) {
-        applyDamage(5);
+      if (mortalRuin && playerAtCoord) {
+        instadeath = true;
         state.lastHurtBy = es.threatsMap[coord] === ThreatType.Saw ? DamageType.SawCut : DamageType.SpikePierce;
-        return;
+        es.level.deathLocations ||= {};
+        es.level.deathLocations[coord] = true;
       }
+    }
+    if (instadeath) {
+      applyDamage(5);
+      state.isLost = true;
     }
   }
 
   function handleSnakeDamage(didReceiveDamage: boolean) {
     if (!didReceiveDamage) return;
+    // snake will perish soon enough.
+    if (state.lastHurtBy === DamageType.SawCut || state.lastHurtBy === DamageType.SpikePierce) {
+      state.isLost = false;
+      return;
+    }
 
     // apply "damage" to explosive barrel
     const coord = getCoordIndex(player.position);
@@ -2414,11 +2433,7 @@ export function engine({
         byCoord(coord)(threats.setLifetime, BARREL_WARN_LIFETIME);
       }
     }
-    if (state.lastHurtBy === DamageType.SawCut || state.lastHurtBy === DamageType.SpikePierce) {
-      applyDamage(5);
-    } else {
-      applyDamage(1);
-    }
+    applyDamage(1);
     if (
       state.lastHurtBy === DamageType.HitBarrier ||
       state.lastHurtBy === DamageType.HitDoor ||
@@ -2451,7 +2466,7 @@ export function engine({
 
   function handleSnakeElectrocution(): void {
     if (state.isButtonPressed) return;
-    if (state.timeSinceButtonPressChanged < 400) return;
+    if (state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY) return;
     if (state.isExitingLevel) return;
     if (state.isLost) return;
     if (state.lives < 0) return;

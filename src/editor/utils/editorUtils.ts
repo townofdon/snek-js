@@ -343,6 +343,9 @@ export function buildMapLayout(data: EditorData): string {
     if (data.applesMap[coord]) {
       return TILECHAR.Apple;
     }
+    if (data.pipesMap[coord]) {
+      return TILECHAR.Pipe;
+    }
     if (data.threatsMap[coord]) {
       return THREAT_TYPE_TO_TILE_CHAR[data.threatsMap[coord]] || TILECHAR.BarrierExitSign;
     }

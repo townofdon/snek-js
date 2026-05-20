@@ -473,6 +473,10 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frames: 7,
     timePerFrame: 200,
   } satisfies AnimationData,
+  [Image.PipesSheet]: {
+    frames: 96,
+    timePerFrame: 100,
+  } satisfies AnimationData,
   [Image.PickupsSheet]: {
     frames: 57,
     timePerFrame: 200,
@@ -562,7 +566,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ThreatWallSpikesSheet]: {
-    frames: 17,
+    frames: 16,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ThreatSawSheet]: {

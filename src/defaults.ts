@@ -95,6 +95,7 @@ export const DEFAULT_ENGINE_STATE: EngineState = {
   threatsMap: {},
   lasersMap: {},
   switchesMap: {},
+  pipesMap: {},
 } satisfies EngineState;
 
 export const DEFAULT_BASE_STATS = {

@@ -38,6 +38,7 @@ import {
   ThreatWallSpikesFrame,
   ThreatSawFrame,
   SwitchType,
+  PipeConnection,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -49,6 +50,7 @@ import { Renderer } from '../engine/renderer';
 import { Fonts } from '../fonts';
 import { PALETTE, getExtendedPalette } from '../palettes';
 import {
+  buildPipesMap,
   coordToVec,
   getCoordIndex2,
   getRotationFromDirection,
@@ -104,6 +106,7 @@ export interface EditorSketchReturn {
 
 export interface ExtendedSketchData extends EditorData {
   lasersMap: Record<number, LaserCell>,
+  pipeConnectionsMap: Record<number, PipeConnection>,
 }
 
 export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): EditorSketchReturn => {
@@ -125,6 +128,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     startDirection: EDITOR_DEFAULTS.data.startDirection,
     switchesMap: {},
     pipesMap: {},
+    pipeConnectionsMap: {},
   } satisfies ExtendedSketchData;
   const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig'> = {
     globalLight: EDITOR_DEFAULTS.options.globalLight,
@@ -368,6 +372,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         fireTiles.fillFromMap(fireBarriersMap, 99999999, Image.FireSheet);
         updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, fireTiles, null, data);
         startPortalParticles();
+        const pipes: Vector[] = Object.entries(data.pipesMap).filter(([_, val]) => !!val).map(([key]) => coordToVec(Number(key)));
+        buildPipesMap(pipes, data.pipeConnectionsMap);
       }
       renderElements();
     }
@@ -615,6 +621,13 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             case ThreatType.None:
             default:
               break;
+          }
+
+          if (data.pipeConnectionsMap[coord]) {
+            // note: frame is 0-indexed
+            const frame = data.pipeConnectionsMap[coord] % 16;
+            const offset = 4 * 16;
+            spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, x, y, frame + offset);
           }
 
           switch (data.switchesMap[coord]) {

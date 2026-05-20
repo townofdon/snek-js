@@ -100,6 +100,7 @@ export class SetPlayerSpawnCommand extends SetElementCommand {
     } else {
       this.newData.playerSpawnPosition = coordToVec(coord);
       this.newData.apple = data.applesMap[this.coord];
+      this.newData.pipe = data.pipesMap[this.coord];
       this.newData.barrier = data.barriersMap[this.coord];
       this.newData.deco1 = data.decoratives1Map[this.coord];
       this.newData.deco2 = data.decoratives2Map[this.coord];
@@ -122,6 +123,7 @@ export class DeleteElementCommand extends SetElementCommand {
       !data.applesMap[this.coord] &&
       !data.threatsMap[this.coord] &&
       !data.pickupsMap[this.coord] &&
+      !data.pipesMap[this.coord] &&
       !data.barriersMap[this.coord] &&
       !data.decoratives1Map[this.coord] &&
       !data.decoratives2Map[this.coord] &&

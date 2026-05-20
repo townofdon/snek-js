@@ -112,6 +112,7 @@ function getTile({
         return FloodFillTile.KeyYellow;
     }
   }
+  if (tile === Tile.Pipe) return FloodFillTile.Pipe;
   if (tile === Tile.Nospawn) return FloodFillTile.Nospawn;
   return FloodFillTile.None;
 }

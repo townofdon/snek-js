@@ -303,6 +303,7 @@ export interface EngineState {
   threatsMap: Record<number, ThreatType>,
   lasersMap: Record<number, LaserCell>,
   switchesMap: Record<number, SwitchType>,
+  pipesMap: Record<number, PipeConnection>,
 }
 
 export interface Outfit {
@@ -498,6 +499,7 @@ export interface Level {
    * Par level finish time in milliseconds
    */
   parTime?: number;
+  deathLocations?: Record<number, boolean>,
 }
 
 export interface IRenderer {
@@ -1097,6 +1099,7 @@ export enum Image {
   FireSheet = 'snek-fire5.png',
   TileSheet16 = 'snek-tiles-16.png',
   TileSheet48 = 'snek-tiles-48.png',
+  PipesSheet = 'snek-pipes.png',
   PickupsSheet = 'snek-pickups.png',
   PickupOutlineYellowSheet = 'snek-pickup-outline-yellow.png',
   PickupOutlineBlueSheet = 'snek-pickup-outline-blue.png',
@@ -1163,6 +1166,7 @@ export type SpritesheetImage =
   | Image.FireSheet
   | Image.TileSheet16
   | Image.TileSheet48
+  | Image.PipesSheet
   | Image.PickupsSheet
   | Image.UIKeysSheet
   | Image.WearablesSheet
@@ -1265,7 +1269,7 @@ export enum ButtonSheetFrame {
   BarricadeCollapse0,
   BarricadeCollapse1,
   BarricadeCollapse2,
-  DeathOverlay,
+  SpikeDeathOverlay,
   SpikeBlood,
   SpikeBloodRetracted,
   SpikeRetracted,

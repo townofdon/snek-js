@@ -116,6 +116,7 @@ export function engineSpawning({
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.pickupsMap[getCoordIndex2(x, y)]
       || es.lasersMap[getCoordIndex2(x, y)]
+      || es.pipesMap[getCoordIndex2(x, y)]
       || threats.existsAt(x, y);
     if (spawnedInsideOfSomething) {
       if (numTries < 30) spawnApple(numTries + 1);
@@ -388,6 +389,7 @@ export function engineSpawning({
         || es.nospawnsMap[getCoordIndex2(x, y)]
         || es.pickupsMap[getCoordIndex2(x, y)]
         || es.lasersMap[getCoordIndex2(x, y)]
+        || es.pipesMap[getCoordIndex2(x, y)]
         || threats.existsAt(x, y)
         || apples.existsAt(x, y)
         || segments.containsCoord(getCoordIndex2(x, y))
@@ -470,6 +472,7 @@ export function engineSpawning({
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.pickupsMap[getCoordIndex2(x, y)]
       || es.lasersMap[getCoordIndex2(x, y)]
+      || es.pipesMap[getCoordIndex2(x, y)]
       || threats.existsAt(x, y)
       || apples.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
@@ -504,6 +507,7 @@ export function engineSpawning({
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.pickupsMap[getCoordIndex2(x, y)]
       || es.lasersMap[getCoordIndex2(x, y)]
+      || es.pipesMap[getCoordIndex2(x, y)]
       || threats.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);
@@ -535,6 +539,7 @@ export function engineSpawning({
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.lasersMap[getCoordIndex2(x, y)]
+      || es.pipesMap[getCoordIndex2(x, y)]
       || threats.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
       || player.position.equals(x, y);

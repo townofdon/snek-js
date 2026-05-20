@@ -1,6 +1,7 @@
 import P5, { Vector } from "p5";
 import { VectorList } from "@/collections/vectorList";
 import {
+  BUTTON_RELEASE_DAMAGE_DELAY,
   ELECTROCUTION_DURATION_MS,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
@@ -320,6 +321,10 @@ export function engineMovement({
       if (es.locksMap[coord].channel === KeyChannel.Red && state.hasKeyRed) return DamageType.None;
       if (es.locksMap[coord].channel === KeyChannel.Blue && state.hasKeyBlue) return DamageType.None;
       return DamageType.HitLock;
+    }
+    // pipe
+    if (es.pipesMap[coord]) {
+      return DamageType.HitBarrier;
     }
     // threats
     if (es.threatsMap[coord] === ThreatType.LaserDiode) {

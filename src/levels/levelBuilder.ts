@@ -96,11 +96,13 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
       if (threatType) {
         data.threats.push({ vec, type: threatType });
         data.decoratives2.push(vec);
+        continue;
       }
 
       const switchType = TILE_CHAR_TO_SWITCH_TYPE[char];
       if (switchType) {
         data.switches.push({ type: switchType, vec });
+        continue;
       }
 
       switch (char) {

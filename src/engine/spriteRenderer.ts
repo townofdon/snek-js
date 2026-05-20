@@ -78,6 +78,7 @@ export class SpriteRenderer {
     [Image.FireSheet]: null,
     [Image.TileSheet16]: null,
     [Image.TileSheet48]: null,
+    [Image.PipesSheet]: null,
     [Image.PickupsSheet]: null,
     [Image.WearablesSheet]: null,
     [Image.DoorLightSheet]: null,
@@ -297,6 +298,7 @@ export class SpriteRenderer {
       this.loadImage(Image.FireSheet);
       this.loadImage(Image.TileSheet16);
       this.loadImage(Image.TileSheet48);
+      this.loadImage(Image.PipesSheet);
       this.loadImage(Image.PickupsSheet);
       this.loadImage(Image.WearablesSheet);
       this.loadImage(Image.DoorLightSheet);

@@ -63,6 +63,7 @@ import {
   ExplosionType,
   ThreatFlag,
   ButtonSheetFrame,
+  ThreatWallSpikesFrame,
 } from "@/types";
 import { UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
 import { Renderer } from "../renderer";
@@ -684,6 +685,20 @@ export function engineRendering({
     }
   }
 
+  function drawPipes() {
+    const gfx = gfxFG;
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (es.pipesMap[coord]) {
+        const x = Math.floor(coord % GRIDCOUNT_X);
+        const y = Math.floor(coord / GRIDCOUNT_X);
+        // note: frame is 0-indexed
+        const frame = es.pipesMap[coord] % 16;
+        const offset = 0 * 16;
+        spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, x, y, frame + offset);
+      }
+    }
+  }
+
   function drawSwitches() {
     const gfx = renderer.getMainGfx();
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
@@ -743,7 +758,14 @@ export function engineRendering({
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = threats.getElapsedByCoord(coord);
-          spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.Spikes, x, y, elapsed);
+          if (getCoordIndex(player.position) === coord || segments.existsAtCoord(coord)) {
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeDeathOverlay - 1);
+          } else {
+            spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.Spikes, x, y, elapsed);
+            if (es.level.deathLocations?.[coord]) {
+              spriteRenderer.drawSprite1x1(gfxFGAction, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeBlood - 1);
+            }
+          }
         } else if (threats.existsAtCoord(coord, ThreatType.WallSpikes) && !state.isButtonPressed) {
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
@@ -753,6 +775,9 @@ export function engineRendering({
           const hasBarrierRight = !!es.barriersMap[right];
           const elapsed = threats.getElapsedByCoord(coord);
           withFlipx(gfxFGAction, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
+            // if (getCoordIndex(player.position) === coord || segments.existsAtCoord(coord)) {
+            //   spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatWallSpikesSheet, tx, ty, ThreatWallSpikesFrame.DeathOverlay - 1);
+            // }
             spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, tx, ty, elapsed);
           });
         } else if (threats.existsAtCoord(coord, ThreatType.Saw) && !state.isButtonPressed) {
@@ -773,6 +798,9 @@ export function engineRendering({
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
           spriteRenderer.drawSprite1x1(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeRetracted - 1);
+          if (es.level.deathLocations?.[coord]) {
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeBloodRetracted - 1);
+          }
         } else if (threats.existsAtCoord(coord, ThreatType.WallSpikes)) {
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
@@ -1390,6 +1418,7 @@ export function engineRendering({
     drawPlayerPlannedMoves,
     drawPlayerHead,
     drawPlayerSegment,
+    drawPipes,
     erasePlayerSegmentCorner,
     drawApple,
     drawSwitches,
