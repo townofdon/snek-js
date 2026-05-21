@@ -495,6 +495,8 @@ export class DeleteLineCommand extends SetLineCommand {
       this.dataRef.current.applesMap[coord] ||
       !!this.dataRef.current.threatsMap[coord] ||
       !!this.dataRef.current.pickupsMap[coord] ||
+      !!this.dataRef.current.pipesMap[coord] ||
+      !!this.dataRef.current.switchesMap ||
       !!this.dataRef.current.barriersMap[coord] ||
       this.dataRef.current.decoratives1Map[coord] ||
       this.dataRef.current.decoratives2Map[coord] ||
@@ -763,6 +765,8 @@ export class DeleteRectangleCommand extends SetRectangleCommand {
       this.dataRef.current.applesMap[coord] ||
       !!this.dataRef.current.threatsMap[coord] ||
       !!this.dataRef.current.pickupsMap ||
+      !!this.dataRef.current.pipesMap ||
+      !!this.dataRef.current.switchesMap ||
       !!this.dataRef.current.barriersMap[coord] ||
       this.dataRef.current.decoratives1Map[coord] ||
       this.dataRef.current.decoratives2Map[coord] ||
