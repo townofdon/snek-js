@@ -62,6 +62,9 @@ import {
   BARREL_CASCADE_LIFETIME,
   BARREL_CRIT_LIFETIME,
   BUTTON_RELEASE_DAMAGE_DELAY,
+  LUNGE_COOLDOWN,
+  LUNGE_STEPS,
+  SPEED_LIMIT_ULTRA,
 } from "../constants";
 import {
   Action,
@@ -722,6 +725,7 @@ export function engine({
     screenShake.offset.y = 0;
     state.targetSpeed = 1;
     state.currentSpeed = 1;
+    state.lungeStepsRemaining = 0;
     state.steps = 0;
     state.pity = 0;
     state.frameCount = 0;
@@ -732,7 +736,7 @@ export function engine({
     state.hasKeyBlue = false;
     es.moves = [];
     es.recentMoves = [null, null, null, null];
-    es.recentInputs = [null, null, null, null];
+    es.recentMoveInputs = [null, null, null, null];
     es.recentInputTimes = [Infinity, Infinity, Infinity, Infinity];
     es.barriers = [];
     es.doors = [];
@@ -1234,6 +1238,7 @@ export function engine({
       player.directionLastHit = player.direction;
       state.collisions += 1;
       state.isLost = true;
+      damageEnvironmentAtPosition(coord);
     }
     handleSnakeSpikeDeath();
     handleSnakeTrapped(state.isLost && state.lives > 0);
@@ -1313,6 +1318,7 @@ export function engine({
   const inputCallbacks: InputCallbacks = {
     onWarpToLevel: warpToLevel,
     onAddMove,
+    onLunge,
     onResetMoves,
     onUINavigate,
   }
@@ -1330,6 +1336,7 @@ export function engine({
       player.directionToFirstSegment,
       es.moves,
       es.recentMoves,
+      es.recentMoveInputs,
       es.recentInputs,
       es.recentInputTimes,
       checkPlayerWillHit,
@@ -1351,6 +1358,17 @@ export function engine({
         es.recentMoves[i] = currentMove;
       }
     }
+  }
+
+  function onLunge(dir: DIR): void {
+    if (state.timeSinceHurt < HURT_STUN_TIME) return;
+    if (state.lungeStepsRemaining > 0) return;
+    if (state.timeSinceLungeStart < LUNGE_COOLDOWN) return;
+    state.timeSinceLungeStart = 0;
+    state.lungeStepsRemaining = LUNGE_STEPS;
+    player.direction = dir;
+    es.moves = [];
+    playSound(Sound.moveStart);
   }
 
   function onResetMoves() {
@@ -2297,27 +2315,16 @@ export function engine({
     if (heldItems.armor <= 0) return false;
 
     const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
-    // check if barrier at player position is breakable
-    let isBreakable = false;
     const coord = getCoordIndex(vec);
-    const isPassableBarrier = state.isDoorsOpen && es.passablesMap[coord];
-    if (!isPassableBarrier && es.barriersMap[coord]) {
-      isBreakable = es.barriersMap[coord] && isBreakableBarrier(es.barriersMap[coord]);
-    }
-    if (isBreakable) {
-      state.timeSinceArmorProtection = 0;
-      removeBarrierTile(coord);
-      playSound(Sound.xplodeLong);
-      startScreenShake(2, 0, 0.8);
-      reboundSnake(segments.length > 3 ? 2 : 1);
-    } else if (invincible) {
+    if (invincible) {
       state.timeSinceArmorProtection = 0;
       startAutoRewind()
       startScreenShake(0.3, 0.8);
-    } else if (isSnakeTrapped()) {
+    } else if (!damageEnvironmentAtPosition(coord) && isSnakeTrapped()) {
       return false;
     } else {
       state.timeSinceArmorProtection = 0;
+      state.lungeStepsRemaining = 0;
       heldItems.armor -= 1;
       playSound(Sound.hurtSave);
       reboundSnake(segments.length > 3 ? 2 : 1);
@@ -2336,6 +2343,33 @@ export function engine({
     const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
     explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
     recalculateLasersMap(es, threats);
+  }
+
+  /**
+   * apply "damage" to explosive barrel, breakable wall, etc.
+   * determine if a wall should be destroyed while the player is lunging.
+   */
+  const damageEnvironmentAtPosition = (coord: number): boolean => {
+    const lunging = state.lungeStepsRemaining > 0 || state.timeSinceLungeStart < SPEED_LIMIT_ULTRA * (LUNGE_STEPS + 1);
+    const swole = getLevelProgress(stats, es.level, es.difficulty) > 0.45 || segments.length >= 50;
+    const canBreakWalls = (lunging && swole) || heldItems.armor > 0;
+    if (canBreakWalls && !es.passablesMap[coord] && isBreakableBarrier(es.barriersMap[coord])) {
+      removeBarrierTile(coord);
+      playSound(Sound.xplodeLong);
+      startScreenShake(2, 0, 0.8);
+      return true;
+    } else if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
+      const timeRemaining = byCoord(coord)(threats.getTimeRemaining);
+      if (timeRemaining <= BARREL_CRIT_LIFETIME) {
+        threats.removeByCoord(coord, RemovalReason.Explode);
+      } else if (timeRemaining <= BARREL_WARN_LIFETIME) {
+        byCoord(coord)(threats.setLifetime, BARREL_CRIT_LIFETIME);
+      } else {
+        byCoord(coord)(threats.setLifetime, BARREL_WARN_LIFETIME);
+      }
+      return true;
+    }
+    return false;
   }
 
   function isSnakeTrapped() {
@@ -2420,19 +2454,6 @@ export function engine({
       state.isLost = false;
       return;
     }
-
-    // apply "damage" to explosive barrel
-    const coord = getCoordIndex(player.position);
-    if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
-      const timeRemaining = byCoord(coord)(threats.getTimeRemaining);
-      if (timeRemaining <= BARREL_CRIT_LIFETIME) {
-        threats.removeByCoord(coord, RemovalReason.Explode);
-      } else if (timeRemaining <= BARREL_WARN_LIFETIME) {
-        byCoord(coord)(threats.setLifetime, BARREL_CRIT_LIFETIME);
-      } else {
-        byCoord(coord)(threats.setLifetime, BARREL_WARN_LIFETIME);
-      }
-    }
     applyDamage(1);
     if (
       state.lastHurtBy === DamageType.HitBarrier ||
@@ -2461,6 +2482,7 @@ export function engine({
       player.direction = getDirectionSnakeForward();
     }
 
+    state.lungeStepsRemaining = 0;
     es.moves = [];
   }
 

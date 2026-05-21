@@ -179,7 +179,7 @@ export const DIFFICULTY_EASY: Difficulty = {
   speedStart: SPEED_START_EASY,
   speedLimit: SPEED_LIMIT_EASY,
   speedSteps: SPEED_STEPS_EASY,
-  sprintLimit: SPEED_LIMIT_MEDIUM,
+  sprintLimit: SPEED_LIMIT_HARD,
   invincibilityTime: INVINCIBILITY_TIME_EASY,
 } as const
 export const DIFFICULTY_MEDIUM: Difficulty = {
@@ -255,6 +255,9 @@ export const KEYCODE_F10 = 121;
 export const SCREEN_SHAKE_DURATION_MS = 1000;
 export const SCREEN_SHAKE_MAGNITUDE_PX = 4;
 
+export const LUNGE_STEPS = 4;
+export const LUNGE_COOLDOWN = 300;
+export const LUNGE_INPUT_WINDOW = 160;
 export const HURT_FORGIVENESS_TIME = 160;
 export const HURT_STUN_TIME = 600;
 export const HURT_MOVE_RESET_INITIAL_DELAY = 100;

@@ -8,6 +8,7 @@ import {
   HURT_GRACE_TIME,
   HURT_STUN_TIME,
   SPEED_INCREMENT_SPEED_MS,
+  SPEED_LIMIT_ULTRA,
   SPEED_LIMIT_ULTRA_SPRINT,
   SPRINT_INCREMENT_SPEED_MS,
   START_SNAKE_SIZE,
@@ -192,13 +193,13 @@ export function engineMovement({
       state.isLost = true;
       state.lastHurtBy = DamageType.QuantumEntanglement;
     }
-    // apply system rotation to es.recentInputs and es.recentMoves so that special moves (u-turn, etc) still work
+    // apply system rotation to es.recentMoveInputs and es.recentMoves so that special moves (u-turn, etc) still work
     if (prevDir !== newDir) {
       for (let i = 0; i < es.recentMoves.length; i++) {
         es.recentMoves[i] = rotateSystemAfterPortalTraverse(prevDir, newDir, es.recentMoves[i]);
       }
-      for (let i = 0; i < es.recentInputs.length; i++) {
-        es.recentInputs[i] = rotateSystemAfterPortalTraverse(prevDir, newDir, es.recentInputs[i]);
+      for (let i = 0; i < es.recentMoveInputs.length; i++) {
+        es.recentMoveInputs[i] = rotateSystemAfterPortalTraverse(prevDir, newDir, es.recentMoveInputs[i]);
       }
     }
   }
@@ -211,7 +212,16 @@ export function engineMovement({
     if (state.timeSinceArmorProtection < HURT_STUN_TIME) return false;
     state.timeSinceLastMove = 0;
     const prevDirection = player.direction;
-    if (es.moves.length > 0 && !state.isExitingLevel) {
+    // check lunge cancel
+    if (es.moves.length > 0
+      && !state.isExitingLevel
+      && state.lungeStepsRemaining < 3
+      && es.moves[0] !== player.direction
+    ) {
+      state.lungeStepsRemaining = 0;
+    }
+    // check for queued-up moves
+    if (es.moves.length > 0 && !state.isExitingLevel && state.lungeStepsRemaining <= 0) {
       const move = es.moves.shift();
       if (move && move !== player.directionToFirstSegment) player.direction = move;
     }
@@ -228,14 +238,7 @@ export function engineMovement({
     const willHitSomething = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
     const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     const canAutoRewind = rewindAllowed(invincible);
-    const futureCoord = getCoordIndex(futurePosition);
-    const isBreakable = !es.passablesMap[futureCoord] && isBreakableBarrier(es.barriersMap[futureCoord]);
-    const extraGraceTime = (isBreakable && heldItems.armor > 0) ? 0 : es.level.extraHurtGraceTime ?? 0;
-    const hurtGraceTime = Math.max(
-      HURT_GRACE_TIME + extraGraceTime + (es.difficulty.index === 4 ? 12 : 0),
-      // if currently invincible or in casual mode, wait a bit longer before starting rewind
-      canAutoRewind ? TIME_WAIT_BEFORE_REWIND : 0,
-    );
+    const hurtGraceTime = _getHurtGraceTime(futurePosition, canAutoRewind);
     if (willHitSomething && state.timeSinceGraceStarted <= hurtGraceTime) {
       state.timeSinceGraceStarted += loopState.deltaTime;
       return false;
@@ -263,7 +266,21 @@ export function engineMovement({
       playSound(Sound.step2, volume);
     }
     state.steps += 1;
+    state.lungeStepsRemaining = Math.max(0, state.lungeStepsRemaining - 1);
     return true;
+  }
+
+  function _getHurtGraceTime(futurePosition: Vector, canAutoRewind: boolean) {
+    if (state.lungeStepsRemaining > 0) return 0;
+    const futureCoord = getCoordIndex(futurePosition);
+    const isBreakable = !es.passablesMap[futureCoord] && isBreakableBarrier(es.barriersMap[futureCoord]);
+    const extraGraceTime = (isBreakable && heldItems.armor > 0) ? 0 : es.level.extraHurtGraceTime ?? 0;
+    const hurtGraceTime = Math.max(
+      HURT_GRACE_TIME + extraGraceTime + (es.difficulty.index === 4 ? 12 : 0),
+      // if currently invincible or in casual mode, wait a bit longer before starting rewind
+      canAutoRewind ? TIME_WAIT_BEFORE_REWIND : 0,
+    );
+    return hurtGraceTime;
   }
 
   /**
@@ -387,6 +404,18 @@ export function engineMovement({
     }
     if (!checkIsMoving(state, loopState)) {
       return Infinity;
+    }
+    if (state.isSprinting && state.lungeStepsRemaining > 2) {
+      return 0;
+    }
+    if (state.isSprinting && state.lungeStepsRemaining > 0) {
+      return Math.min(es.difficulty.sprintLimit, 10);
+    }
+    if (state.lungeStepsRemaining > 2) {
+      return SPEED_LIMIT_ULTRA_SPRINT;
+    }
+    if (state.lungeStepsRemaining > 0) {
+      return Math.min(es.difficulty.sprintLimit, SPEED_LIMIT_ULTRA);
     }
     if (es.difficulty.index === 4 && state.isSprinting) {
       return es.difficulty.sprintLimit;

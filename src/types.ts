@@ -267,6 +267,10 @@ export interface GameState {
    */
   steps: number,
   /**
+   * Number of lunge steps remaining
+   */
+  lungeStepsRemaining: number,
+  /**
    * Pity system for pickup spawns [0-1]
    */
   pity: number,
@@ -282,8 +286,9 @@ export interface EngineState {
   difficulty: Difficulty,
   moves: DIR[], // moves that the player has queued up
   recentMoves: RecentMoves, // most recent moves that the snake has performed
-  recentInputs: RecentMoves, // most recent inputs that the player has performed
-  recentInputTimes: RecentMoveTimings, // timing of the most recent inputs that the player has performed
+  recentMoveInputs: RecentMoves, // most recent inputs that the player has performed that would result in a move. Discards duplicate move attempts.
+  recentInputs: RecentMoves, // most recent player inputs (always captured, never filtered or discarded)
+  recentInputTimes: RecentMoveTimings, // timing of the most recent inputs that the player has performed (always captured)
   barriers: Barrier[], // permanent structures that damage the snake
   doors: Vector[], // like barriers, except that they disappear once the player has "cleared" a level (player must still exit the level though)
   decoratives1: Vector[], // bg decorative elements
