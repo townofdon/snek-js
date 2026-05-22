@@ -484,6 +484,10 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frames: 57,
     timePerFrame: 200,
   } satisfies AnimationData,
+  [Image.Pickups2Sheet]: {
+    frames: 104,
+    timePerFrame: 200,
+  } satisfies AnimationData,
   [Image.WearablesSheet]: {
     frames: 27,
     timePerFrame: 200,
@@ -715,6 +719,19 @@ Object.entries(ANIMATIONS).forEach(([key, val]) => {
   }
 })
 
+export const PICKUP_MEAT_ITEMS: PickupType[] = [
+  PickupType.Meat1,
+  PickupType.Meat2,
+  PickupType.Meat3,
+  PickupType.Meat4,
+  PickupType.Meat5,
+  PickupType.Meat6,
+  PickupType.Meat7,
+  PickupType.Meat8,
+  PickupType.Meat9,
+  PickupType.Bone,
+];
+
 export const PICKUP_COMMON_ITEMS: PickupType[] = [
   PickupType.Cheese,
   PickupType.Carrot,
@@ -726,6 +743,29 @@ export const PICKUP_COMMON_ITEMS: PickupType[] = [
   PickupType.Mushroom,
   PickupType.BreadLoaf,
   PickupType.Cucumber,
+  PickupType.Turnip,
+  PickupType.Eggplant,
+  PickupType.Vidalia1,
+  PickupType.Vidalia2,
+  PickupType.Pickle,
+  PickupType.Mushroom2,
+  PickupType.Mushroom3,
+  PickupType.Tomato2,
+  PickupType.Lettuce,
+  PickupType.Carrot2,
+  PickupType.Garlic,
+  PickupType.Celery,
+  PickupType.PotatoSprouts,
+  PickupType.Mint,
+  PickupType.Jalapeño,
+  PickupType.Cheese2,
+  PickupType.Egg2,
+  PickupType.Cracker,
+  PickupType.Peanut,
+  PickupType.Chestnut,
+  PickupType.Walnut,
+  PickupType.Butter,
+  PickupType.Salt,
 ];
 export const PICKUP_RARE_ITEMS: PickupType[] = [
   PickupType.Pretzel,
@@ -744,9 +784,40 @@ export const PICKUP_RARE_ITEMS: PickupType[] = [
   PickupType.Croisant,
   PickupType.Baguette,
   PickupType.Cupcake,
-  PickupType.Donut,
+  PickupType.Habañero,
+  PickupType.Burger2,
+  PickupType.Taco2,
+  PickupType.Burrito,
+  PickupType.PizzaSlice2,
+  PickupType.PizzaPie,
+  PickupType.Quiche1,
+  PickupType.Quiche2,
+  PickupType.Dish1,
+  PickupType.Dish2,
+  PickupType.Dish2,
+  PickupType.BowlSoup,
+  PickupType.Steak,
+  PickupType.FishPurple,
+  PickupType.ShrimpRaw,
+  PickupType.ShrimpCooked,
+  PickupType.Shishkabob,
+  PickupType.Fish1,
+  PickupType.Fish2,
+  PickupType.Fish3,
+  PickupType.Tuna,
+  PickupType.BreadLoaf2,
+  PickupType.Coconut,
+  PickupType.Honeypot,
+  PickupType.Milk,
+  PickupType.Coffee,
+  PickupType.Latte,
+  PickupType.WaterVase,
+  PickupType.Peppermint,
+  PickupType.CandyGreen,
+  ...PICKUP_MEAT_ITEMS,
 ];
 export const PICKUP_EPIC_ITEMS: PickupType[] = [
+  PickupType.Donut,
   PickupType.Banana,
   PickupType.Watermelon,
   PickupType.Mango,
@@ -758,18 +829,62 @@ export const PICKUP_EPIC_ITEMS: PickupType[] = [
   PickupType.Peach,
   PickupType.Lemon,
   PickupType.Lime,
+  PickupType.BananaBunch,
+  PickupType.Apple,
+  PickupType.AppleGreen,
+  PickupType.Strawberry2,
+  PickupType.Grapes2,
+  PickupType.Grapes3,
+  PickupType.Watermelon2,
+  PickupType.Pear2,
+  PickupType.Orange2,
+  PickupType.Cappuccino,
+  PickupType.Beer1,
+  PickupType.Beer2,
+  PickupType.CherryPie,
+  PickupType.ChocolateCake,
+  PickupType.Cheesecake,
+  PickupType.PumpkinMuffin,
+  PickupType.ChocolateMuffin,
+  PickupType.ChocolateCupcake,
+  PickupType.BigCake,
+  PickupType.NeopolitanIceCream,
+  PickupType.Popsicle2,
+  PickupType.ChocolatePopsicle,
+  PickupType.Cupcake2,
+  PickupType.StrawberryIceCreamCone,
+  PickupType.Donut2,
+  PickupType.Donut3,
+  PickupType.Oreo,
+  PickupType.Cookie,
+  PickupType.ChocolateBar2,
+  PickupType.Nouget,
+  PickupType.Pie1,
+  PickupType.Pie2,
+  PickupType.Pie3,
+  PickupType.Pie4,
+  PickupType.Pie5,
 ];
 export const PICKUP_LEGENDARY_ITEMS: PickupType[] = [
   PickupType.Strawberry,
   PickupType.GoldenApple,
   PickupType.RainbowCake,
   PickupType.Sushi,
+  PickupType.Sushi2,
   PickupType.Milkshake,
   PickupType.ChiliPepper,
+  PickupType.ChiliPepper2,
+  PickupType.Eel,
+  PickupType.Cocktail,
+  PickupType.PotionGreen,
+  PickupType.PotionRed,
+  PickupType.PotionHealth,
 ];
 // NOTE - this is 1-indexed!!! This is a 1:1 lookup from spritesheet in Aseprite.
 export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
   [PickupType.None]: 0,
+  [PickupType.__PICKUPS2_OFFSET__]: 0,
+  // snek-pickups.ase
   [PickupType.Invincibility]: 0,
   [PickupType.Reversibility]: 56,
   [PickupType.Armor]: 0,
@@ -819,25 +934,143 @@ export const PICKUP_SPRITE_FRAME_MAP: Record<PickupType, number> = ({
   [PickupType.Sushi]: 45,
   [PickupType.Milkshake]: 46,
   [PickupType.ChiliPepper]: 47,
-} as const satisfies Record<PickupType, number>);
+  [PickupType.CherryPie]: PickupType.CherryPie - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.ChocolateCake]: PickupType.ChocolateCake - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Cheesecake]: PickupType.Cheesecake - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.PumpkinMuffin]: PickupType.PumpkinMuffin - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.ChocolateMuffin]: PickupType.ChocolateMuffin - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.ChocolateCupcake]: PickupType.ChocolateCupcake - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.BigCake]: PickupType.BigCake - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.NeopolitanIceCream]: PickupType.NeopolitanIceCream - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Popsicle2]: PickupType.Popsicle2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.ChocolatePopsicle]: PickupType.ChocolatePopsicle - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Cupcake2]: PickupType.Cupcake2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.StrawberryIceCreamCone]: PickupType.StrawberryIceCreamCone - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Donut2]: PickupType.Donut2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Donut3]: PickupType.Donut3 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Peppermint]: PickupType.Peppermint - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.CandyGreen]: PickupType.CandyGreen - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Oreo]: PickupType.Oreo - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Cookie]: PickupType.Cookie - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.ChocolateBar2]: PickupType.ChocolateBar2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Nouget]: PickupType.Nouget - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Pie1]: PickupType.Pie1 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Pie2]: PickupType.Pie2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Pie3]: PickupType.Pie3 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Pie4]: PickupType.Pie4 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Pie5]: PickupType.Pie5 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Meat1]: PickupType.Meat1 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Meat2]: PickupType.Meat2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Meat3]: PickupType.Meat3 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Meat4]: PickupType.Meat4 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Meat5]: PickupType.Meat5 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Meat6]: PickupType.Meat6 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Meat7]: PickupType.Meat7 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Meat8]: PickupType.Meat8 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Meat9]: PickupType.Meat9 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Bone]: PickupType.Bone - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Turnip]: PickupType.Turnip - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Eggplant]: PickupType.Eggplant - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Mushroom2]: PickupType.Mushroom2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Vidalia1]: PickupType.Vidalia1 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Vidalia2]: PickupType.Vidalia2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Pickle]: PickupType.Pickle - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Mushroom3]: PickupType.Mushroom3 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Tomato2]: PickupType.Tomato2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Lettuce]: PickupType.Lettuce - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Carrot2]: PickupType.Carrot2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Garlic]: PickupType.Garlic - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Celery]: PickupType.Celery - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.PotatoSprouts]: PickupType.PotatoSprouts - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Mint]: PickupType.Mint - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Jalapeño]: PickupType.Jalapeño - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Habañero]: PickupType.Habañero - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.ChiliPepper2]: PickupType.ChiliPepper2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Burger2]: PickupType.Burger2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Taco2]: PickupType.Taco2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Burrito]: PickupType.Burrito - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.PizzaSlice2]: PickupType.PizzaSlice2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.PizzaPie]: PickupType.PizzaPie - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Quiche1]: PickupType.Quiche1 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Quiche2]: PickupType.Quiche2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Sushi2]: PickupType.Sushi2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Dish1]: PickupType.Dish1 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Dish2]: PickupType.Dish2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.BowlSoup]: PickupType.BowlSoup - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Steak]: PickupType.Steak - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.FishPurple]: PickupType.FishPurple - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.ShrimpRaw]: PickupType.ShrimpRaw - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.ShrimpCooked]: PickupType.ShrimpCooked - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Shishkabob]: PickupType.Shishkabob - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Fish1]: PickupType.Fish1 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Fish2]: PickupType.Fish2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Fish3]: PickupType.Fish3 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Tuna]: PickupType.Tuna - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Eel]: PickupType.Eel - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Cheese2]: PickupType.Cheese2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Egg2]: PickupType.Egg2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.BreadLoaf2]: PickupType.BreadLoaf2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Cracker]: PickupType.Cracker - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Peanut]: PickupType.Peanut - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Chestnut]: PickupType.Chestnut - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Walnut]: PickupType.Walnut - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Coconut]: PickupType.Coconut - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Honeypot]: PickupType.Honeypot - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Butter]: PickupType.Butter - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Salt]: PickupType.Salt - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.BananaBunch]: PickupType.BananaBunch - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Apple]: PickupType.Apple - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.AppleGreen]: PickupType.AppleGreen - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Strawberry2]: PickupType.Strawberry2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Grapes2]: PickupType.Grapes2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Grapes3]: PickupType.Grapes3 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Watermelon2]: PickupType.Watermelon2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Pear2]: PickupType.Pear2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Orange2]: PickupType.Orange2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Milk]: PickupType.Milk - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Cocktail]: PickupType.Cocktail - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Cappuccino]: PickupType.Cappuccino - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Coffee]: PickupType.Coffee - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Latte]: PickupType.Latte - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.WaterVase]: PickupType.WaterVase - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Beer1]: PickupType.Beer1 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.Beer2]: PickupType.Beer2 - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.PotionGreen]: PickupType.PotionGreen - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.PotionRed]: PickupType.PotionRed - PickupType.__PICKUPS2_OFFSET__,
+  [PickupType.PotionHealth]: PickupType.PotionHealth - PickupType.__PICKUPS2_OFFSET__,
+} satisfies Record<PickupType, number>);
 
 // validate PickupType rarities
-Object.entries(PickupType).forEach(([key, pickupType]) => {
-  if (typeof pickupType === 'string') return;
-  if ([
-    PickupType.None,
-    PickupType.Invincibility,
-    PickupType.Reversibility,
-    PickupType.Armor,
-    PickupType.HealthPack,
-    PickupType.WeightLossPill,
-  ].includes(pickupType)) return;
-  if (PICKUP_COMMON_ITEMS.includes(pickupType)) return;
-  if (PICKUP_RARE_ITEMS.includes(pickupType)) return;
-  if (PICKUP_EPIC_ITEMS.includes(pickupType)) return;
-  if (PICKUP_LEGENDARY_ITEMS.includes(pickupType)) return;
-  throw new Error(`PickupType ${key} (${pickupType}) is missing from all rarity lists.`);
-});
+const pickupTypeDuplicates: Partial<Record<PickupType, boolean>> = {};
+const errors = Object.entries(PickupType).map(([key, pickupType]) => {
+  try {
+    if (typeof pickupType === 'string') return;
+    if ([
+      PickupType.None,
+      PickupType.Invincibility,
+      PickupType.Reversibility,
+      PickupType.Armor,
+      PickupType.HealthPack,
+      PickupType.WeightLossPill,
+      PickupType.__PICKUPS2_OFFSET__,
+    ].includes(pickupType)) return;
+    if (pickupTypeDuplicates[pickupType]) {
+      throw new Error(`Duplicate PickupType ${key} (${pickupType})`);
+    }
+    pickupTypeDuplicates[pickupType] = true;
+    if (PICKUP_COMMON_ITEMS.includes(pickupType)) return;
+    if (PICKUP_RARE_ITEMS.includes(pickupType)) return;
+    if (PICKUP_EPIC_ITEMS.includes(pickupType)) return;
+    if (PICKUP_LEGENDARY_ITEMS.includes(pickupType)) return;
+    throw new Error(`PickupType ${key} (${pickupType}) is missing from all rarity lists.`);
+    return null;
+  } catch (error) {
+    return error;
+  }
+}).filter(err => !!err);
+if (errors.length) {
+  throw new Error('Validation errors:\n' + errors.join('\n'));
+}
 
 export const PICKUP_TYPE_RARITY_MAP: Record<PickupType, number> = Object.values(PickupType)
   .filter(v => typeof v !== 'string')

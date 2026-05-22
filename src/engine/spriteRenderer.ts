@@ -80,6 +80,7 @@ export class SpriteRenderer {
     [Image.TileSheet48]: null,
     [Image.PipesSheet]: null,
     [Image.PickupsSheet]: null,
+    [Image.Pickups2Sheet]: null,
     [Image.WearablesSheet]: null,
     [Image.DoorLightSheet]: null,
     [Image.DoorOpenSheet]: null,
@@ -300,6 +301,7 @@ export class SpriteRenderer {
       this.loadImage(Image.TileSheet48);
       this.loadImage(Image.PipesSheet);
       this.loadImage(Image.PickupsSheet);
+      this.loadImage(Image.Pickups2Sheet);
       this.loadImage(Image.WearablesSheet);
       this.loadImage(Image.DoorLightSheet);
       this.loadImage(Image.DoorOpenSheet);

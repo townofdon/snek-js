@@ -46,6 +46,7 @@ import {
   RARITY_LEGENDARY,
   BARREL_WARN_LIFETIME,
   PICKUP_LEGENDARY_ITEMS,
+  PICKUP_MEAT_ITEMS,
 } from "@/constants";
 import { AnimationList, RemovalReason } from "@/collections/animationList";
 import { AppleList } from "@/collections/appleList";
@@ -379,6 +380,18 @@ export function engineSpawning({
     playSound(Sound.shieldSpawn, 0.45);
   }
 
+  function spawnMeatItem(x: number, y: number) {
+    const idx = Math.floor(Math.random() * PICKUP_MEAT_ITEMS.length);
+    es.pickupsMap[getCoordIndex2(x, y)] = {
+      lifetime: 999999999999,
+      type: PICKUP_MEAT_ITEMS[idx],
+    };
+    if (!apples.existsAt(x, y)) {
+      apples.add(x, y);
+    }
+    playSound(Sound.shieldSpawn, 0.45);
+  }
+
   function chooseSpawnLocation(initialCoord = -1): number {
     if (initialCoord < 0) {
       initialCoord = getCoordIndex2(
@@ -575,5 +588,6 @@ export function engineSpawning({
     spawnArmorPickup,
     chooseSpawnLocation,
     spawnLegendaryItem,
+    spawnMeatItem,
   };
 }

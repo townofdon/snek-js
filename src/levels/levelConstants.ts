@@ -547,6 +547,13 @@ type PickupTileChar =
   | TILECHAR.HealthPack
   | TILECHAR.WeightLossPill;
 
+type PickupTypeTile =
+  | PickupType.Invincibility
+  | PickupType.Reversibility
+  | PickupType.Armor
+  | PickupType.HealthPack
+  | PickupType.WeightLossPill;
+
 export const TILE_CHAR_TO_PICKUP_TYPE: Record<PickupTileChar, 0 | PowerupPickup> = {
   [TILECHAR.Invincibility]: PickupType.Invincibility,
   [TILECHAR.Reversibility]: PickupType.Reversibility,
@@ -555,58 +562,13 @@ export const TILE_CHAR_TO_PICKUP_TYPE: Record<PickupTileChar, 0 | PowerupPickup>
   [TILECHAR.WeightLossPill]: PickupType.WeightLossPill,
 } satisfies Record<PickupTileChar, 0 | PowerupPickup>;
 
-export const PICKUP_TYPE_TO_FLOOD_FILL_TILE: Record<PickupType, FloodFillTile> = {
+export const PICKUP_TYPE_TO_FLOOD_FILL_TILE: Record<PickupTypeTile, FloodFillTile> = {
   [PickupType.Invincibility]: FloodFillTile.PickupInvincibility,
   [PickupType.Reversibility]: FloodFillTile.PickupReversibility,
   [PickupType.Armor]: FloodFillTile.PickupArmor,
   [PickupType.HealthPack]: FloodFillTile.PickupHealthPack,
   [PickupType.WeightLossPill]: FloodFillTile.PickupWeightLossPill,
-  [PickupType.None]: 0,
-  [PickupType.Cheese]: 0,
-  [PickupType.Carrot]: 0,
-  [PickupType.Potato]: 0,
-  [PickupType.Tomato]: 0,
-  [PickupType.Onion]: 0,
-  [PickupType.Cabbage]: 0,
-  [PickupType.Broccoli]: 0,
-  [PickupType.Mushroom]: 0,
-  [PickupType.BreadLoaf]: 0,
-  [PickupType.Cucumber]: 0,
-  [PickupType.Pretzel]: 0,
-  [PickupType.Taco]: 0,
-  [PickupType.Drumstick]: 0,
-  [PickupType.Burger]: 0,
-  [PickupType.PizzaSlice]: 0,
-  [PickupType.HotDog]: 0,
-  [PickupType.Egg]: 0,
-  [PickupType.Fries]: 0,
-  [PickupType.Candy]: 0,
-  [PickupType.ChocolateBar]: 0,
-  [PickupType.Popsicle]: 0,
-  [PickupType.Lollipop]: 0,
-  [PickupType.Muffin]: 0,
-  [PickupType.Croisant]: 0,
-  [PickupType.Baguette]: 0,
-  [PickupType.Cupcake]: 0,
-  [PickupType.Donut]: 0,
-  [PickupType.Banana]: 0,
-  [PickupType.Watermelon]: 0,
-  [PickupType.Mango]: 0,
-  [PickupType.Grapes]: 0,
-  [PickupType.Kiwi]: 0,
-  [PickupType.Orange]: 0,
-  [PickupType.Cherries]: 0,
-  [PickupType.Pear]: 0,
-  [PickupType.Peach]: 0,
-  [PickupType.Lemon]: 0,
-  [PickupType.Lime]: 0,
-  [PickupType.Strawberry]: 0,
-  [PickupType.GoldenApple]: 0,
-  [PickupType.RainbowCake]: 0,
-  [PickupType.Sushi]: 0,
-  [PickupType.Milkshake]: 0,
-  [PickupType.ChiliPepper]: 0,
-} satisfies Record<PickupType, FloodFillTile>;
+} satisfies Record<PickupTypeTile, FloodFillTile>;
 
 type PickupFloodFillTile =
   | FloodFillTile.PickupInvincibility

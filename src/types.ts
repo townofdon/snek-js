@@ -1106,6 +1106,7 @@ export enum Image {
   TileSheet48 = 'snek-tiles-48.png',
   PipesSheet = 'snek-pipes.png',
   PickupsSheet = 'snek-pickups.png',
+  Pickups2Sheet = 'snek-pickups-2.png',
   PickupOutlineYellowSheet = 'snek-pickup-outline-yellow.png',
   PickupOutlineBlueSheet = 'snek-pickup-outline-blue.png',
   Points500 = 'snek-points-500.png',
@@ -1173,6 +1174,7 @@ export type SpritesheetImage =
   | Image.TileSheet48
   | Image.PipesSheet
   | Image.PickupsSheet
+  | Image.Pickups2Sheet
   | Image.UIKeysSheet
   | Image.WearablesSheet
   | Image.DoorLightSheet
@@ -1520,6 +1522,7 @@ export enum PickupRarity {
 
 export enum PickupType {
   None = 0,
+  // --- snek-pickups.ase ---
   Invincibility,
   Reversibility,
   Armor,
@@ -1573,6 +1576,118 @@ export enum PickupType {
   Sushi,
   Milkshake,
   ChiliPepper,
+  // --- snek-pickups-2.ase ---
+  __PICKUPS2_OFFSET__,
+  // sweet treats
+  CherryPie,
+  ChocolateCake,
+  Cheesecake,
+  PumpkinMuffin,
+  ChocolateMuffin,
+  ChocolateCupcake,
+  BigCake,
+  NeopolitanIceCream,
+  Popsicle2,
+  ChocolatePopsicle,
+  Cupcake2,
+  StrawberryIceCreamCone,
+  Donut2,
+  Donut3,
+  Peppermint,
+  CandyGreen,
+  Oreo,
+  Cookie,
+  ChocolateBar2,
+  Nouget,
+  Pie1, // dutch apple
+  Pie2, // pecan
+  Pie3, // pumpkin
+  Pie4,
+  Pie5,
+  // meats
+  Meat1,
+  Meat2,
+  Meat3,
+  Meat4,
+  Meat5,
+  Meat6,
+  Meat7,
+  Meat8,
+  Meat9,
+  Bone,
+  // vegetables
+  Turnip,
+  Eggplant,
+  Mushroom2,
+  Vidalia1,
+  Vidalia2,
+  Pickle,
+  Mushroom3,
+  Tomato2,
+  Lettuce,
+  Carrot2,
+  Garlic,
+  Celery,
+  PotatoSprouts,
+  Mint,
+  Jalapeño,
+  Habañero,
+  ChiliPepper2,
+  Burger2,
+  Taco2,
+  Burrito,
+  PizzaSlice2,
+  PizzaPie,
+  Quiche1,
+  Quiche2,
+  Sushi2,
+  Dish1,
+  Dish2,
+  BowlSoup,
+  Steak,
+  FishPurple,
+  ShrimpRaw,
+  ShrimpCooked,
+  Shishkabob,
+  Fish1,
+  Fish2,
+  Fish3,
+  Tuna,
+  Eel,
+  Cheese2,
+  Egg2,
+  BreadLoaf2,
+  Cracker,
+  Peanut,
+  Chestnut,
+  Walnut,
+  Coconut,
+  Honeypot,
+  Butter,
+  Salt,
+  // fruits
+  BananaBunch,
+  Apple,
+  AppleGreen,
+  Strawberry2,
+  Grapes2, // green
+  Grapes3, // red
+  Watermelon2,
+  Pear2,
+  Orange2,
+  // drinks
+  Milk,
+  Cocktail,
+  Cappuccino,
+  Coffee,
+  Latte,
+  WaterVase,
+  Beer1,
+  Beer2,
+  // potions
+  PotionGreen,
+  PotionRed,
+  PotionHealth,
 }
 export const PICKUP_TYPE_MAX = Math.max(...Object.values(PickupType).filter(v => typeof v === 'number')) + 1;
 

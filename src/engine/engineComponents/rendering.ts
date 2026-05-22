@@ -88,7 +88,7 @@ import {
 import { VectorList } from "@/collections/vectorList";
 import { Gradients } from "@/collections/gradients";
 import { AnimationList } from "@/collections/animationList";
-import { PreyList } from "@/collections/preyList";
+import { FLAG_PREY_ELECTROCUTED, PreyList } from "@/collections/preyList";
 import { START_LEVEL, START_LEVEL_COBRA } from "@/levels/levelConstants";
 import { WARP_ZONE_01 } from "@/levels/bonusLevels/warpZone01";
 import { WARP_ZONE_02 } from "@/levels/bonusLevels/warpZone02";
@@ -665,7 +665,11 @@ export function engineRendering({
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
     } else if (specialPickupType && drawState.shouldDrawApples) {
-      spriteRenderer.drawSprite1x1(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+      if (specialPickupType > PickupType.__PICKUPS2_OFFSET__) {
+        spriteRenderer.drawSprite1x1(gfxApples, Image.Pickups2Sheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+      } else {
+        spriteRenderer.drawSprite1x1(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+      }
     } else if (!specialPickupType) {
       const elapsed = state.actualTimeElapsed;
       const { durations } = ANIMATIONS[Image.ThemedAppleSheet];
@@ -879,14 +883,13 @@ export function engineRendering({
   }
 
   function drawPrey(preyList: PreyList) {
-    if (drawState.shouldDrawActionFG) {
-      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
-        if (preyList.existsAtCoord(coord)) {
-          let x = Math.floor(coord % GRIDCOUNT_X);
-          const y = Math.floor(coord / GRIDCOUNT_X);
-          if (shouldBlinkExpiringPickup(preyList.getTimeRemaining(x, y))) {
-            continue;
-          }
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (preyList.existsAtCoord(coord)) {
+        let x = Math.floor(coord % GRIDCOUNT_X);
+        const y = Math.floor(coord / GRIDCOUNT_X);
+        const blinking = shouldBlinkExpiringPickup(preyList.getTimeRemaining(x, y))
+        const electrocuted = preyList.hasFlagAt(x, y, FLAG_PREY_ELECTROCUTED);
+        if (drawState.shouldDrawActionFG || electrocuted || blinking) {
           const flipx = preyList.getFlipX(x, y);
           const elapsed = preyList.getElapsed(x, y);
           const preyType = preyList.getTypeByCoord(coord);
@@ -894,6 +897,12 @@ export function engineRendering({
           if (flipx) {
             gfxFGAction.scale(-1, 1);
             x = -x - 1;
+          }
+          if (
+            blinking ||
+            (electrocuted && Math.floor(state.actualTimeElapsed / ELECTROCUTION_FLASH_RATE) % 2 === 0)
+          ) {
+            gfxFGAction.tint(0, 0, 0, 255);
           }
           switch (preyType) {
             case PreyType.Grub:

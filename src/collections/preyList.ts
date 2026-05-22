@@ -5,6 +5,9 @@ import { AStar, AStarSearchOptions } from "../astar/astar";
 
 export const MAX_NUM_PREY = 10;
 
+export const FLAG_PREY_STUNNED = 1;
+export const FLAG_PREY_ELECTROCUTED = 2;
+
 interface PreyConstructorArgs {
   astar: AStar,
   onLifetimeExpire?: (coord: number) => void
@@ -21,6 +24,7 @@ export class PreyList implements ICollection {
   private lifetime: Float32Array = new Float32Array(MAX_NUM_PREY);
   private elapsed: Float32Array = new Float32Array(MAX_NUM_PREY);
   private flipx: Uint8Array = new Uint8Array(MAX_NUM_PREY);
+  private flags: Uint8Array = new Uint8Array(MAX_NUM_PREY);
 
   private _length: number = 0;
 
@@ -50,6 +54,7 @@ export class PreyList implements ICollection {
       this.lifetime[i] = 0;
       this.elapsed[i] = 0;
       this.flipx[i] = 0;
+      this.flags[i] = 0;
       this.seed[i] = 0;
     }
     this._length = 0;
@@ -62,12 +67,15 @@ export class PreyList implements ICollection {
     const astar = this.astar;
     let didChange = false;
     for (let i = 0; i < this._length; i++) {
+      const stunned = this.hasFlag(i, FLAG_PREY_STUNNED);
       const prevElapsed = this.elapsed[i];
-      this.elapsed[i] += deltaTime;
-      this.timeSinceLastMove[i] += deltaTime;
-      this.timeUntilNextMove[i] -= deltaTime;
+      if (!stunned) {
+        this.elapsed[i] += deltaTime;
+        this.timeSinceLastMove[i] += deltaTime;
+        this.timeUntilNextMove[i] -= deltaTime;
+      }
       // handle prey movement
-      if (this.timeUntilNextMove[i] <= 0) {
+      if (this.timeUntilNextMove[i] <= 0 && !stunned) {
         const preyType = this.type[i];
         this.timeUntilNextMove[i] += this.moveTime(preyType);
         const searchOpts: AStarSearchOptions = {
@@ -192,6 +200,7 @@ export class PreyList implements ICollection {
     this.lifetime[this._length] = PREY_LIFETIME;
     this.elapsed[this._length] = 0;
     this.flipx[this._length] = 0;
+    this.flags[this._length] = 0;
     this.seed[this._length] = Math.random() * 10000;
     this._length++;
     return true;
@@ -222,6 +231,7 @@ export class PreyList implements ICollection {
       this.lifetime[i] = this.lifetime[i + 1];
       this.elapsed[i] = this.elapsed[i + 1];
       this.flipx[i] = this.flipx[i + 1];
+      this.flags[i] = this.flags[i + 1];
       this.seed[i] = this.seed[i + 1];
     }
     this.type[this._length - 1] = PreyType.None;
@@ -233,6 +243,7 @@ export class PreyList implements ICollection {
     this.lifetime[this._length - 1] = 0;
     this.elapsed[this._length - 1] = 0;
     this.flipx[this._length - 1] = 0;
+    this.flags[this._length - 1] = 0;
     this.seed[this._length - 1] = 0;
     this._length--;
   }
@@ -288,6 +299,55 @@ export class PreyList implements ICollection {
     }
     return this.type[idx];
   }
+
+  public hasFlagAt = (x: number, y: number, flag: number): boolean => {
+    const coord = getCoordIndex2(x, y);
+    const idx = this.coord.indexOf(coord);
+    if (idx < 0) {
+      return false;
+    }
+    return this.hasFlag(idx, flag);
+  };
+
+  public hasFlagForAny = (flag: number): boolean => {
+    for (let i = 0; i < this._length; i++) {
+      if (this.hasFlag(i, flag)) return true;
+    }
+    return false;
+  };
+
+  public addFlagAt = (x: number, y: number, flag: number): void => {
+    const coord = getCoordIndex2(x, y);
+    const idx = this.coord.indexOf(coord);
+    if (idx < 0) {
+      return;
+    }
+    this.addFlag(idx, flag);
+  };
+
+  public removeFlagAt = (x: number, y: number, flag: number): void => {
+    const coord = getCoordIndex2(x, y);
+    const idx = this.coord.indexOf(coord);
+    if (idx < 0) {
+      return;
+    }
+    this.removeFlag(idx, flag);
+  };
+
+  private hasFlag = (i: number, flag: number): boolean => {
+    if (i >= this._length) return false;
+    return !!(this.flags[i] & flag);
+  };
+
+  private addFlag = (i: number, flag: number): void => {
+    if (i >= this._length) return;
+    this.flags[i] |= flag;
+  };
+
+  private removeFlag = (i: number, flag: number): void => {
+    if (i >= this._length) return;
+    this.flags[i] &= ~flag;
+  };
 
   private moveTime = (preyType: PreyType) => {
     switch (preyType) {

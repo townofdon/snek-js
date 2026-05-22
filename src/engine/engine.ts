@@ -177,7 +177,7 @@ import { LEVEL_01_HARD } from '../levels/campaign/level01hard';
 import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
 import { AStar } from '../astar/astar';
-import { PreyList } from '../collections/preyList';
+import { FLAG_PREY_ELECTROCUTED, FLAG_PREY_STUNNED, PreyList } from '../collections/preyList';
 import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/publishUtils';
 import { withErrorReporting } from '@/reporting';
 import { AcquirePickupParticleSystem } from './particleSystems/AcquirePickupParticleSystem';
@@ -493,6 +493,7 @@ export function engine({
   const {
     spawnApple,
     spawnArmorPickup,
+    spawnMeatItem,
     chooseSpawnLocation,
   } = engineSpawning({
     p5,
@@ -1237,13 +1238,16 @@ export function engine({
     if (didHit) {
       player.directionLastHit = player.direction;
       state.collisions += 1;
-      state.isLost = true;
+      if (state.lives === 0) {
+        state.isLost = true;
+      }
       damageEnvironmentAtPosition(coord);
     }
     handleSnakeSpikeDeath();
-    handleSnakeTrapped(state.isLost && state.lives > 0);
-    handleSnakeDamage(state.isLost && state.lives > 0);
+    handleSnakeTrapped(didHit && state.lives > 0);
+    handleSnakeDamage(didHit && state.lives > 0);
     handleSnakeElectrocution();
+    handlePreyElectrocution();
 
     // handle snake death
     if (state.isLost || state.lives < 0) {
@@ -2411,14 +2415,12 @@ export function engine({
     if (heldItems.reversibles > 0) {
       heldItems.reversibles -= 1;
       state.timeSinceReverseStart = 0;
-      state.isLost = false;
       reboundSnake(1);
       startAutoRewind();
       playSound(Sound.hurtSave);
       return;
     }
-    state.lives = 0;
-    state.isLost = true;
+    applyDamage(100);
     playSound(Sound.hurt3);
   }
 
@@ -2443,7 +2445,6 @@ export function engine({
     }
     if (instadeath) {
       applyDamage(5);
-      state.isLost = true;
     }
   }
 
@@ -2451,7 +2452,6 @@ export function engine({
     if (!didReceiveDamage) return;
     // snake will perish soon enough.
     if (state.lastHurtBy === DamageType.SawCut || state.lastHurtBy === DamageType.SpikePierce) {
-      state.isLost = false;
       return;
     }
     applyDamage(1);
@@ -2484,6 +2484,32 @@ export function engine({
 
     state.lungeStepsRemaining = 0;
     es.moves = [];
+  }
+
+  function handlePreyElectrocution() {
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      const x = getCoordX(coord);
+      const y = getCoordY(coord);
+      if (es.lasersMap[coord]?.damageActive && preyList.existsAtCoord(coord) && !preyList.hasFlagAt(x, y, FLAG_PREY_ELECTROCUTED)) {
+        coroutines.start(electrocutePreyRoutine(x, y));
+      }
+    }
+  }
+
+  function* electrocutePreyRoutine(x: number, y: number): IEnumerator {
+    preyList.addFlagAt(x, y, FLAG_PREY_STUNNED);
+    preyList.addFlagAt(x, y, FLAG_PREY_ELECTROCUTED);
+    sfx.playLoop(Sound.electrocuteLoop);
+    yield* actions.waitForTime(ELECTROCUTION_DURATION_MS);
+    preyList.remove(x, y);
+    if (!preyList.hasFlagForAny(FLAG_PREY_ELECTROCUTED) && state.timeSinceElectrocutionStart === Infinity) {
+      sfx.stop(Sound.electrocuteLoop);
+    }
+    const smokeLifetime = lerp(SMOKE_LIFETIME * 0.5, SMOKE_LIFETIME, Math.random());
+    smoke.add(x, y, smokeLifetime, Image.SmokeSheet);
+    spawnMeatItem(x, y);
+    drawState.shouldDrawActionFG = true;
+    drawState.shouldDrawApples = true;
   }
 
   function handleSnakeElectrocution(): void {
@@ -2543,10 +2569,10 @@ export function engine({
       state.lastHurtBy = DamageType.Electrocution;
       applyDamage(1);
     }
-    if (state.isLost) return;
-    if (state.lives < 0) return;
     // do not yield so that we guarantee this routine completely finishes before recalculateLasersMap() is called again.
     state.timeSinceElectrocutionStart = Infinity;
+    if (state.isLost) return;
+    if (state.lives < 0) return;
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
       const isPlayerAtCoord = coord === getCoordIndex(player.position) || segments.existsAtCoord(coord);
       // get latest laser cell because the map may have changed (see note above)
@@ -2587,7 +2613,6 @@ export function engine({
     } else {
       state.lives -= Math.floor(amount);
     }
-    state.isLost = state.lives < 0;
     state.timeSinceHurt = 0;
     if (es.difficulty.index === 4) {
       state.currentSpeed = 1;
