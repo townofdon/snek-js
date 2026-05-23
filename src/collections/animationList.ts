@@ -1,7 +1,5 @@
 import { Vector } from "p5";
-import { ANIMATIONS, GRIDCOUNT_X,
-GRIDCOUNT_Y, IS_DEV, 
-IS_LOCALHOST} from "../constants";
+import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_DEV, IS_LOCALHOST } from "../constants";
 import { getCoordIndex2, getCurrentFrame, getManhattanDistance, isNil, shouldBlinkExpiringPickup } from "../utils";
 import { ICollection, IFlaggable, SpritesheetImage, SpritesheetRange } from "../types";
 
@@ -442,7 +440,7 @@ export class AnimationList implements ICollection, IFlaggable {
     return -1;
   };
 
-  public hasFlag = (x: number, y: number, flag: number): boolean => {
+  public hasFlagAt = (x: number, y: number, flag: number): boolean => {
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) continue;
       if (this.x[i] === x && this.y[i] === y) {
@@ -452,7 +450,7 @@ export class AnimationList implements ICollection, IFlaggable {
     return false;
   };
 
-  public addFlag = (x: number, y: number, flag: number): void => {
+  public addFlagAt = (x: number, y: number, flag: number): void => {
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) continue;
       if (this.x[i] === x && this.y[i] === y) {
@@ -461,12 +459,26 @@ export class AnimationList implements ICollection, IFlaggable {
     }
   };
 
-  public removeFlag = (x: number, y: number, flag: number): void => {
+  public removeFlagAt = (x: number, y: number, flag: number): void => {
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) continue;
       if (this.x[i] === x && this.y[i] === y) {
         this.flags[i] &= ~flag;
       }
+    }
+  };
+
+  public bulkAddFlag = (flag: number): void => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      this.flags[i] |= flag;
+    }
+  };
+
+  public bulkRemoveFlag = (flag: number): void => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      this.flags[i] &= ~flag;
     }
   };
 

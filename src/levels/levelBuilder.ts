@@ -1,6 +1,6 @@
 import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
-import { BarrierType, Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode, SwitchType } from "../types";
+import { BarrierType, Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode, SwitchType, ThreatType } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
 import { LEVEL_01 } from "./campaign/level01";
 import { TILE_CHAR_TO_BARRIER_TYPE, TILE_CHAR_TO_PICKUP_TYPE, TILE_CHAR_TO_SWITCH_TYPE, TILE_CHAR_TO_THREAT_TYPE, TILECHAR } from "./levelConstants";
@@ -96,6 +96,9 @@ export function buildLevel(level: Level, isEditor = false): LevelData {
       if (threatType) {
         data.threats.push({ vec, type: threatType });
         data.decoratives2.push(vec);
+        if (threatType === ThreatType.LaserDiode) {
+          data.nospawns.push(vec);
+        }
         continue;
       }
 

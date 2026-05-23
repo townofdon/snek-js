@@ -833,12 +833,18 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
     && !es.doorsMap[coord]
     && isNil(es.locksMap[coord])
     && isNil(es.portalsMap[coord]);
-  // first clear map
+  // clear lasers map
   for (let y = 0; y < GRIDCOUNT_Y; y++) {
     for (let x = 0; x < GRIDCOUNT_X; x++) {
       es.lasersMap[getCoordIndex2(x, y)] = undefined;
     }
   }
+  // clear threat sibling flags
+  threats.bulkRemoveFlag(ThreatFlag.SiblingN);
+  threats.bulkRemoveFlag(ThreatFlag.SiblingS);
+  threats.bulkRemoveFlag(ThreatFlag.SiblingW);
+  threats.bulkRemoveFlag(ThreatFlag.SiblingE);
+  // recalculate relationships
   for (let y = 0; y < GRIDCOUNT_Y; y++) {
     for (let x = 0; x < GRIDCOUNT_X; x++) {
       if (!valid(getCoordIndex2(x, y))) {
@@ -869,7 +875,7 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
           ? Orientation.Mixed
           : Orientation.Horizontal;
         // skip cells if both diodes are crit
-        const crit = byCoord(coordDiodeA)(threats.hasFlag, ThreatFlag.Crit) && byCoord(coordDiodeB)(threats.hasFlag, ThreatFlag.Crit);
+        const crit = byCoord(coordDiodeA)(threats.hasFlagAt, ThreatFlag.Crit) && byCoord(coordDiodeB)(threats.hasFlagAt, ThreatFlag.Crit);
         if (crit) {
           break;
         }
@@ -880,6 +886,8 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
           coordDiodeB,
           damageActive: true,
         } satisfies LaserCell;
+        byCoord(coordDiodeA)(threats.addFlagAt, ThreatFlag.SiblingE);
+        byCoord(coordDiodeB)(threats.addFlagAt, ThreatFlag.SiblingW);
       }
       // walk down
       let yDiodeDown = -1;
@@ -900,7 +908,7 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
         const orientation = es.lasersMap[coord]?.orientation === Orientation.Horizontal
           ? Orientation.Mixed
           : Orientation.Vertical;
-        const crit = byCoord(coordDiodeA)(threats.hasFlag, ThreatFlag.Crit) && byCoord(coordDiodeB)(threats.hasFlag, ThreatFlag.Crit);
+        const crit = byCoord(coordDiodeA)(threats.hasFlagAt, ThreatFlag.Crit) && byCoord(coordDiodeB)(threats.hasFlagAt, ThreatFlag.Crit);
         if (crit) {
           break;
         }
@@ -911,6 +919,8 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
           coordDiodeB,
           damageActive: true,
         } satisfies LaserCell;
+        byCoord(coordDiodeA)(threats.addFlagAt, ThreatFlag.SiblingS);
+        byCoord(coordDiodeB)(threats.addFlagAt, ThreatFlag.SiblingN);
       }
     }
   }

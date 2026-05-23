@@ -751,10 +751,29 @@ export function engineRendering({
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
           const elapsed = threats.getElapsedByCoord(coord);
-          if (threats.getTimeRemaining(x, y) <= LASER_DIODE_CRIT_LIFETIME || threats.hasFlag(x, y, ThreatFlag.Crit)) {
+          const siblingNorth = !state.isButtonPressed && threats.hasFlagAt(x, y, ThreatFlag.SiblingN);
+          const siblingSouth = !state.isButtonPressed && threats.hasFlagAt(x, y, ThreatFlag.SiblingS);
+          const siblingWest = !state.isButtonPressed && threats.hasFlagAt(x, y, ThreatFlag.SiblingW);
+          const siblingEast = !state.isButtonPressed && threats.hasFlagAt(x, y, ThreatFlag.SiblingE);
+          const off = !siblingNorth && !siblingSouth && !siblingWest && !siblingEast;
+          if (threats.getTimeRemaining(x, y) <= LASER_DIODE_CRIT_LIFETIME || threats.hasFlagAt(x, y, ThreatFlag.Crit)) {
             spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeCrit, x, y, elapsed);
+          } else if (off) {
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.DiodeOff - 1);
           } else {
             spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeBlue, x, y, elapsed);
+          }
+          if (siblingEast) {
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.DiodeLightBlue - 1);
+          }
+          if (siblingNorth) {
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.DiodeLightBlue - 1, Math.PI * 1.5);
+          }
+          if (siblingWest) {
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.DiodeLightBlue - 1, Math.PI);
+          }
+          if (siblingSouth) {
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.DiodeLightBlue - 1, Math.PI * 0.5);
           }
         } else if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
           const x = Math.floor(coord % GRIDCOUNT_X);
@@ -856,6 +875,7 @@ export function engineRendering({
         const coord = getCoordIndex2(x, y);
         const gfxlsr = renderer.getMainGfx();
         const laser = es.lasersMap[coord];
+        const shake = 2;
         if (laser?.type === LaserType.Blue) {
           const frames = [
             Threat16Frame.LaserBlue0,
@@ -866,10 +886,10 @@ export function engineRendering({
           const frame = Math.floor(renderer.getElapsed() / 200) % frames.length;
           const laserFrame = frames[frame] - 1;
           if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Horizontal) {
-            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0, 1, shake, laserFrame, FRAME_COUNT_THREAT_16);
           }
           if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Vertical) {
-            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0.5 * Math.PI, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0.5 * Math.PI, 1, shake, laserFrame, FRAME_COUNT_THREAT_16);
           }
         } else if (laser?.type === LaserType.Red) {
           const frames = [
@@ -881,10 +901,10 @@ export function engineRendering({
           const frame = Math.floor(renderer.getElapsed() / 200) % frames.length;
           const laserFrame = frames[frame] - 1;
           if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Horizontal) {
-            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0, 1, shake, laserFrame, FRAME_COUNT_THREAT_16);
           }
           if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Vertical) {
-            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0.5 * Math.PI, 1, 0, laserFrame, FRAME_COUNT_THREAT_16);
+            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0.5 * Math.PI, 1, shake, laserFrame, FRAME_COUNT_THREAT_16);
           }
         }
       }

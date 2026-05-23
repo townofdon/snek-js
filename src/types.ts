@@ -685,6 +685,10 @@ export const THREAT_TYPE_MAX = Math.max(...Object.values(ThreatType).filter(v =>
 export enum ThreatFlag {
   None = 0, // default
   Crit = 1,
+  SiblingN = 2,
+  SiblingS = 4,
+  SiblingW = 8,
+  SiblingE = 16,
 }
 
 export enum LaserType {
@@ -1744,9 +1748,11 @@ export interface ICollection {
 }
 
 export interface IFlaggable {
-  hasFlag: (x: number, y: number, flag: number) => boolean,
-  addFlag: (x: number, y: number, flag: number) => void,
-  removeFlag: (x: number, y: number, flag: number) => void,
+  hasFlagAt: (x: number, y: number, flag: number) => boolean,
+  addFlagAt: (x: number, y: number, flag: number) => void,
+  removeFlagAt: (x: number, y: number, flag: number) => void,
+  bulkAddFlag: (flag: number) => void;
+  bulkRemoveFlag: (flag: number) => void;
 }
 
 export enum SNEKALYTICS_EVENT_TYPE {
