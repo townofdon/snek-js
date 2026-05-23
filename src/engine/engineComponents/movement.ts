@@ -176,7 +176,7 @@ export function engineMovement({
       portalLink: portal.link,
       playerDirection: player.direction,
       portalExitMode: es.level.portalExitConfig?.[portal.channel] || portal.exitMode,
-      checkHasHit,
+      checkCollision,
       hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, es.portalsMap),
     });
     const prevDir = player.direction;
@@ -310,7 +310,7 @@ export function engineMovement({
     }
   }
 
-  function checkCollision(vec: Vector): DamageType {
+  function checkCollision(vec: Vector, checkBarricade = true): DamageType {
     if (state.isExitingLevel) return DamageType.None;
     if (state.isExited) return DamageType.None;
     if (state.isGameWon) return DamageType.None;
@@ -350,7 +350,7 @@ export function engineMovement({
     if (es.threatsMap[coord] === ThreatType.ExplodableBarrel) {
       return DamageType.HitBarrier;
     }
-    if (es.threatsMap[coord] === ThreatType.Barricade && !state.isButtonPressed) {
+    if (checkBarricade && es.threatsMap[coord] === ThreatType.Barricade && !state.isButtonPressed) {
       return DamageType.HitBarrier;
     }
     if (es.threatsMap[coord] === ThreatType.Spikes && !state.isButtonPressed && !invincible) {
@@ -365,12 +365,12 @@ export function engineMovement({
     return DamageType.None;
   }
 
-  function checkHasHit(vec: Vector, updateLastHurtBy = true): boolean {
+  function checkHasHit(vec: Vector, updateLastHurtBy = true, checkBarricade = true): boolean {
     if (state.isExitingLevel) return false;
     if (state.isExited) return false;
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
-    const hit = checkCollision(vec);
+    const hit = checkCollision(vec, checkBarricade);
     if (hit && updateLastHurtBy) {
       state.lastHurtBy = hit;
     }
@@ -386,10 +386,10 @@ export function engineMovement({
       portalLink: portal.link,
       playerDirection: player.direction,
       portalExitMode: es.level.portalExitConfig?.[portal.channel] || portal.exitMode,
-      checkHasHit,
+      checkCollision,
       hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, es.portalsMap),
     });
-    return checkHasHit(portal.link.copy().add(dirToUnitVector(newDir)), false);
+    return !!checkCollision(portal.link.copy().add(dirToUnitVector(newDir)));
   }
 
   function _getTimeNeededUntilNextMove(): number {

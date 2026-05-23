@@ -60,6 +60,7 @@ import {
   PIPE_SOUTH,
   PIPE_WEST,
   PIPE_EAST,
+  DamageType,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -642,7 +643,7 @@ interface GetBestPortalExitDirectionArgs {
   portalLink: Vector | undefined,
   playerDirection: DIR,
   portalExitMode: PortalExitMode,
-  checkHasHit: (location: Vector, updateLastHurtBy?: boolean) => boolean,
+  checkCollision: (location: Vector) => DamageType,
   hasPortalAtLocation: (location: Vector) => boolean,
   ignoreBestCheck?: boolean,
 }
@@ -650,7 +651,7 @@ export function getBestPortalExitDirection({
   portalLink,
   playerDirection,
   portalExitMode,
-  checkHasHit,
+  checkCollision,
   hasPortalAtLocation,
   ignoreBestCheck,
 }: GetBestPortalExitDirectionArgs) {
@@ -662,16 +663,16 @@ export function getBestPortalExitDirection({
     return newDir;
   }
   let scoreLeft = 0, scoreRight = 0, scoreUp = 0, scoreDown = 0;
-  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.LEFT)), false)) {
+  if (!!checkCollision(portalLink.copy().add(dirToUnitVector(DIR.LEFT)))) {
     scoreLeft += 1000;
   }
-  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.RIGHT)), false)) {
+  if (!!checkCollision(portalLink.copy().add(dirToUnitVector(DIR.RIGHT)))) {
     scoreRight += 1000;
   }
-  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.UP)), false)) {
+  if (!!checkCollision(portalLink.copy().add(dirToUnitVector(DIR.UP)))) {
     scoreUp += 1000;
   }
-  if (checkHasHit(portalLink.copy().add(dirToUnitVector(DIR.DOWN)), false)) {
+  if (!!checkCollision(portalLink.copy().add(dirToUnitVector(DIR.DOWN)))) {
     scoreDown += 1000;
   }
   if (isOutsideMap(portalLink.copy().add(dirToUnitVector(DIR.LEFT)))) {

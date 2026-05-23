@@ -1236,7 +1236,8 @@ export function engine({
     handleDifficultySelect();
     handleSetNextLevel();
 
-    const didHit = checkHasHit(player.position) || checkMineHit(player.position) || checkExplosionHit(player.position);
+    const checkBarricade = state.timeSinceLastMove < BUTTON_RELEASE_DAMAGE_DELAY && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY;
+    const didHit = checkHasHit(player.position, true, checkBarricade) || checkMineHit(player.position) || checkExplosionHit(player.position);
     if (didHit) {
       player.directionLastHit = player.direction;
       state.collisions += 1;
@@ -2561,7 +2562,7 @@ export function engine({
    * which means the laser cells along that path will have updated diode a/b coords.
    */
   function* electrocutionRoutine(laserType: LaserType, segmentAtCoord: boolean): IEnumerator {
-    let times = laserType === LaserType.Red ? 2 : 1;
+    let times = (segmentAtCoord || laserType === LaserType.Red) ? 2 : 1;
     const indestructible = laserType === LaserType.Red;
     const hasArmor = heldItems.armor > 0;
     if (hasArmor && !indestructible) {
@@ -2583,6 +2584,7 @@ export function engine({
       sfx.stop(Sound.electrocuteLoop);
       if (hasArmor && !indestructible) {
         applyArmorProtection();
+        break;
       } else {
         state.lastHurtBy = DamageType.Electrocution;
         applyDamage(1);
