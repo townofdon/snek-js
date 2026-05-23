@@ -50,6 +50,9 @@ export class SpriteRenderer {
     [Image.ThemedBarrierBrick]: null,
     [Image.ThemedBarrierStone]: null,
     [Image.ThemedPortalColumns]: null,
+    [Image.ThemedPipes1]: null,
+    [Image.ThemedPipes2]: null,
+    [Image.ThemedPipes3]: null,
     [Image.AppleTemplateSheet]: null,
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
@@ -164,6 +167,14 @@ export class SpriteRenderer {
       alt: this.p5.color(palette.appleStroke), // unused
     } satisfies ColorReplacementPalette;
     this.setThemedImageFromSprite(colors, 16, Image.ThemedAppleSheet, Image.AppleTemplateSheet, 0, true);
+    const darker = (color: string): string => Color(color).darken(0.4).desaturate(0.2).hex();
+    const pipeColors = {
+      dark: this.p5.color(darker(r_colorDark)),
+      light: this.p5.color(r_colorLight),
+      main: this.p5.color(darker(palette.apple)),
+      alt: this.p5.color(darker(palette.appleStroke)),
+    } satisfies ColorReplacementPalette;;
+    this.setThemedImageFromSpriteRange(pipeColors, 16, Image.ThemedPipes3, Image.PipesSheet, 80, 95);
   }
 
   setThemedBorderImages = (palette: ExtendedPalette) => {
@@ -182,6 +193,7 @@ export class SpriteRenderer {
     this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierBrick, Image.TileSheet16, 23);
     this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierStone, Image.TileSheet16, 25);
     this.setThemedImageFromSprite(colors, 48, Image.ThemedPortalColumns, Image.TileSheet48, 0);
+    this.setThemedImageFromSpriteRange(colors, 16, Image.ThemedPipes1, Image.PipesSheet, 80, 95);
   }
 
   setThemedDoorImage = (palette: ExtendedPalette) => {
@@ -195,6 +207,7 @@ export class SpriteRenderer {
     } satisfies ColorReplacementPalette;
     this.setThemedImageFromSprite(colors, 16, Image.ThemedDoor, Image.TileSheet16, 9);
     this.setThemedImageFromSprite(colors, 16, Image.ThemedDoorAlt, Image.TileSheet16, 8);
+    this.setThemedImageFromSpriteRange(colors, 16, Image.ThemedPipes2, Image.PipesSheet, 80, 95);
   }
 
   setThemedSegmentImage = (background: string, lineColor: string) => {
@@ -220,6 +233,28 @@ export class SpriteRenderer {
     const img = this.p5.createImage(w, h);
     // copy template image pixels to new image (assumes dest img and src rect are same dims)
     img.copy(this.images[sourceSprite], size * frame, 0, w, h, 0, 0, w, h);
+    this.setThemedImageColors(img, colors);
+    this.images[dest] = img;
+  }
+
+  private setThemedImageFromSpriteRange(colors: ColorReplacementPalette, size: 16 | 48, dest: ThemedImage, sourceSprite: Image, fromFrame: number, toFrame: number) {
+    if (!this.images[sourceSprite]) {
+      throw new Error(`source image is not loaded: ${sourceSprite}`);
+    }
+    if (toFrame <= fromFrame) {
+      throw new Error(`invalid range: toFrame=${toFrame},fromFrame=${fromFrame}`);
+    }
+    const loaded = this.images[sourceSprite];
+    const sw = loaded.width || 1;
+    const h = loaded.height || 1;
+    const w = (toFrame - fromFrame + 1) * size;
+    const img = this.p5.createImage(w, h);
+    img.copy(this.images[sourceSprite], fromFrame * size, 0, w, h, 0, 0, w, h);
+    this.setThemedImageColors(img, colors);
+    this.images[dest] = img;
+  }
+
+  private setThemedImageColors(img: P5.Image, colors: ColorReplacementPalette) {
     // iterate through all pixels, replacing with theme colors
     img.loadPixels();
     for (let x = 0; x < img.width; x += 1) {
@@ -257,7 +292,6 @@ export class SpriteRenderer {
       }
     }
     img.updatePixels();
-    this.images[dest] = img;
   }
 
   /**

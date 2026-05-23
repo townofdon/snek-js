@@ -504,6 +504,10 @@ export interface Level {
    * Par level finish time in milliseconds
    */
   parTime?: number;
+  pipeVariant?: PipeVariant;
+  /**
+   * Field mutated during runtime - keep track of snek death locations (used to draw gore fx)
+   */
   deathLocations?: Record<number, boolean>,
 }
 
@@ -611,14 +615,16 @@ export enum SwitchType {
 }
 export const SWITCH_TYPE_MAX = Math.max(...Object.values(SwitchType).filter(v => typeof v === 'number')) + 1;
 
-export enum PipeType {
+export enum PipeVariant {
   None = 0,
   Green,
   Orange,
   White,
   Cobalt,
   Flat,
-  Themed,
+  Themed1,
+  Themed2,
+  Themed3,
 }
 
 export const PIPE_NORTH = 1;
@@ -805,10 +811,14 @@ export interface EditorOptions {
   disableAppleSpawn: boolean, // default: false
   spawnInvincibilityPickups: boolean, // default: false
   spawnMines: boolean, // default: false
+  spawnBombs: boolean, // default: false
+  spawnBarrels: boolean, // default: false
+  spawnLasers: boolean, // default: false
   snakeStartSize: number, // default: START_SNAKE_SIZE
   growthMod: number, // default: 1
   extraHurtGraceTime: number, // default: 0
   globalLight: number, // default: 1
+  pipeVariant: PipeVariant,
   palette: Palette,
   portalExitConfig: Record<PortalChannel, PortalExitMode>,
   musicTrack: MusicTrack,
@@ -1047,6 +1057,9 @@ export enum Image {
   ThemedBarrierBrick = '__barrier-bricks-rendered-at-runtime__',
   ThemedBarrierStone = '__barrier-stone-rendered-at-runtime__',
   ThemedPortalColumns = '__barrier-portal-columns-rendered-at-runtime__',
+  ThemedPipes1 = '__pipes1-rendered-at-runtime__',
+  ThemedPipes2 = '__pipes2-rendered-at-runtime__',
+  ThemedPipes3 = '__pipes3-rendered-at-runtime__',
   ThemedDoor = '__door-rendered-at-runtime__',
   ThemedDoorAlt = '__door-alt-rendered-at-runtime__',
   ThemedSegmentNE = '__segment-ne-rendered-at-runtime__',
@@ -1131,6 +1144,9 @@ export type ThemedImage =
   | Image.ThemedSegmentSE
   | Image.ThemedSegmentSW
   | Image.ThemedSegmentNW
+  | Image.ThemedPipes1
+  | Image.ThemedPipes2
+  | Image.ThemedPipes3
 ;
 
 // a range of sprites selected from a larger spritesheet
@@ -1160,6 +1176,9 @@ export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange)
 export type SpritesheetImage =
   | Image.__TEST__
   | Image.ThemedAppleSheet
+  | Image.ThemedPipes1
+  | Image.ThemedPipes2
+  | Image.ThemedPipes3
   | Image.DoorOpenSheet
   | Image.KeySheet
   | Image.LockSheet

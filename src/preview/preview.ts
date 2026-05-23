@@ -501,7 +501,11 @@ async function loadLevel(queryData: string, loadMapImage = false): Promise<void>
       pickupDrops: {
         [ItemDropType.Invincibility]: options.spawnInvincibilityPickups,
         [ItemDropType.Mine]: options.spawnMines,
+        [ItemDropType.Bomb]: options.spawnBombs,
+        [ItemDropType.ExplodableBarrel]: options.spawnBarrels,
+        [ItemDropType.LaserDiode]: options.spawnLasers,
       },
+      pipeVariant: options.pipeVariant,
     };
 
     level.current = loaded;

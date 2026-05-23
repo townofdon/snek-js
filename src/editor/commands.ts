@@ -1,7 +1,7 @@
 import { Vector } from "p5";
 
 import { SetStateValue, Tile } from "./editorTypes";
-import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PortalChannel, SwitchType, ThreatType } from "../types";
+import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PipeVariant, PortalChannel, SwitchType, ThreatType } from "../types";
 import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidBarrierType, isValidKeyChannel, isValidPortalChannel, isValidSwitchType, isValidThreatType, lerp } from "../utils";
 import { deepCloneData, getEditorDataFromLevel, mergeData, mergeDataSlice } from "./utils/editorUtils";
 import { tileFloodFill } from "./utils/floodFill";
@@ -1027,6 +1027,27 @@ export class SetPaletteCommand implements Command {
   };
   rollback = () => {
     this.setOptions({ ...this.optionsRef.current, palette: { ...this.initial } });
+  };
+}
+
+export class SetPipeVariantCommand implements Command {
+  public readonly name = 'Set Pipe Variant';
+  private newValue: PipeVariant;
+  private initial: PipeVariant;
+  private optionsRef: React.MutableRefObject<EditorOptions>;
+  private setOptions: (val: EditorOptions) => void;
+  public constructor(newPalette: PipeVariant, optionsRef: React.MutableRefObject<EditorOptions>, setOptions: (val: EditorOptions) => void) {
+    this.newValue = newPalette;
+    this.optionsRef = optionsRef;
+    this.setOptions = setOptions;
+    this.initial = optionsRef.current.pipeVariant;
+  }
+  execute = () => {
+    this.setOptions({ ...this.optionsRef.current, pipeVariant: this.newValue });
+    return true;
+  };
+  rollback = () => {
+    this.setOptions({ ...this.optionsRef.current, pipeVariant: this.initial });
   };
 }
 

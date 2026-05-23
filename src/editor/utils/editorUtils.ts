@@ -3,21 +3,36 @@ import { Buffer } from 'buffer'
 
 import JSONCrush from './JSONCrush/JSONCrush';
 
-import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, ItemDropType, PortalChannel, PortalExitMode, PickupType, ThreatType } from '../../types'
-import { coordToVec, getCoordIndex, getCoordIndex2, toDIR } from '../../utils';
-import { GRIDCOUNT_X, GRIDCOUNT_Y, START_SNAKE_SIZE } from '../../constants';
-import { bton, ntob } from './Base64';
-import { buildLevel } from '../../levels/levelBuilder';
-import { LEVEL_01 } from '../../levels/campaign/level01';
-import { EDITOR_DEFAULTS } from '../editorConstants';
-import { indexToMusicTrack, musicTracktoIndex } from './musicTrackUtils';
-import { BARRIER_TYPE_TO_TILE_CHAR, PICKUP_TYPE_TO_TILE_CHAR, SWITCH_TYPE_TO_TILE_CHAR, THREAT_TYPE_TO_TILE_CHAR, TILECHAR } from '@/levels/levelConstants';
+import {
+  DIR,
+  EditorData,
+  EditorDataSlice,
+  EditorOptions,
+  KeyChannel,
+  Level,
+  Palette,
+  ItemDropType,
+  PortalChannel,
+  PortalExitMode,
+  DifficultyIndex,
+  PipeVariant,
+} from "../../types";
+import { clamp, coordToVec, getCoordIndex, getCoordIndex2, toDIR } from "../../utils";
+import { GRIDCOUNT_X, GRIDCOUNT_Y, START_SNAKE_SIZE } from "../../constants";
+import { bton, ntob } from "./Base64";
+import { buildLevel } from "../../levels/levelBuilder";
+import { LEVEL_01 } from "../../levels/campaign/level01";
+import { EDITOR_DEFAULTS } from "../editorConstants";
+import { indexToMusicTrack, musicTracktoIndex } from "./musicTrackUtils";
+import {
+  BARRIER_TYPE_TO_TILE_CHAR,
+  PICKUP_TYPE_TO_TILE_CHAR,
+  SWITCH_TYPE_TO_TILE_CHAR,
+  THREAT_TYPE_TO_TILE_CHAR,
+  TILECHAR,
+} from "@/levels/levelConstants";
 
 const MASK_BASE_64 = true;
-
-// bitmasks
-const FLAG_SPAWN_INVINCIBILITY_PICKUPS = 1 << 0;
-const FLAG_SPAWN_MINES = 1 << 1;
 
 export function encode(layout: string): string {
   return encodeURI(encodeURIComponent(Buffer.from(JSONCrush.crush(layout)).toString('base64')));
@@ -58,10 +73,6 @@ export function encodeMapData(data: EditorData, options: EditorOptions): string 
     options.portalExitConfig[8],
     options.portalExitConfig[9],
   ].join('-');
-  const spawnFlags = (0
-    | (options.spawnInvincibilityPickups ? FLAG_SPAWN_INVINCIBILITY_PICKUPS : 0)
-    | (options.spawnMines ? FLAG_SPAWN_MINES : 0)
-  );
   const parts = [
     layout,
     playerSpawnPositionStr,
@@ -78,7 +89,12 @@ export function encodeMapData(data: EditorData, options: EditorOptions): string 
     paletteStr,
     portalExitConfigStr,
     musicTracktoIndex(options.musicTrack),
-    spawnFlags,
+    (options.spawnInvincibilityPickups ? 1 : 0),
+    (options.spawnMines ? 1 : 0),
+    (options.spawnBombs ? 1 : 0),
+    (options.spawnBarrels ? 1 : 0),
+    (options.spawnLasers ? 1 : 0),
+    options.pipeVariant,
   ].join('|');
   return encode(parts);
 }
@@ -102,7 +118,12 @@ export function decodeMapData(encoded: string, debug = false): [EditorData, Edit
     paletteStr = '',
     portalExitConfigStr = '',
     musicTrackStr,
-    spawnFlagsStr,
+    spawnInvincibilityPickupsStr,
+    spawnMinesStr,
+    spawnBombsStr,
+    spawnBarrelsStr,
+    spawnLasersStr,
+    pipeVariantStr,
   ] = parts;
 
   const playerSpawnPosition = coordToVec(NumberOrDefault(playerSpawnPositionStr, 15 + 15 * 30));
@@ -135,7 +156,6 @@ export function decodeMapData(encoded: string, debug = false): [EditorData, Edit
   }
 
   const musicTrack = indexToMusicTrack(NumberOrDefault(musicTrackStr, 0));
-  const spawnFlags = NumberOrDefault(spawnFlagsStr, 0);
 
   const options: EditorOptions = {
     name,
@@ -143,12 +163,16 @@ export function decodeMapData(encoded: string, debug = false): [EditorData, Edit
     applesToClear: NumberOrDefault(applesToClear, 20),
     numApplesStart: NumberOrDefault(numApplesStart, 3),
     disableAppleSpawn: Boolean(NumberOrDefault(disableAppleSpawn, 0)),
-    spawnInvincibilityPickups: Boolean(spawnFlags & FLAG_SPAWN_INVINCIBILITY_PICKUPS),
-    spawnMines: Boolean(spawnFlags & FLAG_SPAWN_MINES),
+    spawnInvincibilityPickups: Boolean(NumberOrDefault(spawnInvincibilityPickupsStr, 0)),
+    spawnMines: Boolean(NumberOrDefault(spawnMinesStr, 0)),
+    spawnBombs: Boolean(NumberOrDefault(spawnBombsStr, 0)),
+    spawnBarrels: Boolean(NumberOrDefault(spawnBarrelsStr, 0)),
+    spawnLasers: Boolean(NumberOrDefault(spawnLasersStr, 0)),
     snakeStartSize: NumberOrDefault(snakeStartSize, 3),
     growthMod: NumberOrDefault(growthMod, 1),
     extraHurtGraceTime: NumberOrDefault(extraHurtGraceTime, 0),
     globalLight: NumberOrDefault(globalLight, 1),
+    pipeVariant: clamp(NumberOrDefault(pipeVariantStr, 1), 1, PipeVariant.Themed3) as PipeVariant,
     palette,
     portalExitConfig,
     musicTrack,
@@ -268,7 +292,11 @@ export function getEditorDataFromLevel(level: Level): [EditorData, EditorOptions
     },
     musicTrack: level.musicTrack,
     spawnInvincibilityPickups: !!level.pickupDrops?.[ItemDropType.Invincibility],
-    spawnMines: !!level.pickupDrops?.[ItemDropType.Mine]
+    spawnMines: !!level.pickupDrops?.[ItemDropType.Mine],
+    spawnBombs: !!level.pickupDrops?.[ItemDropType.Bomb],
+    spawnBarrels: !!level.pickupDrops?.[ItemDropType.ExplodableBarrel],
+    spawnLasers: !!level.pickupDrops?.[ItemDropType.LaserDiode],
+    pipeVariant: level.pipeVariant || PipeVariant.Green,
   };
   return [data, options];
 }

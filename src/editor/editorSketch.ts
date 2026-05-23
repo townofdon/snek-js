@@ -39,6 +39,7 @@ import {
   ThreatSawFrame,
   SwitchType,
   PipeConnection,
+  PipeVariant,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -130,10 +131,11 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     pipesMap: {},
     pipeConnectionsMap: {},
   } satisfies ExtendedSketchData;
-  const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig'> = {
+  const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig' | 'pipeVariant'> = {
     globalLight: EDITOR_DEFAULTS.options.globalLight,
     palette: { ...EDITOR_DEFAULTS.options.palette },
     portalExitConfig: { ...EDITOR_DEFAULTS.options.portalExitConfig },
+    pipeVariant: EDITOR_DEFAULTS.options.pipeVariant,
   };
   const state: EditorState = {
     showingPreview: false,
@@ -257,10 +259,20 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             state.dirty = true;
           }
           break;
+        case 'pipeVariant':
+          if (options.pipeVariant !== incoming.pipeVariant) {
+            options.pipeVariant = incoming.pipeVariant;
+            state.colorsDirty = true;
+            state.dirty = true;
+          }
+          break;
         case 'applesToClear':
         case 'disableAppleSpawn':
         case 'spawnInvincibilityPickups':
         case 'spawnMines':
+        case 'spawnBombs':
+        case 'spawnBarrels':
+        case 'spawnLasers':
         case 'disableAppleSpawn':
         case 'extraHurtGraceTime':
         case 'name':
@@ -626,8 +638,16 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           if (data.pipeConnectionsMap[coord]) {
             // note: frame is 0-indexed
             const frame = data.pipeConnectionsMap[coord] % 16;
-            const offset = 4 * 16;
-            spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, x, y, frame + offset);
+            if (options.pipeVariant === PipeVariant.Themed1) {
+              spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes1, x, y, frame);
+            } else if (options.pipeVariant === PipeVariant.Themed2) {
+              spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes2, x, y, frame);
+            } else if (options.pipeVariant === PipeVariant.Themed3) {
+              spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes3, x, y, frame);
+            } else {
+              const offset = (Math.max(options.pipeVariant, 1) - 1) * 16;
+              spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, x, y, frame + offset);
+            }
           }
 
           switch (data.switchesMap[coord]) {

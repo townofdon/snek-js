@@ -5,6 +5,7 @@ import {
   EditorData,
   EditorOptions,
   MusicTrack,
+  PipeVariant,
   PortalExitMode,
   Replay,
   ReplayMode,
@@ -45,6 +46,9 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
     disableAppleSpawn: false,
     spawnInvincibilityPickups: false,
     spawnMines: false,
+    spawnBombs: false,
+    spawnBarrels: false,
+    spawnLasers: false,
     snakeStartSize: 3,
     growthMod: 1,
     extraHurtGraceTime: 0,
@@ -62,7 +66,8 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
       8: PortalExitMode.SameDirection,
       9: PortalExitMode.SameDirection,
     },
-    musicTrack: MusicTrack.None
+    musicTrack: MusicTrack.None,
+    pipeVariant: PipeVariant.Green,
   },
 } as const;
 

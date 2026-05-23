@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 
-import { EditorOptions, Palette } from "../../types";
-import { getIsOutside, isCharPressed } from "../utils/keyboardUtils";
-import { Field } from "@/components/Field";
+import { EditorOptions, Palette, PipeVariant } from "../../types";
+import { DropdownField, Field, Option } from "@/components/Field";
 import { Stack } from "@/components/Stack";
 import { SelectPalette } from "./SelectPalette";
 
@@ -11,11 +10,12 @@ import { useUndoRedo } from "../hooks/useUndoRedo";
 interface PanelColorsProps {
   options: EditorOptions;
   setPalette: (palette: Palette) => void;
+  setPipeVariant: (pipeVariant: PipeVariant) => void;
   undo: () => void;
   redo: () => void;
 }
 
-export const PanelColors = ({ options, setPalette, undo, redo }: PanelColorsProps) => {
+export const PanelColors = ({ options, setPalette, setPipeVariant, undo, redo }: PanelColorsProps) => {
   const [isSelectPaletteShowing, setSelectPaletteShowing] = useState(false);
   const panelRef = useRef<HTMLDivElement>();
 
@@ -31,6 +31,27 @@ export const PanelColors = ({ options, setPalette, undo, redo }: PanelColorsProp
         fullWidth={fullWidth}
       />
     );
+  }
+
+  const PIPE_VARIANT_NAME: Record<PipeVariant, string> = {
+    [PipeVariant.None]: "",
+    [PipeVariant.Green]: "Green",
+    [PipeVariant.Orange]: "Copper",
+    [PipeVariant.White]: "White",
+    [PipeVariant.Cobalt]: "Cobalt",
+    [PipeVariant.Flat]: "FlatSteel",
+    [PipeVariant.Themed1]: "Themed1",
+    [PipeVariant.Themed2]: "Themed2",
+    [PipeVariant.Themed3]: "Themed3",
+  };
+  const toOption = (pipeVariant: PipeVariant): Option => ({
+    value: String(pipeVariant),
+    label: PIPE_VARIANT_NAME[pipeVariant] || 'None',
+  })
+  const pipeVariantOptions: Option[] = Object.values(PipeVariant).filter(v => !!v && typeof v === 'number').map(toOption);
+  const handleSetPipeVariant = (option: Option) => {
+    const variant = parseInt(option.value) || PipeVariant.Green;
+    setPipeVariant(variant);
   }
 
   if (isSelectPaletteShowing) {
@@ -72,6 +93,14 @@ export const PanelColors = ({ options, setPalette, undo, redo }: PanelColorsProp
         {renderField('apple')}
         {renderField('appleStroke')}
       </Stack>
+      <hr />
+      <DropdownField
+        label="Pipe Variant"
+        options={pipeVariantOptions}
+        value={String(options.pipeVariant)}
+        defaultValue={String(PipeVariant.Green)}
+        onChange={handleSetPipeVariant}
+      />
     </div>
   );
 }

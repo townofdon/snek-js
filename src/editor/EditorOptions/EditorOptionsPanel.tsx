@@ -2,9 +2,9 @@ import React, { useCallback } from "react";
 import toast from "react-hot-toast";
 import throttle from "throttleit";
 
-import { EditorData, EditorOptions, Level, Palette } from "../../types";
+import { EditorData, EditorOptions, Level, Palette, PipeVariant } from "../../types";
 import { SetStateValue } from "../editorTypes";
-import { Command, LoadLevelCommand, SetPaletteCommand } from "../commands";
+import { Command, LoadLevelCommand, SetPaletteCommand, SetPipeVariantCommand } from "../commands";
 
 import { Tabs } from "@/components/Tabs/Tabs";
 import { TabList } from "@/components/Tabs/TabList";
@@ -54,6 +54,11 @@ export const EditorOptionsPanel = ({
     executeCommand(command);
   }, 100), []);
 
+  const setPipeVariant: (pipeVariant: PipeVariant) => void = useCallback((pipeVariant: PipeVariant) => {
+    const command = new SetPipeVariantCommand(pipeVariant, optionsRef, setOptions);
+    executeCommand(command);
+  }, []);
+
   const loadLevel = (level: Level) => {
     const command = new LoadLevelCommand(level, data, options, setData, setOptions);
     executeCommand(command);
@@ -77,7 +82,7 @@ export const EditorOptionsPanel = ({
           <PanelStats options={options} setOptions={setOptions} loadLevel={loadLevel}  isPreviewShowing={isPreviewShowing} />
         </TabPanel>
         <TabPanel id={OptionsTab.Colors}>
-          <PanelColors options={options} setPalette={setPalette} undo={undo} redo={redo} />
+          <PanelColors options={options} setPalette={setPalette} setPipeVariant={setPipeVariant} undo={undo} redo={redo} />
         </TabPanel>
         <TabPanel id={OptionsTab.Save}>
           <PanelSave canvas={canvas} mapId={mapId} setMapId={setMapId} data={data} options={options} undo={undo} redo={redo} />

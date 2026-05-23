@@ -799,6 +799,7 @@ export function engine({
         es.level.snakeStartSizeOverride = options.snakeStartSize;
         es.level.extraHurtGraceTime = options.extraHurtGraceTime;
         es.level.globalLight = options.globalLight;
+        es.level.pipeVariant = options.pipeVariant;
         if (!es.level.musicTrack || es.level.musicTrack === MusicTrack.None) {
           es.level.musicTrack = options.musicTrack;
         }
