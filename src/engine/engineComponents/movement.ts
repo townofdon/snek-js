@@ -1,7 +1,6 @@
-import P5, { Vector } from "p5";
+import { Vector } from "p5";
 import { VectorList } from "@/collections/vectorList";
 import {
-  BUTTON_RELEASE_DAMAGE_DELAY,
   ELECTROCUTION_DURATION_MS,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
@@ -31,12 +30,15 @@ import {
   Sound,
   Stats,
   ThreatType,
+  PipeConnection,
 } from "@/types";
 import {
   checkHasPortalAtLocation,
   checkIsMoving,
   clamp,
+  coordToVec,
   dirToUnitVector,
+  findPipeExit,
   getBestPortalExitDirection,
   getCoordIndex,
   getDirectionBetween,
@@ -204,6 +206,19 @@ export function engineMovement({
     }
   }
 
+  function handlePipeTravel() {
+    if (state.isExitingLevel) return;
+    const pipe: PipeConnection = es.pipesMap[getCoordIndex(player.position)];
+    if (!pipe) return;
+    const result = findPipeExit(getCoordIndex(player.position), player.direction, state, es);
+    if (!result) return;
+    playSound(Sound.warp);
+    const [exitCoord, exitDir] = result;
+    const newPosition = coordToVec(exitCoord);
+    player.position.set(newPosition);
+    player.direction = exitDir;
+  }
+
   function _movePlayer(normalizedSpeed = 0): boolean {
     if (!state.isMoving) return false;
     if (state.isExited) return false;
@@ -340,7 +355,7 @@ export function engineMovement({
       return DamageType.HitLock;
     }
     // pipe
-    if (es.pipesMap[coord]) {
+    if (es.pipesMap[coord] && !findPipeExit(getCoordIndex(vec), player.direction, state, es)) {
       return DamageType.HitBarrier;
     }
     // threats
@@ -495,6 +510,7 @@ export function engineMovement({
     handleSnakeMovementDuringReplay,
     handleTeleportOnGameWin,
     handlePortalTravel,
+    handlePipeTravel,
     reboundSnake,
     rewindAllowed,
     checkHasHit,

@@ -468,6 +468,7 @@ export function engine({
     handleSnakeMovementDuringReplay,
     handleTeleportOnGameWin,
     handlePortalTravel,
+    handlePipeTravel,
     reboundSnake,
     rewindAllowed,
     checkHasHit,
@@ -1230,6 +1231,7 @@ export function engine({
     }
 
     handlePortalTravel();
+    handlePipeTravel();
     handleKeyPickup();
     handleSwitches();
     handleUnlock();
