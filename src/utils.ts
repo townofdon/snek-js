@@ -972,6 +972,168 @@ export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConn
   }
 }
 
+export const validPipeExit = (exitCoord: number, state: GameState, es: EngineState, mask: number = PIPE_NORTH | PIPE_SOUTH | PIPE_WEST | PIPE_EAST): boolean => {
+  if (!es.pipesMap[exitCoord]) return false;
+  const valid = (x: number, y: number) => {
+    const coord = getCoordIndex2(x, y);
+    return true
+      && x >= 0 && x <= GRIDCOUNT_X - 1
+      && y >= 0 && y <= GRIDCOUNT_Y - 1
+      && es.threatsMap[coord] !== ThreatType.LaserDiode
+      && es.threatsMap[coord] !== ThreatType.Flamethrower
+      && !es.pipesMap[coord]
+      && (state.isDoorsOpen ? (!es.barriersMap[coord] || es.passablesMap[coord]) : !es.barriersMap[coord])
+      && (state.isDoorsOpen || !es.doorsMap[coord])
+      && isNil(es.locksMap[coord])
+  };
+  const connection = es.pipesMap[exitCoord];
+  const x = getCoordX(exitCoord);
+  const y = getCoordY(exitCoord);
+  // note - direction is flipped here because we are checking the validity of the connection itself
+  // e.g. "neighbor up" => check that tile down is valid
+  const up = mask & PIPE_SOUTH && y < GRIDCOUNT_Y - 1 && valid(x, y + 1);
+  const down = mask & PIPE_NORTH && y > 0 && valid(x, y - 1);
+  const left = mask & PIPE_EAST && x < GRIDCOUNT_X - 1 && valid(x + 1, y);
+  const right = mask & PIPE_WEST && x > 0 && valid(x - 1, y);
+  switch (connection) {
+    case PipeConnection.N:
+      return up;
+    case PipeConnection.S:
+      return down;
+    case PipeConnection.E:
+      return right;
+    case PipeConnection.W:
+      return left;
+    case PipeConnection.Island:
+      return up || down;
+    case PipeConnection.NS:
+    case PipeConnection.NW:
+    case PipeConnection.SW:
+    case PipeConnection.NSW:
+    case PipeConnection.NE:
+    case PipeConnection.SE:
+    case PipeConnection.NSE:
+    case PipeConnection.WE:
+    case PipeConnection.NWE:
+    case PipeConnection.SWE:
+    case PipeConnection.NSWE:
+    default:
+      return false;
+  }
+}
+
+export const findPipeExit = (entryCoord: number, entryDir: DIR, state: GameState, es: EngineState): ([number, DIR] | false) => {
+  if (!validPipeExit(entryCoord, state, es)) return false;
+  const entrance = es.pipesMap[entryCoord];
+  if (entrance === PipeConnection.N && entryDir !== DIR.UP) return false;
+  if (entrance === PipeConnection.S && entryDir !== DIR.DOWN) return false;
+  if (entrance === PipeConnection.W && entryDir !== DIR.LEFT) return false;
+  if (entrance === PipeConnection.E && entryDir !== DIR.RIGHT) return false;
+  if (entrance === PipeConnection.Island) {
+    const x = getCoordX(entryCoord);
+    const y = getCoordY(entryCoord);
+    if (entryDir === DIR.LEFT) return false;
+    if (entryDir === DIR.RIGHT) return false;
+    if (entryDir === DIR.UP) {
+      if (!validPipeExit(entryCoord, state, es, PIPE_NORTH)) return false;
+      return [getCoordIndex2(x, y - 1), DIR.UP];
+    };
+    if (entryDir === DIR.DOWN) {
+      if (!validPipeExit(entryCoord, state, es, PIPE_SOUTH)) return false;
+      return [getCoordIndex2(x, y + 1), DIR.DOWN];
+    }
+  }
+  const visited: Record<number, boolean> = { [entryCoord]: true };
+  const node = coordToVec(entryCoord);
+  let dir = entryDir;
+  const valid = (x: number, y: number) => true
+    && x >= 0 && x <= GRIDCOUNT_X - 1
+    && y >= 0 && y <= GRIDCOUNT_Y - 1
+    && es.pipesMap[getCoordIndex2(x, y)]
+    && !visited[getCoordIndex2(x, y)];
+  const move = (direction: DIR) => {
+    dir = direction;
+    switch (direction) {
+      case DIR.UP:
+        node.y -= 1;
+        break;
+      case DIR.DOWN:
+        node.y += 1;
+        break;
+      case DIR.LEFT:
+        node.x -= 1;
+        break;
+      case DIR.RIGHT:
+        node.x += 1;
+        break;
+    }
+  }
+  const addCandidate = (coord: number, direction: DIR) => {
+    const x = getCoordX(coord);
+    const y = getCoordY(coord);
+    switch (direction) {
+      case DIR.UP:
+        candidates.push(getCoordIndex2(x, y - 1));
+        break;
+      case DIR.DOWN:
+        candidates.push(getCoordIndex2(x, y + 1));
+        break;
+      case DIR.LEFT:
+        candidates.push(getCoordIndex2(x - 1, y));
+        break;
+      case DIR.RIGHT:
+        candidates.push(getCoordIndex2(x + 1, y));
+        break;
+    }
+  }
+
+  const candidates: number[] = [];
+  move(entryDir);
+  while (valid(node.x, node.y) || candidates.length) {
+    const x = node.x;
+    const y = node.y;
+    const coord = getCoordIndex2(x, y);
+    if (validPipeExit(coord, state, es)) {
+      const move = dirToUnitVector(dir);
+      const exitCoord = getCoordIndex2(x + move.x, y + move.y);
+      return [exitCoord, dir];
+    }
+    if (visited[coord]) {
+      return false;
+    }
+    visited[coord] = true;
+    const up = valid(x, y - 1) ? DIR.UP : false;
+    const down = valid(x, y + 1) ? DIR.DOWN : false;
+    const left = valid(x - 1, y) ? DIR.LEFT : false;
+    const right = valid(x + 1, y) ? DIR.RIGHT : false;
+    const sameDirection = [up, down, left, right].filter(val => !!val && val === dir)[0] as DIR;
+    const staged = [up, down, left, right].filter(val => !!val && val !== dir) as DIR[];
+    if (sameDirection) {
+      move(sameDirection);
+      staged.forEach(val => addCandidate(coord, val));
+      continue;
+    }
+    if (staged.length === 1) {
+      move(staged[0]);
+      continue;
+    }
+    if (staged.length) {
+      // choose one of the neighbors at random, and add the others as candidates
+      const idx = Math.floor(Math.random() * staged.length);
+      move(staged[idx]);
+      staged.filter((_, i) => i !== idx).forEach(val => addCandidate(coord, val));
+      continue;
+    }
+    if (candidates.length) {
+      const coord = candidates.pop();
+      node.set(getCoordX(coord), getCoordY(coord));
+      continue;
+    }
+    return false;
+  }
+  return false;
+}
+
 interface ToTimeParams {
   minutes: number,
   seconds: number,
