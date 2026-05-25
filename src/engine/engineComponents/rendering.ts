@@ -6,6 +6,7 @@ import {
   BARREL_WARN_LIFETIME,
   BLOCK_SIZE_X,
   BLOCK_SIZE_Y,
+  BUTTON_RELEASE_DAMAGE_DELAY,
   DIMENSIONS,
   ELECTROCUTION_DURATION_MS,
   ELECTROCUTION_FLASH_RATE,
@@ -21,6 +22,7 @@ import {
   NUM_SNAKE_INVINCIBLE_COLORS,
   PICKUP_EXPIRE_WARN_MS,
   PICKUP_LIFETIME_MS,
+  PICKUP_MEAT_ITEMS,
   PICKUP_SPRITE_FRAME_MAP,
   STROKE_SIZE,
 } from "@/constants";
@@ -345,6 +347,13 @@ export function engineRendering({
   }
 
   function drawPlayerHead(vec: Vector) {
+    if (state.isLost && es.flamesMap[getCoordIndex(vec)]) {
+      const gfx = state.isInvertedColors ? gfxFGAction : renderer.getMainGfx();
+      const idx = (vec.x + vec.y) % PICKUP_MEAT_ITEMS.length;
+      spriteRenderer.drawSprite1x1(gfx, Image.Pickups2Sheet, vec.x, vec.y, PICKUP_SPRITE_FRAME_MAP[PICKUP_MEAT_ITEMS[idx]] - 1);
+      spriteRenderer.drawSpritesheetAnim3x3(gfx, SpritesheetRange.Burn, vec.x, vec.y, state.actualTimeElapsed);
+      return;
+    }
     const electrocuted = state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS && Math.floor(state.timeSinceElectrocutionStart / ELECTROCUTION_FLASH_RATE) % 2 === 0;
     if (state.isInvertedColors) {
       renderer.drawSquareStatic(gfxFG, vec.x, vec.y,
@@ -425,6 +434,10 @@ export function engineRendering({
         }
         gfx.pop();
       }
+    }
+    if (es.flamesMap[getCoordIndex(vec)] && !state.isButtonPressed && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY) {
+      const gfx = state.isInvertedColors ? gfxFGAction : renderer.getMainGfx();
+      spriteRenderer.drawSpritesheetAnim3x3(gfx, SpritesheetRange.Burn, vec.x, vec.y, state.actualTimeElapsed);
     }
   }
 
@@ -549,6 +562,10 @@ export function engineRendering({
         spriteRenderer.drawImage3x3(Image.SnekSegmentE, vec.x, vec.y, getRotationFromDirection(direction));
       }
       _drawSegmentArmor(vec, i, dirPrev);
+    }
+    if (es.flamesMap[getCoordIndex(vec)] && !state.isButtonPressed && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY) {
+      const gfx = state.isInvertedColors ? gfxFGAction : renderer.getMainGfx();
+      spriteRenderer.drawSpritesheetAnim3x3(gfx, SpritesheetRange.Burn, vec.x, vec.y, state.actualTimeElapsed);
     }
     if (state.acquireProgression > 0) {
       const color = p5.lerpColor(p5.color('#ffffff00'), p5.color('#ffffffff'), state.acquireProgression);
@@ -1074,12 +1091,12 @@ export function engineRendering({
       if (smoke.existsAtCoord(coord, SmokeType.Small)) {
         const elapsed = smoke.getElapsedByCoord(coord);
         spriteRenderer.drawSpritesheetAnim1x1(gfx, Image.SmokeSheet, x, y, elapsed);
-      } else if (smoke.existsAtCoord(coord, SmokeType.Large)) {
+      } else if (smoke.existsAtCoord(coord, SmokeType.Large) && drawState.shouldDrawActionFG) {
         const elapsed = smoke.getElapsedByCoord(coord);
-        spriteRenderer.drawSpritesheetAnim3x3(gfx, SpritesheetRange.BigSmokeActive, x, y, elapsed);
-      } else if (smoke.existsAtCoord(coord, SmokeType.LargeDissipate)) {
+        spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, SpritesheetRange.BigSmokeActive, x, y, elapsed);
+      } else if (smoke.existsAtCoord(coord, SmokeType.LargeDissipate) && drawState.shouldDrawActionFG) {
         const elapsed = smoke.getElapsedByCoord(coord);
-        spriteRenderer.drawSpritesheetAnim3x3(gfx, SpritesheetRange.BigSmokeOff, x, y, elapsed);
+        spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, SpritesheetRange.BigSmokeOff, x, y, elapsed);
       }
     }
   }

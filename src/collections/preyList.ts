@@ -7,6 +7,7 @@ export const MAX_NUM_PREY = 10;
 
 export const FLAG_PREY_STUNNED = 1;
 export const FLAG_PREY_ELECTROCUTED = 2;
+export const FLAG_PREY_BURNED = 4;
 
 interface PreyConstructorArgs {
   astar: AStar,

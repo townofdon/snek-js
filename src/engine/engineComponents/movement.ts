@@ -1,6 +1,7 @@
 import { Vector } from "p5";
 import { VectorList } from "@/collections/vectorList";
 import {
+  BURN_DURATION_MS,
   ELECTROCUTION_DURATION_MS,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
@@ -377,6 +378,9 @@ export function engineMovement({
     if (es.threatsMap[coord] === ThreatType.Saw && !state.isButtonPressed && !invincible) {
       return DamageType.SawCut;
     }
+    if (es.threatsMap[coord] === ThreatType.Flamethrower) {
+      return DamageType.HitBarrier;
+    }
     return DamageType.None;
   }
 
@@ -415,6 +419,9 @@ export function engineMovement({
       return SPEED_LIMIT_ULTRA_SPRINT;
     }
     if (state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS * 2) {
+      return Infinity;
+    }
+    if (state.timeSinceBurnStart < BURN_DURATION_MS * 2) {
       return Infinity;
     }
     if (!checkIsMoving(state, loopState)) {

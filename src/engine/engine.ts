@@ -65,6 +65,7 @@ import {
   LUNGE_COOLDOWN,
   LUNGE_STEPS,
   SPEED_LIMIT_ULTRA,
+  BURN_DURATION_MS,
 } from "../constants";
 import {
   Action,
@@ -135,6 +136,7 @@ import {
   isValidThreatType,
   lerp,
   buildPipesMap,
+  recalculateFlamesMap,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -178,7 +180,7 @@ import { LEVEL_01_HARD } from '../levels/campaign/level01hard';
 import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
 import { AStar } from '../astar/astar';
-import { FLAG_PREY_ELECTROCUTED, FLAG_PREY_STUNNED, PreyList } from '../collections/preyList';
+import { FLAG_PREY_BURNED, FLAG_PREY_ELECTROCUTED, FLAG_PREY_STUNNED, PreyList } from '../collections/preyList';
 import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/publishUtils';
 import { withErrorReporting } from '@/reporting';
 import { AcquirePickupParticleSystem } from './particleSystems/AcquirePickupParticleSystem';
@@ -208,6 +210,7 @@ interface EngineParams {
   startAction: (enumerator: IEnumerator, actionKey: Action, force?: boolean) => void,
   stopAction: (actionKey: Action) => void,
   clearAction: (actionKey: Action) => void,
+  actionRunning: (actionKey: Action) => boolean,
   clearUI: (force?: boolean) => void,
   gotoNextLevel: () => void,
   proceedToNextReplayClip: () => void,
@@ -239,6 +242,7 @@ export function engine({
   startAction,
   stopAction,
   clearAction,
+  actionRunning,
   clearUI,
   gotoNextLevel,
   proceedToNextReplayClip,
@@ -363,10 +367,10 @@ export function engine({
       sfx.stop(Sound.alarm);
     }
   }
-  const onSmokeRemove = (coord, _reason, type) => {
+  const onSmokeRemove = (coord, reason, type) => {
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
-    if (type === SmokeType.Large) {
+    if (type === SmokeType.Large && reason === RemovalReason.LifetimeExpired) {
       const { frames, timePerFrame } = ANIMATIONS[SpritesheetRange.BigSmokeOff];
       if (Math.random() < 0.5) {
         smoke.add(x, y, frames * timePerFrame, SpritesheetRange.BigSmokeOff, SmokeType.LargeDissipate);
@@ -723,6 +727,7 @@ export function engine({
     state.timeSinceHurtForgiveness = Infinity;
     state.timeSinceInvincibleStart = Infinity;
     state.timeSinceElectrocutionStart = Infinity;
+    state.timeSinceBurnStart = Infinity;
     state.timeSinceReverseStart = Infinity;
     state.timeSinceArmorPickup = Infinity;
     state.timeSinceArmorProtection = Infinity;
@@ -1001,6 +1006,7 @@ export function engine({
     }
 
     recalculateLasersMap(es, threats);
+    recalculateFlamesMap(es);
 
     // add initial pickups
     for (let i = 0; i < levelData.pickups.length; i++) {
@@ -1269,6 +1275,8 @@ export function engine({
     handleSnakeDamage(didHit && state.lives > 0);
     handleSnakeElectrocution();
     handlePreyElectrocution();
+    handleSnekFireDamage();
+    handlePreyFireDamage();
 
     // handle snake death
     if (state.isLost || state.lives < 0) {
@@ -1315,6 +1323,7 @@ export function engine({
     state.timeSinceHurtForgiveness += loopState.deltaTime;
     state.timeSinceInvincibleStart += loopState.deltaTime;
     state.timeSinceElectrocutionStart += loopState.deltaTime;
+    state.timeSinceBurnStart += loopState.deltaTime;
     state.timeSinceReverseStart += loopState.deltaTime;
     state.timeSinceArmorPickup += loopState.deltaTime;
     state.timeSinceArmorProtection += loopState.deltaTime;
@@ -1539,7 +1548,7 @@ export function engine({
       drawState.shouldDrawActionFG = true;
     }
     if (smoke.tick(animationDeltaTime)) {
-      // draw to main gfx
+      drawState.shouldDrawActionFG = true;
     }
     if (shields.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
@@ -2556,6 +2565,7 @@ export function engine({
     if (state.timeSinceHurt < HURT_STUN_TIME) return;
     if (state.timeSinceArmorProtection < HURT_STUN_TIME) return;
     if (state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS * 2) return;
+    if (actionRunning(Action.Electrocution)) return;
     let overlappingLaser = false;
     let segmentAtCoord = false;
     let laserType = LaserType.Blue;
@@ -2657,6 +2667,96 @@ export function engine({
         }
       }
     }
+    stopAction(Action.Electrocution);
+  }
+
+  function handleSnekFireDamage() {
+    if (state.isButtonPressed) return;
+    if (state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY) return;
+    if (state.isExitingLevel) return;
+    if (state.isLost) return;
+    if (state.lives < 0) return;
+    if (state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) return;
+    if (state.timeSinceHurt < HURT_STUN_TIME) return;
+    if (state.timeSinceArmorProtection < HURT_STUN_TIME) return;
+    if (state.timeSinceBurnStart < Infinity) return;
+    if (actionRunning(Action.Burnination)) return;
+
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (es.flamesMap[coord] && (coord === getCoordIndex(player.position) || segments.existsAtCoord(coord))) {
+        startAction(burninationRoutine(), Action.Burnination);
+        return;
+      }
+    }
+  }
+
+  function* burninationRoutine(): IEnumerator {
+    state.timeSinceBurnStart = 0;
+    let segmentAtCoord = false;
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (es.flamesMap[coord] && (coord === getCoordIndex(player.position) || segments.existsAtCoord(coord))) {
+        if (segments.existsAtCoord(coord)) {
+          segmentAtCoord = true;
+        }
+        smoke.removeByCoord(coord, RemovalReason.None);
+        smoke.add(getCoordX(coord), getCoordY(coord), 9999999, SpritesheetRange.BigSmokeActive, SmokeType.Large);
+      }
+    }
+    const hasArmor = heldItems.armor > 0;
+    sfx.playLoop(Sound.burn);
+    yield* actions.waitForTime(hasArmor ? BURN_DURATION_MS / 2 : BURN_DURATION_MS);
+    sfx.stop(Sound.burn);
+    if (hasArmor) {
+      applyArmorProtection();
+    } else {
+      state.lastHurtBy = DamageType.Burn;
+      if (segmentAtCoord) {
+        applyDamage(5);
+      } else {
+        applyDamage(1);
+      }
+    }
+    state.timeSinceBurnStart = Infinity;
+    if (state.isLost) return;
+    if (state.lives < 0) return;
+
+    // disable smoke at coord
+    const { frames, timePerFrame } = ANIMATIONS[SpritesheetRange.BigSmokeActive];
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (es.flamesMap[coord] && (coord === getCoordIndex(player.position) || segments.existsAtCoord(coord))) {
+        smoke.removeByCoord(coord, RemovalReason.None);
+        smoke.add(getCoordX(coord), getCoordY(coord), frames * timePerFrame, SpritesheetRange.BigSmokeOff, SmokeType.LargeDissipate);
+      }
+    }
+    reboundSnake(segments.length > 3 ? 2 : 1);
+    stopAction(Action.Burnination);
+  }
+
+  function handlePreyFireDamage() {
+    if (state.isButtonPressed) return;
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      const x = getCoordX(coord);
+      const y = getCoordY(coord);
+      if (es.flamesMap[coord] && preyList.existsAtCoord(coord) && !preyList.hasFlagAt(x, y, FLAG_PREY_BURNED)) {
+        coroutines.start(burnPreyRoutine(x, y));
+      }
+    }
+  }
+
+  function* burnPreyRoutine(x: number, y: number): IEnumerator {
+    preyList.addFlagAt(x, y, FLAG_PREY_STUNNED);
+    preyList.addFlagAt(x, y, FLAG_PREY_BURNED);
+    sfx.playLoop(Sound.burn);
+    yield* actions.waitForTime(ELECTROCUTION_DURATION_MS);
+    preyList.remove(x, y);
+    if (!preyList.hasFlagForAny(FLAG_PREY_BURNED) && !actionRunning(Action.Burnination)) {
+      sfx.stop(Sound.burn);
+    }
+    const smokeLifetime = lerp(SMOKE_LIFETIME * 0.5, SMOKE_LIFETIME, Math.random());
+    smoke.add(x, y, smokeLifetime, SpritesheetRange.BigSmokeActive, SmokeType.Large);
+    spawnMeatItem(x, y);
+    drawState.shouldDrawActionFG = true;
+    drawState.shouldDrawApples = true;
   }
 
   function applyDamage(amount: number) {

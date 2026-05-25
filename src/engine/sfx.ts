@@ -28,6 +28,7 @@ export class SFX implements SFXInstance {
     acquireRareItem: null,
     acquireLegendaryItem: null,
     alarm: null,
+    burn: null,
     death: null,
     doorOpen: null,
     doorOpenHuge: null,
@@ -121,6 +122,7 @@ export class SFX implements SFXInstance {
       this.sounds.acquireRareItem = await loadSound('acquire-rare-item.wav');
       this.sounds.acquireLegendaryItem = await loadSound('acquire-legendary.wav');
       this.sounds.alarm = await loadSound('alarm.wav');
+      this.sounds.burn = await loadSound('burn-loop.wav');
       this.sounds.death = await loadSound('death.wav');
       this.sounds.doorOpen = await loadSound('door-open.wav');
       this.sounds.doorOpenHuge = await loadSound('door-open-huge.wav');

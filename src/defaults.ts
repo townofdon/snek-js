@@ -13,6 +13,8 @@ import {
   Outfit,
   PickupType,
   WearableFrame,
+  ActionKey,
+  Action,
 } from "./types";
 
 export const DEFAULT_GAME_STATE: GameState = {
@@ -44,6 +46,7 @@ export const DEFAULT_GAME_STATE: GameState = {
   timeSinceLastInput: Infinity,
   timeSinceInvincibleStart: Infinity,
   timeSinceElectrocutionStart: Infinity,
+  timeSinceBurnStart: Infinity,
   timeSinceReverseStart: Infinity,
   timeSinceSpawnedWeightLossPillPickup: Infinity,
   timeSinceSpawnedAnyPickup: Infinity,
@@ -98,7 +101,21 @@ export const DEFAULT_ENGINE_STATE: EngineState = {
   lasersMap: {},
   switchesMap: {},
   pipesMap: {},
+  flamesMap: {},
 } satisfies EngineState;
+
+export const DEFAULT_ACTION_IDS_MAP: Record<ActionKey, string | null> = {
+  [Action.FadeMusic]: null,
+  [Action.ExecuteQuotesMode]: null,
+  [Action.SetTitleVariant]: null,
+  [Action.ChangeMusicLowpass]: null,
+  [Action.GameOver]: null,
+  [Action.Invincibility]: null,
+  [Action.AcquireArmor]: null,
+  [Action.WeightLoss]: null,
+  [Action.Electrocution]: null,
+  [Action.Burnination]: null,
+}
 
 export const DEFAULT_BASE_STATS = {
   score: 0,

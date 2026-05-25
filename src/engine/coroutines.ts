@@ -16,6 +16,9 @@ export class Coroutines {
   constructor(p5: P5) {
     this._p5 = p5;
   }
+  exists = (id: UUID): boolean => {
+    return id && !!this._coroutinesMap[id];
+  }
 
   start = (enumerator: IEnumerator): UUID => {
     if (!enumerator) return;

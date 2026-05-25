@@ -831,6 +831,51 @@ export const getNumFrames = (sprite: SpritesheetImage | SpritesheetRange) => {
   return ANIMATIONS[src]?.frames || frames;
 };
 
+export const recalculateFlamesMap = (es: EngineState) => {
+  const setFlame = (x: number, y: number) => {
+    if (x < 0 || y < 0 || x >= GRIDCOUNT_X || y >= GRIDCOUNT_Y) return;
+    es.flamesMap[getCoordIndex2(x, y)] = true;
+  }
+  for (let y = 0; y < GRIDCOUNT_Y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
+      es.flamesMap[getCoordIndex2(x, y)] = undefined;
+    }
+  }
+  for (let y = 0; y < GRIDCOUNT_Y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
+      if (es.threatsMap[getCoordIndex2(x, y)] !== ThreatType.Flamethrower) {
+        continue;
+      }
+      const left = x > 0 ? getCoordIndex2(x - 1, y) : -1;
+      const right = x < GRIDCOUNT_X - 1 ? getCoordIndex2(x + 1, y) : -1;
+      const top = y > 0 ? getCoordIndex2(x, y - 1) : -1;
+      const bottom = y < GRIDCOUNT_Y - 1 ? getCoordIndex2(x, y + 1) : -1;
+      const hasBarrierLeft = !!es.barriersMap[left];
+      const hasBarrierRight = !!es.barriersMap[right];
+      const hasBarrierTop = !!es.barriersMap[top];
+      const hasBarrierBottom = !!es.barriersMap[bottom];
+      const vertical = (hasBarrierTop || hasBarrierBottom) && (hasBarrierLeft === hasBarrierRight);
+      if (vertical) {
+        if (hasBarrierBottom) {
+          setFlame(x, y - 1);
+          setFlame(x, y - 2);
+        } else {
+          setFlame(x, y + 1);
+          setFlame(x, y + 2);
+        }
+      } else {
+        if (hasBarrierLeft || !hasBarrierRight) {
+          setFlame(x + 1, y);
+          setFlame(x + 2, y);
+        } else {
+          setFlame(x - 1, y);
+          setFlame(x - 2, y);
+        }
+      }
+    }
+  }
+};
+
 export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threats: ICollection & IFlaggable) => {
   const valid = (coord: number) => true
     && es.threatsMap[coord] !== ThreatType.Mine

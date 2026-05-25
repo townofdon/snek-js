@@ -33,6 +33,7 @@ export enum Action {
   AcquireArmor = 'AcquireArmor',
   WeightLoss = 'WeightLoss',
   Electrocution = 'Electrocution',
+  Burnination = 'Burnination',
 }
 
 export type ActionKey = keyof typeof Action
@@ -149,6 +150,7 @@ export enum DamageType {
   Electrocution,
   SpikePierce,
   SawCut,
+  Burn,
 }
 
 export enum InputType {
@@ -225,6 +227,7 @@ export interface GameState {
   timeSinceLastInput: number,
   timeSinceInvincibleStart: number,
   timeSinceElectrocutionStart: number,
+  timeSinceBurnStart: number,
   timeSinceButtonPressChanged: number,
   timeSinceLungeStart: number,
   /**
@@ -309,6 +312,7 @@ export interface EngineState {
   lasersMap: Record<number, LaserCell>,
   switchesMap: Record<number, SwitchType>,
   pipesMap: Record<number, PipeConnection>,
+  flamesMap: Record<number, boolean>,
 }
 
 export interface Outfit {
@@ -932,6 +936,7 @@ export enum Sound {
   acquireRareItem = 'acquireRareItem',
   acquireLegendaryItem = 'acquireLegendaryItem',
   alarm = 'alarm',
+  burn = 'burn',
   death = 'death',
   doorOpen = 'doorOpen',
   doorOpenHuge = 'doorOpenHuge',
@@ -1184,11 +1189,12 @@ export enum SpritesheetRange {
   WallSpikesRetract,
   SawActive,
   SawOff,
-  Fire,
+  FireTile,
   FlamethrowerActive,
   FlamethrowerOff,
   BigSmokeActive,
   BigSmokeOff,
+  Burn,
 }
 export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange).filter(v => typeof v === 'number')) + 1;
 

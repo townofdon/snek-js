@@ -125,6 +125,7 @@ export const INVINCIBILITY_COLOR_CYCLE_MS = 20;
 export const ARMOR_PICKUP_FREEZE_MS = 1400;
 export const ELECTROCUTION_DURATION_MS = 1400;
 export const ELECTROCUTION_FLASH_RATE = 70;
+export const BURN_DURATION_MS = 1400;
 export const LASER_DIODE_CRIT_LIFETIME = 3000;
 export const BARREL_WARN_LIFETIME = 10000;
 export const BARREL_CRIT_LIFETIME = 2000;
@@ -729,7 +730,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 100,
     oneShot: true,
   } satisfies AnimationDataForRange,
-  [SpritesheetRange.Fire]: {
+  [SpritesheetRange.FireTile]: {
     src: Image.ThreatSheet48,
     offset: Threat48Frame.Burn0 - 1,
     frames: 4,
@@ -761,6 +762,12 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frames: 4,
     timePerFrame: 200,
     oneShot: true,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.Burn]: {
+    src: Image.ThreatSheet48,
+    offset: Threat48Frame.Burn0 - 1,
+    frames: 4,
+    timePerFrame: 200,
   } satisfies AnimationDataForRange,
 } satisfies (Record<SpritesheetImage, AnimationData> & Record<SpritesheetRange, AnimationDataForRange>);
 
