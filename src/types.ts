@@ -1044,6 +1044,14 @@ export interface AnimationData {
    * Specify which frame to cycle back to for animation loop
    */
   loopFrameOffset?: number,
+  /**
+   * Specify explicit frame width
+   */
+  frameWidth?: number,
+  /**
+   * Specify explicit frame height
+   */
+  frameHeight?: number,
 }
 
 export interface AnimationDataForRange extends AnimationData {
@@ -1107,9 +1115,11 @@ export enum Image {
   ButtonSheet = 'snek-button.png',
   ThreatWallSpikesSheet = 'snek-threat-wall-blades.png',
   ThreatSawSheet = 'snek-threat-saw-blade-16.png',
+  ThreatFlameSheet = 'snek-threat-flame.png',
   ExplosionSheet = 'snek-explosion-sheet.png',
   Explosion3Sheet = 'snek-explosion-3.png',
   SmokeSheet = 'snek-smoke.png',
+  BigSmokeSheet = 'snek-smoke-big.png',
   PuffSheet = 'snek-puff.png',
   WearablesSheet = 'snek-wearables.png',
   DoorLightSheet = 'snek-door-light-sheet.png',
@@ -1174,6 +1184,11 @@ export enum SpritesheetRange {
   WallSpikesRetract,
   SawActive,
   SawOff,
+  Fire,
+  FlamethrowerActive,
+  FlamethrowerOff,
+  BigSmokeActive,
+  BigSmokeOff,
 }
 export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange).filter(v => typeof v === 'number')) + 1;
 
@@ -1191,6 +1206,7 @@ export type SpritesheetImage =
   | Image.ExplosionSheet
   | Image.Explosion3Sheet
   | Image.SmokeSheet
+  | Image.BigSmokeSheet
   | Image.PuffSheet
   | Image.FireSheet
   | Image.TileSheet16
@@ -1220,6 +1236,7 @@ export type SpritesheetImage =
   | Image.ButtonSheet
   | Image.ThreatWallSpikesSheet
   | Image.ThreatSawSheet
+  | Image.ThreatFlameSheet
 ;
 
 export enum Threat48Frame {
@@ -1243,6 +1260,10 @@ export enum Threat48Frame {
   BarrelRupture1,
   BarrelRupture2,
   BarrelRupture3,
+  Burn0,
+  Burn1,
+  Burn2,
+  Burn3,
 }
 export const FRAME_COUNT_THREAT_48 = Math.max(...Object.values(Threat48Frame).filter(v => typeof v === 'number'));
 
@@ -1281,6 +1302,8 @@ export enum Threat16Frame {
   BombCrit1,
   BombCrit2,
   BombCrit3,
+  FlamethrowerActive,
+  FlamethrowerOff,
   WarningSignYellow,
   WarningSignRed0,
   WarningSignRed1,
@@ -1347,6 +1370,20 @@ export enum ThreatSawFrame {
   Retract1,
 }
 
+export enum ThreatFlameFrame {
+  None = 0,
+  Start0,
+  Start1,
+  Active0,
+  Active1,
+  Active2,
+  Active3,
+  Off0,
+  Off1,
+  Off2,
+  Off3,
+}
+
 export enum SegmentFrame {
   None = 0,
   Test,
@@ -1399,6 +1436,13 @@ export enum ExplosionType {
   None = 0,
   Small = 1,
   Large = 2,
+}
+
+export enum SmokeType {
+  None = 0,
+  Small = 1,
+  Large = 2,
+  LargeDissipate = 3,
 }
 
 export interface Scene {

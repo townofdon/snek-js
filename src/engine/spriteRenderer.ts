@@ -11,7 +11,7 @@ import {
   SpritesheetRange,
 } from "../types";
 import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y, IMG_SCALE, IMG_X_OFFSET, MAP_OFFSET, STROKE_SIZE } from "../constants";
-import { getCurrentFrame, getRelativeDir, lerp, isValidSpritesheetRange, getNumFrames, getDerivedSprite, getFrameOffset } from "../utils";
+import { getCurrentFrame, getRelativeDir, lerp, isValidSpritesheetRange, getNumFrames, getDerivedSprite, getFrameOffset, isSpritesheetImage } from "../utils";
 import { getBorderColorVariant } from "@/palettes";
 
 interface SpriteRendererConstructorProps {
@@ -77,6 +77,7 @@ export class SpriteRenderer {
     [Image.ExplosionSheet]: null,
     [Image.Explosion3Sheet]: null,
     [Image.SmokeSheet]: null,
+    [Image.BigSmokeSheet]: null,
     [Image.PuffSheet]: null,
     [Image.FireSheet]: null,
     [Image.TileSheet16]: null,
@@ -105,6 +106,7 @@ export class SpriteRenderer {
     [Image.ButtonSheet]: null,
     [Image.ThreatWallSpikesSheet]: null,
     [Image.ThreatSawSheet]: null,
+    [Image.ThreatFlameSheet]: null,
   } satisfies Record<Image, P5.Image | null>;
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -329,6 +331,7 @@ export class SpriteRenderer {
       this.loadImage(Image.ExplosionSheet);
       this.loadImage(Image.Explosion3Sheet);
       this.loadImage(Image.SmokeSheet);
+      this.loadImage(Image.BigSmokeSheet);
       this.loadImage(Image.PuffSheet);
       this.loadImage(Image.FireSheet);
       this.loadImage(Image.TileSheet16);
@@ -357,6 +360,7 @@ export class SpriteRenderer {
       this.loadImage(Image.ButtonSheet);
       this.loadImage(Image.ThreatWallSpikesSheet);
       this.loadImage(Image.ThreatSawSheet);
+      this.loadImage(Image.ThreatFlameSheet);
     } catch (err) {
       console.error(err)
     }
@@ -441,8 +445,14 @@ export class SpriteRenderer {
     if (!loaded) {
       return;
     }
-    const widthX = Math.floor(BLOCK_SIZE_X);
-    const widthY = Math.floor(BLOCK_SIZE_Y);
+    let wmod = 1;
+    let hmod = 1;
+    if (isSpritesheetImage(image) && ANIMATIONS[image]) {
+      wmod = (ANIMATIONS[image]?.frameWidth ?? 48) / 48;
+      hmod = (ANIMATIONS[image]?.frameHeight ?? 48) / 48;
+    }
+    const width = Math.floor(BLOCK_SIZE_X);
+    const height = Math.floor(BLOCK_SIZE_Y);
     const offset = -STROKE_SIZE * 0.5;
     const posx = Math.floor(x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul - BLOCK_SIZE_X * IMG_SCALE) + MAP_OFFSET + IMG_X_OFFSET;
     const posy = Math.floor(y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul - BLOCK_SIZE_Y * IMG_SCALE) + MAP_OFFSET;
@@ -455,13 +465,13 @@ export class SpriteRenderer {
     );
     if (rotation) {
       gfx.translate(
-        (widthX * 1.5 + offset) * IMG_SCALE,
-        (widthY * 1.5 + offset) * IMG_SCALE,
+        (width * 1.5 + offset) * IMG_SCALE,
+        (height * 1.5 + offset) * IMG_SCALE,
       );
       gfx.rotate(rotation);
       gfx.translate(
-        (-widthX * 1.5 - offset) * IMG_SCALE,
-        (-widthY * 1.5 - offset) * IMG_SCALE,
+        (-width * 1.5 - offset) * IMG_SCALE,
+        (-height * 1.5 - offset) * IMG_SCALE,
       );
     }
     if (alpha !== 1) {
@@ -473,13 +483,13 @@ export class SpriteRenderer {
       // destination (x, y, w, h)
       0,
       0,
-      (widthX * 3 - STROKE_SIZE) * IMG_SCALE,
-      (widthY * 3 - STROKE_SIZE) * IMG_SCALE,
+      (width * 3 - STROKE_SIZE) * IMG_SCALE * wmod,
+      (height * 3 - STROKE_SIZE) * IMG_SCALE * hmod,
       // source (x, y, w, h)
       frame * frameWidth,
       0,
-      frameWidth,
-      loaded.height,
+      frameWidth * wmod,
+      loaded.height * hmod,
       this.p5.COVER,
       this.p5.LEFT,
       this.p5.TOP
@@ -493,11 +503,11 @@ export class SpriteRenderer {
   /**
    * Draw an animation from a 1x1 (16x16) spritesheet
    */
-  drawSpritesheetAnim1x1 = (gfx: P5 | P5.Graphics, sprite: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed = 0) => {
+  drawSpritesheetAnim1x1 = (gfx: P5 | P5.Graphics, sprite: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed = 0, rotation = 0, alpha = 1, screenshakeMul = 0) => {
     const src = getDerivedSprite(sprite);
     const frame = getCurrentFrame(sprite, elapsed) + getFrameOffset(sprite);
     const frames = getNumFrames(sprite);
-    this.drawImage1x1(gfx, src, x, y, 0, 1, 0, frame, frames);
+    this.drawImage1x1(gfx, src, x, y, rotation, alpha, screenshakeMul, frame, frames);
   }
 
   public drawSpritesheetAnim1x1Static = (...args: Parameters<SpriteRenderer['drawSpritesheetAnim1x1']>) => {
@@ -513,9 +523,9 @@ export class SpriteRenderer {
     this.drawImage1x1(gfx, image, x, y, rotation, alpha, screenshakeMul, frame, frames);
   }
 
-  public drawSprite1x1Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0) => {
+  public drawSprite1x1Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1, screenshakeMul = 0.5) => {
     if (this.isStaticCached) return;
-    this.drawSprite1x1(gfx, image, x, y, frame);
+    this.drawSprite1x1(gfx, image, x, y, frame, rotation, alpha, screenshakeMul);
   }
 
   public drawImage1x1Static = (...args: Parameters<SpriteRenderer['drawImage1x1']>) => {
@@ -539,8 +549,14 @@ export class SpriteRenderer {
     if (!loaded) {
       return;
     }
-    const widthX = Math.floor(BLOCK_SIZE_X) + STROKE_SIZE;
-    const widthY = Math.floor(BLOCK_SIZE_Y) + STROKE_SIZE;
+    let wmod = 1;
+    let hmod = 1;
+    if (isSpritesheetImage(image) && ANIMATIONS[image]) {
+      wmod = (ANIMATIONS[image]?.frameWidth ?? 16) / 16;
+      hmod = (ANIMATIONS[image]?.frameHeight ?? 16) / 16;
+    }
+    const width = Math.floor(BLOCK_SIZE_X) + STROKE_SIZE;
+    const height = Math.floor(BLOCK_SIZE_Y) + STROKE_SIZE;
     const offset = -STROKE_SIZE * 0.5;
     const posx = Math.floor(x * BLOCK_SIZE_X + this.screenShake.offset.x * screenshakeMul) + offset + MAP_OFFSET + IMG_X_OFFSET;
     const posy = Math.floor(y * BLOCK_SIZE_Y + this.screenShake.offset.y * screenshakeMul) + offset + MAP_OFFSET;
@@ -553,13 +569,13 @@ export class SpriteRenderer {
     );
     if (rotation) {
       gfx.translate(
-        (widthX * 0.5 + offset) * IMG_SCALE,
-        (widthY * 0.5 + offset) * IMG_SCALE,
+        (width * 0.5 + offset) * IMG_SCALE,
+        (height * 0.5 + offset) * IMG_SCALE,
       );
       gfx.rotate(rotation);
       gfx.translate(
-        (-widthX * 0.5 - offset) * IMG_SCALE,
-        (-widthY * 0.5 - offset) * IMG_SCALE,
+        (-width * 0.5 - offset) * IMG_SCALE,
+        (-height * 0.5 - offset) * IMG_SCALE,
       );
     }
     if (alpha !== 1) {
@@ -571,8 +587,8 @@ export class SpriteRenderer {
       // destination (x, y, w, h)
       0,
       0,
-      (widthX - STROKE_SIZE) * IMG_SCALE,
-      (widthY - STROKE_SIZE) * IMG_SCALE,
+      (width - STROKE_SIZE) * IMG_SCALE * wmod,
+      (height - STROKE_SIZE) * IMG_SCALE * hmod,
       // source (x, y, w, h)
       frame * frameWidth,
       0,

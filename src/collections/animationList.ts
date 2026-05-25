@@ -1,7 +1,7 @@
 import { Vector } from "p5";
 import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_DEV, IS_LOCALHOST } from "../constants";
 import { getCoordIndex2, getCurrentFrame, getManhattanDistance, isNil, shouldBlinkExpiringPickup } from "../utils";
-import { ICollection, IFlaggable, SpritesheetImage, SpritesheetRange } from "../types";
+import { ICollection, IFlaggable, SpritesheetImage, SpritesheetRange, ThreatType } from "../types";
 
 export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
@@ -13,9 +13,9 @@ export enum RemovalReason {
 }
 
 interface AnimationListConstructorOptions {
-  onLifetimeExpire?: (coord: number) => void
-  onAdd?: (coord: number, type: number) => void
-  onRemove?: (coord: number, reason: RemovalReason) => void
+  onLifetimeExpire?: (coord: number, type: number) => void,
+  onAdd?: (coord: number, type: number) => void,
+  onRemove?: (coord: number, reason: RemovalReason, type: number) => void,
 }
 
 interface AddItemOptions {
@@ -62,8 +62,8 @@ export class AnimationList implements ICollection, IFlaggable {
   private coordMap: Record<number, boolean>;
   private numTimesDidChange: number;
 
-  private onLifetimeExpire: (coord: number) => void = () => {};
-  private onRemove: (coord: number, reason: RemovalReason) => void = () => {};
+  private onLifetimeExpire: (coord: number, type: number) => void = () => {};
+  private onRemove: (coord: number, reason: RemovalReason, type: number) => void = () => {};
   private onAdd: (coord: number, type: number) => void = () => {};
 
   constructor(opts: AnimationListConstructorOptions = {}) {
@@ -162,6 +162,7 @@ export class AnimationList implements ICollection, IFlaggable {
       const sprite = enabled ? this.img[i] : this.disabledImg[i] || this.img[i];
       const framePrev = getCurrentFrame(sprite, prevElapsed);
       const frameCurrent = getCurrentFrame(sprite, this.elapsed[i]);
+
       if (prevElapsed === 0 || framePrev !== frameCurrent) {
         didChange = true;
       }
@@ -172,7 +173,7 @@ export class AnimationList implements ICollection, IFlaggable {
         const x = this.x[i];
         const y = this.y[i];
         const coord = getCoordIndex2(x, y);
-        this.onLifetimeExpire(coord);
+        this.onLifetimeExpire(coord, this.type[i] || 0);
         this.removeByIndex(i, RemovalReason.LifetimeExpired);
         didChange = true;
       }
@@ -269,6 +270,7 @@ export class AnimationList implements ICollection, IFlaggable {
     if (this.free[i]) {
       return;
     }
+    const type = this.type[i];
     const coord = getCoordIndex2(this.x[i], this.y[i]);
     this.coordMap[coord] = false;
     this.x[i] = 0;
@@ -282,7 +284,7 @@ export class AnimationList implements ICollection, IFlaggable {
     this.flags[i] = 0;
     this.internalFlags[i] = 0;
     this.recalculateLength();
-    this.onRemove(coord, reason);
+    this.onRemove(coord, reason, type);
     return;
   };
 
@@ -395,6 +397,16 @@ export class AnimationList implements ICollection, IFlaggable {
       if (this.x[i] === x && this.y[i] === y) {
         this.lifetime[i] = lifetime;
         this.elapsed[i] = 0;
+        break;
+      }
+    }
+  };
+
+  public setSprite = (x: number, y: number, img: SpritesheetImage | SpritesheetRange) => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        this.img[i] = img;
         break;
       }
     }

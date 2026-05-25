@@ -113,6 +113,7 @@ import {
   Orientation,
   ThreatFlag,
   LaserType,
+  SmokeType,
 } from "../types";
 import {
   clamp,
@@ -330,7 +331,7 @@ export function engine({
     if (threatType === ThreatType.ExplodableBarrel) {
       const lifetime = ANIMATIONS[Image.Explosion3Sheet].frames * ANIMATIONS[Image.Explosion3Sheet].timePerFrame;
       explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large);
-      smoke.add(x, y, smokeLifetime, Image.SmokeSheet);
+      smoke.add(x, y, smokeLifetime, SpritesheetRange.BigSmokeActive, SmokeType.Large);
       playSound(Sound.xplode3);
       damageSurroundingTiles(coord, ExplosionType.Large);
       if (screenShake.timeSinceStarted >= SCREEN_SHAKE_DURATION_MS) {
@@ -340,7 +341,7 @@ export function engine({
     } else if (threatType === ThreatType.Bomb) {
       const lifetime = ANIMATIONS[Image.Explosion3Sheet].frames * ANIMATIONS[Image.Explosion3Sheet].timePerFrame;
       explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large);
-      smoke.add(x, y, smokeLifetime, Image.SmokeSheet);
+      smoke.add(x, y, smokeLifetime, SpritesheetRange.BigSmokeActive, SmokeType.Large);
       playSound(Sound.xplode3);
       damageSurroundingTiles(coord, ExplosionType.Large);
       if (screenShake.timeSinceStarted >= SCREEN_SHAKE_DURATION_MS) {
@@ -362,14 +363,26 @@ export function engine({
       sfx.stop(Sound.alarm);
     }
   }
+  const onSmokeRemove = (coord, _reason, type) => {
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
+    if (type === SmokeType.Large) {
+      const { frames, timePerFrame } = ANIMATIONS[SpritesheetRange.BigSmokeOff];
+      if (Math.random() < 0.5) {
+        smoke.add(x, y, frames * timePerFrame, SpritesheetRange.BigSmokeOff, SmokeType.LargeDissipate);
+      } else {
+        smoke.add(x, y, lerp(SMOKE_LIFETIME * 0.5, SMOKE_LIFETIME, Math.random()), Image.SmokeSheet, SmokeType.Small);
+      }
+    }
+  };
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
-  const threats = new AnimationList({ onAdd: onThreatAdd, onRemove: onThreatRemove })
+  const threats = new AnimationList({ onAdd: onThreatAdd, onRemove: onThreatRemove });
   const doorsOpening = new AnimationList();
   const fireTiles = new AnimationList();
   const explosions = new AnimationList();
   const puffs = new AnimationList();
-  const smoke = new AnimationList();
+  const smoke = new AnimationList({ onRemove: onSmokeRemove });
   const pointsAnim = new AnimationList();
   const shields = new AnimationList();
   const shieldSpawns = new AnimationList({ onLifetimeExpire: onShieldSpawnLifetimeExpire });
@@ -977,6 +990,9 @@ export function engine({
             });
             break;
           case ThreatType.Flamethrower:
+            threats.add(x, y, forever, SpritesheetRange.FlamethrowerActive, ThreatType.Flamethrower, {
+              disabledImg: SpritesheetRange.FlamethrowerOff,
+            });
             break;
           default:
             break;
@@ -1986,6 +2002,7 @@ export function engine({
           || es.threatsMap[coord] === ThreatType.Spikes
           || es.threatsMap[coord] === ThreatType.WallSpikes
           || es.threatsMap[coord] === ThreatType.Saw
+          || es.threatsMap[coord] === ThreatType.Flamethrower
         ) {
           byCoord(coord)(threats.disable);
         }
@@ -2002,6 +2019,7 @@ export function engine({
           || es.threatsMap[coord] === ThreatType.Spikes
           || es.threatsMap[coord] === ThreatType.WallSpikes
           || es.threatsMap[coord] === ThreatType.Saw
+          || es.threatsMap[coord] === ThreatType.Flamethrower
         ) {
           byCoord(coord)(threats.enable);
         }
@@ -2380,8 +2398,11 @@ export function engine({
         threats.removeByCoord(coord, RemovalReason.Explode);
       } else if (timeRemaining <= BARREL_WARN_LIFETIME) {
         byCoord(coord)(threats.setLifetime, BARREL_CRIT_LIFETIME);
+        byCoord(coord)(threats.setSprite, SpritesheetRange.BarrelFireB);
       } else {
         byCoord(coord)(threats.setLifetime, BARREL_WARN_LIFETIME);
+        // note - this ensures that the burning animation plays
+        byCoord(coord)(threats.setSprite, SpritesheetRange.BarrelFireA);
       }
       return true;
     }
@@ -2519,7 +2540,7 @@ export function engine({
       sfx.stop(Sound.electrocuteLoop);
     }
     const smokeLifetime = lerp(SMOKE_LIFETIME * 0.5, SMOKE_LIFETIME, Math.random());
-    smoke.add(x, y, smokeLifetime, Image.SmokeSheet);
+    smoke.add(x, y, smokeLifetime, SpritesheetRange.BigSmokeActive, SmokeType.Large);
     spawnMeatItem(x, y);
     drawState.shouldDrawActionFG = true;
     drawState.shouldDrawApples = true;

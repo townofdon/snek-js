@@ -817,6 +817,11 @@ export const getDerivedSprite = (sprite: SpritesheetImage | SpritesheetRange): S
   return isValidSpritesheetRange(sprite) ? (ANIMATIONS[sprite].src || SnekImage.__TEST__) : sprite;
 }
 
+export const isSpritesheetImage = (image: SnekImage): image is SpritesheetImage => {
+  const animationData = ANIMATIONS[image];
+  return !!animationData && !animationData.src;
+}
+
 export const getNumFrames = (sprite: SpritesheetImage | SpritesheetRange) => {
   if (!sprite) return 0;
   if (!ANIMATIONS[sprite]) throw new Error(`no animation data found for image "${sprite}"`);
@@ -934,12 +939,12 @@ export const byCoord = (coord: number) => <T, Y extends Array<any>>(thunk: (x: n
   return thunk(x, y, ...params);
 }
 
-export const withFlipx = (gfx: P5 | P5.Graphics, x: number, y: number, flipx: boolean, thunk: (tx: number, ty: number) => void) => {
+export const withFlipx = (gfx: P5 | P5.Graphics, x: number, y: number, flipx: boolean, thunk: (tx: number, ty: number) => void, width = 1) => {
   gfx.push();
   let tx = x;
   if (flipx) {
     gfx.scale(-1, 1);
-    tx = -tx - 1;
+    tx = -tx - width;
   }
   thunk(tx, y);
   gfx.pop();

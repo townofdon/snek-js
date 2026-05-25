@@ -12,6 +12,7 @@ import {
   ButtonSheetFrame,
   ThreatWallSpikesFrame,
   ThreatSawFrame,
+  Threat16Frame,
 } from '../types';
 import { SpriteRenderer } from '../engine/spriteRenderer';
 import { Renderer } from '../engine/renderer';
@@ -132,8 +133,7 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
       spriteRenderer.drawSprite1x1(gfx[ThreatType.Spikes], Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeActive0 - 1);
       spriteRenderer.drawSprite1x1(gfx[ThreatType.WallSpikes], Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active4 - 1);
       spriteRenderer.drawSprite1x1(gfx[ThreatType.Saw], Image.ThreatSawSheet, x, y, ThreatSawFrame.Active1 - 1);
-      // TODO: DRAW ADD'L THREATS
-      // - flamethrower
+      spriteRenderer.drawSprite1x1(gfx[ThreatType.Flamethrower], Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1);
     }
   }
 

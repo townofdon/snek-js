@@ -14,6 +14,7 @@ import {
   SpritesheetRange,
   Threat16Frame,
   Threat48Frame,
+  ThreatFlameFrame,
   ThreatSawFrame,
   ThreatWallSpikesFrame,
   WearableFrame,
@@ -472,6 +473,10 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frames: 4,
     timePerFrame: 200,
   } satisfies AnimationData,
+  [Image.BigSmokeSheet]: {
+    frames: 9,
+    timePerFrame: 200,
+  } satisfies AnimationData,
   [Image.PuffSheet]: {
     frames: 6,
     timePerFrame: 100,
@@ -573,11 +578,11 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ThreatSheet16]: {
-    frames: 36,
+    frames: 38,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ThreatSheet48]: {
-    frames: 19,
+    frames: 23,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ButtonSheet]: {
@@ -591,6 +596,12 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
   [Image.ThreatSawSheet]: {
     frames: 12,
     timePerFrame: 200,
+  } satisfies AnimationData,
+  [Image.ThreatFlameSheet]: {
+    frames: 10,
+    timePerFrame: 200,
+    frameWidth: 32,
+    frameHeight: 16,
   } satisfies AnimationData,
   [SpritesheetRange.None]: {
     src: Image.SegmentsSheet,
@@ -653,6 +664,8 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     offset: Threat48Frame.BarrelFireA0 - 1,
     frames: 4,
     timePerFrame: 200,
+    oneShot: false,
+    loopFrameOffset: 0,
   } satisfies AnimationDataForRange,
   [SpritesheetRange.BarrelFireB]: {
     src: Image.ThreatSheet48,
@@ -714,6 +727,39 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     offset: ThreatSawFrame.Retract0 - 1,
     frames: 2,
     timePerFrame: 100,
+    oneShot: true,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.Fire]: {
+    src: Image.ThreatSheet48,
+    offset: Threat48Frame.Burn0 - 1,
+    frames: 4,
+    timePerFrame: 200,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.FlamethrowerActive]: {
+    src: Image.ThreatFlameSheet,
+    offset: 0,
+    frames: 6,
+    timePerFrame: 200,
+    loopFrameOffset: 2,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.FlamethrowerOff]: {
+    src: Image.ThreatFlameSheet,
+    offset: ThreatFlameFrame.Off0 - 1,
+    frames: 4,
+    timePerFrame: 200,
+    oneShot: true,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.BigSmokeActive]: {
+    src: Image.BigSmokeSheet,
+    offset: 0,
+    frames: 5,
+    timePerFrame: 200,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.BigSmokeOff]: {
+    src: Image.BigSmokeSheet,
+    offset: 5,
+    frames: 4,
+    timePerFrame: 200,
     oneShot: true,
   } satisfies AnimationDataForRange,
 } satisfies (Record<SpritesheetImage, AnimationData> & Record<SpritesheetRange, AnimationDataForRange>);
