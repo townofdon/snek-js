@@ -55,9 +55,11 @@ import {
   coordToVec,
   getCoordIndex2,
   getRotationFromDirection,
+  getTileDir,
   isAtMapEdge,
   isValidKeyChannel,
   isValidPortalChannel,
+  recalculateFlamesMap,
   recalculateLasersMap,
   withFlipx,
 } from "../utils";
@@ -108,6 +110,7 @@ export interface EditorSketchReturn {
 export interface ExtendedSketchData extends EditorData {
   lasersMap: Record<number, LaserCell>,
   pipeConnectionsMap: Record<number, PipeConnection>,
+  flamesMap: Record<number, boolean>,
 }
 
 export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): EditorSketchReturn => {
@@ -130,6 +133,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     switchesMap: {},
     pipesMap: {},
     pipeConnectionsMap: {},
+    flamesMap: {},
   } satisfies ExtendedSketchData;
   const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig' | 'pipeVariant'> = {
     globalLight: EDITOR_DEFAULTS.options.globalLight,
@@ -372,6 +376,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       }
       if (state.dirty) {
         recalculateLasersMap(data, threats);
+        recalculateFlamesMap(data);
         state.dirty = false;
         renderer.invalidateStaticCache();
         // come on baby, light my fire
@@ -593,15 +598,6 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             spriteRenderer.drawSprite1x1(gfx, Image.ThemedAppleSheet, x, y, 0, 0, 1);
           }
 
-          const left = x > 0 ? getCoordIndex2(x - 1, y) : -1;
-          const right = x < GRIDCOUNT_X - 1 ? getCoordIndex2(x + 1, y) : -1;
-          const top = y > 0 ? getCoordIndex2(x, y - 1) : -1;
-          const bottom = y < GRIDCOUNT_Y - 1 ? getCoordIndex2(x, y + 1) : -1;
-          const hasBarrierLeft = !!data.barriersMap[left];
-          const hasBarrierRight = !!data.barriersMap[right];
-          const hasBarrierTop = !!data.barriersMap[top];
-          const hasBarrierBottom = !!data.barriersMap[bottom];
-          const vertical = (hasBarrierTop || hasBarrierBottom) && ((hasBarrierLeft && hasBarrierLeft) || (!hasBarrierLeft && !hasBarrierRight));
           switch (data.threatsMap[coord]) {
             case ThreatType.Mine:
               spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.MineSheet, x, y, 0);
@@ -622,33 +618,42 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
               spriteRenderer.drawSprite1x1Static(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeActive0 - 1);
               break;
             case ThreatType.WallSpikes:
-              if (vertical) {
-                if (hasBarrierBottom) {
+              switch (getTileDir(x, y, data)) {
+                case DIR.UP:
                   spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active3 - 1, Math.PI * 1.5);
-                } else {
+                  break;
+                case DIR.DOWN:
                   spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active3 - 1, Math.PI * 0.5);
-                }
-              } else {
-                withFlipx(gfx, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
-                  spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatWallSpikesSheet, tx, ty, ThreatWallSpikesFrame.Active3 - 1);
-                });
+                  break;
+                case DIR.LEFT:
+                  withFlipx(gfx, x, y, true, (tx, ty) => {
+                    spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatWallSpikesSheet, tx, ty, ThreatWallSpikesFrame.Active3 - 1);
+                  });
+                  break;
+                case DIR.RIGHT:
+                  spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active3 - 1);
+                  break;
               }
               break;
             case ThreatType.Saw:
               spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSawSheet, x, y, ThreatSawFrame.Active1 - 1);
               break;
-            // TODO: DRAW ADD'L THREATS
             case ThreatType.Flamethrower:
-              if (vertical) {
-                if (hasBarrierBottom) {
+              switch (getTileDir(x, y, data)) {
+                case DIR.UP:
                   spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1, Math.PI * 1.5);
-                } else {
+                  break;
+                case DIR.DOWN:
                   spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1, Math.PI * 0.5);
-                }
-              } else {
-                withFlipx(gfx, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
-                  spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSheet16, tx, ty, Threat16Frame.FlamethrowerActive - 1);
-                });
+                  break;
+                case DIR.LEFT:
+                  withFlipx(gfx, x, y, true, (tx, ty) => {
+                    spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSheet16, tx, ty, Threat16Frame.FlamethrowerActive - 1);
+                  });
+                  break;
+                case DIR.RIGHT:
+                  spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1);
+                  break;
               }
               break;
             case ThreatType.None:
@@ -824,27 +829,21 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           const coord = getCoordIndex2(x, y);
           if (data.threatsMap[coord] !== ThreatType.Flamethrower) continue;
           const gfxflame = renderer.getMainGfx();
-          const left = x > 0 ? getCoordIndex2(x - 1, y) : -1;
-          const right = x < GRIDCOUNT_X - 1 ? getCoordIndex2(x + 1, y) : -1;
-          const top = y > 0 ? getCoordIndex2(x, y - 1) : -1;
-          const bottom = y < GRIDCOUNT_Y - 1 ? getCoordIndex2(x, y + 1) : -1;
-          const hasBarrierLeft = !!data.barriersMap[left];
-          const hasBarrierRight = !!data.barriersMap[right];
-          const hasBarrierTop = !!data.barriersMap[top];
-          const hasBarrierBottom = !!data.barriersMap[bottom];
-          const vertical = (hasBarrierTop || hasBarrierBottom) && ((hasBarrierLeft && hasBarrierLeft) || (!hasBarrierLeft && !hasBarrierRight));
-          if (vertical) {
-            if (hasBarrierBottom) {
+          switch (getTileDir(x, y, data)) {
+            case DIR.UP:
               spriteRenderer.drawSpritesheetAnim1x1(gfxflame, SpritesheetRange.FlamethrowerActive, x, y - 1, renderer.getElapsed(), Math.PI * 1.5);
-            } else {
+              break;
+            case DIR.DOWN:
               spriteRenderer.drawSpritesheetAnim1x1(gfxflame, SpritesheetRange.FlamethrowerActive, x, y + 1, renderer.getElapsed(), Math.PI * 0.5);
-            }
-          } else {
-            const flipx = !hasBarrierLeft && hasBarrierRight;
-            const offset = flipx ? -2 : 1;
-            withFlipx(gfxflame, x + offset, y, flipx, (tx, ty) => {
-              spriteRenderer.drawSpritesheetAnim1x1(gfxflame, SpritesheetRange.FlamethrowerActive, tx, ty, renderer.getElapsed());
-            }, 2);
+              break;
+            case DIR.LEFT:
+              withFlipx(gfxflame, x - 2, y, true, (tx, ty) => {
+                spriteRenderer.drawSpritesheetAnim1x1(gfxflame, SpritesheetRange.FlamethrowerActive, tx, ty, renderer.getElapsed());
+              }, 2);
+              break;
+            case DIR.RIGHT:
+              spriteRenderer.drawSpritesheetAnim1x1(gfxflame, SpritesheetRange.FlamethrowerActive, x + 1, y, renderer.getElapsed());
+              break;
           }
         }
       }

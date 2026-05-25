@@ -56,10 +56,10 @@ import {
   SpritesheetImage,
   Image as SnekImage,
   PipeConnection,
-  PIPE_NORTH,
-  PIPE_SOUTH,
-  PIPE_WEST,
-  PIPE_EAST,
+  FLAG_NORTH,
+  FLAG_SOUTH,
+  FLAG_WEST,
+  FLAG_EAST,
   DamageType,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
@@ -831,7 +831,73 @@ export const getNumFrames = (sprite: SpritesheetImage | SpritesheetRange) => {
   return ANIMATIONS[src]?.frames || frames;
 };
 
-export const recalculateFlamesMap = (es: EngineState) => {
+/**
+ * Determine which direction a tile should be facing based on its neighbors.
+ */
+export const getTileDir = (x: number, y: number, es: EngineState | ExtendedSketchData): DIR => {
+  if (x < 0 || y < 0 || x >= GRIDCOUNT_X - 1 || y >= GRIDCOUNT_Y - 1) {
+    return DIR.RIGHT;
+  }
+  const valid = (vx: number, vy: number) => {
+    const coord = getCoordIndex2(vx, vy);
+    return true
+      && vx >= 0 && vx <= GRIDCOUNT_X - 1
+      && vy >= 0 && vy <= GRIDCOUNT_Y - 1
+      && (false
+        || es.threatsMap[coord] === ThreatType.LaserDiode
+        // || es.threatsMap[coord] === ThreatType.Flamethrower
+        || !!es.pipesMap[coord]
+        || !!es.barriersMap[coord]
+        || !!es.doorsMap[coord]
+        || !isNil(es.locksMap[coord])
+      );
+  }
+  let neighbors: PipeConnection = 0;
+  if (valid(x, y - 1)) neighbors |= FLAG_NORTH;
+  if (valid(x, y + 1)) neighbors |= FLAG_SOUTH;
+  if (valid(x - 1, y)) neighbors |= FLAG_WEST;
+  if (valid(x + 1, y)) neighbors |= FLAG_EAST;
+  switch (neighbors) {
+    case PipeConnection.N:
+      return DIR.DOWN;
+    case PipeConnection.S:
+      return DIR.UP;
+    case PipeConnection.NS:
+      return DIR.RIGHT;
+    case PipeConnection.W:
+      return DIR.RIGHT;
+    case PipeConnection.NW:
+      return DIR.RIGHT;
+    case PipeConnection.SW:
+      return DIR.RIGHT;
+    case PipeConnection.NSW:
+      return DIR.RIGHT;
+    case PipeConnection.E:
+      return DIR.LEFT;
+    case PipeConnection.NE:
+      return DIR.LEFT;
+    case PipeConnection.SE:
+      return DIR.LEFT;
+    case PipeConnection.NSE:
+      return DIR.LEFT;
+    case PipeConnection.WE:
+      return DIR.UP;
+    case PipeConnection.NWE:
+      return DIR.DOWN;
+    case PipeConnection.SWE:
+      return DIR.UP;
+    case PipeConnection.NSWE:
+      return DIR.RIGHT;
+    case PipeConnection.Island:
+      return DIR.RIGHT;
+    case PipeConnection.Unset:
+      return DIR.RIGHT;
+    default:
+      return DIR.RIGHT;
+  }
+}
+
+export const recalculateFlamesMap = (es: EngineState | ExtendedSketchData) => {
   const setFlame = (x: number, y: number) => {
     if (x < 0 || y < 0 || x >= GRIDCOUNT_X || y >= GRIDCOUNT_Y) return;
     es.flamesMap[getCoordIndex2(x, y)] = true;
@@ -846,31 +912,24 @@ export const recalculateFlamesMap = (es: EngineState) => {
       if (es.threatsMap[getCoordIndex2(x, y)] !== ThreatType.Flamethrower) {
         continue;
       }
-      const left = x > 0 ? getCoordIndex2(x - 1, y) : -1;
-      const right = x < GRIDCOUNT_X - 1 ? getCoordIndex2(x + 1, y) : -1;
-      const top = y > 0 ? getCoordIndex2(x, y - 1) : -1;
-      const bottom = y < GRIDCOUNT_Y - 1 ? getCoordIndex2(x, y + 1) : -1;
-      const hasBarrierLeft = !!es.barriersMap[left];
-      const hasBarrierRight = !!es.barriersMap[right];
-      const hasBarrierTop = !!es.barriersMap[top];
-      const hasBarrierBottom = !!es.barriersMap[bottom];
-      const vertical = (hasBarrierTop || hasBarrierBottom) && (hasBarrierLeft === hasBarrierRight);
-      if (vertical) {
-        if (hasBarrierBottom) {
+      const dir = getTileDir(x, y, es);
+      switch (dir) {
+        case DIR.UP:
           setFlame(x, y - 1);
           setFlame(x, y - 2);
-        } else {
+          break;
+        case DIR.DOWN:
           setFlame(x, y + 1);
           setFlame(x, y + 2);
-        }
-      } else {
-        if (hasBarrierLeft || !hasBarrierRight) {
-          setFlame(x + 1, y);
-          setFlame(x + 2, y);
-        } else {
+          break;
+        case DIR.LEFT:
           setFlame(x - 1, y);
           setFlame(x - 2, y);
-        }
+          break;
+        case DIR.RIGHT:
+          setFlame(x + 1, y);
+          setFlame(x + 2, y);
+          break;
       }
     }
   }
@@ -1012,17 +1071,17 @@ export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConn
       const left = x > 0 ? !!pipesMap[getCoordIndex2(x - 1, y)] : false;
       const right = x < GRIDCOUNT_X - 1 ? !!pipesMap[getCoordIndex2(x + 1, y)] : false;
       let idx = 0;
-      if (up) idx += PIPE_NORTH;
-      if (down) idx += PIPE_SOUTH;
-      if (left) idx += PIPE_WEST;
-      if (right) idx += PIPE_EAST;
+      if (up) idx += FLAG_NORTH;
+      if (down) idx += FLAG_SOUTH;
+      if (left) idx += FLAG_WEST;
+      if (right) idx += FLAG_EAST;
       if (!idx) continue;
       pipesMap[getCoordIndex2(x, y)] = idx;
     }
   }
 }
 
-export const validPipeExit = (exitCoord: number, state: GameState, es: EngineState, mask: number = PIPE_NORTH | PIPE_SOUTH | PIPE_WEST | PIPE_EAST): boolean => {
+export const validPipeExit = (exitCoord: number, state: GameState, es: EngineState, mask: number = FLAG_NORTH | FLAG_SOUTH | FLAG_WEST | FLAG_EAST): boolean => {
   if (!es.pipesMap[exitCoord]) return false;
   const valid = (x: number, y: number) => {
     const coord = getCoordIndex2(x, y);
@@ -1041,10 +1100,10 @@ export const validPipeExit = (exitCoord: number, state: GameState, es: EngineSta
   const y = getCoordY(exitCoord);
   // note - direction is flipped here because we are checking the validity of the connection itself
   // e.g. "neighbor up" => check that tile down is valid
-  const up = mask & PIPE_SOUTH && y < GRIDCOUNT_Y - 1 && valid(x, y + 1);
-  const down = mask & PIPE_NORTH && y > 0 && valid(x, y - 1);
-  const left = mask & PIPE_EAST && x < GRIDCOUNT_X - 1 && valid(x + 1, y);
-  const right = mask & PIPE_WEST && x > 0 && valid(x - 1, y);
+  const up = mask & FLAG_SOUTH && y < GRIDCOUNT_Y - 1 && valid(x, y + 1);
+  const down = mask & FLAG_NORTH && y > 0 && valid(x, y - 1);
+  const left = mask & FLAG_EAST && x < GRIDCOUNT_X - 1 && valid(x + 1, y);
+  const right = mask & FLAG_WEST && x > 0 && valid(x - 1, y);
   switch (connection) {
     case PipeConnection.N:
       return up;
@@ -1085,11 +1144,11 @@ export const findPipeExit = (entryCoord: number, entryDir: DIR, state: GameState
     if (entryDir === DIR.LEFT) return false;
     if (entryDir === DIR.RIGHT) return false;
     if (entryDir === DIR.UP) {
-      if (!validPipeExit(entryCoord, state, es, PIPE_NORTH)) return false;
+      if (!validPipeExit(entryCoord, state, es, FLAG_NORTH)) return false;
       return [getCoordIndex2(x, y - 1), DIR.UP];
     };
     if (entryDir === DIR.DOWN) {
-      if (!validPipeExit(entryCoord, state, es, PIPE_SOUTH)) return false;
+      if (!validPipeExit(entryCoord, state, es, FLAG_SOUTH)) return false;
       return [getCoordIndex2(x, y + 1), DIR.DOWN];
     }
   }

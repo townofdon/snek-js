@@ -631,10 +631,10 @@ export enum PipeVariant {
   Themed3,
 }
 
-export const PIPE_NORTH = 1;
-export const PIPE_SOUTH = 2;
-export const PIPE_WEST = 4;
-export const PIPE_EAST = 8;
+export const FLAG_NORTH = 1;
+export const FLAG_SOUTH = 2;
+export const FLAG_WEST = 4;
+export const FLAG_EAST = 8;
 
 // note - ordering based on bitmask
 export enum PipeConnection {
@@ -1133,7 +1133,7 @@ export enum Image {
   PreyAntSheet = 'snek-prey-ant.png',
   PreyMouseSheet = 'snek-prey-mouse.png',
   PreyGrasshopperSheet = 'snek-prey-grasshopper.png',
-  FireSheet = 'snek-fire5.png',
+  FireSheet = 'snek-fire6.png',
   TileSheet16 = 'snek-tiles-16.png',
   TileSheet48 = 'snek-tiles-48.png',
   PipesSheet = 'snek-pipes.png',

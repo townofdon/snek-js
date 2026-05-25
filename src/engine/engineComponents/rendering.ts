@@ -80,6 +80,7 @@ import {
   getCoordIndex2,
   getDirectionBetween,
   getRotationFromDirection,
+  getTileDir,
   invertDirection,
   isAtMapEdge,
   isNil,
@@ -435,7 +436,8 @@ export function engineRendering({
         gfx.pop();
       }
     }
-    if (es.flamesMap[getCoordIndex(vec)] && !state.isButtonPressed && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY) {
+    const burning = es.flamesMap[getCoordIndex(vec)] && !state.isButtonPressed && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY;
+    if (state.timeSinceBurnStart < Infinity || burning) {
       const gfx = state.isInvertedColors ? gfxFGAction : renderer.getMainGfx();
       spriteRenderer.drawSpritesheetAnim3x3(gfx, SpritesheetRange.Burn, vec.x, vec.y, state.actualTimeElapsed);
     }
@@ -750,15 +752,6 @@ export function engineRendering({
       for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         const x = Math.floor(coord % GRIDCOUNT_X);
         const y = Math.floor(coord / GRIDCOUNT_X);
-        const left = x > 0 ? getCoordIndex2(x - 1, y) : -1;
-        const right = x < GRIDCOUNT_X - 1 ? getCoordIndex2(x + 1, y) : -1;
-        const top = y > 0 ? getCoordIndex2(x, y - 1) : -1;
-        const bottom = y < GRIDCOUNT_Y - 1 ? getCoordIndex2(x, y + 1) : -1;
-        const hasBarrierLeft = !!es.barriersMap[left];
-        const hasBarrierRight = !!es.barriersMap[right];
-        const hasBarrierTop = !!es.barriersMap[top];
-        const hasBarrierBottom = !!es.barriersMap[bottom];
-        const vertical = (hasBarrierTop || hasBarrierBottom) && ((hasBarrierLeft && hasBarrierLeft) || (!hasBarrierLeft && !hasBarrierRight));
         if (threats.existsAtCoord(coord, ThreatType.Mine)) {
           const elapsed = threats.getElapsedByCoord(coord);
           if (shouldBlinkExpiringPickup(threats.getTimeRemaining(x, y))) {
@@ -819,32 +812,42 @@ export function engineRendering({
           }
         } else if (threats.existsAtCoord(coord, ThreatType.WallSpikes) && !state.isButtonPressed) {
           const elapsed = threats.getElapsedByCoord(coord);
-          if (vertical) {
-            if (hasBarrierBottom) {
+          switch (getTileDir(x, y, es)) {
+            case DIR.UP:
               spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, x, y, elapsed, Math.PI * 1.5);
-            } else {
+              break;
+            case DIR.DOWN:
               spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, x, y, elapsed, Math.PI * 0.5);
-            }
-          } else {
-            withFlipx(gfxFGAction, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
-              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, tx, ty, elapsed);
-            });
+              break;
+            case DIR.LEFT:
+              withFlipx(gfxFGAction, x, y, true, (tx, ty) => {
+                spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, tx, ty, elapsed);
+              });
+              break;
+            case DIR.RIGHT:
+              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, x, y, elapsed);
+              break;
           }
         } else if (threats.existsAtCoord(coord, ThreatType.Saw) && !state.isButtonPressed) {
           const elapsed = threats.getElapsedByCoord(coord);
           spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.SawActive, x, y, elapsed);
         } else if (threats.existsAtCoord(coord, ThreatType.Flamethrower) && !state.isButtonPressed) {
           // flamethrower base
-          if (vertical) {
-            if (hasBarrierBottom) {
+          switch (getTileDir(x, y, es)) {
+            case DIR.UP:
               spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1, Math.PI * 1.5);
-            } else {
+              break;
+            case DIR.DOWN:
               spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1, Math.PI * 0.5);
-            }
-          } else {
-            withFlipx(gfxFGAction, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
-              spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, tx, ty, Threat16Frame.FlamethrowerActive - 1);
-            });
+              break;
+            case DIR.LEFT:
+              withFlipx(gfxFGAction, x, y, true, (tx, ty) => {
+                spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, tx, ty, Threat16Frame.FlamethrowerActive - 1);
+              });
+              break;
+            case DIR.RIGHT:
+              spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1);
+              break;
           }
           // flame
           const { timePerFrame, loopFrameOffset } = ANIMATIONS[SpritesheetRange.FlamethrowerActive];
@@ -852,18 +855,21 @@ export function engineRendering({
           if (elapsed > timePerFrame * loopFrameOffset) {
             elapsed += timePerFrame * x + timePerFrame * y;
           }
-          if (vertical) {
-            if (hasBarrierBottom) {
+          switch (getTileDir(x, y, es)) {
+            case DIR.UP:
               spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerActive, x, y - 1, elapsed, Math.PI * 1.5);
-            } else {
+              break;
+            case DIR.DOWN:
               spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerActive, x, y + 1, elapsed, Math.PI * 0.5);
-            }
-          } else {
-            const flipx = !hasBarrierLeft && hasBarrierRight;
-            const offset = flipx ? -2 : 1;
-            withFlipx(gfxFGAction, x + offset, y, flipx, (tx, ty) => {
-              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerActive, tx, ty, elapsed);
-            }, 2);
+              break;
+            case DIR.LEFT:
+              withFlipx(gfxFGAction, x - 2, y, true, (tx, ty) => {
+                spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerActive, tx, ty, elapsed);
+              }, 2);
+              break;
+            case DIR.RIGHT:
+              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerActive, x + 1, y, elapsed);
+              break;
           }
         }
       }
@@ -874,15 +880,6 @@ export function engineRendering({
       for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         const x = Math.floor(coord % GRIDCOUNT_X);
         const y = Math.floor(coord / GRIDCOUNT_X);
-        const left = x > 0 ? getCoordIndex2(x - 1, y) : -1;
-        const right = x < GRIDCOUNT_X - 1 ? getCoordIndex2(x + 1, y) : -1;
-        const top = y > 0 ? getCoordIndex2(x, y - 1) : -1;
-        const bottom = y < GRIDCOUNT_Y - 1 ? getCoordIndex2(x, y + 1) : -1;
-        const hasBarrierLeft = !!es.barriersMap[left];
-        const hasBarrierRight = !!es.barriersMap[right];
-        const hasBarrierTop = !!es.barriersMap[top];
-        const hasBarrierBottom = !!es.barriersMap[bottom];
-        const vertical = (hasBarrierTop || hasBarrierBottom) && ((hasBarrierLeft && hasBarrierLeft) || (!hasBarrierLeft && !hasBarrierRight));
         if (threats.existsAtCoord(coord, ThreatType.Spikes)) {
           spriteRenderer.drawSprite1x1(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeRetracted - 1);
           if (es.level.deathLocations?.[coord]) {
@@ -890,16 +887,21 @@ export function engineRendering({
           }
         } else if (threats.existsAtCoord(coord, ThreatType.WallSpikes)) {
           const elapsed = threats.getElapsedByCoord(coord);
-          if (vertical) {
-            if (hasBarrierBottom) {
+          switch (getTileDir(x, y, es)) {
+            case DIR.UP:
               spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.WallSpikesRetract, x, y, elapsed, Math.PI * 1.5);
-            } else {
+              break;
+            case DIR.DOWN:
               spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.WallSpikesRetract, x, y, elapsed, Math.PI * 0.5);
-            }
-          } else {
-            withFlipx(gfx, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
-              spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.WallSpikesRetract, tx, ty, elapsed);
-            })
+              break;
+            case DIR.LEFT:
+              withFlipx(gfx, x, y, true, (tx, ty) => {
+                spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.WallSpikesRetract, tx, ty, elapsed);
+              })
+              break;
+            case DIR.RIGHT:
+              spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.WallSpikesRetract, x, y, elapsed);
+              break;
           }
         } else if (threats.existsAtCoord(coord, ThreatType.Saw)) {
           const elapsed = threats.getElapsedByCoord(coord);
@@ -907,30 +909,38 @@ export function engineRendering({
         } else if (threats.existsAtCoord(coord, ThreatType.Flamethrower)) {
           const elapsed = threats.getElapsedByCoord(coord);
           // flamethrower base
-          if (vertical) {
-            if (hasBarrierBottom) {
+          switch (getTileDir(x, y, es)) {
+            case DIR.UP:
               spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerOff - 1, Math.PI * 1.5);
-            } else {
+              break;
+            case DIR.DOWN:
               spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerOff - 1, Math.PI * 0.5);
-            }
-          } else {
-            withFlipx(gfxFGAction, x, y, !hasBarrierLeft && hasBarrierRight, (tx, ty) => {
-              spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, tx, ty, Threat16Frame.FlamethrowerOff - 1);
-            });
+              break;
+            case DIR.LEFT:
+              withFlipx(gfxFGAction, x, y, true, (tx, ty) => {
+                spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, tx, ty, Threat16Frame.FlamethrowerOff - 1);
+              });
+              break;
+            case DIR.RIGHT:
+              spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerOff - 1);
+              break;
           }
           // flame
-          if (vertical) {
-            if (hasBarrierBottom) {
+          switch (getTileDir(x, y, es)) {
+            case DIR.UP:
               spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerOff, x, y - 1, elapsed, Math.PI * 1.5);
-            } else {
+              break;
+            case DIR.DOWN:
               spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerOff, x, y + 1, elapsed, Math.PI * 0.5);
-            }
-          } else {
-            const flipx = !hasBarrierLeft && hasBarrierRight;
-            const offset = flipx ? -2 : 1;
-            withFlipx(gfxFGAction, x + offset, y, flipx, (tx, ty) => {
-              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerOff, tx, ty, elapsed);
-            }, 2);
+              break;
+            case DIR.LEFT:
+              withFlipx(gfxFGAction, x - 2, y, true, (tx, ty) => {
+                spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerOff, tx, ty, elapsed);
+              }, 2);
+              break;
+            case DIR.RIGHT:
+              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerOff, x + 1, y, elapsed);
+              break;
           }
         }
       }
@@ -1042,7 +1052,8 @@ export function engineRendering({
         if (fireTiles.existsAtCoord(coord)) {
           const x = Math.floor(coord % GRIDCOUNT_X);
           const y = Math.floor(coord / GRIDCOUNT_X);
-          const elapsed = fireTiles.getElapsedByCoord(coord);
+          const { timePerFrame } = ANIMATIONS[Image.FireSheet];
+          const elapsed = fireTiles.getElapsedByCoord(coord) + timePerFrame * x + timePerFrame * y;
           spriteRenderer.drawSpritesheetAnim3x3(gfxFGAction, Image.FireSheet, x, y, elapsed);
         }
       }

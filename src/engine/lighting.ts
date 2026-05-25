@@ -78,6 +78,7 @@ export function updateLighting(
     const x = Math.floor(i % GRIDCOUNT_X);
     const y = Math.floor(i / GRIDCOUNT_X);
     const isLaserAtCoord = es.lasersMap[i];
+    const isFireAtCoord = es.flamesMap[i] && !gameState.isButtonPressed;
     const isExitAtCoord = (
       gameState.isDoorsOpen
       && !gameState.isExitingLevel
@@ -97,7 +98,7 @@ export function updateLighting(
       ) &&
       !shouldBlinkExpiringPickup(pickupsMap[i]?.lifetime)
     );
-    if (isExitAtCoord || isPickupAtCoord || isLaserAtCoord || explosions?.existsAtCoord(i)) {
+    if (isExitAtCoord || isPickupAtCoord || isLaserAtCoord || isFireAtCoord || explosions?.existsAtCoord(i)) {
       addBlocklight(lightMap, x, y, { strength: 0.7 });
       addBlocklight(lightMap, x, y + 1, { strength: 0.3 });
       addBlocklight(lightMap, x, y - 1, { strength: 0.3 });
