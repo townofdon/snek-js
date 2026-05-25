@@ -347,10 +347,18 @@ export interface Tutorial {
   needsRewindControls: boolean,
 }
 
+export enum ResolutionMode {
+  None = 0,
+  PixelPerfect,
+  FillScreen,
+}
+
 export interface GameSettings {
   musicVolume: number,
   sfxVolume: number,
   isScreenShakeDisabled: boolean,
+  resolutionMode: ResolutionMode,
+  fullScreen: boolean,
 }
 
 export type LevelId = string;

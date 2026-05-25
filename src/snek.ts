@@ -95,13 +95,12 @@ import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
 import { SaveDataStore } from './stores/SaveDataStore';
 import { recordSnekalyticsEvent } from './api/snekalytics';
 import { applyGamepadUIActions, resetGamepad, tickGamepad } from './engine/gamepad';
-import { SettingsStore } from './stores/SettingsStore';
+import { settings, triggerFullscreenChange } from './stores/SettingsStore';
 
 const queryParams = parseUrlQueryParams();
 const unlockedMusicStore = new UnlockedMusicStore()
 const saveDataStore = new SaveDataStore();
 
-const settings = new SettingsStore();
 const state: GameState = { ...DEFAULT_GAME_STATE };
 const stats: Stats = { ...DEFAULT_BASE_STATS, applesEatenThisLevel: 0, totalLevelTimeElapsed: 0 } satisfies Stats;
 const outfit: Outfit = { ...DEFAULT_OUTFIT };
@@ -494,7 +493,7 @@ export const sketch = (p5: P5) => {
   function showMainMenu() {
     if (!state.isPreloaded) return;
 
-    document.body.requestFullscreen();
+    triggerFullscreenChange(settings.fullScreen);
 
     state.appMode = AppMode.Game;
     state.mapset = Mapset.Campaign;

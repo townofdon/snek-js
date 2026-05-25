@@ -1,5 +1,7 @@
 import { DIMENSIONS } from "./constants";
 import { lerp } from "./utils";
+import { settings } from './stores/SettingsStore';
+import { ResolutionMode } from "./types";
 
 window.addEventListener('resize', handleWindowResize)
 
@@ -16,10 +18,23 @@ const state: WindowState = {
 }
 
 function handleWindowResize() {
-  const scaleX = window.innerWidth / DIMENSIONS.x;
-  const scaleY = window.innerHeight / DIMENSIONS.y;
-  const scaleToFit = Math.min(scaleX, scaleY);
-  state.targetScale = scaleToFit;
+  if (settings.resolutionMode === ResolutionMode.FillScreen) {
+    const scaleX = window.innerWidth / DIMENSIONS.x;
+    const scaleY = window.innerHeight / DIMENSIONS.y;
+    const scaleToFit = Math.min(scaleX, scaleY);
+    state.targetScale = scaleToFit;
+  } else if (settings.resolutionMode === ResolutionMode.PixelPerfect) {
+    let scale = 1;
+    const tooBig = () => (DIMENSIONS.x * scale) > window.innerWidth || (DIMENSIONS.y * scale) > window.innerHeight;
+    const tooSmall = () => window.innerWidth / (DIMENSIONS.x * scale) >= 2 || window.innerHeight / (DIMENSIONS.y * scale) >= 2;
+    while (tooSmall()) {
+      scale *= 2;
+    }
+    while (tooBig()) {
+      scale /= 2;
+    }
+    state.targetScale = scale;
+  }
   if (!state.isResizing) {
     state.isResizing = true;
     incrementallyScaleWindow();
