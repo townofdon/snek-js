@@ -817,7 +817,6 @@ export function engineRendering({
           const elapsed = threats.getElapsedByCoord(coord);
           spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.SawActive, x, y, elapsed);
         } else if (threats.existsAtCoord(coord, ThreatType.Flamethrower) && !state.isButtonPressed) {
-          const elapsed = threats.getElapsedByCoord(coord);
           // flamethrower base
           if (vertical) {
             if (hasBarrierBottom) {
@@ -831,6 +830,11 @@ export function engineRendering({
             });
           }
           // flame
+          const { timePerFrame, loopFrameOffset } = ANIMATIONS[SpritesheetRange.FlamethrowerActive];
+          let elapsed = threats.getElapsedByCoord(coord);
+          if (elapsed > timePerFrame * loopFrameOffset) {
+            elapsed += timePerFrame * x + timePerFrame * y;
+          }
           if (vertical) {
             if (hasBarrierBottom) {
               spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.FlamethrowerActive, x, y - 1, elapsed, Math.PI * 1.5);
