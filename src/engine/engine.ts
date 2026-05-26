@@ -219,7 +219,7 @@ interface EngineParams {
   onUINavigate: UINavEventHandler,
   onGameOver: () => void,
   onGameOverCobra: () => void,
-  onRecordLevelProgress: InstanceType<typeof SaveDataStore>['recordLevelCompletion'],
+  onRecordLevelProgress: SaveDataStore['recordLevelCompletion'],
 }
 
 export function engine({

@@ -792,19 +792,33 @@ export enum FloodFillTile {
   Pipe,
 };
 
+export enum Initiator {
+  None = 0,
+  UI,
+  User,
+  MainMenu,
+  SettingsMenu,
+  LevelSelectMenu,
+  GameModeMenu,
+}
+
 export enum InputAction {
+  None = 0,
+  ForceRerender,
   HideStartScreen,
   ShowMainMenu,
-  ConfirmShowMainMenu,
+  HideMainMenu,
+  ConfirmGotoMainMenu,
   ConfirmQuitGame,
   ShowSettingsMenu,
   HideSettingsMenu,
   ShowLevelSelectMenu,
   HideLevelSelectMenu,
+  ShowGameModeMenu,
+  HideGameModeMenu,
   RetryLevel,
-  ChooseGameMode,
-  CancelChooseGameMode,
   StartGame,
+  // TODO: REMOVE THESE TOGGLE INPUT ACTIONS??
   ToggleCasualMode,
   ToggleCobraMode,
   ToggleScreenshakeDisabled,
@@ -1531,6 +1545,7 @@ export enum UINavDir {
 export type UINavEventHandler = (navDir: UINavDir) => boolean;
 export type UIInteractHandler = () => boolean;
 export type UICancelHandler = () => boolean;
+
 export interface UIHandler {
   handleUINavigation: UINavEventHandler,
   handleUIInteract: UIInteractHandler,

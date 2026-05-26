@@ -40,6 +40,7 @@ import {
   ItemDropType,
   Outfit,
   HeldItems,
+  ResolutionMode,
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI, UI_PARENT_ID } from '../ui/ui';
@@ -81,6 +82,8 @@ const settings: GameSettings = {
   musicVolume: 1,
   sfxVolume: 1,
   isScreenShakeDisabled: false,
+  resolutionMode: ResolutionMode.PixelPerfect,
+  fullScreen: true,
 }
 const state: GameState = { ...DEFAULT_GAME_STATE };
 const stats: Stats = { ...DEFAULT_BASE_STATS, applesEatenThisLevel: 0, totalLevelTimeElapsed: 0 } satisfies Stats;
@@ -190,7 +193,7 @@ export const sketch = (p5: P5) => {
         sfx.play(Sound.doorOpen);
         if (!state.isGameStarted) UI.showMainMenu();
         break;
-      case InputAction.ConfirmShowMainMenu:
+      case InputAction.ConfirmGotoMainMenu:
         break;
       case InputAction.RetryLevel:
         retryLevel();
@@ -382,7 +385,6 @@ export const sketch = (p5: P5) => {
   function clearUI(force = false) {
     uiElements.forEach(element => element.remove())
     uiElements = [];
-    UI.hideTitle();
   }
 
   function showSettingsMenu() {

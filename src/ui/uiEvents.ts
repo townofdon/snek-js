@@ -1,30 +1,19 @@
+import { Initiator, InputAction } from '@/types';
 import EventEmitter from 'eventemitter3';
 
 const EE = new EventEmitter();
 
 export const UIEvent = 'UIEvent'
+export const InputActionEvent = 'InputActionEvent'
 
-export enum UIAction {
-  None,
-  Cleanup,
-  ShowMainMenu,
-  HideMainMenu,
-  ShowSettingsMenu,
-  HideSettingsMenu,
-  ShowGameModeMenu,
-  HideGameModeMenu,
-  ShowLevelSelectMenu,
-  HideLevelSelectMenu,
+export const emitUIEvent = (action: InputAction, initiator: Initiator) => {
+  EE.emit(UIEvent, action, initiator);
 }
 
-export const emitUIEvent = (action: UIAction) => {
-  EE.emit(UIEvent, action)
+export const onUIEvent = (handler: (action: InputAction, initiator: Initiator) => void) => {
+  EE.on(UIEvent, handler);
 }
 
-export const onUIEvent = (handler: (action: UIAction) => void) => {
-  EE.on(UIEvent, handler)
-}
-
-export const offUIEvent = (handler: (action: UIAction) => void) => {
+export const unsubscribeOnUIEvent = (handler: (action: InputAction, initiator: Initiator) => void) => {
   EE.off(UIEvent, handler);
 }

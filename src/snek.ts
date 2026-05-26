@@ -91,17 +91,15 @@ import { OSTScene } from './scenes/OSTScene';
 import { QuoteScene } from './scenes/QuoteScene';
 import { WinGameScene } from './scenes/WinGameScene';
 import { LeaderboardScene } from './scenes/LeaderboardScene';
-import { UnlockedMusicStore } from './stores/UnlockedMusicStore';
-import { SaveDataStore } from './stores/SaveDataStore';
+import { unlockedMusicStore } from './stores/UnlockedMusicStore';
+import { saveDataStore } from './stores/SaveDataStore';
 import { recordSnekalyticsEvent } from './api/snekalytics';
 import { applyGamepadUIActions, resetGamepad, tickGamepad } from './engine/gamepad';
 import { settings, triggerFullscreenChange } from './stores/SettingsStore';
+import { state } from './gameState';
 
 const queryParams = parseUrlQueryParams();
-const unlockedMusicStore = new UnlockedMusicStore()
-const saveDataStore = new SaveDataStore();
 
-const state: GameState = { ...DEFAULT_GAME_STATE };
 const stats: Stats = { ...DEFAULT_BASE_STATS, applesEatenThisLevel: 0, totalLevelTimeElapsed: 0 } satisfies Stats;
 const outfit: Outfit = { ...DEFAULT_OUTFIT };
 const heldItems: HeldItems = { ...DEFAULT_HELD_ITEMS };
@@ -257,16 +255,16 @@ export const sketch = (p5: P5) => {
       case InputAction.ConfirmQuitGame:
         confirmQuitGame()
         break;
-      case InputAction.ConfirmShowMainMenu:
+      case InputAction.ConfirmGotoMainMenu:
         confirmShowMainMenu();
         break;
       case InputAction.RetryLevel:
         retryLevel();
         break;
-      case InputAction.ChooseGameMode:
+      case InputAction.ShowGameModeMenu:
         if (!state.isGameStarted) showGameModeMenu();
         break;
-      case InputAction.CancelChooseGameMode:
+      case InputAction.HideGameModeMenu:
         UI.hideGameModeMenu();
         sfx.play(Sound.doorOpen);
         if (!state.isGameStarted) UI.showMainMenu();
@@ -449,11 +447,6 @@ export const sketch = (p5: P5) => {
     } else {
       state.gameMode = GameMode.Casual;
     }
-    if (state.gameMode === GameMode.Casual) {
-      UI.showMainCasualModeLabel();
-    } else {
-      UI.hideMainCasualModeLabel();
-    }
     uiBindings.refreshFieldValues();
   }
 
@@ -468,11 +461,6 @@ export const sketch = (p5: P5) => {
       state.gameMode = GameMode.Normal;
     } else {
       state.gameMode = GameMode.Cobra;
-    }
-    if (state.gameMode === GameMode.Cobra) {
-      UI.showMainCobraModeLabel();
-    } else {
-      UI.hideMainCobraModeLabel();
     }
     uiBindings.refreshFieldValues();
   }
@@ -535,13 +523,6 @@ export const sketch = (p5: P5) => {
   function showMainMenuUI() {
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
-    UI.showTitle();
-    if (state.gameMode === GameMode.Casual) {
-      UI.showMainCasualModeLabel();
-    }
-    if (state.gameMode === GameMode.Cobra) {
-      UI.showMainCobraModeLabel();
-    }
     UI.showMainMenu();
     UI.hideSettingsMenu();
     uiBindings.refreshFieldValues();
@@ -636,9 +617,6 @@ export const sketch = (p5: P5) => {
     if (!force && replay.mode === ReplayMode.Playback) return;
     uiElements.forEach(element => element.remove())
     uiElements = [];
-    UI.hideTitle();
-    UI.hideMainCasualModeLabel();
-    UI.hideMainCobraModeLabel();
     UI.hideMainMenu();
     UI.hideGameModeMenu();
     UI.hideLevelSelectMenu();

@@ -5,6 +5,7 @@ import {
   GameMode,
   GameSettings,
   GameState,
+  Initiator,
   SFXInstance,
   Sound,
   UICancelHandler,
@@ -19,8 +20,6 @@ import {
   GameOverMenuElement,
   GameOverMenuNavMap,
   LevelSelectMenuNavMap,
-  MainMenuButton,
-  MainMenuNavMap,
   PauseMenuElement,
   PauseMenuNavMap,
   SettingsMenuElement,
@@ -30,10 +29,11 @@ import { UI } from './ui';
 import { parseElementLevelNum, requireElementById } from './uiUtils';
 import { gamepadPressed, getGamepad } from '../engine/gamepad';
 import { Button } from '../engine/gamepad/StandardGamepadMapping';
-import { offUIEvent, onUIEvent, UIAction } from './uiEvents';
+import { unsubscribeOnUIEvent, onUIEvent, emitUIEvent } from './uiEvents';
 import { getIsChallengeLevel, getWarpLevelFromNum, START_CHALLENGE_LEVEL_NUM } from '../levels/levelUtils';
 import { GameModeMenuElement } from './uiTypes';
 import { CHALLENGE_LEVELS } from '../levels/levelConstants';
+import { bridge } from '@/uiv2/uiBridge';
 
 interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
@@ -62,7 +62,7 @@ export class UIBindings implements UIHandler {
         this.callAction(InputAction.UnPause);
         break;
       case PauseMenuElement.ButtonMainMenu:
-        this.callAction(InputAction.ConfirmShowMainMenu);
+        this.callAction(InputAction.ConfirmGotoMainMenu);
         break;
       case PauseMenuElement.ButtonSettings:
         this.callAction(InputAction.ShowSettingsMenu);
@@ -219,7 +219,7 @@ export class UIBindings implements UIHandler {
         this.callAction(InputAction.RetryLevel);
         break;
       case GameOverMenuElement.ButtonMainMenu:
-        this.callAction(InputAction.ConfirmShowMainMenu);
+        this.callAction(InputAction.ConfirmGotoMainMenu);
         break;
     }
   }
@@ -238,7 +238,7 @@ export class UIBindings implements UIHandler {
         this.onSelectGameModeRandomizer();
         break;
       case GameModeMenuElement.Back:
-        this.callAction(InputAction.CancelChooseGameMode);
+        this.callAction(InputAction.HideGameModeMenu);
         break;
     }
   }
@@ -253,16 +253,6 @@ export class UIBindings implements UIHandler {
   }
 
   private main: HTMLElement;
-  private mainMenuNavMap: MainMenuNavMap;
-  private mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
-    [MainMenuButton.StartGame]: null,
-    [MainMenuButton.QuitGame]: null,
-    [MainMenuButton.OSTMode]: null,
-    [MainMenuButton.QuoteMode]: null,
-    [MainMenuButton.Leaderboard]: null,
-    [MainMenuButton.Settings]: null,
-    [MainMenuButton.Community]: null,
-  }
   private settingsMenuNavMap: SettingsMenuNavMap;
   private settingsMenuElements: Record<SettingsMenuElement, HTMLInputElement | HTMLButtonElement> = {
     [SettingsMenuElement.CheckboxCasualMode]: null,
@@ -298,20 +288,8 @@ export class UIBindings implements UIHandler {
     this.settings = settings;
     this.callbacks = callbacks;
     this.callAction = callAction;
+    bridge.callAction = callAction;
     this.assignElements();
-    this.mainMenuNavMap = new MainMenuNavMap(
-      this.mainMenuButtons,
-      {
-        [MainMenuButton.StartGame]: InputAction.ChooseGameMode,
-        [MainMenuButton.QuitGame]: InputAction.ConfirmQuitGame,
-        [MainMenuButton.OSTMode]: InputAction.EnterOstMode,
-        [MainMenuButton.QuoteMode]: InputAction.EnterQuoteMode,
-        [MainMenuButton.Leaderboard]: InputAction.ShowLeaderboard,
-        [MainMenuButton.Settings]: InputAction.ShowSettingsMenu,
-        [MainMenuButton.Community]: InputAction.GotoCommunityPage,
-      },
-      callAction
-    );
     this.settingsMenuNavMap = new SettingsMenuNavMap(this.settingsMenuElements, callAction);
     this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
     this.gameOverMenuNavMap = new GameOverMenuNavMap(this.callGameOverMenuAction);
@@ -401,22 +379,7 @@ export class UIBindings implements UIHandler {
       return true;
     }
     if (UI.getIsMainMenuShowing()) {
-      switch (navDir) {
-        case UINavDir.Prev:
-          return this.mainMenuNavMap.gotoPrev();
-        case UINavDir.Up:
-          return this.mainMenuNavMap.gotoUp();
-        case UINavDir.Left:
-          return this.mainMenuNavMap.gotoLeft();
-        case UINavDir.Next:
-          return this.mainMenuNavMap.gotoNext();
-        case UINavDir.Down:
-          return this.mainMenuNavMap.gotoDown();
-        case UINavDir.Right:
-          return this.mainMenuNavMap.gotoRight();
-        default:
-          return false;
-      }
+      return bridge.mainMenu?.onNavigate(navDir) || false;
     }
     if (UI.getIsGameModeMenuShowing()) {
       switch (navDir) {
@@ -485,7 +448,7 @@ export class UIBindings implements UIHandler {
       return this.settingsMenuNavMap.callSelected();
     }
     if (UI.getIsMainMenuShowing()) {
-      return this.mainMenuNavMap.callSelected();
+      return bridge.mainMenu?.onInteract() || false;
     }
     if (UI.getIsGameModeMenuShowing()) {
       return this.gameModeMenuNavMap.callSelected();
@@ -509,7 +472,7 @@ export class UIBindings implements UIHandler {
       return true;
     }
     if (UI.getIsGameModeMenuShowing()) {
-      this.callAction(InputAction.CancelChooseGameMode);
+      this.callAction(InputAction.HideGameModeMenu);
       return true;
     }
     return false;
@@ -577,18 +540,11 @@ export class UIBindings implements UIHandler {
     } else {
       this.gameModeMenuElements[GameModeMenuElement.LevelSelect].classList.remove('hidden');
     }
+    emitUIEvent(InputAction.ForceRerender, Initiator.UI);
   }
 
   private assignElements = () => {
     this.main = requireElementById<HTMLElement>('main');
-
-    this.mainMenuButtons[MainMenuButton.StartGame] = requireElementById<HTMLButtonElement>('ui-button-start');
-    this.mainMenuButtons[MainMenuButton.QuitGame] = requireElementById<HTMLButtonElement>('ui-button-quit');
-    this.mainMenuButtons[MainMenuButton.OSTMode] = requireElementById<HTMLButtonElement>('ui-button-ost-mode');
-    this.mainMenuButtons[MainMenuButton.QuoteMode] = requireElementById<HTMLButtonElement>('ui-button-quote-mode');
-    this.mainMenuButtons[MainMenuButton.Leaderboard] = requireElementById<HTMLButtonElement>('ui-button-leaderboard');
-    this.mainMenuButtons[MainMenuButton.Settings] = requireElementById<HTMLButtonElement>('ui-button-settings');
-    this.mainMenuButtons[MainMenuButton.Community] = requireElementById<HTMLButtonElement>('ui-button-community');
 
     this.settingsMenuElements[SettingsMenuElement.ButtonClose] = requireElementById<HTMLButtonElement>('settings-menu-close-button');
     this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] = requireElementById<HTMLInputElement>('checkbox-casual-mode');
@@ -619,25 +575,9 @@ export class UIBindings implements UIHandler {
     })()
   }
 
-  private handleUIEvent = (action: UIAction = UIAction.None) => {
-      const cleanup = action === UIAction.Cleanup;
-      if (action === UIAction.ShowMainMenu) {
-        this.mainMenuButtons[MainMenuButton.StartGame].addEventListener('click', this.handleStartGame);
-        this.mainMenuButtons[MainMenuButton.QuitGame].addEventListener('click', this.handleQuitGame);
-        this.mainMenuButtons[MainMenuButton.OSTMode].addEventListener('click', this.handleEnterOstMode);
-        this.mainMenuButtons[MainMenuButton.QuoteMode].addEventListener('click', this.handleEnterQuoteMode);
-        this.mainMenuButtons[MainMenuButton.Leaderboard].addEventListener('click', this.handleShowLeaderboard);
-        this.mainMenuButtons[MainMenuButton.Settings].addEventListener('click', this.handleShowSettingsMenu);
-      }
-      if (cleanup || action === UIAction.HideMainMenu) {
-        this.mainMenuButtons[MainMenuButton.StartGame].removeEventListener('click', this.handleStartGame);
-        this.mainMenuButtons[MainMenuButton.QuitGame].removeEventListener('click', this.handleQuitGame);
-        this.mainMenuButtons[MainMenuButton.OSTMode].removeEventListener('click', this.handleEnterOstMode);
-        this.mainMenuButtons[MainMenuButton.QuoteMode].removeEventListener('click', this.handleEnterQuoteMode);
-        this.mainMenuButtons[MainMenuButton.Leaderboard].removeEventListener('click', this.handleShowLeaderboard);
-        this.mainMenuButtons[MainMenuButton.Settings].removeEventListener('click', this.handleShowSettingsMenu);
-      }
-      if (action === UIAction.ShowSettingsMenu) {
+  private handleUIEvent = (action: InputAction = InputAction.None) => {
+      const cleanup = false;
+      if (action === InputAction.ShowSettingsMenu) {
         this.settingsMenuElements[SettingsMenuElement.ButtonClose].addEventListener('click', this.onHideSettingsMenuClick);
         this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].addEventListener('change', this.onCheckboxCasualModeChange);
         this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode].addEventListener('change', this.onCheckboxCobraModeChange);
@@ -645,7 +585,7 @@ export class UIBindings implements UIHandler {
         this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].addEventListener('input', this.onMusicSliderInput);
         this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].addEventListener('input', this.onSfxSliderInput);
       }
-      if (cleanup || action === UIAction.HideSettingsMenu) {
+      if (cleanup || action === InputAction.HideSettingsMenu) {
         this.settingsMenuElements[SettingsMenuElement.ButtonClose].removeEventListener('click', this.onHideSettingsMenuClick);
         this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].removeEventListener('change', this.onCheckboxCasualModeChange);
         this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode].removeEventListener('change', this.onCheckboxCobraModeChange);
@@ -653,21 +593,21 @@ export class UIBindings implements UIHandler {
         this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].removeEventListener('input', this.onMusicSliderInput);
         this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].removeEventListener('input', this.onSfxSliderInput);
       }
-      if (action === UIAction.ShowGameModeMenu) {
+      if (action === InputAction.ShowGameModeMenu) {
         this.gameModeMenuElements[GameModeMenuElement.Campaign].addEventListener('click', this.onSelectGameModeCampaign);
         this.gameModeMenuElements[GameModeMenuElement.Challenge].addEventListener('click', this.onSelectGameModeChallenge);
         this.gameModeMenuElements[GameModeMenuElement.LevelSelect].addEventListener('click', this.onSelectGameModeLevelSelect);
         this.gameModeMenuElements[GameModeMenuElement.Randomizer].addEventListener('click', this.onSelectGameModeRandomizer);
         this.gameModeMenuElements[GameModeMenuElement.Back].addEventListener('click', this.onSelectGameModeBack);
       }
-      if (cleanup || action === UIAction.HideGameModeMenu) {
+      if (cleanup || action === InputAction.HideGameModeMenu) {
         this.gameModeMenuElements[GameModeMenuElement.Campaign].removeEventListener('click', this.onSelectGameModeCampaign);
         this.gameModeMenuElements[GameModeMenuElement.Challenge].removeEventListener('click', this.onSelectGameModeChallenge);
         this.gameModeMenuElements[GameModeMenuElement.LevelSelect].removeEventListener('click', this.onSelectGameModeLevelSelect);
         this.gameModeMenuElements[GameModeMenuElement.Randomizer].removeEventListener('click', this.onSelectGameModeRandomizer);
         this.gameModeMenuElements[GameModeMenuElement.Back].removeEventListener('click', this.onSelectGameModeBack);
       }
-      if (action === UIAction.ShowLevelSelectMenu) {
+      if (action === InputAction.ShowLevelSelectMenu) {
         this.levelSelectMenu.addEventListener('click', this.onLevelSelect);
         this.levelSelectMenuBackButton.addEventListener('click', this.onHideLevelSelectMenu);
         this.levelSelectMenuNavMap.gotoFirst();
@@ -676,15 +616,15 @@ export class UIBindings implements UIHandler {
         this.levelSelectMapName.innerText = 'Snekadia';
         this.levelSelectChallengeHeading.classList.add('hidden');
       }
-      if (cleanup || action === UIAction.HideLevelSelectMenu) {
+      if (cleanup || action === InputAction.HideLevelSelectMenu) {
         this.levelSelectMenu.removeEventListener('click', this.onLevelSelect);
         this.levelSelectMenuBackButton.removeEventListener('click', this.onHideLevelSelectMenu);
       }
   }
 
   public cleanup = () => {
-    offUIEvent(this.handleUIEvent);
-    this.handleUIEvent(UIAction.Cleanup);
+    unsubscribeOnUIEvent(this.handleUIEvent);
+    // this.handleUIEvent(InputAction.Cleanup);
     // document.removeEventListener('keydown', this.overrideEscapeKeydown);
     window.removeEventListener('blur', this.handleWindowBlur);
   }
@@ -755,30 +695,6 @@ export class UIBindings implements UIHandler {
     this.sfx.play(Sound.eat);
   }
 
-  private handleStartGame = () => {
-    this.callAction(InputAction.ChooseGameMode);
-  }
-
-  private handleQuitGame = () => {
-    this.callAction(InputAction.ConfirmQuitGame);
-  }
-
-  private handleEnterOstMode = () => {
-    this.callAction(InputAction.EnterOstMode);
-  }
-
-  private handleEnterQuoteMode = () => {
-    this.callAction(InputAction.EnterQuoteMode);
-  }
-
-  private handleShowLeaderboard = () => {
-    this.callAction(InputAction.ShowLeaderboard);
-  }
-
-  private handleShowSettingsMenu = () => {
-    this.callAction(InputAction.ShowSettingsMenu);
-  }
-
   private onSelectGameModeCampaign = () => {
     this.callAction(InputAction.StartGame);
   }
@@ -801,7 +717,7 @@ export class UIBindings implements UIHandler {
   }
 
   private onSelectGameModeBack = () => {
-    this.callAction(InputAction.CancelChooseGameMode);
+    this.callAction(InputAction.HideGameModeMenu);
   }
 
   private onLevelSelect = (ev: MouseEvent) => {

@@ -33,10 +33,9 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions, loadLevel }:
   const buttonStop = useRef<HTMLButtonElement>(null);
 
   if (!musicPlayer.current) {
-    const settings: GameSettings = {
+    const settings: Pick<GameSettings, 'musicVolume' | 'sfxVolume'> = {
       musicVolume: 1,
       sfxVolume: 1,
-      isScreenShakeDisabled: true,
     };
     musicPlayer.current = new MusicPlayer(settings);
   }

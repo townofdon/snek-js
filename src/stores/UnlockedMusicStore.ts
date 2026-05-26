@@ -1,7 +1,7 @@
 import { MusicTrack, UnlockedMusicTracks } from "../types";
 import { BaseStore } from "./BaseStore";
 
-export class UnlockedMusicStore extends BaseStore<UnlockedMusicTracks> {
+class UnlockedMusicStoreImpl extends BaseStore<UnlockedMusicTracks> {
   public get key(): string {
     return "unlocked-tracks"
   }
@@ -79,7 +79,7 @@ export class UnlockedMusicStore extends BaseStore<UnlockedMusicTracks> {
   }
 }
 
-class NoOpUnlockedMusicStoreImpl extends UnlockedMusicStore {
+class NoOpUnlockedMusicStoreImpl extends UnlockedMusicStoreImpl {
   public get key(): string {
     return "no-op-unlocked-tracks"
   }
@@ -92,4 +92,6 @@ class NoOpUnlockedMusicStoreImpl extends UnlockedMusicStore {
   public reset = () => {}
 }
 
+export type UnlockedMusicStore = UnlockedMusicStoreImpl;
 export const NoOpUnlockedMusicStore = new NoOpUnlockedMusicStoreImpl();
+export const unlockedMusicStore = new UnlockedMusicStoreImpl();

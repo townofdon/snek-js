@@ -69,14 +69,14 @@ export class MusicPlayer {
     [MusicTrack.full_slyguy]: false,
     [MusicTrack.full_moneymaker]: false
   };
-  private settings: GameSettings;
+  private settings: Pick<GameSettings, 'musicVolume' | 'sfxVolume'>;
 
   private fullPath(track: MusicTrack): string {
     const trackPath = USE_MP3 ? `mp3/${track.replace('.wav', '.mp3')}` : track;
     return `${getRelativeDir()}assets/music/${trackPath}`;
   }
 
-  constructor(settings: GameSettings) {
+  constructor(settings: Pick<GameSettings, 'musicVolume' | 'sfxVolume'>) {
     this.settings = settings;
   }
 

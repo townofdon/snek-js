@@ -25,8 +25,8 @@ export class MainTitleFader {
 
     const incoming = document.getElementById(MainTitleFader.getIdByTitleVariant(variant));
     const outgoing = document.getElementById(MainTitleFader.getIdByTitleVariant(prevVariant));
-    if (!incoming) throw new Error(`Could not find elem for variant=${incoming},id=${MainTitleFader.getIdByTitleVariant(variant)}`)
-    if (!outgoing) throw new Error(`Could not find elem for variant=${outgoing},id=${MainTitleFader.getIdByTitleVariant(prevVariant)}`)
+    if (!incoming) throw new Error(`[MainTitleFader] Could not find elem for variant=${incoming},id=${MainTitleFader.getIdByTitleVariant(variant)}`)
+    if (!outgoing) throw new Error(`[MainTitleFader] Could not find elem for variant=${outgoing},id=${MainTitleFader.getIdByTitleVariant(prevVariant)}`)
     let t = 0;
     while (t < 1) {
       yield null;

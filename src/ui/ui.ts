@@ -1,8 +1,8 @@
 import P5, { Element } from 'p5';
 
 import { DOM, parseElementLevelNum, requireElementById } from './uiUtils';
-import { emitUIEvent, UIAction } from './uiEvents';
-import { DifficultyIndex } from '../types';
+import { emitUIEvent } from './uiEvents';
+import { DifficultyIndex, Initiator, InputAction } from '../types';
 import { getWarpLevelFromNum } from '../levels/levelUtils';
 import { SaveDataStore } from '../stores/SaveDataStore';
 import { GameModeMenuElement } from './uiTypes';
@@ -21,7 +21,7 @@ const LABEL_BG_COLOR = 'rgb(7 11 15 / 52%)';
 const LABEL_BG_COLOR_INVERTED = 'rgba(255,255,255, 0.5)';
 
 enum ActiveMenu {
-  None,
+  None = 0,
   MainMenu,
   SettingsMenu,
   GameModeMenu,
@@ -76,34 +76,19 @@ export class UI {
     document.getElementById('map-preview-splash')?.remove();
   }
 
-  static showTitle() {
-    const title = document.getElementById('main-title');
-    if (!title) return;
-    title.style.display = 'block';
-  }
-
-  static hideTitle() {
-    const title = document.getElementById('main-title');
-    if (!title) return;
-    title.style.display = 'none';
-  }
-
   static showMainMenu() {
     if (UI.getIsMainMenuShowing()) {
       return;
     }
     UI.activeMenu = ActiveMenu.MainMenu;
-    document.getElementById('main-ui-buttons').classList.remove('hidden');
-    DOM.select(document.getElementById('ui-button-start'));
-    emitUIEvent(UIAction.ShowMainMenu);
+    emitUIEvent(InputAction.ShowMainMenu, Initiator.UI);
   }
 
   static hideMainMenu() {
-    document.getElementById('main-ui-buttons').classList.add('hidden');
     if (UI.getIsMainMenuShowing()) {
       UI.activeMenu = ActiveMenu.None;
     }
-    emitUIEvent(UIAction.HideMainMenu);
+    emitUIEvent(InputAction.HideMainMenu, Initiator.UI);
   }
 
   static showGameModeMenu(isCobraMode: boolean) {
@@ -117,7 +102,7 @@ export class UI {
     } else {
       document.getElementById(GameModeMenuElement.LevelSelect)?.classList.remove('hidden');
     }
-    emitUIEvent(UIAction.ShowGameModeMenu);
+    emitUIEvent(InputAction.ShowGameModeMenu, Initiator.UI);
   }
 
   static hideGameModeMenu() {
@@ -125,7 +110,7 @@ export class UI {
     if (UI.getIsGameModeMenuShowing()) {
       UI.activeMenu = ActiveMenu.None;
     }
-    emitUIEvent(UIAction.HideGameModeMenu);
+    emitUIEvent(InputAction.HideGameModeMenu, Initiator.UI);
   }
 
   static showSettingsMenu({ isInGameMenu = false, isCobraModeUnlocked = false }) {
@@ -150,7 +135,7 @@ export class UI {
         fieldCobraMode.classList.add('hidden');
       }
     }
-    emitUIEvent(UIAction.ShowSettingsMenu);
+    emitUIEvent(InputAction.ShowSettingsMenu, Initiator.UI);
     setTimeout(() => {
       if (isInGameMenu) {
         DOM.select(document.getElementById('checkbox-disable-screenshake'));
@@ -166,7 +151,7 @@ export class UI {
     if (UI.getIsSettingsMenuShowing()) {
       UI.activeMenu = ActiveMenu.None;
     }
-    emitUIEvent(UIAction.HideSettingsMenu);
+    emitUIEvent(InputAction.HideSettingsMenu, Initiator.UI);
   }
 
   static showLevelSelectMenu() {
@@ -175,7 +160,7 @@ export class UI {
     }
     UI.activeMenu = ActiveMenu.LevelSelectMenu;
     document.getElementById('level-select-menu').classList.remove('hidden');
-    emitUIEvent(UIAction.ShowLevelSelectMenu);
+    emitUIEvent(InputAction.ShowLevelSelectMenu, Initiator.UI);
   }
 
   static hideLevelSelectMenu() {
@@ -183,29 +168,7 @@ export class UI {
     if (UI.getIsLevelSelectMenuShowing()) {
       UI.activeMenu = ActiveMenu.None;
     }
-    emitUIEvent(UIAction.HideLevelSelectMenu);
-  }
-
-  static showMainCasualModeLabel() {
-    const label = document.getElementById('main-menu-label-casual-mode');
-    label.classList.remove('hidden');
-    UI.hideMainCobraModeLabel();
-  }
-
-  static hideMainCasualModeLabel() {
-    const label = document.getElementById('main-menu-label-casual-mode');
-    label.classList.add('hidden');
-  }
-
-  static showMainCobraModeLabel() {
-    const label = document.getElementById('main-menu-label-cobra-mode');
-    label.classList.remove('hidden');
-    UI.hideMainCasualModeLabel();
-  }
-
-  static hideMainCobraModeLabel() {
-    const label = document.getElementById('main-menu-label-cobra-mode');
-    label.classList.add('hidden');
+    emitUIEvent(InputAction.HideLevelSelectMenu, Initiator.UI);
   }
 
   static showLoader(yPos: number) {

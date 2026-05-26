@@ -3,7 +3,7 @@ import { DEFAULT_HELD_ITEMS, DEFAULT_BASE_STATS, DEFAULT_WEARABLES_UNLOCKED } fr
 import { DifficultyIndex, GameMode, LevelCompletion, LevelId, SaveData, SaveSlot, SaveSlotData, WearableFrame } from "../types";
 import { BaseStore } from "./BaseStore";
 
-export class SaveDataStore extends BaseStore<SaveData> {
+class SaveDataStoreImpl extends BaseStore<SaveData> {
   public get key(): string { return "save-data" }
 
   private readonly defaultValue: SaveData = {
@@ -188,3 +188,6 @@ function newLevelCompletion() {
     bestTime: 0,
   } satisfies LevelCompletion;
 }
+
+export type SaveDataStore = SaveDataStoreImpl;
+export const saveDataStore = new SaveDataStoreImpl();

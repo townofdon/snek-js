@@ -258,6 +258,10 @@ canvas {
   position: relative;
 }
 
+.position-absolute {
+  position: absolute;
+}
+
 .hidden {
   display: none!important;
 }
@@ -601,8 +605,8 @@ button:focus:before,
 .main-menu-label-casual-mode, .main-menu-label-cobra-mode {
   z-index: 20;
   position: absolute;
-  left: calc(2 * 303px);
-  top: calc(2 * 320px);
+  width: 100%;
+  bottom: 425px;
   display: flex;
   justify-content: center;
   transform: scale(2);
@@ -612,7 +616,6 @@ button:focus:before,
   --casual-mode-color: #1cb198;
   --casual-mode-bg: #19627f;
   display: block;
-  position: absolute;
   font-family: Casual, monospace;
   font-size: 32px;
   white-space: nowrap;
@@ -626,7 +629,6 @@ button:focus:before,
   --cobra-mode-color: #b1491c;
   --cobra-mode-bg: #2a303e;
   display: block;
-  position: absolute;
   font-family: Casual, monospace;
   font-size: 32px;
   white-space: nowrap;
