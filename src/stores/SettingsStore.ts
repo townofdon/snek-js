@@ -8,7 +8,7 @@ class SettingsStore extends BaseStore<GameSettings> implements GameSettings {
     musicVolume: 1,
     sfxVolume: 1,
     isScreenShakeDisabled: false,
-    resolutionMode: ResolutionMode.PixelPerfect,
+    resolutionMode: ResolutionMode.FillScreen,
     fullScreen: true,
   };
 
