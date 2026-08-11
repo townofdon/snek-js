@@ -500,7 +500,7 @@ export function engineRendering({
       } else {
         renderer.drawSquare(vec.x, vec.y, "#fff", "#fff", drawPlayerOptions);
       }
-    } else if (invincible) {
+    } else if (invincible || state.isGameWon) {
       // draw invincible
       const timeLeft = es.difficulty.invincibilityTime - state.timeSinceInvincibleStart;
       if (timeLeft < INVINCIBILITY_EXPIRE_WARN_MS && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0) {
@@ -802,8 +802,9 @@ export function engineRendering({
           }
         } else if (threats.existsAtCoord(coord, ThreatType.Spikes) && !state.isButtonPressed) {
           const elapsed = threats.getElapsedByCoord(coord);
+          const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
           if (getCoordIndex(player.position) === coord || segments.existsAtCoord(coord)) {
-            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeDeathOverlay - 1);
+            if (!invincible) spriteRenderer.drawSprite1x1(gfxFGAction, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeDeathOverlay - 1);
           } else {
             spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.Spikes, x, y, elapsed);
             if (es.level.deathLocations?.[coord]) {
