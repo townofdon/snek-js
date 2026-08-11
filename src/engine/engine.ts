@@ -175,7 +175,7 @@ import { UI } from '../ui/ui';
 import { buildSceneActionFactory } from '../scenes/sceneUtils';
 import { TitleScene } from '../scenes/TitleScene';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
-import { resumeAudioContext } from './audio';
+import { resumeAudioContext, setMusicVolume, setSfxVolume } from './audio';
 import { LEVEL_01_HARD } from '../levels/campaign/level01hard';
 import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
@@ -852,7 +852,8 @@ export function engine({
     stopAction(Action.GameOver);
     stopAction(Action.Electrocution);
     startAction(fadeMusic(1, 100), Action.FadeMusic);
-    sfx.setGlobalVolume(settings.sfxVolume);
+    setSfxVolume(settings.sfxVolume);
+    setMusicVolume(settings.musicVolume);
     resetScreenShake();
     applyScreenShakeGfx(0, 0);
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { MainMenu } from './MainMenu';
+import { SettingsMenu } from './SettingsMenu';
 
 const requireElementById = (id: string) => {
   const node = document.getElementById(id);
@@ -9,3 +10,4 @@ const requireElementById = (id: string) => {
 }
 
 createRoot(requireElementById('main-menu-v2')).render(<MainMenu />);
+createRoot(requireElementById('settings-menu-v2')).render(<SettingsMenu />);

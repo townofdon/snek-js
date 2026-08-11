@@ -113,41 +113,17 @@ export class UI {
     emitUIEvent(InputAction.HideGameModeMenu, Initiator.UI);
   }
 
-  static showSettingsMenu({ isInGameMenu = false, isCobraModeUnlocked = false }) {
+  static showSettingsMenu() {
     if (UI.getIsSettingsMenuShowing()) {
       return;
     }
     UI.activeMenu = ActiveMenu.SettingsMenu;
     UI.enableGameBlur();
-    const settingsMenu = document.getElementById('settings-menu');
-    settingsMenu.style.display = 'block';
-    settingsMenu.classList.remove('hidden');
-    const fieldCasualMode = document.getElementById('field-casual-mode');
-    const fieldCobraMode = document.getElementById('field-cobra-mode');
-    if (isInGameMenu) {
-      fieldCasualMode.classList.add('hidden');
-      fieldCobraMode.classList.add('hidden');
-    } else {
-      fieldCasualMode.classList.remove('hidden');
-      if (isCobraModeUnlocked) {
-        fieldCobraMode.classList.remove('hidden');
-      } else {
-        fieldCobraMode.classList.add('hidden');
-      }
-    }
     emitUIEvent(InputAction.ShowSettingsMenu, Initiator.UI);
-    setTimeout(() => {
-      if (isInGameMenu) {
-        DOM.select(document.getElementById('checkbox-disable-screenshake'));
-      } else {
-        DOM.select(document.getElementById('checkbox-casual-mode'));
-      }
-    }, 0)
   }
 
   static hideSettingsMenu() {
     UI.disableGameBlur();
-    document.getElementById('settings-menu').style.display = 'none';
     if (UI.getIsSettingsMenuShowing()) {
       UI.activeMenu = ActiveMenu.None;
     }

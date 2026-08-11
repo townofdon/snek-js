@@ -22,37 +22,28 @@ import {
   LevelSelectMenuNavMap,
   PauseMenuElement,
   PauseMenuNavMap,
-  SettingsMenuElement,
-  SettingsMenuNavMap,
 } from './uiNavMap';
 import { UI } from './ui';
 import { parseElementLevelNum, requireElementById } from './uiUtils';
-import { gamepadPressed, getGamepad } from '../engine/gamepad';
-import { Button } from '../engine/gamepad/StandardGamepadMapping';
 import { unsubscribeOnUIEvent, onUIEvent, emitUIEvent } from './uiEvents';
 import { getIsChallengeLevel, getWarpLevelFromNum, START_CHALLENGE_LEVEL_NUM } from '../levels/levelUtils';
 import { GameModeMenuElement } from './uiTypes';
 import { CHALLENGE_LEVELS } from '../levels/levelConstants';
 import { bridge } from '@/uiv2/uiBridge';
+import { SaveDataStore } from '@/stores/SaveDataStore';
 
 interface UIBindingsCallbacks {
   onSetMusicVolume: (volume: number) => void,
   onSetSfxVolume: (volume: number) => void,
-  onToggleCasualMode: (value?: boolean) => void,
-  onToggleCobraMode: (value?: boolean) => void,
   onWarpToLevel: (index: number) => void,
 }
 
 export class UIBindings implements UIHandler {
   private p5: P5;
-  private sfx: SFXInstance;
   private gameState: GameState;
-  private settings: GameSettings;
   private callbacks: UIBindingsCallbacks = {
     onSetMusicVolume: (volume: number) => { },
     onSetSfxVolume: (volume: number) => { },
-    onToggleCasualMode: (value?: boolean) => { },
-    onToggleCobraMode: (value?: boolean) => { },
     onWarpToLevel: (index: number) => { }
   };
   private callAction: (action: InputAction, p0?: any) => void;
@@ -253,15 +244,6 @@ export class UIBindings implements UIHandler {
   }
 
   private main: HTMLElement;
-  private settingsMenuNavMap: SettingsMenuNavMap;
-  private settingsMenuElements: Record<SettingsMenuElement, HTMLInputElement | HTMLButtonElement> = {
-    [SettingsMenuElement.CheckboxCasualMode]: null,
-    [SettingsMenuElement.CheckboxCobraMode]: null,
-    [SettingsMenuElement.CheckboxDisableScreenshake]: null,
-    [SettingsMenuElement.SliderMusicVolume]: null,
-    [SettingsMenuElement.SliderSfxVolume]: null,
-    [SettingsMenuElement.ButtonClose]: null,
-  }
   private pauseMenuNavMap: PauseMenuNavMap;
   private gameOverMenuNavMap: GameOverMenuNavMap;
   private gameModeMenuNavMap: GameModeMenuNavMap;
@@ -281,16 +263,16 @@ export class UIBindings implements UIHandler {
   private levelSelectScroll: HTMLElement;
   private levelSelectItems: HTMLElement[];
 
-  constructor(p5: P5, sfx: SFXInstance, gameState: GameState, settings: GameSettings, callbacks: UIBindingsCallbacks, callAction: (action: InputAction, p0?: any) => void) {
+  constructor(p5: P5, gameState: GameState, settings: GameSettings, saveDataStore: SaveDataStore, callbacks: UIBindingsCallbacks, callAction: (action: InputAction, p0?: any) => void) {
     this.p5 = p5;
-    this.sfx = sfx;
     this.gameState = gameState;
-    this.settings = settings;
     this.callbacks = callbacks;
     this.callAction = callAction;
     bridge.callAction = callAction;
+    bridge.gameState = gameState;
+    bridge.settings = settings;
+    bridge.saveDataStore = saveDataStore;
     this.assignElements();
-    this.settingsMenuNavMap = new SettingsMenuNavMap(this.settingsMenuElements, callAction);
     this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
     this.gameOverMenuNavMap = new GameOverMenuNavMap(this.callGameOverMenuAction);
     this.gameModeMenuNavMap = new GameModeMenuNavMap(this.callGameModeMenuAction);
@@ -352,31 +334,7 @@ export class UIBindings implements UIHandler {
       return true;
     }
     if (UI.getIsSettingsMenuShowing()) {
-      switch (navDir) {
-        case UINavDir.Prev:
-        case UINavDir.Up:
-          this.settingsMenuNavMap.gotoPrev();
-          break;
-        case UINavDir.Next:
-        case UINavDir.Down:
-          this.settingsMenuNavMap.gotoNext();
-          break;
-        case UINavDir.Left:
-          if (gamepadPressed(getGamepad(), Button.DpadLeft)) {
-            const focused = this.settingsMenuNavMap.getFocused()
-            return this.moveSlider(focused, -1);
-          }
-          // do not handle event so that slider can receive left/right DOM event
-          return false;
-        case UINavDir.Right:
-          if (gamepadPressed(getGamepad(), Button.DpadRight)) {
-            const focused = this.settingsMenuNavMap.getFocused()
-            return this.moveSlider(focused, 1);
-          }
-          // do not handle event so that slider can receive left/right DOM event
-          return false;
-      }
-      return true;
+      return bridge.settingsMenu?.onNavigate(navDir) || false;
     }
     if (UI.getIsMainMenuShowing()) {
       return bridge.mainMenu?.onNavigate(navDir) || false;
@@ -445,7 +403,7 @@ export class UIBindings implements UIHandler {
       return this.levelSelectMenuNavMap.callSelected();
     }
     if (UI.getIsSettingsMenuShowing()) {
-      return this.settingsMenuNavMap.callSelected();
+      return bridge.settingsMenu?.onInteract() || false;
     }
     if (UI.getIsMainMenuShowing()) {
       return bridge.mainMenu?.onInteract() || false;
@@ -468,33 +426,11 @@ export class UIBindings implements UIHandler {
       return true;
     }
     if (UI.getIsSettingsMenuShowing()) {
-      this.onHideSettingsMenuClick();
-      return true;
+      return bridge.settingsMenu?.onCancel() || false;
     }
     if (UI.getIsGameModeMenuShowing()) {
       this.callAction(InputAction.HideGameModeMenu);
       return true;
-    }
-    return false;
-  }
-
-  moveSlider = (focused: SettingsMenuElement | null, direction: number): boolean => {
-    if (focused === SettingsMenuElement.SliderMusicVolume) {
-      const elem = this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume] as HTMLInputElement;
-      const volume = Math.max((parseFloat(elem.value) || 0) + (direction * 0.1), 0)
-      elem.value = String(volume);
-      setMusicVolume(volume);
-      this.callbacks.onSetMusicVolume(volume);
-      return true
-    } else if (focused === SettingsMenuElement.SliderSfxVolume) {
-      const elem = this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume] as HTMLInputElement;
-      const volume = Math.max((parseFloat(elem.value) || 0) + (direction * 0.1), 0)
-      elem.value = String(volume);
-      this.sfx.setGlobalVolume(volume);
-      setSfxVolume(volume);
-      this.callbacks.onSetSfxVolume(volume);
-      this.sfx.play(Sound.eat);
-      return true
     }
     return false;
   }
@@ -530,11 +466,6 @@ export class UIBindings implements UIHandler {
   }
 
   refreshFieldValues() {
-    this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].value = String(this.settings.musicVolume);
-    this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].value = String(this.settings.sfxVolume);
-    (this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] as HTMLInputElement).checked = this.gameState.gameMode === GameMode.Casual;
-    (this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode] as HTMLInputElement).checked = this.gameState.gameMode === GameMode.Cobra;
-    (this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake] as HTMLInputElement).checked = this.settings.isScreenShakeDisabled;
     if (this.gameState.gameMode === GameMode.Cobra) {
       this.gameModeMenuElements[GameModeMenuElement.LevelSelect].classList.add('hidden');
     } else {
@@ -545,13 +476,6 @@ export class UIBindings implements UIHandler {
 
   private assignElements = () => {
     this.main = requireElementById<HTMLElement>('main');
-
-    this.settingsMenuElements[SettingsMenuElement.ButtonClose] = requireElementById<HTMLButtonElement>('settings-menu-close-button');
-    this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode] = requireElementById<HTMLInputElement>('checkbox-casual-mode');
-    this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode] = requireElementById<HTMLInputElement>('checkbox-cobra-mode');
-    this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake] = requireElementById<HTMLInputElement>('checkbox-disable-screenshake');
-    this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume] = requireElementById<HTMLInputElement>('slider-volume-music');
-    this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume] = requireElementById<HTMLInputElement>("slider-volume-sfx");
 
     this.gameModeMenuElements[GameModeMenuElement.Campaign] = requireElementById<HTMLButtonElement>(GameModeMenuElement.Campaign);
     this.gameModeMenuElements[GameModeMenuElement.Challenge] = requireElementById<HTMLButtonElement>(GameModeMenuElement.Challenge);
@@ -577,22 +501,6 @@ export class UIBindings implements UIHandler {
 
   private handleUIEvent = (action: InputAction = InputAction.None) => {
       const cleanup = false;
-      if (action === InputAction.ShowSettingsMenu) {
-        this.settingsMenuElements[SettingsMenuElement.ButtonClose].addEventListener('click', this.onHideSettingsMenuClick);
-        this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].addEventListener('change', this.onCheckboxCasualModeChange);
-        this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode].addEventListener('change', this.onCheckboxCobraModeChange);
-        this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].addEventListener('change', this.onCheckboxDisableScreenshakeChange);
-        this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].addEventListener('input', this.onMusicSliderInput);
-        this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].addEventListener('input', this.onSfxSliderInput);
-      }
-      if (cleanup || action === InputAction.HideSettingsMenu) {
-        this.settingsMenuElements[SettingsMenuElement.ButtonClose].removeEventListener('click', this.onHideSettingsMenuClick);
-        this.settingsMenuElements[SettingsMenuElement.CheckboxCasualMode].removeEventListener('change', this.onCheckboxCasualModeChange);
-        this.settingsMenuElements[SettingsMenuElement.CheckboxCobraMode].removeEventListener('change', this.onCheckboxCobraModeChange);
-        this.settingsMenuElements[SettingsMenuElement.CheckboxDisableScreenshake].removeEventListener('change', this.onCheckboxDisableScreenshakeChange);
-        this.settingsMenuElements[SettingsMenuElement.SliderMusicVolume].removeEventListener('input', this.onMusicSliderInput);
-        this.settingsMenuElements[SettingsMenuElement.SliderSfxVolume].removeEventListener('input', this.onSfxSliderInput);
-      }
       if (action === InputAction.ShowGameModeMenu) {
         this.gameModeMenuElements[GameModeMenuElement.Campaign].addEventListener('click', this.onSelectGameModeCampaign);
         this.gameModeMenuElements[GameModeMenuElement.Challenge].addEventListener('click', this.onSelectGameModeChallenge);
@@ -661,38 +569,6 @@ export class UIBindings implements UIHandler {
   private handleWindowBlur = () => {
     this.p5.deltaTime = 0;
     this.callAction(InputAction.Pause);
-  }
-
-  private onHideSettingsMenuClick = () => {
-    this.callAction(InputAction.HideSettingsMenu);
-  }
-
-  private onCheckboxCasualModeChange = (ev: InputEvent) => {
-    const isCasualModeEnabled = (ev.target as HTMLInputElement).checked;
-    this.callbacks.onToggleCasualMode(isCasualModeEnabled);
-  }
-
-  private onCheckboxCobraModeChange = (ev: InputEvent) => {
-    const isCobraModeEnabled = (ev.target as HTMLInputElement).checked;
-    this.callbacks.onToggleCobraMode(isCobraModeEnabled);
-  }
-
-  private onCheckboxDisableScreenshakeChange = (ev: InputEvent) => {
-    this.callAction(InputAction.ToggleScreenshakeDisabled);
-  }
-
-  private onMusicSliderInput = (ev: InputEvent) => {
-    const volume = parseFloat((ev.target as HTMLInputElement).value);
-    setMusicVolume(volume);
-    this.callbacks.onSetMusicVolume(volume);
-  }
-
-  private onSfxSliderInput = (ev: InputEvent) => {
-    const volume = parseFloat((ev.target as HTMLInputElement).value);
-    this.sfx.setGlobalVolume(volume);
-    setSfxVolume(volume);
-    this.callbacks.onSetSfxVolume(volume);
-    this.sfx.play(Sound.eat);
   }
 
   private onSelectGameModeCampaign = () => {

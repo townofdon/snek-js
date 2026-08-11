@@ -103,64 +103,14 @@
         <canvas id="ui-canvas-right" class="ui-canvas-right" style="width: 20px; height: 960px;" width="20" height="960"></canvas>
         <div id="game-container" class="containment">
           <canvas id="game-canvas" class="p5Canvas" style="width: 960px; height: 960px;" width="960" height="960"></canvas>
+          <div id="main-menu-v2" class="position-absolute stretch">
+            <!-- React UI V2 -->
+          </div>
         </div>
       </div>
 
-      <div id="settings-menu" class="settings-menu hidden">
-        <div class="background"></div>
-        <div class="content">
-          <h2>Settings</h2>
-          <section id="settings-section-gameplay">
-            <h4>Gameplay</h4>
-            <div id="field-casual-mode" class="field">
-              <div>
-                <label class="checkbox-label" tabindex="0">
-                  <input type="checkbox" id="checkbox-casual-mode" name="casual-mode" />
-                  <span class="checkmark"></span>
-                  Enable casual mode
-                </label>
-              </div>
-              <span class="caption">Adds invincibility and move rewinding, but disables scoring</span>
-            </div>
-            <div id="field-cobra-mode" class="field hidden">
-              <div>
-                <label class="checkbox-label" tabindex="0" id="label-cobra-mode">
-                  <input type="checkbox" id="checkbox-cobra-mode" name="cobra-mode" />
-                  <span class="checkmark"></span>
-                  Enable COBRA mode
-                </label>
-              </div>
-              <span class="caption">Death = game over, hearts do not replenish</span>
-            </div>
-            <div class="field">
-              <div>
-                <label class="checkbox-label" tabindex="0">
-                  <input type="checkbox" id="checkbox-disable-screenshake" name="disable-screenshake" />
-                  <span class="checkmark"></span>
-                  Disable Screen Shake
-                </label>
-              </div>
-              <!-- <span class="caption">Adds invincibility and move rewinding, but disables scoring</span> -->
-            </div>
-          </section>
-          <section id="settings-section-audio">
-            <h4>Audio</h4>
-            <div class="field">
-              <div>
-                <input type="range" id="slider-volume-music" name="volume-music" min="0" max="1" step="0.1" value="1" />
-                <label for="slider-volume-music">Music</label>
-              </div>
-            </div>
-            <div class="field">
-              <div>
-                <input type="range" id="slider-volume-sfx" name="volume-sfx" min="0" max="1" step="0.1" value="1" />
-                <label for="slider-volume-sfx">SFX</label>
-              </div>
-            </div>
-          </section>
-          <br/>
-          <button id="settings-menu-close-button">close</button>
-        </div>
+      <div id="settings-menu-v2" class="position-absolute fill">
+        <!-- React UI V2 -->
       </div>
 
       <div id="start-screen" class="start-screen" style="width: 960px; height: 960px;" width="960" height="960">

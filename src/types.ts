@@ -818,7 +818,6 @@ export enum InputAction {
   HideGameModeMenu,
   RetryLevel,
   StartGame,
-  // TODO: REMOVE THESE TOGGLE INPUT ACTIONS??
   ToggleCasualMode,
   ToggleCobraMode,
   ToggleScreenshakeDisabled,
@@ -831,6 +830,7 @@ export enum InputAction {
   StartMoving,
   StartRewinding,
   GotoCommunityPage,
+  TestAudio,
 }
 
 export interface EditorOptions {
@@ -943,7 +943,6 @@ export interface FontVariants {
 }
 
 export interface SFXInstance {
-  setGlobalVolume: (volume: number) => void
   play: (sound: keyof SoundVariants, volume?: number) => void
   playLoop: (sound: keyof SoundVariants, volume?: number) => void
   stop: (sound: keyof SoundVariants) => void

@@ -227,11 +227,9 @@ export const sketch = (p5: P5) => {
 
   const modal = new Modal();
 
-  const uiBindings = new UIBindings(p5, sfx, state, settings, {
+  const uiBindings = new UIBindings(p5, state, settings, saveDataStore, {
     onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
     onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
-    onToggleCasualMode: toggleCasualMode,
-    onToggleCobraMode: toggleCobraMode,
     onWarpToLevel: warpToLevel,
   }, handleInputAction);
 
@@ -314,6 +312,9 @@ export const sketch = (p5: P5) => {
         break;
       case InputAction.GotoCommunityPage:
         window.location.href = `${getRelativeDir()}community`;
+        break;
+      case InputAction.TestAudio:
+        sfx.play(Sound.eat);
         break;
     }
   }
@@ -437,7 +438,7 @@ export const sketch = (p5: P5) => {
   }
 
   function toggleCasualMode(value?: boolean) {
-    sfx.play(Sound.uiBlip, 0.7);
+    sfx.play(Sound.uiBlip, 0.6);
     if (value === false && state.gameMode === GameMode.Casual) {
       state.gameMode = GameMode.Normal;
     } else if (value === true) {
@@ -452,7 +453,7 @@ export const sketch = (p5: P5) => {
 
   function toggleCobraMode(value?: boolean) {
     if (!saveDataStore.getIsCobraModeUnlocked()) return;
-    sfx.play(Sound.uiBlip, 0.7);
+    sfx.play(Sound.uiBlip, 0.6);
     if (value === false && state.gameMode === GameMode.Cobra) {
       state.gameMode = GameMode.Normal;
     } else if (value === true) {
@@ -623,7 +624,7 @@ export const sketch = (p5: P5) => {
   }
 
   function showSettingsMenu() {
-    UI.showSettingsMenu({ isInGameMenu: state.isGameStarted, isCobraModeUnlocked: saveDataStore.getIsCobraModeUnlocked() });
+    UI.showSettingsMenu();
     uiBindings.refreshFieldValues();
     playSound(Sound.unlock, 1, true);
   }
@@ -857,7 +858,7 @@ export const sketch = (p5: P5) => {
 
   function showInGameSettingsMenu() {
     sfx.play(Sound.unlock);
-    UI.showSettingsMenu({ isInGameMenu: true, isCobraModeUnlocked: saveDataStore.getIsCobraModeUnlocked() });
+    UI.showSettingsMenu();
   }
 
   function gotoNextLevel() {

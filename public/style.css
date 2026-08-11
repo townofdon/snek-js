@@ -254,6 +254,13 @@ canvas {
   height: 100%;
 }
 
+.fill {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
 .position-relative {
   position: relative;
 }

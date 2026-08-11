@@ -13,6 +13,9 @@ export const parseElementLevelNum = (element: HTMLButtonElement) => {
 export class DOM {
   private static prev: HTMLElement;
 
+  /**
+   * Focus on a DOM element.
+   */
   static select(element: HTMLElement | null | undefined, preventScroll = false) {
     if (!element) return;
     if (document.activeElement && document.activeElement !== element) {

@@ -19,8 +19,6 @@ import { getRelativeDir } from '../utils';
  */
 export class SFX implements SFXInstance {
 
-  private globalVolume = 1;
-
   private sounds: SoundVariants = {
     acquireShield: null,
     acquireHealth: null,
@@ -65,11 +63,6 @@ export class SFX implements SFXInstance {
     xpound: null,
   }
 
-  setGlobalVolume(volume: number) {
-    this.globalVolume = volume;
-    setSfxVolume(volume);
-  }
-
   isPlaying(sound: keyof SoundVariants): boolean {
     if (!this.sounds[sound]) return false;
     return this.sounds[sound].playing();
@@ -81,7 +74,7 @@ export class SFX implements SFXInstance {
         console.warn(`Sound not loaded: ${sound}`);
         return;
       }
-      this.sounds[sound].volume(volume * this.globalVolume);
+      this.sounds[sound].volume(volume);
       this.sounds[sound].stop();
       this.sounds[sound].play();
     } catch (err) {
@@ -97,7 +90,7 @@ export class SFX implements SFXInstance {
       }
       this.sounds[sound].loop(true);
       this.sounds[sound].stop();
-      this.play(sound, volume * this.globalVolume);
+      this.play(sound, volume);
     } catch (err) {
       console.error(err);
     }

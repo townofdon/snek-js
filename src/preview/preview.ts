@@ -388,7 +388,7 @@ export const sketch = (p5: P5) => {
   }
 
   function showSettingsMenu() {
-    UI.showSettingsMenu({ isInGameMenu: state.isGameStarted, isCobraModeUnlocked: false });
+    UI.showSettingsMenu();
     // uiBindings.refreshFieldValues();
     playSound(Sound.unlock, 1, true);
   }
