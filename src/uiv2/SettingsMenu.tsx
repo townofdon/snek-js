@@ -59,8 +59,8 @@ export const SettingsMenu = () => {
     [SettingsMenuElement.ButtonClose]: useRef<HTMLButtonElement>(null),
   };
 
-  const isInGameMenu = bridge.gameState.isGameStarted
-  const isCobraModeUnlocked = bridge.saveDataStore.getIsCobraModeUnlocked()
+  const isInGameMenu = bridge.gameState?.isGameStarted || false;
+  const isCobraModeUnlocked = bridge.saveDataStore?.getIsCobraModeUnlocked() || false;
 
   useEffect(() => {
     if (showing && active) {
@@ -150,6 +150,7 @@ export const SettingsMenu = () => {
   }, [showing])
 
   if (!showing) return;
+  if (!bridge.gameState) return;
 
   const handleChangeCasualMode = (checked) => {
     if (!active) return;

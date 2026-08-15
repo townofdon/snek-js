@@ -137,6 +137,7 @@ import {
   lerp,
   buildPipesMap,
   recalculateFlamesMap,
+  shouldBlinkExpiringPickup,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -1169,7 +1170,11 @@ export function engine({
         if (rarity === RARITY_LEGENDARY) {
           playSound(Sound.acquireLegendaryItem, 0.3);
         } else if (rarity === RARITY_EPIC) {
-          playSound(Sound.acquireEpicItem, 0.3);
+          if (Math.random() > 0.5) {
+            playSound(Sound.acquireEpicItem, 0.2);
+          } else {
+            playSound(Sound.acquireEpicItem2, 0.2);
+          }
         } else if (rarity === RARITY_RARE) {
           // playSound(Sound.acquireRareItem, 0.3);
         }
@@ -1208,6 +1213,7 @@ export function engine({
       growSnake(coord);
       increaseSpeed();
       playSound(Sound.eat);
+      playSound(Sound.acquirePrey, 0.5);
       preyList.removeByCoord(coord);
       drawState.shouldDrawActionFG = true;
       didEat = true;
@@ -1240,7 +1246,11 @@ export function engine({
       for (let y = 0; y < GRIDCOUNT_Y; y++) {
         const i = getCoordIndex2(x, y);
         if (es.pickupsMap[i]) {
+          const timeLeft = es.pickupsMap[i].lifetime;
           es.pickupsMap[i].lifetime -= loopState.deltaTime;
+          if (shouldBlinkExpiringPickup(timeLeft) !== shouldBlinkExpiringPickup(es.pickupsMap[i].lifetime)) {
+            drawState.shouldDrawApples = true;
+          }
           if (es.pickupsMap[i].lifetime <= 0) {
             es.pickupsMap[i] = null;
             apples.removeByCoord(i);
@@ -1994,6 +2004,9 @@ export function engine({
   }
 
   function anySwitchPressed(): boolean {
+    if (state.isButtonPressed && (state.isExitingLevel || state.isExited)) {
+      return true;
+    }
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
       if (!es.switchesMap[coord]) continue;
       if (getCoordIndex(player.position) === coord) return true;
@@ -2019,8 +2032,7 @@ export function engine({
           byCoord(coord)(threats.disable);
         }
       }
-      // TODO: ADD UNIQ SOUND
-      playSound(Sound.doorOpen);
+      playSound(Sound.switch, 0.9);
       drawState.shouldDrawActionFG = true;
     } else if (!pressed && state.isButtonPressed) {
       state.isButtonPressed = false;
@@ -2036,8 +2048,7 @@ export function engine({
           byCoord(coord)(threats.enable);
         }
       }
-      // TODO: ADD UNIQ SOUND
-      playSound(Sound.moveStart);
+      playSound(Sound.switchOff, 0.9);
       drawState.shouldDrawActionFG = true;
     }
     // if segment is over a barricade when button is released, keep resetting that cell's elapsed time until segment leaves.

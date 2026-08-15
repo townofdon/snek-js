@@ -6,14 +6,17 @@ import {
   DIFFICULTY_HARD,
   DIFFICULTY_MEDIUM,
   DIFFICULTY_ULTRA,
-  ELECTROCUTION_DURATION_MS,
   FRAME_DUR_MS,
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
   HURT_STUN_TIME,
   INVINCIBILITY_EXPIRE_FLASH_MS,
   IS_DEV,
+  IS_LOCALHOST,
   PICKUP_EXPIRE_WARN_MS,
+  PICKUP_LIFETIME_MS_EPIC,
+  PICKUP_LIFETIME_MS_GALACTIC,
+  PICKUP_LIFETIME_MS_LEGENDARY,
   THREAT_LASER_MAX_SPAN,
 } from "./constants";
 import {
@@ -26,7 +29,6 @@ import {
   KeyChannel,
   Level,
   MusicTrack,
-  ItemDropType,
   Portal,
   PortalChannel,
   PortalExitMode,
@@ -44,7 +46,6 @@ import {
   LaserCell,
   Orientation,
   LaserType,
-  AnimationData,
   SpritesheetRange,
   SPRITESHEET_RANGE_MAX,
   EngineState,
@@ -766,6 +767,26 @@ export const shouldBlinkExpiringPickup = (timeLeft: number, warnTime = PICKUP_EX
   !!timeLeft
   && timeLeft <= warnTime
   && Math.floor(timeLeft / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0;
+
+export const getPickupLifetime = (rarityType: PickupRarity): number => {
+  switch (rarityType) {
+    case PickupRarity.Epic:
+      return PICKUP_LIFETIME_MS_EPIC;
+    case PickupRarity.Legendary:
+      return PICKUP_LIFETIME_MS_LEGENDARY;
+    case PickupRarity.Galactic:
+      return PICKUP_LIFETIME_MS_GALACTIC;
+    case PickupRarity.None:
+    case PickupRarity.Common:
+    case PickupRarity.Rare:
+      return 999999999999;
+    default:
+      if (IS_LOCALHOST) {
+        throw new Error(`Non-rarity-type passed to getPickupLifetime: ${rarityType}`);
+      }
+      return 999999999999;
+  }
+}
 
 export const getCurrentFrame = (sprite: SpritesheetImage | SpritesheetRange, elapsed: number): number => {
   if (!sprite) return 0;

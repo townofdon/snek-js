@@ -953,10 +953,11 @@ export interface SFXInstance {
 }
 
 export enum Sound {
+  acquirePrey = 'acquirePrey',
   acquireShield = 'acquireShield',
   acquireHealth = 'acquireHealth',
   acquireEpicItem = 'acquireEpicItem',
-  acquireRareItem = 'acquireRareItem',
+  acquireEpicItem2 = 'acquireEpicItem2',
   acquireLegendaryItem = 'acquireLegendaryItem',
   alarm = 'alarm',
   burn = 'burn',
@@ -981,6 +982,8 @@ export enum Sound {
   step1 = 'step1',
   step2 = 'step2',
   stab = 'stab',
+  switch = 'switch',
+  switchOff = 'switchOff',
   uiBlip = 'uiBlip',
   uiChip = 'uiChip',
   uiChipLoop = 'uiChipLoop',

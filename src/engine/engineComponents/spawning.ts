@@ -58,6 +58,7 @@ import {
   getDropLikelihood,
   getLevelProgress,
   getManhattanDistance,
+  getPickupLifetime,
   lerp,
 } from "@/utils";
 import { DEFAULT_PICKUP_TYPES } from "@/defaults";
@@ -344,12 +345,8 @@ export function engineSpawning({
     if (!pickup) {
       return false;
     }
-    es.pickupsMap[getCoordIndex2(x, y)] = {
-      lifetime: 999999999999,
-      type: pickup,
-    };
-    // adjust pity system
     const rarity = PICKUP_TYPE_RARITY_MAP[pickup];
+    // adjust pity system
     let rarityType = PickupRarity.None;
     if (rarity === RARITY_LEGENDARY) {
       state.pity = 0;
@@ -362,19 +359,27 @@ export function engineSpawning({
       state.pity += PITY_INCREMENT;
     }
     state.pity = clamp(state.pity, 0, 1);
+    // spawn pickup
+    const lifetime = getPickupLifetime(rarityType);
+    es.pickupsMap[getCoordIndex2(x, y)] = {
+      lifetime,
+      type: pickup,
+    };
     // spawn pickup outline
     if (rarityType) {
-      pickupOutlines.add(x, y, 999999999999, Image.PickupOutlineBlueSheet, rarityType);
+      pickupOutlines.add(x, y, lifetime, Image.PickupOutlineBlueSheet, rarityType);
     }
     return true;
   }
 
   function spawnLegendaryItem(x: number, y: number) {
     const idx = Math.floor(Math.random() * PICKUP_LEGENDARY_ITEMS.length);
+    const lifetime = getPickupLifetime(PickupRarity.Legendary);
     es.pickupsMap[getCoordIndex2(x, y)] = {
-      lifetime: 999999999999,
+      lifetime,
       type: PICKUP_LEGENDARY_ITEMS[idx],
     };
+    pickupOutlines.add(x, y, lifetime, Image.PickupOutlineBlueSheet, PickupRarity.Legendary);
     if (!apples.existsAt(x, y)) {
       apples.add(x, y);
     }

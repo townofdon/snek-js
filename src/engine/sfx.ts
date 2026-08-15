@@ -20,10 +20,11 @@ import { getRelativeDir } from '../utils';
 export class SFX implements SFXInstance {
 
   private sounds: SoundVariants = {
+    acquirePrey: null,
     acquireShield: null,
     acquireHealth: null,
     acquireEpicItem: null,
-    acquireRareItem: null,
+    acquireEpicItem2: null,
     acquireLegendaryItem: null,
     alarm: null,
     burn: null,
@@ -48,6 +49,8 @@ export class SFX implements SFXInstance {
     stab: null,
     step1: null,
     step2: null,
+    switch: null,
+    switchOff: null,
     uiBlip: null,
     uiChip: null,
     uiChipLoop: null,
@@ -110,10 +113,11 @@ export class SFX implements SFXInstance {
       const relativeDir = getRelativeDir();
       // const loadSound = (soundFile: string) => new Howl({ src: [`${relativeDir}assets/sounds/${soundFile}`] });
       const loadSound = (soundFile: string) => loadSfxAudio({src: [`${relativeDir}assets/sounds/${soundFile}`] })
+      this.sounds.acquirePrey = await loadSound('acquire-prey.wav');
       this.sounds.acquireShield = await loadSound('acquire-shield.wav');
       this.sounds.acquireHealth = await loadSound('acquire-health.wav');
       this.sounds.acquireEpicItem = await loadSound('acquire-epic-item.wav');
-      this.sounds.acquireRareItem = await loadSound('acquire-rare-item.wav');
+      this.sounds.acquireEpicItem2 = await loadSound('acquire-epic-item-2.wav');
       this.sounds.acquireLegendaryItem = await loadSound('acquire-legendary.wav');
       this.sounds.alarm = await loadSound('alarm.wav');
       this.sounds.burn = await loadSound('burn-loop.wav');
@@ -138,6 +142,8 @@ export class SFX implements SFXInstance {
       this.sounds.stab = await loadSound('stab.wav');
       this.sounds.step1 = await loadSound('step-1.wav');
       this.sounds.step2 = await loadSound('step-2.wav');
+      this.sounds.switch = await loadSound('switch.wav');
+      this.sounds.switchOff = await loadSound('switch-off.wav');
       this.sounds.uiBlip = await loadSound('ui-blip.wav');
       this.sounds.uiChip = await loadSound('ui-chip.wav');
       this.sounds.uiChipLoop = await loadSound('ui-chip-loop.wav');

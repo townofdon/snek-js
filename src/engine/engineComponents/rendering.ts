@@ -689,10 +689,17 @@ export function engineRendering({
         spriteRenderer.drawImage3x3(Image.PickupArrows, x, y);
       }
     } else if (specialPickupType && drawState.shouldDrawApples) {
+      if (shouldBlinkExpiringPickup(timeLeft)) {
+        gfxApples.push();
+        gfxApples.tint(0, 0, 0, 255);
+      }
       if (specialPickupType > PickupType.__PICKUPS2_OFFSET__) {
         spriteRenderer.drawSprite1x1(gfxApples, Image.Pickups2Sheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
       } else {
         spriteRenderer.drawSprite1x1(gfxApples, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[specialPickupType] - 1);
+      }
+      if (shouldBlinkExpiringPickup(timeLeft)) {
+        gfxApples.pop();
       }
     } else if (!specialPickupType) {
       const elapsed = state.actualTimeElapsed;
