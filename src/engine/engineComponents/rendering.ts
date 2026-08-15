@@ -315,6 +315,9 @@ export function engineRendering({
       showPlannedMoves = false;
       return;
     }
+    if (state.isSpikeDeathing) {
+      return;
+    }
     if (state.isLost) {
       return;
     }

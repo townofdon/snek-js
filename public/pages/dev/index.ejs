@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" type="text/css" href="../style.css">
+
+    <!-- google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Monofett&family=VT323&display=swap" rel="stylesheet">
+
+    <meta charset="utf-8" />
+    <title>SNEK</title>
+    <link rel="icon" type="image/png" href="assets/graphics/snek-favicon.png">
+
+    <!-- TODO: replace with dev.bundle -->
+    <%= htmlWebpackPlugin
+      .tags
+      .headTags
+      .filter((tag) => tag.attributes?.src?.includes('main.bundle'))
+      .join('')
+    %>
+  </head>
+  <body>
+    <div class="center stretch overflow-hidden">
+      <main id="main">
+
+        <div id="game" class="game">
+          <canvas id="ui-canvas-right" class="ui-canvas-right" style="width: 20px; height: 960px;" width="20" height="960"></canvas>
+          <div id="game-container" class="containment">
+            <canvas id="game-canvas" class="p5Canvas" style="width: 960px; height: 960px;" width="960" height="960"></canvas>
+            <div id="main-menu-v2" class="position-absolute stretch">
+              <!-- React UI V2 -->
+            </div>
+          </div><!-- /.containment -->
+
+        </div><!-- /.game -->
+
+        <div id="settings-menu-v2" class="position-absolute fill">
+          <!-- React UI V2 -->
+        </div>
+
+        <div id="modal-highscore-entry" class="modal hidden">
+          <form id="form-highscore-entry" action="javascript:void(0);" autocomplete="off">
+            <h2 class="center">High Score Earned!</h2>
+            <p class="center"><strong><label for="input-highscore-name">ENTER SNEK CHAMPION NAME</label></strong></p>
+            <div class="center">
+              <input type="text" id="input-highscore-name" name="input-highscore-name" maxlength="20" autocomplete="off" pattern="^([A-Za-z0-9_-]|\s)+$"  />
+            </div>
+            <p class="minimood center">[Enter] To Submit</p>
+            <p class="center hidden">
+              <button type="submit" class="button">SUBMIT</button>
+            </p>
+          </form>
+        </div>
+
+        <div id="modal" class="modal hidden">
+          <form id="modal-form" action="javascript:void(0);">
+            <h2 id="modal-title" class="center">CONFIRM</h2>
+            <p id="modal-message" class="minimood">&lt;Modal Title&gt;</p>
+            <p class="center buttons">
+              <button id="modal-button-no" class="button" type="submit" value="no">NO</button>
+              <button id="modal-button-yes" class="button" type="submit" value="yes">YES</button>
+            </p>
+          </form>
+        </div>
+
+        <div id="loader" class="loader-container hidden"><span class="loader"></span></div>
+
+      </main>
+
+      <button id="button-game-mode-campaign" class="hidden"></button>
+      <button id="button-game-mode-challenge" class="hidden"></button>
+      <button id="button-game-mode-level-select" class="hidden"></button>
+      <button id="button-game-mode-randomizer" class="hidden"></button>
+      <button id="button-game-mode-back" class="hidden"></button>
+      <div id="level-select-menu" class="hidden"></div>
+      <div id="button-level-select-back" class="hidden"></div>
+      <div id="level-select-challenge-heading" class="hidden"></div>
+      <div id="level-select-map-number" class="hidden"></div>
+      <div id="level-select-map-name" class="hidden"></div>
+      <div id="level-select-levels" class="hidden"></div>
+      <div id="select-game-mode-menu" class="hidden"></div>
+
+    </div>
+  </body>
+</html>

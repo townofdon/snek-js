@@ -45,6 +45,7 @@ export class SFX implements SFXInstance {
     rewindLoop: null,
     shieldSpawn: null,
     spawnPickup: null,
+    stab: null,
     step1: null,
     step2: null,
     uiBlip: null,
@@ -134,6 +135,7 @@ export class SFX implements SFXInstance {
       this.sounds.rewindLoop = await loadSound('rewind-loop.wav');
       this.sounds.shieldSpawn = await loadSound('shield-spawn.wav');
       this.sounds.spawnPickup = await loadSound('spawn-pickup.wav');
+      this.sounds.stab = await loadSound('stab.wav');
       this.sounds.step1 = await loadSound('step-1.wav');
       this.sounds.step2 = await loadSound('step-2.wav');
       this.sounds.uiBlip = await loadSound('ui-blip.wav');

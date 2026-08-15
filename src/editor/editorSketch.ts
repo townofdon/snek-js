@@ -387,7 +387,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           return acc;
         }, {} as Record<number, boolean>);
         fireTiles.fillFromMap(fireBarriersMap, 99999999, Image.FireSheet);
-        updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, fireTiles, null, data);
+        updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, null, getPortalsFromPortalsMap(), null, null, fireTiles, null, data);
         startPortalParticles();
         const pipes: Vector[] = Object.entries(data.pipesMap).filter(([_, val]) => !!val).map(([key]) => coordToVec(Number(key)));
         buildPipesMap(pipes, data.pipeConnectionsMap);

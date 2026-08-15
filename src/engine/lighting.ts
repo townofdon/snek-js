@@ -7,13 +7,14 @@ import {
   LIGHTMAP_RESOLUTION,
 } from "../constants";
 import { Renderer } from "./renderer";
-import { clamp, getCoordIndex3, lerp, shouldBlinkExpiringPickup } from "../utils";
+import { clamp, getCoordIndex, getCoordIndex3, lerp, shouldBlinkExpiringPickup } from "../utils";
 import { Easing } from "../easing";
-import { Pickup, ItemDropType, PortalChannel, PickupType, EngineState, GameState } from "../types";
+import { Pickup, ItemDropType, PortalChannel, PickupType, EngineState, GameState, ThreatType } from "../types";
 import { AppleList } from "../collections/appleList";
 import { AnimationList } from "../collections/animationList";
 import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE } from "@/defaults";
 import { ExtendedSketchData } from "@/editor/editorSketch";
+import { VectorList } from "@/collections/vectorList";
 
 const LIGHTMAP_SIZE = (
   GRIDCOUNT_X * Math.floor(LIGHTMAP_RESOLUTION) *
@@ -54,6 +55,7 @@ export function updateLighting(
   lightMap: Float32Array,
   globalLight: number,
   playerPosition: Vector,
+  segments: VectorList,
   portals: Record<PortalChannel, Vector[]>,
   pickupsMap: Record<number, Pickup> | null,
   explosions: AnimationList | null,
@@ -65,6 +67,23 @@ export function updateLighting(
   if (!es) es = DEFAULT_ENGINE_STATE;
   resetLightmap(lightMap, globalLight);
   if (globalLight >= 1) return;
+  // spike death
+  if (gameState.isSpikeDeathing) {
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      const mortalRuin = false
+        || es.threatsMap[coord] === ThreatType.Spikes
+        || es.threatsMap[coord] === ThreatType.WallSpikes
+        || es.threatsMap[coord] === ThreatType.Saw;
+      const playerAtCoord = getCoordIndex(playerPosition) === coord || segments?.existsAtCoord(coord);
+      if (mortalRuin && playerAtCoord) {
+        const x = Math.floor(coord % GRIDCOUNT_X);
+        const y = Math.floor(coord / GRIDCOUNT_X);
+        addBlocklight(lightMap, x, y, { strength: 1 });
+        addSpotlight(lightMap, x, y, { strength: 0.5, radius: 1, falloff: 4 });
+      }
+    }
+    return;
+  };
   addSpotlight(lightMap, playerPosition.x, playerPosition.y, { radius: 2, falloff: 12 });
   for (let i = 0; i <= 9; i++) {
     for (let j = 0; j < portals[i as PortalChannel].length; j++) {

@@ -34,6 +34,7 @@ export enum Action {
   WeightLoss = 'WeightLoss',
   Electrocution = 'Electrocution',
   Burnination = 'Burnination',
+  SpikeDeath = 'SpikeDeath',
 }
 
 export type ActionKey = keyof typeof Action
@@ -208,6 +209,7 @@ export interface GameState {
   isExitingLevel: boolean,
   isExited: boolean,
   isInvertedColors: boolean,
+  isSpikeDeathing: boolean,
   hasKeyYellow: boolean,
   hasKeyRed: boolean,
   hasKeyBlue: boolean,
@@ -978,6 +980,7 @@ export enum Sound {
   spawnPickup = 'spawnPickup',
   step1 = 'step1',
   step2 = 'step2',
+  stab = 'stab',
   uiBlip = 'uiBlip',
   uiChip = 'uiChip',
   uiChipLoop = 'uiChipLoop',

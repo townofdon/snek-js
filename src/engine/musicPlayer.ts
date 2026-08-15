@@ -183,6 +183,10 @@ export class MusicPlayer {
     })
   }
 
+  pause(track?: MusicTrack) {
+    this.setPlaybackRate(track, 0);
+  }
+
   halfSpeed(track?: MusicTrack) {
     this.setPlaybackRate(track, 0.5);
   }

@@ -16,6 +16,7 @@ module.exports = (env) => {
   // see: https://webpack.js.org/guides/environment-variables/
   const isNwjsPackage = env.package;
   const isProduction = process.env.NODE_ENV == 'production' || env.production;
+  const isDev = !isProduction;
   const commitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
   return {
@@ -26,6 +27,9 @@ module.exports = (env) => {
       preview: './src/preview/index',
       community: './src/community/index',
       astarTester: './src/astar/tester/index',
+      // ...(isDev ? {
+      //   dev: './src/dev/index',
+      // } : {}),
     },
     output: {
       filename: '[name].bundle-[contenthash].js',
@@ -105,6 +109,14 @@ module.exports = (env) => {
         template: './public/pages/privacy-policy/index.html',
         inject: false,
       }),
+      ...(isDev ? [
+        new HtmlWebpackPlugin({
+          title: 'SNEK DEV',
+          filename: 'dev/index.html',
+          template: './public/pages/dev/index.ejs',
+          inject: false,
+        })
+      ] : []),
       new MiniCssExtractPlugin({
         filename: "[name]-[contenthash].css",
         chunkFilename: "[id]-[contenthash].css",

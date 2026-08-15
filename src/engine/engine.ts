@@ -719,6 +719,7 @@ export function engine({
     state.isExitingLevel = false;
     state.isExited = false;
     state.isInvertedColors = false;
+    state.isSpikeDeathing = false;
     state.actualTimeElapsed = 0;
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
@@ -776,6 +777,7 @@ export function engine({
         es.keysMap[getCoordIndex2(x, y)] = undefined;
         es.threatsMap[getCoordIndex2(x, y)] = undefined;
         es.lasersMap[getCoordIndex2(x, y)] = undefined;
+        es.switchesMap[getCoordIndex2(x, y)] = undefined;
       }
     }
     apples.reset();
@@ -1517,8 +1519,6 @@ export function engine({
       erasePlayerSegmentCorner(segments.get(i), i);
     }
 
-    const globalLight = es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT;
-
     drawPlayerHead(player.position);
     drawPassableBarriers();
     drawParticles(10);
@@ -1561,6 +1561,8 @@ export function engine({
       // draw to main gfx
     }
 
+    const globalLight = state.isSpikeDeathing ? 0 : (es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
+
     if (
       state.isGameStarted &&
       replay.mode !== ReplayMode.Playback &&
@@ -1568,7 +1570,7 @@ export function engine({
       !state.isInvertedColors &&
       state.timeSinceInvincibleStart >= es.difficulty.invincibilityTime
     ) {
-      updateLighting(p5.deltaTime, lightMap, globalLight, player.position, es.portals, es.pickupsMap, explosions, fireTiles, state, es);
+      updateLighting(p5.deltaTime, lightMap, globalLight, player.position, segments, es.portals, es.pickupsMap, explosions, fireTiles, state, es);
       drawLighting(lightMap, renderer, gfxLighting);
     }
 
@@ -2469,6 +2471,9 @@ export function engine({
 
   function handleSnakeSpikeDeath() {
     if (state.isExitingLevel || state.isExited) return;
+    if (state.isLost) return;
+    if (state.isSpikeDeathing) return;
+    if (actionRunning(Action.SpikeDeath)) return;
     if (state.isButtonPressed) return;
     if (state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) return;
     if (state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY) return;
@@ -2487,8 +2492,23 @@ export function engine({
       }
     }
     if (instadeath) {
-      applyDamage(5);
+      startAction(spikeDeathRoutine(), Action.SpikeDeath);
     }
+  }
+
+  function* spikeDeathRoutine(): IEnumerator {
+    playSound(Sound.stab);
+    state.isSpikeDeathing = true;
+    loopState.timeScale = 0;
+    musicPlayer.setVolume(0);
+    musicPlayer.pause(es.level.musicTrack);
+    // TODO: CONFIGURE CONSTANT
+    yield* actions.waitForTime(1300);
+    state.isSpikeDeathing = false;
+    loopState.timeScale = 1;
+    applyDamage(5);
+    // tick one additional frame so that handleSpikeDeath is not called again.
+    yield null;
   }
 
   function handleSnakeDamage(didReceiveDamage: boolean) {
@@ -2530,6 +2550,7 @@ export function engine({
   }
 
   function handlePreyElectrocution() {
+    if (state.isSpikeDeathing) return;
     if (state.isButtonPressed) return;
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
       const x = getCoordX(coord);
@@ -3115,7 +3136,7 @@ export function engine({
       stats.numDeaths += 1;
       stopAction(Action.FadeMusic);
       musicPlayer.setVolume(0);
-      musicPlayer.halfSpeed(es.level.musicTrack);
+      musicPlayer.pause(es.level.musicTrack);
     }
     switch (state.lastHurtBy) {
       case DamageType.HitBarrier:
@@ -3154,6 +3175,7 @@ export function engine({
     renderer.invalidateStaticCache();
     loopState.timeScale = 1;
     startScreenShake(1, 0.4);
+    musicPlayer.halfSpeed(es.level.musicTrack);
     if (replay.mode === ReplayMode.Playback) {
       yield* coroutines.waitForTime(1000);
       proceedToNextReplayClip();
