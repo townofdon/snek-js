@@ -7,6 +7,7 @@ import {
   GRIDCOUNT_Y,
   HURT_GRACE_TIME,
   HURT_STUN_TIME,
+  LUNGE_STEPS,
   SPEED_INCREMENT_SPEED_MS,
   SPEED_LIMIT_ULTRA,
   SPEED_LIMIT_ULTRA_SPRINT,
@@ -112,6 +113,7 @@ export function engineMovement({
       state.timeSinceReverseStart < es.difficulty.invincibilityTime ||
       state.timeSinceInvincibleStart < es.difficulty.invincibilityTime
     );
+    state.lungeStepsRemaining = 0;
     if (!canRewind) {
       stopRewinding();
     } else if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
@@ -231,11 +233,12 @@ export function engineMovement({
     // check lunge cancel
     if (es.moves.length > 0
       && !state.isExitingLevel
-      && state.lungeStepsRemaining < 3
+      && state.lungeStepsRemaining < LUNGE_STEPS - 1
       && es.moves[0] !== player.direction
     ) {
       state.lungeStepsRemaining = 0;
     }
+    const isFirstLungeFrame = state.lungeStepsRemaining === LUNGE_STEPS;
     // check for queued-up moves
     if (es.moves.length > 0 && !state.isExitingLevel && state.lungeStepsRemaining <= 0) {
       const move = es.moves.shift();
@@ -272,6 +275,14 @@ export function engineMovement({
     // apply movement
     moveSegments();
     player.position.add(currentMove);
+    // extra move on first lunge frame
+    if (isFirstLungeFrame
+      && !checkHasHit(player.position.copy().add(currentMove))
+      && !segments.existsAt(player.position.x, player.position.y)
+    ) {
+      moveSegments();
+      player.position.add(currentMove);
+    }
     state.timeSinceGraceStarted = 0;
 
     // play step sfx

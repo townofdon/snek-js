@@ -1171,9 +1171,9 @@ export function engine({
           playSound(Sound.acquireLegendaryItem, 0.3);
         } else if (rarity === RARITY_EPIC) {
           if (Math.random() > 0.5) {
-            playSound(Sound.acquireEpicItem, 0.2);
+            playSound(Sound.acquireEpicItem, 0.3);
           } else {
-            playSound(Sound.acquireEpicItem2, 0.2);
+            playSound(Sound.acquireEpicItem2, 0.3);
           }
         } else if (rarity === RARITY_RARE) {
           // playSound(Sound.acquireRareItem, 0.3);
@@ -1208,28 +1208,46 @@ export function engine({
 
     // check if head has reached any prey
     if (preyList.existsAtCoord(coord)) {
-      spawnAppleParticles(player.position);
-      incrementPreyBonus(preyList.getTypeByCoord(coord), coord);
-      growSnake(coord);
-      increaseSpeed();
-      playSound(Sound.eat);
-      playSound(Sound.acquirePrey, 0.5);
-      preyList.removeByCoord(coord);
-      drawState.shouldDrawActionFG = true;
-      didEat = true;
+      didEat = eatPreyAt(coord);
     }
 
     // check for En Passant for prey
     const passantCoord = preyList.wasAtCoord(coord, FRAME_DUR_MS * 2);
     if (passantCoord >= 0) {
-      spawnAppleParticles(coordToVec(passantCoord));
-      incrementPreyBonus(preyList.getTypeByCoord(coord), coord);
-      growSnake(coord);
-      increaseSpeed();
-      playSound(Sound.eat);
-      preyList.removeByCoord(passantCoord);
-      drawState.shouldDrawActionFG = true;
-      didEat = true;
+      didEat = eatPreyAt(passantCoord);
+    }
+
+    // if lunging, check tiles around snek head for prey.
+    //
+    // when lunging RIGHT, pattern is as-follows for a 9x9 grid (x=tile_to_check):
+    // _ x x
+    // x O _
+    // _ x x
+    if (state.lungeStepsRemaining > 0) {
+      let tiles: number[];
+      const left = -1;
+      const right = 1;
+      const up = -GRIDCOUNT_X;
+      const down = GRIDCOUNT_X;
+      if (player.direction === DIR.UP) {
+        tiles = [coord + left, coord + right, coord + up + left, coord + up + right, coord + down];
+      } else if (player.direction === DIR.DOWN) {
+        tiles = [coord + left, coord + right, coord + down + left, coord + down + right, coord + up];
+      } else if (player.direction === DIR.LEFT) {
+        tiles = [coord + up, coord + down, coord + left + up, coord + left + down, coord + right];
+      } else if (player.direction === DIR.RIGHT) {
+        tiles = [coord + up, coord + down, coord + right + up, coord + right + down, coord + left];
+      }
+      for (let i = 0; i < tiles.length; i++) {
+        const coord = tiles[i];
+        if (preyList.existsAtCoord(coord)) {
+          didEat = eatPreyAt(coord);
+        }
+        const passantCoord = preyList.wasAtCoord(coord, FRAME_DUR_MS * 2);
+        if (passantCoord >= 0) {
+          didEat = eatPreyAt(passantCoord);
+        }
+      }
     }
 
     // tick time for prey
@@ -1410,6 +1428,7 @@ export function engine({
   function onLunge(dir: DIR): void {
     if (state.timeSinceHurt < HURT_STUN_TIME) return;
     if (state.lungeStepsRemaining > 0) return;
+    if (loopState.timeScale === 0) return;
     if (state.timeSinceLungeStart < LUNGE_COOLDOWN) return;
     state.timeSinceLungeStart = 0;
     state.lungeStepsRemaining = LUNGE_STEPS;
@@ -2879,6 +2898,21 @@ export function engine({
     // impactParticleSystem.emit(x, y);
     const lifetime = ANIMATIONS[Image.PuffSheet].frames * ANIMATIONS[Image.PuffSheet].timePerFrame;
     puffs.add(x, y, lifetime, Image.PuffSheet);
+  }
+
+  function eatPreyAt(coord: number): boolean {
+    if (!preyList.existsAtCoord(coord)) {
+      return false;
+    }
+    spawnAppleParticles(coordToVec(coord));
+    incrementPreyBonus(preyList.getTypeByCoord(coord), coord);
+    growSnake(coord);
+    increaseSpeed();
+    playSound(Sound.eat);
+    playSound(Sound.acquirePrey, 0.5);
+    preyList.removeByCoord(coord);
+    drawState.shouldDrawActionFG = true;
+    return true;
   }
 
   /**
