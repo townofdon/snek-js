@@ -34,7 +34,7 @@ export enum Action {
   WeightLoss = 'WeightLoss',
   Electrocution = 'Electrocution',
   Burnination = 'Burnination',
-  SpikeDeath = 'SpikeDeath',
+  EpicDeath = 'EpicDeath',
 }
 
 export type ActionKey = keyof typeof Action
@@ -140,7 +140,7 @@ export interface Difficulty {
 
 
 export enum DamageType {
-  None,
+  None = 0,
   HitBarrier,
   HitDoor,
   HitSelf,
@@ -209,7 +209,7 @@ export interface GameState {
   isExitingLevel: boolean,
   isExited: boolean,
   isInvertedColors: boolean,
-  isSpikeDeathing: boolean,
+  isDeathIlluminating: boolean,
   hasKeyYellow: boolean,
   hasKeyRed: boolean,
   hasKeyBlue: boolean,
@@ -307,7 +307,7 @@ export interface EngineState {
   nospawnsMap: Record<number, boolean>, // no-spawns are designated spots on the map where an apple cannot spawn
   keysMap: Record<number, Key | null>,
   locksMap: Record<number, Lock | null>,
-  diffSelectMap: Record<number, number>,
+  diffSelectMap: Record<number, number>, // difficulty selection map
   portals: Record<PortalChannel, Vector[]>,
   portalsMap: Record<number, Portal>,
   threatsMap: Record<number, ThreatType>,
@@ -315,6 +315,7 @@ export interface EngineState {
   switchesMap: Record<number, SwitchType>,
   pipesMap: Record<number, PipeConnection>,
   flamesMap: Record<number, boolean>,
+  deathIlluminationMap: Record<number, boolean>,
 }
 
 export interface Outfit {
@@ -1823,6 +1824,7 @@ export interface ICollection {
   existsAt: (x: number, y: number) => boolean,
   existsAtCoord: (coord: number) => boolean,
   getClosestTraversalDistance: (x: number, y: number) => number,
+  getIndexAtCoord: (coord: number) => number,
 }
 
 export interface IFlaggable {

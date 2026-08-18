@@ -277,6 +277,7 @@ export function engineMovement({
     player.position.add(currentMove);
     // extra move on first lunge frame
     if (isFirstLungeFrame
+      && !willHitSomething
       && !checkHasHit(player.position.copy().add(currentMove))
       && !segments.existsAt(player.position.x, player.position.y)
     ) {

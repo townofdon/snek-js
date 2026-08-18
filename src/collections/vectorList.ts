@@ -13,7 +13,7 @@ export class VectorList implements ICollection {
   private indices: Int16Array;
   private activeLength: number;
   private maxLength: number;
-  private coordMap: Record<number, number>;
+  private indicesByCoord: Record<number, number>;
 
   constructor() {
     this.maxLength = INITIAL_POINTS_POOL_SIZE;
@@ -21,7 +21,7 @@ export class VectorList implements ICollection {
     this.indices = new Int16Array(INITIAL_POINTS_POOL_SIZE).fill(-1);
     this.free = new Uint8Array(INITIAL_POINTS_POOL_SIZE).fill(1);
     this.activeLength = 0;
-    this.coordMap = {};
+    this.indicesByCoord = {};
     this.reset();
   }
 
@@ -30,7 +30,7 @@ export class VectorList implements ICollection {
     for (let i = 0; i < this.free.length; i++) {
       this.free[i] = 1;
       this.points[i].set(0, 0);
-      this.coordMap[i] = -1;
+      this.indicesByCoord[i] = -1;
       this.indices[i] = -1;
     }
     this.activeLength = 0;
@@ -50,7 +50,7 @@ export class VectorList implements ICollection {
       if (this.free[i]) {
         this.free[i] = 0;
         this.points[i].set(x, y);
-        this.coordMap[coord] = i;
+        this.indicesByCoord[coord] = i;
         this.indices[this.activeLength] = i;
         this.activeLength++;
         return;
@@ -62,7 +62,7 @@ export class VectorList implements ICollection {
     this.free[i] = 0;
     this.points[i] = new Vector(x, y);
     this.indices[i] = i;
-    this.coordMap[coord] = i;
+    this.indicesByCoord[coord] = i;
     this.activeLength++;
   }
 
@@ -102,18 +102,21 @@ export class VectorList implements ICollection {
   };
 
   public contains = (x: number, y: number): boolean => {
-    return this.coordMap[getCoordIndex2(x, y)] >= 0;
+    return this.indicesByCoord[getCoordIndex2(x, y)] >= 0;
   }
 
   public containsCoord = (coord: number): boolean => {
-    return this.coordMap[coord] >= 0;
+    return this.indicesByCoord[coord] >= 0;
+  }
+  public getIndexAtCoord = (coord: number): number => {
+    return this.indicesByCoord[coord] ?? -1;
   }
 
   public existsAt = this.contains;
   public existsAtCoord = this.containsCoord;
 
   public find = (x: number, y: number): (Vector | undefined) => {
-    return this.points[this.coordMap[getCoordIndex2(x, y)]] || undefined;
+    return this.points[this.indicesByCoord[getCoordIndex2(x, y)]] || undefined;
   }
 
   public get = (index: number): (Vector | undefined) => {
@@ -164,7 +167,7 @@ export class VectorList implements ICollection {
   private recalculateCoordMap = () => {
     this.validate();
     for (let i = 0; i < this.free.length; i++) {
-      this.coordMap[i] = -1;
+      this.indicesByCoord[i] = -1;
     }
     for (let i = 0; i < this.indices.length; i++) {
       const found = this.indices[i];
@@ -172,7 +175,7 @@ export class VectorList implements ICollection {
       if (!this.points[found]) continue;
       if (this.free[found]) continue;
       const coord = getCoordIndex2(this.points[found].x, this.points[found].y);
-      this.coordMap[coord] = found;
+      this.indicesByCoord[coord] = found;
     }
   }
 

@@ -1264,6 +1264,103 @@ export const findPipeExit = (entryCoord: number, entryDir: DIR, state: GameState
   return false;
 }
 
+export function makeCheckPreyCollision(es: EngineState, state: GameState, segments: ICollection, playerPosition: Vector) {
+  return (location: Vector): DamageType => {
+    const coord = getCoordIndex(location);
+    if (segments.existsAtCoord(coord)
+      || location.equals(playerPosition)
+      || (es.barriersMap[coord] && !(es.passablesMap[coord] && state.isDoorsOpen))
+      || (es.doorsMap[coord] && !state.isDoorsOpen)
+      || es.locksMap[coord]
+      || es.portalsMap[coord]
+      || es.pipesMap[coord]
+      || (es.threatsMap[coord] <= ThreatType.ExplodableBarrel)
+      || (es.threatsMap[coord] > ThreatType.ExplodableBarrel && !state.isButtonPressed)
+      || (es.lasersMap[coord] && !state.isButtonPressed)
+      || (es.flamesMap[coord] && !state.isButtonPressed)
+    ) {
+      return DamageType.HitBarrier;
+    }
+    return DamageType.None;
+  }
+}
+
+// Flood-fill Trapped Check
+export function buildTrappedFloodGrid(checkCollision: (location: Vector) => DamageType, segments: ICollection, playerPosition: Vector): Record<number, number> {
+  const grid: Record<number, number> = {};
+  for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+    grid[coord] = 0;
+    if (segments.existsAtCoord(coord)) {
+      grid[coord] = 1000 + segments.getIndexAtCoord(coord);
+    } else if (getCoordIndex(playerPosition) === coord) {
+      grid[coord] = 2000;
+    } else if (checkCollision(coordToVec(coord))) {
+      grid[coord] = 3000;
+    }
+  }
+  return grid;
+}
+interface FloodFillTrappedResult {
+  didFill: boolean,
+  maxSegmentIndex: number,
+  traversalCount: number,
+}
+export function floodFillTrapped(
+  initialCoord: number,
+  maxTraversals: number,
+  grid: Record<number, number>,
+  // out var
+  visited: Record<number, boolean>,
+): FloodFillTrappedResult {
+  let maxSegmentIndex = -1;
+  let traversalCount = 0;
+  const checkAddCandidate = (x: number, y: number) => {
+    const inBounds = x >= 0 && y >= 0 && x < GRIDCOUNT_X && y < GRIDCOUNT_Y;
+    if (!inBounds) {
+      return;
+    }
+    const tile = grid[getCoordIndex2(x, y)];
+    if (tile && tile >= 1000 && tile < 2000 && tile - 1000 > maxSegmentIndex) {
+      maxSegmentIndex = tile - 1000;
+    }
+    const valid = !visited[getCoordIndex2(x, y)] && !grid[getCoordIndex2(x, y)];
+    if (valid) {
+      traversalCount++;
+      candidates.push(getCoordIndex2(x, y));
+    }
+  };
+  const candidates = [initialCoord];
+  for (let i = 0; i < maxTraversals && candidates.length > 0; i++) {
+    const current = candidates.pop();
+    const x = getCoordX(current);
+    const y = getCoordY(current);
+    const inBounds = x >= 0 && y >= 0 && x < GRIDCOUNT_X && y < GRIDCOUNT_Y;
+    if (!inBounds) {
+      continue;
+    }
+    visited[current] = true;
+    checkAddCandidate(x + 1, y);
+    checkAddCandidate(x - 1, y);
+    checkAddCandidate(x, y + 1);
+    checkAddCandidate(x, y - 1);
+  }
+  const didFill = traversalCount >= maxTraversals;
+  return {
+    didFill,
+    maxSegmentIndex,
+    traversalCount,
+  } satisfies FloodFillTrappedResult;
+}
+export function analyzeFloodFillTrappedResult(result: FloodFillTrappedResult, segmentsLength: number): boolean {
+  if (result.didFill) {
+    return false;
+  }
+  if (result.maxSegmentIndex >= 0 && result.maxSegmentIndex < segmentsLength && segmentsLength - result.maxSegmentIndex < result.traversalCount) {
+    return false;
+  }
+  return true;
+}
+
 interface ToTimeParams {
   minutes: number,
   seconds: number,

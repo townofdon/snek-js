@@ -315,7 +315,7 @@ export function engineRendering({
       showPlannedMoves = false;
       return;
     }
-    if (state.isSpikeDeathing) {
+    if (state.isDeathIlluminating) {
       return;
     }
     if (state.isLost) {

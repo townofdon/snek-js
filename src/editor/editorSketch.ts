@@ -111,6 +111,7 @@ export interface ExtendedSketchData extends EditorData {
   lasersMap: Record<number, LaserCell>,
   pipeConnectionsMap: Record<number, PipeConnection>,
   flamesMap: Record<number, boolean>,
+  deathIlluminationMap: Record<number, boolean>,
 }
 
 export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): EditorSketchReturn => {
@@ -134,6 +135,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     pipesMap: {},
     pipeConnectionsMap: {},
     flamesMap: {},
+    deathIlluminationMap: {},
   } satisfies ExtendedSketchData;
   const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig' | 'pipeVariant'> = {
     globalLight: EDITOR_DEFAULTS.options.globalLight,
@@ -387,7 +389,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           return acc;
         }, {} as Record<number, boolean>);
         fireTiles.fillFromMap(fireBarriersMap, 99999999, Image.FireSheet);
-        updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, null, getPortalsFromPortalsMap(), null, null, fireTiles, null, data);
+        updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, fireTiles, null, data);
         startPortalParticles();
         const pipes: Vector[] = Object.entries(data.pipesMap).filter(([_, val]) => !!val).map(([key]) => coordToVec(Number(key)));
         buildPipesMap(pipes, data.pipeConnectionsMap);

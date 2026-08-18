@@ -36,7 +36,7 @@ export const DEFAULT_GAME_STATE: GameState = {
   isExitingLevel: false,
   isExited: false,
   isInvertedColors: false,
-  isSpikeDeathing: false,
+  isDeathIlluminating: false,
   levelIndex: 0,
   actualTimeElapsed: 0,
   timeElapsed: 0,
@@ -103,6 +103,7 @@ export const DEFAULT_ENGINE_STATE: EngineState = {
   switchesMap: {},
   pipesMap: {},
   flamesMap: {},
+  deathIlluminationMap: {},
 } satisfies EngineState;
 
 export const DEFAULT_ACTION_IDS_MAP: Record<ActionKey, string | null> = {
@@ -116,7 +117,7 @@ export const DEFAULT_ACTION_IDS_MAP: Record<ActionKey, string | null> = {
   [Action.WeightLoss]: null,
   [Action.Electrocution]: null,
   [Action.Burnination]: null,
-  [Action.SpikeDeath]: null,
+  [Action.EpicDeath]: null,
 }
 
 export const DEFAULT_BASE_STATS = {

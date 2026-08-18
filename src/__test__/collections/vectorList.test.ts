@@ -252,6 +252,28 @@ describe("Collections", () => {
       points.add(Math.floor(Math.random() * 30), Math.floor(Math.random() * 30));
       assert.strictEqual(points.getLength(), INITIAL_POINTS_POOL_SIZE + 1);
       assert.strictEqual(points.getMaxLength(), INITIAL_POINTS_POOL_SIZE * 2);
-    })
+    });
+    it("should getIndexAtCoord", () => {
+      const points = new VectorList();
+      const inputs: [number, number][] = [
+        [11, 11],
+        [1, 1],
+        [2, 2],
+        [3, 3],
+        [4, 4],
+        [5, 5],
+        [3, 7],
+        [13, 2],
+        [29, 29],
+        [0, 0],
+        [29, 0],
+      ];
+      inputs.forEach(([x, y]) => points.add(x, y));
+      inputs.forEach(([x, y], idx) => {
+        const got = points.getIndexAtCoord(getCoordIndex2(x, y));
+        assert(points.existsAt(x, y), `no point found for (${x}, ${y})`);
+        assert.strictEqual(idx, got, `assertion failed: point(${x}, ${y}) expected index ${idx}, got ${got}`);
+      });
+    });
   });
-})
+});

@@ -55,7 +55,6 @@ export function updateLighting(
   lightMap: Float32Array,
   globalLight: number,
   playerPosition: Vector,
-  segments: VectorList,
   portals: Record<PortalChannel, Vector[]>,
   pickupsMap: Record<number, Pickup> | null,
   explosions: AnimationList | null,
@@ -67,19 +66,14 @@ export function updateLighting(
   if (!es) es = DEFAULT_ENGINE_STATE;
   resetLightmap(lightMap, globalLight);
   if (globalLight >= 1) return;
-  // spike death
-  if (gameState.isSpikeDeathing) {
+  // spike death, trapped, etc.
+  if (gameState.isDeathIlluminating) {
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
-      const mortalRuin = false
-        || es.threatsMap[coord] === ThreatType.Spikes
-        || es.threatsMap[coord] === ThreatType.WallSpikes
-        || es.threatsMap[coord] === ThreatType.Saw;
-      const playerAtCoord = getCoordIndex(playerPosition) === coord || segments?.existsAtCoord(coord);
-      if (mortalRuin && playerAtCoord) {
+      if (es.deathIlluminationMap[coord]) {
         const x = Math.floor(coord % GRIDCOUNT_X);
         const y = Math.floor(coord / GRIDCOUNT_X);
         addBlocklight(lightMap, x, y, { strength: 1 });
-        addSpotlight(lightMap, x, y, { strength: 0.5, radius: 1, falloff: 4 });
+        addSpotlight(lightMap, x, y, { strength: 0.35, radius: 1, falloff: 4 });
       }
     }
     return;

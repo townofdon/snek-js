@@ -61,7 +61,7 @@ describe('editorUtils', () => {
         palette: PALETTE.atomic,
         portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
         musicTrack: MusicTrack.None,
-        pipeVariant: 0,
+        pipeVariant: 1,
       }
       const data: EditorData = {
         barriersMap: {},
@@ -129,7 +129,7 @@ describe('editorUtils', () => {
           9: PortalExitMode.SameDirection,
         },
         musicTrack: MusicTrack.None,
-        pipeVariant: 0,
+        pipeVariant: 1,
       }
       const B1 = BarrierType.Default;
       const data: EditorData = {
@@ -231,7 +231,7 @@ describe('editorUtils', () => {
         palette: PALETTE.atomic,
         portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
         musicTrack: MusicTrack.None,
-        pipeVariant: 0,
+        pipeVariant: 1,
       }
       const data: EditorData = {
         barriersMap: {},
@@ -311,7 +311,7 @@ describe('editorUtils', () => {
         palette: PALETTE.atomic,
         portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
         musicTrack: MusicTrack.None,
-        pipeVariant: 0,
+        pipeVariant: 1,
       }
       const data = getEditorDataFromLayout(LEVEL_10.layout, new Vector(0, 0), DIR.UP);
       const encoded = encodeMapData(data, options);

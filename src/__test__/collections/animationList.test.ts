@@ -410,6 +410,30 @@ describe("Collections", () => {
       assert.strictEqual(items.tick(lifetime - PICKUP_EXPIRE_WARN_MS - 50), true);
       assert.strictEqual(items.getElapsed(1, 1), lifetime - PICKUP_EXPIRE_WARN_MS);
     });
+    it("should getIndexAtCoord", () => {
+      const items = new AnimationList();
+      const inputs: [number, number][] = [
+        [11, 11],
+        [1, 1],
+        [2, 2],
+        [3, 3],
+        [4, 4],
+        [5, 5],
+        [3, 7],
+        [13, 2],
+        [29, 29],
+        [0, 0],
+        [29, 0],
+      ];
+      inputs.forEach(([x, y]) => {
+        items.add(x, y, 9999, img);
+      });
+      inputs.forEach(([x, y], idx) => {
+        const got = items.getIndexAtCoord(getCoordIndex2(x, y));
+        assert(items.existsAt(x, y), `no item found for (${x}, ${y})`);
+        assert.strictEqual(idx, got, `assertion failed: item at (${x}, ${y}) expected index ${idx}, got ${got}`);
+      });
+    });
   });
 });
 

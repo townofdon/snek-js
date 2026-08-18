@@ -8,6 +8,7 @@ export const MAX_NUM_PREY = 10;
 export const FLAG_PREY_STUNNED = 1;
 export const FLAG_PREY_ELECTROCUTED = 2;
 export const FLAG_PREY_BURNED = 4;
+export const FLAG_PREY_TRAPPED = 8;
 
 interface PreyConstructorArgs {
   astar: AStar,
@@ -153,6 +154,10 @@ export class PreyList implements ICollection {
     const idx = this.coord.indexOf(coord);
     return idx >= 0 && idx < this._length;
   }
+
+  public getIndexAtCoord = (coord: number): number => {
+    return this.coord.indexOf(coord) ?? -1;
+  };
 
   public wasAt = (x: number, y: number, timeWindow: number): number => {
     return this.wasAtCoord(getCoordIndex2(x, y), timeWindow);

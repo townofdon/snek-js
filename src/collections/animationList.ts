@@ -299,6 +299,23 @@ export class AnimationList implements ICollection, IFlaggable {
     return this.existsAt(x, y, type);
   };
 
+  public getIndexAtCoord = (coord: number): number => {
+    coord = Math.floor(coord);
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
+    return this.getIndex(x, y);
+  };
+
+  public getIndex = (x: number, y: number): number => {
+    for (let i = 0; i < this.free.length; i++) {
+      if (this.free[i]) continue;
+      if (this.x[i] === x && this.y[i] === y) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   public existsAt = (x: number, y: number, type?: number): boolean => {
     const exists = this.coordMap[getCoordIndex2(x, y)] || false;
     if (isNil(type)) {

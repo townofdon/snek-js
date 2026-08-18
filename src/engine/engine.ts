@@ -138,6 +138,10 @@ import {
   buildPipesMap,
   recalculateFlamesMap,
   shouldBlinkExpiringPickup,
+  buildTrappedFloodGrid,
+  floodFillTrapped,
+  analyzeFloodFillTrappedResult,
+  makeCheckPreyCollision,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -181,7 +185,7 @@ import { LEVEL_01_HARD } from '../levels/campaign/level01hard';
 import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
 import { AStar } from '../astar/astar';
-import { FLAG_PREY_BURNED, FLAG_PREY_ELECTROCUTED, FLAG_PREY_STUNNED, PreyList } from '../collections/preyList';
+import { FLAG_PREY_BURNED, FLAG_PREY_ELECTROCUTED, FLAG_PREY_STUNNED, FLAG_PREY_TRAPPED, PreyList } from '../collections/preyList';
 import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/publishUtils';
 import { withErrorReporting } from '@/reporting';
 import { AcquirePickupParticleSystem } from './particleSystems/AcquirePickupParticleSystem';
@@ -514,6 +518,7 @@ export function engine({
     spawnApple,
     spawnArmorPickup,
     spawnMeatItem,
+    spawnLegendaryItem,
     chooseSpawnLocation,
   } = engineSpawning({
     p5,
@@ -720,7 +725,7 @@ export function engine({
     state.isExitingLevel = false;
     state.isExited = false;
     state.isInvertedColors = false;
-    state.isSpikeDeathing = false;
+    state.isDeathIlluminating = false;
     state.actualTimeElapsed = 0;
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
@@ -776,9 +781,13 @@ export function engine({
         es.nospawnsMap[getCoordIndex2(x, y)] = undefined;
         es.portalsMap[getCoordIndex2(x, y)] = undefined;
         es.keysMap[getCoordIndex2(x, y)] = undefined;
+        es.locksMap[getCoordIndex2(x, y)] = undefined;
         es.threatsMap[getCoordIndex2(x, y)] = undefined;
         es.lasersMap[getCoordIndex2(x, y)] = undefined;
         es.switchesMap[getCoordIndex2(x, y)] = undefined;
+        es.pipesMap[getCoordIndex2(x, y)] = undefined;
+        es.flamesMap[getCoordIndex2(x, y)] = undefined;
+        es.deathIlluminationMap[getCoordIndex2(x, y)] = undefined;
       }
     }
     apples.reset();
@@ -1305,9 +1314,10 @@ export function engine({
     handleSnakeTrapped(didHit && state.lives > 0);
     handleSnakeDamage(didHit && state.lives > 0);
     handleSnakeElectrocution();
-    handlePreyElectrocution();
     handleSnekFireDamage();
+    handlePreyElectrocution();
     handlePreyFireDamage();
+    handlePreyTrapped();
 
     // handle snake death
     if (state.isLost || state.lives < 0) {
@@ -1590,7 +1600,7 @@ export function engine({
       // draw to main gfx
     }
 
-    const globalLight = state.isSpikeDeathing ? 0 : (es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
+    const globalLight = state.isDeathIlluminating ? 0 : (es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
 
     if (
       state.isGameStarted &&
@@ -1599,7 +1609,7 @@ export function engine({
       !state.isInvertedColors &&
       state.timeSinceInvincibleStart >= es.difficulty.invincibilityTime
     ) {
-      updateLighting(p5.deltaTime, lightMap, globalLight, player.position, segments, es.portals, es.pickupsMap, explosions, fireTiles, state, es);
+      updateLighting(p5.deltaTime, lightMap, globalLight, player.position, es.portals, es.pickupsMap, explosions, fireTiles, state, es);
       drawLighting(lightMap, renderer, gfxLighting);
     }
 
@@ -2455,9 +2465,15 @@ export function engine({
     if (![DamageType.HitBarrier, DamageType.HitDoor, DamageType.HitSelf, DamageType.HitLock].includes(state.lastHurtBy)) return false;
     const hasHit = checkHasHit(player.position);
     let trapped = true;
+    let maxSegmentIndex = -1;
+    const visited: Record<number, boolean> = {};
+    const grid = buildTrappedFloodGrid(checkCollision, segments, player.position);
     outer:
     for (let i = 0; i <= 3; i++) {
-      if (hasHit && i === 0) continue;
+      // skip checking adjacent tiles around player position when their current pos overlaps a collidable tile
+      if (hasHit && i === 0) {
+        continue;
+      }
       const pos = i === 0 ? player.position : segments.get(i - 1);
       for (let i = 0; i < 4; i++) {
         let dir = DIR.UP;
@@ -2465,11 +2481,28 @@ export function engine({
         if (i === 2) dir = DIR.DOWN;
         if (i === 3) dir = DIR.LEFT;
         const test = pos.copy().add(dirToUnitVector(dir));
+        if (visited[getCoordIndex(test)]) {
+          continue;
+        }
         if (!test.equals(player.position) && !checkHasHit(test)) {
-          trapped = false;
-          break outer;
+          const result = floodFillTrapped(getCoordIndex(test), 10, grid, visited);
+          trapped = analyzeFloodFillTrappedResult(result, segments.length);
+          if (trapped && result.maxSegmentIndex > maxSegmentIndex) {
+            maxSegmentIndex = result.maxSegmentIndex;
+          }
+          if (!trapped) {
+            break outer;
+          }
         }
       }
+    }
+    if (trapped) {
+      es.deathIlluminationMap[getCoordIndex(player.position)] = true;
+      Object.entries(visited).forEach(([idxStr, vis]) => {
+        if (vis && !Number.isNaN(Number(idxStr))) {
+          es.deathIlluminationMap[Number(idxStr)] = true;
+        }
+      });
     }
     return trapped;
   }
@@ -2477,6 +2510,10 @@ export function engine({
   // if snake has trapped itself, die immediately
   function handleSnakeTrapped(didReceiveDamage: boolean) {
     if (!didReceiveDamage) return;
+    if (state.isExitingLevel || state.isExited) return;
+    if (state.isLost) return;
+    if (state.isDeathIlluminating) return;
+    if (actionRunning(Action.EpicDeath)) return;
     if (state.gameMode === GameMode.Casual) return;
     const trapped = isSnakeTrapped();
     if (!trapped) {
@@ -2495,15 +2532,46 @@ export function engine({
       playSound(Sound.hurtSave);
       return;
     }
-    applyDamage(100);
-    playSound(Sound.hurt3);
+    playSound(Sound.stab);
+    startAction(epicDeathRoutine(), Action.EpicDeath);
+  }
+
+  function handlePreyTrapped() {
+    const checkPreyCollision = makeCheckPreyCollision(es, state, segments, player.position);
+    const visited: Record<number, boolean> = {};
+    const grid = buildTrappedFloodGrid(checkPreyCollision, segments, player.position);
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      const x = getCoordX(coord);
+      const y = getCoordY(coord);
+      if (preyList.existsAtCoord(coord) && !preyList.hasFlagAt(x, y, FLAG_PREY_TRAPPED)) {
+        const result = floodFillTrapped(coord, 4, grid, visited);
+        const trapped = !result.didFill;
+        if (trapped) {
+          coroutines.start(trapPreyRoutine(x, y));
+        }
+      }
+    }
+  }
+
+  function* trapPreyRoutine(x: number, y: number): IEnumerator {
+    preyList.addFlagAt(x, y, FLAG_PREY_TRAPPED);
+    preyList.addFlagAt(x, y, FLAG_PREY_STUNNED);
+    preyList.addFlagAt(x, y, FLAG_PREY_ELECTROCUTED);
+    yield* actions.waitForTime(500);
+    if (!preyList.existsAt(x, y)) return;
+    preyList.remove(x, y);
+    const smokeLifetime = lerp(SMOKE_LIFETIME * 0.5, SMOKE_LIFETIME, Math.random());
+    smoke.add(x, y, smokeLifetime, SpritesheetRange.BigSmokeActive, SmokeType.Large);
+    spawnLegendaryItem(x, y);
+    drawState.shouldDrawActionFG = true;
+    drawState.shouldDrawApples = true;
   }
 
   function handleSnakeSpikeDeath() {
     if (state.isExitingLevel || state.isExited) return;
     if (state.isLost) return;
-    if (state.isSpikeDeathing) return;
-    if (actionRunning(Action.SpikeDeath)) return;
+    if (state.isDeathIlluminating) return;
+    if (actionRunning(Action.EpicDeath)) return;
     if (state.isButtonPressed) return;
     if (state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) return;
     if (state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY) return;
@@ -2519,22 +2587,22 @@ export function engine({
         state.lastHurtBy = es.threatsMap[coord] === ThreatType.Saw ? DamageType.SawCut : DamageType.SpikePierce;
         es.level.deathLocations ||= {};
         es.level.deathLocations[coord] = true;
+        es.deathIlluminationMap[coord] = true;
       }
     }
     if (instadeath) {
-      startAction(spikeDeathRoutine(), Action.SpikeDeath);
+      playSound(Sound.stab);
+      startAction(epicDeathRoutine(), Action.EpicDeath);
     }
   }
 
-  function* spikeDeathRoutine(): IEnumerator {
-    playSound(Sound.stab);
-    state.isSpikeDeathing = true;
+  function* epicDeathRoutine(): IEnumerator {
+    state.isDeathIlluminating = true;
     loopState.timeScale = 0;
     musicPlayer.setVolume(0);
     musicPlayer.pause(es.level.musicTrack);
-    // TODO: CONFIGURE CONSTANT
     yield* actions.waitForTime(1300);
-    state.isSpikeDeathing = false;
+    state.isDeathIlluminating = false;
     loopState.timeScale = 1;
     applyDamage(5);
     // tick one additional frame so that handleSpikeDeath is not called again.
@@ -2543,6 +2611,8 @@ export function engine({
 
   function handleSnakeDamage(didReceiveDamage: boolean) {
     if (!didReceiveDamage) return;
+    if (state.isDeathIlluminating) return;
+    if (actionRunning(Action.EpicDeath)) return;
     // snake will perish soon enough.
     if (state.lastHurtBy === DamageType.SawCut || state.lastHurtBy === DamageType.SpikePierce) {
       return;
@@ -2580,7 +2650,6 @@ export function engine({
   }
 
   function handlePreyElectrocution() {
-    if (state.isSpikeDeathing) return;
     if (state.isButtonPressed) return;
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
       const x = getCoordX(coord);
@@ -2609,6 +2678,8 @@ export function engine({
 
   function handleSnakeElectrocution(): void {
     if (state.isButtonPressed) return;
+    if (state.isDeathIlluminating) return;
+    if (actionRunning(Action.EpicDeath)) return;
     if (state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY) return;
     if (state.isExitingLevel) return;
     if (state.isLost) return;
@@ -2724,6 +2795,8 @@ export function engine({
 
   function handleSnekFireDamage() {
     if (state.isButtonPressed) return;
+    if (state.isDeathIlluminating) return;
+    if (actionRunning(Action.EpicDeath)) return;
     if (state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY) return;
     if (state.isExitingLevel) return;
     if (state.isLost) return;
