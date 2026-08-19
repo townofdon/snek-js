@@ -16,7 +16,7 @@
     <%= htmlWebpackPlugin
       .tags
       .headTags
-      .filter((tag) => tag.attributes?.src?.includes('main.bundle'))
+      .filter((tag) => tag.attributes?.src?.includes('dev.bundle'))
       .join('')
     %>
   </head>
@@ -37,6 +37,13 @@
 
         <div id="settings-menu-v2" class="position-absolute fill">
           <!-- React UI V2 -->
+        </div>
+
+        <div id="start-screen" class="start-screen" style="width: 960px; height: 960px;" width="960" height="960">
+          <!-- <img alt="SNEK" class="start-screen-title" src="../assets/graphics/snek-title-red-sm.png" width="614.4" height="204.8" /> -->
+          <h1 class="minimood center" style="font-size: 4em; color:aqua">SNEK DEV</h1>
+          <button id="start-screen-start-button" class="start">start game</button>
+          <p class="press-enter"><span>[ PRESS ENTER ]</span></p>
         </div>
 
         <div id="modal-highscore-entry" class="modal hidden">

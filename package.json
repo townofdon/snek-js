@@ -14,7 +14,7 @@
     "deploy-gh-pages": "echo \"Deprecated: run 'npm run deploy'\" && exit 1",
     "deploy-prod-manual": "npm run build && cd bin && ./deploy.sh",
     "bundle": "cd bin && ./bundle.sh",
-    "watch": "NODE_ENV=development webpack --watch --config-node-env=development"
+    "watch": "NODE_ENV=development webpack --watch --config-node-env=development --env local"
   },
   "browser": {
     "crypto": false
