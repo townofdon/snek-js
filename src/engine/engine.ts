@@ -807,6 +807,7 @@ export function engine({
     particles10.reset();
     astar.reset();
     preyList.reset();
+    pointsAnim.reset();
 
     if (es.level.layoutV2?.length) {
       try {
