@@ -19,7 +19,8 @@ import { DEFAULT_GAME_STATE } from '@/defaults';
 
 const levelData = buildLevel(LEVEL_01);
 
-export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions } = {
+export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions, selected: Record<number, boolean> } = {
+  selected: {},
   data: {
     applesMap: {},
     threatsMap: {},

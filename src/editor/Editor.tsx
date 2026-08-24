@@ -11,6 +11,7 @@ import { Tile } from "./editorTypes";
 import { useRefState } from "./hooks/useRefState";
 import { useLoadMapData } from "./hooks/useLoadMapData";
 import {
+  ClearSelectedCommand,
   Command,
   DeleteElementCommand,
   DeleteLineCommand,
@@ -65,6 +66,7 @@ import {
   SetRectangleSwitchCommand,
   SetRectangleThreatCommand,
   SetReversibilityCommand,
+  SetSelectedCommand,
   SetSwitchCommand,
   SetThreatCommand,
 } from "./commands";
@@ -81,9 +83,9 @@ import { useUpdateUrl } from "./hooks/useUpdateUrl";
 import { SidebarBarrierTypes } from "./SidebarBarrierTypes";
 import { Stack } from "@/components/Stack";
 import { DropdownField, Option } from "@/components/Field";
+import { SidebarThreatTypes } from "./SidebarThreatTypes";
 
 import * as styles from "./Editor.css";
-import { SidebarThreatTypes } from "./SidebarThreatTypes";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -98,12 +100,13 @@ export const Editor = () => {
   const [difficulty, setDifficulty] = useState<DifficultyIndex>(3);
   const [options, optionsRef, setOptions] = useRefState<EditorOptions>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
+  const [selected, selectedRef, setSelected] = useRefState(EDITOR_DEFAULTS.selected);
   const [pastCommands, pastCommandsRef, setPastCommands] = useRefState<Command[]>([]);
   const [futureCommands, futureCommandsRef, setFutureCommands] = useRefState<Command[]>([]);
   const [, lastCoordUpdatedRef, setLastCoordUpdated] = useRefState(-1);
-  const [mouseAt, mouseAtRef, setMouseAt] = useRefState(-1);
-  const [mouseFrom, mouseFromRef, setMouseFrom] = useRefState(-1);
-  const [, mousePressedRef, setMousePressed] = useRefState(false);
+  const [mouseAt, mouseAtRef, setMouseAt] = useRefState(-1); // computed grid coord of current mouse position
+  const [mouseFrom, mouseFromRef, setMouseFrom] = useRefState(-1); // computed grid coord of clicked mouse position
+  const [mousePressed, mousePressedRef, setMousePressed] = useRefState(false);
   const [, triggerOnReleaseRef, setTriggerOnRelease] = useRefState(false);
   const [, shiftPressedRef, setShiftPressed] = useRefState(false);
   const [, altPressedRef, setAltPressed] = useRefState(false);
@@ -117,6 +120,7 @@ export const Editor = () => {
 
   const hasUndo = !!pastCommands.length;
   const hasRedo = !!futureCommands.length;
+  const anySelected = Object.keys(selected).some(key => !!selected[key]);
 
   useLoadMapData({ setData, setOptions, setPastCommands, setFutureCommands, setInitialized });
   const isSynced = useUpdateUrl({ initialized, data, options });
@@ -385,7 +389,7 @@ export const Editor = () => {
       const to = mouseAtRef.current;
       return new DeleteRectangleCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
     } else if (
-      toolRef.current === EditorTool.Eraser && operation === Operation.Write ||
+      toolRef.current === EditorTool.Eraser && (operation === Operation.Write || operation === Operation.Remove) ||
       toolRef.current === EditorTool.Pencil && operation === Operation.Remove
     ) {
       const coord = mouseAtRef.current;
@@ -415,6 +419,16 @@ export const Editor = () => {
           setData,
         );
       }
+    } else if (toolRef.current === EditorTool.Select) {
+      if (mouseFromRef.current === -1) return new NoOpCommand();
+      if (mouseAtRef.current === -1) return new NoOpCommand();
+      const from = mouseFromRef.current;
+      const to = mouseAtRef.current;
+      const rollbackLastCoordUpdated = () => {
+        setLastCoordUpdated(from);
+        setMouseFrom(from);
+      }
+      return new SetSelectedCommand(from, to, selectedRef.current, operation, setSelected, rollbackLastCoordUpdated);
     }
     throw Error('not implemented');
   }
@@ -426,6 +440,19 @@ export const Editor = () => {
       setPastCommands(prev => [...prev, command]);
       setFutureCommands([]);
     }
+  }
+
+  const handleClearSelected = () => {
+    const hasAnySelected = Object.keys(selectedRef.current).some(key => !!selectedRef.current[key]);
+    if (!hasAnySelected) return new NoOpCommand();
+    const command = new ClearSelectedCommand(selectedRef.current, setSelected);
+    executeCommand(command);
+    toast(`Selection Cleared`, {
+      icon: "✓",
+      duration: 2500,
+      position: "bottom-right",
+      className: styles.toastRedo,
+    });
   }
 
   const updateMap = () => {
@@ -468,8 +495,14 @@ export const Editor = () => {
       if (mousePressedRef.current) return Operation.Write;
       return Operation.None;
     }
+    if (toolRef.current === EditorTool.Select) {
+      if (mousePressedRef.current && altPressedRef.current) return Operation.Remove;
+      if (mousePressedRef.current && shiftPressedRef.current) return Operation.Add;
+      if (mousePressedRef.current) return Operation.Write;
+      return Operation.None;
+    }
     const isImmediateRemovableTool = [EditorTool.Pencil, EditorTool.Eraser, EditorTool.Bucket].includes(toolRef.current);
-    const isImmediateAdditiveTool = [EditorTool.Pencil, EditorTool.Eraser].includes(toolRef.current)
+    const isImmediateAdditiveTool = [EditorTool.Pencil, EditorTool.Eraser].includes(toolRef.current);
     if (altPressedRef.current && (isImmediateRemovableTool || mousePressedRef.current)) return Operation.Remove;
     if (shiftPressedRef.current && isImmediateAdditiveTool) return Operation.Add;
     if (mousePressedRef.current) return Operation.Write;
@@ -508,7 +541,7 @@ export const Editor = () => {
     }
     setMousePressed(ev.nativeEvent.button === MouseButton.Left);
     setMouseFrom(mouseAtRef.current);
-    if ([EditorTool.Rectangle, EditorTool.Line].includes(toolRef.current)) {
+    if ([EditorTool.Rectangle, EditorTool.Line, EditorTool.Select].includes(toolRef.current)) {
       setTriggerOnRelease(true);
     }
     if ([EditorTool.Pencil, EditorTool.Bucket, EditorTool.Eraser].includes(toolRef.current)) {
@@ -518,7 +551,7 @@ export const Editor = () => {
 
   const handleMouseUp = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const isValidRelease = mousePressedRef.current && state.current.isMouseInsideMap && triggerOnReleaseRef.current;
-    if (isValidRelease && [EditorTool.Rectangle, EditorTool.Line].includes(toolRef.current)) {
+    if (isValidRelease && [EditorTool.Rectangle, EditorTool.Line, EditorTool.Select].includes(toolRef.current)) {
       updateMap();
     }
     setMousePressed(false);
@@ -538,12 +571,15 @@ export const Editor = () => {
     const cancelOperation = isCharPressed(ev, SpecialKey.Escape) || isCharPressed(ev, SpecialKey.Backspace) || isCharPressed(ev, SpecialKey.Delete)
     if (mousePressedRef.current && cancelOperation) {
       setMousePressed(false);
-    setTriggerOnRelease(false);
+      setTriggerOnRelease(false);
     } else if (isCharPressed(ev, 'z', { ctrlKey: true, shiftKey: true }) || isCharPressed(ev, 'y', { ctrlKey: true })) {
       redo();
       ev.preventDefault();
     } else if (isCharPressed(ev, 'z', { ctrlKey: true })) {
       undo();
+      ev.preventDefault();
+    } else if (isCharPressed(ev, 'd', { ctrlKey: true })) {
+      handleClearSelected();
       ev.preventDefault();
     } else if (
       isNumberPressed(ev, 0, { shiftKey: true }) || 
@@ -689,10 +725,12 @@ export const Editor = () => {
       <div className={styles.editorContainer}>
         <EditorCanvas
           data={data}
+          selected={selected}
           options={options}
           canvas={canvas}
           mouseAt={mouseAt}
           mouseFrom={mouseFrom}
+          mousePressed={mousePressed}
           tile={tile}
           tool={tool}
           isPreviewShowing={isPreviewShowing}
@@ -701,6 +739,7 @@ export const Editor = () => {
           handleMouseLeave={handleMouseLeave}
           handleMouseDown={handleMouseDown}
           handleMouseUp={handleMouseUp}
+          handleClearSelected={handleClearSelected}
           editorTiles={<EditorTiles activeTile={tile} setTile={setTile} />}
           editorTools={
             <EditorTools
@@ -792,6 +831,14 @@ export const Editor = () => {
           },
         }}
       />
+      {anySelected && (
+        <button
+          className={styles.clearSelectedButton}
+          onClick={handleClearSelected}
+        >
+          Clear Selection
+        </button>
+      )}
     </div>
   );
 };

@@ -13,9 +13,11 @@ import * as styles from "./Editor.css";
 
 interface EditorCanvasProps {
   data: EditorData;
+  selected: Record<number, boolean>;
   options: EditorOptions;
   mouseAt: number;
   mouseFrom: number;
+  mousePressed: boolean;
   tool: EditorTool;
   tile: Tile;
   operation: Operation;
@@ -24,6 +26,7 @@ interface EditorCanvasProps {
   handleMouseLeave: React.MouseEventHandler<HTMLDivElement>;
   handleMouseDown: React.MouseEventHandler<HTMLDivElement>;
   handleMouseUp: React.MouseEventHandler<HTMLDivElement>;
+  handleClearSelected: () => void;
   editorTiles: React.ReactNode;
   editorTools: React.ReactNode;
   tileSidebar: React.ReactNode | null;
@@ -32,9 +35,11 @@ interface EditorCanvasProps {
 
 export const EditorCanvas = ({
   data,
+  selected,
   options,
   mouseAt,
   mouseFrom,
+  mousePressed,
   tool,
   tile,
   operation,
@@ -43,6 +48,7 @@ export const EditorCanvas = ({
   handleMouseLeave,
   handleMouseDown,
   handleMouseUp,
+  handleClearSelected,
   editorTiles,
   editorTools,
   tileSidebar,
@@ -66,6 +72,12 @@ export const EditorCanvas = ({
   }, [data]);
 
   useLayoutEffect(() => {
+    if (sketch.current) {
+      sketch.current.setSelected(selected);
+    }
+  }, [selected]);
+
+  useLayoutEffect(() => {
     clearTimeout(syncOptionsTimeout.current);
     if (sketch.current) {
       syncOptionsTimeout.current = setTimeout(() => {
@@ -78,11 +90,12 @@ export const EditorCanvas = ({
     if (sketch.current) {
       sketch.current.setMouseAt(mouseAt);
       sketch.current.setMouseFrom(mouseFrom);
+      sketch.current.setMousePressed(mousePressed);
       sketch.current.setTool(tool);
       sketch.current.setOperation(operation);
       sketch.current.setShowingPreview(isPreviewShowing);
     }
-  }, [mouseAt, mouseFrom, tool, operation, isPreviewShowing]);
+  }, [mouseAt, mouseFrom, mousePressed, tool, operation, isPreviewShowing]);
 
   useEffect(() => {
     return () => {

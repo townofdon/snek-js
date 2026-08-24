@@ -525,6 +525,13 @@ button,
   margin-left: 40px;
 }
 
+.clearSelectedButton {
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  z-index: 99999999;
+}
+
 .syncText {
   display: flex;
   align-items: center;

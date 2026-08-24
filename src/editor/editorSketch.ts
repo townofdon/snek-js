@@ -7,6 +7,7 @@ import {
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
   INVINCIBILITY_COLOR_CYCLE_MS,
+  MAP_OFFSET,
   NUM_SNAKE_INVINCIBLE_COLORS,
   PICKUP_SPRITE_FRAME_MAP,
   SNAKE_INVINCIBLE_COLORS,
@@ -94,6 +95,7 @@ export interface EditorState {
   extendedPalette: ExtendedPalette,
   mouseAt: number,
   mouseFrom: number,
+  mousePressed: boolean,
   operation: Operation,
   tool: EditorTool,
 }
@@ -101,9 +103,11 @@ export interface EditorState {
 export interface EditorSketchReturn {
   setMouseAt: (coord: number) => void,
   setMouseFrom: (coord: number) => void,
+  setMousePressed: (val: boolean) => void,
   setOperation: (val: Operation) => void,
   setTool: (tool: EditorTool) => void,
   setData: (data: EditorData) => void,
+  setSelected: (selected: Record<number, boolean>) => void,
   setOptions: (options: EditorOptions) => void,
   setShowingPreview: (val: boolean) => void,
   cleanup: () => void,
@@ -117,6 +121,7 @@ export interface ExtendedSketchData extends EditorData {
 }
 
 export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): EditorSketchReturn => {
+  const selected: Record<number, boolean> = {};
   const data: ExtendedSketchData = {
     barriersMap: {},
     passablesMap: {},
@@ -150,6 +155,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     dirty: true,
     colorsDirty: true,
     extendedPalette: getExtendedPalette(options.palette),
+    mousePressed: false,
     mouseAt: -1,
     mouseFrom: -1,
     operation: Operation.None,
@@ -162,6 +168,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
   const setMouseFrom = (incoming: number): void => {
     state.mouseFrom = incoming;
   }
+  const setMousePressed = (incoming: boolean): void => {
+    state.mousePressed = incoming;
+  }
   const setOperation = (incoming: Operation): void => {
     state.operation = incoming;
   }
@@ -170,6 +179,14 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
   }
   const setShowingPreview = (incoming: boolean): void => {
     state.showingPreview = incoming;
+  }
+  const setSelected = (incoming: Record<number, boolean>): void => {
+    Object.keys(incoming).concat(Object.keys(selected)).forEach((key) => {
+      if (selected[key] !== incoming[key]) {
+        selected[key] = !!incoming[key];
+        state.dirty = true;
+      }
+    });
   }
   const setData = (incoming: EditorData): void => {
     const getIsDiff = (key: keyof EditorData): boolean => {
@@ -730,6 +747,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       }
 
       drawEditorSelection();
+      drawSelected(gameState.actualTimeElapsed);
 
       renderer.tick();
       gameState.timeElapsed += p5.deltaTime;
@@ -882,11 +900,11 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         } else {
           spriteRenderer.drawImage3x3(Image.EditorSelectionRed, to.x, to.y, 0, 1, 0);
         }
-      } else if (state.tool === EditorTool.Line || state.tool === EditorTool.Rectangle) {
+      } else if (state.tool === EditorTool.Line || state.tool === EditorTool.Rectangle || state.tool === EditorTool.Select) {
         if (state.operation === Operation.Remove) {
           spriteRenderer.drawImage3x3(Image.EditorSelectionRed, from.x, from.y, 0, 1, 0);
           spriteRenderer.drawImage3x3(Image.EditorSelectionRed, to.x, to.y, 0, 1, 0);
-        } else if (state.operation !== Operation.None) {
+        } else if (state.operation === Operation.Write || state.operation === Operation.Add) {
           spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, from.x, from.y, 0, 1, 0);
           spriteRenderer.drawImage3x3(Image.EditorSelection, to.x, to.y, 0, 1, 0);
         } else {
@@ -909,11 +927,50 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         renderer.drawLine(p5, from.x, from.y, to.x, to.y, color);
       }
       // preview fill
-      if (state.mouseFrom >= 0 && state.tool === EditorTool.Rectangle && state.operation !== Operation.None) {
+      if (state.mouseFrom >= 0 && (state.tool === EditorTool.Rectangle || state.tool === EditorTool.Select) && state.operation !== Operation.None) {
         const color = state.operation === Operation.Remove ? '#ff330044' : '#00aaff44';
         for (let y = Math.min(from.y, to.y); y <= Math.max(from.y, to.y); y++) {
           for (let x = Math.min(from.x, to.x); x <= Math.max(from.x, to.x); x++) {
             renderer.drawBasicSquareCustom(p5, x, y, p5.color(color), 1);
+          }
+        }
+      }
+    }
+
+    function drawSelected(elapsed: number) {
+      const cycle = (elapsed / 400) % 2 > 1;
+      const dashLength = BLOCK_SIZE_X / 6;
+      const dashOffset = cycle
+        ? 0
+        : dashLength / 2;
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
+          if (!selected[getCoordIndex2(x, y)]) continue;
+          const neighborUp = y > 0 && selected[getCoordIndex2(x, y-1)];
+          const neighborDown = y < GRIDCOUNT_Y-1 && selected[getCoordIndex2(x, y+1)];
+          const neighborLeft = x > 0 && selected[getCoordIndex2(x-1, y)];
+          const neighborRight = x < GRIDCOUNT_X-1 && selected[getCoordIndex2(x+1, y)];
+          const width = BLOCK_SIZE_X;
+          const height = BLOCK_SIZE_Y;
+          const x0 = MAP_OFFSET + x * BLOCK_SIZE_X;
+          const x1 = MAP_OFFSET + x * BLOCK_SIZE_X + width;
+          const y0 = MAP_OFFSET + y * BLOCK_SIZE_Y;
+          const y1 = MAP_OFFSET + y * BLOCK_SIZE_Y + height;
+          if (!neighborUp) {
+            // draw top border
+            renderer.drawAbsoluteDashedLine(p5, x0, y0, x1, y0, dashLength, dashOffset, '#eee');
+          }
+          if (!neighborDown) {
+            // draw bottom border
+            renderer.drawAbsoluteDashedLine(p5, x0, y1, x1, y1, dashLength, dashOffset, '#eee');
+          }
+          if (!neighborLeft) {
+            // draw left border
+            renderer.drawAbsoluteDashedLine(p5, x0, y0, x0, y1, dashLength, dashOffset, '#eee');
+          }
+          if (!neighborRight) {
+            // draw right border
+            renderer.drawAbsoluteDashedLine(p5, x1, y0, x1, y1, dashLength, dashOffset, '#eee');
           }
         }
       }
@@ -996,9 +1053,11 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
   return {
     setData,
+    setSelected,
     setOptions,
     setMouseAt,
     setMouseFrom,
+    setMousePressed,
     setOperation,
     setTool,
     setShowingPreview,

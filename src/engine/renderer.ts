@@ -476,6 +476,18 @@ export class Renderer implements IRenderer {
     gfx.line(px0, py0, px1, py1);
   }
 
+  public drawAbsoluteDashedLine(gfx: P5 | P5.Graphics, x0: number, y0: number, x1: number, y1: number, dashLength: number, dashOffset: number, color: string) {
+    gfx.stroke(color);
+    gfx.strokeWeight(2);
+    gfx.noFill();
+    (gfx.drawingContext as CanvasRenderingContext2D).lineDashOffset = dashOffset;
+    (gfx.drawingContext as CanvasRenderingContext2D).setLineDash([dashLength]);
+    gfx.strokeCap(this.p5.SQUARE);
+    gfx.line(x0, y0, x1, y1);
+    // reset
+    (gfx.drawingContext as CanvasRenderingContext2D).setLineDash([]);
+  }
+
   /**
    * Draw red squares on level to indicate that we are in Record mode
    */

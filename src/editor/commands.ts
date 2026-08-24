@@ -1,10 +1,41 @@
 import { Vector } from "p5";
 
 import { SetStateValue, Tile } from "./editorTypes";
-import { BarrierType, DIR, EditorData, EditorDataSlice, EditorOptions, KeyChannel, Level, Palette, PickupType, PipeVariant, PortalChannel, SwitchType, ThreatType } from "../types";
-import { coordToVec, getCoordIndex, getCoordIndex2, inverseLerp, isValidBarrierType, isValidKeyChannel, isValidPortalChannel, isValidSwitchType, isValidThreatType, lerp } from "../utils";
-import { deepCloneData, getEditorDataFromLevel, mergeData, mergeDataSlice } from "./utils/editorUtils";
+import {
+  BarrierType,
+  DIR,
+  EditorData,
+  EditorDataSlice,
+  EditorOptions,
+  KeyChannel,
+  Level,
+  Palette,
+  PickupType,
+  PipeVariant,
+  PortalChannel,
+  SwitchType,
+  ThreatType,
+} from "../types";
+import {
+  coordToVec,
+  getCoordIndex,
+  getCoordIndex2,
+  inverseLerp,
+  isValidBarrierType,
+  isValidKeyChannel,
+  isValidPortalChannel,
+  isValidSwitchType,
+  isValidThreatType,
+  lerp,
+} from "../utils";
+import {
+  deepCloneData,
+  getEditorDataFromLevel,
+  mergeData,
+  mergeDataSlice,
+} from "./utils/editorUtils";
 import { tileFloodFill } from "./utils/floodFill";
+import { Operation } from "./editorSketch";
 
 /**
  * THE COMMAND PATTERN
@@ -24,6 +55,7 @@ export class NoOpCommand implements Command {
 }
 
 export type SetData = (setter: SetStateValue<EditorData>) => void
+export type SetSelected = (setter: SetStateValue<Record<number, boolean>>) => void
 export type RollbackLastCoordUpdated = () => void
 
 abstract class SetElementCommand implements Command {
@@ -1200,4 +1232,77 @@ export class FloodFillEmptyCommand extends FloodFillCommand {
   ) {
     super(Tile.None, x, y, 0, 0, 0, 0, 0, dataRef, setData);
   }
+}
+
+export class SetSelectedCommand implements Command {
+  public readonly name = "Set Selection";
+  private readonly initial: Record<number, boolean>;
+  private readonly newData: Record<number, boolean>;
+  private readonly setSelected: SetSelected;
+  private readonly rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined;
+  public constructor(from: number, to: number, selection: Record<number, boolean>, operation: Operation, setSelected: SetSelected, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    this.setSelected = setSelected;
+    this.rollbackLastCoordUpdated = rollbackLastCoordUpdated;
+    this.initial = { ...selection };
+    if (operation === Operation.None) {
+      this.newData = null;
+      return;
+    }
+    const coords: number[] = [];
+    const vec = {
+      from: coordToVec(from),
+      to: coordToVec(to),
+    }
+    for (let y = Math.min(vec.from.y, vec.to.y); y <= Math.max(vec.from.y, vec.to.y); y++) {
+      for (let x = Math.min(vec.from.x, vec.to.x); x <= Math.max(vec.from.x, vec.to.x); x++) {
+        coords.push(getCoordIndex2(x, y));
+      }
+    }
+    if (operation === Operation.Add) {
+      this.newData = { ...selection };
+      coords.forEach(coord => {
+        this.newData[coord] = true;
+      });
+    } else if (operation === Operation.Remove) {
+      this.newData = { ...selection };
+      coords.forEach(coord => {
+        this.newData[coord] = false;
+      });
+    } else if (operation === Operation.Write) {
+      this.newData = {};
+      coords.forEach(coord => {
+        this.newData[coord] = true;
+      });
+    }
+  }
+  execute = () => {
+    if (!this.newData) {
+      return false;
+    }
+    this.setSelected(this.newData);
+    return true;
+  };
+  rollback = () => {
+    if (this.rollbackLastCoordUpdated) {
+      this.rollbackLastCoordUpdated();
+    }
+    this.setSelected(this.initial);
+  };
+}
+
+export class ClearSelectedCommand implements Command {
+  public readonly name = 'Clear Selection';
+  private initialData: Record<number, boolean>;
+  private setSelected: SetSelected;
+  public constructor(selected: Record<number, boolean>, setSelected: SetSelected) {
+    this.initialData = { ...selected };
+    this.setSelected = setSelected;
+  }
+  execute = () => {
+    this.setSelected({});
+    return true;
+  };
+  rollback = () => {
+    this.setSelected(this.initialData);
+  };
 }
