@@ -5,7 +5,7 @@
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url('assets/graphics/editor-tools-200.png');
-  --editor-tool-sprite-background-size: 864px 48px; /* width = img_width / 64 * 48 */
+  --editor-tool-sprite-background-size: 1056px 48px; /* width = img_width / 64 * 48 */
   --editor-tool-sprite-width: 48px;
   --editor-tool-sprite-height: 48px;
   --editor-bg-color: #111;
@@ -117,7 +117,7 @@ button,
   padding: 0;
   margin: 0;
   transform: translateY(7px);
-  margin-left: 127px;
+  /* margin-left: 127px; */
 }
 
 .canvasContainer {
@@ -300,9 +300,10 @@ button,
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding-bottom: 3px;
   width: 100%;
+  gap: 18px;
 
   & .tooltip {
     display: none !important;
@@ -321,9 +322,6 @@ button,
   & .tooltip.red {
     color: #f80;
   }
-}
-.editorToolsOffset {
-  margin-left: 39px;
 }
 .editorToolSprite {
   display: inline-flex;
@@ -379,6 +377,18 @@ button,
   }
   &.bucket {
     background-position-x: calc(-17 * var(--editor-tool-sprite-width));
+  }
+  &.select.active {
+    background-position-x: calc(-18 * var(--editor-tool-sprite-width));
+  }
+  &.select {
+    background-position-x: calc(-19 * var(--editor-tool-sprite-width));
+  }
+  &.move.active {
+    background-position-x: calc(-20 * var(--editor-tool-sprite-width));
+  }
+  &.move {
+    background-position-x: calc(-21 * var(--editor-tool-sprite-width));
   }
   &.bomb.active,
   &.bomb:active,

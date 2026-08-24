@@ -604,6 +604,10 @@ export const Editor = () => {
       setTool(EditorTool.Bucket);
     } else if (isCharPressed(ev, 'u') || isCharPressed(ev, 'r')) {
       setTool(EditorTool.Rectangle);
+    } else if (isCharPressed(ev, 'm')) {
+      setTool(EditorTool.Select);
+    } else if (isCharPressed(ev, 'v')) {
+      setTool(EditorTool.Move);
     } else if (isCharPressed(ev, SpecialKey.ArrowUp, { shiftKey: true })) {
       setData(prev => ({ ...prev, startDirection: DIR.UP }));
     } else if (isCharPressed(ev, SpecialKey.ArrowDown, { shiftKey: true })) {

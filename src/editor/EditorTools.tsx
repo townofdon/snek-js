@@ -51,7 +51,7 @@ export const EditorTools = ({
     }
   };
   const renderTool = (tool: EditorTool) => {
-    const toolClassName = {
+    const toolClassName = ({
       [EditorTool.Bucket]: styles.bucket,
       [EditorTool.Pencil]: styles.pencil,
       [EditorTool.Eraser]: styles.eraser,
@@ -60,8 +60,10 @@ export const EditorTools = ({
       [EditorTool.Bomb]: styles.bomb,
       [EditorTool.Undo]: styles.undo,
       [EditorTool.Redo]: styles.redo,
-    }[tool];
-    const toolLabel = {
+      [EditorTool.Select]: styles.select,
+      [EditorTool.Move]: styles.move,
+    } satisfies Record<EditorTool, any>)[tool];
+    const toolLabel = ({
       [EditorTool.Bucket]: "Bucket Fill",
       [EditorTool.Pencil]: "Brush",
       [EditorTool.Eraser]: "Eraser",
@@ -70,7 +72,9 @@ export const EditorTools = ({
       [EditorTool.Bomb]: "Clear Map",
       [EditorTool.Undo]: "Undo [CTRL+Z]",
       [EditorTool.Redo]: "Redo [CTRL+SHFT+Z]",
-    }[tool];
+      [EditorTool.Select]: "Select",
+      [EditorTool.Move]: "Move",
+    } satisfies Record<EditorTool, string>)[tool];
     return (
       <button
         className={cx(styles.editorToolSprite, toolClassName, {
@@ -100,12 +104,14 @@ export const EditorTools = ({
         <br />
         EDITOR
       </h1>
-      <div className={styles.editorToolsOffset}>
+      <div>
         {renderTool(EditorTool.Pencil)}
         {renderTool(EditorTool.Eraser)}
         {renderTool(EditorTool.Line)}
         {renderTool(EditorTool.Rectangle)}
         {renderTool(EditorTool.Bucket)}
+        {renderTool(EditorTool.Select)}
+        {renderTool(EditorTool.Move)}
         {renderTool(EditorTool.Undo)}
         {renderTool(EditorTool.Redo)}
         {renderTool(EditorTool.Bomb)}

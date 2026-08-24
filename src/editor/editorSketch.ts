@@ -72,6 +72,8 @@ export enum EditorTool {
   Eraser,
   Line,
   Rectangle,
+  Select,
+  Move,
   Bucket, // fill
   Bomb, // clear all
   Undo,
