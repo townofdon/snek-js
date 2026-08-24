@@ -7,7 +7,6 @@ import {
   GRIDCOUNT_X,
   GRIDCOUNT_Y,
   INVINCIBILITY_COLOR_CYCLE_MS,
-  MAP_OFFSET,
   NUM_SNAKE_INVINCIBLE_COLORS,
   PICKUP_SPRITE_FRAME_MAP,
   SNAKE_INVINCIBLE_COLORS,
@@ -952,10 +951,10 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           const neighborRight = x < GRIDCOUNT_X-1 && selected[getCoordIndex2(x+1, y)];
           const width = BLOCK_SIZE_X;
           const height = BLOCK_SIZE_Y;
-          const x0 = MAP_OFFSET + x * BLOCK_SIZE_X;
-          const x1 = MAP_OFFSET + x * BLOCK_SIZE_X + width;
-          const y0 = MAP_OFFSET + y * BLOCK_SIZE_Y;
-          const y1 = MAP_OFFSET + y * BLOCK_SIZE_Y + height;
+          const x0 = x * BLOCK_SIZE_X;
+          const x1 = x * BLOCK_SIZE_X + width;
+          const y0 = y * BLOCK_SIZE_Y;
+          const y1 = y * BLOCK_SIZE_Y + height;
           if (!neighborUp) {
             // draw top border
             renderer.drawAbsoluteDashedLine(p5, x0, y0, x1, y0, dashLength, dashOffset, '#eee');

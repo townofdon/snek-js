@@ -831,7 +831,7 @@ export const Editor = () => {
           },
         }}
       />
-      {anySelected && (
+      {anySelected && !isPreviewShowing && (
         <button
           className={styles.clearSelectedButton}
           onClick={handleClearSelected}
