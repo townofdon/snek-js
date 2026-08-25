@@ -40,6 +40,7 @@ import {
   SwitchType,
   PipeConnection,
   PipeVariant,
+  SpritesheetImage,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -59,6 +60,7 @@ import {
   isAtMapEdge,
   isValidKeyChannel,
   isValidPortalChannel,
+  outOfBounds,
   recalculateFlamesMap,
   recalculateLasersMap,
   withFlipx,
@@ -466,11 +468,11 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           const coord = getCoordIndex2(x, y);
 
           if (data.decoratives1Map[coord]) {
-            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.deco1, x, y);
+            drawDeco1(x, y);
           }
 
           if (data.decoratives2Map[coord]) {
-            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.deco2, x, y);
+            drawDeco2(x, y);
           }
 
           if (data.nospawnsMap[coord]) {
@@ -479,246 +481,42 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           }
 
           if (data.doorsMap[coord]) {
-            if (isAtMapEdge(x, y, 1)) {
-              spriteRenderer.drawImage1x1Static(gfx, Image.ThemedDoor, x, y, 0, 1, 0);
-            } else {
-              spriteRenderer.drawImage1x1Static(gfx, Image.ThemedDoorAlt, x, y, 0, 1, 0);
-              // renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.door, x, y);
-            }
+            drawDoor(x, y);
           }
 
           if (data.barriersMap[coord] && !data.passablesMap[coord]) {
-            switch (data.barriersMap[coord]) {
-              case BarrierType.FireTile:
-                spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.FireSheet, x, y, 0);
-                break;
-              case BarrierType.Skull:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 0);
-                break;
-              case BarrierType.SkullThemed:
-                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierSkull, x, y, 0, 1, 0);
-                break;
-              case BarrierType.Indent:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 2);
-                break;
-              case BarrierType.IndentThemed:
-                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierIndent, x, y, 0, 1, 0);
-                break;
-              case BarrierType.Flat:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 4);
-                break;
-              case BarrierType.FlatThemed:
-                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierFlat, x, y, 0, 1, 0);
-                break;
-              case BarrierType.Pyramid:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 6);
-                break;
-              case BarrierType.PyramidThemed:
-                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
-                break;
-              case BarrierType.ExitSign:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 11);
-                break;
-              case BarrierType.Radar:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 12);
-                break;
-              case BarrierType.ComputerChip:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 13);
-                break;
-              case BarrierType.MetalPlate:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 14);
-                break;
-              case BarrierType.Panel0:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 15);
-                break;
-              case BarrierType.Panel1:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 16);
-                break;
-              case BarrierType.Panel2:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 17);
-                break;
-              case BarrierType.Panel3:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 18);
-                break;
-              case BarrierType.Panel4:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 19);
-                break;
-              case BarrierType.Panel5:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 20);
-                break;
-              case BarrierType.Brick:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 21);
-                break;
-              case BarrierType.BrickWhite:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 22);
-                break;
-              case BarrierType.BrickThemed:
-                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierBrick, x, y, 0, 1, 0);
-                break;
-              case BarrierType.Stone:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 24);
-                break;
-              case BarrierType.StoneThemed:
-                spriteRenderer.drawImage1x1Static(gfx, Image.ThemedBarrierStone, x, y, 0, 1, 0);
-                break;
-              case BarrierType.PanelWhite:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 27);
-                break;
-              case BarrierType.CompPanel:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 28);
-                break;
-              case BarrierType.GrateWhite:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 29);
-                break;
-              case BarrierType.GrateYellow:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 30);
-                break;
-              case BarrierType.Ruby:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 31);
-                break;
-              case BarrierType.FanDuct:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 32);
-                break;
-              case BarrierType.ExhaustPlate:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 33);
-                break;
-              case BarrierType.MetalPlate2:
-                spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, 34);
-                break;
-              case BarrierType.Default:
-              default:
-                renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);
-                break;
-            }
+            drawBarrier(x, y, data.barriersMap[coord]);
           }
+
 
           if (isValidKeyChannel(data.locksMap[coord])) {
             const channel = data.locksMap[coord];
-            if (channel === KeyChannel.Yellow) {
-              spriteRenderer.drawSprite1x1Static(gfx, Image.LockSheet, x, y, 3);
-            } else if (channel === KeyChannel.Red) {
-              spriteRenderer.drawSprite1x1Static(gfx, Image.LockSheet, x, y, 2);
-            } else if (channel === KeyChannel.Blue) {
-              spriteRenderer.drawSprite1x1Static(gfx, Image.LockSheet, x, y, 1);
-            }
+            drawLock(x, y, channel);
           }
 
           if (isValidKeyChannel(data.keysMap[coord])) {
             const channel = data.keysMap[coord];
-            if (channel === KeyChannel.Yellow) {
-              spriteRenderer.drawSprite1x1Static(gfx, Image.KeySheet, x, y, 3);
-            } else if (channel === KeyChannel.Red) {
-              spriteRenderer.drawSprite1x1Static(gfx, Image.KeySheet, x, y, 2);
-            } else if (channel === KeyChannel.Blue) {
-              spriteRenderer.drawSprite1x1Static(gfx, Image.KeySheet, x, y, 1);
-            }
+            drawKey(x, y, channel);
           }
 
           if (data.applesMap[coord]) {
             spriteRenderer.drawSprite1x1(gfx, Image.ThemedAppleSheet, x, y, 0, 0, 1);
           }
 
-          switch (data.threatsMap[coord]) {
-            case ThreatType.Mine:
-              spriteRenderer.drawSpritesheetAnim3x3Static(gfx, Image.MineSheet, x, y, 0);
-              break;
-            case ThreatType.Bomb:
-              spriteRenderer.drawSpritesheetAnim1x1Static(gfx, SpritesheetRange.Bomb, x, y, 0);
-              break;
-            case ThreatType.LaserDiode:
-              spriteRenderer.drawImage1x1Static(gfx, Image.ThreatSheet16, x, y, 0, 1, 0, Threat16Frame.DiodeBlue0 - 1, FRAME_COUNT_THREAT_16);
-              break;
-            case ThreatType.ExplodableBarrel:
-              spriteRenderer.drawImage3x3Static(gfx, Image.ThreatSheet48, x, y, 0, 1, 0, Threat48Frame.Barrel - 1, FRAME_COUNT_THREAT_48);
-              break;
-            case ThreatType.Barricade:
-              spriteRenderer.drawSprite1x1Static(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.BarricadeActive2 - 1);
-              break;
-            case ThreatType.Spikes:
-              spriteRenderer.drawSprite1x1Static(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeActive0 - 1);
-              break;
-            case ThreatType.WallSpikes:
-              switch (getTileDir(x, y, data)) {
-                case DIR.UP:
-                  spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active3 - 1, Math.PI * 1.5);
-                  break;
-                case DIR.DOWN:
-                  spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active3 - 1, Math.PI * 0.5);
-                  break;
-                case DIR.LEFT:
-                  withFlipx(gfx, x, y, true, (tx, ty) => {
-                    spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatWallSpikesSheet, tx, ty, ThreatWallSpikesFrame.Active3 - 1);
-                  });
-                  break;
-                case DIR.RIGHT:
-                  spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active3 - 1);
-                  break;
-              }
-              break;
-            case ThreatType.Saw:
-              spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSawSheet, x, y, ThreatSawFrame.Active1 - 1);
-              break;
-            case ThreatType.Flamethrower:
-              switch (getTileDir(x, y, data)) {
-                case DIR.UP:
-                  spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1, Math.PI * 1.5);
-                  break;
-                case DIR.DOWN:
-                  spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1, Math.PI * 0.5);
-                  break;
-                case DIR.LEFT:
-                  withFlipx(gfx, x, y, true, (tx, ty) => {
-                    spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSheet16, tx, ty, Threat16Frame.FlamethrowerActive - 1);
-                  });
-                  break;
-                case DIR.RIGHT:
-                  spriteRenderer.drawSprite1x1Static(gfx, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1);
-                  break;
-              }
-              break;
-            case ThreatType.None:
-            default:
-              break;
+          if (data.threatsMap[coord]) {
+            drawThreat(x, y, data.threatsMap[coord]);
           }
 
           if (data.pipeConnectionsMap[coord]) {
-            // note: frame is 0-indexed
-            const frame = data.pipeConnectionsMap[coord] % 16;
-            if (options.pipeVariant === PipeVariant.Themed1) {
-              spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes1, x, y, frame);
-            } else if (options.pipeVariant === PipeVariant.Themed2) {
-              spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes2, x, y, frame);
-            } else if (options.pipeVariant === PipeVariant.Themed3) {
-              spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes3, x, y, frame);
-            } else {
-              const offset = (Math.max(options.pipeVariant, 1) - 1) * 16;
-              spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, x, y, frame + offset);
-            }
+            drawPipe(x, y, data.pipeConnectionsMap[coord]);
           }
 
-          switch (data.switchesMap[coord]) {
-            case SwitchType.Button:
-              spriteRenderer.drawSprite1x1Static(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.Button2Ready - 1);
-              break;
-            case SwitchType.None:
-            default:
-              break;
+          if (data.switchesMap[coord]) {
+            drawSwitch(x, y, data.switchesMap[coord]);
           }
 
-          switch (data.pickupsMap[coord]) {
-            case PickupType.Invincibility:
-              drawInvincibilityPickup(x, y);
-              break;
-            case PickupType.Armor:
-              spriteRenderer.drawSprite1x1(gfx, Image.Shield, x, y, 0, 0, 1);
-              break;
-            case PickupType.Reversibility:
-              spriteRenderer.drawSprite1x1(gfx, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Reversibility] - 1, 0, 1);
-              break;
-            case PickupType.HealthPack:
-            case PickupType.WeightLossPill:
-            default:
-              break;
+          if (data.pickupsMap[coord]) {
+            drawPickup(x, y, data.pickupsMap[coord]);
           }
 
           if (hasSegmentAt(x, y)) {
@@ -740,17 +538,469 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       drawLasers();
       drawPortals();
       drawParticles(10);
+      drawStagedMove();
 
       if (options.globalLight < 1) {
         drawLighting(lightMap, renderer, p5);
       }
 
       drawEditorSelection();
-      drawSelected(gameState.actualTimeElapsed);
+      if (hasStagedMove()) {
+        const from = coordToVec(state.mouseFrom);
+        const to = coordToVec(state.mouseAt);
+        const translate = to.sub(from);
+        drawSelectedOutline(gameState.actualTimeElapsed, coordToVec(0), '#bbeeff88');
+        drawSelectedOutline(gameState.actualTimeElapsed, translate, '#eee');
+      } else {
+        drawSelectedOutline(gameState.actualTimeElapsed, coordToVec(0), '#eee');
+      }
 
       renderer.tick();
       gameState.timeElapsed += p5.deltaTime;
       gameState.actualTimeElapsed += p5.deltaTime;
+    }
+
+    function hasStagedMove(): boolean {
+      if (state.tool !== EditorTool.Move) return false;
+      if (!state.mousePressed) return false;
+      if (state.mouseFrom < 0) return false;
+      if (state.mouseAt < 0) return false;
+      if (state.mouseAt === state.mouseFrom) return false;
+      return true;
+    }
+
+    function drawStagedMove() {
+      if (!hasStagedMove()) return;
+      const from = coordToVec(state.mouseFrom);
+      const to = coordToVec(state.mouseAt);
+      const translate = to.sub(from);
+      p5.push();
+      // transparency
+      p5.tint(255, 128);
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
+          if (!selected[getCoordIndex2(x, y)]) {
+            continue;
+          }
+          const tx = x + translate.x;
+          const ty = y + translate.y;
+          if (outOfBounds(tx, ty)) {
+            continue;
+          }
+          const coord = getCoordIndex2(x, y);
+          if (data.decoratives1Map[coord]) {
+            drawDeco1(tx, ty, false);
+          }
+          if (data.decoratives2Map[coord]) {
+            drawDeco2(tx, ty, false);
+          }
+          if (data.nospawnsMap[coord]) {
+            renderer.drawGraphicalComponent(graphicalComponents.nospawn, tx, ty);
+          }
+          if (data.doorsMap[coord]) {
+            drawDoor(tx, ty, false);
+          }
+          if (data.barriersMap[coord]) {
+            drawBarrier(tx, ty, data.barriersMap[coord], false);
+          }
+          if (isValidKeyChannel(data.locksMap[coord])) {
+            const channel = data.locksMap[coord];
+            drawLock(tx, ty, channel, false);
+          }
+          if (isValidKeyChannel(data.keysMap[coord])) {
+            const channel = data.keysMap[coord];
+            drawKey(tx, ty, channel, false);
+          }
+          if (data.applesMap[coord]) {
+            spriteRenderer.drawSprite1x1(p5, Image.ThemedAppleSheet, tx, ty, 0, 0, 1);
+          }
+          if (data.threatsMap[coord]) {
+            drawThreat(tx, ty, data.threatsMap[coord], false);
+          }
+          if (data.pipeConnectionsMap[coord]) {
+            drawPipe(tx, ty, data.pipeConnectionsMap[coord], false);
+          }
+          if (data.switchesMap[coord]) {
+            drawSwitch(tx, ty, data.switchesMap[coord], false);
+          }
+          if (data.pickupsMap[coord]) {
+            drawPickup(tx, ty, data.pickupsMap[coord], false);
+          }
+          if (isValidPortalChannel(data.portalsMap[coord])) {
+            const portalChannel = data.portalsMap[coord];
+            const portal: Portal = {
+              position: new Vector(tx, ty),
+              exitMode: options.portalExitConfig[portalChannel],
+              channel: portalChannel,
+              group: 0,
+              hash: 0,
+              index: 1,
+            }
+            renderer.drawPortal(portal, false, drawPortalOptions);
+          }
+        }
+      }
+      p5.pop();
+    }
+
+    function drawDeco1(x: number, y: number, isStatic = true) {
+      if (isStatic) {
+        renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.deco1, x, y);
+      } else {
+        renderer.drawGraphicalComponent(graphicalComponents.deco1, x, y);
+      }
+    }
+
+    function drawDeco2(x: number, y: number, isStatic = true) {
+      if (isStatic) {
+        renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.deco2, x, y);
+      } else {
+        renderer.drawGraphicalComponent(graphicalComponents.deco2, x, y);
+      }
+    }
+
+    function drawDoor(x: number, y: number, isStatic = true) {
+      if (isAtMapEdge(x, y, 1)) {
+        if (isStatic) {
+          spriteRenderer.drawImage1x1Static(gfx, Image.ThemedDoor, x, y, 0, 1, 0);
+        } else {
+          spriteRenderer.drawImage1x1(p5, Image.ThemedDoor, x, y, 0, 1, 0);
+        }
+      } else {
+        if (isStatic) {
+          spriteRenderer.drawImage1x1Static(gfx, Image.ThemedDoorAlt, x, y, 0, 1, 0);
+        } else {
+          spriteRenderer.drawImage1x1(p5, Image.ThemedDoorAlt, x, y, 0, 1, 0);
+        }
+        // renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.door, x, y);
+      }
+    }
+
+    function drawBarrier(x: number, y: number, barrierType: BarrierType, isStatic = false) {
+      const drawSpritesheetAnim3x3 = (gfx: P5 | P5.Graphics, image: SpritesheetImage | SpritesheetRange, x0: number, y0: number, elapsed?: number) => {
+        if (isStatic) {
+          spriteRenderer.drawSpritesheetAnim3x3Static(gfx, image, x0, y0, elapsed);
+        } else {
+          spriteRenderer.drawSpritesheetAnim3x3(p5, image, x0, y0, elapsed);
+        }
+      }
+      const drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x0: number, y0: number, frame?: number, rotation?: number, alpha?: number, screenshakeMul?: number) => {
+        if (isStatic) {
+          spriteRenderer.drawSprite1x1Static(gfx, image, x0, y0, frame, rotation, alpha, screenshakeMul);
+        } else {
+          spriteRenderer.drawSprite1x1(p5, image, x0, y0, frame, rotation, alpha, screenshakeMul);
+        }
+      }
+      const drawImage1x1 = (gfx: P5 | P5.Graphics, image: Image, x0: number, y0: number, rotation?: number, alpha?: number, screenshakeMul?: number, frame?: number, frames?: number) => {
+        if (isStatic) {
+          spriteRenderer.drawImage1x1Static(gfx, image, x0, y0, rotation, alpha, screenshakeMul, frame);
+        } else {
+          spriteRenderer.drawImage1x1(p5, image, x0, y0, rotation, alpha, screenshakeMul, frame);
+        }
+      }
+      switch (barrierType) {
+        case BarrierType.FireTile:
+          drawSpritesheetAnim3x3(gfx, Image.FireSheet, x, y, 0);
+          break;
+        case BarrierType.Skull:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 0);
+          break;
+        case BarrierType.SkullThemed:
+          drawImage1x1(gfx, Image.ThemedBarrierSkull, x, y, 0, 1, 0);
+          break;
+        case BarrierType.Indent:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 2);
+          break;
+        case BarrierType.IndentThemed:
+          drawImage1x1(gfx, Image.ThemedBarrierIndent, x, y, 0, 1, 0);
+          break;
+        case BarrierType.Flat:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 4);
+          break;
+        case BarrierType.FlatThemed:
+          drawImage1x1(gfx, Image.ThemedBarrierFlat, x, y, 0, 1, 0);
+          break;
+        case BarrierType.Pyramid:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 6);
+          break;
+        case BarrierType.PyramidThemed:
+          drawImage1x1(gfx, Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
+          break;
+        case BarrierType.ExitSign:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 11);
+          break;
+        case BarrierType.Radar:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 12);
+          break;
+        case BarrierType.ComputerChip:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 13);
+          break;
+        case BarrierType.MetalPlate:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 14);
+          break;
+        case BarrierType.Panel0:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 15);
+          break;
+        case BarrierType.Panel1:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 16);
+          break;
+        case BarrierType.Panel2:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 17);
+          break;
+        case BarrierType.Panel3:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 18);
+          break;
+        case BarrierType.Panel4:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 19);
+          break;
+        case BarrierType.Panel5:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 20);
+          break;
+        case BarrierType.Brick:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 21);
+          break;
+        case BarrierType.BrickWhite:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 22);
+          break;
+        case BarrierType.BrickThemed:
+          drawImage1x1(gfx, Image.ThemedBarrierBrick, x, y, 0, 1, 0);
+          break;
+        case BarrierType.Stone:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 24);
+          break;
+        case BarrierType.StoneThemed:
+          drawImage1x1(gfx, Image.ThemedBarrierStone, x, y, 0, 1, 0);
+          break;
+        case BarrierType.PanelWhite:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 27);
+          break;
+        case BarrierType.CompPanel:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 28);
+          break;
+        case BarrierType.GrateWhite:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 29);
+          break;
+        case BarrierType.GrateYellow:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 30);
+          break;
+        case BarrierType.Ruby:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 31);
+          break;
+        case BarrierType.FanDuct:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 32);
+          break;
+        case BarrierType.ExhaustPlate:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 33);
+          break;
+        case BarrierType.MetalPlate2:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, 34);
+          break;
+        case BarrierType.Default:
+        default:
+          renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);
+          break;
+      }
+    }
+
+    function drawLock(x: number, y: number, channel: KeyChannel, isStatic = true) {
+      if (isStatic) {
+        if (channel === KeyChannel.Yellow) {
+          spriteRenderer.drawSprite1x1Static(gfx, Image.LockSheet, x, y, 3);
+        } else if (channel === KeyChannel.Red) {
+          spriteRenderer.drawSprite1x1Static(gfx, Image.LockSheet, x, y, 2);
+        } else if (channel === KeyChannel.Blue) {
+          spriteRenderer.drawSprite1x1Static(gfx, Image.LockSheet, x, y, 1);
+        }
+      } else {
+        if (channel === KeyChannel.Yellow) {
+          spriteRenderer.drawSprite1x1(p5, Image.LockSheet, x, y, 3);
+        } else if (channel === KeyChannel.Red) {
+          spriteRenderer.drawSprite1x1(p5, Image.LockSheet, x, y, 2);
+        } else if (channel === KeyChannel.Blue) {
+          spriteRenderer.drawSprite1x1(p5, Image.LockSheet, x, y, 1);
+        }
+      }
+    }
+
+    function drawKey(x: number, y: number, channel: KeyChannel, isStatic = true) {
+      if (isStatic) {
+        if (channel === KeyChannel.Yellow) {
+          spriteRenderer.drawSprite1x1Static(gfx, Image.KeySheet, x, y, 3);
+        } else if (channel === KeyChannel.Red) {
+          spriteRenderer.drawSprite1x1Static(gfx, Image.KeySheet, x, y, 2);
+        } else if (channel === KeyChannel.Blue) {
+          spriteRenderer.drawSprite1x1Static(gfx, Image.KeySheet, x, y, 1);
+        }
+      } else {
+        if (channel === KeyChannel.Yellow) {
+          spriteRenderer.drawSprite1x1(p5, Image.KeySheet, x, y, 3);
+        } else if (channel === KeyChannel.Red) {
+          spriteRenderer.drawSprite1x1(p5, Image.KeySheet, x, y, 2);
+        } else if (channel === KeyChannel.Blue) {
+          spriteRenderer.drawSprite1x1(p5, Image.KeySheet, x, y, 1);
+        }
+      }
+    }
+
+    function drawThreat(x: number, y: number, threatType: ThreatType, isStatic = true) {
+      const drawSpritesheetAnim3x3 = (gfx: P5 | P5.Graphics, image: SpritesheetImage | SpritesheetRange, x0: number, y0: number, elapsed?: number) => {
+        if (isStatic) {
+          spriteRenderer.drawSpritesheetAnim3x3Static(gfx, image, x0, y0, elapsed);
+        } else {
+          spriteRenderer.drawSpritesheetAnim3x3(p5, image, x0, y0, elapsed);
+        }
+      }
+      const drawSpritesheetAnim1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage | SpritesheetRange, x0: number, y0: number, elapsed?: number) => {
+        if (isStatic) {
+          spriteRenderer.drawSpritesheetAnim1x1Static(gfx, image, x0, y0, elapsed);
+        } else {
+          spriteRenderer.drawSpritesheetAnim1x1(p5, image, x0, y0, elapsed);
+        }
+      }
+      const drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x0: number, y0: number, frame?: number, rotation?: number, alpha?: number, screenshakeMul?: number) => {
+        if (isStatic) {
+          spriteRenderer.drawSprite1x1Static(gfx, image, x0, y0, frame, rotation, alpha, screenshakeMul);
+        } else {
+          spriteRenderer.drawSprite1x1(p5, image, x0, y0, frame, rotation, alpha, screenshakeMul);
+        }
+      }
+      const drawImage3x3 = (gfx: P5 | P5.Graphics, image: Image, x0: number, y0: number, rotation?: number, alpha?: number, screenshakeMul?: number, frame?: number, frames?: number) => {
+        if (isStatic) {
+          spriteRenderer.drawImage3x3Static(gfx, image, x0, y0, rotation, alpha, screenshakeMul, frame, frames);
+        } else {
+          spriteRenderer.drawImage3x3Custom(p5, image, x0, y0, rotation, alpha, screenshakeMul, frame, frames);
+        }
+      }
+      const drawImage1x1 = (gfx: P5 | P5.Graphics, image: Image, x0: number, y0: number, rotation?: number, alpha?: number, screenshakeMul?: number, frame?: number, frames?: number) => {
+        if (isStatic) {
+          spriteRenderer.drawImage1x1Static(gfx, image, x0, y0, rotation, alpha, screenshakeMul, frame, frames);
+        } else {
+          spriteRenderer.drawImage1x1(p5, image, x0, y0, rotation, alpha, screenshakeMul, frame, frames);
+        }
+      }
+      switch (threatType) {
+        case ThreatType.Mine:
+          drawSpritesheetAnim3x3(gfx, Image.MineSheet, x, y, 0);
+          break;
+        case ThreatType.Bomb:
+          drawSpritesheetAnim1x1(gfx, SpritesheetRange.Bomb, x, y, 0);
+          break;
+        case ThreatType.LaserDiode:
+          drawImage1x1(gfx, Image.ThreatSheet16, x, y, 0, 1, 0, Threat16Frame.DiodeBlue0 - 1, FRAME_COUNT_THREAT_16);
+          break;
+        case ThreatType.ExplodableBarrel:
+          drawImage3x3(gfx, Image.ThreatSheet48, x, y, 0, 1, 0, Threat48Frame.Barrel - 1, FRAME_COUNT_THREAT_48);
+          break;
+        case ThreatType.Barricade:
+          drawSprite1x1(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.BarricadeActive2 - 1);
+          break;
+        case ThreatType.Spikes:
+          drawSprite1x1(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeActive0 - 1);
+          break;
+        case ThreatType.WallSpikes:
+          switch (getTileDir(x, y, data)) {
+            case DIR.UP:
+              drawSprite1x1(gfx, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active3 - 1, Math.PI * 1.5);
+              break;
+            case DIR.DOWN:
+              drawSprite1x1(gfx, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active3 - 1, Math.PI * 0.5);
+              break;
+            case DIR.LEFT:
+              withFlipx(gfx, x, y, true, (tx, ty) => {
+                drawSprite1x1(gfx, Image.ThreatWallSpikesSheet, tx, ty, ThreatWallSpikesFrame.Active3 - 1);
+              });
+              break;
+            case DIR.RIGHT:
+              drawSprite1x1(gfx, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active3 - 1);
+              break;
+          }
+          break;
+        case ThreatType.Saw:
+          drawSprite1x1(gfx, Image.ThreatSawSheet, x, y, ThreatSawFrame.Active1 - 1);
+          break;
+        case ThreatType.Flamethrower:
+          switch (getTileDir(x, y, data)) {
+            case DIR.UP:
+              drawSprite1x1(gfx, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1, Math.PI * 1.5);
+              break;
+            case DIR.DOWN:
+              drawSprite1x1(gfx, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1, Math.PI * 0.5);
+              break;
+            case DIR.LEFT:
+              withFlipx(gfx, x, y, true, (tx, ty) => {
+                drawSprite1x1(gfx, Image.ThreatSheet16, tx, ty, Threat16Frame.FlamethrowerActive - 1);
+              });
+              break;
+            case DIR.RIGHT:
+              drawSprite1x1(gfx, Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1);
+              break;
+          }
+          break;
+        case ThreatType.None:
+        default:
+          break;
+      }
+    }
+
+    function drawPipe(x: number, y: number, pipeConnection: PipeConnection, isStatic = true) {
+      // note: frame is 0-indexed
+      const frame = pipeConnection % 16;
+      if (isStatic) {
+        if (options.pipeVariant === PipeVariant.Themed1) {
+          spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes1, x, y, frame);
+        } else if (options.pipeVariant === PipeVariant.Themed2) {
+          spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes2, x, y, frame);
+        } else if (options.pipeVariant === PipeVariant.Themed3) {
+          spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes3, x, y, frame);
+        } else {
+          const offset = (Math.max(options.pipeVariant, 1) - 1) * 16;
+          spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, x, y, frame + offset);
+        }
+      } else {
+        if (options.pipeVariant === PipeVariant.Themed1) {
+          spriteRenderer.drawSprite1x1(p5, Image.ThemedPipes1, x, y, frame);
+        } else if (options.pipeVariant === PipeVariant.Themed2) {
+          spriteRenderer.drawSprite1x1(p5, Image.ThemedPipes2, x, y, frame);
+        } else if (options.pipeVariant === PipeVariant.Themed3) {
+          spriteRenderer.drawSprite1x1(p5, Image.ThemedPipes3, x, y, frame);
+        } else {
+          const offset = (Math.max(options.pipeVariant, 1) - 1) * 16;
+          spriteRenderer.drawSprite1x1(p5, Image.PipesSheet, x, y, frame + offset);
+        }
+      }
+    }
+
+    function drawSwitch(x: number, y: number, switchType: SwitchType, isStatic = true) {
+      switch (switchType) {
+        case SwitchType.Button:
+          if (isStatic) {
+            spriteRenderer.drawSprite1x1Static(gfx, Image.ButtonSheet, x, y, ButtonSheetFrame.Button2Ready - 1);
+          } else {
+            spriteRenderer.drawSprite1x1(p5, Image.ButtonSheet, x, y, ButtonSheetFrame.Button2Ready - 1);
+          }
+          break;
+        case SwitchType.None:
+        default:
+          break;
+      }
+    }
+
+    function drawPickup(x: number, y: number, pickupType: PickupType, isStatic = true) {
+      switch (pickupType) {
+        case PickupType.Invincibility:
+          drawInvincibilityPickup(x, y);
+          break;
+        case PickupType.Armor:
+          spriteRenderer.drawSprite1x1(isStatic ? gfx : p5, Image.Shield, x, y, 0, 0, 1);
+          break;
+        case PickupType.Reversibility:
+          spriteRenderer.drawSprite1x1(isStatic ? gfx : p5, Image.PickupsSheet, x, y, PICKUP_SPRITE_FRAME_MAP[PickupType.Reversibility] - 1, 0, 1);
+          break;
+        case PickupType.HealthPack:
+        case PickupType.WeightLossPill:
+        default:
+          break;
+      }
     }
 
     function drawParticles(zIndexPass = 0) {
@@ -936,7 +1186,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       }
     }
 
-    function drawSelected(elapsed: number) {
+    function drawSelectedOutline(elapsed: number, translate: P5.Vector, color: string) {
       const cycle = (elapsed / 400) % 2 > 1;
       const dashLength = BLOCK_SIZE_X / 6;
       const dashOffset = cycle
@@ -944,32 +1194,39 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         : dashLength / 2;
       for (let y = 0; y < GRIDCOUNT_Y; y++) {
         for (let x = 0; x < GRIDCOUNT_X; x++) {
-          if (!selected[getCoordIndex2(x, y)]) continue;
+          if (!selected[getCoordIndex2(x, y)]) {
+            continue;
+          }
           const neighborUp = y > 0 && selected[getCoordIndex2(x, y-1)];
           const neighborDown = y < GRIDCOUNT_Y-1 && selected[getCoordIndex2(x, y+1)];
           const neighborLeft = x > 0 && selected[getCoordIndex2(x-1, y)];
           const neighborRight = x < GRIDCOUNT_X-1 && selected[getCoordIndex2(x+1, y)];
+          const tx = x + translate.x;
+          const ty = y + translate.y;
+          if (outOfBounds(tx, ty)) {
+            continue;
+          }
           const width = BLOCK_SIZE_X;
           const height = BLOCK_SIZE_Y;
-          const x0 = x * BLOCK_SIZE_X;
-          const x1 = x * BLOCK_SIZE_X + width;
-          const y0 = y * BLOCK_SIZE_Y;
-          const y1 = y * BLOCK_SIZE_Y + height;
+          const x0 = tx * BLOCK_SIZE_X;
+          const x1 = tx * BLOCK_SIZE_X + width;
+          const y0 = ty * BLOCK_SIZE_Y;
+          const y1 = ty * BLOCK_SIZE_Y + height;
           if (!neighborUp) {
             // draw top border
-            renderer.drawAbsoluteDashedLine(p5, x0, y0, x1, y0, dashLength, dashOffset, '#eee');
+            renderer.drawAbsoluteDashedLine(p5, x0, y0, x1, y0, dashLength, dashOffset, color);
           }
           if (!neighborDown) {
             // draw bottom border
-            renderer.drawAbsoluteDashedLine(p5, x0, y1, x1, y1, dashLength, dashOffset, '#eee');
+            renderer.drawAbsoluteDashedLine(p5, x0, y1, x1, y1, dashLength, dashOffset, color);
           }
           if (!neighborLeft) {
             // draw left border
-            renderer.drawAbsoluteDashedLine(p5, x0, y0, x0, y1, dashLength, dashOffset, '#eee');
+            renderer.drawAbsoluteDashedLine(p5, x0, y0, x0, y1, dashLength, dashOffset, color);
           }
           if (!neighborRight) {
             // draw right border
-            renderer.drawAbsoluteDashedLine(p5, x1, y0, x1, y1, dashLength, dashOffset, '#eee');
+            renderer.drawAbsoluteDashedLine(p5, x1, y0, x1, y1, dashLength, dashOffset, color);
           }
         }
       }

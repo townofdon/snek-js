@@ -1399,3 +1399,7 @@ export const performAction = (action: IEnumerator, signal?: AbortSignal): Promis
     }
   });
 };
+
+export const outOfBounds = (x: number, y: number): boolean => {
+  return x < 0 || y < 0 || x >= GRIDCOUNT_X || y >= GRIDCOUNT_Y;
+}
