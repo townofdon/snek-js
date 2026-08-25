@@ -27,15 +27,19 @@ import {
   isValidSwitchType,
   isValidThreatType,
   lerp,
+  outOfBounds,
 } from "../utils";
 import {
   deepCloneData,
+  getDataSliceAtCoord,
   getEditorDataFromLevel,
   mergeData,
   mergeDataSlice,
 } from "./utils/editorUtils";
 import { tileFloodFill } from "./utils/floodFill";
 import { Operation } from "./editorSketch";
+import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_LOCALHOST } from "@/constants";
+import { EDITOR_DEFAULTS } from "./editorConstants";
 
 /**
  * THE COMMAND PATTERN
@@ -89,21 +93,8 @@ abstract class SetElementCommand implements Command {
       pipe: data.pipesMap[this.coord],
     } satisfies EditorDataSlice;
     this.newData = {
+      ...EDITOR_DEFAULTS.dataSlice,
       coord: this.coord,
-      apple: false,
-      threat: 0,
-      switch: 0,
-      pickup: 0,
-      barrier: 0,
-      pipe: false,
-      deco1: false,
-      deco2: false,
-      door: false,
-      key: null,
-      lock: null,
-      nospawn: false,
-      passable: false,
-      portal: null,
       playerSpawnPosition: data.playerSpawnPosition.copy(),
       startDirection: data.startDirection,
     }
@@ -1240,10 +1231,10 @@ export class SetSelectedCommand implements Command {
   private readonly newData: Record<number, boolean>;
   private readonly setSelected: SetSelected;
   private readonly rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined;
-  public constructor(from: number, to: number, selection: Record<number, boolean>, operation: Operation, setSelected: SetSelected, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+  public constructor(from: number, to: number, selected: Record<number, boolean>, operation: Operation, setSelected: SetSelected, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
     this.setSelected = setSelected;
     this.rollbackLastCoordUpdated = rollbackLastCoordUpdated;
-    this.initial = { ...selection };
+    this.initial = { ...selected };
     if (operation === Operation.None) {
       this.newData = null;
       return;
@@ -1259,12 +1250,12 @@ export class SetSelectedCommand implements Command {
       }
     }
     if (operation === Operation.Add) {
-      this.newData = { ...selection };
+      this.newData = { ...selected };
       coords.forEach(coord => {
         this.newData[coord] = true;
       });
     } else if (operation === Operation.Remove) {
-      this.newData = { ...selection };
+      this.newData = { ...selected };
       coords.forEach(coord => {
         this.newData[coord] = false;
       });
@@ -1304,5 +1295,123 @@ export class ClearSelectedCommand implements Command {
   };
   rollback = () => {
     this.setSelected(this.initialData);
+  };
+}
+
+export class MoveTilesCommand implements Command {
+  public readonly name = "Move Tiles";
+  private readonly prevSelected: Record<number, boolean>;
+  private readonly newSelected: Record<number, boolean>;
+  private readonly prevData: EditorData;
+  private newData: EditorData;
+  private readonly setData: SetData;
+  private readonly setSelected: SetSelected;
+  private readonly rollbackLastCoordUpdated:
+    | RollbackLastCoordUpdated
+    | undefined;
+  public constructor(
+    from: number,
+    to: number,
+    currentSelected: Record<number, boolean>,
+    data: EditorData,
+    operation: Operation,
+    setSelected: SetSelected,
+    setData: SetData,
+    rollbackLastCoordUpdated: RollbackLastCoordUpdated,
+  ) {
+    this.setSelected = setSelected;
+    this.setData = setData;
+    this.rollbackLastCoordUpdated = rollbackLastCoordUpdated;
+    this.prevSelected = { ...currentSelected };
+    this.newSelected = {};
+    this.prevData = deepCloneData(data);
+    this.newData = deepCloneData(data);
+    if (operation === Operation.None) return this.invalidCommand("operation invalid: None");
+    if (operation === Operation.Remove) return this.invalidCommand("operation invalid: Remove");
+    if (from === to) return this.noop();
+    if (from < 0) return this.noop();
+    if (to < 0) return this.noop();
+    const translate = coordToVec(to).sub(coordToVec(from));
+    // compute selected
+    const anySelected = Object.keys(currentSelected).some(key => !!currentSelected[key]);
+    const selected = anySelected ? { ...currentSelected } : { [from]: true };
+    if (anySelected) {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
+          const coord = getCoordIndex2(x, y);
+          if (!currentSelected[coord]) {
+            continue;
+          }
+          const tx = x + translate.x;
+          const ty = y + translate.y;
+          if (outOfBounds(tx, ty)) {
+            continue;
+          }
+          const transcoord = getCoordIndex2(tx, ty);
+          this.newSelected[transcoord] = currentSelected[coord];
+        }
+      }
+    } else {
+      this.newSelected = {};
+    }
+    // clear source
+    if (operation == Operation.Write) {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
+          const coord = getCoordIndex2(x, y);
+          if (!selected[coord]) {
+            continue;
+          }
+          const emptySlice: EditorDataSlice = {
+            ...EDITOR_DEFAULTS.dataSlice,
+            coord,
+            playerSpawnPosition: data.playerSpawnPosition.copy(),
+            startDirection: data.startDirection,
+          };
+          this.newData = mergeDataSlice(this.newData, emptySlice, coord);
+        }
+      }
+    }
+    // set destination
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        const coord = getCoordIndex2(x, y);
+        if (!selected[coord]) {
+          continue;
+        }
+        const tx = x + translate.x;
+        const ty = y + translate.y;
+        if (outOfBounds(tx, ty)) {
+          continue;
+        }
+        const transcoord = getCoordIndex2(tx, ty);
+        this.newData = mergeDataSlice(this.newData, getDataSliceAtCoord(data, coord), transcoord);
+      }
+    }
+  }
+  private invalidCommand = (msg: string) => {
+    this.newData = null;
+    if (IS_LOCALHOST) throw new Error('[MoveTilesCommand] ' + msg);
+    console.error('[MoveTilesCommand] ' + msg);
+    return this;
+  }
+  private noop = () => {
+    this.newData = null;
+    return this;
+  }
+  execute = () => {
+    if (!this.newData) {
+      return false;
+    }
+    this.setData(this.newData);
+    this.setSelected(this.newSelected);
+    return true;
+  };
+  rollback = () => {
+    if (this.rollbackLastCoordUpdated) {
+      this.rollbackLastCoordUpdated();
+    }
+    this.setSelected(this.prevSelected);
+    this.setData(this.prevData);
   };
 }

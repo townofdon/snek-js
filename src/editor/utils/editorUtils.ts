@@ -492,3 +492,25 @@ export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coor
   }
   return mergeData(data, newData);
 }
+
+export function getDataSliceAtCoord(data: EditorData, coord: number): EditorDataSlice {
+  return {
+    coord,
+    apple: data.applesMap[coord],
+    threat: data.threatsMap[coord],
+    switch: data.switchesMap[coord],
+    pipe: data.pipesMap[coord],
+    pickup: data.pickupsMap[coord],
+    barrier: data.barriersMap[coord],
+    deco1: data.decoratives1Map[coord],
+    deco2: data.decoratives2Map[coord],
+    door: data.doorsMap[coord],
+    key: data.keysMap[coord],
+    lock: data.locksMap[coord],
+    nospawn: data.nospawnsMap[coord],
+    passable: data.passablesMap[coord],
+    portal: data.portalsMap[coord],
+    playerSpawnPosition: data.playerSpawnPosition.copy(),
+    startDirection: data.startDirection,
+  };
+}

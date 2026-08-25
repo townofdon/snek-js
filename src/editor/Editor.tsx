@@ -18,6 +18,7 @@ import {
   DeleteRectangleCommand,
   FloodFillCommand,
   FloodFillEmptyCommand,
+  MoveTilesCommand,
   NoOpCommand,
   SetAppleCommand,
   SetArmorCommand,
@@ -429,6 +430,17 @@ export const Editor = () => {
         setMouseFrom(from);
       }
       return new SetSelectedCommand(from, to, selectedRef.current, operation, setSelected, rollbackLastCoordUpdated);
+    } else if (toolRef.current === EditorTool.Move) {
+      if (mouseFromRef.current === mouseAtRef.current) return new NoOpCommand();
+      if (mouseFromRef.current === -1) return new NoOpCommand();
+      if (mouseAtRef.current === -1) return new NoOpCommand();
+      const from = mouseFromRef.current;
+      const to = mouseAtRef.current;
+      const rollbackLastCoordUpdated = () => {
+        setLastCoordUpdated(from);
+        setMouseFrom(from);
+      }
+      return new MoveTilesCommand(from, to, selectedRef.current, dataRef.current, operation, setSelected, setData, rollbackLastCoordUpdated);
     }
     throw Error('not implemented');
   }
@@ -501,6 +513,11 @@ export const Editor = () => {
       if (mousePressedRef.current) return Operation.Write;
       return Operation.None;
     }
+    if (toolRef.current === EditorTool.Move) {
+      if (mousePressedRef.current && shiftPressedRef.current) return Operation.Add;
+      if (mousePressedRef.current) return Operation.Write;
+      return Operation.None;
+    }
     const isImmediateRemovableTool = [EditorTool.Pencil, EditorTool.Eraser, EditorTool.Bucket].includes(toolRef.current);
     const isImmediateAdditiveTool = [EditorTool.Pencil, EditorTool.Eraser].includes(toolRef.current);
     if (altPressedRef.current && (isImmediateRemovableTool || mousePressedRef.current)) return Operation.Remove;
@@ -541,7 +558,7 @@ export const Editor = () => {
     }
     setMousePressed(ev.nativeEvent.button === MouseButton.Left);
     setMouseFrom(mouseAtRef.current);
-    if ([EditorTool.Rectangle, EditorTool.Line, EditorTool.Select].includes(toolRef.current)) {
+    if ([EditorTool.Rectangle, EditorTool.Line, EditorTool.Select, EditorTool.Move].includes(toolRef.current)) {
       setTriggerOnRelease(true);
     }
     if ([EditorTool.Pencil, EditorTool.Bucket, EditorTool.Eraser].includes(toolRef.current)) {
@@ -551,7 +568,7 @@ export const Editor = () => {
 
   const handleMouseUp = (ev: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const isValidRelease = mousePressedRef.current && state.current.isMouseInsideMap && triggerOnReleaseRef.current;
-    if (isValidRelease && [EditorTool.Rectangle, EditorTool.Line, EditorTool.Select].includes(toolRef.current)) {
+    if (isValidRelease && [EditorTool.Rectangle, EditorTool.Line, EditorTool.Select, EditorTool.Move].includes(toolRef.current)) {
       updateMap();
     }
     setMousePressed(false);

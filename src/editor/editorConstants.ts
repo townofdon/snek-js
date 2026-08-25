@@ -3,6 +3,7 @@ import { DIFFICULTY_EASY } from '@/constants';
 import {
   DIR,
   EditorData,
+  EditorDataSlice,
   EditorOptions,
   MusicTrack,
   PipeVariant,
@@ -19,7 +20,12 @@ import { DEFAULT_GAME_STATE } from '@/defaults';
 
 const levelData = buildLevel(LEVEL_01);
 
-export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions, selected: Record<number, boolean> } = {
+export const EDITOR_DEFAULTS: {
+  data: EditorData;
+  dataSlice: Omit<EditorDataSlice, 'coord' | 'playerSpawnPosition' | 'startDirection'>;
+  options: EditorOptions;
+  selected: Record<number, boolean>;
+} = {
   selected: {},
   data: {
     applesMap: {},
@@ -39,8 +45,24 @@ export const EDITOR_DEFAULTS: { data: EditorData, options: EditorOptions, select
     switchesMap: {},
     pipesMap: {},
   },
+  dataSlice: {
+    apple: false,
+    threat: 0,
+    switch: 0,
+    pickup: 0,
+    barrier: 0,
+    pipe: false,
+    deco1: false,
+    deco2: false,
+    door: false,
+    key: null,
+    lock: null,
+    nospawn: false,
+    passable: false,
+    portal: null,
+  },
   options: {
-    name: 'Untitled Map',
+    name: "Untitled Map",
     timeToClear: 120000,
     applesToClear: 20,
     numApplesStart: 3,

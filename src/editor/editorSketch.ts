@@ -574,12 +574,15 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       const from = coordToVec(state.mouseFrom);
       const to = coordToVec(state.mouseAt);
       const translate = to.sub(from);
+      const anySelected = Object.keys(selected).some(key => !!selected[key]);
       p5.push();
       // transparency
       p5.tint(255, 128);
       for (let y = 0; y < GRIDCOUNT_Y; y++) {
         for (let x = 0; x < GRIDCOUNT_X; x++) {
-          if (!selected[getCoordIndex2(x, y)]) {
+          const coord = getCoordIndex2(x, y);
+          const isSelected = anySelected ? selected[coord] : coord === state.mouseFrom;
+          if (!isSelected) {
             continue;
           }
           const tx = x + translate.x;
@@ -587,7 +590,6 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           if (outOfBounds(tx, ty)) {
             continue;
           }
-          const coord = getCoordIndex2(x, y);
           if (data.decoratives1Map[coord]) {
             drawDeco1(tx, ty, false);
           }
@@ -797,7 +799,11 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           break;
         case BarrierType.Default:
         default:
-          renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);
+          if (isStatic) {
+            renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.barrier, x, y);
+          } else {
+            renderer.drawGraphicalComponent(graphicalComponents.barrier, x, y);
+          }
           break;
       }
     }
@@ -1130,6 +1136,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       if (state.mouseAt < 0) return;
       const from = coordToVec(state.mouseFrom);
       const to = coordToVec(state.mouseAt);
+      const anySelected = Object.keys(selected).some(key => !!selected[key]);
       // selected cell
       if (state.tool === EditorTool.Pencil) {
         if (state.operation === Operation.Add) {
@@ -1162,6 +1169,16 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       } else if (state.tool === EditorTool.Bucket) {
         if (state.operation === Operation.Remove) {
           spriteRenderer.drawImage3x3(Image.EditorSelectionRed, to.x, to.y, 0, 1, 0);
+        } else {
+          spriteRenderer.drawImage3x3(Image.EditorSelection, to.x, to.y, 0, 1, 0);
+        }
+      } else if (state.tool === EditorTool.Move && !anySelected) {
+        if (state.operation === Operation.Write) {
+          spriteRenderer.drawImage3x3(Image.EditorSelectionRed, from.x, from.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, to.x, to.y, 0, 1, 0);
+        } else if (state.operation === Operation.Add) {
+          spriteRenderer.drawImage3x3(Image.EditorSelectionBlue, from.x, from.y, 0, 1, 0);
+          spriteRenderer.drawImage3x3(Image.EditorSelection, to.x, to.y, 0, 1, 0);
         } else {
           spriteRenderer.drawImage3x3(Image.EditorSelection, to.x, to.y, 0, 1, 0);
         }
