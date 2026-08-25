@@ -1230,10 +1230,10 @@ export class SetSelectedCommand implements Command {
   private readonly initial: Record<number, boolean>;
   private readonly newData: Record<number, boolean>;
   private readonly setSelected: SetSelected;
-  private readonly rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined;
-  public constructor(from: number, to: number, selected: Record<number, boolean>, operation: Operation, setSelected: SetSelected, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+  private readonly onRollback: RollbackLastCoordUpdated;
+  public constructor(from: number, to: number, selected: Record<number, boolean>, operation: Operation, setSelected: SetSelected, onRollback: RollbackLastCoordUpdated) {
     this.setSelected = setSelected;
-    this.rollbackLastCoordUpdated = rollbackLastCoordUpdated;
+    this.onRollback = onRollback;
     this.initial = { ...selected };
     if (operation === Operation.None) {
       this.newData = null;
@@ -1274,9 +1274,7 @@ export class SetSelectedCommand implements Command {
     return true;
   };
   rollback = () => {
-    if (this.rollbackLastCoordUpdated) {
-      this.rollbackLastCoordUpdated();
-    }
+    this.onRollback();
     this.setSelected(this.initial);
   };
 }
@@ -1285,8 +1283,10 @@ export class ClearSelectedCommand implements Command {
   public readonly name = 'Clear Selection';
   private initialData: Record<number, boolean>;
   private setSelected: SetSelected;
-  public constructor(selected: Record<number, boolean>, setSelected: SetSelected) {
+  private readonly onRollback: RollbackLastCoordUpdated | undefined;
+  public constructor(selected: Record<number, boolean>, setSelected: SetSelected, onRollback?: RollbackLastCoordUpdated | undefined) {
     this.initialData = { ...selected };
+    this.onRollback = onRollback;
     this.setSelected = setSelected;
   }
   execute = () => {
@@ -1294,6 +1294,7 @@ export class ClearSelectedCommand implements Command {
     return true;
   };
   rollback = () => {
+    this.onRollback?.();
     this.setSelected(this.initialData);
   };
 }
@@ -1306,9 +1307,7 @@ export class MoveTilesCommand implements Command {
   private newData: EditorData;
   private readonly setData: SetData;
   private readonly setSelected: SetSelected;
-  private readonly rollbackLastCoordUpdated:
-    | RollbackLastCoordUpdated
-    | undefined;
+  private readonly onRollback: RollbackLastCoordUpdated;
   public constructor(
     from: number,
     to: number,
@@ -1317,11 +1316,11 @@ export class MoveTilesCommand implements Command {
     operation: Operation,
     setSelected: SetSelected,
     setData: SetData,
-    rollbackLastCoordUpdated: RollbackLastCoordUpdated,
+    onRollback: RollbackLastCoordUpdated,
   ) {
     this.setSelected = setSelected;
     this.setData = setData;
-    this.rollbackLastCoordUpdated = rollbackLastCoordUpdated;
+    this.onRollback = onRollback;
     this.prevSelected = { ...currentSelected };
     this.newSelected = {};
     this.prevData = deepCloneData(data);
@@ -1408,9 +1407,7 @@ export class MoveTilesCommand implements Command {
     return true;
   };
   rollback = () => {
-    if (this.rollbackLastCoordUpdated) {
-      this.rollbackLastCoordUpdated();
-    }
+    this.onRollback();
     this.setSelected(this.prevSelected);
     this.setData(this.prevData);
   };

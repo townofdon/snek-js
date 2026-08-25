@@ -111,7 +111,7 @@ export const Editor = () => {
   const [, triggerOnReleaseRef, setTriggerOnRelease] = useRefState(false);
   const [, shiftPressedRef, setShiftPressed] = useRefState(false);
   const [, altPressedRef, setAltPressed] = useRefState(false);
-  const [tool, toolRef, setTool] = useRefState(EditorTool.Pencil);
+  const [tool, toolRef, _setTool] = useRefState(EditorTool.Pencil);
   const [tile, tileRef, _setTile] = useRefState(Tile.Barrier);
   const [barrierType, barrierTypeRef, setBarrierType] = useRefState(BarrierType.Default);
   const [threatType, threatTypeRef, setThreatType] = useRefState(ThreatType.Mine);
@@ -125,6 +125,20 @@ export const Editor = () => {
 
   useLoadMapData({ setData, setOptions, setPastCommands, setFutureCommands, setInitialized });
   const isSynced = useUpdateUrl({ initialized, data, options });
+
+  const setTool = (incoming: EditorTool) => {
+    if (
+      [EditorTool.Select, EditorTool.Move].includes(toolRef.current) &&
+      ![EditorTool.Select, EditorTool.Move].includes(incoming)
+    ) {
+      const prevTool = toolRef.current;
+      const onRollback = () => {
+        _setTool(prevTool);
+      }
+      handleClearSelected(onRollback);
+    }
+    _setTool(incoming);
+  }
 
   const setTile = (_tile: Tile) => {
     if (toolRef.current === EditorTool.Eraser) setTool(EditorTool.Pencil);
@@ -425,22 +439,22 @@ export const Editor = () => {
       if (mouseAtRef.current === -1) return new NoOpCommand();
       const from = mouseFromRef.current;
       const to = mouseAtRef.current;
-      const rollbackLastCoordUpdated = () => {
+      const onRollback = () => {
         setLastCoordUpdated(from);
         setMouseFrom(from);
       }
-      return new SetSelectedCommand(from, to, selectedRef.current, operation, setSelected, rollbackLastCoordUpdated);
+      return new SetSelectedCommand(from, to, selectedRef.current, operation, setSelected, onRollback);
     } else if (toolRef.current === EditorTool.Move) {
       if (mouseFromRef.current === mouseAtRef.current) return new NoOpCommand();
       if (mouseFromRef.current === -1) return new NoOpCommand();
       if (mouseAtRef.current === -1) return new NoOpCommand();
       const from = mouseFromRef.current;
       const to = mouseAtRef.current;
-      const rollbackLastCoordUpdated = () => {
+      const onRollback = () => {
         setLastCoordUpdated(from);
         setMouseFrom(from);
       }
-      return new MoveTilesCommand(from, to, selectedRef.current, dataRef.current, operation, setSelected, setData, rollbackLastCoordUpdated);
+      return new MoveTilesCommand(from, to, selectedRef.current, dataRef.current, operation, setSelected, setData, onRollback);
     }
     throw Error('not implemented');
   }
@@ -454,10 +468,10 @@ export const Editor = () => {
     }
   }
 
-  const handleClearSelected = () => {
+  const handleClearSelected = (onRollback: (() => void) = undefined) => {
     const hasAnySelected = Object.keys(selectedRef.current).some(key => !!selectedRef.current[key]);
     if (!hasAnySelected) return new NoOpCommand();
-    const command = new ClearSelectedCommand(selectedRef.current, setSelected);
+    const command = new ClearSelectedCommand(selectedRef.current, setSelected, onRollback);
     executeCommand(command);
     toast(`Selection Cleared`, {
       icon: "✓",
@@ -851,7 +865,7 @@ export const Editor = () => {
       {anySelected && !isPreviewShowing && (
         <button
           className={styles.clearSelectedButton}
-          onClick={handleClearSelected}
+          onClick={() => handleClearSelected()}
         >
           Clear Selection
         </button>
