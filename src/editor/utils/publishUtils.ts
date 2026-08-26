@@ -28,23 +28,6 @@ export const overlayOntoCanvas = async (src: HTMLCanvasElement, dest: HTMLCanvas
   ctx.drawImage(mapImage, 0, 0, sw, sh, 0, 0, dw, dh);
 }
 
-export const downloadFile = (content: File, fileName: string, contentType: string) => {
-  // Create a Blob from the content
-  const blob = new Blob([content], { type: contentType });
-  // Generate a temporary URL for the Blob
-  const url = window.URL.createObjectURL(blob);
-  // Create a hidden anchor element
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName; // Suggested file name
-  // Trigger the download by "clicking" the link
-  document.body.appendChild(link);
-  link.click();
-  // Clean up: remove the link and revoke the URL
-  document.body.removeChild(link);
-  window.URL.revokeObjectURL(url);
-}
-
 export async function drawShareImage(ctx: CanvasRenderingContext2D, mapWidth: number, mapHeight: number, colors: Palette, mapImageDataUrl: string, mapName: string, author?: string) {
   const template = await loadImage('editor-share-template.png');
   const mapImage = await loadImage(mapImageDataUrl);

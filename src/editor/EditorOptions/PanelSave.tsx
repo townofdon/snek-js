@@ -18,6 +18,9 @@ import { CopyLink } from "./CopyLink";
 import * as styles from './EditorOptions.css';
 import { IS_DEV } from "../../constants";
 import { CopyLinkDev } from "./CopyLinkDev";
+import { MapSaveData } from "../editorTypes";
+import { saveMapDataToDisk } from "../utils/saveUtils";
+import { SaveButton } from "./SaveButton";
 
 interface PanelSaveProps {
   canvas: React.MutableRefObject<HTMLCanvasElement>;
@@ -64,7 +67,7 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
     await drawShareImage(ctx, mapWidth, mapHeight, options.palette, mapImageDataUrl, mapName, overrideAuthor ?? author);
   }
 
-  const getSaveData = async (): Promise<[string, File, string]> => {
+  const getPublishData = async (): Promise<[string, File, string]> => {
     if (!canvas.current) return;
     await generateShareImage();
     const encoded = encodeMapData(data, options);
@@ -80,13 +83,36 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
       if (!canvas.current) throw new Error('canvas not set');
       setLoading(true);
       const isUpdate = !!mapId;
-      const [encoded, file, xsrfToken] = await getSaveData();
+      const [encoded, file, xsrfToken] = await getPublishData();
       const res = await publishMap(mapId, options.name, author, encoded, { xsrfToken });
       await uploadMapImage(file, res.supameta, res.upload);
       setMapId(res.id);
       toast.success(isUpdate ? 'Successfully updated map' : 'Successfully published map');
     } catch (err) {
       toast.error('Unable to publish map');
+      console.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleSaveToDisk = async () => {
+    try {
+      if (!canvas.current) throw new Error('canvas not set');
+      setLoading(true);
+      const encoded = encodeMapData(data, options);
+      const saveData = {
+        mapId: "123",
+        name: options.name,
+        author,
+        mapData: encoded,
+        annotations: {},
+        overlayImagePath: null,
+      } satisfies MapSaveData;
+      saveMapDataToDisk(saveData);
+      toast.success('Successfully saved map');
+    } catch (err) {
+      toast.error('Unable to save map');
       console.error(err.message);
     } finally {
       setLoading(false);
@@ -115,6 +141,9 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
           <CopyLinkDev />
         </Stack>
       )}
+      <Stack marginBottom row align="center" justify="spaceBetween">
+        <SaveButton loading={loading} onSave={handleSaveToDisk} />
+      </Stack>
       <Stack marginBottom row align="center" justify="spaceBetween">
         <PublishButton loading={loading} hasMapId={!!mapId} onPublish={handlePublish} />
       </Stack>

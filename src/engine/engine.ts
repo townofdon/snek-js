@@ -186,7 +186,8 @@ import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
 import { AStar } from '../astar/astar';
 import { FLAG_PREY_BURNED, FLAG_PREY_ELECTROCUTED, FLAG_PREY_STUNNED, FLAG_PREY_TRAPPED, PreyList } from '../collections/preyList';
-import { downloadFile, getCanvasImage, overlayOntoCanvas } from '@/editor/utils/publishUtils';
+import { getCanvasImage, overlayOntoCanvas } from '@/editor/utils/publishUtils';
+import { downloadFile } from '@/editor/utils/saveUtils';
 import { withErrorReporting } from '@/reporting';
 import { AcquirePickupParticleSystem } from './particleSystems/AcquirePickupParticleSystem';
 import { AcquirePickupScene, AcquirePickupSceneConstructorArgs } from '@/scenes/AcquirePickupScene';
@@ -1454,6 +1455,7 @@ export function engine({
 
   //#endregion USER INPUT
 
+  // save a screenshot of the map
   async function saveMapImage() {
     // const mainCanvas = document.getElementById("game-canvas") as HTMLCanvasElement;
     const fg = document.getElementById("canvas-fg") as HTMLCanvasElement;
