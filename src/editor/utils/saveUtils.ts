@@ -1,7 +1,7 @@
 import { MapSaveData, validMapSaveData } from "../editorTypes";
 
 export const saveMapDataToDisk = (saveData: MapSaveData) => {
-  const filename = `${saveData.name || 'untitled-map'}.snekdat.json`;
+  const filename = `${saveData.name || 'untitled-map'}.map.json`;
   const blobParts = [JSON.stringify(saveData)];
   const file = new File(blobParts, filename);
   downloadFile(file, filename, 'application/json');

@@ -1,6 +1,6 @@
 import { Vector } from "p5";
 
-import { SetStateValue, Tile } from "./editorTypes";
+import { MapSaveData, SetStateValue, Tile } from "./editorTypes";
 import {
   BarrierType,
   DIR,
@@ -30,6 +30,7 @@ import {
   outOfBounds,
 } from "../utils";
 import {
+  decodeMapData,
   deepCloneData,
   getDataSliceAtCoord,
   getEditorDataFromLevel,
@@ -1093,6 +1094,41 @@ export class LoadLevelCommand implements Command {
       const [data, options] = getEditorDataFromLevel(this.level);
       this.setData(data);
       this.setOptions(options);
+      return true;
+    } catch (err) {
+      console.error(err);
+      return false;
+    }
+  };
+  rollback = () => {
+    this.setData(this.initialData);
+    this.setOptions(this.initialOptions);
+  };
+}
+
+export class ImportMapDataCommand implements Command {
+  public readonly name = 'Import Map';
+  private mapSaveData: MapSaveData;
+  private initialData: EditorData;
+  private initialOptions: EditorOptions;
+  private setData: (val: EditorData) => void;
+  private setOptions: (val: EditorOptions) => void;
+  public constructor(mapSaveData: MapSaveData, data: EditorData, options: EditorOptions, setData: (val: EditorData) => void, setOptions: (val: EditorOptions) => void) {
+    this.mapSaveData = mapSaveData;
+    this.initialData = deepCloneData(data);
+    this.initialOptions = { ...options, portalExitConfig: { ...options.portalExitConfig }, palette: { ...options.palette } };
+    this.setData = setData;
+    this.setOptions = setOptions;
+  }
+  execute = () => {
+    try {
+      const [data, options] = decodeMapData(this.mapSaveData.mapData);
+      this.setData(data);
+      this.setOptions({
+        name: this.mapSaveData.name,
+        ...options,
+      });
+      // this.setMetadata({ author: this.mapSaveData.author, id: this.mapSaveData.id });
       return true;
     } catch (err) {
       console.error(err);

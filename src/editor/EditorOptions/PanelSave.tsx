@@ -15,12 +15,16 @@ import { PreviewShareDialog } from "./PreviewShareDialog";
 import { PublishButton } from "./PublishButton";
 import { CopyLink } from "./CopyLink";
 
-import * as styles from './EditorOptions.css';
 import { IS_DEV } from "../../constants";
 import { CopyLinkDev } from "./CopyLinkDev";
-import { MapSaveData } from "../editorTypes";
-import { saveMapDataToDisk } from "../utils/saveUtils";
-import { SaveButton } from "./SaveButton";
+import { MapSaveData, SetStateValue } from "../editorTypes";
+import { readMapDataFromFile, saveMapDataToDisk } from "../utils/saveUtils";
+import { Button } from "@/components/Button";
+
+import { Command, ImportMapDataCommand } from "../commands";
+
+import * as editorStyles from '@/editor/Editor.css';
+import * as styles from './EditorOptions.css';
 
 interface PanelSaveProps {
   canvas: React.MutableRefObject<HTMLCanvasElement>;
@@ -28,22 +32,37 @@ interface PanelSaveProps {
   options: EditorOptions;
   mapId: string;
   setMapId: (val: string) => void;
+  setData: (data: EditorData) => void;
+  setOptions: (value: SetStateValue<EditorOptions>) => void;
   undo: () => void;
   redo: () => void;
+  executeCommand: (command: Command) => void;
 }
 
-export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }: PanelSaveProps) => {
+export const PanelSave = ({
+  canvas,
+  data,
+  options,
+  mapId,
+  setMapId,
+  setData,
+  setOptions,
+  redo,
+  undo,
+  executeCommand,
+}: PanelSaveProps) => {
   const publishCanvas = useRef<HTMLCanvasElement>();
   const panelRef = useRef<HTMLDivElement>();
   const [isPreviewShowing, _setPreviewShowing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [author, _setAuthor] = useState(editorStore.getAuthor());
+  const fileInputRef = useRef<HTMLInputElement>();
 
   useUndoRedo(panelRef, redo, undo);
 
   useEffect(() => {
     generateShareImage();
-  }, [])
+  }, []);
 
   const setAuthor = (val: string) => {
     _setAuthor(val);
@@ -96,6 +115,26 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
     }
   }
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  }
+
+  const handleInputFileChange: React.ChangeEventHandler<HTMLInputElement> = (ev) => {
+    const files = ev.target.files;
+    if (files.length <= 0) return;
+    (async () => {
+      const mapSaveData = await readMapDataFromFile(files[0]);
+      const command = new ImportMapDataCommand(mapSaveData, data, options, setData, setOptions);
+      executeCommand(command);
+      toast(`Imported Map`, {
+        icon: "✓",
+        duration: 2500,
+        position: "bottom-right",
+        className: editorStyles.toastRedo,
+      });
+    })();
+  }
+
   const handleSaveToDisk = async () => {
     try {
       if (!canvas.current) throw new Error('canvas not set');
@@ -141,8 +180,26 @@ export const PanelSave = ({ canvas, data, options, mapId, setMapId, redo, undo }
           <CopyLinkDev />
         </Stack>
       )}
-      <Stack marginBottom row align="center" justify="spaceBetween">
-        <SaveButton loading={loading} onSave={handleSaveToDisk} />
+      <div>
+        <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleInputFileChange} />
+      </div>
+      <Stack row align="center" justify="spaceBetween">
+        <Stack marginBottom row align="center" justify="spaceBetween">
+          <Button
+            className={styles.importMapButton}
+            loading={loading}
+            onClick={handleImportClick}
+          >
+            <span style={{ whiteSpace: 'nowrap' }}>&lt;&lt; Import</span>
+          </Button>
+          <Button
+            className={styles.exportMapButton}
+            loading={loading}
+            onClick={handleSaveToDisk}
+          >
+            <span style={{ whiteSpace: 'nowrap' }}>Export &gt;&gt;</span>
+          </Button>
+        </Stack>
       </Stack>
       <Stack marginBottom row align="center" justify="spaceBetween">
         <PublishButton loading={loading} hasMapId={!!mapId} onPublish={handlePublish} />

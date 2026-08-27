@@ -97,7 +97,8 @@ textarea {
 }
 
 .publishMapButton,
-.saveMapButton,
+.importMapButton,
+.exportMapButton,
 .updateMapButton {
   display: inline-flex;
   justify-content: center;
@@ -105,7 +106,6 @@ textarea {
   width: 100%;
   padding: 10px 30px;
   font-family: 'MiniMOOD';
-  font-size: 1.4em;
   min-height: 52px;
 
   & > span {
@@ -137,18 +137,28 @@ textarea {
   background: #E1AA51;
   color: #3e464c;
   text-shadow: -1px 3px 0px #00000054;
-}
-
-.saveMapButton {
-  background: #50b8c3;
-  color: #3e464c;
-  text-shadow: -1px 3px 0px #00000054;
+  font-size: 1.4em;
 }
 
 .updateMapButton {
   background: #5d8bb3;
   color: #3e464c;
   text-shadow: -1px 3px 0px #00000054;
+  font-size: 1.4em;
+}
+
+.importMapButton {
+  background: #b8cad8;
+  color: #3e464c;
+  text-shadow: -1px 3px 0px #00000054;
+  font-size: 1em;
+}
+
+.exportMapButton {
+  background: #50b8c3;
+  color: #3e464c;
+  text-shadow: -1px 3px 0px #00000054;
+  font-size: 1em;
 }
 
 .copyDevLinkButton {

@@ -1,0 +1,6 @@
+button .loader,
+button :global(.loader) {
+  transform: none;
+  margin: 0;
+  opacity: 1!important;
+}

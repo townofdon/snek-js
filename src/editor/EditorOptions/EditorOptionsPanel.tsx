@@ -85,7 +85,18 @@ export const EditorOptionsPanel = ({
           <PanelColors options={options} setPalette={setPalette} setPipeVariant={setPipeVariant} undo={undo} redo={redo} />
         </TabPanel>
         <TabPanel id={OptionsTab.Save}>
-          <PanelSave canvas={canvas} mapId={mapId} setMapId={setMapId} data={data} options={options} undo={undo} redo={redo} />
+          <PanelSave
+            canvas={canvas}
+            mapId={mapId}
+            setMapId={setMapId}
+            setData={setData}
+            setOptions={setOptions}
+            executeCommand={executeCommand}
+            data={data}
+            options={options}
+            undo={undo}
+            redo={redo}
+          />
         </TabPanel>
       </Tabs>
     </div>
