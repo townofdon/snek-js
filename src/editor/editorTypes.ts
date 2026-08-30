@@ -1,3 +1,4 @@
+import { MapAnnotation, TileDirectionOverride } from "@/types";
 
 export type SetStateValue<T> = T | ((prev: T) => T)
 
@@ -22,14 +23,10 @@ export enum Tile {
   Pipe,
 }
 
-// note: do not change enum order.
-enum MapAnnotation {
-  None = 0,
-  LinkLevel1,
-  LinkLevel2,
-  LinkLevel3,
-  LinkLevel4,
-  BossWeakPoint,
+export interface EditorMetadata {
+  mapId: string,
+  annotations: Record<number, MapAnnotation>,
+  tileDirectionOverrides: Record<number, TileDirectionOverride>,
 }
 
 export interface MapSaveData {
@@ -38,6 +35,7 @@ export interface MapSaveData {
   author: string,
   mapData: string,
   annotations: Record<number, MapAnnotation>,
+  tileDirectionOverrides: Record<number, TileDirectionOverride>,
   overlayImagePath: string | null,
 }
 

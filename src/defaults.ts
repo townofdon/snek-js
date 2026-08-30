@@ -104,6 +104,7 @@ export const DEFAULT_ENGINE_STATE: EngineState = {
   pipesMap: {},
   flamesMap: {},
   deathIlluminationMap: {},
+  tileDirectionOverrides: {},
 } satisfies EngineState;
 
 export const DEFAULT_ACTION_IDS_MAP: Record<ActionKey, string | null> = {

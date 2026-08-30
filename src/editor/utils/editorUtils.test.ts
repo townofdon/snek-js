@@ -4,8 +4,8 @@ import expect from "expect"
 import { buildLevel } from "../../levels/levelBuilder";
 import { LEVEL_01 } from "../../levels/campaign/level01";
 import { LEVEL_10 } from "../../levels/campaign/level10";
-import { LEVELS } from "../../levels/levelConstants";
-import { BarrierType, DIR, EditorData, EditorOptions, KeyChannel, Level, LevelType, MusicTrack, PickupType, PortalExitMode, ThreatType } from "../../types"
+import { LEVELS, TILECHAR } from "../../levels/levelConstants";
+import { BarrierType, DIR, EditorData, EditorOptions, KeyChannel, Level, LevelType, MusicTrack, PickupType, PipeVariant, PortalExitMode, ThreatType } from "../../types"
 import { coordToVec, getCoordIndex2 } from "../../utils";
 
 import { buildMapLayout, decodeMapData, decode, encodeMapData, encode, getEditorDataFromLayout, printLayout } from "./editorUtils"
@@ -497,4 +497,82 @@ describe('editorUtils', () => {
         .forEach(testLevel)
     });
   });
+});
+
+describe('editorUtils data length', () => {
+  it('should always be less than 2048 chars', function(){
+    this.timeout(10000);
+    let biggestEncodedLengthFound = 0;
+    const test = () => {
+      const randomInt = (min: number, max: number) => {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+      const randomFloat = (min: number, max: number) => {
+        if (min === max) return min;
+        return Math.random() * (max - min + Number.EPSILON) + min;
+      }
+      const randomBool = () => {
+        return Math.random() > 0.5 ? true : false;
+      }
+      const randomMap = () => {
+        let mapstr = '';
+        for (let y = 0; y < GRIDCOUNT_Y; y++) {
+          for (let x = 0; x < GRIDCOUNT_X; x++) {
+            const possibleTiles = Object.values(TILECHAR).filter(v => !!v);
+            const idx = Math.floor(Math.random() * possibleTiles.length);
+            const char = possibleTiles[idx] || TILECHAR.None;
+            expect(char).toBeTruthy();
+            mapstr += char;
+          }
+          mapstr += '\n';
+        }
+        return mapstr;
+      }
+      const layout = randomMap();
+      expect(layout.length).toStrictEqual(930);
+      const allDirs = Object.values(DIR).filter(v => !!v);
+      const startDirection = allDirs[Math.floor(Math.random() * allDirs.length)];
+      const playerSpawnPosition = new Vector(randomInt(0, 29), randomInt(0, 29));
+      const data = getEditorDataFromLayout(layout, playerSpawnPosition, startDirection);
+      const options: EditorOptions = {
+        name: "test",
+        timeToClear: randomInt(30, 10000),
+        applesToClear: randomInt(10, 100),
+        numApplesStart: randomInt(3, 50),
+        disableAppleSpawn: randomBool(),
+        spawnInvincibilityPickups: randomBool(),
+        spawnMines: randomBool(),
+        spawnBombs: randomBool(),
+        spawnBarrels: randomBool(),
+        spawnLasers: randomBool(),
+        snakeStartSize: randomInt(3, 50),
+        growthMod: randomFloat(0, 2),
+        extraHurtGraceTime: randomInt(0, 100),
+        globalLight: randomFloat(0, 1),
+        palette: PALETTE.atomic,
+        portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
+        musicTrack: MusicTrack.None,
+        pipeVariant: randomInt(1, PipeVariant.Themed3),
+      }
+      const encoded = encodeMapData(data, options);
+      const length = encoded.length;
+      if (length > biggestEncodedLengthFound) {
+        biggestEncodedLengthFound = length;
+      }
+      expect(length <= 2048).toStrictEqual(true);
+      if (DEBUG) {
+        if (length > 1600) {
+          console.warn(`encoded_length=${length} !! APPROACHING LIMIT OF 2048`);
+        } else {
+          console.log(`encoded_length=${length}`);
+        }
+      }
+    };
+    for (let i = 0; i < 100; i++) {
+      test();
+    }
+    if (DEBUG) {
+      console.log(`encoded_length worst_offender=${biggestEncodedLengthFound} chars`);
+    }
+  })
 });

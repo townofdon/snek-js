@@ -13,7 +13,7 @@ import {
   rotateSystemAfterPortalTraverse,
   validPipeExit,
 } from "../utils";
-import { DIR, Level, PipeConnection } from "../types";
+import { DIR, EngineState, Level, PipeConnection, TileDirectionOverride } from "../types";
 import { Vector } from "p5";
 import { GRIDCOUNT_X, GRIDCOUNT_Y } from "@/constants";
 import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE } from "@/defaults";
@@ -164,7 +164,7 @@ describe("Utils", () => {
       case PipeConnection.NSWE:
         return'┼';
       case PipeConnection.Island:
-        return'*';
+        return'I';
       case PipeConnection.Unset:
       default:
         return'.';
@@ -377,12 +377,13 @@ describe("Utils", () => {
   });
   describe('findPipeExit', () => {
     type PipeTest = { given: [number, number, DIR], expected: [number, number, DIR] };
-    const runTests = (pipesMap: Record<number, PipeConnection>, tests: PipeTest[]) => {
-      const engineState = { ...DEFAULT_ENGINE_STATE, pipesMap };
+    const runTests = (pipesMap: Record<number, PipeConnection>, tests: PipeTest[], overrides: Record<number, TileDirectionOverride> = {}) => {
+      const engineState = { ...DEFAULT_ENGINE_STATE, pipesMap, tileDirectionOverrides: overrides } satisfies EngineState;
       const errors: string[] = [];
       tests.forEach(({ given, expected }, i) => {
+        let result: ([number, DIR] | false) = [-1, null];
         try {
-          const result = findPipeExit(getCoordIndex2(given[0], given[1]), given[2], DEFAULT_GAME_STATE, engineState);
+          result = findPipeExit(getCoordIndex2(given[0], given[1]), given[2], DEFAULT_GAME_STATE, engineState);
           assert(result, 'no exit found');
           const [coord, exitDir] = result || [];
           assert.strictEqual(coord, getCoordIndex2(expected[0], expected[1]));
@@ -390,7 +391,10 @@ describe("Utils", () => {
         } catch (error) {
           const ANSI_RESET = "\x1b[0m";
           const ANSI_RED = "\x1b[31m";
-          errors.push(ANSI_RED + `test case ${i} failed.\n  given: entry=(${given[0]},${given[1]}),dir=${given[2]};\n  expected: exit=(${expected[0]},${expected[1]}),dir=${expected[2]}` + '\n  ' + String(error) + ANSI_RESET);
+          const [coord = -1, gotDir] = result || [];
+          const gotx = coord >= 0 ? getCoordX(coord) : -1;
+          const goty = coord >= 0 ? getCoordY(coord) : -1;
+          errors.push(ANSI_RED + `test case ${i} failed.\n  given: entry=(${given[0]},${given[1]}),dir=${given[2]};\n  expected: exit=(${expected[0]},${expected[1]}),dir=${expected[2]}\n  got: exit=(${gotx},${goty}),dir=${gotDir}` + '\n  ' + String(error) + ANSI_RESET);
         }
       });
       if (errors.length) {
@@ -436,13 +440,38 @@ describe("Utils", () => {
         { given: [15, 10, DIR.DOWN], expected: [15, 11, DIR.DOWN] },
       ]);
     });
+    it('should find exits for complex scene with overrides', () => {
+      const levelData = buildLevel(pipeTestLevel);
+      const pipesMap: Record<number, PipeConnection> = {};
+      const overrides: Record<number, TileDirectionOverride> = {
+        [getCoordIndex2(10, 28)]: TileDirectionOverride.Left,
+        [getCoordIndex2(12, 23)]: TileDirectionOverride.Up,
+        [getCoordIndex2(6, 7)]: TileDirectionOverride.Right,
+        [getCoordIndex2(24, 4)]: TileDirectionOverride.Down,
+      };
+      buildPipesMap(levelData.pipes, pipesMap, overrides);
+      if (DEBUG) {
+        debugPipesMap(pipesMap);
+      }
+      runTests(pipesMap, [
+        { given: [1, 1, DIR.LEFT], expected: [9, 28, DIR.LEFT] },
+        { given: [10, 28, DIR.RIGHT], expected: [2, 1, DIR.RIGHT] },
+        { given: [3, 4, DIR.RIGHT], expected: [11, 4, DIR.RIGHT] },
+        { given: [10, 4, DIR.LEFT], expected: [2, 4, DIR.LEFT] },
+        { given: [6, 2, DIR.DOWN], expected: [7, 7, DIR.RIGHT] },
+        { given: [6, 7, DIR.LEFT], expected: [6, 1, DIR.UP] },
+        { given: [22, 26, DIR.UP], expected: [20, 23, DIR.LEFT] },
+        { given: [15, 10, DIR.UP], expected: [15, 9, DIR.UP] },
+        { given: [15, 10, DIR.DOWN], expected: [15, 11, DIR.DOWN] },
+      ], overrides);
+    });
   });
 });
 
 // DO NOT MODIFY THIS DATA - just create a different level test case!
 // http://localhost:3000/snek-js/editor/?data=CkxMaClqdktaUHIuIVdXJ1AoSihQIWtLUyFtKHIuSydvJy52TlprTlprUE4oTiBRWGpKTlpRdU5QIVl1J1chbVlkSidXUCEhUHIoKFltb19TX0tXSiEhV1dQa2pTKE5zUyhQWi4nKG1aLlMhSiFQb3NaSm8hLlooS3NOV0tzWihOKVMob1MuV1dKWGhRfDc4NHxSSUdIVHxVbnRpdGxlZCBNYXBjMjAwMGYyZjNPM2NPMXwjREJBRTk1KkMyN0E1MGJBNUE2QTcqODdBMkMwZ2IyNzJDM0ZnKkNCQ0RDRCpEMkQ0RDQqNzI5RkMwKjQ2Nzc5Qio0QzgyQTl8VlZWMU8xY08wTzRxIFNLIFApUVAqLSMucSltUEshIShMWFhYWFhYTicnT3xmUVgKUychVjEtMS0xLVdKSlkhZApaTiFfKCdQJ3JRWFBiKjE2MTkyNSpjfDFmMHxnKjFGMjMzM2hYZGRkTExYalBOTi5rISltSlBvS1BxISByKCFzJyl1ZEpTUHZLTlNrAXZ1c3Jxb21ramhnZmNiX1pZV1ZTUU9OTEtKLiopKCchXw%25253D%25253D
-const layoutV2 = `CkxMaClqdktaUHIuIVdXJ1AoSihQIWtLUyFtKHIuSydvJy52TlprTlprUE4oTiBRWGpKTlpRdU5QIVl1J1chbVlkSidXUCEhUHIoKFltb19TX0tXSiEhV1dQa2pTKE5zUyhQWi4nKG1aLlMhSiFQb3NaSm8hLlooS3NOV0tzWihOKVMob1MuV1dKWGhRfDc4NHxSSUdIVHxVbnRpdGxlZCBNYXBjMjAwMGYyZjNPM2NPMXwjREJBRTk1KkMyN0E1MGJBNUE2QTcqODdBMkMwZ2IyNzJDM0ZnKkNCQ0RDRCpEMkQ0RDQqNzI5RkMwKjQ2Nzc5Qio0QzgyQTl8VlZWMU8xY08wTzRxIFNLIFApUVAqLSMucSltUEshIShMWFhYWFhYTicnT3xmUVgKUychVjEtMS0xLVdKSlkhZApaTiFfKCdQJ3JRWFBiKjE2MTkyNSpjfDFmMHxnKjFGMjMzM2hYZGRkTExYalBOTi5rISltSlBvS1BxISByKCFzJyl1ZEpTUHZLTlNrAXZ1c3Jxb21ramhnZmNiX1pZV1ZTUU9OTEtKLiopKCchXw%253D%253D`;
-const [data] = decodeMapData(layoutV2);
+const layoutV2Pipes = `CkxMaClqdktaUHIuIVdXJ1AoSihQIWtLUyFtKHIuSydvJy52TlprTlprUE4oTiBRWGpKTlpRdU5QIVl1J1chbVlkSidXUCEhUHIoKFltb19TX0tXSiEhV1dQa2pTKE5zUyhQWi4nKG1aLlMhSiFQb3NaSm8hLlooS3NOV0tzWihOKVMob1MuV1dKWGhRfDc4NHxSSUdIVHxVbnRpdGxlZCBNYXBjMjAwMGYyZjNPM2NPMXwjREJBRTk1KkMyN0E1MGJBNUE2QTcqODdBMkMwZ2IyNzJDM0ZnKkNCQ0RDRCpEMkQ0RDQqNzI5RkMwKjQ2Nzc5Qio0QzgyQTl8VlZWMU8xY08wTzRxIFNLIFApUVAqLSMucSltUEshIShMWFhYWFhYTicnT3xmUVgKUychVjEtMS0xLVdKSlkhZApaTiFfKCdQJ3JRWFBiKjE2MTkyNSpjfDFmMHxnKjFGMjMzM2hYZGRkTExYalBOTi5rISltSlBvS1BxISByKCFzJyl1ZEpTUHZLTlNrAXZ1c3Jxb21ramhnZmNiX1pZV1ZTUU9OTEtKLiopKCchXw%253D%253D`;
+const [data] = decodeMapData(layoutV2Pipes);
 const pipeTestLevel: Level = {
   id: "-pipes-test-",
   name: "pipes-test",

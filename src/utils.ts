@@ -62,6 +62,7 @@ import {
   FLAG_WEST,
   FLAG_EAST,
   DamageType,
+  TileDirectionOverride,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -1076,7 +1077,24 @@ export const withFlipx = (gfx: P5 | P5.Graphics, x: number, y: number, flipx: bo
   gfx.pop();
 }
 
-export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConnection>) => {
+const getPipeIdx = (coord: number, pipesMap: Record<number, PipeConnection>, tileDirectionOverrides: Record<number, TileDirectionOverride> = {}): PipeConnection => {
+  if (!pipesMap[coord]) return PipeConnection.Unset;
+  const x = getCoordX(coord);
+  const y = getCoordY(coord);
+  const up = y > 0 ? !!pipesMap[getCoordIndex2(x, y - 1)] : false;
+  const down = y < GRIDCOUNT_Y - 1 ? !!pipesMap[getCoordIndex2(x, y + 1)] : false;
+  const left = x > 0 ? !!pipesMap[getCoordIndex2(x - 1, y)] : false;
+  const right = x < GRIDCOUNT_X - 1 ? !!pipesMap[getCoordIndex2(x + 1, y)] : false;
+  let idx = 0;
+  if (up || tileDirectionOverrides[coord] === TileDirectionOverride.Up) idx += FLAG_NORTH;
+  if (down || tileDirectionOverrides[coord] === TileDirectionOverride.Down) idx += FLAG_SOUTH;
+  if (left || tileDirectionOverrides[coord] === TileDirectionOverride.Left) idx += FLAG_WEST;
+  if (right || tileDirectionOverrides[coord] === TileDirectionOverride.Right) idx += FLAG_EAST;
+  if (!idx) return PipeConnection.Unset;
+  return idx;
+}
+
+export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConnection>, tileDirectionOverrides: Record<number, TileDirectionOverride> = {}) => {
   for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
     pipesMap[coord] = undefined;
   }
@@ -1087,22 +1105,39 @@ export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConn
   // assign island type by neighbor
   for (let y = 0; y < GRIDCOUNT_Y; y++) {
     for (let x = 0; x < GRIDCOUNT_X; x++) {
-      if (!pipesMap[getCoordIndex2(x, y)]) continue;
-      const up = y > 0 ? !!pipesMap[getCoordIndex2(x, y - 1)] : false;
-      const down = y < GRIDCOUNT_Y - 1 ? !!pipesMap[getCoordIndex2(x, y + 1)] : false;
-      const left = x > 0 ? !!pipesMap[getCoordIndex2(x - 1, y)] : false;
-      const right = x < GRIDCOUNT_X - 1 ? !!pipesMap[getCoordIndex2(x + 1, y)] : false;
-      let idx = 0;
-      if (up) idx += FLAG_NORTH;
-      if (down) idx += FLAG_SOUTH;
-      if (left) idx += FLAG_WEST;
-      if (right) idx += FLAG_EAST;
+      const coord = getCoordIndex2(x, y);
+      if (!pipesMap[coord]) continue;
+      const idx = getPipeIdx(coord, pipesMap, tileDirectionOverrides);
       if (!idx) continue;
-      pipesMap[getCoordIndex2(x, y)] = idx;
+      pipesMap[coord] = idx;
     }
   }
 }
 
+export const validPipeMove = (fromCoord: number, toCoord: number, es: EngineState): boolean => {
+  if (fromCoord === toCoord) return false;
+  const frx = getCoordX(fromCoord);
+  const fry = getCoordY(fromCoord);
+  const tox = getCoordX(toCoord);
+  const toy = getCoordY(toCoord);
+  if (getManhattanDistance(frx, fry, tox, toy) !== 1) {
+    return false;
+  }
+  const from = es.pipesMap[fromCoord];
+  const to = es.pipesMap[toCoord];
+  if (!from || !to) {
+    return false;
+  }
+  if (FLAG_NORTH & from && FLAG_SOUTH & to) return true;
+  if (FLAG_SOUTH & from && FLAG_NORTH & to) return true;
+  if (FLAG_WEST & from && FLAG_EAST & to) return true;
+  if (FLAG_EAST & from && FLAG_WEST & to) return true;
+  return false;
+}
+
+/**
+ * Determine if a cell is a valid pipe exit, with an optional direction mask.
+ */
 export const validPipeExit = (exitCoord: number, state: GameState, es: EngineState, mask: number = FLAG_NORTH | FLAG_SOUTH | FLAG_WEST | FLAG_EAST): boolean => {
   if (!es.pipesMap[exitCoord]) return false;
   const valid = (x: number, y: number) => {
@@ -1120,23 +1155,22 @@ export const validPipeExit = (exitCoord: number, state: GameState, es: EngineSta
   const connection = es.pipesMap[exitCoord];
   const x = getCoordX(exitCoord);
   const y = getCoordY(exitCoord);
-  // note - direction is flipped here because we are checking the validity of the connection itself
-  // e.g. "neighbor up" => check that tile down is valid
-  const up = mask & FLAG_SOUTH && y < GRIDCOUNT_Y - 1 && valid(x, y + 1);
-  const down = mask & FLAG_NORTH && y > 0 && valid(x, y - 1);
-  const left = mask & FLAG_EAST && x < GRIDCOUNT_X - 1 && valid(x + 1, y);
-  const right = mask & FLAG_WEST && x > 0 && valid(x - 1, y);
+  const override = es.tileDirectionOverrides[exitCoord];
+  const canMoveDown = mask & FLAG_SOUTH && !outOfBounds(x, y + 1) && (override ? override === TileDirectionOverride.Down : valid(x, y + 1));
+  const canMoveUp = mask & FLAG_NORTH && !outOfBounds(x, y - 1) && (override ? override === TileDirectionOverride.Up : valid(x, y - 1));
+  const canMoveRight = mask & FLAG_EAST && !outOfBounds(x + 1, y) && (override ? override === TileDirectionOverride.Right : valid(x + 1, y));
+  const canMoveLeft = mask & FLAG_WEST && !outOfBounds(x - 1, y) && (override ? override === TileDirectionOverride.Left : valid(x - 1, y));
   switch (connection) {
     case PipeConnection.N:
-      return up;
+      return canMoveDown;
     case PipeConnection.S:
-      return down;
+      return canMoveUp;
     case PipeConnection.E:
-      return right;
+      return canMoveLeft;
     case PipeConnection.W:
-      return left;
+      return canMoveRight;
     case PipeConnection.Island:
-      return up || down;
+      return canMoveDown || canMoveUp;
     case PipeConnection.NS:
     case PipeConnection.NW:
     case PipeConnection.SW:
@@ -1148,33 +1182,55 @@ export const validPipeExit = (exitCoord: number, state: GameState, es: EngineSta
     case PipeConnection.NWE:
     case PipeConnection.SWE:
     case PipeConnection.NSWE:
+      return (
+        (canMoveDown && override === TileDirectionOverride.Down) ||
+        (canMoveUp && override === TileDirectionOverride.Up) ||
+        (canMoveRight && override === TileDirectionOverride.Right) ||
+        (canMoveLeft && override === TileDirectionOverride.Left)
+      );
     default:
       return false;
   }
 }
 
+// Use a flood-fill-like algorithm to find the best pipe exit. Prefer straightest path.
 export const findPipeExit = (entryCoord: number, entryDir: DIR, state: GameState, es: EngineState): ([number, DIR] | false) => {
   if (!validPipeExit(entryCoord, state, es)) return false;
   const entrance = es.pipesMap[entryCoord];
-  if (entrance === PipeConnection.N && entryDir !== DIR.UP) return false;
-  if (entrance === PipeConnection.S && entryDir !== DIR.DOWN) return false;
-  if (entrance === PipeConnection.W && entryDir !== DIR.LEFT) return false;
-  if (entrance === PipeConnection.E && entryDir !== DIR.RIGHT) return false;
-  if (entrance === PipeConnection.Island) {
-    const x = getCoordX(entryCoord);
-    const y = getCoordY(entryCoord);
-    if (entryDir === DIR.LEFT) return false;
-    if (entryDir === DIR.RIGHT) return false;
-    if (entryDir === DIR.UP) {
-      if (!validPipeExit(entryCoord, state, es, FLAG_NORTH)) return false;
-      return [getCoordIndex2(x, y - 1), DIR.UP];
-    };
-    if (entryDir === DIR.DOWN) {
-      if (!validPipeExit(entryCoord, state, es, FLAG_SOUTH)) return false;
-      return [getCoordIndex2(x, y + 1), DIR.DOWN];
+  const override = es.tileDirectionOverrides[entryCoord];
+  if (override) {
+    const valid = (
+      (entryDir === DIR.UP && override === TileDirectionOverride.Down) ||
+      (entryDir === DIR.DOWN && override === TileDirectionOverride.Up) ||
+      (entryDir === DIR.RIGHT && override === TileDirectionOverride.Left) ||
+      (entryDir === DIR.LEFT && override === TileDirectionOverride.Right)
+    );
+    if (!valid) {
+      // TODO: REMOVE
+      console.log('override pipe entrance invalid');
+      return false;
+    }
+  } else {
+    if (entrance === PipeConnection.N && entryDir !== DIR.UP) return false;
+    if (entrance === PipeConnection.S && entryDir !== DIR.DOWN) return false;
+    if (entrance === PipeConnection.W && entryDir !== DIR.LEFT) return false;
+    if (entrance === PipeConnection.E && entryDir !== DIR.RIGHT) return false;
+    if (entrance === PipeConnection.Island) {
+      const x = getCoordX(entryCoord);
+      const y = getCoordY(entryCoord);
+      if (entryDir === DIR.LEFT) return false;
+      if (entryDir === DIR.RIGHT) return false;
+      if (entryDir === DIR.UP) {
+        if (!validPipeExit(entryCoord, state, es, FLAG_NORTH)) return false;
+        return [getCoordIndex2(x, y - 1), DIR.UP];
+      };
+      if (entryDir === DIR.DOWN) {
+        if (!validPipeExit(entryCoord, state, es, FLAG_SOUTH)) return false;
+        return [getCoordIndex2(x, y + 1), DIR.DOWN];
+      }
     }
   }
-  const visited: Record<number, boolean> = { [entryCoord]: true };
+  const visited: Record<number, boolean> = {};
   const node = coordToVec(entryCoord);
   let dir = entryDir;
   const valid = (x: number, y: number) => true
@@ -1182,6 +1238,7 @@ export const findPipeExit = (entryCoord: number, entryDir: DIR, state: GameState
     && y >= 0 && y <= GRIDCOUNT_Y - 1
     && es.pipesMap[getCoordIndex2(x, y)]
     && !visited[getCoordIndex2(x, y)];
+  const validMove = (x: number, y: number) => valid(x, y) && validPipeMove(getCoordIndex(node), getCoordIndex2(x, y), es);
   const move = (direction: DIR) => {
     dir = direction;
     switch (direction) {
@@ -1219,24 +1276,34 @@ export const findPipeExit = (entryCoord: number, entryDir: DIR, state: GameState
   }
 
   const candidates: number[] = [];
-  move(entryDir);
   while (valid(node.x, node.y) || candidates.length) {
     const x = node.x;
     const y = node.y;
     const coord = getCoordIndex2(x, y);
-    if (validPipeExit(coord, state, es)) {
-      const move = dirToUnitVector(dir);
-      const exitCoord = getCoordIndex2(x + move.x, y + move.y);
-      return [exitCoord, dir];
+    if (coord !== entryCoord && validPipeExit(coord, state, es, FLAG_NORTH)) {
+      const exitCoord = getCoordIndex2(x, y - 1);
+      return [exitCoord, DIR.UP];
+    }
+    if (coord !== entryCoord && validPipeExit(coord, state, es, FLAG_SOUTH)) {
+      const exitCoord = getCoordIndex2(x, y + 1);
+      return [exitCoord, DIR.DOWN];
+    }
+    if (coord !== entryCoord && validPipeExit(coord, state, es, FLAG_WEST)) {
+      const exitCoord = getCoordIndex2(x - 1, y);
+      return [exitCoord, DIR.LEFT];
+    }
+    if (coord !== entryCoord && validPipeExit(coord, state, es, FLAG_EAST)) {
+      const exitCoord = getCoordIndex2(x + 1, y);
+      return [exitCoord, DIR.RIGHT];
     }
     if (visited[coord]) {
       return false;
     }
     visited[coord] = true;
-    const up = valid(x, y - 1) ? DIR.UP : false;
-    const down = valid(x, y + 1) ? DIR.DOWN : false;
-    const left = valid(x - 1, y) ? DIR.LEFT : false;
-    const right = valid(x + 1, y) ? DIR.RIGHT : false;
+    const up = validMove(x, y - 1) ? DIR.UP : false;
+    const down = validMove(x, y + 1) ? DIR.DOWN : false;
+    const left = validMove(x - 1, y) ? DIR.LEFT : false;
+    const right = validMove(x + 1, y) ? DIR.RIGHT : false;
     const sameDirection = [up, down, left, right].filter(val => !!val && val === dir)[0] as DIR;
     const staged = [up, down, left, right].filter(val => !!val && val !== dir) as DIR[];
     if (sameDirection) {

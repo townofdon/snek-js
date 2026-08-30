@@ -316,6 +316,7 @@ export interface EngineState {
   pipesMap: Record<number, PipeConnection>,
   flamesMap: Record<number, boolean>,
   deathIlluminationMap: Record<number, boolean>,
+  tileDirectionOverrides: Record<number, TileDirectionOverride>,
 }
 
 export interface Outfit {
@@ -666,6 +667,28 @@ export enum PipeConnection {
   SWE,
   NSWE,
   Island, // no neighbors
+}
+
+export enum MapAnnotation {
+  None = 0,
+  L1,
+  L2,
+  L3,
+  L4,
+  L5,
+  L6,
+  L7,
+  L8,
+  L9,
+  LA,
+}
+
+export enum TileDirectionOverride {
+  None = 0,
+  Up,
+  Down,
+  Left,
+  Right,
 }
 
 export interface LevelPickup {
