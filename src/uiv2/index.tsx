@@ -9,5 +9,13 @@ const requireElementById = (id: string) => {
   return node;
 }
 
-createRoot(requireElementById('main-menu-v2')).render(<MainMenu />);
-createRoot(requireElementById('settings-menu-v2')).render(<SettingsMenu />);
+createRoot(requireElementById('main-menu-v2')).render(
+  <React.StrictMode>
+    <MainMenu />
+  </React.StrictMode>
+);
+createRoot(requireElementById('settings-menu-v2')).render(
+  <React.StrictMode>
+    <SettingsMenu />
+  </React.StrictMode>
+);

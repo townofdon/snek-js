@@ -1,6 +1,6 @@
 import P5, { Element } from 'p5';
 
-import { DOM, parseElementLevelNum, requireElementById } from './uiUtils';
+import { DOM, getOrCreateElementById, parseElementLevelNum, requireElementById } from './uiUtils';
 import { emitUIEvent } from './uiEvents';
 import { DifficultyIndex, Initiator, InputAction } from '../types';
 import { getWarpLevelFromNum } from '../levels/levelUtils';
@@ -158,27 +158,30 @@ export class UI {
     loader.classList.add('hidden');
   }
 
-  static drawTitle(title = '', textColor = '#fff', offset: number, hasShadow: boolean, uiElements: Element[]) {
-    const p = UI.p5.createP("");
+  static drawTitle(title = '', textColor = '#fff', offset: number, hasShadow: boolean, uiElements: (HTMLElement | Element)[]) {
+    const p = document.createElement('p');
     for (let i = 0; i < title.length; i++) {
-      const span = UI.p5.createSpan(title[i]);
-      span.parent(p);
+      const span = document.createElement('span');
+      span.textContent = title[i];
+      p.appendChild(span);
     }
-    UI.p5.scale(2);
-    p.id('title');
-    p.style('font-size', '6em');
-    p.style('letter-spacing', '52px');
-    p.style('color', textColor);
-    p.style('line-height', '1em');
-    p.style('font-family', "'Monofett', monospace");
-    p.style('white-space', 'nowrap');
-    p.style('z-index', '5');
+    p.id = 'title';
+    p.style.transform = 'scale(2)';
+    p.style.fontSize = '6em';
+    p.style.letterSpacing = '52px';
+    p.style.color = textColor;
+    p.style.lineHeight = '1em';
+    p.style.fontFamily = "'Monofett', monospace";
+    p.style.whiteSpace = 'nowrap';
+    p.style.zIndex = '5';
     if (hasShadow) {
-      p.style('text-shadow', '6px 6px 3px black');
+      p.style.textShadow = '6px 6px 3px black';
     }
-    p.position(68 + offset, 5 + offset);
-    p.parent(UI_PARENT_ID);
-    p.addClass("main-title");
+    p.style.position = 'absolute';
+    p.style.left = `${68 + offset}px`;
+    p.style.top = `${5 + offset}px`;
+    p.classList.add("main-title");
+    document.getElementById(UI_PARENT_ID)?.appendChild(p);
     uiElements.push(p);
     return p;
   }
@@ -192,58 +195,59 @@ export class UI {
     document.getElementById('casual-rewind-tip-field')?.remove();
   }
 
+  private static applyLevelNameStyles(
+    elem: HTMLElement,
+    backgroundColor: string,
+    color: string
+  ) {
+    if (!elem) return;
+    elem.style.backgroundColor = backgroundColor;
+    elem.style.color = color;
+    elem.classList.add('ui-label', 'level-name');
+  }
+
   static renderLevelName(levelName = '', isInvertedColors: boolean, progress = 0) {
     const progressColor = "#ffffffdd";
     const id1 = 'level-name-field-1'
     const id2 = 'level-name-field-2'
-    const elem1 = document.getElementById(id1);
-    const elem2 = document.getElementById(id2);
-    if (elem1 && elem2) {
-      elem1.style.backgroundColor = isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
-      elem2.style.backgroundColor = isInvertedColors ? LABEL_COLOR_INVERTED : progressColor;
-      elem1.style.color = isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR;
-      elem2.style.color = isInvertedColors ? LABEL_BG_COLOR_INVERTED : "black";
-      const p1 = new P5.Element(elem1, UI.p5);
-      const p2 = new P5.Element(elem2, UI.p5);
-      if (progress > Number.EPSILON) {
-        UI.applyLevelProgressInverted(p1, progress);
-        UI.applyLevelProgress(p2, progress);
-      }
-      return;
+    let elem1 = document.getElementById(id1);
+    let elem2 = document.getElementById(id2);
+    if (!elem1) {
+      elem1 = Object.assign(document.createElement('p'), {
+        id: id1,
+        textContent: levelName,
+      });
+      document.getElementById(UI_PARENT_ID).appendChild(elem1);
     }
-    elem1?.remove()
-    elem2?.remove()
-    const p1 = UI.p5.createP(levelName).id(id1);
-    const p2 = progress > Number.EPSILON ? UI.p5.createP(levelName).id(id2) : null;
-    const applyStyles = (p: P5.Element | null, backgroundColor: string, color: string) => {
-      if (!p) return;
-      p.style('background-color', backgroundColor);
-      p.style('color', color);
-      p.class('ui-label level-name');
-      p.parent(UI_PARENT_ID);
+    if (!elem2 && progress > Number.EPSILON) {
+      elem2 = Object.assign(document.createElement('p'), {
+        id: id2,
+        textContent: levelName,
+      });
+      document.getElementById(UI_PARENT_ID).appendChild(elem2);
     }
-    applyStyles(p1, isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR, isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR);
-    applyStyles(p2, isInvertedColors ? LABEL_COLOR_INVERTED : progressColor, isInvertedColors ? LABEL_BG_COLOR_INVERTED : "black");
+    UI.applyLevelNameStyles(elem1, isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR, isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR);
+    UI.applyLevelNameStyles(elem2, isInvertedColors ? LABEL_COLOR_INVERTED : progressColor, isInvertedColors ? LABEL_BG_COLOR_INVERTED : "black");
     if (progress > Number.EPSILON) {
-      UI.applyLevelProgressInverted(p1, progress);
-      UI.applyLevelProgress(p2, progress);
+      UI.applyLevelProgressInverted(elem1, progress);
+      UI.applyLevelProgress(elem2, progress);
     }
   }
 
-  private static applyLevelProgress(elem: P5.Element, progress: number) {
+  private static applyLevelProgress(elem: HTMLElement, progress: number) {
     if (!elem) return;
     const percentage = progress * 100;
     const polygon = `polygon(0% 10%, ${percentage}% 10%, ${percentage}% 90%, 0 90%)`;
-    elem.style('clip-path', polygon);
-    elem.style('-webkit-clip-path', polygon);
+    elem.style.clipPath = polygon;
+    elem.style.setProperty('-webkit-clip-path', polygon);
   }
 
-  private static applyLevelProgressInverted(elem: P5.Element, progress: number) {
+  private static applyLevelProgressInverted(elem: HTMLElement, progress: number) {
     if (!elem) return;
     const percentage = progress * 100;
     const polygon = `polygon(${percentage}% 0%, 100% 0%, 100% 100%, ${percentage}% 100%)`;
-    elem.style('clip-path', polygon);
-    elem.style('-webkit-clip-path', polygon);
+    elem.style.clipPath = polygon;
+    elem.style.setProperty('-webkit-clip-path', polygon);
   }
 
   static renderHearts(numLives = 3, isInvertedColors: boolean) {
@@ -259,20 +263,19 @@ export class UI {
     })()
     const numHearts = 3;
     let elem = document.getElementById(containerId);
-
     if (!elem) {
-      let div = UI.p5.createDiv();
+      const div = document.createElement('div');
       for (let i = 0; i < numHearts; i++) {
-        const element = UI.p5.createSpan();
-        element.class(classNameHeart);
-        element.parent(div);
+        const element = document.createElement('span');
+        element.className = classNameHeart;
+        div.appendChild(element);
       }
-      div.class(classNameContainer);
-      div.id(containerId);
-      div.parent(UI_PARENT_ID);
+      div.className = classNameContainer;
+      div.id = containerId;
+      document.getElementById(UI_PARENT_ID)?.appendChild(div);
       elem = document.getElementById(containerId);
     }
-
+    if (!elem) return;
     const children = elem.getElementsByTagName('span');
     for (let i = 0; i < numHearts && i < children.length; i++) {
       if (i < numLives) {
@@ -296,49 +299,37 @@ export class UI {
 
   static renderScore(score = 0, isInvertedColors: boolean) {
     const id = 'score-field';
-    const elem = document.getElementById(id);
-    if (elem) {
-      elem.innerText = String(score).padStart(8, '0');
-      elem.style.color = isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR;
-      elem.style.backgroundColor = isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
-      return;
-    }
-    const p = UI.p5.createP(String(score).padStart(8, '0'));
-    p.id(id);
-    p.style('color', isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR);
-    p.style('background-color', isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
-    p.class('ui-label score');
-    p.parent(UI_PARENT_ID);
+    const elem = getOrCreateElementById(id, 'p', 'ui-label score', UI_PARENT_ID);
+    elem.innerText = String(score).padStart(8, '0');
+    elem.style.color = isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR;
+    elem.style.backgroundColor = isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
   }
 
   static renderDifficulty(difficultyIndex = 0, isInvertedColors: boolean, isCasualModeEnabled = false, isCobraModeEnabled = false) {
     const id = 'difficulty-field';
-    const difficultyText = (() => {
-      if (difficultyIndex >= 4) return 'ULTRA';
-      if (difficultyIndex >= 3) return isCobraModeEnabled ? 'KING' : 'HARD';
-      if (difficultyIndex >= 2) return 'MEDIUM';
-      if (difficultyIndex >= 1) return 'EASY';
-      return 'UNKNOWN'
-    })() + (isCasualModeEnabled ? ' CASUAL' : '') + (isCobraModeEnabled ? ' COBRA' : '');
-    document.getElementById(id)?.remove();
-    const p = UI.p5.createP(difficultyText);
-    p.id(id);
-    p.style('color', isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR);
-    p.style('background-color', isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR);
-    p.class('ui-label difficulty');
-    p.parent(UI_PARENT_ID);
+    let difficultyText = 'UNKNOWN';
+    if (difficultyIndex >= 4) difficultyText = 'ULTRA';
+    if (difficultyIndex >= 3) difficultyText = isCobraModeEnabled ? 'KING' : 'HARD';
+    if (difficultyIndex >= 2) difficultyText = 'MEDIUM';
+    if (difficultyIndex >= 1) difficultyText = 'EASY';
+    if (isCasualModeEnabled) difficultyText += ' CASUAL';
+    if (isCobraModeEnabled) difficultyText += ' COBRA';
+    const p = getOrCreateElementById(id, 'p', 'ui-label difficulty', UI_PARENT_ID);
+    p.textContent = difficultyText;
+    p.style.color = isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR;
+    p.style.backgroundColor = isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
+    document.getElementById(UI_PARENT_ID)?.appendChild(p);
   }
 
   static renderCasualRewindTip() {
     const id = 'casual-rewind-tip-field';
-    document.getElementById(id)?.remove();
-    const p = UI.p5.createP('[DEL] rewind moves');
-    p.position(0, 0);
-    p.id(id);
-    p.style('color', LABEL_COLOR);
-    p.style('background-color', LABEL_BG_COLOR);
-    p.addClass('ui-label casual')
-    p.parent(UI_PARENT_ID);
+    const p = getOrCreateElementById(id, 'p', 'ui-label casual', UI_PARENT_ID);
+    p.textContent = '[DEL] rewind moves';
+    p.style.position = 'absolute';
+    p.style.left = '0px';
+    p.style.top = '0px';
+    p.style.color = LABEL_COLOR;
+    p.style.backgroundColor = LABEL_BG_COLOR;
   }
 
   static addTooltip(textStr = '', parent: P5.Element, align: 'left' | 'right' = 'left') {
@@ -346,7 +337,7 @@ export class UI {
     element.parent(parent);
   }
 
-  static drawButton(textStr = '', x = 0, y = 0, onClick: () => void, uiElements: Element[], {
+  static drawButton(textStr = '', x = 0, y = 0, onClick: () => void, uiElements: (HTMLElement | Element)[], {
     parentId = "game",
     tooltipText,
   }: {
@@ -370,7 +361,7 @@ export class UI {
     return button;
   }
 
-  static drawText(textStr = '', fontSize = '9.6px', y = 0, uiElements: Element[], { color = '#fff', width = 480, margin = '48px auto' } = {}) {
+  static drawText(textStr = '', fontSize = '9.6px', y = 0, uiElements: (HTMLElement | Element)[], { color = '#fff', width = 480, margin = '48px auto' } = {}) {
     const element = UI.p5.createP(textStr);
     element.addClass('minimood');
     element.style('font-size', fontSize);
@@ -389,7 +380,7 @@ export class UI {
     return element.height;
   }
 
-  static drawDarkOverlay(uiElements: Element[]) {
+  static drawDarkOverlay(uiElements: (HTMLElement | Element)[]) {
     let div = UI.p5.createDiv();
     div.id('dark-overlay');
     div.style('position', 'absolute');

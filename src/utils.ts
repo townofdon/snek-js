@@ -533,8 +533,9 @@ export function getManhattanDistance(x0: number, y0: number, x1: number, y1: num
  * Return the Euclidian Distance between (x0, y0) and (x1, y1)
  */
 export function getEuclidianDistance(x0: number, y0: number, x1: number, y1: number): number {
-  return Math.hypot((x1 - x0), (y1 - y0));
-  // return Math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
+  const dx = (x1 - x0);
+  const dy = (y1 - y0);
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 export const getRelativeDir = () => {

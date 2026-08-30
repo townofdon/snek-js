@@ -1493,8 +1493,8 @@ export interface SceneCallbacks {
 }
 
 export interface SceneCachedBindings {
-  readonly draw: () => void
-  readonly keyPressed: (event?: object) => void
+  draw: () => void
+  keyPressed: (event?: object) => void
 }
 
 export enum ReplayMode {

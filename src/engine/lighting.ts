@@ -233,7 +233,7 @@ function addSpotlight(lightMap: Float32Array, x: number, y: number, {
     for (let dy = -extent; dy <= extent; dy++) {
       const lx = x * LIGHTMAP_RESOLUTION + dx;
       const ly = y * LIGHTMAP_RESOLUTION + dy;
-      const r = Math.hypot(dx, dy);
+      const r = Math.sqrt(dx * dx + dy * dy);
       const i = toQuantizedIndex(lx, ly);
       if (inBounds(lx, ly) && lightBuffer[i] === 0) {
         lightBuffer[i] = getSpotlightValue(r / LIGHTMAP_RESOLUTION, radius, falloff) * strength;

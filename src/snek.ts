@@ -121,7 +121,7 @@ const tutorial: Tutorial = {
 
 const loseMessages: Record<number, LoseMessage[]> = {};
 
-let uiElements: P5.Element[] = [];
+let uiElements: (HTMLElement | P5.Element)[] = [];
 let quotes = allQuotes.slice();
 let playthroughId = '';
 
@@ -616,7 +616,7 @@ export const sketch = (p5: P5) => {
 
   function clearUI(force = false) {
     if (!force && replay.mode === ReplayMode.Playback) return;
-    uiElements.forEach(element => element.remove())
+    uiElements.forEach(element => element.remove());
     uiElements = [];
     UI.hideMainMenu();
     UI.hideGameModeMenu();

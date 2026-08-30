@@ -1097,7 +1097,7 @@ export function engine({
   function startLogicLoop() {
     if (loopState.interval) clearInterval(loopState.interval);
     loopState.timeScale = 1;
-    loopState.interval = setInterval(withErrorReporting(logicLoop), 1);
+    loopState.interval = setInterval(logicLoop, 1);
   }
 
   function stopLogicLoop() {
@@ -1109,7 +1109,7 @@ export function engine({
     loopState.timeScale = 1;
   }
 
-  function logicLoop() {
+  const logicLoop = withErrorReporting(() => {
     const currentTime = window.performance.now();
     const diff = loopState.timePrevMs === 0
       ? FRAME_DUR_MS
@@ -1386,7 +1386,7 @@ export function engine({
     if (state.frameCount % 8 === 0) {
       state.numTeleports = Math.max(state.numTeleports - 1, 0);
     }
-  }
+  })
 
   //#endregion LOGIC LOOP
 
@@ -1477,7 +1477,7 @@ export function engine({
 
   //#region RENDER LOOP
 
-  function renderLoop(gamepadInputHandled = false) {
+  const renderLoop = withErrorReporting((gamepadInputHandled = false) => {
     const timeFrameStart = performance.now();
 
     if (!gamepadInputHandled) {
@@ -1648,7 +1648,7 @@ export function engine({
     }
 
     return true;
-  }
+  })
 
   //#endregion RENDER LOOP
 
@@ -3372,7 +3372,7 @@ export function engine({
     resetStats,
     resetLevel,
     resetGraphics,
-    renderLoop: withErrorReporting(renderLoop),
+    renderLoop,
     startMoving,
     requestPlayerRewind,
     startScreenShake,

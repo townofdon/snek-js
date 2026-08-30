@@ -1,5 +1,5 @@
 import { SFXInstance, SoundVariants } from "../types";
-import { loadSfxAudio, setSfxVolume } from '../engine/audio';
+import { loadSfxAudio } from '../engine/audio';
 import { getRelativeDir } from '../utils';
 
 /**
@@ -112,7 +112,7 @@ export class SFX implements SFXInstance {
     try {
       const relativeDir = getRelativeDir();
       // const loadSound = (soundFile: string) => new Howl({ src: [`${relativeDir}assets/sounds/${soundFile}`] });
-      const loadSound = (soundFile: string) => loadSfxAudio({src: [`${relativeDir}assets/sounds/${soundFile}`] })
+      const loadSound = (soundFile: string) => loadSfxAudio({src: [`${relativeDir}assets/sounds/${soundFile}`] });
       this.sounds.acquirePrey = await loadSound('acquire-prey.wav');
       this.sounds.acquireShield = await loadSound('acquire-shield.wav');
       this.sounds.acquireHealth = await loadSound('acquire-health.wav');

@@ -1,5 +1,5 @@
 import P5 from "p5";
-import { getAnalyser, getMusicLowpassFrequency, getMusicVolume, getTimeElapsed, loadAudioToBuffer, playMusic, setMusicLowpassFrequency, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
+import { getAnalyser, getMusicLowpassFrequency, getMusicVolume, getTimeElapsed, loadAudioBuffer, playMusic, setMusicLowpassFrequency, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
 import { AudioInfo, GameSettings, IEnumerator, MusicTrack } from "../types";
 import { clamp, getRelativeDir, lerp } from "../utils";
 import { Easing } from "../easing";
@@ -126,7 +126,7 @@ export class MusicPlayer {
       this.tracksPlaying[track] = true;
       this.state.currentTrack = track;
       const info = await playMusic(this.fullPath(track), { volume, loop: this.shouldLoop(track), createAnalyser, trackElapsed, specialEq: true });
-      return info;
+      return info || nilInfo;
     } catch (err) {
       console.error(err);
       return nilInfo;
@@ -237,7 +237,7 @@ export class MusicPlayer {
       console.log(`[MusicPlayer] loading track ${track}`);
     }
     try {
-      loadAudioToBuffer(this.fullPath(track));
+      loadAudioBuffer(this.fullPath(track));
     } catch (err) {
       console.error(err);
     }

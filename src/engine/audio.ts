@@ -109,7 +109,7 @@ export function getAnalyser(path: string): AnalyserNode | null {
   return analyser;
 }
 
-export async function loadAudioToBuffer(path: string): Promise<AudioBuffer | null> {
+export async function loadAudioBuffer(path: string): Promise<AudioBuffer | null> {
   try {
     if (audioBufferMap[path]) {
       if (DEBUG_AUDIO) console.log(`[Audio] got buffer from map for file=${path}`);
@@ -121,6 +121,7 @@ export async function loadAudioToBuffer(path: string): Promise<AudioBuffer | nul
     if (DEBUG_AUDIO) console.log(`[Audio] loaded new buffer for file=${path}`);
     return buffer;
   } catch (err) {
+    audioBufferMap[path] = null;
     console.error(`Unable to load audio file. Error: ${err.message}`);
     return null;
   }
@@ -133,9 +134,13 @@ interface AudioSourceOptions {
   createAnalyser?: boolean,
   trackElapsed?: boolean,
   specialEq?: boolean
+  /**
+   * see: https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode/start#offset
+   */
+  offset?: number,
 }
 
-async function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOptions, onended?: () => void): Promise<AudioInfo | null> {
+function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOptions): (AudioInfo | null) {
   if (options.specialEq) {
     if (path.includes(MusicTrack.moneymaker) || path.includes(MusicTrack.lostcolony)) {
       eqHigh.gain.value = TREBLE_BOOST;
@@ -147,29 +152,27 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
     console.warn(`[Audio] could not play "${path}" due to audio context being suspended`);
     return null;
   }
-  // create gain node
-  const gainNode = audioContext.createGain();
-  audioGainNodeMap[path] = gainNode;
-  gainNode.gain.value = options?.volume ?? 1;
-  gainNode.connect(targetNode);
-  // create source node
-  const buffer = await loadAudioToBuffer(path);
+  // get buffer
+  const buffer = audioBufferMap[path];
   if (!buffer) {
     throw new Error(`[Audio] unable to load buffer for audio: ${path}`);
   }
-  let source: AudioBufferSourceNode;
-  if (audioSourceMap[path]?.buffer) {
-    source = audioSourceMap[path]
-  } else {
-    source = audioContext.createBufferSource();
-    audioSourceMap[path] = source;
-    source.buffer = buffer;
-  }
+  // create gain node
+  const gainNode = new GainNode(audioContext);
+  gainNode.gain.value = options?.volume ?? 1;
+  gainNode.connect(targetNode);
+  // create source node
+  const source = new AudioBufferSourceNode(audioContext);
+  source.buffer = buffer;
   source.loop = options?.loop || false;
-  source.loopStart = options?.loopStart || 0
+  source.loopStart = options?.loopStart || 0;
+  // register source node and gain node
+  audioSourceMap[path] = source;
+  audioGainNodeMap[path] = gainNode;
   // create analyzer
+  let analyser: AnalyserNode;
   if (options?.createAnalyser) {
-    const analyser = audioContext.createAnalyser();
+    analyser = audioContext.createAnalyser();
     audioAnalyserMap[path] = analyser;
     source.connect(analyser);
     analyser.connect(gainNode);
@@ -178,21 +181,18 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
   }
   // start audio
   try {
-    source.start();
+    const when = 0;
+    const offset = Math.max(options?.offset ?? 0, 0);
+    source.start(when, offset);
+    audioTimeStartedMap[path] = audioContext.currentTime;
   } catch (err) {
     console.warn(`err on source.start(${path}): ${err}`);
-  }
-  if (options.trackElapsed) {
-    audioTimeStartedMap[path] = audioContext.currentTime;
-  }
-  const onended_orig = (source.onended ? source.onended : undefined) as (() => void | undefined);
-  source.onended = () => {
-    if (onended_orig) onended_orig()
-    if (onended) onended()
-    stopAudio(path);
-    if (DEBUG_AUDIO) {
-      console.log(`[Audio] onended() called - file=${path},gainNode=${gainNode},buffer=${buffer},source=${source}`)
-    }
+    source.onended = null;
+    source.buffer = null;
+    source.disconnect();
+    analyser?.disconnect();
+    gainNode.disconnect();
+    return null;
   }
   if (DEBUG_AUDIO) {
     console.log(`[Audio] playing audio file=${path},gainNode=${gainNode},buffer=${buffer},source=${source}`)
@@ -207,43 +207,41 @@ async function playAudio(path: string, targetNode: AudioNode, options?: AudioSou
 export async function loadSfxAudio({ src }: { src: [string] }) {
   const path = src[0]
   // create source node
-  const buffer = await loadAudioToBuffer(path);
+  const buffer = await loadAudioBuffer(path);
   if (!buffer) {
     throw new Error(`[Audio] unable to load buffer for audio: ${path}`);
   }
-  const source = audioContext.createBufferSource();
-  audioSourceMap[path] = source;
-  source.buffer = buffer;
-  source.loop = false;
-  source.loopStart = 0
 
   const state = {
     playing: false,
+    loop: false,
     volume: 1,
     timeout: null,
   }
 
   const play = () => {
-    state.timeout = setTimeout(() => {
-      if (state.playing) stop();
-      state.playing = true;
-      const onended = () => {
-        state.playing = false;
+    if (state.playing) stop();
+    clearTimeout(state.timeout);
+    state.playing = true;
+    try {
+      const info = playAudio(path, sfxGainNode, { volume: state.volume, loop: state.loop });
+      if (!info) throw new Error('audio did not play');
+      if (!state.loop) {
+        state.timeout = setTimeout(() => {
+          state.playing = false;
+        }, info.durationMs);
       }
-      try {
-        playAudio(path, sfxGainNode, { volume: state.volume, loop: source.loop }, onended);
-      } catch (err) {
-        console.warn(`err on playSfx(${path}): ${err}`);
-        state.playing = false;
-        clearTimeout(state.timeout);
-      }
-    }, 0)
+    } catch (err) {
+      console.warn(`err on playSfx(${path}): ${err}`);
+      state.playing = false;
+      clearTimeout(state.timeout);
+    }
   }
   const stop = () => {
-    clearTimeout(state.timeout);
     if (!state.playing) return;
-    stopAudio(path);
+    clearTimeout(state.timeout);
     state.playing = false;
+    stopAudio(path);
   }
   const volume = (val?: number): number => {
     if (val !== undefined) {
@@ -253,9 +251,9 @@ export async function loadSfxAudio({ src }: { src: [string] }) {
   }
   const loop = (val?: boolean): boolean => {
     if (val !== undefined) {
-      source.loop = val;
+      state.loop = val;
     }
-    return source.loop;
+    return state.loop;
   }
   return {
     play,
@@ -267,6 +265,7 @@ export async function loadSfxAudio({ src }: { src: [string] }) {
 }
 
 export async function playMusic(path: string, options: AudioSourceOptions) {
+  await loadAudioBuffer(path);
   return playAudio(path, musicGainNode, options);
 }
 
@@ -289,24 +288,24 @@ export function getTimeElapsed(path: string): number {
 
 export function stopAudio(path: string) {
   try {
-    if (audioSourceMap[path]) {
-      audioSourceMap[path].onended = undefined;
+    const source = audioSourceMap[path];
+    if (source) {
       try {
-        audioSourceMap[path].stop();
+        source.stop();
       } catch (err) {
         console.warn(`err on stopAudio(${path}): ${err}`);
       }
-      audioSourceMap[path].disconnect();
     }
-    if (audioTimeStartedMap[path]) {
-      audioTimeStartedMap[path] = -1;
-    }
-    audioGainNodeMap[path]?.disconnect();
   } catch (err) {
     console.warn(`err on stopAudio(${path}): ${err}`);
   } finally {
+    audioSourceMap[path]?.disconnect();
+    audioAnalyserMap[path]?.disconnect();
+    audioGainNodeMap[path]?.disconnect();
     audioSourceMap[path] = null;
+    audioAnalyserMap[path] = null;
     audioGainNodeMap[path] = null;
+    audioTimeStartedMap[path] = -1;
   }
 }
 

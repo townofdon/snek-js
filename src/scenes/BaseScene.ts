@@ -84,6 +84,8 @@ export abstract class BaseScene implements Scene {
     const { draw, keyPressed } = this.cachedBindings;
     if (draw) p5.draw = draw;
     if (keyPressed) p5.keyPressed = keyPressed;
+    this.cachedBindings.keyPressed = null;
+    this.cachedBindings.draw = null;
     this.stopAllCoroutines();
     if (callbacks.onSceneEnded) callbacks.onSceneEnded();
     this._internalState.isShowing = false;

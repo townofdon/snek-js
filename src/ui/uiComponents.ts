@@ -10,7 +10,7 @@ interface GameOverCallbacks {
   initLevel(shouldShowTransitions?: boolean): void
 }
 
-export function showGameOverUI(loseMessage: string, uiElements: Element[]) {
+export function showGameOverUI(loseMessage: string, uiElements: (HTMLElement | Element)[]) {
   const yInit = 160;
   const padding = 72;
   UI.drawDarkOverlay(uiElements);
@@ -32,7 +32,7 @@ interface ShowPauseMenuCallbacks {
   warpToLevel: (levelNum?: number) => void
 }
 
-export function showPauseUIPreviewMode(uiElements: Element[], callbacks: Pick<ShowPauseMenuCallbacks, 'unpause'>) {
+export function showPauseUIPreviewMode(uiElements: (HTMLElement | Element)[], callbacks: Pick<ShowPauseMenuCallbacks, 'unpause'>) {
   const { unpause } = callbacks;
   UI.drawDarkOverlay(uiElements);
   UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR });
@@ -40,7 +40,7 @@ export function showPauseUIPreviewMode(uiElements: Element[], callbacks: Pick<Sh
   document.getElementById('pauseButtonResume').focus();
 }
 
-export function showPauseUI(uiElements: Element[], options: ShowPauseMenuOptions, callbacks: ShowPauseMenuCallbacks) {
+export function showPauseUI(uiElements: (HTMLElement | Element)[], options: ShowPauseMenuOptions, callbacks: ShowPauseMenuCallbacks) {
   const { hasWarpEnabledParam, isWarpDisabled, isChallengeLevel } = options;
   const { unpause, confirmShowMainMenu, showInGameSettingsMenu, warpToLevel } = callbacks;
   UI.drawDarkOverlay(uiElements);

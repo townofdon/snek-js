@@ -5,6 +5,19 @@ export function requireElementById<T>(id: string) {
   return element;
 }
 
+export function getOrCreateElementById<K extends keyof HTMLElementTagNameMap>(id: string, tagName: K, className: string, parentId?: string) {
+  let elem = document.getElementById(id) as HTMLElementTagNameMap[K];
+  if (!elem)  {
+    elem = document.createElement(tagName);
+    elem.id = id;
+    elem.className = className;
+    if (parentId) {
+      document.getElementById(parentId)?.appendChild(elem);
+    }
+  }
+  return elem;
+}
+
 export const parseElementLevelNum = (element: HTMLButtonElement) => {
   if (!element?.dataset?.level) return -1;
   return parseInt(element.dataset?.level || '', 10) || -1;
