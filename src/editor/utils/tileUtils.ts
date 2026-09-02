@@ -20,6 +20,7 @@ export const getTileLabel = (tile: Tile): string | null => {
     [Tile.Reversibility]: 'reversibility',
     [Tile.Switch]: 'button',
     [Tile.Pipe]: 'pipe',
+    [Tile.Annotation]: 'annotation',
   } satisfies Record<Tile, string>)[tile];
 }
 
@@ -43,5 +44,6 @@ export const getTileExplanation = (tile: Tile): string => {
     [Tile.Reversibility]: 'allows player to reverse at will',
     [Tile.Switch]: 'switch threats & obstacles on/off',
     [Tile.Pipe]: 'industrial pipe, also used for passage',
+    [Tile.Annotation]: 'annotation markers (dev-only)',
   } satisfies Record<Tile, string>)[tile];
 }

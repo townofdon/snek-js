@@ -1,4 +1,27 @@
-import { MapSaveData, validMapSaveData } from "../editorTypes";
+import { EditorMapExtendedData, MapSaveData, validMapSaveData } from "../editorTypes";
+
+export const toSaveableExtendedData = (data: EditorMapExtendedData): EditorMapExtendedData => {
+  // only set truthy values in the map
+  const prune = <T,>(source: Record<number, T>): Record<number, T> => {
+    const out: Record<number, T> = {};
+    Object.keys(source).forEach(key => {
+      if (source[key]) out[key] = source[key];
+    });
+    return out;
+  };
+  return {
+    annotations: prune(data.annotations),
+    pipeOverrides: prune(data.pipeOverrides),
+  } satisfies EditorMapExtendedData;
+}
+
+export const pruneMap = <T,>(source: Record<number, T>): Record<number, T> => {
+  const out: Record<number, T> = {};
+  Object.keys(source).forEach(key => {
+    if (source[key]) out[key] = source[key];
+  });
+  return out;
+};
 
 export const saveMapDataToDisk = (saveData: MapSaveData) => {
   const filename = `${saveData.name || 'untitled-map'}.map.json`;

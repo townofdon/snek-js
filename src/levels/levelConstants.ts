@@ -293,6 +293,7 @@ export const TILE_TO_FLOOD_FILL_TILE: Record<Tile, FloodFillTile> = {
   [Tile.Armor]: FloodFillTile.PickupArmor,
   [Tile.Switch]: 0, // handled by SWITCH_TYPE_TO_FLOOD_FILL_TILE
   [Tile.Pipe]: FloodFillTile.Pipe,
+  [Tile.Annotation]: 0,
 } satisfies Record<Tile, FloodFillTile>;
 
 export const BARRIER_TYPE_TO_TILE_CHAR = {

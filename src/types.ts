@@ -897,6 +897,8 @@ export interface EditorData {
   nospawnsMap: Record<number, Maybe<boolean>>,
   passablesMap: Record<number, Maybe<boolean>>,
   portalsMap: Record<number, Maybe<PortalChannel>>,
+  annotations: Record<number, MapAnnotation>,
+  pipeOverrides: Record<number, PipeConnection>,
   playerSpawnPosition: Vector,
   startDirection: DIR,
 }
@@ -917,6 +919,8 @@ export interface EditorDataSlice {
   nospawn: Maybe<boolean>,
   passable: Maybe<boolean>,
   portal: Maybe<PortalChannel>,
+  annotation: Maybe<MapAnnotation>,
+  pipeOverride: Maybe<PipeConnection>,
   playerSpawnPosition: Vector,
   startDirection: DIR,
 }
@@ -1165,6 +1169,7 @@ export enum Image {
   EditorSelection = 'editor-selection.png',
   EditorSelectionBlue = 'editor-selection-blue.png',
   EditorSelectionRed = 'editor-selection-red.png',
+  EditorAnnotationsSheet = 'editor-annotations.png',
   MineSheet = 'snek-mine-sheet.png',
   ThreatSheet16 = 'snek-threats-16.png',
   ThreatSheet48 = 'snek-threats-48.png',
@@ -1294,6 +1299,7 @@ export type SpritesheetImage =
   | Image.ThreatWallSpikesSheet
   | Image.ThreatSawSheet
   | Image.ThreatFlameSheet
+  | Image.EditorAnnotationsSheet
 ;
 
 export enum Threat48Frame {

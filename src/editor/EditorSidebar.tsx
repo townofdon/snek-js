@@ -9,6 +9,7 @@ interface EditorSidebarProps {
   sidebarPortalChannels: React.ReactNode,
   sidebarBarrierTypes: React.ReactNode,
   sidebarThreatTypes: React.ReactNode,
+  sidebarAnnotations: React.ReactNode,
 }
 
 export const EditorSidebar = ({
@@ -17,6 +18,7 @@ export const EditorSidebar = ({
   sidebarPortalChannels,
   sidebarBarrierTypes,
   sidebarThreatTypes,
+  sidebarAnnotations,
 }: EditorSidebarProps) => {
 
   const renderContent = () => {
@@ -31,6 +33,9 @@ export const EditorSidebar = ({
     }
     if (tile === Tile.Threat) {
       return sidebarThreatTypes;
+    }
+    if (tile === Tile.Annotation) {
+      return sidebarAnnotations;
     }
     return null;
   }

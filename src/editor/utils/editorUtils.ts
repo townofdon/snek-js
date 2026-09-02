@@ -215,6 +215,8 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     keysMap: {},
     locksMap: {},
     portalsMap: {},
+    annotations: {},
+    pipeOverrides: {},
     playerSpawnPosition: playerSpawnPosition ?? levelData.playerSpawnPosition,
     startDirection,
   }
@@ -445,9 +447,11 @@ export function deepCloneData(data: EditorData): EditorData {
     keysMap: getMapSliceWithDefaults(data.keysMap),
     locksMap: getMapSliceWithDefaults(data.locksMap),
     portalsMap: getMapSliceWithDefaults(data.portalsMap),
+    annotations: getMapSliceWithDefaults(data.annotations),
+    pipeOverrides: getMapSliceWithDefaults(data.pipeOverrides),
     playerSpawnPosition: data.playerSpawnPosition.copy(),
     startDirection: data.startDirection,
-  };
+  } satisfies EditorData;
 }
 
 export function mergeData(data: EditorData, incoming: Partial<EditorData>): EditorData {
@@ -466,9 +470,11 @@ export function mergeData(data: EditorData, incoming: Partial<EditorData>): Edit
     keysMap: { ...data.keysMap, ...incoming.keysMap },
     locksMap: { ...data.locksMap, ...incoming.locksMap },
     portalsMap: { ...data.portalsMap, ...incoming.portalsMap },
+    annotations: { ...data.annotations, ...incoming.annotations },
+    pipeOverrides: { ...data.pipeOverrides, ...incoming.pipeOverrides },
     playerSpawnPosition: incoming.playerSpawnPosition ? incoming.playerSpawnPosition.copy() : data.playerSpawnPosition,
     startDirection: incoming.startDirection ? incoming.startDirection : data.startDirection,
-  };
+  } satisfies EditorData;
 }
 
 export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coord?: number): EditorData {
@@ -487,9 +493,11 @@ export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coor
     nospawnsMap: { [coord ?? incoming.coord]: incoming.nospawn },
     passablesMap: { [coord ?? incoming.coord]: incoming.passable },
     portalsMap: { [coord ?? incoming.coord]: incoming.portal },
+    annotations: { [coord ?? incoming.coord]: incoming.annotation },
+    pipeOverrides: { [coord ?? incoming.coord]: incoming.pipeOverride },
     playerSpawnPosition: incoming.playerSpawnPosition,
     startDirection: incoming.startDirection,
-  }
+  } satisfies EditorData;
   return mergeData(data, newData);
 }
 
@@ -510,7 +518,40 @@ export function getDataSliceAtCoord(data: EditorData, coord: number): EditorData
     nospawn: data.nospawnsMap[coord],
     passable: data.passablesMap[coord],
     portal: data.portalsMap[coord],
+    annotation: data.annotations[coord],
+    pipeOverride: data.pipeOverrides[coord],
     playerSpawnPosition: data.playerSpawnPosition.copy(),
     startDirection: data.startDirection,
   };
 }
+
+// TODO: REMOVE
+// export function deepCloneMetadata(metadata: EditorMapMetadata): EditorMapMetadata {
+//   return {
+//     annotations: getMapSliceWithDefaults(metadata.annotations),
+//     tileDirectionOverrides: getMapSliceWithDefaults(metadata.tileDirectionOverrides),
+//   } satisfies EditorMapMetadata;
+// }
+
+// export function mergeMetadata(data: EditorMapMetadata, incoming: Partial<EditorMapMetadata>): EditorMapMetadata {
+//   return {
+//     annotations: { ...data.annotations, ...incoming.annotations },
+//     tileDirectionOverrides: { ...data.tileDirectionOverrides, ...incoming.tileDirectionOverrides },
+//   } satisfies EditorMapMetadata;
+// }
+
+// export function mergeMetadataSlice(metadata: EditorMapMetadata, incoming: EditorMapMetadataSlice, coord?: number): EditorMapMetadata {
+//   const newData: EditorMapMetadata = {
+//     annotations: { [coord ?? incoming.coord]: incoming.annotation },
+//     tileDirectionOverrides: { [coord ?? incoming.coord]: incoming.tileDirectionOverride },
+//   } satisfies EditorMapMetadata
+//   return mergeMetadata(metadata, newData);
+// }
+
+// export function getMetadataSliceAtCoord(metadata: EditorMapMetadata, coord: number): EditorMapMetadataSlice {
+//   return {
+//     coord,
+//     annotation: metadata.annotations[coord],
+//     tileDirectionOverride: metadata.tileDirectionOverrides[coord],
+//   } satisfies EditorMapMetadataSlice;
+// }

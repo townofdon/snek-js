@@ -603,6 +603,12 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frameWidth: 32,
     frameHeight: 16,
   } satisfies AnimationData,
+  [Image.EditorAnnotationsSheet]: {
+    frames: 14,
+    timePerFrame: 200,
+    frameWidth: 16,
+    frameHeight: 16,
+  },
   [SpritesheetRange.None]: {
     src: Image.SegmentsSheet,
     offset: 0,

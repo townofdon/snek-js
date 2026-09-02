@@ -25,8 +25,16 @@ export const MapPreview = ({ data, options, difficulty, isPreviewShowing, setPre
   }, [data, options, isPreviewShowing]);
 
   useEffect(() => {
-    if (iframeRef.current && isPreviewShowing) {
-      iframeRef.current.focus();
+    const iframe = iframeRef.current;
+    if (iframe && isPreviewShowing) {
+      iframe.focus();
+      const onIframeLoad = () => {
+        iframe.contentWindow.postMessage(data);
+      };
+      iframe.addEventListener('load', onIframeLoad);
+      return () => {
+        iframe?.removeEventListener('load', onIframeLoad);
+      }
     }
   }, [isPreviewShowing, iframeRef]);
 

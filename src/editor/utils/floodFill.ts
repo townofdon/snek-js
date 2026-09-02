@@ -177,6 +177,8 @@ function commitTile(
     nospawn: undefined,
     passable: undefined,
     portal: undefined,
+    annotation: undefined,
+    pipeOverride: undefined,
     playerSpawnPosition: data.playerSpawnPosition,
     startDirection: data.startDirection,
   };

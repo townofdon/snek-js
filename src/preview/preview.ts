@@ -1,7 +1,7 @@
 import P5 from 'p5';
 import Color from 'color';
 
-import './fullscreenHandler';
+import './events';
 
 import {
   FRAMERATE,
@@ -41,6 +41,7 @@ import {
   Outfit,
   HeldItems,
   ResolutionMode,
+  EditorData,
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI, UI_PARENT_ID } from '../ui/ui';
@@ -65,6 +66,7 @@ import { LEVEL_01 } from '../levels/campaign/level01';
 import { LEVEL_02 } from '../levels/campaign/level02';
 import { requireElementById } from '../ui/uiUtils';
 import { tickGamepad } from '@/engine/gamepad';
+import { offEditorData, onEditorData } from './events';
 
 interface PreviewLevel {
   loading: boolean,
@@ -76,7 +78,21 @@ const level: PreviewLevel = {
   current: undefined,
   nextMap: '',
 }
-loadLevel(getDataFromUrl(), true);
+
+level.loading = true;
+
+const query = new URLSearchParams(window.location.search);
+const isEditorPreview = query.get('editorPreview') === 'true';
+
+if (isEditorPreview) {
+  const onEditorDataLoaded = (data: EditorData) => {
+    loadLevel(getDataFromUrl(), true, data);
+    offEditorData(onEditorDataLoaded);
+  }
+  onEditorData(onEditorDataLoaded);
+} else {
+  loadLevel(getDataFromUrl(), true, null);
+}
 
 const settings: GameSettings = {
   musicVolume: 1,
@@ -443,7 +459,7 @@ export const sketch = (p5: P5) => {
     maybeSaveReplayStateToFile();
 
     if (level.nextMap) {
-      await loadLevel(level.nextMap);
+      await loadLevel(level.nextMap, false);
       setLevel(level.current);
     }
 
@@ -457,11 +473,11 @@ function getDataFromUrl() {
   return encodeURIComponent(queryData);
 }
 
-async function loadLevel(queryData: string, loadMapImage = false): Promise<void> {
+async function loadLevel(queryData: string, loadMapImage = false, editorData: EditorData = null): Promise<void> {
   try {
     level.loading = true;
     const query = new URLSearchParams(window.location.search);
-    const isEditorPreview = query.get('editorPreview') === 'true'
+    const isEditorPreview = query.get('editorPreview') === 'true';
     if (!queryData) {
       level.current = LEVEL_01;
       return;
@@ -472,7 +488,8 @@ async function loadLevel(queryData: string, loadMapImage = false): Promise<void>
         console.warn(`No map found matching data param`);
         return null;
       });
-    const [data, options] = decodeMapData(queryData);
+    const [decoded, options] = decodeMapData(queryData);
+    const data = { ...decoded, ...editorData };
     const layout = buildMapLayout(data);
     const loaded: Level = {
       id: '',

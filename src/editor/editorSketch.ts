@@ -41,6 +41,7 @@ import {
   PipeConnection,
   PipeVariant,
   SpritesheetImage,
+  MapAnnotation,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -124,26 +125,13 @@ export interface ExtendedSketchData extends EditorData {
 export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): EditorSketchReturn => {
   const selected: Record<number, boolean> = {};
   const data: ExtendedSketchData = {
-    barriersMap: {},
-    passablesMap: {},
-    doorsMap: {},
-    decoratives1Map: {},
-    decoratives2Map: {},
-    nospawnsMap: {},
-    applesMap: {},
-    threatsMap: {},
-    pickupsMap: {},
-    keysMap: {},
-    locksMap: {},
-    portalsMap: {},
+    ...EDITOR_DEFAULTS.data,
     lasersMap: {},
-    playerSpawnPosition: EDITOR_DEFAULTS.data.playerSpawnPosition.copy(),
-    startDirection: EDITOR_DEFAULTS.data.startDirection,
-    switchesMap: {},
-    pipesMap: {},
     pipeConnectionsMap: {},
     flamesMap: {},
     deathIlluminationMap: {},
+    playerSpawnPosition: EDITOR_DEFAULTS.data.playerSpawnPosition.copy(),
+    startDirection: EDITOR_DEFAULTS.data.startDirection,
   } satisfies ExtendedSketchData;
   const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig' | 'pipeVariant'> = {
     globalLight: EDITOR_DEFAULTS.options.globalLight,
@@ -218,6 +206,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         case 'pickupsMap':
         case 'switchesMap':
         case 'pipesMap':
+        case 'annotations':
+        case 'pipeOverrides':
           if (getIsDiff(key)) {
             // @ts-ignore
             data[key] = { ...incoming[key] };
@@ -539,6 +529,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       drawPortals();
       drawParticles(10);
       drawStagedMove();
+      drawAnnotations();
 
       if (options.globalLight < 1) {
         drawLighting(lightMap, renderer, p5);
@@ -643,6 +634,48 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         }
       }
       p5.pop();
+    }
+
+    function drawAnnotations() {
+      for (let y = 0; y < GRIDCOUNT_Y; y++) {
+        for (let x = 0; x < GRIDCOUNT_X; x++) {
+          const coord = getCoordIndex2(x, y);
+          switch (data.annotations[coord]) {
+            case MapAnnotation.L1:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 0);
+              break;
+            case MapAnnotation.L2:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 1);
+              break;
+            case MapAnnotation.L3:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 2);
+              break;
+            case MapAnnotation.L4:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 3);
+              break;
+            case MapAnnotation.L5:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 4);
+              break;
+            case MapAnnotation.L6:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 5);
+              break;
+            case MapAnnotation.L7:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 6);
+              break;
+            case MapAnnotation.L8:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 7);
+              break;
+            case MapAnnotation.L9:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 8);
+              break;
+            case MapAnnotation.LA:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 9);
+              break;
+            case MapAnnotation.None:
+              break;
+          }
+        }
+      }
     }
 
     function drawDeco1(x: number, y: number, isStatic = true) {

@@ -1,7 +1,7 @@
 
 :root {
   --editor-tile-sprite-img: url('assets/graphics/editor-tiles.png');
-  --editor-tile-sprite-background-size: 1056px 32px;
+  --editor-tile-sprite-background-size: 1088px 32px;
   --editor-tile-sprite-width: 32px;
   --editor-tile-sprite-height: 32px;
   --editor-tool-sprite-img: url('assets/graphics/editor-tools-200.png');
@@ -292,6 +292,9 @@ button,
   }
   &.pipe {
     background-position-x: calc(-18 * var(--editor-tile-sprite-width));
+  }
+  &.annotation {
+    background-position-x: calc(-19 * var(--editor-tile-sprite-width));
   }
 }
 

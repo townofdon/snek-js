@@ -9,22 +9,9 @@ import { EDITOR_DEFAULTS } from "./editorConstants";
 describe('commands', () => {
   const getTestData = (overrides: Partial<EditorData> = {}): EditorData => {
     const data: EditorData = {
-      applesMap: {},
-      threatsMap: {},
-      pickupsMap: {},
-      barriersMap: {},
-      decoratives1Map: {},
-      decoratives2Map: {},
-      doorsMap: {},
-      keysMap: {},
-      locksMap: {},
-      nospawnsMap: {},
-      passablesMap: {},
-      portalsMap: {},
+      ...EDITOR_DEFAULTS.data,
       playerSpawnPosition: new Vector(15, 15),
       startDirection: DIR.UP,
-      switchesMap: {},
-      pipesMap: {},
     };
     return { ...data, ...overrides }
   };

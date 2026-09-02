@@ -1,4 +1,5 @@
 import { Vector } from "p5"
+import { v4 as uuid } from 'uuid';
 import expect from "expect"
 
 import { buildLevel } from "../../levels/levelBuilder";
@@ -64,22 +65,9 @@ describe('editorUtils', () => {
         pipeVariant: 1,
       }
       const data: EditorData = {
-        barriersMap: {},
-        passablesMap: {},
-        doorsMap: {},
-        decoratives1Map: {},
-        decoratives2Map: {},
-        nospawnsMap: {},
-        applesMap: {},
-        threatsMap: {},
-        pickupsMap: {},
-        keysMap: {},
-        locksMap: {},
-        portalsMap: {},
+        ...EDITOR_DEFAULTS.data,
         playerSpawnPosition: new Vector(15, 15),
         startDirection: DIR.RIGHT,
-        switchesMap: {},
-        pipesMap: {},
       }
       const encoded = encodeMapData(data, options);
       const [decodedData, decodedOptions] = decodeMapData(encoded);
@@ -133,6 +121,7 @@ describe('editorUtils', () => {
       }
       const B1 = BarrierType.Default;
       const data: EditorData = {
+        ...EDITOR_DEFAULTS.data,
         barriersMap: { 1: B1, 2: B1, 3: B1, 4: B1 },
         passablesMap: { 3: true, 4: true },
         doorsMap: { 5: true, 6: true },
@@ -140,8 +129,6 @@ describe('editorUtils', () => {
         decoratives2Map: { 9: true, 10: true },
         nospawnsMap: { 11: true, 12: true },
         applesMap: { 13: true, 14: true },
-        threatsMap: {},
-        pickupsMap: {},
         keysMap: { 15: KeyChannel.Yellow, 16: KeyChannel.Red, 17: KeyChannel.Blue },
         locksMap: { 18: KeyChannel.Yellow, 19: KeyChannel.Red, 20: KeyChannel.Blue },
         portalsMap: {
@@ -234,22 +221,9 @@ describe('editorUtils', () => {
         pipeVariant: 1,
       }
       const data: EditorData = {
-        barriersMap: {},
-        passablesMap: {},
-        doorsMap: {},
-        decoratives1Map: {},
-        decoratives2Map: {},
-        nospawnsMap: {},
-        applesMap: {},
-        threatsMap: {},
-        pickupsMap: {},
-        keysMap: {},
-        locksMap: {},
-        portalsMap: {},
+        ...EDITOR_DEFAULTS.data,
         playerSpawnPosition: new Vector(13, 13),
         startDirection: DIR.DOWN,
-        switchesMap: {},
-        pipesMap: {},
       }
       const B1 = BarrierType.Default;
       for (let i = 0; i < 29; i++) {
@@ -341,6 +315,7 @@ describe('editorUtils', () => {
   describe('buildMapLayout', () => {
     it('should build a map layout correctly for all possible types', () => {
       const data: EditorData = {
+        ...EDITOR_DEFAULTS.data,
         applesMap: { 0: true },
         threatsMap: { 60: ThreatType.Mine },
         pickupsMap: { 61: PickupType.Invincibility },
@@ -388,8 +363,6 @@ describe('editorUtils', () => {
         },
         playerSpawnPosition: new Vector(0, 0),
         startDirection: DIR.RIGHT,
-        switchesMap: {},
-        pipesMap: {},
       }
       const layout = buildMapLayout(data);
       const expected = `
@@ -433,22 +406,15 @@ describe('editorUtils', () => {
           const levelData = buildLevel(level);
           const expectedLayout = level.layout;
           const data: EditorData = {
-            applesMap: {},
-            threatsMap: {},
-            pickupsMap: {},
+            ...EDITOR_DEFAULTS.data,
             barriersMap: { ...levelData.barriersMap },
             passablesMap: { ...levelData.passablesMap },
             doorsMap: { ...levelData.doorsMap },
             decoratives1Map: { ...levelData.decoratives1Map },
             decoratives2Map: { ...levelData.decoratives2Map },
             nospawnsMap: { ...levelData.nospawnsMap },
-            portalsMap: {},
-            keysMap: {},
-            locksMap: {},
             playerSpawnPosition: new Vector(0, 0),
             startDirection: DIR.RIGHT,
-            switchesMap: {},
-            pipesMap: {},
           };
           for (let y = 0; y < GRIDCOUNT_Y; y++) {
             for (let x = 0; x < GRIDCOUNT_X; x++) {
@@ -555,7 +521,8 @@ describe('editorUtils data length', () => {
         pipeVariant: randomInt(1, PipeVariant.Themed3),
       }
       const encoded = encodeMapData(data, options);
-      const length = encoded.length;
+      const id = uuid();
+      const length = encoded.length + id.length;
       if (length > biggestEncodedLengthFound) {
         biggestEncodedLengthFound = length;
       }

@@ -18,7 +18,7 @@ import { CopyLink } from "./CopyLink";
 import { IS_DEV } from "../../constants";
 import { CopyLinkDev } from "./CopyLinkDev";
 import { MapSaveData, SetStateValue } from "../editorTypes";
-import { readMapDataFromFile, saveMapDataToDisk } from "../utils/saveUtils";
+import { pruneMap, readMapDataFromFile, saveMapDataToDisk } from "../utils/saveUtils";
 import { Button } from "@/components/Button";
 
 import { Command, ImportMapDataCommand } from "../commands";
@@ -145,7 +145,8 @@ export const PanelSave = ({
         name: options.name,
         author,
         mapData: encoded,
-        annotations: {},
+        annotations: pruneMap(data.annotations),
+        pipeOverrides: pruneMap(data.pipeOverrides),
         overlayImagePath: null,
       } satisfies MapSaveData;
       saveMapDataToDisk(saveData);

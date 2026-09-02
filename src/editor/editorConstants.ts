@@ -17,14 +17,16 @@ import { PALETTE } from '../palettes';
 import { buildLevel } from '../levels/levelBuilder';
 import { LEVEL_01 } from '../levels/campaign/level01';
 import { DEFAULT_GAME_STATE } from '@/defaults';
+import { EditorMapExtendedData } from './editorTypes';
 
 const levelData = buildLevel(LEVEL_01);
 
 export const EDITOR_DEFAULTS: {
-  data: EditorData;
-  dataSlice: Omit<EditorDataSlice, 'coord' | 'playerSpawnPosition' | 'startDirection'>;
-  options: EditorOptions;
-  selected: Record<number, boolean>;
+  data: EditorData,
+  extendedData: EditorMapExtendedData,
+  dataSlice: Omit<EditorDataSlice, 'coord' | 'playerSpawnPosition' | 'startDirection'>,
+  options: EditorOptions,
+  selected: Record<number, boolean>,
 } = {
   selected: {},
   data: {
@@ -44,6 +46,12 @@ export const EDITOR_DEFAULTS: {
     startDirection: DIR.RIGHT,
     switchesMap: {},
     pipesMap: {},
+    annotations: {},
+    pipeOverrides: {},
+  },
+  extendedData: {
+    annotations: {},
+    pipeOverrides: {},
   },
   dataSlice: {
     apple: false,
@@ -60,6 +68,8 @@ export const EDITOR_DEFAULTS: {
     nospawn: false,
     passable: false,
     portal: null,
+    annotation: 0,
+    pipeOverride: 0,
   },
   options: {
     name: "Untitled Map",
@@ -92,7 +102,7 @@ export const EDITOR_DEFAULTS: {
     musicTrack: MusicTrack.None,
     pipeVariant: PipeVariant.Green,
   },
-} as const;
+};
 
 export const SKETCH_DEFAULTS = {
   screenShake: {

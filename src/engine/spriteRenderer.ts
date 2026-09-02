@@ -73,6 +73,7 @@ export class SpriteRenderer {
     [Image.EditorSelection]: null,
     [Image.EditorSelectionBlue]: null,
     [Image.EditorSelectionRed]: null,
+    [Image.EditorAnnotationsSheet]: null,
     [Image.MineSheet]: null,
     [Image.ExplosionSheet]: null,
     [Image.Explosion3Sheet]: null,
@@ -371,6 +372,7 @@ export class SpriteRenderer {
       this.loadImage(Image.EditorSelection);
       this.loadImage(Image.EditorSelectionBlue);
       this.loadImage(Image.EditorSelectionRed);
+      this.loadImage(Image.EditorAnnotationsSheet);
     } catch (err) {
       console.error(err)
     }

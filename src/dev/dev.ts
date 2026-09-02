@@ -1,6 +1,6 @@
 import P5 from 'p5';
 
-import '../preview/fullscreenHandler';
+import '../preview/events';
 
 import {
   FRAMERATE,

@@ -9,8 +9,10 @@ import {
   EditorOptions,
   KeyChannel,
   Level,
+  MapAnnotation,
   Palette,
   PickupType,
+  PipeConnection,
   PipeVariant,
   PortalChannel,
   SwitchType,
@@ -28,6 +30,7 @@ import {
   isValidThreatType,
   lerp,
   outOfBounds,
+  remap,
 } from "../utils";
 import {
   decodeMapData,
@@ -59,9 +62,9 @@ export class NoOpCommand implements Command {
   rollback = () => { };
 }
 
-export type SetData = (setter: SetStateValue<EditorData>) => void
-export type SetSelected = (setter: SetStateValue<Record<number, boolean>>) => void
-export type RollbackLastCoordUpdated = () => void
+export type SetData = (setter: SetStateValue<EditorData>) => void;
+export type SetSelected = (setter: SetStateValue<Record<number, boolean>>) => void;
+export type RollbackLastCoordUpdated = () => void;
 
 abstract class SetElementCommand implements Command {
   public abstract readonly name: string;
@@ -92,6 +95,8 @@ abstract class SetElementCommand implements Command {
       startDirection: data.startDirection,
       switch: data.switchesMap[this.coord],
       pipe: data.pipesMap[this.coord],
+      annotation: data.annotations[this.coord],
+      pipeOverride: data.pipeOverrides[this.coord],
     } satisfies EditorDataSlice;
     this.newData = {
       ...EDITOR_DEFAULTS.dataSlice,
@@ -122,19 +127,27 @@ export class SetPlayerSpawnCommand extends SetElementCommand {
     if (getCoordIndex(data.playerSpawnPosition) === coord) {
       this.newData = null;
     } else {
-      this.newData.playerSpawnPosition = coordToVec(coord);
-      this.newData.apple = data.applesMap[this.coord];
-      this.newData.pipe = data.pipesMap[this.coord];
-      this.newData.barrier = data.barriersMap[this.coord];
-      this.newData.deco1 = data.decoratives1Map[this.coord];
-      this.newData.deco2 = data.decoratives2Map[this.coord];
-      this.newData.door = data.doorsMap[this.coord];
-      this.newData.key = data.keysMap[this.coord];
-      this.newData.lock = data.locksMap[this.coord];
-      this.newData.nospawn = data.nospawnsMap[this.coord];
-      this.newData.passable = data.passablesMap[this.coord];
-      this.newData.portal = data.portalsMap[this.coord];
-      this.newData.pickup = data.pickupsMap[this.coord];
+      this.newData = {
+        playerSpawnPosition: coordToVec(coord),
+        coord: coord,
+        apple: data.applesMap[coord],
+        pipe: data.pipesMap[coord],
+        barrier: data.barriersMap[coord],
+        deco1: data.decoratives1Map[coord],
+        deco2: data.decoratives2Map[coord],
+        door: data.doorsMap[coord],
+        key: data.keysMap[coord],
+        lock: data.locksMap[coord],
+        nospawn: data.nospawnsMap[coord],
+        passable: data.passablesMap[coord],
+        portal: data.portalsMap[coord],
+        pickup: data.pickupsMap[coord],
+        switch: data.switchesMap[coord],
+        threat: data.threatsMap[coord],
+        annotation: data.annotations[coord],
+        pipeOverride: data.pipeOverrides[coord],
+        startDirection: data.startDirection,
+      } satisfies EditorDataSlice;
     }
   }
 }
@@ -156,9 +169,23 @@ export class DeleteElementCommand extends SetElementCommand {
       !isValidKeyChannel(data.locksMap[this.coord]) &&
       !data.nospawnsMap[this.coord] &&
       !data.passablesMap[this.coord] &&
+      !data.switchesMap[this.coord] &&
+      !data.annotations[this.coord] &&
+      !data.pipeOverrides[this.coord] &&
       !isValidPortalChannel(data.portalsMap[this.coord])
     ) {
       this.newData = null;
+    }
+  }
+}
+
+export class DeleteAnnotationCommand extends DeleteElementCommand {
+  public readonly name = 'Erase';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (this.newData) {
+      this.newData = getDataSliceAtCoord(data, coord);
+      this.newData.annotation = 0;
     }
   }
 }
@@ -384,6 +411,32 @@ export class SetPortalCommand extends SetElementCommand {
   }
 }
 
+export class SetAnnotationCommand extends SetElementCommand {
+  public readonly name = 'Draw Annotation';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, annotation: MapAnnotation) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (data.annotations[this.coord] && data.annotations[this.coord] === annotation) {
+      this.newData = null;
+    } else {
+      this.newData = { ...this.initial };
+      this.newData.annotation = annotation;
+    }
+  }
+}
+
+export class SetPipeOverrideCommand extends SetElementCommand {
+  public readonly name = 'Draw Pipe';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, pipeOverride: PipeConnection) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (data.pipesMap[this.coord] && data.pipeOverrides[this.coord] === pipeOverride) {
+      this.newData = null;
+    } else {
+      this.newData.pipe = true;
+      this.newData.pipeOverride = pipeOverride;
+    }
+  }
+}
+
 abstract class SetBatchElementsCommand implements Command {
   public abstract readonly name: string;
   protected readonly dataRef: React.MutableRefObject<EditorData>;
@@ -400,21 +453,8 @@ abstract class SetBatchElementsCommand implements Command {
     this.coords = coords;
     this.dataRef = dataRef;
     this.newData = {
+      ...EDITOR_DEFAULTS.dataSlice,
       coord: -1,
-      apple: false,
-      threat: 0,
-      switch: 0,
-      pickup: 0,
-      barrier: 0,
-      pipe: false,
-      deco1: false,
-      deco2: false,
-      door: false,
-      key: null,
-      lock: null,
-      nospawn: false,
-      passable: false,
-      portal: null,
       playerSpawnPosition: dataRef.current.playerSpawnPosition.copy(),
       startDirection: dataRef.current.startDirection,
     };
@@ -425,12 +465,10 @@ abstract class SetBatchElementsCommand implements Command {
       return false;
     }
     this.prevData = deepCloneData(this.dataRef.current);
-    let shouldUpdate = false;
     let updates: EditorData = deepCloneData(this.dataRef.current);
     for (let i = 0; i < this.coords.length; i++) {
       if (!this.test(this.coords[i])) continue;
       updates = mergeDataSlice(updates, { ...this.newData, ...this.resolveNewData(this.coords[i]) }, this.coords[i]);
-      shouldUpdate = true;
     }
     this.setData(mergeData(this.dataRef.current, updates));
     return true;
@@ -529,9 +567,24 @@ export class DeleteLineCommand extends SetLineCommand {
       isValidKeyChannel(this.dataRef.current.locksMap[coord]) ||
       this.dataRef.current.nospawnsMap[coord] ||
       this.dataRef.current.passablesMap[coord] ||
-      isValidPortalChannel(this.dataRef.current.portalsMap[coord])
+      isValidPortalChannel(this.dataRef.current.portalsMap[coord]) ||
+      !!this.dataRef.current.annotations[coord] ||
+      !!this.dataRef.current.pipeOverrides[coord]
     );
   };
+}
+
+export class DeleteLineAnnotationCommand extends DeleteLineCommand {
+  public readonly name = 'Erase';
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.newData.annotation = 0;
+    this.resolveNewData = (coord) => {
+      const newData = getDataSliceAtCoord(this.dataRef.current, coord);
+      newData.annotation = 0;
+      return newData;
+    }
+  }
 }
 
 export class SetLineAppleCommand extends SetLineCommand {
@@ -752,7 +805,7 @@ export class SetLinePassableCommand extends SetLineCommand {
 
 export class SetLinePortalCommand extends SetLineCommand {
   public readonly name = 'Draw Portal';
-  private channel: PortalChannel;
+  private readonly channel: PortalChannel;
   public constructor(from: number, to: number, channel: PortalChannel, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
     this.channel = channel;
@@ -760,6 +813,38 @@ export class SetLinePortalCommand extends SetLineCommand {
   }
   protected test = (coord: number) => {
     return this.dataRef.current.portalsMap[coord] !== this.channel;
+  };
+}
+
+export class SetLineAnnotationCommand extends SetLineCommand {
+  public readonly name = 'Draw Annotation';
+  private readonly annotation: MapAnnotation;
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined, annotation: MapAnnotation) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.annotation = annotation;
+    this.newData.annotation = annotation;
+    this.resolveNewData = (coord: number) => {
+      const newData = getDataSliceAtCoord(this.prevData, coord);
+      newData.annotation = this.annotation;
+      return newData;
+    };
+  }
+  protected test = (coord: number) => {
+    return this.dataRef.current.annotations[coord] !== this.annotation;
+  };
+}
+
+export class SetLinePipeOverrideCommand extends SetLineCommand {
+  public readonly name = 'Draw Pipe';
+  private readonly pipeOverride: PipeConnection;
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined, pipeOverride: PipeConnection) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.pipeOverride = pipeOverride;
+    this.newData.pipe = true;
+    this.newData.pipeOverride = pipeOverride;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.pipesMap[coord] || this.dataRef.current.pipeOverrides[coord] !== this.pipeOverride;
   };
 }
 
@@ -799,9 +884,24 @@ export class DeleteRectangleCommand extends SetRectangleCommand {
       isValidKeyChannel(this.dataRef.current.locksMap[coord]) ||
       this.dataRef.current.nospawnsMap[coord] ||
       this.dataRef.current.passablesMap[coord] ||
-      isValidPortalChannel(this.dataRef.current.portalsMap[coord])
+      isValidPortalChannel(this.dataRef.current.portalsMap[coord]) ||
+      !!this.dataRef.current.annotations[coord] ||
+      !!this.dataRef.current.pipeOverrides[coord]
     );
   };
+}
+
+export class DeleteRectangleAnnotationCommand extends DeleteRectangleCommand {
+  public readonly name = 'Erase';
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.newData.annotation = 0;
+    this.resolveNewData = (coord) => {
+      const newData = getDataSliceAtCoord(this.dataRef.current, coord);
+      newData.annotation = 0;
+      return newData;
+    }
+  }
 }
 
 export class SetRectangleAppleCommand extends SetRectangleCommand {
@@ -1033,6 +1133,38 @@ export class SetRectanglePortalCommand extends SetRectangleCommand {
   };
 }
 
+export class SetRectangleAnnotationCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Annotation';
+  private readonly annotation: MapAnnotation;
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, annotation: MapAnnotation) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.annotation = annotation;
+    this.newData.annotation = annotation;
+    this.resolveNewData = (coord: number) => {
+      const newData = getDataSliceAtCoord(this.prevData, coord);
+      newData.annotation = this.annotation;
+      return newData;
+    };
+  }
+  protected test = (coord: number) => {
+    return this.dataRef.current.annotations[coord] !== this.annotation;
+  };
+}
+
+export class SetRectanglePipeOverrideCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Pipe';
+  private readonly pipeOverride: PipeConnection;
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, pipeOverride: PipeConnection) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    this.pipeOverride = pipeOverride;
+    this.newData.pipe = true;
+    this.newData.pipeOverride = pipeOverride;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.pipesMap[coord] || this.dataRef.current.pipeOverrides[coord] !== this.pipeOverride;
+  };
+}
+
 export class SetPaletteCommand implements Command {
   public readonly name = 'Set Palette';
   private newPalette: Palette;
@@ -1152,22 +1284,9 @@ export class ClearAllCommand implements Command {
   execute = () => {
     try {
       const newData: EditorData = {
-        applesMap: {},
-        threatsMap: {},
-        pickupsMap: {},
-        barriersMap: {},
-        decoratives1Map: {},
-        decoratives2Map: {},
-        doorsMap: {},
-        keysMap: {},
-        locksMap: {},
-        nospawnsMap: {},
-        passablesMap: {},
-        portalsMap: {},
+        ...EDITOR_DEFAULTS.data,
         playerSpawnPosition: new Vector(15, 15),
         startDirection: DIR.RIGHT,
-        switchesMap: {},
-        pipesMap: {},
       };
       this.setData(newData);
       return true;
@@ -1260,6 +1379,144 @@ export class FloodFillEmptyCommand extends FloodFillCommand {
     super(Tile.None, x, y, 0, 0, 0, 0, 0, dataRef, setData);
   }
 }
+
+// export class SetAnnotationCommand implements Command {
+//   public readonly name: string = "Set Annotation";
+//   protected readonly initial: EditorMapMetadataSlice;
+//   protected readonly newData: EditorMapMetadataSlice | null;
+//   protected readonly setMetadata: SetMetadata;
+//   protected readonly onRollback: RollbackLastCoordUpdated | undefined;
+//   public constructor(coord: number, metadata: EditorMapMetadata, newAnnotation: MapAnnotation, setMetadata: SetMetadata, onRollback: RollbackLastCoordUpdated) {
+//     if (!newAnnotation) {
+//       this.name = "Clear Annotation";
+//     } else {
+//       this.name = "Set Annotation";
+//     }
+//     this.setMetadata = setMetadata;
+//     this.onRollback = onRollback;
+//     this.initial = {
+//       coord,
+//       ...getMetadataSliceAtCoord(metadata, coord),
+//     } satisfies EditorMapMetadataSlice;
+//     const existing = metadata.annotations[coord] || undefined;
+//     const incoming = newAnnotation || undefined;
+//     this.newData = {
+//       coord,
+//       ...getMetadataSliceAtCoord(metadata, coord),
+//       annotation: incoming,
+//     } satisfies EditorMapMetadataSlice;
+//     if (existing === incoming) {
+//       this.newData = null;
+//     }
+//   }
+//   execute = () => {
+//     if (!this.newData) {
+//       return false;
+//     }
+//     this.setMetadata(prevData => mergeMetadataSlice(prevData, this.newData));
+//     return true;
+//   };
+//   rollback = () => {
+//     if (this.onRollback) {
+//       this.onRollback();
+//     }
+//     this.setMetadata(prevData => mergeMetadataSlice(prevData, this.initial));
+//   };
+// }
+
+// abstract class SetBulkAnnotationCommand implements Command {
+//   public readonly name: string = "Set Annotations";
+//   protected readonly initial: EditorMapMetadata;
+//   protected readonly newData: EditorMapMetadata | null;
+//   protected readonly setMetadata: SetMetadata;
+//   protected readonly onRollback: RollbackLastCoordUpdated | undefined;
+//   public constructor(coords: number[], metadata: EditorMapMetadata, newAnnotation: MapAnnotation, setMetadata: SetMetadata, onRollback: RollbackLastCoordUpdated) {
+//     if (newAnnotation === MapAnnotation.None) {
+//       this.name = "Clear Annotations";
+//     } else {
+//       this.name = "Set Annotations";
+//     }
+//     this.setMetadata = setMetadata;
+//     this.onRollback = onRollback;
+//     this.initial = deepCloneMetadata(metadata);
+//     this.newData = deepCloneMetadata(metadata);
+//     let changes = 0;
+//     coords.forEach(coord => {
+//       const existing = metadata.annotations[coord] || undefined;
+//       const incoming = newAnnotation || undefined;
+//       if (existing !== incoming) {
+//         changes++;
+//         this.newData.annotations[coord] = incoming;
+//       }
+//     });
+//     if (changes === 0) {
+//       this.newData = null;
+//     }
+//   }
+//   execute = () => {
+//     if (!this.newData) {
+//       return false;
+//     }
+//     this.setMetadata(this.newData);
+//     return true;
+//   };
+//   rollback = () => {
+//     if (this.onRollback) {
+//       this.onRollback();
+//     }
+//     this.setMetadata(this.initial);
+//   };
+// }
+
+// export class SetLineAnnotationCommand extends SetBulkAnnotationCommand {
+//   public constructor(from: number, to: number, metadata: EditorMapMetadata, newAnnotation: MapAnnotation, setMetadata: SetMetadata, onRollback: RollbackLastCoordUpdated) {
+//     const coords: number[] = [];
+//     if (from === to) {
+//       super([from], metadata, newAnnotation, setMetadata, onRollback);
+//       return;
+//     }
+//     const vec = {
+//       from: coordToVec(from),
+//       to: coordToVec(to),
+//     }
+//     let x0 = Math.min(vec.from.x, vec.to.x);
+//     let x1 = Math.max(vec.from.x, vec.to.x);
+//     let y0 = Math.min(vec.from.y, vec.to.y);
+//     let y1 = Math.max(vec.from.y, vec.to.y);
+//     if (x1 - x0 >= y1 - y0) {
+//       // horizontal mode
+//       for (let x = x0; x <= x1; x++) {
+//         const t = inverseLerp(x0, x1, x);
+//         const y = Math.floor(lerp(y0, y1, t));
+//         coords.push(getCoordIndex2(x, y));
+//       }
+//     } else {
+//       // vertical mode
+//       for (let y = y0; y <= y1; y++) {
+//         const t = inverseLerp(y0, y1, y);
+//         const x = Math.floor(lerp(x0, x1, t));
+//         coords.push(getCoordIndex2(x, y));
+//       }
+//     }
+//     super(coords, metadata, newAnnotation, setMetadata, onRollback);
+//   }
+// }
+
+// export class SetRectAnnotationCommand extends SetBulkAnnotationCommand {
+//   public constructor(from: number, to: number, metadata: EditorMapMetadata, newAnnotation: MapAnnotation, setMetadata: SetMetadata, onRollback: RollbackLastCoordUpdated) {
+//     const coords: number[] = [];
+//     const vec = {
+//       from: coordToVec(from),
+//       to: coordToVec(to),
+//     }
+//     for (let y = Math.min(vec.from.y, vec.to.y); y <= Math.max(vec.from.y, vec.to.y); y++) {
+//       for (let x = Math.min(vec.from.x, vec.to.x); x <= Math.max(vec.from.x, vec.to.x); x++) {
+//         coords.push(getCoordIndex2(x, y));
+//       }
+//     }
+//     super(coords, metadata, newAnnotation, setMetadata, onRollback);
+//   }
+// }
 
 export class SetSelectedCommand implements Command {
   public readonly name = "Set Selection";

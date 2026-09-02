@@ -6,20 +6,24 @@ import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, getRelativeDir, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { EDITOR_DEFAULTS } from "./editorConstants";
-import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, PortalChannel, SwitchType, ThreatType } from "../types";
+import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, MapAnnotation, PortalChannel, SwitchType, ThreatType } from "../types";
 import { Tile } from "./editorTypes";
 import { useRefState } from "./hooks/useRefState";
 import { useLoadMapData } from "./hooks/useLoadMapData";
 import {
   ClearSelectedCommand,
   Command,
+  DeleteAnnotationCommand,
   DeleteElementCommand,
+  DeleteLineAnnotationCommand,
   DeleteLineCommand,
+  DeleteRectangleAnnotationCommand,
   DeleteRectangleCommand,
   FloodFillCommand,
   FloodFillEmptyCommand,
   MoveTilesCommand,
   NoOpCommand,
+  SetAnnotationCommand,
   SetAppleCommand,
   SetArmorCommand,
   SetBarrierCommand,
@@ -28,6 +32,7 @@ import {
   SetDoorCommand,
   SetInvincibilityCommand,
   SetKeyCommand,
+  SetLineAnnotationCommand,
   SetLineAppleCommand,
   SetLineArmorCommand,
   SetLineBarrierCommand,
@@ -50,6 +55,7 @@ import {
   SetPipeCommand,
   SetPlayerSpawnCommand,
   SetPortalCommand,
+  SetRectangleAnnotationCommand,
   SetRectangleAppleCommand,
   SetRectangleArmorCommand,
   SetRectangleBarrierCommand,
@@ -85,6 +91,7 @@ import { SidebarBarrierTypes } from "./SidebarBarrierTypes";
 import { Stack } from "@/components/Stack";
 import { DropdownField, Option } from "@/components/Field";
 import { SidebarThreatTypes } from "./SidebarThreatTypes";
+import { SidebarMapAnnotations } from "./SidebarAnnotations";
 
 import * as styles from "./Editor.css";
 
@@ -113,6 +120,7 @@ export const Editor = () => {
   const [, altPressedRef, setAltPressed] = useRefState(false);
   const [tool, toolRef, _setTool] = useRefState(EditorTool.Pencil);
   const [tile, tileRef, _setTile] = useRefState(Tile.Barrier);
+  const [annotation, annotationRef, setAnnotation] = useRefState(MapAnnotation.L1);
   const [barrierType, barrierTypeRef, setBarrierType] = useRefState(BarrierType.Default);
   const [threatType, threatTypeRef, setThreatType] = useRefState(ThreatType.Mine);
   const [switchType, switchTypeRef, setSwitchType] = useRefState(SwitchType.Button);
@@ -123,8 +131,8 @@ export const Editor = () => {
   const hasRedo = !!futureCommands.length;
   const anySelected = Object.keys(selected).some(key => !!selected[key]);
 
-  useLoadMapData({ setData, setOptions, setPastCommands, setFutureCommands, setInitialized });
-  const isSynced = useUpdateUrl({ initialized, data, options });
+  useLoadMapData({ setData, setOptions, setMapId, setPastCommands, setFutureCommands, setInitialized });
+  const isSynced = useUpdateUrl({ initialized, data, mapId, options });
 
   const setTool = (incoming: EditorTool) => {
     if (
@@ -199,6 +207,21 @@ export const Editor = () => {
       ]
       const idx = order.indexOf(threatTypeRef.current);
       setThreatType(idx >= 0 ? order[(idx + order.length + direction) % order.length] : ThreatType.Mine);
+    } else if (tileRef.current === Tile.Annotation) {
+      const order: MapAnnotation[] = [
+        MapAnnotation.L1,
+        MapAnnotation.L2,
+        MapAnnotation.L3,
+        MapAnnotation.L4,
+        MapAnnotation.L5,
+        MapAnnotation.L6,
+        MapAnnotation.L7,
+        MapAnnotation.L8,
+        MapAnnotation.L9,
+        MapAnnotation.LA,
+      ];
+      const idx = order.indexOf(annotationRef.current);
+      setAnnotation(idx >= 0 ? order[(idx + order.length + direction) % order.length] : MapAnnotation.L1);
     }
   }
 
@@ -223,6 +246,7 @@ export const Editor = () => {
       Tile.Reversibility,
       Tile.Switch,
       Tile.Pipe,
+      Tile.Annotation,
     ];
     const idx = order.indexOf(tileRef.current ?? Tile.None);
     if (idx < 0 || tileRef.current === Tile.None) {
@@ -278,6 +302,8 @@ export const Editor = () => {
         return new SetSwitchCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, switchTypeRef.current);
       case Tile.Pipe:
         return new SetPipeCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.Annotation:
+        return new SetAnnotationCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, annotationRef.current);
       case Tile.None:
       default:
         throw new Error(`unhandled tile: ${tileRef.current}`);
@@ -324,6 +350,8 @@ export const Editor = () => {
         return new SetLineSwitchCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, switchTypeRef.current);
       case Tile.Pipe:
         return new SetLinePipeCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Annotation:
+        return new SetLineAnnotationCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, annotationRef.current);
       case Tile.None:
       default:
         throw new Error(`unhandled tile: ${tileRef.current}`);
@@ -370,6 +398,8 @@ export const Editor = () => {
         return new SetRectangleSwitchCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, switchTypeRef.current);
       case Tile.Pipe:
         return new SetRectanglePipeCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Annotation:
+        return new SetRectangleAnnotationCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, annotationRef.current);
       case Tile.None:
       default:
         throw new Error(`unhandled tile: ${tileRef.current}`);
@@ -398,24 +428,37 @@ export const Editor = () => {
     } else if (toolRef.current === EditorTool.Line && operation === Operation.Remove) {
       const from = mouseFromRef.current;
       const to = mouseAtRef.current;
+      if (tileRef.current === Tile.Annotation) {
+        return new DeleteLineAnnotationCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
+      }
       return new DeleteLineCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
     } else if (toolRef.current === EditorTool.Rectangle && operation === Operation.Remove) {
       const from = mouseFromRef.current;
       const to = mouseAtRef.current;
+      if (tileRef.current === Tile.Annotation) {
+        return new DeleteRectangleAnnotationCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
+      }
       return new DeleteRectangleCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
     } else if (
       toolRef.current === EditorTool.Eraser && (operation === Operation.Write || operation === Operation.Remove) ||
       toolRef.current === EditorTool.Pencil && operation === Operation.Remove
     ) {
       const coord = mouseAtRef.current;
+      if (tileRef.current === Tile.Annotation) {
+        return new DeleteAnnotationCommand(coord, dataRef.current, setData, () => setLastCoordUpdated(prevCoord))
+      }
       return new DeleteElementCommand(coord, dataRef.current, setData, () => setLastCoordUpdated(prevCoord));
     } else if (toolRef.current === EditorTool.Eraser && operation === Operation.Add) {
       const from = prevCoord;
       const to = mouseAtRef.current;
+      if (tileRef.current === Tile.Annotation) {
+        return new DeleteLineAnnotationCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
+      }
       return new DeleteLineCommand(from, to, dataRef, setData, () => setLastCoordUpdated(from));
     } else if (toolRef.current === EditorTool.Bucket) {
       if (mouseAtRef.current === -1) return new NoOpCommand();
       if (tileRef.current === Tile.Spawn) return new NoOpCommand();
+      if (tileRef.current === Tile.Annotation) return new NoOpCommand();
       const x = Math.floor(mouseAtRef.current % GRIDCOUNT_X);
       const y = Math.floor(mouseAtRef.current / GRIDCOUNT_X);
       if (operation === Operation.Remove) {
@@ -812,6 +855,12 @@ export const Editor = () => {
                   activeThreatType={threatType}
                   options={options}
                   setThreatType={setThreatType}
+                />
+              }
+              sidebarAnnotations={
+                <SidebarMapAnnotations
+                  activeAnnotation={annotation}
+                  setAnnotation={setAnnotation}
                 />
               }
             />
