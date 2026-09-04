@@ -13,18 +13,22 @@ class EditorMapMetadataStore extends BaseStore<EditorMapExtendedData> {
   public get = (mapId: string) => {
     if (!mapId) throw new Error('[EditorMapMetadataStore] mapId required!');
     this._mapId = mapId;
-    return { ...EDITOR_DEFAULTS.extendedData, ...this.getStore() };
+    const raw = this.getStore();
+    const extendedData = {
+      annotations: pruneMap(raw.annotations),
+      pipeOverrides: pruneMap(raw.pipeOverrides),
+    } satisfies EditorMapExtendedData;
+    return { ...extendedData };
   }
 
   public set = (mapId: string, incoming: EditorMapExtendedData) => {
     if (!mapId) throw new Error('[EditorMapMetadataStore] mapId required!');
-    const extendedData = {
-      annotations: pruneMap(incoming.annotations),
-      pipeOverrides: pruneMap(incoming.pipeOverrides),
-    } satisfies EditorMapExtendedData;
     this._mapId = mapId;
-    const metadata = { ...EDITOR_DEFAULTS.extendedData, ...this.getStore(), ...extendedData, };
-    this.setStore(metadata);
+    const extendedData = {
+      annotations: pruneMap({ ...incoming.annotations }),
+      pipeOverrides: pruneMap({ ...incoming.pipeOverrides }),
+    } satisfies EditorMapExtendedData;
+    this.setStore(extendedData);
   }
 
   public reset = () => {

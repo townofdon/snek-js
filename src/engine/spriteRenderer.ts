@@ -11,7 +11,7 @@ import {
   SpritesheetRange,
 } from "../types";
 import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y, IMG_SCALE, IMG_X_OFFSET, MAP_OFFSET, STROKE_SIZE } from "../constants";
-import { getCurrentFrame, getRelativeDir, lerp, isValidSpritesheetRange, getNumFrames, getDerivedSprite, getFrameOffset, isSpritesheetImage } from "../utils";
+import { getCurrentFrame, getRelativeDir, lerp, getNumFrames, getDerivedSprite, getFrameOffset, isSpritesheetImage } from "../utils";
 import { getBorderColorVariant } from "@/palettes";
 
 interface SpriteRendererConstructorProps {

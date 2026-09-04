@@ -1284,10 +1284,16 @@ export class ClearAllCommand implements Command {
   execute = () => {
     try {
       const newData: EditorData = {
-        ...EDITOR_DEFAULTS.data,
+        ...deepCloneData(EDITOR_DEFAULTS.data),
+        barriersMap: {},
+        decoratives1Map: {},
+        decoratives2Map: {},
+        doorsMap: {},
         playerSpawnPosition: new Vector(15, 15),
         startDirection: DIR.RIGHT,
-      };
+      } satisfies EditorData;
+      console.log({ newData });
+      console.log({ defaults: EDITOR_DEFAULTS.data });
       this.setData(newData);
       return true;
     } catch (err) {
@@ -1379,144 +1385,6 @@ export class FloodFillEmptyCommand extends FloodFillCommand {
     super(Tile.None, x, y, 0, 0, 0, 0, 0, dataRef, setData);
   }
 }
-
-// export class SetAnnotationCommand implements Command {
-//   public readonly name: string = "Set Annotation";
-//   protected readonly initial: EditorMapMetadataSlice;
-//   protected readonly newData: EditorMapMetadataSlice | null;
-//   protected readonly setMetadata: SetMetadata;
-//   protected readonly onRollback: RollbackLastCoordUpdated | undefined;
-//   public constructor(coord: number, metadata: EditorMapMetadata, newAnnotation: MapAnnotation, setMetadata: SetMetadata, onRollback: RollbackLastCoordUpdated) {
-//     if (!newAnnotation) {
-//       this.name = "Clear Annotation";
-//     } else {
-//       this.name = "Set Annotation";
-//     }
-//     this.setMetadata = setMetadata;
-//     this.onRollback = onRollback;
-//     this.initial = {
-//       coord,
-//       ...getMetadataSliceAtCoord(metadata, coord),
-//     } satisfies EditorMapMetadataSlice;
-//     const existing = metadata.annotations[coord] || undefined;
-//     const incoming = newAnnotation || undefined;
-//     this.newData = {
-//       coord,
-//       ...getMetadataSliceAtCoord(metadata, coord),
-//       annotation: incoming,
-//     } satisfies EditorMapMetadataSlice;
-//     if (existing === incoming) {
-//       this.newData = null;
-//     }
-//   }
-//   execute = () => {
-//     if (!this.newData) {
-//       return false;
-//     }
-//     this.setMetadata(prevData => mergeMetadataSlice(prevData, this.newData));
-//     return true;
-//   };
-//   rollback = () => {
-//     if (this.onRollback) {
-//       this.onRollback();
-//     }
-//     this.setMetadata(prevData => mergeMetadataSlice(prevData, this.initial));
-//   };
-// }
-
-// abstract class SetBulkAnnotationCommand implements Command {
-//   public readonly name: string = "Set Annotations";
-//   protected readonly initial: EditorMapMetadata;
-//   protected readonly newData: EditorMapMetadata | null;
-//   protected readonly setMetadata: SetMetadata;
-//   protected readonly onRollback: RollbackLastCoordUpdated | undefined;
-//   public constructor(coords: number[], metadata: EditorMapMetadata, newAnnotation: MapAnnotation, setMetadata: SetMetadata, onRollback: RollbackLastCoordUpdated) {
-//     if (newAnnotation === MapAnnotation.None) {
-//       this.name = "Clear Annotations";
-//     } else {
-//       this.name = "Set Annotations";
-//     }
-//     this.setMetadata = setMetadata;
-//     this.onRollback = onRollback;
-//     this.initial = deepCloneMetadata(metadata);
-//     this.newData = deepCloneMetadata(metadata);
-//     let changes = 0;
-//     coords.forEach(coord => {
-//       const existing = metadata.annotations[coord] || undefined;
-//       const incoming = newAnnotation || undefined;
-//       if (existing !== incoming) {
-//         changes++;
-//         this.newData.annotations[coord] = incoming;
-//       }
-//     });
-//     if (changes === 0) {
-//       this.newData = null;
-//     }
-//   }
-//   execute = () => {
-//     if (!this.newData) {
-//       return false;
-//     }
-//     this.setMetadata(this.newData);
-//     return true;
-//   };
-//   rollback = () => {
-//     if (this.onRollback) {
-//       this.onRollback();
-//     }
-//     this.setMetadata(this.initial);
-//   };
-// }
-
-// export class SetLineAnnotationCommand extends SetBulkAnnotationCommand {
-//   public constructor(from: number, to: number, metadata: EditorMapMetadata, newAnnotation: MapAnnotation, setMetadata: SetMetadata, onRollback: RollbackLastCoordUpdated) {
-//     const coords: number[] = [];
-//     if (from === to) {
-//       super([from], metadata, newAnnotation, setMetadata, onRollback);
-//       return;
-//     }
-//     const vec = {
-//       from: coordToVec(from),
-//       to: coordToVec(to),
-//     }
-//     let x0 = Math.min(vec.from.x, vec.to.x);
-//     let x1 = Math.max(vec.from.x, vec.to.x);
-//     let y0 = Math.min(vec.from.y, vec.to.y);
-//     let y1 = Math.max(vec.from.y, vec.to.y);
-//     if (x1 - x0 >= y1 - y0) {
-//       // horizontal mode
-//       for (let x = x0; x <= x1; x++) {
-//         const t = inverseLerp(x0, x1, x);
-//         const y = Math.floor(lerp(y0, y1, t));
-//         coords.push(getCoordIndex2(x, y));
-//       }
-//     } else {
-//       // vertical mode
-//       for (let y = y0; y <= y1; y++) {
-//         const t = inverseLerp(y0, y1, y);
-//         const x = Math.floor(lerp(x0, x1, t));
-//         coords.push(getCoordIndex2(x, y));
-//       }
-//     }
-//     super(coords, metadata, newAnnotation, setMetadata, onRollback);
-//   }
-// }
-
-// export class SetRectAnnotationCommand extends SetBulkAnnotationCommand {
-//   public constructor(from: number, to: number, metadata: EditorMapMetadata, newAnnotation: MapAnnotation, setMetadata: SetMetadata, onRollback: RollbackLastCoordUpdated) {
-//     const coords: number[] = [];
-//     const vec = {
-//       from: coordToVec(from),
-//       to: coordToVec(to),
-//     }
-//     for (let y = Math.min(vec.from.y, vec.to.y); y <= Math.max(vec.from.y, vec.to.y); y++) {
-//       for (let x = Math.min(vec.from.x, vec.to.x); x <= Math.max(vec.from.x, vec.to.x); x++) {
-//         coords.push(getCoordIndex2(x, y));
-//       }
-//     }
-//     super(coords, metadata, newAnnotation, setMetadata, onRollback);
-//   }
-// }
 
 export class SetSelectedCommand implements Command {
   public readonly name = "Set Selection";

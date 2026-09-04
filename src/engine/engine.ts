@@ -115,6 +115,7 @@ import {
   ThreatFlag,
   LaserType,
   SmokeType,
+  Boss,
 } from "../types";
 import {
   clamp,
@@ -157,6 +158,7 @@ import { buildLevel } from '../levels/levelBuilder';
 import {
   CAMPAIGN_LEVELS,
   CHALLENGE_LEVELS,
+  getLevelBoss,
   LEVELS,
   START_LEVEL,
   START_LEVEL_COBRA,
@@ -195,6 +197,7 @@ import { DEFAULT_ENGINE_STATE } from '@/defaults';
 import { engineMovement } from './engineComponents/movement';
 import { engineRendering } from './engineComponents/rendering';
 import { engineSpawning } from './engineComponents/spawning';
+import { BossConstructorArgs } from '@/boss/BaseBoss';
 
 interface EngineParams {
   p5: P5,
@@ -259,6 +262,7 @@ export function engine({
   onGameOverCobra,
   onRecordLevelProgress,
 }: EngineParams) {
+  const boss: { current: Boss | null } = { current: null };
   const es: EngineState = DEFAULT_ENGINE_STATE;
   const loopState: LoopState = {
     interval: null,
@@ -706,7 +710,6 @@ export function engine({
     // init stats
     stats.applesEatenThisLevel = 0;
     stats.totalLevelTimeElapsed = 0;
-
     // init state for new level
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
@@ -877,6 +880,27 @@ export function engine({
 
     resetGraphics();
 
+    // init boss
+    boss.current = getLevelBoss(es.level, {
+      gameState: state,
+      es,
+      playerState: player,
+      // TODO: ADD ANNOTATIONS
+      annotations: undefined,
+      renderer,
+      spriteRenderer,
+      difficulty: es.difficulty.index,
+      startAction,
+      playSound,
+    } satisfies BossConstructorArgs);
+
+    const bossTransition = () => {
+      if (!boss.current) return;
+      const bossTransition = shouldShowTransitions ? boss.current.start : boss.current.reset;
+      const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts, state);
+      return buildSceneAction((p5, gfx, sfx, fonts, callbacks) => bossTransition(p5, gfx, sfx, fonts, callbacks));
+    };
+
     stopLogicLoop();
     if (shouldShowTransitions) {
       UI.hideGfxCanvas();
@@ -884,6 +908,7 @@ export function engine({
       musicPlayer.load(es.level.musicTrack);
       musicPlayer.setVolume(1);
       transition()
+        .then(bossTransition)
         .catch(err => { console.error(err); })
         .finally(() => {
           if (es.level.isWinGame) {
@@ -903,18 +928,23 @@ export function engine({
           startLogicLoop();
         })
     } else {
-      if (replay.mode !== ReplayMode.Playback && (state.isGameStarted || state.isGameStarting)) {
-        if (DISABLE_TRANSITIONS) {
-          musicPlayer.stopAllTracks();
-        }
-        musicPlayer.play(es.level.musicTrack);
-      }
-      startLogicLoop();
-      renderDifficultyUI();
-      renderHeartsUI();
-      renderScoreUI();
-      renderLevelName();
-      UI.showGfxCanvas();
+      Promise.resolve()
+        .then(bossTransition)
+        .catch(err => { console.error(err); })
+        .finally(() => {
+          if (replay.mode !== ReplayMode.Playback && (state.isGameStarted || state.isGameStarting)) {
+            if (DISABLE_TRANSITIONS) {
+              musicPlayer.stopAllTracks();
+            }
+            musicPlayer.play(es.level.musicTrack);
+          }
+          startLogicLoop();
+          renderDifficultyUI();
+          renderHeartsUI();
+          renderScoreUI();
+          renderLevelName();
+          UI.showGfxCanvas();
+        });
     }
 
     const levelData = buildLevel(es.level);

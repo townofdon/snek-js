@@ -184,6 +184,7 @@ function playAudio(path: string, targetNode: AudioNode, options?: AudioSourceOpt
     const when = 0;
     const offset = Math.max(options?.offset ?? 0, 0);
     source.start(when, offset);
+    source.onended = null;
     audioTimeStartedMap[path] = audioContext.currentTime;
   } catch (err) {
     console.warn(`err on source.start(${path}): ${err}`);

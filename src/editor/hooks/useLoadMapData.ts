@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { v4 as uuid } from 'uuid';
 import toast from "react-hot-toast";
 
-import { decodeMapData } from "../utils/editorUtils";
+import { decodeMapData, deepCloneData } from "../utils/editorUtils";
 import { EditorData, EditorOptions } from "../../types";
 import { SetStateValue } from "../editorTypes";
 import { Command } from "../commands";
@@ -37,7 +37,7 @@ export const useLoadMapData = ({ setMapId, setData, setOptions, setPastCommands,
           setData(EDITOR_DEFAULTS.data);
           setOptions(EDITOR_DEFAULTS.options);
         }
-        
+
         // setMetadata(editorMapMetadataStore.get(mapId));
         setMapId(mapId);
         setPastCommands([]);

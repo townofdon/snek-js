@@ -2,7 +2,7 @@ import P5 from "p5";
 
 import { FontsInstance, IEnumerator, Scene, SceneCachedBindings, SceneCallbacks } from '../types';
 import { Coroutines } from "../engine/coroutines";
-import { DIMENSIONS } from "../constants";
+import { DIMENSIONS, IS_LOCALHOST } from "../constants";
 
 
 export interface BaseSceneProps {
@@ -50,6 +50,9 @@ export abstract class BaseScene implements Scene {
    * e.g. in the last line of constructor after super()
    */
   protected bindActions = () => {
+    if (IS_LOCALHOST && this.props.p5.draw === this.draw && this.keyPressed === this.keyPressed) {
+      throw new Error('attempted to call bindActions when already bound.');
+    }
     if (this.props.callbacks.onSceneStart) this.props.callbacks.onSceneStart();
     this._internalState.isShowing = true;
     const { p5 } = this.props;

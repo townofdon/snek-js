@@ -66,7 +66,7 @@ export const SidebarMapAnnotations = ({ activeAnnotation: activeMapAnnotation, s
           {annotation !== MapAnnotation.None && (
             <canvas
               ref={canvasRef[annotation]}
-              id={`editor-tile-preview-annotation-${annotation}`}
+              id={`editor-sidebar-annotation-${annotation}`}
               className={styles.barrierPreview}
               width={BLOCK_SIZE_X}
               height={BLOCK_SIZE_Y}

@@ -69,6 +69,7 @@ import {
 import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
 import { createLightmap, drawLighting, initLighting, updateLighting } from '../engine/lighting';
 import { AnimationList } from '../collections/animationList';
+import { deepCloneData } from './utils/editorUtils';
 
 export enum EditorTool {
   Pencil,
@@ -125,7 +126,7 @@ export interface ExtendedSketchData extends EditorData {
 export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): EditorSketchReturn => {
   const selected: Record<number, boolean> = {};
   const data: ExtendedSketchData = {
-    ...EDITOR_DEFAULTS.data,
+    ...deepCloneData(EDITOR_DEFAULTS.data),
     lasersMap: {},
     pipeConnectionsMap: {},
     flamesMap: {},

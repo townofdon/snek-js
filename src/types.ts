@@ -457,7 +457,7 @@ export interface Area {
   levels: Level[];
 }
 
-export interface Level {
+export interface Level{
   id: string,
   type?: LevelType,
   name: string,
@@ -525,6 +525,34 @@ export interface Level {
    * Field mutated during runtime - keep track of snek death locations (used to draw gore fx)
    */
   deathLocations?: Record<number, boolean>,
+}
+
+export enum BossStateMachine {
+  None = 0,
+  Intro,
+  QuickIntro,
+  Fighting,
+  Dying,
+  Defeated,
+}
+export enum BossPhase {
+  None = 0,
+  Default,
+  AgroLow,
+  AgroHigh,
+}
+
+export type BossStartArgs = [p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks?: SceneCallbacks];
+
+export interface Boss {
+  getCurrentState: () => BossStateMachine,
+  getCurrentPhase: () => BossPhase,
+  start: (...args: BossStartArgs) => Scene,
+  reset: (...args: BossStartArgs) => Scene,
+  cleanup: () => void,
+  tick: (deltaTime: number) => void,
+  draw: (deltaTime: number) => void,
+  spawnNextItemOverride: () => boolean, // false=fallback to default item spawn
 }
 
 export interface IRenderer {
