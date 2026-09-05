@@ -1,6 +1,6 @@
-import P5, { Element } from 'p5';
+import P5 from 'p5';
 
-import { DOM, getOrCreateElementById, parseElementLevelNum, requireElementById } from './uiUtils';
+import { getOrCreateElementById, parseElementLevelNum, requireElementById } from './uiUtils';
 import { emitUIEvent } from './uiEvents';
 import { DifficultyIndex, Initiator, InputAction } from '../types';
 import { getWarpLevelFromNum } from '../levels/levelUtils';
@@ -29,8 +29,6 @@ enum ActiveMenu {
 }
 
 export class UI {
-
-  private static p5: P5;
   private static activeMenu = ActiveMenu.None;
 
   static getIsMainMenuShowing = () => UI.activeMenu === ActiveMenu.MainMenu;
@@ -38,8 +36,7 @@ export class UI {
   static getIsGameModeMenuShowing = () => UI.activeMenu === ActiveMenu.GameModeMenu;
   static getIsLevelSelectMenuShowing = () => UI.activeMenu === ActiveMenu.LevelSelectMenu;
 
-  static init(p5: P5) {
-    UI.p5 = p5;
+  static init() {
     $GAME.style.width = String(DIMENSIONS.x) + 'px';
     $GAME.style.height = String(DIMENSIONS.y) + 'px';
     $GAME_CONTAINER.style.width = String(DIMENSIONS.x) + 'px';
@@ -332,83 +329,100 @@ export class UI {
     p.style.backgroundColor = LABEL_BG_COLOR;
   }
 
-  static addTooltip(textStr = '', parent: P5.Element, align: 'left' | 'right' = 'left') {
-    const element = UI.p5.createSpan(textStr).addClass("tooltip").addClass(`align-${align}`);
-    element.parent(parent);
+  static addTooltip(textStr = '', parent: HTMLElement, align: 'left' | 'right' = 'left') {
+    const element = document.createElement('span');
+    element.textContent = textStr;
+    element.classList.add('tooltip', `align-${align}`);
+    parent.appendChild(element);
   }
 
-  static drawButton(textStr = '', x = 0, y = 0, onClick: () => void, uiElements: (HTMLElement | Element)[], {
+  static drawButton(textStr = '', x = 0, y = 0, onClick: () => void, uiElements: HTMLElement[], {
     parentId = "game",
     tooltipText,
   }: {
-    parentId?: string | P5.Element,
+    parentId?: string,
     tooltipText?: string,
   } = {}) {
-    const tooltip = tooltipText ? UI.p5.createSpan(tooltipText).addClass('tooltip align-left invert') : null;
-    const button = UI.p5.createButton(textStr);
+    let tooltip: HTMLElement = null;
+    if (tooltipText) {
+      tooltip = document.createElement('span');
+      tooltip.textContent = tooltipText;
+      tooltip.classList.add('tooltip', 'align-left', 'invert');
+    }
+    const button = document.createElement('button');
+    button.textContent = textStr;
     if (x >= 0 && y >= 0) {
-      button.position(x * 2, y * 2);
+      button.style.position = 'absolute';
+      button.style.left = `${x * 2}px`;
+      button.style.top = `${y * 2}px`;
     }
-    button.mousePressed(onClick);
-    button.parent(parentId);
-    if (tooltip) {
-      tooltip.parent(button);
+    button.setAttribute("tabindex", "0");
+    button.style.transformOrigin ='top left';
+    button.style.transform = 'scale(2)';
+    button.addEventListener('click', onClick);
+    if (typeof parentId === 'string') {
+      if (tooltip) {
+        button.appendChild(tooltip);
+      }
+      requireElementById<HTMLElement>(parentId).appendChild(button);
     }
-    button.attribute("tabindex", "0");
-    button.style('transform-origin', 'top left');
-    button.style('transform', 'scale(2)');
     uiElements.push(button);
     return button;
   }
 
-  static drawText(textStr = '', fontSize = '9.6px', y = 0, uiElements: (HTMLElement | Element)[], { color = '#fff', width = 480, margin = '48px auto' } = {}) {
-    const element = UI.p5.createP(textStr);
-    element.addClass('minimood');
-    element.style('font-size', fontSize);
-    element.style('color', color);
-    element.style('text-shadow', '0px 3px 3px black');
-    element.style('padding', '0 16px');
-    element.style('width', `${width}px`);
-    element.style('text-align', 'center');
-    element.style('transform-origin', 'top center');
-    element.style('transform', 'scale(2)');
-    element.position(0, 2 * y);
-    element.style('left', 'initial');
-    element.style('margin', margin);
-    element.parent(UI_PARENT_ID);
+  static drawText(textStr = '', fontSize = '9.6px', y = 0, uiElements: HTMLElement[], { color = '#fff', width = 480, margin = '48px auto' } = {}) {
+    const element = document.createElement('p');
+    element.textContent = textStr;
+    element.classList.add('minimood');
+    element.style.fontSize = fontSize;
+    element.style.color = color;
+    element.style.textShadow = '0px 3px 3px black';
+    element.style.padding = '0 16px';
+    element.style.width = `${width}px`;
+    element.style.textAlign = 'center';
+    element.style.transformOrigin = 'top center';
+    element.style.transform = 'scale(2)';
+    element.style.position = 'absolute';
+    element.style.top = `${2 * y}px`;
+    element.style.left = 'initial';
+    element.style.margin = margin;
+    requireElementById<HTMLElement>(UI_PARENT_ID).appendChild(element);
     uiElements.push(element);
-    return element.height;
+    return element.offsetHeight;
   }
 
-  static drawDarkOverlay(uiElements: (HTMLElement | Element)[]) {
-    let div = UI.p5.createDiv();
-    div.id('dark-overlay');
-    div.style('position', 'absolute');
-    div.style('top', '0');
-    div.style('bottom', '0');
-    div.style('left', '0');
-    div.style('right', '0');
-    div.style('margin', '-1px');
-    div.style('background-color', 'rgb(7 11 15 / 75%)');
-    div.style('z-index', '6');
-    // div.style('mix-blend-mode', 'color-burn');
-    div.parent(UI_PARENT_ID);
+  static drawDarkOverlay(uiElements: HTMLElement[]) {
+    const id = 'dark-overlay';
+    document.getElementById(id)?.remove();
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.position = 'absolute';
+    div.style.top = '0px';
+    div.style.bottom = '0px';
+    div.style.left = '0px';
+    div.style.right = '0px';
+    div.style.margin = '-1px';
+    div.style.backgroundColor = 'rgb(7 11 15 / 75%)';
+    div.style.zIndex = '6';
+    // div.style.mixBlendMode = 'color-burn';
+    requireElementById<HTMLElement>(UI_PARENT_ID).appendChild(div);
     uiElements.push(div);
   }
 
   static drawScreenFlash() {
     const id = "screen-flash-overlay";
-    let div = UI.p5.createDiv();
-    div.id(id);
-    div.style('position', 'absolute');
-    div.style('top', '0');
-    div.style('bottom', '0');
-    div.style('left', '0');
-    div.style('right', '0');
-    div.style('z-index', '10');
-    div.style('background-color', '#ff550099');
-    div.style('mix-blend-mode', 'hard-light');
-    div.parent(UI_PARENT_ID);
+    document.getElementById(id)?.remove();
+    const div = document.createElement('div');
+    div.id = id;
+    div.style.position = 'absolute';
+    div.style.top = '0px';
+    div.style.bottom = '0px';
+    div.style.left = '0px';
+    div.style.right = '0px';
+    div.style.zIndex = '20';
+    div.style.backgroundColor = '#ff550099';
+    div.style.mixBlendMode = 'hard-light';
+    requireElementById<HTMLElement>(UI_PARENT_ID).appendChild(div);
     return div;
   }
 

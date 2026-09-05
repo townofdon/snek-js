@@ -121,7 +121,7 @@ const tutorial: Tutorial = {
 
 const loseMessages: Record<number, LoseMessage[]> = {};
 
-let uiElements: (HTMLElement | P5.Element)[] = [];
+let uiElements: HTMLElement[] = [];
 let quotes = allQuotes.slice();
 let playthroughId = '';
 
@@ -323,7 +323,7 @@ export const sketch = (p5: P5) => {
    * https://p5js.org/reference/#/p5/preload
    */
   function preload() {
-    UI.init(p5);
+    UI.init();
     fonts.load();
     sfx.load();
     musicPlayer.load(MAIN_TITLE_SCREEN_LEVEL.musicTrack);
@@ -335,7 +335,7 @@ export const sketch = (p5: P5) => {
    * https://p5js.org/reference/#/p5/setup
    */
   function setup() {
-    UI.init(p5);
+    UI.init();
     state.appMode = AppMode.StartScreen;
     state.mapset = Mapset.Campaign;
     state.isRandomizer = false;

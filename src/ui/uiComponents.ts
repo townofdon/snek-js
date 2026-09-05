@@ -1,7 +1,6 @@
-import { Element } from 'p5';
 import { UI } from "./ui";
 import { ACCENT_COLOR } from '../constants';
-import { GameMode, GameState, Level } from '../types';
+import { Level } from '../types';
 import { findLevelWarpIndex, getWarpLevelFromNum } from '../levels/levelUtils';
 import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from '../levels/levelConstants';
 
@@ -10,7 +9,7 @@ interface GameOverCallbacks {
   initLevel(shouldShowTransitions?: boolean): void
 }
 
-export function showGameOverUI(loseMessage: string, uiElements: (HTMLElement | Element)[]) {
+export function showGameOverUI(loseMessage: string, uiElements: HTMLElement[]) {
   const yInit = 160;
   const padding = 72;
   UI.drawDarkOverlay(uiElements);
@@ -32,22 +31,36 @@ interface ShowPauseMenuCallbacks {
   warpToLevel: (levelNum?: number) => void
 }
 
-export function showPauseUIPreviewMode(uiElements: (HTMLElement | Element)[], callbacks: Pick<ShowPauseMenuCallbacks, 'unpause'>) {
+export function showPauseUIPreviewMode(uiElements: HTMLElement[], callbacks: Pick<ShowPauseMenuCallbacks, 'unpause'>) {
   const { unpause } = callbacks;
   UI.drawDarkOverlay(uiElements);
   UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR });
-  UI.drawButton("RESUME", 192, 280, unpause, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonResume');
-  document.getElementById('pauseButtonResume').focus();
+  const button = UI.drawButton("RESUME", 192, 280, unpause, uiElements)
+  button.classList.add('minimood', 'focus-invert');
+  button.id = 'pauseButtonResume';
+  button.focus();
 }
 
-export function showPauseUI(uiElements: (HTMLElement | Element)[], options: ShowPauseMenuOptions, callbacks: ShowPauseMenuCallbacks) {
+export function showPauseUI(uiElements: HTMLElement[], options: ShowPauseMenuOptions, callbacks: ShowPauseMenuCallbacks) {
   const { hasWarpEnabledParam, isWarpDisabled, isChallengeLevel } = options;
   const { unpause, confirmShowMainMenu, showInGameSettingsMenu, warpToLevel } = callbacks;
   UI.drawDarkOverlay(uiElements);
   UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR });
-  UI.drawButton("RESUME", 16, 16, unpause, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonResume');
-  UI.drawButton("MAIN MENU", 176, 16, confirmShowMainMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonMainMenu');
-  UI.drawButton("SETTINGS", 356, 16, showInGameSettingsMenu, uiElements).addClass('minimood').addClass('focus-invert').id('pauseButtonSettings');
+  {
+    const button = UI.drawButton("RESUME", 16, 16, unpause, uiElements)
+    button.classList.add('minimood', 'focus-invert');
+    button.id = 'pauseButtonResume';
+  }
+  {
+    const button = UI.drawButton("MAIN MENU", 176, 16, confirmShowMainMenu, uiElements)
+    button.classList.add('minimood', 'focus-invert');
+    button.id = 'pauseButtonMainMenu';
+  }
+  {
+    const button = UI.drawButton("SETTINGS", 356, 16, showInGameSettingsMenu, uiElements)
+    button.classList.add('minimood', 'focus-invert')
+    button.id = 'pauseButtonSettings';
+  }
 
   if (isWarpDisabled) {
     return;
@@ -85,7 +98,10 @@ export function showPauseUI(uiElements: (HTMLElement | Element)[], options: Show
           }
         }
         : () => warpToLevel(levelNum)
-      UI.drawButton(text, x, y, warpFunc, uiElements, { tooltipText }).addClass('focus-invert').id(id);
+
+      const button = UI.drawButton(text, x, y, warpFunc, uiElements, { tooltipText })
+      button.classList.add('focus-invert')
+      button.id = id;
       anyWarpButtonsVisible = true;
     }
   }

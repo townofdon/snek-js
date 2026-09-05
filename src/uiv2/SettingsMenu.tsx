@@ -58,6 +58,7 @@ export const SettingsMenu = () => {
     [SettingsMenuElement.SliderSfxVolume]: useRef<HTMLInputElement>(null),
     [SettingsMenuElement.ButtonClose]: useRef<HTMLButtonElement>(null),
   };
+  const settingsMenuNavMap = useRef<SettingsMenuNavMap>(null);
 
   const isInGameMenu = bridge.gameState?.isGameStarted || false;
   const isCobraModeUnlocked = bridge.saveDataStore?.getIsCobraModeUnlocked() || false;
@@ -82,7 +83,7 @@ export const SettingsMenu = () => {
         [SettingsMenuElement.SliderSfxVolume]: elements[SettingsMenuElement.SliderSfxVolume].current,
         [SettingsMenuElement.ButtonClose]: elements[SettingsMenuElement.ButtonClose].current,
       }
-      const settingsMenuNavMap = new SettingsMenuNavMap(settingsMenuElements, bridge.callAction);
+      settingsMenuNavMap.current = new SettingsMenuNavMap(settingsMenuElements, bridge.callAction);
       bridge.settingsMenu.onNavigate = (navDir: UINavDir) => {
         const moveSlider = (focused: SettingsMenuElement | null, direction: number): boolean => {
           if (focused === SettingsMenuElement.SliderMusicVolume) {
@@ -106,15 +107,15 @@ export const SettingsMenu = () => {
         switch (navDir) {
           case UINavDir.Prev:
           case UINavDir.Up:
-            settingsMenuNavMap.gotoPrev();
+            settingsMenuNavMap.current.gotoPrev();
             break;
           case UINavDir.Next:
           case UINavDir.Down:
-            settingsMenuNavMap.gotoNext();
+            settingsMenuNavMap.current.gotoNext();
             break;
           case UINavDir.Left:
             if (gamepadPressed(getGamepad(), Button.DpadLeft)) {
-              const focused = settingsMenuNavMap.getFocused();
+              const focused = settingsMenuNavMap.current.getFocused();
               const handled = moveSlider(focused, -1);
               if (handled) forceRerender();
               return handled;
@@ -123,7 +124,7 @@ export const SettingsMenu = () => {
             return false;
           case UINavDir.Right:
             if (gamepadPressed(getGamepad(), Button.DpadRight)) {
-              const focused = settingsMenuNavMap.getFocused();
+              const focused = settingsMenuNavMap.current.getFocused();
               const handled = moveSlider(focused, 1);
               if (handled) forceRerender();
               return handled;
@@ -134,7 +135,7 @@ export const SettingsMenu = () => {
         return true;
       };
       bridge.settingsMenu.onInteract = () => {
-        const handled = settingsMenuNavMap.callSelected()
+        const handled = settingsMenuNavMap.current.callSelected()
         if (handled) forceRerender();
         return handled;
       };
@@ -146,6 +147,7 @@ export const SettingsMenu = () => {
       bridge.settingsMenu.onNavigate = null;
       bridge.settingsMenu.onInteract = null;
       bridge.settingsMenu.onCancel = null;
+      settingsMenuNavMap.current = null;
     }
   }, [showing])
 

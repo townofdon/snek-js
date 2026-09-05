@@ -334,10 +334,10 @@ export class UIBindings implements UIHandler {
       return true;
     }
     if (UI.getIsSettingsMenuShowing()) {
-      return bridge.settingsMenu?.onNavigate(navDir) || false;
+      return bridge.settingsMenu?.onNavigate?.(navDir) || false;
     }
     if (UI.getIsMainMenuShowing()) {
-      return bridge.mainMenu?.onNavigate(navDir) || false;
+      return bridge.mainMenu?.onNavigate?.(navDir) || false;
     }
     if (UI.getIsGameModeMenuShowing()) {
       switch (navDir) {
@@ -403,10 +403,10 @@ export class UIBindings implements UIHandler {
       return this.levelSelectMenuNavMap.callSelected();
     }
     if (UI.getIsSettingsMenuShowing()) {
-      return bridge.settingsMenu?.onInteract() || false;
+      return bridge.settingsMenu?.onInteract?.() || false;
     }
     if (UI.getIsMainMenuShowing()) {
-      return bridge.mainMenu?.onInteract() || false;
+      return bridge.mainMenu?.onInteract?.() || false;
     }
     if (UI.getIsGameModeMenuShowing()) {
       return this.gameModeMenuNavMap.callSelected();
@@ -426,7 +426,7 @@ export class UIBindings implements UIHandler {
       return true;
     }
     if (UI.getIsSettingsMenuShowing()) {
-      return bridge.settingsMenu?.onCancel() || false;
+      return bridge.settingsMenu?.onCancel?.() || false;
     }
     if (UI.getIsGameModeMenuShowing()) {
       this.callAction(InputAction.HideGameModeMenu);

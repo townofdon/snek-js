@@ -20,6 +20,7 @@ export const MainMenu = () => {
     leaderboard: useRef<HTMLButtonElement>(null),
     settings: useRef<HTMLButtonElement>(null),
   }
+  const mainMenuNavMap = useRef<MainMenuNavMap>(null);
 
   useEffect(() => {
     const handleUIEvent = (action: InputAction = InputAction.None) => {
@@ -56,7 +57,7 @@ export const MainMenu = () => {
   }, []);
 
   useEffect(() => {
-    if (showing && buttons.start.current) {
+    if (showing) {
       const mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
         [MainMenuButton.StartGame]: buttons.start.current,
         [MainMenuButton.QuitGame]: buttons.quit.current,
@@ -65,8 +66,8 @@ export const MainMenu = () => {
         [MainMenuButton.Community]: buttons.community.current,
         [MainMenuButton.Leaderboard]: buttons.leaderboard.current,
         [MainMenuButton.Settings]: buttons.settings.current,
-      }
-      const mainMenuNavMap = new MainMenuNavMap(
+      };
+      mainMenuNavMap.current = new MainMenuNavMap(
         mainMenuButtons,
         {
           [MainMenuButton.StartGame]: InputAction.ShowGameModeMenu,
@@ -82,23 +83,23 @@ export const MainMenu = () => {
       bridge.mainMenu.onNavigate = (navDir) => {
         switch (navDir) {
           case UINavDir.Prev:
-            return mainMenuNavMap.gotoPrev();
+            return mainMenuNavMap.current.gotoPrev();
           case UINavDir.Up:
-            return mainMenuNavMap.gotoUp();
+            return mainMenuNavMap.current.gotoUp();
           case UINavDir.Left:
-            return mainMenuNavMap.gotoLeft();
+            return mainMenuNavMap.current.gotoLeft();
           case UINavDir.Next:
-            return mainMenuNavMap.gotoNext();
+            return mainMenuNavMap.current.gotoNext();
           case UINavDir.Down:
-            return mainMenuNavMap.gotoDown();
+            return mainMenuNavMap.current.gotoDown();
           case UINavDir.Right:
-            return mainMenuNavMap.gotoRight();
+            return mainMenuNavMap.current.gotoRight();
           default:
             return false;
         }
       }
       bridge.mainMenu.onInteract = () => {
-        return mainMenuNavMap.callSelected();
+        return mainMenuNavMap.current.callSelected();
       }
       bridge.mainMenu.onCancel = () => {
         return false;
@@ -107,8 +108,9 @@ export const MainMenu = () => {
       bridge.mainMenu.onNavigate = null;
       bridge.mainMenu.onInteract = null;
       bridge.mainMenu.onCancel = null;
+      mainMenuNavMap.current = null;
     }
-  }, [showing, buttons.start.current]);
+  }, [showing]);
 
   useEffect(() => {
     if (showing && active) {
