@@ -145,8 +145,8 @@ export const PanelSave = ({
         name: options.name,
         author,
         mapData: encoded,
-        annotations: pruneMap(data.annotations),
-        pipeOverrides: pruneMap(data.pipeOverrides),
+        annotations: pruneMap(data?.annotations),
+        pipeOverrides: pruneMap(data?.pipeOverrides),
         overlayImagePath: null,
       } satisfies MapSaveData;
       saveMapDataToDisk(saveData);

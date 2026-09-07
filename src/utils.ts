@@ -62,7 +62,6 @@ import {
   FLAG_WEST,
   FLAG_EAST,
   DamageType,
-  TileDirectionOverride,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -1077,7 +1076,7 @@ export const withFlipx = (gfx: P5 | P5.Graphics, x: number, y: number, flipx: bo
   gfx.pop();
 }
 
-const getPipeIdx = (coord: number, pipesMap: Record<number, PipeConnection>, tileDirectionOverrides: Record<number, TileDirectionOverride> = {}): PipeConnection => {
+const getPipeIdx = (coord: number, pipesMap: Record<number, PipeConnection>): PipeConnection => {
   if (!pipesMap[coord]) return PipeConnection.Unset;
   const x = getCoordX(coord);
   const y = getCoordY(coord);
@@ -1086,15 +1085,15 @@ const getPipeIdx = (coord: number, pipesMap: Record<number, PipeConnection>, til
   const left = x > 0 ? !!pipesMap[getCoordIndex2(x - 1, y)] : false;
   const right = x < GRIDCOUNT_X - 1 ? !!pipesMap[getCoordIndex2(x + 1, y)] : false;
   let idx = 0;
-  if (up || tileDirectionOverrides[coord] === TileDirectionOverride.Up) idx += FLAG_NORTH;
-  if (down || tileDirectionOverrides[coord] === TileDirectionOverride.Down) idx += FLAG_SOUTH;
-  if (left || tileDirectionOverrides[coord] === TileDirectionOverride.Left) idx += FLAG_WEST;
-  if (right || tileDirectionOverrides[coord] === TileDirectionOverride.Right) idx += FLAG_EAST;
+  if (up) idx += FLAG_NORTH;
+  if (down) idx += FLAG_SOUTH;
+  if (left) idx += FLAG_WEST;
+  if (right) idx += FLAG_EAST;
   if (!idx) return PipeConnection.Unset;
   return idx;
 }
 
-export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConnection>, tileDirectionOverrides: Record<number, TileDirectionOverride> = {}) => {
+export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConnection>, pipeOverrides: Record<number, PipeConnection>) => {
   for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
     pipesMap[coord] = undefined;
   }
@@ -1107,7 +1106,7 @@ export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConn
     for (let x = 0; x < GRIDCOUNT_X; x++) {
       const coord = getCoordIndex2(x, y);
       if (!pipesMap[coord]) continue;
-      const idx = getPipeIdx(coord, pipesMap, tileDirectionOverrides);
+      const idx = pipeOverrides[coord] || getPipeIdx(coord, pipesMap);
       if (!idx) continue;
       pipesMap[coord] = idx;
     }
@@ -1123,8 +1122,8 @@ export const validPipeMove = (fromCoord: number, toCoord: number, es: EngineStat
   if (getManhattanDistance(frx, fry, tox, toy) !== 1) {
     return false;
   }
-  const from = es.pipesMap[fromCoord];
-  const to = es.pipesMap[toCoord];
+  const from = es.pipeOverrides[fromCoord] || es.pipesMap[fromCoord];
+  const to = es.pipeOverrides[toCoord] || es.pipesMap[toCoord];
   if (!from || !to) {
     return false;
   }
@@ -1152,14 +1151,14 @@ export const validPipeExit = (exitCoord: number, state: GameState, es: EngineSta
       && (state.isDoorsOpen || !es.doorsMap[coord])
       && isNil(es.locksMap[coord])
   };
-  const connection = es.pipesMap[exitCoord];
+  const override = es.pipeOverrides[exitCoord];
+  const connection = override || es.pipesMap[exitCoord];
   const x = getCoordX(exitCoord);
   const y = getCoordY(exitCoord);
-  const override = es.tileDirectionOverrides[exitCoord];
-  const canMoveDown = mask & FLAG_SOUTH && !outOfBounds(x, y + 1) && (override ? override === TileDirectionOverride.Down : valid(x, y + 1));
-  const canMoveUp = mask & FLAG_NORTH && !outOfBounds(x, y - 1) && (override ? override === TileDirectionOverride.Up : valid(x, y - 1));
-  const canMoveRight = mask & FLAG_EAST && !outOfBounds(x + 1, y) && (override ? override === TileDirectionOverride.Right : valid(x + 1, y));
-  const canMoveLeft = mask & FLAG_WEST && !outOfBounds(x - 1, y) && (override ? override === TileDirectionOverride.Left : valid(x - 1, y));
+  const canMoveDown = mask & FLAG_SOUTH && !outOfBounds(x, y + 1) && valid(x, y + 1);
+  const canMoveUp = mask & FLAG_NORTH && !outOfBounds(x, y - 1) && valid(x, y - 1);
+  const canMoveRight = mask & FLAG_EAST && !outOfBounds(x + 1, y) && valid(x + 1, y);
+  const canMoveLeft = mask & FLAG_WEST && !outOfBounds(x - 1, y) && valid(x - 1, y);
   switch (connection) {
     case PipeConnection.N:
       return canMoveDown;
@@ -1182,11 +1181,11 @@ export const validPipeExit = (exitCoord: number, state: GameState, es: EngineSta
     case PipeConnection.NWE:
     case PipeConnection.SWE:
     case PipeConnection.NSWE:
-      return (
-        (canMoveDown && override === TileDirectionOverride.Down) ||
-        (canMoveUp && override === TileDirectionOverride.Up) ||
-        (canMoveRight && override === TileDirectionOverride.Right) ||
-        (canMoveLeft && override === TileDirectionOverride.Left)
+      return !!(
+        (canMoveDown && override & FLAG_SOUTH) ||
+        (canMoveUp && override & FLAG_NORTH) ||
+        (canMoveRight && override & FLAG_EAST) ||
+        (canMoveLeft && override & FLAG_WEST)
       );
     default:
       return false;
@@ -1197,17 +1196,15 @@ export const validPipeExit = (exitCoord: number, state: GameState, es: EngineSta
 export const findPipeExit = (entryCoord: number, entryDir: DIR, state: GameState, es: EngineState): ([number, DIR] | false) => {
   if (!validPipeExit(entryCoord, state, es)) return false;
   const entrance = es.pipesMap[entryCoord];
-  const override = es.tileDirectionOverrides[entryCoord];
+  const override = es.pipeOverrides[entryCoord];
   if (override) {
-    const valid = (
-      (entryDir === DIR.UP && override === TileDirectionOverride.Down) ||
-      (entryDir === DIR.DOWN && override === TileDirectionOverride.Up) ||
-      (entryDir === DIR.RIGHT && override === TileDirectionOverride.Left) ||
-      (entryDir === DIR.LEFT && override === TileDirectionOverride.Right)
+    const valid = !!(
+      (entryDir === DIR.UP && override & FLAG_SOUTH) ||
+      (entryDir === DIR.DOWN && override & FLAG_NORTH) ||
+      (entryDir === DIR.RIGHT && override & FLAG_WEST) ||
+      (entryDir === DIR.LEFT && override & FLAG_EAST)
     );
     if (!valid) {
-      // TODO: REMOVE
-      console.log('override pipe entrance invalid');
       return false;
     }
   } else {

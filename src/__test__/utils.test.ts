@@ -13,7 +13,7 @@ import {
   rotateSystemAfterPortalTraverse,
   validPipeExit,
 } from "../utils";
-import { DIR, EngineState, Level, PipeConnection, TileDirectionOverride } from "../types";
+import { DIR, EngineState, Level, PipeConnection } from "../types";
 import { Vector } from "p5";
 import { GRIDCOUNT_X, GRIDCOUNT_Y } from "@/constants";
 import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE } from "@/defaults";
@@ -208,7 +208,7 @@ describe("Utils", () => {
         new Vector(5, 8),
       ];
       const pipesMap: Record<number, PipeConnection> = {};
-      buildPipesMap(pipes, pipesMap);
+      buildPipesMap(pipes, pipesMap, {});
       assert.strictEqual(pipesMap[getCoordIndex2(3, 3)], PipeConnection.Island);
       assert.strictEqual(pipesMap[getCoordIndex2(4, 4)], PipeConnection.Island);
       assert.strictEqual(pipesMap[getCoordIndex2(5, 5)], PipeConnection.Island);
@@ -235,7 +235,7 @@ describe("Utils", () => {
         new Vector(18, 16),
       ];
       const pipesMap: Record<number, PipeConnection> = {};
-      buildPipesMap(pipes, pipesMap);
+      buildPipesMap(pipes, pipesMap, {});
       if (DEBUG) {
         debugPipesMap(pipesMap);
       }
@@ -293,7 +293,7 @@ describe("Utils", () => {
         new Vector(3, 28),
       ];
       const pipesMap: Record<number, PipeConnection> = {};
-      buildPipesMap(pipes, pipesMap);
+      buildPipesMap(pipes, pipesMap, {});
       if (DEBUG) {
         debugPipesMap(pipesMap);
       }
@@ -353,7 +353,7 @@ describe("Utils", () => {
         new Vector(3, 28),
       ];
       const pipesMap: Record<number, PipeConnection> = {};
-      buildPipesMap(pipes, pipesMap);
+      buildPipesMap(pipes, pipesMap, {});
       if (DEBUG) {
         debugPipesMap(pipesMap);
       }
@@ -377,8 +377,8 @@ describe("Utils", () => {
   });
   describe('findPipeExit', () => {
     type PipeTest = { given: [number, number, DIR], expected: [number, number, DIR] };
-    const runTests = (pipesMap: Record<number, PipeConnection>, tests: PipeTest[], overrides: Record<number, TileDirectionOverride> = {}) => {
-      const engineState = { ...DEFAULT_ENGINE_STATE, pipesMap, tileDirectionOverrides: overrides } satisfies EngineState;
+    const runTests = (pipesMap: Record<number, PipeConnection>, tests: PipeTest[], overrides: Record<number, PipeConnection> = {}) => {
+      const engineState = { ...DEFAULT_ENGINE_STATE, pipesMap, pipeOverrides: overrides } satisfies EngineState;
       const errors: string[] = [];
       tests.forEach(({ given, expected }, i) => {
         let result: ([number, DIR] | false) = [-1, null];
@@ -410,7 +410,7 @@ describe("Utils", () => {
         pipes.push(new Vector(17, y));
       }
       const pipesMap: Record<number, PipeConnection> = {};
-      buildPipesMap(pipes, pipesMap);
+      buildPipesMap(pipes, pipesMap, {});
       if (DEBUG) {
         debugPipesMap(pipesMap);
       }
@@ -424,7 +424,7 @@ describe("Utils", () => {
     it('should find exits for complex scene', () => {
       const levelData = buildLevel(pipeTestLevel);
       const pipesMap: Record<number, PipeConnection> = {};
-      buildPipesMap(levelData.pipes, pipesMap);
+      buildPipesMap(levelData.pipes, pipesMap, {});
       if (DEBUG) {
         debugPipesMap(pipesMap);
       }
@@ -443,11 +443,11 @@ describe("Utils", () => {
     it('should find exits for complex scene with overrides', () => {
       const levelData = buildLevel(pipeTestLevel);
       const pipesMap: Record<number, PipeConnection> = {};
-      const overrides: Record<number, TileDirectionOverride> = {
-        [getCoordIndex2(10, 28)]: TileDirectionOverride.Left,
-        [getCoordIndex2(12, 23)]: TileDirectionOverride.Up,
-        [getCoordIndex2(6, 7)]: TileDirectionOverride.Right,
-        [getCoordIndex2(24, 4)]: TileDirectionOverride.Down,
+      const overrides: Record<number, PipeConnection> = {
+        [getCoordIndex2(10, 28)]: PipeConnection.SW,
+        [getCoordIndex2(12, 23)]: PipeConnection.NW,
+        [getCoordIndex2(6, 7)]: PipeConnection.NE,
+        [getCoordIndex2(24, 4)]: PipeConnection.SW,
       };
       buildPipesMap(levelData.pipes, pipesMap, overrides);
       if (DEBUG) {

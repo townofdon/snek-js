@@ -316,7 +316,8 @@ export interface EngineState {
   pipesMap: Record<number, PipeConnection>,
   flamesMap: Record<number, boolean>,
   deathIlluminationMap: Record<number, boolean>,
-  tileDirectionOverrides: Record<number, TileDirectionOverride>,
+  annotations: Record<number, MapAnnotation>,
+  pipeOverrides: Record<number, PipeConnection>,
 }
 
 export interface Outfit {
@@ -687,22 +688,24 @@ export const FLAG_EAST = 8;
 // note - ordering based on bitmask
 export enum PipeConnection {
   Unset = 0,
-  N,
-  S,
-  NS,
-  W,
-  NW,
-  SW,
-  NSW,
-  E,
-  NE,
-  SE,
-  NSE,
-  WE,
-  NWE,
-  SWE,
-  NSWE,
-  Island, // no neighbors
+  // Neighbor bitmask
+  // ------  EWSN
+  N,    // 0b0001
+  S,    // 0b0010
+  NS,   // 0b0011
+  W,    // 0b0100
+  NW,   // 0b0101
+  SW,   // 0b0110
+  NSW,  // 0b0111
+  E,    // 0b1000
+  NE,   // 0b1001
+  SE,   // 0b1010
+  NSE,  // 0b1011
+  WE,   // 0b1100
+  NWE,  // 0b1101
+  SWE,  // 0b1110
+  NSWE, // 0b1111
+  Island, // special case - no neighbors
 }
 
 export enum MapAnnotation {
@@ -717,14 +720,10 @@ export enum MapAnnotation {
   L8,
   L9,
   LA,
-}
-
-export enum TileDirectionOverride {
-  None = 0,
-  Up,
-  Down,
-  Left,
-  Right,
+  ForceDirN,
+  ForceDirS,
+  ForceDirW,
+  ForceDirE,
 }
 
 export interface LevelPickup {

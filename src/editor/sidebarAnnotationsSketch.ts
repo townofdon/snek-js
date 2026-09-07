@@ -40,6 +40,10 @@ export const sidebarAnnotationsSketch = (container: HTMLElement, canvas: Record<
       [MapAnnotation.L8]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.L8].current),
       [MapAnnotation.L9]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.L9].current),
       [MapAnnotation.LA]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.LA].current),
+      [MapAnnotation.ForceDirN]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.ForceDirN].current),
+      [MapAnnotation.ForceDirS]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.ForceDirS].current),
+      [MapAnnotation.ForceDirW]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.ForceDirW].current),
+      [MapAnnotation.ForceDirE]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.ForceDirE].current),
     } satisfies Record<MapAnnotation, P5.Graphics>;
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
@@ -98,6 +102,10 @@ export const sidebarAnnotationsSketch = (container: HTMLElement, canvas: Record<
       spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.L8], Image.EditorAnnotationsSheet, x, y, 7);
       spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.L9], Image.EditorAnnotationsSheet, x, y, 8);
       spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.LA], Image.EditorAnnotationsSheet, x, y, 9);
+      spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.ForceDirN], Image.EditorAnnotationsSheet, x, y, 10);
+      spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.ForceDirS], Image.EditorAnnotationsSheet, x, y, 11);
+      spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.ForceDirW], Image.EditorAnnotationsSheet, x, y, 12);
+      spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.ForceDirE], Image.EditorAnnotationsSheet, x, y, 13);
     }
   }
 

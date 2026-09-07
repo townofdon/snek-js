@@ -15,8 +15,8 @@ class EditorMapMetadataStore extends BaseStore<EditorMapExtendedData> {
     this._mapId = mapId;
     const raw = this.getStore();
     const extendedData = {
-      annotations: pruneMap(raw.annotations),
-      pipeOverrides: pruneMap(raw.pipeOverrides),
+      annotations: pruneMap(raw?.annotations),
+      pipeOverrides: pruneMap(raw?.pipeOverrides),
     } satisfies EditorMapExtendedData;
     return { ...extendedData };
   }

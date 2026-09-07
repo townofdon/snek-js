@@ -16,6 +16,7 @@ export const toSaveableExtendedData = (data: EditorMapExtendedData): EditorMapEx
 }
 
 export const pruneMap = <T,>(source: Record<number, T>): Record<number, T> => {
+  if (!source) return {};
   const out: Record<number, T> = {};
   Object.keys(source).forEach(key => {
     if (source[key]) out[key] = source[key];

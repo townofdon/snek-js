@@ -403,7 +403,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, fireTiles, null, data);
         startPortalParticles();
         const pipes: Vector[] = Object.entries(data.pipesMap).filter(([_, val]) => !!val).map(([key]) => coordToVec(Number(key)));
-        buildPipesMap(pipes, data.pipeConnectionsMap);
+        buildPipesMap(pipes, data.pipeConnectionsMap, data.pipeOverrides);
       }
       renderElements();
     }
@@ -671,6 +671,18 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
               break;
             case MapAnnotation.LA:
               spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 9);
+              break;
+            case MapAnnotation.ForceDirN:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 10);
+              break;
+            case MapAnnotation.ForceDirS:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 11);
+              break;
+            case MapAnnotation.ForceDirW:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 12);
+              break;
+            case MapAnnotation.ForceDirE:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 13);
               break;
             case MapAnnotation.None:
               break;

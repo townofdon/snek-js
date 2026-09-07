@@ -28,13 +28,17 @@ export const SidebarMapAnnotations = ({ activeAnnotation: activeMapAnnotation, s
     [MapAnnotation.L8]: useRef<HTMLCanvasElement>(null),
     [MapAnnotation.L9]: useRef<HTMLCanvasElement>(null),
     [MapAnnotation.LA]: useRef<HTMLCanvasElement>(null),
+    [MapAnnotation.ForceDirN]: useRef<HTMLCanvasElement>(null),
+    [MapAnnotation.ForceDirS]: useRef<HTMLCanvasElement>(null),
+    [MapAnnotation.ForceDirW]: useRef<HTMLCanvasElement>(null),
+    [MapAnnotation.ForceDirE]: useRef<HTMLCanvasElement>(null),
   } satisfies Record<MapAnnotation, React.MutableRefObject<HTMLCanvasElement>>;
 
   useLayoutEffect(() => {
     if (container.current && canvasRef[MapAnnotation.L1].current && !sketch.current) {
       Object.values(MapAnnotation).filter(v => typeof v !== 'string').forEach(annotation => {
         if (!canvasRef[annotation].current && annotation !== MapAnnotation.None) {
-          throw new Error(`No canvas exists for barrierType ${annotationLabel(annotation)}`);
+          throw new Error(`No canvas exists for annotation ${annotationLabel(annotation)}`);
         }
       })
       sketch.current = sidebarAnnotationsSketch(container.current, canvasRef);
@@ -54,6 +58,10 @@ export const SidebarMapAnnotations = ({ activeAnnotation: activeMapAnnotation, s
       [MapAnnotation.L8]: '8',
       [MapAnnotation.L9]: '9',
       [MapAnnotation.LA]: 'A',
+      [MapAnnotation.ForceDirN]: 'N',
+      [MapAnnotation.ForceDirS]: 'S',
+      [MapAnnotation.ForceDirW]: 'W',
+      [MapAnnotation.ForceDirE]: 'E',
     } satisfies Record<MapAnnotation, string>)[annotation];
     const color = annotation === activeMapAnnotation ? '#ffffff' : '#444'
     return (
@@ -97,6 +105,10 @@ export const SidebarMapAnnotations = ({ activeAnnotation: activeMapAnnotation, s
           {renderButton(MapAnnotation.L8)}
           {renderButton(MapAnnotation.L9)}
           {renderButton(MapAnnotation.LA)}
+          {renderButton(MapAnnotation.ForceDirN)}
+          {renderButton(MapAnnotation.ForceDirS)}
+          {renderButton(MapAnnotation.ForceDirW)}
+          {renderButton(MapAnnotation.ForceDirE)}
         </div>
       </Stack>
     </div>
@@ -106,16 +118,20 @@ export const SidebarMapAnnotations = ({ activeAnnotation: activeMapAnnotation, s
 const annotationLabel = (annotation: MapAnnotation) => {
   const tooltipText = ({
     [MapAnnotation.None]: 'None',
-    [MapAnnotation.L1]: "L1",
-    [MapAnnotation.L2]: "L2",
-    [MapAnnotation.L3]: "L3",
-    [MapAnnotation.L4]: "L4",
-    [MapAnnotation.L5]: "L5",
-    [MapAnnotation.L6]: "L6",
-    [MapAnnotation.L7]: "L7",
-    [MapAnnotation.L8]: "L8",
-    [MapAnnotation.L9]: "L9",
-    [MapAnnotation.LA]: "LA",
+    [MapAnnotation.L1]: "Label 1",
+    [MapAnnotation.L2]: "Label 2",
+    [MapAnnotation.L3]: "Label 3",
+    [MapAnnotation.L4]: "Label 4",
+    [MapAnnotation.L5]: "Label 5",
+    [MapAnnotation.L6]: "Label 6",
+    [MapAnnotation.L7]: "Label 7",
+    [MapAnnotation.L8]: "Label 8",
+    [MapAnnotation.L9]: "Label 9",
+    [MapAnnotation.LA]: "Label A",
+    [MapAnnotation.ForceDirN]: 'Force Dir N',
+    [MapAnnotation.ForceDirS]: 'Force Dir S',
+    [MapAnnotation.ForceDirW]: 'Force Dir W',
+    [MapAnnotation.ForceDirE]: 'Force Dir E',
   } satisfies Record<MapAnnotation, string>)[annotation];
   return tooltipText || 'Unknown';
 }

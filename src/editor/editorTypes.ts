@@ -25,20 +25,6 @@ export enum Tile {
   Annotation,
 }
 
-// TODO: REMOVE
-// export interface EditorMapMetadata {
-//   annotations: Record<number, MapAnnotation>,
-//   pipeOverrides: Record<number, PipeConnection>,
-//   tileDirectionOverrides: Record<number, TileDirectionOverride>,
-// }
-
-// TODO: REMOVE
-// export interface EditorMapMetadataSlice {
-//   coord: number,
-//   annotation: MapAnnotation,
-//   tileDirectionOverride: TileDirectionOverride,
-// }
-
 export interface EditorMapExtendedData {
     annotations: Record<number, MapAnnotation>,
     pipeOverrides: Record<number, PipeConnection>,

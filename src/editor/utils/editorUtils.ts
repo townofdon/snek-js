@@ -524,34 +524,3 @@ export function getDataSliceAtCoord(data: EditorData, coord: number): EditorData
     startDirection: data.startDirection,
   };
 }
-
-// TODO: REMOVE
-// export function deepCloneMetadata(metadata: EditorMapMetadata): EditorMapMetadata {
-//   return {
-//     annotations: getMapSliceWithDefaults(metadata.annotations),
-//     tileDirectionOverrides: getMapSliceWithDefaults(metadata.tileDirectionOverrides),
-//   } satisfies EditorMapMetadata;
-// }
-
-// export function mergeMetadata(data: EditorMapMetadata, incoming: Partial<EditorMapMetadata>): EditorMapMetadata {
-//   return {
-//     annotations: { ...data.annotations, ...incoming.annotations },
-//     tileDirectionOverrides: { ...data.tileDirectionOverrides, ...incoming.tileDirectionOverrides },
-//   } satisfies EditorMapMetadata;
-// }
-
-// export function mergeMetadataSlice(metadata: EditorMapMetadata, incoming: EditorMapMetadataSlice, coord?: number): EditorMapMetadata {
-//   const newData: EditorMapMetadata = {
-//     annotations: { [coord ?? incoming.coord]: incoming.annotation },
-//     tileDirectionOverrides: { [coord ?? incoming.coord]: incoming.tileDirectionOverride },
-//   } satisfies EditorMapMetadata
-//   return mergeMetadata(metadata, newData);
-// }
-
-// export function getMetadataSliceAtCoord(metadata: EditorMapMetadata, coord: number): EditorMapMetadataSlice {
-//   return {
-//     coord,
-//     annotation: metadata.annotations[coord],
-//     tileDirectionOverride: metadata.tileDirectionOverrides[coord],
-//   } satisfies EditorMapMetadataSlice;
-// }
