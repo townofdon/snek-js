@@ -2,7 +2,7 @@ import P5 from "p5";
 import Color from "color";
 import formatNumberFn from 'format-number'
 
-import { DIR, FontsInstance, GameMode, GameState, IEnumerator, Image, SFXInstance, SceneCallbacks, Sound, Stats, UINavDir } from "../types";
+import { DIR, FontsInstance, GameMode, GameState, IEnumerator, Image, ISFX, SceneCallbacks, Sound, Stats, UINavDir } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { ACCENT_COLOR, DIMENSIONS, HIGHSCORE_GRADIENT_CYCLE_TIME_MS, NEW_HIGHSCORE_COLORS, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "../constants";
@@ -69,7 +69,7 @@ export interface WinGameSceneConstructorArgs {
   gfx: P5.Graphics,
   gameState: GameState,
   stats: Stats,
-  sfx: SFXInstance,
+  sfx: ISFX,
   fonts: FontsInstance,
   onChangePlayerDirection: (direction: DIR) => void;
   spriteRenderer: SpriteRenderer;
@@ -77,7 +77,7 @@ export interface WinGameSceneConstructorArgs {
 }
 
 export class WinGameScene extends BaseScene {
-  private sfx: SFXInstance;
+  private sfx: ISFX;
   private spriteRenderer: SpriteRenderer;
   private gameState: GameState;
   private stats: Stats;

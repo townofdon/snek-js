@@ -542,7 +542,15 @@ export enum BossPhase {
   AgroHigh,
 }
 
-export type BossStartArgs = [p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks?: SceneCallbacks];
+export type BossStartArgs = [
+  p5: P5,
+  gfx: P5.Graphics,
+  sfx: ISFX,
+  musicPlayer: IMusicPlayer,
+  fonts: FontsInstance,
+  callbacks: SceneCallbacks,
+  renderLoop: () => void,
+];
 
 export interface Boss {
   getCurrentState: () => BossStateMachine,
@@ -1000,13 +1008,31 @@ export interface FontVariants {
   casual: P5.Font
 }
 
-export interface SFXInstance {
+export interface ISFX {
   play: (sound: keyof SoundVariants, volume?: number) => void
   playLoop: (sound: keyof SoundVariants, volume?: number) => void
   stop: (sound: keyof SoundVariants) => void
   load: () => void
   isPlaying: (sound: keyof SoundVariants) => boolean
 }
+
+export interface IMusicPlayer {
+  setVolume: (volume: number) => void,
+  getVolume: () => void,
+  isPlaying: (track?: MusicTrack) => boolean,
+  play: (track?: MusicTrack, volume?: number, createAnalyser?: boolean, trackElapsed?: boolean) => Promise<AudioInfo>,
+  stopAllTracks: (args: { exclude?: MusicTrack[], unload?: boolean }) => void,
+  pause: (track?: MusicTrack) => void,
+  halfSpeed: (track?: MusicTrack) => void,
+  normalSpeed: (track?: MusicTrack) => void,
+  setPlaybackRate: (track: MusicTrack | undefined, rate: number) => void,
+  getPlaybackRate: (track: MusicTrack | undefined) => number,
+  setLowpassFrequency: (normalizedFreq: number) => void,
+  getLowpassFrequency: () => number,
+  getTimeElapsed: (track: MusicTrack | undefined) => number,
+  load: (track: MusicTrack | undefined) => void,
+}
+
 
 export enum Sound {
   acquirePrey = 'acquirePrey',
@@ -1230,6 +1256,7 @@ export enum Image {
   Points2000 = 'snek-points-2000.png',
   Points5000 = 'snek-points-5000.png',
   Points10000 = 'snek-points-10000.png',
+  BossComponents = 'snek-boss-components.png',
 }
 
 export type ThemedImage =
@@ -1279,6 +1306,9 @@ export enum SpritesheetRange {
   BigSmokeActive,
   BigSmokeOff,
   Burn,
+  BossTileCircuitOff,
+  BossTileCircuitWeak,
+  BossTileCircuitHit,
 }
 export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange).filter(v => typeof v === 'number')) + 1;
 
@@ -1328,6 +1358,7 @@ export type SpritesheetImage =
   | Image.ThreatSawSheet
   | Image.ThreatFlameSheet
   | Image.EditorAnnotationsSheet
+  | Image.BossComponents
 ;
 
 export enum Threat48Frame {
@@ -1512,6 +1543,17 @@ export enum WearableFrame {
   Crusher = 24,
   CrusherSeg1 = 25,
   CrusherSeg2 = 26,
+}
+
+export enum BossComponentFrame {
+  None = 0,
+  TileCircuitOff,
+  TileCircuitWeak0,
+  TileCircuitWeak1,
+  TileCircuitWeak2,
+  TileCircuitWeak3,
+  TileCircuitHit0,
+  TileCircuitHit1,
 }
 
 export enum WearableType {

@@ -1,5 +1,5 @@
 import P5 from "p5";
-import { FontsInstance, GameState, PlayerState, SceneCallbacks, SFXInstance } from "@/types";
+import { FontsInstance, GameState, PlayerState, SceneCallbacks, ISFX } from "@/types";
 import { BaseScene } from "./BaseScene";
 import { SpriteRenderer } from "@/engine/spriteRenderer";
 import { MusicPlayer } from "@/engine/musicPlayer";
@@ -17,7 +17,7 @@ export interface AcquirePickupSceneConstructorArgs {
   p5: P5;
   gfxFGAction: P5.Graphics;
   gfxPresentation: P5.Graphics;
-  sfx: SFXInstance;
+  sfx: ISFX;
   musicPlayer: MusicPlayer;
   fonts: FontsInstance;
   renderer: Renderer;
@@ -56,7 +56,7 @@ const defaultShowing = {
 
 export class AcquirePickupScene extends BaseScene {
   private gfxFGAction: P5.Graphics;
-  private sfx: SFXInstance;
+  private sfx: ISFX;
   private musicPlayer: MusicPlayer;
   private renderer: Renderer;
   private spriteRenderer: SpriteRenderer;

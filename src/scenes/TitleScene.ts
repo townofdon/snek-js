@@ -1,5 +1,5 @@
 import P5 from "p5";
-import { FontsInstance, SFXInstance, SceneCallbacks, Sound } from "../types";
+import { FontsInstance, ISFX, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 
 const TSMOD = 2 * 0.8;
@@ -7,9 +7,9 @@ const TSMOD = 2 * 0.8;
 export class TitleScene extends BaseScene {
   private title: string = 'UNTITLED';
   private annotation: string = '';
-  private sfx: SFXInstance;
+  private sfx: ISFX;
 
-  constructor(title: string, annotation: string, p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+  constructor(title: string, annotation: string, p5: P5, gfx: P5.Graphics, sfx: ISFX, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     super(p5, gfx, fonts, callbacks)
     this.title = title;
     this.annotation = annotation || '';

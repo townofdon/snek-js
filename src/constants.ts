@@ -4,6 +4,7 @@ import Color from "color";
 import {
   AnimationData,
   AnimationDataForRange,
+  BossComponentFrame,
   ButtonSheetFrame,
   Difficulty,
   Image,
@@ -774,6 +775,31 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frames: 4,
     timePerFrame: 200,
   } satisfies AnimationDataForRange,
+  [Image.BossComponents]: {
+    frames: 10,
+    timePerFrame: 200,
+    frameWidth: 16,
+    frameHeight: 16,
+  },
+  [SpritesheetRange.BossTileCircuitOff]: {
+    src: Image.BossComponents,
+    offset: BossComponentFrame.TileCircuitOff - 1,
+    frames: 1,
+    timePerFrame: 200,
+  },
+  [SpritesheetRange.BossTileCircuitWeak]: {
+    src: Image.BossComponents,
+    offset: BossComponentFrame.TileCircuitWeak0 - 1,
+    frames: 4,
+    timePerFrame: 200,
+    durations: [300,100,100,200],
+  },
+  [SpritesheetRange.BossTileCircuitHit]: {
+    src: Image.BossComponents,
+    offset: BossComponentFrame.TileCircuitHit0 - 1,
+    frames: 2,
+    timePerFrame: 200,
+  },
 } satisfies (Record<SpritesheetImage, AnimationData> & Record<SpritesheetRange, AnimationDataForRange>);
 
 // validate ANIMATIONS data

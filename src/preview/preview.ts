@@ -110,7 +110,7 @@ const tutorial: Tutorial = {
   needsRewindControls: false,
 } satisfies Tutorial;
 
-let uiElements: P5.Element[] = [];
+let uiElements: HTMLElement[] = [];
 
 export const sketch = (p5: P5) => {
   const coroutines = new Coroutines(p5);
@@ -252,7 +252,7 @@ export const sketch = (p5: P5) => {
    */
   p5.preload = preload;
   function preload() {
-    UI.init(p5);
+    UI.init();
     fonts.load();
     sfx.load();
     spriteRenderer.loadImages();
@@ -264,7 +264,7 @@ export const sketch = (p5: P5) => {
    */
   p5.setup = setup;
   function setup() {
-    UI.init(p5);
+    UI.init();
     state.appMode = AppMode.StartScreen;
     state.isGameStarted = false;
     state.isGameStarting = false;

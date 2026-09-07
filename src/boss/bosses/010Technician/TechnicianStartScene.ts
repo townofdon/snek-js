@@ -1,17 +1,31 @@
 import { BaseBossScene } from "@/boss/BaseBossScene";
-import { IEnumerator } from "@/types";
+import { BossStartArgs, Sound } from "@/types";
 
 export class TechnicianStartScene extends BaseBossScene {
-  trigger = () => {
-    this.stopAllCoroutines();
+
+  constructor(...args: BossStartArgs) {
+    super(...args);
     this.bindActions();
   }
-  *action(): IEnumerator {
-    yield null;
+
+  *action() {
+    const sfx = this.sfx;
+    const { coroutines } = this.props;
+    sfx.play(Sound.alarm);
+    console.log('boss scene start');
+    yield* coroutines.waitForTime(500);
+    sfx.play(Sound.switch);
+    console.log('boss: "I angry!"');
+    yield* coroutines.waitForTime(1000);
+    console.log('boss: "I keel you!"');
+    sfx.play(Sound.switchOff);
+    yield* coroutines.waitForTime(500);
+    console.log('');
     this.cleanup();
   }
-  keyPressed: () => {};
+  keyPressed = () => {};
   draw = () => {
-    if (!this.isShowing()) return;
+    this.renderLoop();
+    this.tick();
   };
 }

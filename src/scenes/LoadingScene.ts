@@ -1,5 +1,5 @@
 import P5 from "p5";
-import { FontsInstance, SFXInstance, SceneCallbacks, Sound } from "../types";
+import { FontsInstance, ISFX, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 
 export class LoadingScene extends BaseScene {

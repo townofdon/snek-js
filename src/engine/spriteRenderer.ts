@@ -108,6 +108,7 @@ export class SpriteRenderer {
     [Image.ThreatWallSpikesSheet]: null,
     [Image.ThreatSawSheet]: null,
     [Image.ThreatFlameSheet]: null,
+    [Image.BossComponents]: null,
   } satisfies Record<Image, P5.Image | null>;
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -362,6 +363,7 @@ export class SpriteRenderer {
       this.loadImage(Image.ThreatWallSpikesSheet);
       this.loadImage(Image.ThreatSawSheet);
       this.loadImage(Image.ThreatFlameSheet);
+      this.loadImage(Image.BossComponents);
     } catch (err) {
       console.error(err)
     }

@@ -6,7 +6,7 @@ import {
   GameSettings,
   GameState,
   Initiator,
-  SFXInstance,
+  ISFX,
   Sound,
   UICancelHandler,
   UIHandler,

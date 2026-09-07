@@ -2,7 +2,7 @@ import P5 from "p5";
 import Color from "color";
 import formatNumberFn from 'format-number'
 
-import { FontsInstance, SFXInstance, SceneCallbacks, Sound } from "../types";
+import { FontsInstance, ISFX, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { ACCENT_COLOR, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "../constants";
@@ -44,13 +44,13 @@ interface WinGameState {
 export interface LeaderboardSceneConstructorArgs {
   p5: P5,
   gfx: P5.Graphics,
-  sfx: SFXInstance,
+  sfx: ISFX,
   fonts: FontsInstance,
   callbacks: SceneCallbacks,
 }
 
 export class LeaderboardScene extends BaseScene {
-  private sfx: SFXInstance;
+  private sfx: ISFX;
   private state: WinGameState = {
     leaderboardResults: [],
     leaderboardLoading: false,

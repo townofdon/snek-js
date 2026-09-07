@@ -2,8 +2,7 @@ import P5 from "p5";
 
 import { FontsInstance, IEnumerator, Scene, SceneCachedBindings, SceneCallbacks } from '../types';
 import { Coroutines } from "../engine/coroutines";
-import { DIMENSIONS, IS_LOCALHOST } from "../constants";
-
+import { DIMENSIONS } from "../constants";
 
 export interface BaseSceneProps {
   p5: P5
@@ -14,7 +13,7 @@ export interface BaseSceneProps {
 }
 
 export abstract class BaseScene implements Scene {
-  protected props: BaseSceneProps = {
+  protected readonly props: BaseSceneProps = {
     p5: null,
     gfx: null,
     callbacks: {
@@ -27,11 +26,13 @@ export abstract class BaseScene implements Scene {
 
   private readonly cachedBindings: SceneCachedBindings;
 
-  private _internalState = {
-    isShowing: false,
-  }
+  private _active = false;
+  private _boundOnce = false;
 
   constructor(p5: P5, gfx: P5.Graphics, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+    if (!p5) {
+      throw new Error('p5 not set');
+    }
     this.props.p5 = p5;
     this.props.gfx = gfx;
     this.props.fonts = fonts;
@@ -43,18 +44,38 @@ export abstract class BaseScene implements Scene {
     this.props.coroutines = new Coroutines(p5);
   }
 
-  public isShowing = () => this._internalState.isShowing;
+  public isShowing = () => this._active;
 
   /**
    * call this to take over the P5 render loop and input handling.
-   * e.g. in the last line of constructor after super()
+   * e.g. in the last line of constructor after super().
+   * Note to future homer: welcome to the painful, painful world of closures.
    */
   protected bindActions = () => {
-    if (IS_LOCALHOST && this.props.p5.draw === this.draw && this.keyPressed === this.keyPressed) {
-      throw new Error('attempted to call bindActions when already bound.');
+    if (!this.props.p5.draw) {
+      throw new Error('p5.draw not set');
     }
-    if (this.props.callbacks.onSceneStart) this.props.callbacks.onSceneStart();
-    this._internalState.isShowing = true;
+    if (!this.props.p5.keyPressed) {
+      throw new Error('p5.keyPressed not set');
+    }
+    if (!this.draw) {
+      throw new Error('scene.draw not set');
+    }
+    if (!this.keyPressed) {
+      throw new Error('scene.keyPressed not set');
+    }
+    if (this._boundOnce) {
+      throw new Error('illegal: cannot call bindActions() when already bound.');
+    }
+    if (this.props.p5.draw === this.draw && this.keyPressed === this.keyPressed) {
+      throw new Error('illegal: cannot call bindActions() when already bound (2).');
+    }
+    if ((!this.cachedBindings.draw || !this.cachedBindings.keyPressed)) {
+      throw new Error('illegal: cannot call bindActions() on an already-cleaned-up scene.');
+    }
+    this.props.callbacks.onSceneStart?.();
+    this._active = true;
+    this._boundOnce = true;
     const { p5 } = this.props;
     p5.draw = this.draw;
     p5.keyPressed = this.keyPressed;
@@ -71,8 +92,8 @@ export abstract class BaseScene implements Scene {
    * make sure to call onSceneEnded callback afterwards :)
    */
   protected startActionsNoBind = () => {
-    if (this.props.callbacks.onSceneStart) this.props.callbacks.onSceneStart();
-    this._internalState.isShowing = true;
+    this.props.callbacks.onSceneStart?.();
+    this._active = true;
     this.stopAllCoroutines();
     this.startCoroutine(this.action());
   }
@@ -90,8 +111,9 @@ export abstract class BaseScene implements Scene {
     this.cachedBindings.keyPressed = null;
     this.cachedBindings.draw = null;
     this.stopAllCoroutines();
-    if (callbacks.onSceneEnded) callbacks.onSceneEnded();
-    this._internalState.isShowing = false;
+    callbacks.onSceneEnded?.();
+    callbacks.onSceneEnded = null;
+    this._active = false;
   }
 
   abstract keyPressed: () => void

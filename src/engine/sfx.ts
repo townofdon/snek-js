@@ -1,4 +1,4 @@
-import { SFXInstance, SoundVariants } from "../types";
+import { ISFX, SoundVariants } from "../types";
 import { loadSfxAudio } from '../engine/audio';
 import { getRelativeDir } from '../utils';
 
@@ -17,7 +17,7 @@ import { getRelativeDir } from '../utils';
  * }
  * ```
  */
-export class SFX implements SFXInstance {
+export class SFX implements ISFX {
 
   private sounds: SoundVariants = {
     acquirePrey: null,

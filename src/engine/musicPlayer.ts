@@ -1,6 +1,5 @@
-import P5 from "p5";
 import { getAnalyser, getMusicLowpassFrequency, getMusicVolume, getTimeElapsed, loadAudioBuffer, playMusic, setMusicLowpassFrequency, setMusicVolume, setPlaybackRate, stopAudio, unloadAudio } from "./audio";
-import { AudioInfo, GameSettings, IEnumerator, MusicTrack } from "../types";
+import { AudioInfo, GameSettings, IEnumerator, IMusicPlayer, MusicTrack } from "../types";
 import { clamp, getRelativeDir, lerp } from "../utils";
 import { Easing } from "../easing";
 
@@ -27,7 +26,7 @@ interface MusicPlayerState {
  * }
  * ```
  */
-export class MusicPlayer {
+export class MusicPlayer implements IMusicPlayer {
   private state: MusicPlayerState = {
     currentTrack: null,
     playbackRate: 1,

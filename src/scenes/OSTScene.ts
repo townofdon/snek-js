@@ -5,7 +5,7 @@ import {
   IEnumerator,
   Image,
   MusicTrack,
-  SFXInstance,
+  ISFX,
   SceneCallbacks,
   Sound,
 } from "../types";
@@ -36,11 +36,11 @@ enum VisualizerMode {
 }
 
 export class OSTScene extends BaseScene {
-  private sfx: SFXInstance;
+  private sfx: ISFX;
   private musicPlayer: MusicPlayer;
   private unlockedMusicStore: UnlockedMusicStore;
   private spriteRenderer: SpriteRenderer;
-  private uiElements: P5.Element[] = []
+  private uiElements: HTMLElement[] = []
 
   private state = {
     locked: false,
@@ -54,14 +54,14 @@ export class OSTScene extends BaseScene {
     t: 0,
   }
 
-  private buttons: Record<VisualizerMode, P5.Element | null> = {
+  private buttons: Record<VisualizerMode, HTMLElement | null> = {
     [VisualizerMode.OsciliscopeLine]: null,
     [VisualizerMode.OsciliscopeRing]: null,
     [VisualizerMode.FrequencyBarGraph]: null,
     [VisualizerMode.FrequencySpectrum]: null,
   }
 
-  constructor(p5: P5, gfx: P5.Graphics, sfx: SFXInstance, musicPlayer: MusicPlayer, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, spriteRenderer: SpriteRenderer, callbacks: SceneCallbacks = {}) {
+  constructor(p5: P5, gfx: P5.Graphics, sfx: ISFX, musicPlayer: MusicPlayer, fonts: FontsInstance, unlockedMusicStore: UnlockedMusicStore, spriteRenderer: SpriteRenderer, callbacks: SceneCallbacks = {}) {
     super(p5, gfx, fonts, callbacks)
     this.sfx = sfx;
     this.musicPlayer = musicPlayer;
@@ -95,9 +95,9 @@ export class OSTScene extends BaseScene {
     const buttonKeys = Object.keys(this.buttons);
     buttonKeys.forEach(buttonKey => {
       if (buttonKey === String(mode)) {
-        this.buttons[buttonKey as unknown as VisualizerMode]?.addClass('active');
+        this.buttons[buttonKey as unknown as VisualizerMode]?.classList.add('active');
       } else {
-        this.buttons[buttonKey as unknown as VisualizerMode]?.removeClass('active');
+        this.buttons[buttonKey as unknown as VisualizerMode]?.classList.remove('active');
       }
     })
   }
@@ -105,18 +105,34 @@ export class OSTScene extends BaseScene {
   private addVisModeButtons = () => {
     const addButton = (mode: VisualizerMode, x: number, y: number) => {
       const button = UI.drawButton('', x, y, () => { this.onChangeVisualizationMode(mode); }, this.uiElements);
-      button.addClass('snek-audio-viz-button');
-      button.style('transform-origin', 'right top');
+      button.classList.add('snek-audio-viz-button');
+      button.style.transformOrigin = 'right top';
       return button;
     }
     const buttonSize = 32;
     const buttonPadding = 8;
     const x = 0.5 * ((DIMENSIONS.x - VISUALIZER.width) * 0.5 - buttonSize - buttonPadding);
     const y = 0.5 * (VISUALIZER.y);
-    this.buttons[VisualizerMode.OsciliscopeLine] = addButton(VisualizerMode.OsciliscopeLine, x, y + (buttonSize + buttonPadding) * 0).id('oscilliscope-line').addClass('oscilliscope-line');
-    this.buttons[VisualizerMode.OsciliscopeRing] = addButton(VisualizerMode.OsciliscopeRing, x, y + (buttonSize + buttonPadding) * 1).id('oscilliscope-ring').addClass('oscilliscope-ring').addClass('active');
-    this.buttons[VisualizerMode.FrequencyBarGraph] = addButton(VisualizerMode.FrequencyBarGraph, x, y + (buttonSize + buttonPadding) * 2).id('frequency-bar-graph').addClass('frequency-bar-graph');
-    this.buttons[VisualizerMode.FrequencySpectrum] = addButton(VisualizerMode.FrequencySpectrum, x, y + (buttonSize + buttonPadding) * 3).id('frequency-spectrum').addClass('frequency-spectrum');
+    {
+      const button = this.buttons[VisualizerMode.OsciliscopeLine] = addButton(VisualizerMode.OsciliscopeLine, x, y + (buttonSize + buttonPadding) * 0)
+      button.id = ('oscilliscope-line')
+      button.classList.add('oscilliscope-line');
+    }
+    {
+      const button = this.buttons[VisualizerMode.OsciliscopeRing] = addButton(VisualizerMode.OsciliscopeRing, x, y + (buttonSize + buttonPadding) * 1)
+      button.id = ('oscilliscope-ring')
+      button.classList.add('oscilliscope-ring', 'active');
+    }
+    {
+      const button = this.buttons[VisualizerMode.FrequencyBarGraph] = addButton(VisualizerMode.FrequencyBarGraph, x, y + (buttonSize + buttonPadding) * 2)
+      button.id = ('frequency-bar-graph')
+      button.classList.add('frequency-bar-graph');
+    }
+    {
+      const button = this.buttons[VisualizerMode.FrequencySpectrum] = addButton(VisualizerMode.FrequencySpectrum, x, y + (buttonSize + buttonPadding) * 3)
+      button.id = ('frequency-spectrum')
+      button.classList.add('frequency-spectrum');
+    }
   }
 
   private advanceVisMode = (step: number) => {

@@ -70,4 +70,8 @@ export abstract class BaseBoss implements Boss {
   public abstract tick: (deltaTime: number) => void;
   public abstract draw: (deltaTime: number) => void;
   public abstract spawnNextItemOverride: () => boolean;
+
+  protected abstract agro: () => void;
+  protected abstract takeDamage: () => void;
+  protected abstract die: () => void;
 }

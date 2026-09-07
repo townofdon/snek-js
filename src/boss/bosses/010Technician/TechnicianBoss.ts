@@ -52,11 +52,11 @@ export class TheTechnician extends BaseBoss {
     if (!this.active) return;
     // tick boss actions
 
-    // hurt player at locations
+    // ??hurt player at locations - handled by normal behavior??
 
     // show actionables, weak points, etc.
 
-    // maybe take damage
+    // maybe boss.takeDamage()
 
     // maybe spawn shit
   };
@@ -70,14 +70,14 @@ export class TheTechnician extends BaseBoss {
     return false;
   };
 
-  private agro = () => {
+  protected agro = () => {
     this.phaseIdx++;
     // start action
   };
-  private takeDamage = () => {
+  protected takeDamage = () => {
     // take damage
   };
-  private die = () => {
+  protected die = () => {
     this.state = BossStateMachine.Dying;
     // this.startAction(BossDeath);
   };

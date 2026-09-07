@@ -1,5 +1,5 @@
 import P5 from "p5";
-import { FontsInstance, Quote, SFXInstance, SceneCallbacks, Sound } from "../types";
+import { FontsInstance, Quote, ISFX, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { getGamepad, tickGamepad, wasPressedThisFrame } from "../engine/gamepad";
 import { Button } from "../engine/gamepad/StandardGamepadMapping";
@@ -10,9 +10,9 @@ const TSMOD = 2 * 0.8;
 export class QuoteScene extends BaseScene {
   _quotes: string[];
   _author: string;
-  _sfx: SFXInstance;
+  _sfx: ISFX;
 
-  constructor(quote: Quote, p5: P5, gfx: P5.Graphics, sfx: SFXInstance, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+  constructor(quote: Quote, p5: P5, gfx: P5.Graphics, sfx: ISFX, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
     super(p5, gfx, fonts, callbacks)
     this._sfx = sfx;
     this._quotes = quote.message;
