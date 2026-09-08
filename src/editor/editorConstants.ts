@@ -46,6 +46,7 @@ export const EDITOR_DEFAULTS: {
     pipesMap: {},
     annotations: {},
     pipeOverrides: {},
+    localFilePath: '',
   },
   dataSlice: {
     apple: false,

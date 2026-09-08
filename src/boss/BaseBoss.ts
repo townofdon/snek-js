@@ -20,7 +20,7 @@ export interface BossConstructorArgs {
   gameState: GameState;
   es: EngineState;
   playerState: PlayerState;
-  annotations: Record<MapAnnotation, Record<number, boolean>>;
+  annotations: Record<number, MapAnnotation>;
   renderer: Renderer;
   spriteRenderer: SpriteRenderer;
   difficulty: DifficultyIndex;
@@ -32,10 +32,7 @@ export abstract class BaseBoss implements Boss {
   protected readonly gameState: GameState;
   protected readonly es: EngineState;
   protected readonly playerState: PlayerState;
-  protected readonly annotations: Record<
-    MapAnnotation,
-    Record<number, boolean>
-  >;
+  protected readonly annotations: Record<number, MapAnnotation>;
   protected readonly renderer: Renderer;
   protected readonly spriteRenderer: SpriteRenderer;
   protected readonly difficulty: DifficultyIndex;
@@ -43,7 +40,6 @@ export abstract class BaseBoss implements Boss {
   protected readonly playSound: (sound: Sound, vol?: number) => void;
 
   public constructor(args: BossConstructorArgs) {
-
     this.gameState = args.gameState;
     this.es = args.es;
     this.playerState = args.playerState;
@@ -55,12 +51,7 @@ export abstract class BaseBoss implements Boss {
   }
 
   protected abstract readonly startScene: Scene;
-  protected abstract readonly phases: {
-    easy: BossPhase[];
-    medium: BossPhase[];
-    hard: BossPhase[];
-    ultra: BossPhase[];
-  };
+  protected abstract readonly phases: Record<DifficultyIndex, BossPhase[]>;
 
   public abstract getCurrentState: () => BossStateMachine;
   public abstract getCurrentPhase: () => BossPhase;

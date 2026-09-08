@@ -22,7 +22,6 @@ window.addEventListener("message", (event) => {
   if (event.data === 'fullscreen') {
     document.body.requestFullscreen();
   } else if (validEditorData(event.data)) {
-    console.log(event.data);
     emitEditorData(event.data);
   }
 });

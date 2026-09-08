@@ -138,6 +138,13 @@ textarea {
   color: #3e464c;
   text-shadow: -1px 3px 0px #00000054;
   font-size: 1.4em;
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  &:disabled:hover {
+    filter: none;
+  }
 }
 
 .updateMapButton {

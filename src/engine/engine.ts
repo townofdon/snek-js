@@ -885,8 +885,7 @@ export function engine({
       gameState: state,
       es,
       playerState: player,
-      // TODO: ADD ANNOTATIONS
-      annotations: undefined,
+      annotations: es.level.annotations || {},
       renderer,
       spriteRenderer,
       difficulty: es.difficulty.index,
@@ -896,7 +895,6 @@ export function engine({
 
     const bossTransition: (() => Promise<void> | undefined) = (() => {
       if (replay.mode === ReplayMode.Playback) return;
-      if (!state.isGameStarted) return;
       if (!boss.current) return;
       const bossTransition = shouldShowTransitions ? boss.current.start : boss.current.reset;
       const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts);
@@ -972,6 +970,8 @@ export function engine({
     es.locks = levelData.locks;
     es.locksMap = levelData.locksMap;
     es.diffSelectMap = levelData.diffSelectMap;
+    es.pipeOverrides = es.level.pipeOverrides || {};
+    es.annotations = es.level.annotations || {};
 
     // set es.level metadata
     es.level.numLocks = es.locks.length;
@@ -1004,7 +1004,7 @@ export function engine({
       es.switchesMap[coord] = item.type;
     });
 
-    buildPipesMap(levelData.pipes, es.pipesMap);
+    buildPipesMap(levelData.pipes, es.pipesMap, es.pipeOverrides);
 
     // add initial threats
     for (let i = 0; i < levelData.threats.length; i++) {

@@ -227,6 +227,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             state.dirty = true;
           }
           break;
+        case 'localFilePath':
+          break;
         default:
           throw new Error(`no case for key "${key}"`)
       }

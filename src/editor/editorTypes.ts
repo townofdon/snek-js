@@ -28,6 +28,7 @@ export enum Tile {
 export interface EditorMapExtendedData {
     annotations: Record<number, MapAnnotation>,
     pipeOverrides: Record<number, PipeConnection>,
+    localFilePath: string,
 }
 
 export interface MapSaveData {
@@ -77,6 +78,7 @@ export const validEditorData = (data: any): data is EditorData => {
         pipeOverrides: {},
         playerSpawnPosition: new P5.Vector(15, 15),
         startDirection: DIR.RIGHT,
+        localFilePath: '',
   } satisfies EditorData;
   Object.keys(sampleEditorData).forEach(key => {
     if (typeof data[key] !== typeof sampleEditorData[key]) {

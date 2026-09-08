@@ -1,38 +1,55 @@
-import { Scene, BossPhase, BossStartArgs, BossStateMachine } from "@/types";
-import { BaseBoss } from "../../BaseBoss";
+import { Scene, BossPhase, BossStartArgs, BossStateMachine, MapAnnotation, DifficultyIndex } from "@/types";
+import { BaseBoss, BossConstructorArgs } from "../../BaseBoss";
 import { TechnicianStartScene } from "./TechnicianStartScene";
+import { getAnnotationSlice, shuffleArray } from "@/utils";
+
+const ANNOTATION_CIRCUIT_SPAWNS = MapAnnotation.L1;
+
+enum CircuitState {
+  None = 0,
+  Idle,
+  Weakpoint,
+  Triggered,
+}
 
 export class TheTechnician extends BaseBoss {
   private active: boolean;
   private state: BossStateMachine;
   private phaseIdx = 0;
-  protected readonly phases: {
-    easy: [BossPhase.Default, BossPhase.AgroLow],
-    medium: [BossPhase.Default, BossPhase.Default, BossPhase.AgroLow],
-    hard: [BossPhase.Default, BossPhase.Default, BossPhase.Default, BossPhase.AgroLow],
-    ultra: [BossPhase.Default, BossPhase.Default, BossPhase.AgroLow, BossPhase.AgroHigh],
+  private circuits: Record<number, CircuitState>;
+
+  private readonly circuitSpawnLocations: Record<number, boolean> = getAnnotationSlice(this.annotations, ANNOTATION_CIRCUIT_SPAWNS);
+  protected readonly phases: Record<DifficultyIndex, BossPhase[]> = {
+    1: [BossPhase.Default, BossPhase.AgroLow],
+    2: [BossPhase.Default, BossPhase.Default, BossPhase.AgroLow],
+    3: [BossPhase.Default, BossPhase.Default, BossPhase.Default, BossPhase.AgroLow],
+    4: [BossPhase.Default, BossPhase.Default, BossPhase.AgroLow, BossPhase.AgroHigh],
   };
-  public getCurrentState = (): BossStateMachine => this.state;
-  public getCurrentPhase = (): BossPhase => {
-    switch (this.difficulty) {
-      case 1:
-        return this.phases.easy[this.phaseIdx] || BossPhase.AgroLow;
-      case 2:
-        return this.phases.medium[this.phaseIdx] || BossPhase.AgroLow;
-      case 3:
-        return this.phases.hard[this.phaseIdx] || BossPhase.AgroLow;
-      case 4:
-        return this.phases.ultra[this.phaseIdx] || BossPhase.AgroHigh;
-      default:
-        return BossPhase.AgroHigh;
-    }
+  protected readonly numCircuitsToSpawn: Record<DifficultyIndex, number[]> = {
+    1: [4, 4],
+    2: [4, 4, 6],
+    3: [4, 4, 4, 6],
+    4: [4, 4, 6, 8],
   };
   protected startScene: Scene;
+
+  constructor(args: BossConstructorArgs) {
+    super(args);
+    [1, 2, 3, 4].forEach((phase) => {
+      const numPhases = this.phases[phase].length;
+      const numSpawns = this.numCircuitsToSpawn[phase].length;
+      if (numPhases !== numSpawns) throw new Error(`lengths do not match for phase="${phase}": ${numPhases} vs ${numSpawns}`);
+    });
+  }
+
+  public getCurrentState = (): BossStateMachine => this.state;
+  public getCurrentPhase = (): BossPhase => this.phases[this.difficulty]?.[this.phaseIdx] || BossPhase.AgroHigh;
   public start = (...args: BossStartArgs) => {
     this.active = true;
     this.phaseIdx = 0;
     this.state = BossStateMachine.Intro;
     this.startScene = new TechnicianStartScene(...args);
+    this.spawnNewCircuits();
     return this.startScene;
   };
   public reset = (...args: BossStartArgs) => {
@@ -41,6 +58,7 @@ export class TheTechnician extends BaseBoss {
     this.startScene?.cleanup();
     this.state = BossStateMachine.QuickIntro;
     this.startScene = new TechnicianStartScene(...args);
+    this.spawnNewCircuits();
     return this.startScene;
   };
   public cleanup = () => {
@@ -81,4 +99,23 @@ export class TheTechnician extends BaseBoss {
     this.state = BossStateMachine.Dying;
     // this.startAction(BossDeath);
   };
+
+  private spawnNewCircuits = () => {
+    this.circuits = {};
+    // possible spawn locations
+    let pool = Object.keys(this.circuitSpawnLocations).map(v => Number(v)).filter(Number.isInteger);
+    console.log({ possibleSpawnLocations: pool });
+    for (let i = 0; i < 5; i++) {
+      pool = shuffleArray(pool);
+    }
+    const numSpawns = Math.min(
+      this.numCircuitsToSpawn[this.difficulty]?.[this.phaseIdx] || 0,
+      pool.length,
+    );
+    for (let i = 0; i < numSpawns; i++) {
+      const next = pool.pop();
+      this.circuits[next] = CircuitState.Idle;
+    }
+    console.log({ 'this.circuits': this.circuits });
+  }
 }

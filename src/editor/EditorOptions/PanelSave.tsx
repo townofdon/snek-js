@@ -32,11 +32,8 @@ interface PanelSaveProps {
   options: EditorOptions;
   mapId: string;
   setMapId: (val: string) => void;
-  setData: (data: EditorData) => void;
-  setOptions: (value: SetStateValue<EditorOptions>) => void;
   undo: () => void;
   redo: () => void;
-  executeCommand: (command: Command) => void;
 }
 
 export const PanelSave = ({
@@ -45,18 +42,14 @@ export const PanelSave = ({
   options,
   mapId,
   setMapId,
-  setData,
-  setOptions,
   redo,
   undo,
-  executeCommand,
 }: PanelSaveProps) => {
   const publishCanvas = useRef<HTMLCanvasElement>();
   const panelRef = useRef<HTMLDivElement>();
   const [isPreviewShowing, _setPreviewShowing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [author, _setAuthor] = useState(editorStore.getAuthor());
-  const fileInputRef = useRef<HTMLInputElement>();
 
   useUndoRedo(panelRef, redo, undo);
 
@@ -115,50 +108,6 @@ export const PanelSave = ({
     }
   }
 
-  const handleImportClick = () => {
-    fileInputRef.current?.click();
-  }
-
-  const handleInputFileChange: React.ChangeEventHandler<HTMLInputElement> = (ev) => {
-    const files = ev.target.files;
-    if (files.length <= 0) return;
-    (async () => {
-      const mapSaveData = await readMapDataFromFile(files[0]);
-      const command = new ImportMapDataCommand(mapSaveData, data, options, setData, setOptions);
-      executeCommand(command);
-      toast(`Imported Map`, {
-        icon: "✓",
-        duration: 2500,
-        position: "bottom-right",
-        className: editorStyles.toastRedo,
-      });
-    })();
-  }
-
-  const handleSaveToDisk = async () => {
-    try {
-      if (!canvas.current) throw new Error('canvas not set');
-      setLoading(true);
-      const encoded = encodeMapData(data, options);
-      const saveData = {
-        mapId: "123",
-        name: options.name,
-        author,
-        mapData: encoded,
-        annotations: pruneMap(data?.annotations),
-        pipeOverrides: pruneMap(data?.pipeOverrides),
-        overlayImagePath: null,
-      } satisfies MapSaveData;
-      saveMapDataToDisk(saveData);
-      toast.success('Successfully saved map');
-    } catch (err) {
-      toast.error('Unable to save map');
-      console.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <div ref={panelRef}>
       <Field
@@ -176,32 +125,6 @@ export const PanelSave = ({
       <hr />
       <CopyLink data={data} options={options} />
       <hr />
-      {IS_DEV && (
-        <Stack marginBottom row align="center" justify="spaceBetween">
-          <CopyLinkDev />
-        </Stack>
-      )}
-      <div>
-        <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleInputFileChange} />
-      </div>
-      <Stack row align="center" justify="spaceBetween">
-        <Stack marginBottom row align="center" justify="spaceBetween">
-          <Button
-            className={styles.importMapButton}
-            loading={loading}
-            onClick={handleImportClick}
-          >
-            <span style={{ whiteSpace: 'nowrap' }}>&lt;&lt; Import</span>
-          </Button>
-          <Button
-            className={styles.exportMapButton}
-            loading={loading}
-            onClick={handleSaveToDisk}
-          >
-            <span style={{ whiteSpace: 'nowrap' }}>Export &gt;&gt;</span>
-          </Button>
-        </Stack>
-      </Stack>
       <Stack marginBottom row align="center" justify="spaceBetween">
         <PublishButton loading={loading} hasMapId={!!mapId} onPublish={handlePublish} />
       </Stack>

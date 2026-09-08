@@ -526,6 +526,8 @@ export interface Level{
    * Field mutated during runtime - keep track of snek death locations (used to draw gore fx)
    */
   deathLocations?: Record<number, boolean>,
+  annotations?: Record<number, MapAnnotation>,
+  pipeOverrides?: Record<number, PipeConnection>,
 }
 
 export enum BossStateMachine {
@@ -936,6 +938,7 @@ export interface EditorData {
   pipeOverrides: Record<number, PipeConnection>,
   playerSpawnPosition: Vector,
   startDirection: DIR,
+  localFilePath: string,
 }
 
 export interface EditorDataSlice {

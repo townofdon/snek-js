@@ -51,11 +51,11 @@ import { Fonts } from '../fonts';
 import { WinLevelScene } from '../scenes/WinLevelScene';
 import { NoOpUnlockedMusicStore } from '../stores/UnlockedMusicStore';
 import { applyGamepadUIActions, tickGamepad } from '@/engine/gamepad';
-import { MAZE_03_STORAGE } from '@/levels/mazes/maze03-storage';
 import { UIBindings } from '@/ui/uiBindings';
 import { saveDataStore } from '@/stores/SaveDataStore';
+import { BOSS_LEVEL_THE_TECHNICIAN } from '@/levels/boss/bossLevelTechnician';
 
-const level = MAZE_03_STORAGE;
+const level = BOSS_LEVEL_THE_TECHNICIAN;
 
 const settings: GameSettings = {
   musicVolume: 1,

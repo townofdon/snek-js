@@ -68,12 +68,13 @@ import { LEVEL_01_HARD } from "./campaign/level01hard";
 import { LEVEL_01_ULTRA } from "./campaign/level01ultra";
 import { Tile } from "@/editor/editorTypes";
 import { BossConstructorArgs } from "@/boss/BaseBoss";
-// import { TheTechnician } from "@/boss/bosses/010Technician/TechnicianBoss";
+import { TheTechnician } from "@/boss/bosses/010Technician/TechnicianBoss";
+import { BOSS_LEVEL_THE_TECHNICIAN } from "./boss/bossLevelTechnician";
 
 export function getLevelBoss(level: Level, bossArgs: BossConstructorArgs): Boss | null {
   if (!level.id) return null;
   const LEVEL_BOSS_MAP = {
-    // [LEVEL_02.id]: TheTechnician,
+    [BOSS_LEVEL_THE_TECHNICIAN.id]: TheTechnician,
   } as const;
   const boss = LEVEL_BOSS_MAP[level.id];
   if (!boss) {

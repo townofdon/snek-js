@@ -17,6 +17,8 @@ import { PanelSave } from "./PanelSave";
 
 import * as editorStyles from "../Editor.css";
 import * as styles from './EditorOptions.css';
+import { IS_LOCALHOST } from "@/constants";
+import { PanelDev } from "./PanelDev";
 
 interface EditorOptionsPanelProps {
   isPreviewShowing: boolean;
@@ -26,6 +28,7 @@ interface EditorOptionsPanelProps {
   options: EditorOptions;
   optionsRef: React.MutableRefObject<EditorOptions>;
   optionsContainerRef: React.MutableRefObject<HTMLDivElement>;
+  synced: boolean,
   setMapId: (val: string) => void;
   setData: (data: EditorData) => void;
   setOptions: (value: SetStateValue<EditorOptions>) => void;
@@ -42,6 +45,7 @@ export const EditorOptionsPanel = ({
   options,
   optionsRef,
   optionsContainerRef,
+  synced,
   setMapId,
   setData,
   setOptions,
@@ -77,6 +81,9 @@ export const EditorOptionsPanel = ({
           <Tab id={OptionsTab.Stats}>Stats</Tab>
           <Tab id={OptionsTab.Colors}>Colors</Tab>
           <Tab id={OptionsTab.Save}>Publish</Tab>
+          {IS_LOCALHOST && (
+            <Tab id={OptionsTab.Dev}>Dev</Tab>
+          )}
         </TabList>
         <TabPanel id={OptionsTab.Stats}>
           <PanelStats options={options} setOptions={setOptions} loadLevel={loadLevel}  isPreviewShowing={isPreviewShowing} />
@@ -89,15 +96,28 @@ export const EditorOptionsPanel = ({
             canvas={canvas}
             mapId={mapId}
             setMapId={setMapId}
-            setData={setData}
-            setOptions={setOptions}
-            executeCommand={executeCommand}
             data={data}
             options={options}
             undo={undo}
             redo={redo}
           />
         </TabPanel>
+        {IS_LOCALHOST && (
+          <TabPanel id={OptionsTab.Dev}>
+            <PanelDev
+              mapId={mapId}
+              setMapId={setMapId}
+              setData={setData}
+              setOptions={setOptions}
+              executeCommand={executeCommand}
+              data={data}
+              options={options}
+              synced={synced}
+              undo={undo}
+              redo={redo}
+            />
+          </TabPanel>
+        )}
       </Tabs>
     </div>
   );

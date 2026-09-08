@@ -102,6 +102,7 @@ interface LocalState {
 export const Editor = () => {
   const canvas = useRef<HTMLCanvasElement>(null);
   const optionsContainerRef = useRef<HTMLDivElement>(null);
+  const [synced, setSynced] = useState(true);
   const [mapId, setMapId] = useState('');
   const [initialized, setInitialized] = useState(false);
   const [isPreviewShowing, setPreviewShowing] = useState(false);
@@ -132,7 +133,7 @@ export const Editor = () => {
   const anySelected = Object.keys(selected).some(key => !!selected[key]);
 
   useLoadMapData({ setData, setOptions, setMapId, setPastCommands, setFutureCommands, setInitialized });
-  const isSynced = useUpdateUrl({ initialized, data, mapId, options });
+  const isSynced = useUpdateUrl({ initialized, data, mapId, options, synced, setSynced });
 
   const setTool = (incoming: EditorTool) => {
     if (
@@ -877,6 +878,7 @@ export const Editor = () => {
           setMapId={setMapId}
           setData={setData}
           setOptions={setOptions}
+          synced={synced}
           executeCommand={executeCommand}
           undo={undo}
           redo={redo}

@@ -62,6 +62,7 @@ import {
   FLAG_WEST,
   FLAG_EAST,
   DamageType,
+  MapAnnotation,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -1327,6 +1328,17 @@ export const findPipeExit = (entryCoord: number, entryDir: DIR, state: GameState
     return false;
   }
   return false;
+}
+
+export function getAnnotationSlice(annotations: Record<number, MapAnnotation>, type: MapAnnotation): Record<number, boolean> {
+  if (!annotations) throw new Error(`annotations param required. got: ${annotations}`);
+  const out: Record<number, boolean> = {};
+  for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+    if (annotations[coord] && annotations[coord] === type) {
+      out[coord] = true;
+    }
+  }
+  return out;
 }
 
 export function makeCheckPreyCollision(es: EngineState, state: GameState, segments: ICollection, playerPosition: Vector) {

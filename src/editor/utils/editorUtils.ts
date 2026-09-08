@@ -219,6 +219,7 @@ export function getEditorDataFromLayout(layout: string, playerSpawnPosition: Vec
     pipeOverrides: {},
     playerSpawnPosition: playerSpawnPosition ?? levelData.playerSpawnPosition,
     startDirection,
+    localFilePath: '',
   }
   for (let y = 0; y < GRIDCOUNT_Y; y++) {
     for (let x = 0; x < GRIDCOUNT_X; x++) {
@@ -451,6 +452,7 @@ export function deepCloneData(data: EditorData): EditorData {
     pipeOverrides: getMapSliceWithDefaults(data.pipeOverrides),
     playerSpawnPosition: data.playerSpawnPosition.copy(),
     startDirection: data.startDirection,
+    localFilePath: data.localFilePath,
   } satisfies EditorData;
 }
 
@@ -474,6 +476,7 @@ export function mergeData(data: EditorData, incoming: Partial<EditorData>): Edit
     pipeOverrides: { ...data.pipeOverrides, ...incoming.pipeOverrides },
     playerSpawnPosition: incoming.playerSpawnPosition ? incoming.playerSpawnPosition.copy() : data.playerSpawnPosition,
     startDirection: incoming.startDirection ? incoming.startDirection : data.startDirection,
+    localFilePath: data.localFilePath,
   } satisfies EditorData;
 }
 
@@ -497,6 +500,7 @@ export function mergeDataSlice(data: EditorData, incoming: EditorDataSlice, coor
     pipeOverrides: { [coord ?? incoming.coord]: incoming.pipeOverride },
     playerSpawnPosition: incoming.playerSpawnPosition,
     startDirection: incoming.startDirection,
+    localFilePath: data.localFilePath,
   } satisfies EditorData;
   return mergeData(data, newData);
 }

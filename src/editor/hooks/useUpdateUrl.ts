@@ -12,11 +12,11 @@ interface UseUpdateUrlArgs {
   data: EditorData,
   mapId: string,
   options: EditorOptions,
+  synced: boolean,
+  setSynced: React.Dispatch<React.SetStateAction<boolean>>,
 }
-export const useUpdateUrl = ({ initialized, data, mapId, options }: UseUpdateUrlArgs) => {
-  const [isSynced, setSynced] = useState(true);
-  const timeout1 = useRef<NodeJS.Timeout | null>(null);
-  const timeout2 = useRef<NodeJS.Timeout | null>(null);
+export const useUpdateUrl = ({ initialized, data, mapId, options, synced, setSynced, }: UseUpdateUrlArgs) => {
+  const timeout = useRef<NodeJS.Timeout | null>(null);
   const touched = useRef(false);
 
   // sync url
@@ -24,8 +24,8 @@ export const useUpdateUrl = ({ initialized, data, mapId, options }: UseUpdateUrl
     if (!initialized) return;
     if (!touched.current && data === EDITOR_DEFAULTS.data && options === EDITOR_DEFAULTS.options) return;
     setSynced(false);
-    clearTimeout(timeout1.current);
-    timeout1.current = setTimeout(() => {
+    clearTimeout(timeout.current);
+    timeout.current = setTimeout(() => {
       setUrl(mapId, data, options);
       setSynced(true);
       touched.current = true;
@@ -35,7 +35,7 @@ export const useUpdateUrl = ({ initialized, data, mapId, options }: UseUpdateUrl
     }, UPDATE_URL_DELAY);
   }, [initialized, data, mapId, options]);
 
-  return isSynced;
+  return synced;
 }
 
 const setUrl = (mapId: string, data: EditorData, options: EditorOptions) => {
