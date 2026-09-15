@@ -1007,17 +1007,20 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
         const orientation = es.lasersMap[coord]?.orientation === Orientation.Vertical
           ? Orientation.Mixed
           : Orientation.Horizontal;
-        // skip cells if both diodes are crit
+        // skip cells if both diodes are crit or off
         const crit = byCoord(coordDiodeA)(threats.hasFlagAt, ThreatFlag.Crit) && byCoord(coordDiodeB)(threats.hasFlagAt, ThreatFlag.Crit);
-        if (crit) {
+        const off = !byCoord(coordDiodeA)(threats.enabledAt) || !byCoord(coordDiodeB)(threats.enabledAt);
+        if (crit || off) {
           break;
         }
+        const activating = byCoord(coordDiodeA)(threats.hasFlagAt, ThreatFlag.Activating) || byCoord(coordDiodeB)(threats.hasFlagAt, ThreatFlag.Activating);
+        const red = byCoord(coordDiodeA)(threats.hasFlagAt, ThreatFlag.VariantA) || byCoord(coordDiodeB)(threats.hasFlagAt, ThreatFlag.VariantA);
         es.lasersMap[coord] = {
-          orientation: orientation,
-          type: LaserType.Blue,
+          orientation,
+          type: activating ? LaserType.Warn : (red ? LaserType.Red : LaserType.Blue),
           coordDiodeA,
           coordDiodeB,
-          damageActive: true,
+          damageActive: !activating,
         } satisfies LaserCell;
         byCoord(coordDiodeA)(threats.addFlagAt, ThreatFlag.SiblingE);
         byCoord(coordDiodeB)(threats.addFlagAt, ThreatFlag.SiblingW);
@@ -1042,15 +1045,18 @@ export const recalculateLasersMap = (es: EngineState | ExtendedSketchData, threa
           ? Orientation.Mixed
           : Orientation.Vertical;
         const crit = byCoord(coordDiodeA)(threats.hasFlagAt, ThreatFlag.Crit) && byCoord(coordDiodeB)(threats.hasFlagAt, ThreatFlag.Crit);
-        if (crit) {
+        const off = !byCoord(coordDiodeA)(threats.enabledAt) || !byCoord(coordDiodeB)(threats.enabledAt);
+        if (crit || off) {
           break;
         }
+        const activating = byCoord(coordDiodeA)(threats.hasFlagAt, ThreatFlag.Activating) || byCoord(coordDiodeB)(threats.hasFlagAt, ThreatFlag.Activating);
+        const red = byCoord(coordDiodeA)(threats.hasFlagAt, ThreatFlag.VariantA) || byCoord(coordDiodeB)(threats.hasFlagAt, ThreatFlag.VariantA);
         es.lasersMap[coord] = {
-          orientation: orientation,
-          type: LaserType.Blue,
+          orientation,
+          type: activating ? LaserType.Warn : (red ? LaserType.Red : LaserType.Blue),
           coordDiodeA,
           coordDiodeB,
-          damageActive: true,
+          damageActive: !activating,
         } satisfies LaserCell;
         byCoord(coordDiodeA)(threats.addFlagAt, ThreatFlag.SiblingS);
         byCoord(coordDiodeB)(threats.addFlagAt, ThreatFlag.SiblingN);

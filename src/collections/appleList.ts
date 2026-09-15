@@ -2,6 +2,7 @@ import { Vector } from "p5";
 import { GRIDCOUNT_X,
 GRIDCOUNT_Y, IS_DEV } from "../constants";
 import { getCoordIndex2, getManhattanDistance } from "../utils";
+import { ICollection } from "@/types";
 
 export const INITIAL_APPLE_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
@@ -12,7 +13,7 @@ export const INITIAL_APPLE_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
  * Prevents garbage collection and buffs CPU perf.
  * Simple-to-use interface.
  */
-export class AppleList {
+export class AppleList implements ICollection {
   private x: Uint8Array;
   private y: Uint8Array;
   private free: Uint8Array;
@@ -77,6 +78,10 @@ export class AppleList {
     const y = Math.floor(coord / GRIDCOUNT_X);
     this.remove(x, y);
   }
+
+  public getIndexAtCoord = (coord: number) => {
+    return -1;
+  };
 
   public remove = (x: number, y: number) => {
     this.validate();

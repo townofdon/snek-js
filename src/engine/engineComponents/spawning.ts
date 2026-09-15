@@ -19,6 +19,8 @@ import {
   PickupRarity,
   ThreatType,
   SpritesheetRange,
+  ThreatFlag,
+  RemovalReason,
 } from "@/types";
 import {
   ANIMATIONS,
@@ -45,10 +47,11 @@ import {
   RARITY_EPIC,
   RARITY_LEGENDARY,
   BARREL_WARN_LIFETIME,
+  LASER_WARN_LIFETIME,
   PICKUP_LEGENDARY_ITEMS,
   PICKUP_MEAT_ITEMS,
 } from "@/constants";
-import { AnimationList, RemovalReason } from "@/collections/animationList";
+import { AnimationList } from "@/collections/animationList";
 import { AppleList } from "@/collections/appleList";
 import {
   clamp,
@@ -80,6 +83,7 @@ interface EngineSpawningArgs {
   apples: AppleList,
   threats: AnimationList,
   preyList: PreyList,
+  puffs: AnimationList,
   shieldSpawns: AnimationList,
   pickupOutlines: AnimationList,
   openDoors: () => void,
@@ -102,6 +106,7 @@ export function engineSpawning({
   preyList,
   shieldSpawns,
   pickupOutlines,
+  puffs,
   openDoors,
   playSound,
 }: EngineSpawningArgs) {
@@ -144,6 +149,20 @@ export function engineSpawning({
       state.pity = clamp(state.pity, 0, 1);
     }
     maybeSpawnPrey();
+  }
+
+  function spawnOnlyApple(): number {
+    if (replay.mode === ReplayMode.Playback) {
+      return -1;
+    }
+    const coord = chooseSpawnLocation();
+    if (coord < 0) {
+      return -1;
+    }
+    const x = getCoordX(coord);
+    const y = getCoordY(coord);
+    apples.add(x, y);
+    return coord;
   }
 
   function addAppleReplayMode() {
@@ -523,7 +542,8 @@ export function engineSpawning({
           threats.add(x, y, PICKUP_LIFETIME_MS, SpritesheetRange.Bomb, ThreatType.Bomb);
           break;
         case ThreatType.LaserDiode:
-          threats.add(x, y, PICKUP_LIFETIME_MS, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode);
+          threats.add(x, y, LASER_WARN_LIFETIME, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode);
+          threats.addFlagAt(x, y, ThreatFlag.Activating);
           break;
         case ThreatType.ExplodableBarrel:
           threats.add(x, y, BARREL_WARN_LIFETIME, SpritesheetRange.Barrel, ThreatType.ExplodableBarrel);
@@ -593,11 +613,18 @@ export function engineSpawning({
     preyList.add(x, y, preyType);
   }
 
+  function spawnPuff(x: number, y: number) {
+    const lifetime = ANIMATIONS[Image.PuffSheet].frames * ANIMATIONS[Image.PuffSheet].timePerFrame;
+    puffs.add(x, y, lifetime, Image.PuffSheet);
+  }
+
   return {
     spawnApple,
+    spawnOnlyApple,
     spawnArmorPickup,
     chooseSpawnLocation,
     spawnLegendaryItem,
     spawnMeatItem,
+    spawnPuff,
   };
 }

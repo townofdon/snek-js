@@ -1,19 +1,12 @@
 import { Vector } from "p5";
 import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_DEV, IS_LOCALHOST } from "../constants";
 import { getCoordIndex2, getCurrentFrame, getManhattanDistance, isNil, shouldBlinkExpiringPickup } from "../utils";
-import { ICollection, IFlaggable, SpritesheetImage, SpritesheetRange, ThreatType } from "../types";
+import { ICollection, IFlaggable, IRemovable, RemovalReason, SpritesheetImage, SpritesheetRange } from "../types";
 
 export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
-export enum RemovalReason {
-  None = 0,
-  LifetimeExpired,
-  PickedUp,
-  Explode,
-}
-
 interface AnimationListConstructorOptions {
-  onLifetimeExpire?: (coord: number, type: number) => void,
+  onLifetimeExpire?: (coord: number, type: number) => boolean,
   onAdd?: (coord: number, type: number) => void,
   onRemove?: (coord: number, reason: RemovalReason, type: number) => void,
 }
@@ -33,6 +26,10 @@ interface AddItemOptions {
    * Optional image to use as a replacement when disabled. Otherwise, nothing will show.
    */
   disabledImg?: SpritesheetImage | SpritesheetRange,
+  /**
+   * Set true to replace an existing element when adding a new element.
+   */
+  replaceExisting?: boolean,
 }
 
 // INTERNAL FLAGS
@@ -46,7 +43,7 @@ const DEFAULT_INTERNAL_FLAGS = 0 | FLAG_ENABLED;
  * Prevents garbage collection and buffs CPU perf.
  * Simple-to-use interface.
  */
-export class AnimationList implements ICollection, IFlaggable {
+export class AnimationList implements ICollection, IFlaggable, IRemovable {
   private x: Uint8Array;
   private y: Uint8Array;
   private free: Uint8Array;
@@ -62,7 +59,7 @@ export class AnimationList implements ICollection, IFlaggable {
   private coordMap: Record<number, boolean>;
   private numTimesDidChange: number;
 
-  private onLifetimeExpire: (coord: number, type: number) => void = () => {};
+  private onLifetimeExpire: (coord: number, type: number) => boolean = () => true;
   private onRemove: (coord: number, reason: RemovalReason, type: number) => void = () => {};
   private onAdd: (coord: number, type: number) => void = () => {};
 
@@ -173,8 +170,10 @@ export class AnimationList implements ICollection, IFlaggable {
         const x = this.x[i];
         const y = this.y[i];
         const coord = getCoordIndex2(x, y);
-        this.onLifetimeExpire(coord, this.type[i] || 0);
-        this.removeByIndex(i, RemovalReason.LifetimeExpired);
+        const shouldRemove = this.onLifetimeExpire?.(coord, this.type[i] || 0) ?? true;
+        if (shouldRemove) {
+          this.removeByIndex(i, RemovalReason.LifetimeExpired);
+        }
         didChange = true;
       }
     }
@@ -192,12 +191,16 @@ export class AnimationList implements ICollection, IFlaggable {
     type = 0,
     opts: AddItemOptions = {},
   ) => {
-    const { disabledImg, enabled = true, flags = 0 } = opts;
+    const { disabledImg, enabled = true, flags = 0, replaceExisting = false } = opts;
     this.validate();
     if (!img) throw new Error(`invalid img value. val=${img}`);
     const coord = getCoordIndex2(x, y);
     if (this.existsAt(x, y)) {
-      return;
+      if (replaceExisting) {
+        this.remove(x, y, RemovalReason.Overwrite);
+      } else {
+        return;
+      }
     }
     for (let i = 0; i < this.free.length; i++) {
       if (this.free[i]) {

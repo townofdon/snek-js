@@ -116,6 +116,7 @@ import {
   LaserType,
   SmokeType,
   Boss,
+  RemovalReason,
 } from "../types";
 import {
   clamp,
@@ -149,7 +150,7 @@ import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
 import { Emitters } from '../collections/emitters';
 import { AppleList } from '../collections/appleList';
-import { AnimationList, RemovalReason } from '../collections/animationList';
+import { AnimationList } from '../collections/animationList';
 import { AppleParticleSystem2 } from './particleSystems/AppleParticleSystem2';
 import { ImpactParticleSystem2 } from './particleSystems/ImpactParticleSystem2';
 import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
@@ -275,6 +276,7 @@ export function engine({
     shouldDrawApples: true,
     shouldDrawKeysLocks: true,
     shouldDrawActionFG: true,
+    shouldRecalculateLasers: false,
   } satisfies DrawState;
   const metrics = {
     gameLoopProcessingTime: 0,
@@ -330,12 +332,28 @@ export function engine({
     };
     shields.add(x, y, lifetime, Image.Shield);
     drawState.shouldDrawActionFG = true;
+    return true;
   };
   const onThreatAdd = (coord: number, threatType: number) => {
     if (isValidThreatType(threatType)) {
       es.threatsMap[coord] = threatType;
       drawState.shouldDrawActionFG = true;
     }
+  }
+  const onThreatLifetimeExpire = (coord: number, threatType: number) => {
+    if (isValidThreatType(threatType)) {
+      const x = Math.floor(coord % GRIDCOUNT_X);
+      const y = Math.floor(coord / GRIDCOUNT_X);
+      if (threatType === ThreatType.LaserDiode && threats.hasFlagAt(x, y, ThreatFlag.Activating)) {
+        threats.removeFlagAt(x, y, ThreatFlag.Activating);
+        threats.setLifetime(x, y, 99999999);
+        threats.restart(x, y);
+        drawState.shouldRecalculateLasers = true;
+        drawState.shouldDrawActionFG = true;
+        return false;
+      }
+    }
+    return true;
   }
   const onThreatRemove = (coord: number, reason: RemovalReason) => {
     const x = Math.floor(coord % GRIDCOUNT_X);
@@ -361,7 +379,7 @@ export function engine({
       if (screenShake.timeSinceStarted >= SCREEN_SHAKE_DURATION_MS) {
         startScreenShake(2, 0, 0.8);
       }
-    } else if (threatType === ThreatType.LaserDiode || threatType === ThreatType.Mine || reason === RemovalReason.Explode) {
+    } else if (threatType === ThreatType.Mine || reason === RemovalReason.LifetimeExpired || reason === RemovalReason.Explode) {
       const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
       explosions.add(x, y, lifetime, Image.ExplosionSheet, ExplosionType.Small);
       playSound(Sound.xpound);
@@ -391,7 +409,7 @@ export function engine({
   };
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
-  const threats = new AnimationList({ onAdd: onThreatAdd, onRemove: onThreatRemove });
+  const threats = new AnimationList({ onAdd: onThreatAdd, onRemove: onThreatRemove, onLifetimeExpire: onThreatLifetimeExpire });
   const doorsOpening = new AnimationList();
   const fireTiles = new AnimationList();
   const explosions = new AnimationList();
@@ -521,9 +539,11 @@ export function engine({
 
   const {
     spawnApple,
+    spawnOnlyApple,
     spawnArmorPickup,
     spawnMeatItem,
     spawnLegendaryItem,
+    spawnPuff,
     chooseSpawnLocation,
   } = engineSpawning({
     p5,
@@ -541,6 +561,7 @@ export function engine({
     preyList,
     shieldSpawns,
     pickupOutlines,
+    puffs,
     openDoors,
     playSound,
   });
@@ -882,21 +903,28 @@ export function engine({
 
     // init boss
     boss.current = getLevelBoss(es.level, {
+      p5,
       gameState: state,
+      loopState,
       es,
-      playerState: player,
+      threats,
+      player,
+      apples,
       annotations: es.level.annotations || {},
       renderer,
       spriteRenderer,
       difficulty: es.difficulty.index,
+      sfx,
       startAction,
-      playSound,
+      spawnOnlyApple,
+      openDoors,
+      spawnPuff,
     } satisfies BossConstructorArgs);
 
     const bossTransition: (() => Promise<void> | undefined) = (() => {
       if (replay.mode === ReplayMode.Playback) return;
       if (!boss.current) return;
-      const bossTransition = shouldShowTransitions ? boss.current.start : boss.current.reset;
+      const bossTransition = shouldShowTransitions ? boss.current.intro : boss.current.quickIntro;
       const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts);
       return buildSceneAction((p5, gfx, sfx, fonts, callbacks) => {
         musicPlayer.stopAllTracks();
@@ -919,6 +947,7 @@ export function engine({
             state.isMoving = true;
             onTriggerWinGame();
           }
+          boss.current?.start();
           renderDifficultyUI();
           renderHeartsUI();
           renderScoreUI();
@@ -941,6 +970,7 @@ export function engine({
             }
             musicPlayer.play(es.level.musicTrack);
           }
+          boss.current?.start();
           startLogicLoop();
           renderDifficultyUI();
           renderHeartsUI();
@@ -1079,7 +1109,10 @@ export function engine({
     for (let i = 0; i < levelData.apples.length; i++) {
       apples.add(levelData.apples[i].x, levelData.apples[i].y);
     }
-    const numApplesStart = es.level.numApplesStart ?? NUM_APPLES_START;
+    let numApplesStart = es.level.numApplesStart ?? NUM_APPLES_START;
+    if (boss.current) {
+      numApplesStart = 0;
+    }
     for (let i = 0; i < numApplesStart; i++) {
       spawnApple();
     }
@@ -1116,8 +1149,7 @@ export function engine({
     }
     es.locks.forEach(lock => {
       astar.setObstacle(lock.position.x, lock.position.y);
-    })
-
+    });
     resetLightmap(lightMap, es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
     startPortalParticles();
     if (es.level.type === LevelType.WarpZone || (es.level.type === LevelType.Maze && es.level !== START_LEVEL && es.level !== START_LEVEL_COBRA)) {
@@ -1382,7 +1414,6 @@ export function engine({
 
     if (getHasClearedLevel() && !state.isDoorsOpen) {
       openDoors();
-      playSound(Sound.doorOpen);
     }
 
     if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && es.level.armorDrop && replay.mode !== ReplayMode.Playback) {
@@ -1396,6 +1427,15 @@ export function engine({
     handleSnakeExitLevelMoveTick(didMove);
     handleSnakeExitLevelFinish();
     handleTeleportOnGameWin();
+
+    if (drawState.shouldRecalculateLasers) {
+      recalculateLasersMap(es, threats);
+      drawState.shouldRecalculateLasers = false;
+    }
+
+    if (boss.current) {
+      boss.current.tick(loopState.deltaTime);
+    }
 
     state.timeSinceHurt += loopState.deltaTime;
     state.timeSinceHurtForgiveness += loopState.deltaTime;
@@ -1550,6 +1590,10 @@ export function engine({
       drawDecorative2(es.decoratives2[i]);
     }
 
+    if (boss.current) {
+      boss.current.draw(p5.deltaTime);
+    }
+
     drawExitLights();
     drawParticles(0);
     drawPointsText(pointsAnim);
@@ -1606,7 +1650,10 @@ export function engine({
     drawState.shouldDrawActionFG = false;
     drawState.shouldDrawKeysLocks = false;
 
-    const animationDeltaTime = p5.deltaTime * Math.abs(Math.sign(loopState.deltaTime));
+    let animationDeltaTime = p5.deltaTime * Math.abs(Math.sign(loopState.deltaTime));
+    if (boss.current) {
+      animationDeltaTime = p5.deltaTime;
+    }
     if (!state.isInvertedColors && pointsAnim.tick(animationDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
@@ -3045,7 +3092,7 @@ export function engine({
         addSnakeSegment();
       }
     }
-    if (!state.isDoorsOpen) {
+    if (!state.isDoorsOpen && !boss.current) {
       spawnApple();
     }
   }
@@ -3210,6 +3257,8 @@ export function engine({
   }
 
   function openDoors() {
+    if (state.isDoorsOpen) return;
+    playSound(Sound.doorOpen);
     const lifetime = ANIMATIONS[Image.DoorOpenSheet].frames * ANIMATIONS[Image.DoorOpenSheet].timePerFrame;
     es.doors.forEach(door => {
       astar.removeWall(door.x, door.y);

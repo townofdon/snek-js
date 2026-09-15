@@ -305,14 +305,15 @@ export class UI {
   static renderDifficulty(difficultyIndex = 0, isInvertedColors: boolean, isCasualModeEnabled = false, isCobraModeEnabled = false) {
     const id = 'difficulty-field';
     let difficultyText = 'UNKNOWN';
-    if (difficultyIndex >= 4) difficultyText = 'ULTRA';
-    if (difficultyIndex >= 3) difficultyText = isCobraModeEnabled ? 'KING' : 'HARD';
-    if (difficultyIndex >= 2) difficultyText = 'MEDIUM';
     if (difficultyIndex >= 1) difficultyText = 'EASY';
+    if (difficultyIndex >= 2) difficultyText = 'MEDIUM';
+    if (difficultyIndex >= 3) difficultyText = isCobraModeEnabled ? 'KING' : 'HARD';
+    if (difficultyIndex >= 4) difficultyText = 'ULTRA';
     if (isCasualModeEnabled) difficultyText += ' CASUAL';
     if (isCobraModeEnabled) difficultyText += ' COBRA';
     const p = getOrCreateElementById(id, 'p', 'ui-label difficulty', UI_PARENT_ID);
     p.textContent = difficultyText;
+    p.innerText = difficultyText;
     p.style.color = isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR;
     p.style.backgroundColor = isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
     document.getElementById(UI_PARENT_ID)?.appendChild(p);

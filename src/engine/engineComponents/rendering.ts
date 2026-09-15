@@ -74,6 +74,7 @@ import { Renderer } from "../renderer";
 import { PALETTE } from "@/palettes";
 import { SpriteRenderer } from "../spriteRenderer";
 import {
+  byCoord,
   checkIsMoving,
   dirToUnitVector,
   getCoordIndex,
@@ -781,25 +782,31 @@ export function engineRendering({
           const siblingSouth = !state.isButtonPressed && threats.hasFlagAt(x, y, ThreatFlag.SiblingS);
           const siblingWest = !state.isButtonPressed && threats.hasFlagAt(x, y, ThreatFlag.SiblingW);
           const siblingEast = !state.isButtonPressed && threats.hasFlagAt(x, y, ThreatFlag.SiblingE);
-          const off = !siblingNorth && !siblingSouth && !siblingWest && !siblingEast;
-          if (threats.getTimeRemaining(x, y) <= LASER_DIODE_CRIT_LIFETIME || threats.hasFlagAt(x, y, ThreatFlag.Crit)) {
+          const noSiblings = !siblingNorth && !siblingSouth && !siblingWest && !siblingEast;
+          const off = noSiblings || !threats.enabledAt(x, y);
+          const crit = threats.getTimeRemaining(x, y) <= LASER_DIODE_CRIT_LIFETIME || threats.hasFlagAt(x, y, ThreatFlag.Crit);
+          const activating = threats.hasFlagAt(x, y, ThreatFlag.Activating);
+          const red = threats.hasFlagAt(x, y, ThreatFlag.VariantA);
+          const diodeImage = red ? SpritesheetRange.DiodeRed : SpritesheetRange.DiodeBlue;
+          const lightFrame = red ? Threat16Frame.DiodeLightRed : Threat16Frame.DiodeLightBlue;
+          if (activating || crit) {
             spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeCrit, x, y, elapsed);
           } else if (off) {
             spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.DiodeOff - 1);
           } else {
-            spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.DiodeBlue, x, y, elapsed);
+            spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, diodeImage, x, y, elapsed);
           }
           if (siblingEast) {
-            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.DiodeLightBlue - 1);
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, lightFrame - 1);
           }
           if (siblingNorth) {
-            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.DiodeLightBlue - 1, Math.PI * 1.5);
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, lightFrame - 1, Math.PI * 1.5);
           }
           if (siblingWest) {
-            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.DiodeLightBlue - 1, Math.PI);
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, lightFrame - 1, Math.PI);
           }
           if (siblingSouth) {
-            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, Threat16Frame.DiodeLightBlue - 1, Math.PI * 0.5);
+            spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatSheet16, x, y, lightFrame - 1, Math.PI * 0.5);
           }
         } else if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
           const elapsed = threats.getElapsedByCoord(coord);
@@ -1009,6 +1016,11 @@ export function engineRendering({
           }
           if (laser.orientation === Orientation.Mixed || laser.orientation === Orientation.Vertical) {
             spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0.5 * Math.PI, 1, shake, laserFrame, FRAME_COUNT_THREAT_16);
+          }
+        } else if (laser?.type === LaserType.Warn) {
+          const on = Math.floor(renderer.getElapsed() / INVINCIBILITY_EXPIRE_FLASH_MS) % 2 === 0
+          if (on) {
+            spriteRenderer.drawImage1x1(gfxlsr, Image.ThreatSheet16, x, y, 0, 1, shake, Threat16Frame.WarningSignYellow, FRAME_COUNT_THREAT_16);
           }
         }
       }

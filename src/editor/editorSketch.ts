@@ -56,6 +56,8 @@ import {
   buildPipesMap,
   coordToVec,
   getCoordIndex2,
+  getCoordX,
+  getCoordY,
   getRotationFromDirection,
   getTileDir,
   isAtMapEdge,
@@ -390,6 +392,12 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         state.dirty = true;
       }
       if (state.dirty) {
+        threats.reset();
+        Object.keys(data.threatsMap).map(Number).filter(Number.isInteger).forEach(coord => {
+          const x = getCoordX(coord);
+          const y = getCoordY(coord);
+          threats.add(x, y, 999999999, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode);
+        })
         recalculateLasersMap(data, threats);
         recalculateFlamesMap(data);
         state.dirty = false;

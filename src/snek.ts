@@ -136,8 +136,8 @@ export const sketch = (p5: P5) => {
   // actions are unique, singleton coroutines, meaning that only one coroutine of a type can run at a time
   const actions = new Coroutines(p5);
   const actionIds: Record<ActionKey, string | null> = { ...DEFAULT_ACTION_IDS_MAP };
-  const startAction = (enumerator: IEnumerator, actionKey: Action, force = false) => {
-    if (!force && replay.mode === ReplayMode.Playback) {
+  const startAction = (enumerator: IEnumerator, actionKey: Action, forceDuringReplayMode = false) => {
+    if (!forceDuringReplayMode && replay.mode === ReplayMode.Playback) {
       return;
     }
     actions.stop(actionIds[actionKey]);

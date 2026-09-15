@@ -35,6 +35,7 @@ export enum Action {
   Electrocution = 'Electrocution',
   Burnination = 'Burnination',
   EpicDeath = 'EpicDeath',
+  BossTransition = 'BossTransition',
 }
 
 export type ActionKey = keyof typeof Action
@@ -337,6 +338,7 @@ export interface DrawState {
   shouldDrawApples: boolean,
   shouldDrawKeysLocks: boolean,
   shouldDrawActionFG: boolean,
+  shouldRecalculateLasers: boolean,
 }
 
 export interface LoopState {
@@ -538,11 +540,18 @@ export enum BossStateMachine {
   Dying,
   Defeated,
 }
-export enum BossPhase {
+export enum BossSubphase {
   None = 0,
   Default,
-  AgroLow,
-  AgroHigh,
+  WeakpointsActive,
+  TakingDamage,
+}
+export enum BossAgro {
+  None = 0,
+  L1,
+  L2,
+  L3,
+  L4,
 }
 
 export type BossStartArgs = [
@@ -556,14 +565,15 @@ export type BossStartArgs = [
 ];
 
 export interface Boss {
-  getCurrentState: () => BossStateMachine,
-  getCurrentPhase: () => BossPhase,
-  start: (...args: BossStartArgs) => Scene,
-  reset: (...args: BossStartArgs) => Scene,
+  // getCurrentState: () => BossStateMachine,
+  // getCurrentPhase: () => BossAgro,
+  intro: (...args: BossStartArgs) => Scene,
+  quickIntro: (...args: BossStartArgs) => Scene,
+  start: () => void,
   cleanup: () => void,
   tick: (deltaTime: number) => void,
   draw: (deltaTime: number) => void,
-  spawnNextItemOverride: () => boolean, // false=fallback to default item spawn
+  // spawnNextItemOverride: () => boolean, // false=fallback to default item spawn
 }
 
 export interface IRenderer {
@@ -758,18 +768,25 @@ export enum ThreatType {
 export const THREAT_TYPE_MAX = Math.max(...Object.values(ThreatType).filter(v => typeof v === 'number')) + 1;
 
 export enum ThreatFlag {
-  None = 0, // default
-  Crit = 1,
-  SiblingN = 2,
-  SiblingS = 4,
-  SiblingW = 8,
-  SiblingE = 16,
+  // note - max bitmask flag is 1 << 31
+  None = 0,
+  Crit = 1 << 0,
+  SiblingN = 1 << 1,
+  SiblingS = 1 << 2,
+  SiblingW = 1 << 3,
+  SiblingE = 1 << 4,
+  Activating = 1 << 5,
+  VariantA = 1 << 16,
+  VariantB = 1 << 17,
+  VariantC = 1 << 18,
+  VariantD = 1 << 19,
 }
 
 export enum LaserType {
   None = 0,
   Red,
   Blue,
+  Warn,
 }
 
 export interface LaserCell {
@@ -1928,7 +1945,20 @@ export interface ICollection {
   getIndexAtCoord: (coord: number) => number,
 }
 
+export enum RemovalReason {
+  None = 0,
+  LifetimeExpired,
+  PickedUp,
+  Explode,
+  Overwrite,
+}
+
+export interface IRemovable {
+  remove: (x: number, y: number, reason: RemovalReason) => void,
+}
+
 export interface IFlaggable {
+  enabledAt: (x: number, y: number) => boolean,
   hasFlagAt: (x: number, y: number, flag: number) => boolean,
   addFlagAt: (x: number, y: number, flag: number) => void,
   removeFlagAt: (x: number, y: number, flag: number) => void,
