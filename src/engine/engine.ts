@@ -544,6 +544,7 @@ export function engine({
     spawnMeatItem,
     spawnLegendaryItem,
     spawnPuff,
+    spawnExplosion,
     chooseSpawnLocation,
   } = engineSpawning({
     p5,
@@ -562,6 +563,7 @@ export function engine({
     shieldSpawns,
     pickupOutlines,
     puffs,
+    explosions,
     openDoors,
     playSound,
   });
@@ -919,6 +921,7 @@ export function engine({
       spawnOnlyApple,
       openDoors,
       spawnPuff,
+      spawnExplosion,
     } satisfies BossConstructorArgs);
 
     const bossTransition: (() => Promise<void> | undefined) = (() => {
@@ -928,7 +931,7 @@ export function engine({
       const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts);
       return buildSceneAction((p5, gfx, sfx, fonts, callbacks) => {
         musicPlayer.stopAllTracks();
-        return bossTransition(p5, gfx, sfx, musicPlayer, fonts, callbacks, renderLoop)
+        return bossTransition(p5, gfx, sfx, es, state, player, musicPlayer, fonts, spriteRenderer, callbacks, renderLoop)
       });
     })();
 
@@ -2075,7 +2078,9 @@ export function engine({
     for (let y = 0; y < GRIDCOUNT_Y; y++) {
       for (let x = 0; x < GRIDCOUNT_X; x++) {
         const coord = getCoordIndex2(x, y);
-        const explosiveDamage = explosions.existsAtCoord(coord, ExplosionType.Large) && byCoord(coord)(explosions.getFrame) === 0;
+        const explosiveDamage = explosions.existsAtCoord(coord, ExplosionType.Large)
+          && byCoord(coord)(explosions.getFrame) === 0
+          && !byCoord(coord)(explosions.hasFlagAt, ThreatFlag.NoDamage);
         if (!explosiveDamage) {
           continue;
         }

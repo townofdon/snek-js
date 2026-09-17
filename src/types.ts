@@ -554,12 +554,22 @@ export enum BossAgro {
   L4,
 }
 
+export enum BossIntro {
+  None = 0,
+  Initial,
+  Quick,
+}
+
 export type BossStartArgs = [
   p5: P5,
   gfx: P5.Graphics,
   sfx: ISFX,
+  es: EngineState,
+  gameState: GameState,
+  player: PlayerState,
   musicPlayer: IMusicPlayer,
   fonts: FontsInstance,
+  spriteRenderer: ISpriteRenderer,
   callbacks: SceneCallbacks,
   renderLoop: () => void,
 ];
@@ -605,6 +615,29 @@ export interface IRenderer {
   drawDifficultySelectCobra: (gfx: P5 | P5.Graphics, backgroundColor: string) => void
   drawRightUI: (gfx: P5 | P5.Graphics, armorCount: number, reversablesCount: number) => void
   drawPortal: (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions) => void
+}
+
+export interface ISpriteRenderer {
+  loadImages: () => void
+  loadEditorImages: () => void
+  drawImage3x3: (image: Image, x: number, y: number, rotation?: number, alpha?: number, screenshakeMul?: number, frame?: number, frames?: number) => void,
+  drawImage3x3Custom: (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation?: number, alpha?: number, screenshakeMul?: number, frame?: number, frames?: number) => void,
+  drawImage3x3Static: (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation?: number, alpha?: number, screenshakeMul?: number, frame?: number, frames?: number) => void,
+  drawSpritesheetAnim3x3: (gfx: P5 | P5.Graphics, sprite: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed?: number) => void,
+  drawSpritesheetAnim3x3Static: (gfx: P5 | P5.Graphics, image: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed?: number) => void,
+  drawSprite3x3: (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame?: number, rotation?: number, alpha?: number) => void,
+  drawSprite3x3Static: (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame?: number) => void,
+  drawSpritesheetAnim1x1: (gfx: P5 | P5.Graphics, sprite: SpritesheetImage | SpritesheetRange, x: number, y: number, elapsed?: number, rotation?: number, alpha?: number, screenshakeMul?: number) => void,
+  drawSpritesheetAnim1x1Static: (...args: Parameters<ISpriteRenderer['drawSpritesheetAnim1x1']>) => void,
+  drawSprite1x1: (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame?: number, rotation?: number, alpha?: number, screenshakeMul?: number) => void,
+  drawSprite1x1Static: (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame?: number, rotation?: number, alpha?: number, screenshakeMul?: number) => void,
+  drawImage1x1Static: (...args: Parameters<ISpriteRenderer['drawImage1x1']>) => void,
+  drawImage1x1: (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation?: number, alpha?: number, screenshakeMul?: number, frame?: number, frames?: number) => void,
+  drawImage: (image: Image, x: number, y: number, gfx: P5 | P5.Graphics, alpha?: number, offset?: number, rotation?: number) => void,
+  drawImageStatic: (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, alpha?: number, offset?: number) => void,
+  getImageWidth: (image: Image) => number,
+  getImageHeight: (image: Image) => number,
+  drawSpritesheetAnim: (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, frames: number, timePerFrame: number, elapsed: number) => void,
 }
 
 export interface DrawSquareOptions {
@@ -776,6 +809,7 @@ export enum ThreatFlag {
   SiblingW = 1 << 3,
   SiblingE = 1 << 4,
   Activating = 1 << 5,
+  NoDamage = 1 << 6,
   VariantA = 1 << 16,
   VariantB = 1 << 17,
   VariantC = 1 << 18,
@@ -1276,6 +1310,7 @@ export enum Image {
   Points5000 = 'snek-points-5000.png',
   Points10000 = 'snek-points-10000.png',
   BossComponents = 'snek-boss-components.png',
+  BossTechnician = 'snek-boss-technician.png',
 }
 
 export type ThemedImage =
@@ -1328,6 +1363,8 @@ export enum SpritesheetRange {
   BossTileCircuitOff,
   BossTileCircuitWeak,
   BossTileCircuitHit,
+  BossTechnicianIdle,
+  BossTechnicianHurt,
 }
 export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange).filter(v => typeof v === 'number')) + 1;
 
@@ -1378,6 +1415,7 @@ export type SpritesheetImage =
   | Image.ThreatFlameSheet
   | Image.EditorAnnotationsSheet
   | Image.BossComponents
+  | Image.BossTechnician
 ;
 
 export enum Threat48Frame {
@@ -1605,14 +1643,14 @@ export interface Scene {
 }
 
 export interface SceneCallbacks {
-  onSceneStart?: () => void
-  onSceneEnded?: () => void
-  onEscapePress?: () => void
+  readonly onSceneStart?: () => void
+  readonly onSceneEnded?: () => void
+  readonly onEscapePress?: () => void
 }
 
 export interface SceneCachedBindings {
-  draw: () => void
-  keyPressed: (event?: object) => void
+  readonly draw: () => void
+  readonly keyPressed: (event?: object) => void
 }
 
 export enum ReplayMode {

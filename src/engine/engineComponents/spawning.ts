@@ -21,6 +21,7 @@ import {
   SpritesheetRange,
   ThreatFlag,
   RemovalReason,
+  ExplosionType,
 } from "@/types";
 import {
   ANIMATIONS,
@@ -84,6 +85,7 @@ interface EngineSpawningArgs {
   threats: AnimationList,
   preyList: PreyList,
   puffs: AnimationList,
+  explosions: AnimationList,
   shieldSpawns: AnimationList,
   pickupOutlines: AnimationList,
   openDoors: () => void,
@@ -107,6 +109,7 @@ export function engineSpawning({
   shieldSpawns,
   pickupOutlines,
   puffs,
+  explosions,
   openDoors,
   playSound,
 }: EngineSpawningArgs) {
@@ -618,6 +621,12 @@ export function engineSpawning({
     puffs.add(x, y, lifetime, Image.PuffSheet);
   }
 
+  function spawnExplosion(x: number, y: number) {
+    const lifetime = ANIMATIONS[Image.Explosion3Sheet].frames * ANIMATIONS[Image.Explosion3Sheet].timePerFrame;
+    explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large);
+    explosions.addFlagAt(x, y, ThreatFlag.NoDamage);
+  }
+
   return {
     spawnApple,
     spawnOnlyApple,
@@ -626,5 +635,6 @@ export function engineSpawning({
     spawnLegendaryItem,
     spawnMeatItem,
     spawnPuff,
+    spawnExplosion,
   };
 }

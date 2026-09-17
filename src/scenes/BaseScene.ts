@@ -3,6 +3,7 @@ import P5 from "p5";
 import { FontsInstance, IEnumerator, Scene, SceneCachedBindings, SceneCallbacks } from '../types';
 import { Coroutines } from "../engine/coroutines";
 import { DIMENSIONS } from "../constants";
+import { getPosition, getRect } from "./sceneUtils";
 
 export interface BaseSceneProps {
   p5: P5
@@ -104,15 +105,13 @@ export abstract class BaseScene implements Scene {
   abstract action(): IEnumerator;
 
   cleanup = () => {
+    if (!this._active) return;
     const { p5, callbacks } = this.props;
     const { draw, keyPressed } = this.cachedBindings;
     if (draw) p5.draw = draw;
     if (keyPressed) p5.keyPressed = keyPressed;
-    this.cachedBindings.keyPressed = null;
-    this.cachedBindings.draw = null;
     this.stopAllCoroutines();
     callbacks.onSceneEnded?.();
-    callbacks.onSceneEnded = null;
     this._active = false;
   }
 
@@ -136,15 +135,11 @@ export abstract class BaseScene implements Scene {
   }
 
   protected getPosition = (x: number, y: number): [number, number] => {
-    const x1 = DIMENSIONS.x * x;
-    const y1 = DIMENSIONS.y * y;
-    return [x1, y1];
+    return getPosition(x, y);
   }
 
   protected getRect = (x: number, y: number, width: number, height: number): [number, number, number, number] => {
-    const x1 = DIMENSIONS.x * x - width / 2;
-    const y1 = DIMENSIONS.y * y - height / 2;
-    return [x1, y1, width, height];
+    return getRect(x, y, width, height);
   }
 
   private tickCoroutines = () => {

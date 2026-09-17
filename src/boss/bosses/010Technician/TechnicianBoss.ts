@@ -25,6 +25,7 @@ import {
   isAtMapEdge,
   lerp,
   recalculateLasersMap,
+  shuffleArray,
 } from "@/utils";
 import { BaseBoss, BossConstructorArgs } from "../../BaseBoss";
 import { TechnicianStartScene } from "./TechnicianStartScene";
@@ -80,6 +81,7 @@ export class TheTechnician extends BaseBoss {
     this.subphase = BossSubphase.Default;
     this.updateLasers();
     const scene = new TechnicianStartScene(...args);
+    scene.intro();
     this.startScene = scene;
     return this.startScene;
   };
@@ -91,6 +93,7 @@ export class TheTechnician extends BaseBoss {
     this.subphase = BossSubphase.Default;
     this.updateLasers();
     const scene = new TechnicianStartScene(...args);
+    scene.quickIntro();
     this.startScene = scene;
     return this.startScene;
   };
@@ -145,12 +148,15 @@ export class TheTechnician extends BaseBoss {
       this.sfx.play(Sound.switch);
       this.subphase = BossSubphase.WeakpointsActive;
     }
-    this.coroutines.tick();
   };
 
   public draw = (deltaTime: number) => {
     if (!this.active) return;
+    let bossCoord = -1;
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (this.annotations[coord] === MapAnnotation.L7) {
+        bossCoord = coord;
+      }
       if (this.circuits[coord]) {
         const x = getCoordX(coord);
         const y = getCoordY(coord);
@@ -170,6 +176,21 @@ export class TheTechnician extends BaseBoss {
         }
       }
     }
+    if (bossCoord >= 0) {
+      const x = getCoordX(bossCoord);
+      const y = getCoordY(bossCoord);
+      const elapsed = this.gameState.actualTimeElapsed;
+      if (this.subphase === BossSubphase.None || this.stateMachine === BossStateMachine.Defeated) {
+        // draw nothing
+      } else if (this.subphase === BossSubphase.TakingDamage) {
+        this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTechnicianHurt, x, y, elapsed, 0, 1, 0);
+      } else {
+        this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTechnicianIdle, x, y, elapsed, 0, 1, 0);
+      }
+    } else {
+      this.spriteRenderer.drawImage1x1(this.p5, Image.__TEST__, 15, 15, 0, 1, 0); 
+    }
+    this.coroutines.tick();
   };
 
   protected takeDamage = () => {
@@ -184,11 +205,20 @@ export class TheTechnician extends BaseBoss {
     this.subphase = BossSubphase.TakingDamage;
     const prevTimeScale = this.loopState.timeScale;
     this.loopState.timeScale = 0;
+
+    const bossCoord = this.getBossCoord();
+    this.gameState.isDeathIlluminating = true;
+    this.es.deathIlluminationMap = {};
+    this.es.deathIlluminationMap[bossCoord] = true;
+    this.es.deathIlluminationMap[bossCoord + 1] = true;
+    this.es.deathIlluminationMap[bossCoord + GRIDCOUNT_X] = true;
+    this.es.deathIlluminationMap[bossCoord + GRIDCOUNT_X + 1] = true;
+
     const coroutines = this.coroutines;
     const targetHp = lerp(100, 0, (this.phaseIdx + 1) / this.phases[this.difficulty].length);
     const currentHp = this.hp;
     this.sfx.playLoop(Sound.electrocuteLoop);
-    yield* coroutines.waitForTime(1500, (t) => {
+    yield* coroutines.waitForTime(2500, (t) => {
       this.hp = lerp(currentHp, targetHp, t);
       console.log(`hp=${this.hp}`);
     });
@@ -206,6 +236,8 @@ export class TheTechnician extends BaseBoss {
       this.subphase = BossSubphase.Default;
       this.gameState.currentSpeed = 1;
     }
+    this.gameState.isDeathIlluminating = false;
+    this.es.deathIlluminationMap = {};
   }
 
   private * dieRoutine() {
@@ -217,9 +249,26 @@ export class TheTechnician extends BaseBoss {
     const prevTimeScale = this.loopState.timeScale;
     this.loopState.timeScale = 0;
 
-    // TODO: BOSS DEATH
-    // spawn explosion at random position at boss death positions
-    // repeat 10 times
+    let explosionCoords = [];
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        const coord = getCoordIndex2(x, y);
+        if (this.annotations[coord] === MapAnnotation.L7 || this.annotations[coord] === MapAnnotation.L8) {
+          explosionCoords.push(coord);
+        }
+      }
+    }
+    for (let i = 0; i < 5; i++) {
+      explosionCoords = shuffleArray(explosionCoords);
+    }
+    for (let i = 0; i < 3; i++) {
+      for (let j = 0; j < explosionCoords.length; j++) {
+        const coord = explosionCoords[j];
+        this.spawnExplosion(getCoordX(coord), getCoordY(coord));
+        this.sfx.play(Sound.xplode3);
+        yield* coroutines.waitForTime(200);
+      }
+    }
 
     for (let y = 0; y < GRIDCOUNT_Y; y++) {
       for (let x = 0; x < GRIDCOUNT_X; x++) {
@@ -235,6 +284,9 @@ export class TheTechnician extends BaseBoss {
         }
       }
     }
+
+    yield* coroutines.waitForTime(500);
+
     this.circuits = {};
     this.loopState.timeScale = prevTimeScale;
     this.stateMachine = BossStateMachine.Defeated;
@@ -318,5 +370,17 @@ export class TheTechnician extends BaseBoss {
     this.es.barriersMap[coord] = null;
     this.es.doorsMap[coord] = null;
     this.threats.add(x, y, LASER_WARN_LIFETIME, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode, { replaceExisting: true, flags });
+  }
+
+  private getBossCoord = () => {
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        const coord = getCoordIndex2(x, y);
+        if (this.es.level.annotations[coord] === MapAnnotation.L7) {
+          return coord;
+        }
+      }
+    }
+    return -1;
   }
 }

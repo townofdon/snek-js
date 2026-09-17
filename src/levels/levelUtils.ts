@@ -69,6 +69,7 @@ import { MAZE_04_LOOT_ROOM } from "./mazes/maze04-lootroom";
 import { MAZE_01 } from "./mazes/maze01";
 import { MAZE_01_COBRA } from "./mazes/maze01-cobra";
 import { LEVEL_16 } from "./campaign/level16";
+import { BOSS_LEVEL_THE_TECHNICIAN } from "./boss/bossLevelTechnician";
 
 const WARP_INDEX_TO_LEVEL = {
   1: LEVEL_01,
@@ -132,6 +133,7 @@ const WARP_INDEX_TO_LEVEL = {
   419: X_DIGIN,
   420: X_DATACENTER,
   421: X_SEARCHLIGHT,
+  901: BOSS_LEVEL_THE_TECHNICIAN,
 } satisfies Record<number, Level>
 
 const LEVEL_ID_TO_WARP_INDEX: Record<string, number> = Object.keys(WARP_INDEX_TO_LEVEL)

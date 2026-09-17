@@ -39,6 +39,7 @@ export interface BossConstructorArgs {
   openDoors: () => void;
   spawnOnlyApple: () => number;
   spawnPuff: (x: number, y: number) => void;
+  spawnExplosion: (x: number, y: number) => void;
 }
 
 export abstract class BaseBoss implements Boss {
@@ -58,6 +59,7 @@ export abstract class BaseBoss implements Boss {
   protected readonly openDoors: () => void;
   protected readonly spawnOnlyApple: () => number;
   protected readonly spawnPuff: (x: number, y: number) => void;
+  protected readonly spawnExplosion: (x: number, y: number) => void;
 
   protected readonly coroutines: Coroutines;
 
@@ -78,6 +80,7 @@ export abstract class BaseBoss implements Boss {
     this.spawnOnlyApple = args.spawnOnlyApple;
     this.openDoors = args.openDoors;
     this.spawnPuff = args.spawnPuff;
+    this.spawnExplosion = args.spawnExplosion;
     this.coroutines = new Coroutines(args.p5);
   }
 

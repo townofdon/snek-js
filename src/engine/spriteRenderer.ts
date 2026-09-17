@@ -9,6 +9,7 @@ import {
   ThemedImage,
   ColorReplacementPalette,
   SpritesheetRange,
+  ISpriteRenderer,
 } from "../types";
 import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y, IMG_SCALE, IMG_X_OFFSET, MAP_OFFSET, STROKE_SIZE } from "../constants";
 import { getCurrentFrame, getRelativeDir, lerp, getNumFrames, getDerivedSprite, getFrameOffset, isSpritesheetImage } from "../utils";
@@ -19,7 +20,7 @@ interface SpriteRendererConstructorProps {
   screenShake?: ScreenShakeState
 }
 
-export class SpriteRenderer {
+export class SpriteRenderer implements ISpriteRenderer {
   private p5: P5 = null;
   private screenShake: ScreenShakeState = null;
 
@@ -109,6 +110,7 @@ export class SpriteRenderer {
     [Image.ThreatSawSheet]: null,
     [Image.ThreatFlameSheet]: null,
     [Image.BossComponents]: null,
+    [Image.BossTechnician]: null,
   } satisfies Record<Image, P5.Image | null>;
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -364,6 +366,7 @@ export class SpriteRenderer {
       this.loadImage(Image.ThreatSawSheet);
       this.loadImage(Image.ThreatFlameSheet);
       this.loadImage(Image.BossComponents);
+      this.loadImage(Image.BossTechnician);
     } catch (err) {
       console.error(err)
     }

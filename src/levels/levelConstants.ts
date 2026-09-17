@@ -91,6 +91,7 @@ export const LEVELS: Level[] = [
     TUTORIAL_LEVEL_11,
     LEVEL_03,
     LEVEL_04,
+    BOSS_LEVEL_THE_TECHNICIAN,
     LEVEL_05,
     LEVEL_06,
     TUTORIAL_LEVEL_50,

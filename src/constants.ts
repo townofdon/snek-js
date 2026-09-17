@@ -793,13 +793,31 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     offset: BossComponentFrame.TileCircuitWeak0 - 1,
     frames: 4,
     timePerFrame: 200,
-    durations: [300,100,100,200],
+    durations: [300, 100, 100, 200],
   },
   [SpritesheetRange.BossTileCircuitHit]: {
     src: Image.BossComponents,
     offset: BossComponentFrame.TileCircuitHit0 - 1,
     frames: 2,
     timePerFrame: 200,
+  },
+  [Image.BossTechnician]: {
+    frames: 5,
+    timePerFrame: 300,
+    frameWidth: 32,
+    frameHeight: 32,
+  },
+  [SpritesheetRange.BossTechnicianIdle]: {
+    src: Image.BossTechnician,
+    offset: 0,
+    frames: 3,
+    timePerFrame: 300,
+  },
+  [SpritesheetRange.BossTechnicianHurt]: {
+    src: Image.BossTechnician,
+    offset: 3,
+    frames: 2,
+    timePerFrame: 100,
   },
 } satisfies (Record<SpritesheetImage, AnimationData> & Record<SpritesheetRange, AnimationDataForRange>);
 

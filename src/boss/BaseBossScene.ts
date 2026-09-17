@@ -1,12 +1,18 @@
+import { SpriteRenderer } from "@/engine/spriteRenderer";
 import { BaseScene } from "@/scenes/BaseScene";
-import { BossStartArgs, IMusicPlayer, ISFX } from "@/types";
+import { BossIntro, BossStartArgs, EngineState, GameState, IMusicPlayer, ISFX, ISpriteRenderer, PlayerState } from "@/types";
 
 export abstract class BaseBossScene extends BaseScene {
-  protected sfx: ISFX;
-  protected musicPlayer: IMusicPlayer;
-  protected renderLoop: () => void;
+  protected readonly spriteRenderer: ISpriteRenderer;
+  protected type: BossIntro = 0;
+  protected readonly gameState: GameState;
+  protected readonly es: EngineState;
+  protected readonly sfx: ISFX;
+  protected readonly player: PlayerState;
+  protected readonly musicPlayer: IMusicPlayer;
+  protected readonly renderLoop: () => void;
   constructor(...args: BossStartArgs) {
-    const [p5, gfx, sfx, musicPlayer, fonts, callbacks, renderLoop] = args;
+    const [p5, gfx, sfx, es, gameState, player, musicPlayer, fonts, spriteRenderer, callbacks, renderLoop] = args;
     requireParam(p5, 'p5');
     requireParam(gfx, 'gfx');
     requireParam(sfx, 'sfx');
@@ -15,9 +21,23 @@ export abstract class BaseBossScene extends BaseScene {
     requireParam(callbacks, 'callbacks');
     requireParam(renderLoop, 'renderLoop');
     super(p5, gfx, fonts, callbacks);
+    this.spriteRenderer = spriteRenderer;
     this.sfx = sfx;
+    this.es = es;
+    this.gameState = gameState;
+    this.player = player;
     this.musicPlayer = musicPlayer;
     this.renderLoop = renderLoop;
+  }
+
+  intro = () => {
+    this.type = BossIntro.Initial;
+    this.bindActions();
+  }
+
+  quickIntro = () => {
+    this.type = BossIntro.Quick;
+    this.bindActions();
   }
 }
 
