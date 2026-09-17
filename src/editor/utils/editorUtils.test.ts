@@ -65,7 +65,7 @@ describe('editorUtils', () => {
         pipeVariant: 1,
       }
       const data: EditorData = {
-        ...EDITOR_DEFAULTS.data,
+        ...EDITOR_DEFAULTS.emptyData(),
         playerSpawnPosition: new Vector(15, 15),
         startDirection: DIR.RIGHT,
       }
@@ -121,7 +121,7 @@ describe('editorUtils', () => {
       }
       const B1 = BarrierType.Default;
       const data: EditorData = {
-        ...EDITOR_DEFAULTS.data,
+        ...EDITOR_DEFAULTS.emptyData(),
         barriersMap: { 1: B1, 2: B1, 3: B1, 4: B1 },
         passablesMap: { 3: true, 4: true },
         doorsMap: { 5: true, 6: true },
@@ -221,7 +221,7 @@ describe('editorUtils', () => {
         pipeVariant: 1,
       }
       const data: EditorData = {
-        ...EDITOR_DEFAULTS.data,
+        ...EDITOR_DEFAULTS.emptyData(),
         playerSpawnPosition: new Vector(13, 13),
         startDirection: DIR.DOWN,
       }
@@ -247,7 +247,7 @@ describe('editorUtils', () => {
 
     it('should encode and decode music tracks', () => {
       const test = (track: MusicTrack) => {
-        const data: EditorData = { ...EDITOR_DEFAULTS.data };
+        const data: EditorData = { ...EDITOR_DEFAULTS.emptyData() };
         const options: EditorOptions = { ...EDITOR_DEFAULTS.options, musicTrack: track };
         const encoded = encodeMapData(data, options);
         const [_, decodedOptions] = decodeMapData(encoded);
@@ -315,7 +315,7 @@ describe('editorUtils', () => {
   describe('buildMapLayout', () => {
     it('should build a map layout correctly for all possible types', () => {
       const data: EditorData = {
-        ...EDITOR_DEFAULTS.data,
+        ...EDITOR_DEFAULTS.emptyData(),
         applesMap: { 0: true },
         threatsMap: { 60: ThreatType.Mine },
         pickupsMap: { 61: PickupType.Invincibility },
@@ -406,7 +406,8 @@ describe('editorUtils', () => {
           const levelData = buildLevel(level);
           const expectedLayout = level.layout;
           const data: EditorData = {
-            ...EDITOR_DEFAULTS.data,
+            ...EDITOR_DEFAULTS.emptyData(),
+            applesMap: {},
             barriersMap: { ...levelData.barriersMap },
             passablesMap: { ...levelData.passablesMap },
             doorsMap: { ...levelData.doorsMap },

@@ -1292,8 +1292,6 @@ export class ClearAllCommand implements Command {
         playerSpawnPosition: new Vector(15, 15),
         startDirection: DIR.RIGHT,
       } satisfies EditorData;
-      console.log({ newData });
-      console.log({ defaults: EDITOR_DEFAULTS.data });
       this.setData(newData);
       return true;
     } catch (err) {

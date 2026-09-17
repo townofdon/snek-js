@@ -9,7 +9,7 @@ import { EDITOR_DEFAULTS } from "./editorConstants";
 describe('commands', () => {
   const getTestData = (overrides: Partial<EditorData> = {}): EditorData => {
     const data: EditorData = {
-      ...EDITOR_DEFAULTS.data,
+      ...EDITOR_DEFAULTS.emptyData(),
       playerSpawnPosition: new Vector(15, 15),
       startDirection: DIR.UP,
     };
