@@ -9,10 +9,6 @@ import { clamp } from "@/utils";
 const AUTHOR_PADDING = 15;
 const TSMOD = 2 * 0.8;
 
-export interface BuildSceneActionFactoryOptions {
-  skipRenderFrameOnSceneEnd?: boolean
-}
-
 /**
  * USAGE
  * 
@@ -25,9 +21,8 @@ export interface BuildSceneActionFactoryOptions {
  * buildSceneAction(level.storyScene)().then(buildSceneAction(level.titleScene))
  * ```
  */
-export const buildSceneActionFactory = (p5: P5, gfx: P5.Graphics, sfx: ISFX, fonts: FontsInstance, opts: BuildSceneActionFactoryOptions = {}) =>
+export const buildSceneActionFactory = (p5: P5, gfx: P5.Graphics, sfx: ISFX, fonts: FontsInstance) =>
   (onScene?: (p5: P5, gfx: P5.Graphics, sfx: ISFX, fonts: FontsInstance, callbacks: SceneCallbacks) => Scene) => {
-    const { skipRenderFrameOnSceneEnd } = opts;
     return () => new Promise<void>((resolve, reject) => {
       if (!onScene) {
         resolve();
@@ -35,10 +30,6 @@ export const buildSceneActionFactory = (p5: P5, gfx: P5.Graphics, sfx: ISFX, fon
       }
       try {
         const onSceneEnded = () => {
-          if (skipRenderFrameOnSceneEnd) {
-            p5.noLoop();
-            setTimeout(() => { p5.loop(); }, 0)
-          }
           resolve()
         }
         onScene(p5, gfx, sfx, fonts, { onSceneEnded });

@@ -18,13 +18,10 @@ import {
   DIFFICULTY_EASY,
   DISABLE_TRANSITIONS,
   DIFFICULTY_MEDIUM,
-  IS_DEV,
-  IS_NWJS_PACKAGE,
 } from './constants';
 import {
   DEFAULT_ACTION_IDS_MAP,
   DEFAULT_BASE_STATS,
-  DEFAULT_GAME_STATE,
   DEFAULT_HELD_ITEMS,
   DEFAULT_OUTFIT,
 } from './defaults';
@@ -46,7 +43,6 @@ import {
 } from './levels/levelUtils';
 import {
   DamageType,
-  GameState,
   IEnumerator,
   Replay,
   ReplayMode,
@@ -227,11 +223,7 @@ export const sketch = (p5: P5) => {
 
   const modal = new Modal();
 
-  const uiBindings = new UIBindings(p5, state, settings, saveDataStore, {
-    onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
-    onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
-    onWarpToLevel: warpToLevel,
-  }, handleInputAction);
+  const uiBindings = new UIBindings(p5, state, settings, saveDataStore, handleInputAction);
 
   function handleInputAction(action: InputAction, p0?: any) {
     switch (action) {
@@ -758,14 +750,9 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel || state.isExited) return;
     state.isPaused = true;
     showPauseUI(uiElements, {
-      isWarpDisabled: getIsStartLevel() || state.gameMode === GameMode.Cobra || state.isRandomizer || !IS_DEV,
-      hasWarpEnabledParam: queryParams.enableWarp,
-      isChallengeLevel: getIsChallengeLevel(getLevel()),
-    }, {
       unpause,
       confirmShowMainMenu,
       showInGameSettingsMenu,
-      warpToLevel,
     });
     uiBindings.onPause();
     sfx.play(Sound.unlock, 0.8);

@@ -180,7 +180,7 @@ import { Easing } from '../easing';
 import { getExtendedPalette, PALETTE } from '../palettes';
 import { Coroutines } from './coroutines';
 import { UI } from '../ui/ui';
-import { buildSceneActionFactory, BuildSceneActionFactoryOptions } from '../scenes/sceneUtils';
+import { buildSceneActionFactory } from '../scenes/sceneUtils';
 import { TitleScene } from '../scenes/TitleScene';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 import { resumeAudioContext, setMusicVolume, setSfxVolume } from './audio';
@@ -716,8 +716,7 @@ export function engine({
         if (es.level.author) return `by ${es.level.author}`;
         return ''
       })();
-      const opts: BuildSceneActionFactoryOptions = { skipRenderFrameOnSceneEnd: true };
-      const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts, opts);
+      const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts);
       return es.level.showTitle
         ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(es.level.name, annotation, p5, gfx, sfx, fonts, callbacks))
         : () => Promise.resolve();
@@ -1009,6 +1008,9 @@ export function engine({
 
     // set es.level metadata
     es.level.numLocks = es.locks.length;
+    if (es.level.startDark) {
+      state.isDeathIlluminating = true;
+    }
 
     // create snake parts
     let x = player.position.x;

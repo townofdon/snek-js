@@ -227,3 +227,18 @@ export function validateLevels() {
     warpMap[idx] = level;
   });
 }
+
+export function findLevelFromId(id: string): (Level | null) {
+  if (!id) {
+    return null;
+  }
+  const pool = [
+    ...LEVELS,
+    ...SECRET_LEVELS,
+    ...CHALLENGE_LEVELS,
+  ];
+  for (let i = 0; i < pool.length; i++) {
+    if (pool[i].id === id) return pool[i];
+  }
+  return null;
+}

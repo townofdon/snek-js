@@ -32,20 +32,9 @@ import { CHALLENGE_LEVELS } from '../levels/levelConstants';
 import { bridge } from '@/uiv2/uiBridge';
 import { SaveDataStore } from '@/stores/SaveDataStore';
 
-interface UIBindingsCallbacks {
-  onSetMusicVolume: (volume: number) => void,
-  onSetSfxVolume: (volume: number) => void,
-  onWarpToLevel: (index: number) => void,
-}
-
 export class UIBindings implements UIHandler {
   private p5: P5;
   private gameState: GameState;
-  private callbacks: UIBindingsCallbacks = {
-    onSetMusicVolume: (volume: number) => { },
-    onSetSfxVolume: (volume: number) => { },
-    onWarpToLevel: (index: number) => { }
-  };
   private callAction: (action: InputAction, p0?: any) => void;
   private callPauseMenuAction = (element: PauseMenuElement) => {
     switch (element) {
@@ -57,150 +46,6 @@ export class UIBindings implements UIHandler {
         break;
       case PauseMenuElement.ButtonSettings:
         this.callAction(InputAction.ShowSettingsMenu);
-        break;
-      case PauseMenuElement.ButtonWarp01:
-        this.callbacks.onWarpToLevel(1);
-        break;
-      case PauseMenuElement.ButtonWarp02:
-        this.callbacks.onWarpToLevel(2);
-        break;
-      case PauseMenuElement.ButtonWarp03:
-        this.callbacks.onWarpToLevel(3);
-        break;
-      case PauseMenuElement.ButtonWarp04:
-        this.callbacks.onWarpToLevel(4);
-        break;
-      case PauseMenuElement.ButtonWarp05:
-        this.callbacks.onWarpToLevel(5);
-        break;
-      case PauseMenuElement.ButtonWarp06:
-        this.callbacks.onWarpToLevel(6);
-        break;
-      case PauseMenuElement.ButtonWarp07:
-        this.callbacks.onWarpToLevel(7);
-        break;
-      case PauseMenuElement.ButtonWarp08:
-        this.callbacks.onWarpToLevel(8);
-        break;
-      case PauseMenuElement.ButtonWarp09:
-        this.callbacks.onWarpToLevel(9);
-        break;
-      case PauseMenuElement.ButtonWarp10:
-        this.callbacks.onWarpToLevel(10);
-        break;
-      case PauseMenuElement.ButtonWarp11:
-        this.callbacks.onWarpToLevel(11);
-        break;
-      case PauseMenuElement.ButtonWarp12:
-        this.callbacks.onWarpToLevel(12);
-        break;
-      case PauseMenuElement.ButtonWarp13:
-        this.callbacks.onWarpToLevel(13);
-        break;
-      case PauseMenuElement.ButtonWarp14:
-        this.callbacks.onWarpToLevel(14);
-        break;
-      case PauseMenuElement.ButtonWarp15:
-        this.callbacks.onWarpToLevel(15);
-        break;
-      case PauseMenuElement.ButtonWarp16:
-        this.callbacks.onWarpToLevel(16);
-        break;
-      case PauseMenuElement.ButtonWarp17:
-        this.callbacks.onWarpToLevel(17);
-        break;
-      case PauseMenuElement.ButtonWarp18:
-        this.callbacks.onWarpToLevel(18);
-        break;
-      case PauseMenuElement.ButtonWarp19:
-        this.callbacks.onWarpToLevel(19);
-        break;
-      case PauseMenuElement.ButtonWarp20:
-        this.callbacks.onWarpToLevel(99);
-        break;
-      case PauseMenuElement.ButtonWarpS1:
-        this.callbacks.onWarpToLevel(110);
-        break;
-      case PauseMenuElement.ButtonWarpS2:
-        this.callbacks.onWarpToLevel(120);
-        break;
-      case PauseMenuElement.ButtonWarpS3:
-        this.callbacks.onWarpToLevel(130);
-        break;
-      case PauseMenuElement.ButtonWarpS4:
-        this.callbacks.onWarpToLevel(140);
-        break;
-      case PauseMenuElement.ButtonWarpM1:
-        this.callbacks.onWarpToLevel(150);
-        break;
-      case PauseMenuElement.ButtonWarpM2:
-        this.callbacks.onWarpToLevel(151);
-        break;
-      case PauseMenuElement.ButtonWarpM3:
-        this.callbacks.onWarpToLevel(152);
-        break;
-      case PauseMenuElement.ButtonWarpPrompt:
-        this.callbacks.onWarpToLevel(9999);
-        break;
-      case PauseMenuElement.ButtonWarpX01:
-        this.callbacks.onWarpToLevel(401);
-        break;
-      case PauseMenuElement.ButtonWarpX02:
-        this.callbacks.onWarpToLevel(402);
-        break;
-      case PauseMenuElement.ButtonWarpX03:
-        this.callbacks.onWarpToLevel(403);
-        break;
-      case PauseMenuElement.ButtonWarpX04:
-        this.callbacks.onWarpToLevel(404);
-        break;
-      case PauseMenuElement.ButtonWarpX05:
-        this.callbacks.onWarpToLevel(405);
-        break;
-      case PauseMenuElement.ButtonWarpX06:
-        this.callbacks.onWarpToLevel(406);
-        break;
-      case PauseMenuElement.ButtonWarpX07:
-        this.callbacks.onWarpToLevel(407);
-        break;
-      case PauseMenuElement.ButtonWarpX08:
-        this.callbacks.onWarpToLevel(408);
-        break;
-      case PauseMenuElement.ButtonWarpX09:
-        this.callbacks.onWarpToLevel(409);
-        break;
-      case PauseMenuElement.ButtonWarpX10:
-        this.callbacks.onWarpToLevel(410);
-        break;
-      case PauseMenuElement.ButtonWarpX11:
-        this.callbacks.onWarpToLevel(411);
-        break;
-      case PauseMenuElement.ButtonWarpX12:
-        this.callbacks.onWarpToLevel(412);
-        break;
-      case PauseMenuElement.ButtonWarpX13:
-        this.callbacks.onWarpToLevel(413);
-        break;
-      case PauseMenuElement.ButtonWarpX14:
-        this.callbacks.onWarpToLevel(414);
-        break;
-      case PauseMenuElement.ButtonWarpX15:
-        this.callbacks.onWarpToLevel(415);
-        break;
-      case PauseMenuElement.ButtonWarpX16:
-        this.callbacks.onWarpToLevel(416);
-        break;
-      case PauseMenuElement.ButtonWarpX17:
-        this.callbacks.onWarpToLevel(417);
-        break;
-      case PauseMenuElement.ButtonWarpX18:
-        this.callbacks.onWarpToLevel(418);
-        break;
-      case PauseMenuElement.ButtonWarpX19:
-        this.callbacks.onWarpToLevel(419);
-        break;
-      case PauseMenuElement.ButtonWarpX20:
-        this.callbacks.onWarpToLevel(420);
         break;
     }
   }
@@ -263,10 +108,9 @@ export class UIBindings implements UIHandler {
   private levelSelectScroll: HTMLElement;
   private levelSelectItems: HTMLElement[];
 
-  constructor(p5: P5, gameState: GameState, settings: GameSettings, saveDataStore: SaveDataStore, callbacks: UIBindingsCallbacks, callAction: (action: InputAction, p0?: any) => void) {
+  constructor(p5: P5, gameState: GameState, settings: GameSettings, saveDataStore: SaveDataStore, callAction: (action: InputAction, p0?: any) => void) {
     this.p5 = p5;
     this.gameState = gameState;
-    this.callbacks = callbacks;
     this.callAction = callAction;
     bridge.callAction = callAction;
     bridge.gameState = gameState;

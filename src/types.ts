@@ -490,6 +490,10 @@ export interface Level{
   musicTrack?: MusicTrack,
   titleVariant?: TitleVariant,
   globalLight?: number,
+  /**
+   * Start level with all lights turned off. Note - a scene must manually turn isDeathIlluminating off.
+   */
+  startDark?: boolean,
   nextLevelMap?: Record<number, Level>,
   nextLevel?: Level,
   appleSlowdownMod?: number,

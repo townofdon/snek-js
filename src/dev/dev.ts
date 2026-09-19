@@ -53,9 +53,12 @@ import { NoOpUnlockedMusicStore } from '../stores/UnlockedMusicStore';
 import { applyGamepadUIActions, tickGamepad } from '@/engine/gamepad';
 import { UIBindings } from '@/ui/uiBindings';
 import { saveDataStore } from '@/stores/SaveDataStore';
-import { BOSS_LEVEL_THE_TECHNICIAN } from '@/levels/boss/bossLevelTechnician';
+import { MAZE_03_STORAGE } from '@/levels/mazes/maze03-storage';
+import { findLevelFromId } from '@/levels/levelUtils';
 
-const level = BOSS_LEVEL_THE_TECHNICIAN;
+const query = new URLSearchParams(window.location.search);
+const levelFromQuery = findLevelFromId(query.get('level'));
+const level = levelFromQuery || MAZE_03_STORAGE;
 
 const settings: GameSettings = {
   musicVolume: 1,
@@ -115,7 +118,6 @@ export const sketch = (p5: P5) => {
     renderLoop,
     startMoving,
     requestPlayerRewind,
-    startLogicLoop,
     clearBackground,
     changeMusicLowpass,
     playSound,
@@ -155,11 +157,7 @@ export const sketch = (p5: P5) => {
 
   const modal = new Modal();
 
-  const uiBindings = new UIBindings(p5, state, settings, saveDataStore, {
-    onSetMusicVolume: (volume) => { settings.musicVolume = volume; },
-    onSetSfxVolume: (volume) => { settings.sfxVolume = volume; },
-    onWarpToLevel: () => { console.log('onWarpToLevel not implemented.'); },
-  }, handleInputAction);
+  const uiBindings = new UIBindings(p5, state, settings, saveDataStore, handleInputAction);
 
   function handleInputAction(action: InputAction, p0?: any) {
     switch (action) {
