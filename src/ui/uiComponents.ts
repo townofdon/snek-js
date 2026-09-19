@@ -1,8 +1,5 @@
 import { UI } from "./ui";
 import { ACCENT_COLOR } from '../constants';
-import { Level } from '../types';
-import { findLevelWarpIndex, getWarpLevelFromNum } from '../levels/levelUtils';
-import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from '../levels/levelConstants';
 
 interface GameOverCallbacks {
   confirmShowMainMenu: () => void

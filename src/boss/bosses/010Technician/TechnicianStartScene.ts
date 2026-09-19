@@ -25,7 +25,6 @@ export class TechnicianStartScene extends BaseBossScene {
 
     // snek entreunt
     if (this.type === BossIntro.Initial) {
-      yield* coroutines.waitForTime(500);
       const moves: SnekMove[] = [
         { type: 'x', x: 5},
         { type: 'y', y: -3},
@@ -46,7 +45,7 @@ export class TechnicianStartScene extends BaseBossScene {
       for (let i = 0; i < segments.length; i++) {
         segments.setVec(i, player.position.copy().add(-i - 1, 0));
       }
-      yield* coroutines.waitForTime(500);
+      yield* coroutines.waitForTime(250);
       const moveSegments = () => {
         for (let i = segments.length - 1; i >= 0; i--) {
           if (i === 0) {

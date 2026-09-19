@@ -59,6 +59,8 @@ import { findLevelFromId } from '@/levels/levelUtils';
 const query = new URLSearchParams(window.location.search);
 const levelFromQuery = findLevelFromId(query.get('level'));
 const level = levelFromQuery || MAZE_03_STORAGE;
+const difficultyIndex = parseInt(query.get('difficulty')) || DIFFICULTY_HARD.index;
+const disableFullscreen = query.get('disableFullscreen') === 'true';
 
 const settings: GameSettings = {
   musicVolume: 1,
@@ -313,12 +315,10 @@ export const sketch = (p5: P5) => {
     if (!state.isPreloaded) return;
     if (state.isGameStarting) return;
 
-    const query = new URLSearchParams(window.location.search);
     state.appMode = AppMode.Game;
     state.gameMode = GameMode.Normal;
     state.isGameStarted = false;
     state.isGameStarting = false;
-    const difficultyIndex = parseInt(query.get('difficulty')) || DIFFICULTY_HARD.index
     setDifficulty(getDifficultyFromIndex(difficultyIndex));
 
     musicPlayer.stopAllTracks();
@@ -334,7 +334,6 @@ export const sketch = (p5: P5) => {
     tutorial.needsMoveControls = false;
     tutorial.needsRewindControls = false;
 
-    const disableFullscreen = query.get('disableFullscreen') === 'true';
     if (!disableFullscreen) {
       document.body.requestFullscreen();
     }

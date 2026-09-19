@@ -160,6 +160,7 @@ import {
   CAMPAIGN_LEVELS,
   CHALLENGE_LEVELS,
   getLevelBoss,
+  hasLevelBoss,
   LEVELS,
   START_LEVEL,
   START_LEVEL_COBRA,
@@ -181,7 +182,7 @@ import { getExtendedPalette, PALETTE } from '../palettes';
 import { Coroutines } from './coroutines';
 import { UI } from '../ui/ui';
 import { buildSceneActionFactory } from '../scenes/sceneUtils';
-import { TitleScene } from '../scenes/TitleScene';
+import { TitleScene, TitleSceneOptions } from '../scenes/TitleScene';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 import { resumeAudioContext, setMusicVolume, setSfxVolume } from './audio';
 import { LEVEL_01_HARD } from '../levels/campaign/level01hard';
@@ -717,8 +718,10 @@ export function engine({
         return ''
       })();
       const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts);
+      const hideNowEnteringText = hasLevelBoss(es.level);
+      const opts: TitleSceneOptions = { hideNowEnteringText };
       return es.level.showTitle
-        ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(es.level.name, annotation, p5, gfx, sfx, fonts, callbacks))
+        ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(es.level.name, annotation, p5, gfx, sfx, fonts, callbacks, opts))
         : () => Promise.resolve();
   }
 

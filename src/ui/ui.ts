@@ -373,7 +373,7 @@ export class UI {
 
   static drawText(textStr = '', fontSize = '9.6px', y = 0, uiElements: HTMLElement[], { color = '#fff', width = 480, margin = '48px auto' } = {}) {
     const element = document.createElement('p');
-    element.textContent = textStr;
+    element.innerHTML = textStr;
     element.classList.add('minimood');
     element.style.fontSize = fontSize;
     element.style.color = color;

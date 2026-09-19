@@ -4,16 +4,22 @@ import { BaseScene } from "./BaseScene";
 
 const TSMOD = 2 * 0.8;
 
+export interface TitleSceneOptions {
+  hideNowEnteringText?: boolean,
+}
+
 export class TitleScene extends BaseScene {
   private title: string = 'UNTITLED';
   private annotation: string = '';
   private sfx: ISFX;
+  private opts: TitleSceneOptions;
 
-  constructor(title: string, annotation: string, p5: P5, gfx: P5.Graphics, sfx: ISFX, fonts: FontsInstance, callbacks: SceneCallbacks = {}) {
+  constructor(title: string, annotation: string, p5: P5, gfx: P5.Graphics, sfx: ISFX, fonts: FontsInstance, callbacks: SceneCallbacks = {}, opts: TitleSceneOptions = {}) {
     super(p5, gfx, fonts, callbacks)
     this.title = title;
     this.annotation = annotation || '';
     this.sfx = sfx;
+    this.opts = opts;
     this.bindActions();
   }
 
@@ -36,7 +42,9 @@ export class TitleScene extends BaseScene {
     p5.textSize(TSMOD * 14);
     p5.textAlign(p5.CENTER, p5.TOP);
 
-    p5.text('now entering', ...this.getPosition(0.5, 0.4));
+    if (!this.opts.hideNowEnteringText) {
+      p5.text('now entering', ...this.getPosition(0.5, 0.4));
+    }
     p5.textSize(TSMOD * 32);
     p5.fill('#fff');
     p5.text(this.title, ...this.getPosition(0.5, 0.5));

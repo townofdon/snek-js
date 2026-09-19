@@ -71,11 +71,18 @@ import { BossConstructorArgs } from "@/boss/BaseBoss";
 import { TheTechnician } from "@/boss/bosses/010Technician/TechnicianBoss";
 import { BOSS_LEVEL_THE_TECHNICIAN } from "./boss/bossLevelTechnician";
 
+const LEVEL_BOSS_MAP = {
+  [BOSS_LEVEL_THE_TECHNICIAN.id]: TheTechnician,
+} as const;
+
+export function hasLevelBoss(level: Level): boolean {
+  if (!level?.id) return null;
+  const boss = LEVEL_BOSS_MAP[level.id];
+  return !!boss;
+}
+
 export function getLevelBoss(level: Level, bossArgs: BossConstructorArgs): Boss | null {
-  if (!level.id) return null;
-  const LEVEL_BOSS_MAP = {
-    [BOSS_LEVEL_THE_TECHNICIAN.id]: TheTechnician,
-  } as const;
+  if (!level?.id) return null;
   const boss = LEVEL_BOSS_MAP[level.id];
   if (!boss) {
     return null;
