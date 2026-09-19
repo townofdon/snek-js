@@ -53,7 +53,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     ["Don't hate the game, hate the player. Wait, that's YOU!."],
     ["If you make it past this level, I guarantee you have a 50% chance of enjoying the rest of the game."],
   ],
-  showQuoteOnLevelWin: true,
+  showQuoteOnLevelWin: false,
   musicTrack: MusicTrack.conquerer,
   titleVariant: TitleVariant.Yellow,
   nextLevelMap: {

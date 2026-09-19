@@ -180,7 +180,7 @@ import { Easing } from '../easing';
 import { getExtendedPalette, PALETTE } from '../palettes';
 import { Coroutines } from './coroutines';
 import { UI } from '../ui/ui';
-import { buildSceneActionFactory } from '../scenes/sceneUtils';
+import { buildSceneActionFactory, BuildSceneActionFactoryOptions } from '../scenes/sceneUtils';
 import { TitleScene } from '../scenes/TitleScene';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 import { resumeAudioContext, setMusicVolume, setSfxVolume } from './audio';
@@ -715,8 +715,9 @@ export function engine({
         }
         if (es.level.author) return `by ${es.level.author}`;
         return ''
-      })()
-      const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts);
+      })();
+      const opts: BuildSceneActionFactoryOptions = { skipRenderFrameOnSceneEnd: true };
+      const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts, opts);
       return es.level.showTitle
         ? buildSceneAction((p5, gfx, sfx, fonts, callbacks) => new TitleScene(es.level.name, annotation, p5, gfx, sfx, fonts, callbacks))
         : () => Promise.resolve();
@@ -931,7 +932,7 @@ export function engine({
       const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts);
       return buildSceneAction((p5, gfx, sfx, fonts, callbacks) => {
         musicPlayer.stopAllTracks();
-        return bossTransition(p5, gfx, sfx, es, state, player, musicPlayer, fonts, spriteRenderer, callbacks, renderLoop)
+        return bossTransition(p5, gfx, sfx, es, state, player, segments, musicPlayer, fonts, spriteRenderer, callbacks, renderLoop)
       });
     })();
 

@@ -567,6 +567,7 @@ export type BossStartArgs = [
   es: EngineState,
   gameState: GameState,
   player: PlayerState,
+  segments: ICollection & IVectorList,
   musicPlayer: IMusicPlayer,
   fonts: FontsInstance,
   spriteRenderer: ISpriteRenderer,
@@ -1676,6 +1677,10 @@ export enum PortalExitMode {
   SameDirection,
 }
 
+interface XMove { type: 'x', x: number }
+interface YMove { type: 'y', y: number }
+export type SnekMove  = XMove | YMove;
+
 export interface Portal {
   position: Vector
   link?: Vector
@@ -1981,6 +1986,12 @@ export interface ICollection {
   existsAtCoord: (coord: number) => boolean,
   getClosestTraversalDistance: (x: number, y: number) => number,
   getIndexAtCoord: (coord: number) => number,
+}
+
+export interface IVectorList {
+  length: number,
+  setVec: (index: number, vec: Vector | undefined) => void,
+  get: (index: number) => (Vector | undefined),
 }
 
 export enum RemovalReason {

@@ -330,7 +330,6 @@ export const sketch = (p5: P5) => {
     initLevel();
     coroutines.stopAll();
     actions.stopAll();
-    startLogicLoop();
     winLevelScene.reset();
 
     resetStats();

@@ -3,11 +3,11 @@ import { Vector } from "p5";
 import { GRIDCOUNT_X,
 GRIDCOUNT_Y, IS_DEV } from "../constants";
 import { getCoordIndex2, getManhattanDistance } from "../utils";
-import { ICollection } from "../types";
+import { ICollection, IVectorList } from "../types";
 
 export const INITIAL_POINTS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
-export class VectorList implements ICollection {
+export class VectorList implements ICollection, IVectorList {
   private points: Vector[];
   private free: Uint8Array;
   private indices: Int16Array;

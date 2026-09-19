@@ -1,10 +1,14 @@
 import { BaseBossScene } from "@/boss/BaseBossScene";
 import { GRIDCOUNT_X, GRIDCOUNT_Y } from "@/constants";
 import { startSceneDialogText, StartSceneDialogTextArgs } from "@/scenes/sceneUtils";
-import { BossIntro, BossStartArgs, Image, MapAnnotation, Sound } from "@/types";
+import { BossIntro, BossStartArgs, Image, MapAnnotation, SnekMove, Sound } from "@/types";
 import { getCoordIndex, getCoordIndex2, getCoordX, getCoordY } from "@/utils";
 
+const SNEK_ENTER_SPEED = 50;
+
 export class TechnicianStartScene extends BaseBossScene {
+  private showBoss = false;
+
   constructor(...args: BossStartArgs) {
     super(...args);
   }
@@ -12,13 +16,86 @@ export class TechnicianStartScene extends BaseBossScene {
   *action() {
     const sfx = this.sfx;
     const { coroutines } = this.props;
-    const { gameState, es, player } = this;
+    const { gameState, es, player, segments } = this;
 
-
+    this.showBoss = false;
     const bossCoord = this.getBossCoord();
     gameState.isDeathIlluminating = true;
     es.deathIlluminationMap = {};
-    es.deathIlluminationMap[getCoordIndex(player.position)] = true;
+
+    // snek entreunt
+    if (this.type === BossIntro.Initial) {
+      yield* coroutines.waitForTime(500);
+      const moves: SnekMove[] = [
+        { type: 'x', x: 5},
+        { type: 'y', y: -3},
+        { type: 'x', x: 3},
+      ];
+      for (let i = moves.length - 1; i >= 0; i--) {
+        const move = moves[i];
+        if (move.type === 'x'){
+          for (let x = 0; x < Math.abs(move.x); x++) {
+            player.position.sub(1 * Math.sign(move.x), 0);
+          }
+        } else if (move.type === 'y') {
+          for (let y = 0; y < Math.abs(move.y); y++) {
+            player.position.sub(0, 1 * Math.sign(move.y));
+          }
+        }
+      }
+      for (let i = 0; i < segments.length; i++) {
+        segments.setVec(i, player.position.copy().add(-i - 1, 0));
+      }
+      yield* coroutines.waitForTime(500);
+      const moveSegments = () => {
+        for (let i = segments.length - 1; i >= 0; i--) {
+          if (i === 0) {
+            segments.setVec(i, player.position);
+          } else {
+            segments.setVec(i, segments.get(i - 1));
+          }
+        }
+      }
+      const moveSound = () => {
+        if (gameState.steps % 2 === 0) {
+          sfx.play(Sound.step1, 0.5);
+        } else {
+          sfx.play(Sound.step2, 0.5);
+        }
+        gameState.steps += 1;
+      }
+      const moveLight = () => {
+        es.deathIlluminationMap = {};
+        es.deathIlluminationMap[getCoordIndex(player.position)] = true;
+        for (let i = 0; i < segments.length; i++) {
+          es.deathIlluminationMap[getCoordIndex(segments.get(i))] = true;
+        }
+      }
+      for (let i = 0; i < moves.length; i++) {
+        const move = moves[i];
+        if (move.type === 'x'){
+          for (let x = 0; x < Math.abs(move.x); x++) {
+            moveSegments();
+            player.position.add(1 * Math.sign(move.x), 0);
+            moveLight();
+            moveSound();
+            yield* coroutines.waitForTime(SNEK_ENTER_SPEED);
+          }
+        } else if (move.type === 'y') {
+          for (let y = 0; y < Math.abs(move.y); y++) {
+            moveSegments();
+            player.position.add(0, 1 * Math.sign(move.y));
+            moveLight();
+            moveSound();
+            yield* coroutines.waitForTime(SNEK_ENTER_SPEED);
+          }
+        }
+      }
+      yield* coroutines.waitForTime(500);
+      sfx.play(Sound.switch);
+    }
+
+    this.showBoss = true;
     es.deathIlluminationMap[bossCoord] = true;
     es.deathIlluminationMap[bossCoord + 1] = true;
     es.deathIlluminationMap[bossCoord + GRIDCOUNT_X] = true;
@@ -80,7 +157,9 @@ export class TechnicianStartScene extends BaseBossScene {
     const coord = this.getBossCoord();
     const x = getCoordX(coord);
     const y = getCoordY(coord);
-    this.spriteRenderer.drawSprite1x1(this.props.gfx, Image.BossTechnician, x, y, 0, 0, 1, 0);
+    if (this.showBoss) {
+      this.spriteRenderer.drawSprite1x1(this.props.gfx, Image.BossTechnician, x, y, 0, 0, 1, 0);
+    }
     this.tick();
   };
 }

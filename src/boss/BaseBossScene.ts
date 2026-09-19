@@ -1,6 +1,16 @@
-import { SpriteRenderer } from "@/engine/spriteRenderer";
 import { BaseScene } from "@/scenes/BaseScene";
-import { BossIntro, BossStartArgs, EngineState, GameState, IMusicPlayer, ISFX, ISpriteRenderer, PlayerState } from "@/types";
+import {
+  BossIntro,
+  BossStartArgs,
+  EngineState,
+  GameState,
+  ICollection,
+  IMusicPlayer,
+  ISFX,
+  ISpriteRenderer,
+  IVectorList,
+  PlayerState,
+} from "@/types";
 
 export abstract class BaseBossScene extends BaseScene {
   protected readonly spriteRenderer: ISpriteRenderer;
@@ -9,10 +19,11 @@ export abstract class BaseBossScene extends BaseScene {
   protected readonly es: EngineState;
   protected readonly sfx: ISFX;
   protected readonly player: PlayerState;
+  protected readonly segments: ICollection & IVectorList;
   protected readonly musicPlayer: IMusicPlayer;
   protected readonly renderLoop: () => void;
   constructor(...args: BossStartArgs) {
-    const [p5, gfx, sfx, es, gameState, player, musicPlayer, fonts, spriteRenderer, callbacks, renderLoop] = args;
+    const [p5, gfx, sfx, es, gameState, player, segments, musicPlayer, fonts, spriteRenderer, callbacks, renderLoop] = args;
     requireParam(p5, 'p5');
     requireParam(gfx, 'gfx');
     requireParam(sfx, 'sfx');
@@ -26,6 +37,7 @@ export abstract class BaseBossScene extends BaseScene {
     this.es = es;
     this.gameState = gameState;
     this.player = player;
+    this.segments = segments;
     this.musicPlayer = musicPlayer;
     this.renderLoop = renderLoop;
   }
