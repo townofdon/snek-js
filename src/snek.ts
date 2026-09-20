@@ -64,6 +64,7 @@ import {
   Level,
   Outfit,
   HeldItems,
+  Initiator,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -93,6 +94,7 @@ import { recordSnekalyticsEvent } from './api/snekalytics';
 import { applyGamepadUIActions, resetGamepad, tickGamepad } from './engine/gamepad';
 import { settings, triggerFullscreenChange } from './stores/SettingsStore';
 import { state } from './gameState';
+import { emitUIEvent } from './ui/uiEvents';
 
 const queryParams = parseUrlQueryParams();
 
@@ -266,8 +268,23 @@ export const sketch = (p5: P5) => {
         if (!state.isGameStarted) showGameModeMenu();
         break;
       case InputAction.StartGame:
-        const levelNum = typeof p0 === 'number' ? p0 : -1;
-        startGame(levelNum);
+        {
+          const levelNum = typeof p0 === 'number' ? p0 : -1;
+          startGame(levelNum);
+        }
+        break;
+      case InputAction.WarpToLevel:
+        {
+          const levelNum = typeof p0 === 'number' ? p0 : -1;
+          warpToLevel(levelNum);
+          emitUIEvent(InputAction.WarpToLevel, Initiator.UI);
+        }
+        break;
+      case InputAction.SetDifficulty:
+        {
+          const difficulty = typeof p0 === 'number' ? p0 : -1;
+          if (difficulty > 0) setDifficulty(getDifficultyFromIndex(difficulty));
+        }
         break;
       case InputAction.ToggleCasualMode:
         toggleCasualMode();
@@ -755,6 +772,7 @@ export const sketch = (p5: P5) => {
       showInGameSettingsMenu,
     });
     uiBindings.onPause();
+    emitUIEvent(InputAction.Pause, Initiator.UI);
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(0.07, 1500, 0.2), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(0.6, 2000), Action.FadeMusic, true);
@@ -764,6 +782,7 @@ export const sketch = (p5: P5) => {
     if (!state.isPaused) return;
     state.isPaused = false;
     clearUI();
+    emitUIEvent(InputAction.UnPause, Initiator.UI);
     UI.hideSettingsMenu();
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(1, 1500), Action.ChangeMusicLowpass, true);

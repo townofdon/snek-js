@@ -1,7 +1,11 @@
 import { SaveDataStore } from "@/stores/SaveDataStore";
 import { GameSettings, GameState, InputAction, UICancelHandler, UIInteractHandler, UINavDir, UINavEventHandler } from "@/types";
 
-type HandlerKey = 'mainMenu' | 'settingsMenu';
+type HandlerKey = (
+  | 'mainMenu'
+  | 'settingsMenu'
+  | 'debugMenu'
+);
 type CallAction = (action: InputAction, p0?: any) => void
 
 interface BridgeHandler {
@@ -31,6 +35,7 @@ const bridgeProps: BridgeProperties = {
 export const bridge: Record<HandlerKey, BridgeHandler> & { callAction: CallAction | null } & BridgeProperties = {
   mainMenu: { ...DEFAULT_HANDLER},
   settingsMenu: { ...DEFAULT_HANDLER},
+  debugMenu: { ...DEFAULT_HANDLER},
   callAction: () => {},
   ...bridgeProps,
 };

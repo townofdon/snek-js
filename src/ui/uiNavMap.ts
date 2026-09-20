@@ -519,6 +519,7 @@ export enum PauseMenuElement {
   ButtonResume = 'pauseButtonResume',
   ButtonMainMenu = 'pauseButtonMainMenu',
   ButtonSettings = 'pauseButtonSettings',
+  DropdownDebugWarp = 'debug-menu-warp-dropdown',
 }
 
 const PAUSE_MENU_ELEMENT_ORDER = [
@@ -526,6 +527,9 @@ const PAUSE_MENU_ELEMENT_ORDER = [
     PauseMenuElement.ButtonResume,
     PauseMenuElement.ButtonMainMenu,
     PauseMenuElement.ButtonSettings,
+  ],
+  [
+    PauseMenuElement.DropdownDebugWarp,
   ],
 ]
 

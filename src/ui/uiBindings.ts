@@ -217,6 +217,9 @@ export class UIBindings implements UIHandler {
       }
     }
     if (this.gameState.isPaused) {
+      if (bridge.debugMenu.onNavigate(navDir)) {
+        return true;
+      }
       switch (navDir) {
         case UINavDir.Prev:
           this.pauseMenuNavMap.gotoPrev();

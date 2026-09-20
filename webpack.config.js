@@ -17,7 +17,7 @@ module.exports = (env) => {
   const isNwjsPackage = env.package;
   const isProduction = process.env.NODE_ENV == 'production' || env.production;
   const isDev = !isProduction;
-  const isLocal = env.local && isDev;
+  // const isLocal = env.local && isDev;
   const commitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
   return {
@@ -28,7 +28,7 @@ module.exports = (env) => {
       preview: './src/preview/index',
       community: './src/community/index',
       astarTester: './src/astar/tester/index',
-      ...(isLocal ? {
+      ...(isDev ? {
         dev: './src/dev/index',
       } : {}),
     },
@@ -110,7 +110,7 @@ module.exports = (env) => {
         template: './public/pages/privacy-policy/index.html',
         inject: false,
       }),
-      ...(isLocal ? [
+      ...(isDev ? [
         new HtmlWebpackPlugin({
           title: 'SNEK DEV',
           filename: 'dev/index.html',

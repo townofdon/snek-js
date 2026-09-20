@@ -51,15 +51,15 @@ export class TheTechnician extends BaseBoss {
 
   private get phase() { return this.phases[this.difficulty]?.[this.phaseIdx] || BossAgro.L3; }
   protected readonly phases: Record<DifficultyIndex, BossAgro[]> = {
-    1: [BossAgro.L1, BossAgro.L2],
-    2: [BossAgro.L1, BossAgro.L2, BossAgro.L3],
+    1: [BossAgro.L1, BossAgro.L2, BossAgro.L3],
+    2: [BossAgro.L1, BossAgro.L2, BossAgro.L3, BossAgro.L4],
     3: [BossAgro.L1, BossAgro.L2, BossAgro.L3, BossAgro.L4],
     4: [BossAgro.L1, BossAgro.L2, BossAgro.L3, BossAgro.L4],
   };
 
   private readonly applesToSpawn: Record<DifficultyIndex, number[]> = {
-    1: [4, 6],
-    2: [6, 8, 10],
+    1: [4, 6, 6],
+    2: [6, 6, 8, 8],
     3: [8, 8, 10, 12],
     4: [10, 10, 10, 12],
   };

@@ -1,10 +1,7 @@
 import React, { useRef } from 'react';
 import Select, { ActionMeta, OnChangeValue } from 'react-select'
-// import Dropdown, { Group, Option } from 'react-dropdown';
 
 import { FieldLabel } from './FieldLabel';
-
-import './react-dropdown.css';
 
 export interface Option {
   id?: string;
@@ -13,6 +10,7 @@ export interface Option {
 }
 
 interface DropdownFieldProps {
+  id?: string
   label?: string;
   options: Option[];
   value: string,
@@ -21,7 +19,7 @@ interface DropdownFieldProps {
   placeholder?: string
 }
 
-export const DropdownField = ({ label, options, value, onChange, placeholder = "Select an option", defaultValue }: DropdownFieldProps) => {
+export const DropdownField = ({ id, label, options, value, onChange, placeholder = "Select an option", defaultValue }: DropdownFieldProps) => {
   const select = useRef(null);
 
   const handleChange = (option: OnChangeValue<Option, false>, actionMeta: ActionMeta<Option>) => {
@@ -33,6 +31,7 @@ export const DropdownField = ({ label, options, value, onChange, placeholder = "
   const dropdown = (
     <Select
       ref={select}
+      inputId={id}
       options={options}
       onChange={handleChange}
       value={selectedOption}

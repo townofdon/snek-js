@@ -937,6 +937,8 @@ export enum InputAction {
   HideGameModeMenu,
   RetryLevel,
   StartGame,
+  WarpToLevel,
+  SetDifficulty,
   ToggleCasualMode,
   ToggleCobraMode,
   ToggleScreenshakeDisabled,
