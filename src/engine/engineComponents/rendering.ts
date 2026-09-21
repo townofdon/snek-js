@@ -56,8 +56,6 @@ import {
   ThreatType,
   Threat16Frame,
   FRAME_COUNT_THREAT_16,
-  Threat48Frame,
-  FRAME_COUNT_THREAT_48,
   SpritesheetRange,
   LaserType,
   Orientation,
@@ -65,7 +63,6 @@ import {
   ExplosionType,
   ThreatFlag,
   ButtonSheetFrame,
-  ThreatWallSpikesFrame,
   PipeVariant,
   SmokeType,
 } from "@/types";
@@ -74,7 +71,6 @@ import { Renderer } from "../renderer";
 import { PALETTE } from "@/palettes";
 import { SpriteRenderer } from "../spriteRenderer";
 import {
-  byCoord,
   checkIsMoving,
   dirToUnitVector,
   getCoordIndex,

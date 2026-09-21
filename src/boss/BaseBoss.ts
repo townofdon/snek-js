@@ -7,15 +7,15 @@ import {
   MapAnnotation,
   PlayerState,
   Scene,
-  Sound,
   Boss,
   BossAgro,
   BossStartArgs,
-  BossStateMachine,
   IEnumerator,
   ICollection,
   LoopState,
   ISFX,
+  IVectorList,
+  SmokeType,
 } from "@/types";
 import { Renderer } from "@/engine/renderer";
 import { SpriteRenderer } from "@/engine/spriteRenderer";
@@ -30,6 +30,7 @@ export interface BossConstructorArgs {
   threats: AnimationList;
   apples: ICollection;
   player: PlayerState;
+  segments: ICollection & IVectorList;
   annotations: Record<number, MapAnnotation>;
   renderer: Renderer;
   spriteRenderer: SpriteRenderer;
@@ -39,6 +40,7 @@ export interface BossConstructorArgs {
   openDoors: () => void;
   spawnOnlyApple: () => number;
   spawnPuff: (x: number, y: number) => void;
+  spawnSmoke: (x: number, y: number, type: SmokeType) => void;
   spawnExplosion: (x: number, y: number) => void;
 }
 
@@ -50,6 +52,7 @@ export abstract class BaseBoss implements Boss {
   protected readonly threats: AnimationList;
   protected readonly apples: ICollection;
   protected readonly player: PlayerState;
+  protected readonly segments: ICollection & IVectorList;
   protected readonly annotations: Record<number, MapAnnotation>;
   protected readonly renderer: Renderer;
   protected readonly spriteRenderer: SpriteRenderer;
@@ -59,6 +62,7 @@ export abstract class BaseBoss implements Boss {
   protected readonly openDoors: () => void;
   protected readonly spawnOnlyApple: () => number;
   protected readonly spawnPuff: (x: number, y: number) => void;
+  protected readonly spawnSmoke: (x: number, y: number, type: SmokeType) => void;
   protected readonly spawnExplosion: (x: number, y: number) => void;
 
   protected readonly coroutines: Coroutines;
@@ -70,6 +74,7 @@ export abstract class BaseBoss implements Boss {
     this.es = args.es;
     this.threats = args.threats;
     this.player = args.player;
+    this.segments = args.segments;
     this.apples = args.apples;
     this.annotations = args.annotations;
     this.renderer = args.renderer;
@@ -80,6 +85,7 @@ export abstract class BaseBoss implements Boss {
     this.spawnOnlyApple = args.spawnOnlyApple;
     this.openDoors = args.openDoors;
     this.spawnPuff = args.spawnPuff;
+    this.spawnSmoke = args.spawnSmoke;
     this.spawnExplosion = args.spawnExplosion;
     this.coroutines = new Coroutines(args.p5);
   }

@@ -539,16 +539,16 @@ export interface Level{
 export enum BossStateMachine {
   None = 0,
   Intro,
-  QuickIntro,
   Fighting,
+  TakingDamage,
   Dying,
   Defeated,
 }
-export enum BossSubphase {
+export enum BossDamage {
   None = 0,
-  Default,
-  WeakpointsActive,
-  TakingDamage,
+  Activating,
+  Inflicting,
+  Post,
 }
 export enum BossAgro {
   None = 0,
@@ -815,10 +815,10 @@ export enum ThreatFlag {
   SiblingE = 1 << 4,
   Activating = 1 << 5,
   NoDamage = 1 << 6,
-  VariantA = 1 << 16,
-  VariantB = 1 << 17,
-  VariantC = 1 << 18,
-  VariantD = 1 << 19,
+  VariantA = 1 << 10,
+  VariantB = 1 << 11,
+  VariantC = 1 << 12,
+  VariantD = 1 << 13,
 }
 
 export enum LaserType {

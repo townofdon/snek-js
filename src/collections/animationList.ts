@@ -50,7 +50,7 @@ export class AnimationList implements ICollection, IFlaggable, IRemovable {
   private lifetime: Float32Array;
   private elapsed: Float32Array;
   private type: Uint8Array;
-  private flags: Uint8Array;
+  private flags: Uint16Array;
   private internalFlags: Uint8Array;
   private img: Record<number, SpritesheetImage | SpritesheetRange>;
   private disabledImg: Record<number, SpritesheetImage | SpritesheetRange>;
@@ -80,7 +80,7 @@ export class AnimationList implements ICollection, IFlaggable, IRemovable {
     this.lifetime = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.elapsed = new Float32Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.type = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
-    this.flags = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
+    this.flags = new Uint16Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.internalFlags = new Uint8Array(INITIAL_ANIMATIONS_POOL_SIZE).fill(0);
     this.activeLength = 0;
     this.coordMap = {};

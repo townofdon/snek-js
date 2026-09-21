@@ -117,15 +117,15 @@ export const PITY_INCREMENT = 1 / 30;
 
 
 export const INVINCIBILITY_PICKUP_LIFETIME_MS = 8000;
-export const INVINCIBILITY_PICKUP_FREEZE_MS = 1000;
+export const INVINCIBILITY_PICKUP_FREEZE_MS = 500;
 export const INVINCIBILITY_EXPIRE_WARN_MS = 2000;
 export const INVINCIBILITY_EXPIRE_FLASH_MS = 200;
 export const INVINCIBILITY_COLOR_CYCLE_MS = 20;
 
-export const ARMOR_PICKUP_FREEZE_MS = 1400;
-export const ELECTROCUTION_DURATION_MS = 1400;
+export const ARMOR_PICKUP_FREEZE_MS = 700;
+export const ELECTROCUTION_DURATION_MS = 700;
 export const ELECTROCUTION_FLASH_RATE = 70;
-export const BURN_DURATION_MS = 1400;
+export const BURN_DURATION_MS = 700;
 export const LASER_DIODE_CRIT_LIFETIME = 3000;
 export const LASER_WARN_LIFETIME = 4500;
 export const BARREL_WARN_LIFETIME = 10000;
@@ -267,7 +267,7 @@ export const HURT_MOVE_RESET_INITIAL_DELAY = 100;
 export const HURT_MOVE_RESET_INPUT_DELAY = 400;
 export const HURT_FLASH_RATE = 55;
 export const HURT_GRACE_TIME = 30;
-export const HURT_MUSIC_DUCK_TIME_MS = 1500;
+export const HURT_MUSIC_DUCK_TIME_MS = 750;
 export const HURT_MUSIC_DUCK_VOL = -0.2;
 
 export const PREY_MOVE_TIME_GRUB = 600; // time between prey movements

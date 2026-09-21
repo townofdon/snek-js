@@ -90,8 +90,8 @@ export class TechnicianStartScene extends BaseBossScene {
           }
         }
       }
-      yield* coroutines.waitForTime(500);
-      sfx.play(Sound.switch);
+      yield* coroutines.waitForTime(500, undefined, true);
+      sfx.play(Sound.switchOff);
     }
 
     this.showBoss = true;
@@ -102,14 +102,13 @@ export class TechnicianStartScene extends BaseBossScene {
 
     sfx.playLoop(Sound.alarm);
     if (this.type === BossIntro.Initial) {
-      yield* coroutines.waitForTime(2000);
+      yield* coroutines.waitForTime(2000, undefined, true);
     } else {
-      yield* coroutines.waitForTime(1000);
+      yield* coroutines.waitForTime(1000, undefined, true);
     }
 
-    sfx.play(Sound.switchOff);
     sfx.stop(Sound.alarm);
-    yield* coroutines.waitForTime(100);
+    yield* coroutines.waitForTime(200);
 
     if (this.type === BossIntro.Initial) {
       const rect = this.getRect(0.5, 0.575, 2 * 250, 2 * 250);
@@ -128,11 +127,7 @@ export class TechnicianStartScene extends BaseBossScene {
     sfx.play(Sound.switch);
     gameState.isDeathIlluminating = false;
     es.deathIlluminationMap = {};
-    if (this.type === BossIntro.Initial) {
-      yield* coroutines.waitForTime(1000);
-    } else {
-      yield* coroutines.waitForTime(500);
-    }
+    yield* coroutines.waitForTime(500, undefined, true);
 
     this.cleanup();
   }

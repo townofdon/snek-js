@@ -545,6 +545,7 @@ export function engine({
     spawnMeatItem,
     spawnLegendaryItem,
     spawnPuff,
+    spawnSmoke,
     spawnExplosion,
     chooseSpawnLocation,
   } = engineSpawning({
@@ -564,6 +565,7 @@ export function engine({
     shieldSpawns,
     pickupOutlines,
     puffs,
+    smoke,
     explosions,
     openDoors,
     playSound,
@@ -616,7 +618,7 @@ export function engine({
       },
       onSceneEnded: () => {
         musicPlayer.setPlaybackRate(es.level.musicTrack, 1);
-        startAction(fadeMusic(1, 2000), Action.FadeMusic);
+        startAction(fadeMusic(1, 1000), Action.FadeMusic);
         state.isRewinding = false;
         state.acquireProgression = 0;
         startLogicLoop();
@@ -914,6 +916,7 @@ export function engine({
       es,
       threats,
       player,
+      segments,
       apples,
       annotations: es.level.annotations || {},
       renderer,
@@ -924,6 +927,7 @@ export function engine({
       spawnOnlyApple,
       openDoors,
       spawnPuff,
+      spawnSmoke,
       spawnExplosion,
     } satisfies BossConstructorArgs);
 
@@ -1442,7 +1446,7 @@ export function engine({
       drawState.shouldRecalculateLasers = false;
     }
 
-    if (boss.current) {
+    if (boss.current && loopState.timeScale) {
       boss.current.tick(loopState.deltaTime);
     }
 
@@ -1848,7 +1852,7 @@ export function engine({
     loopState.timeScale = 1;
     startScreenShake(0, 1);
     renderer.invalidateStaticCache();
-    yield* coroutines.waitForTime(600);
+    yield* coroutines.waitForTime(300);
     sfx.playLoop(Sound.invincibleLoop, 0.55 * settings.musicVolume);
     while (state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) {
       yield null;
@@ -1938,7 +1942,7 @@ export function engine({
       const vec = segments.get(segments.length - 1);
       impactParticleSystem.emit(vec.x, vec.y);
       segments.remove(segments.length - 1);
-      yield* coroutines.waitForTime(100);
+      yield* coroutines.waitForTime(50);
     }
     loopState.timeScale = 1;
     startScreenShake(0, 1);
@@ -2305,7 +2309,7 @@ export function engine({
     exitLightParticleSystem.reset();
     acquirePickupParticleSystem.reset();
     if (replay.mode !== ReplayMode.Playback) {
-      startAction(fadeMusic(0, 1000), Action.FadeMusic);
+      startAction(fadeMusic(0, 500), Action.FadeMusic);
       if (isStartLevel) {
         playSound(Sound.doorOpenHuge);
       } else if (es.level === LEVEL_99 || es.level === VARIANT_LEVEL_99 || es.level.playWinSound) {
@@ -2653,11 +2657,9 @@ export function engine({
     preyList.addFlagAt(x, y, FLAG_PREY_TRAPPED);
     preyList.addFlagAt(x, y, FLAG_PREY_STUNNED);
     preyList.addFlagAt(x, y, FLAG_PREY_ELECTROCUTED);
-    yield* actions.waitForTime(500);
+    yield* actions.waitForTime(250);
     if (!preyList.existsAt(x, y)) return;
     preyList.remove(x, y);
-    const smokeLifetime = lerp(SMOKE_LIFETIME * 0.5, SMOKE_LIFETIME, Math.random());
-    smoke.add(x, y, smokeLifetime, SpritesheetRange.BigSmokeActive, SmokeType.Large);
     spawnLegendaryItem(x, y);
     drawState.shouldDrawActionFG = true;
     drawState.shouldDrawApples = true;
@@ -2697,7 +2699,7 @@ export function engine({
     loopState.timeScale = 0;
     musicPlayer.setVolume(0);
     musicPlayer.pause(es.level.musicTrack);
-    yield* actions.waitForTime(1300);
+    yield* actions.waitForTime(700);
     state.isDeathIlluminating = false;
     loopState.timeScale = 1;
     applyDamage(5);
@@ -3337,7 +3339,7 @@ export function engine({
     state.isLost = true;
     state.timeSinceHurt = 0;
     yield null;
-    yield* actions.waitForTime(HURT_FORGIVENESS_TIME * 2);
+    yield* actions.waitForTime(HURT_FORGIVENESS_TIME);
     yield null;
     showGameOver();
     clearAction(Action.GameOver);
@@ -3396,12 +3398,12 @@ export function engine({
       yield* coroutines.waitForTime(1000);
       proceedToNextReplayClip();
     } else if (state.gameMode === GameMode.Cobra) {
-      startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
+      startAction(fadeMusic(0.3, 500), Action.FadeMusic);
       clearUI();
       UI.clearLabels();
       onGameOverCobra();
     } else {
-      startAction(fadeMusic(0.3, 1000), Action.FadeMusic);
+      startAction(fadeMusic(0.3, 500), Action.FadeMusic);
       renderScoreUI(stats.score);
       onGameOver();
     }

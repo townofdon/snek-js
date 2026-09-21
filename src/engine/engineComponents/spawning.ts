@@ -22,6 +22,7 @@ import {
   ThreatFlag,
   RemovalReason,
   ExplosionType,
+  SmokeType,
 } from "@/types";
 import {
   ANIMATIONS,
@@ -51,6 +52,7 @@ import {
   LASER_WARN_LIFETIME,
   PICKUP_LEGENDARY_ITEMS,
   PICKUP_MEAT_ITEMS,
+  SMOKE_LIFETIME,
 } from "@/constants";
 import { AnimationList } from "@/collections/animationList";
 import { AppleList } from "@/collections/appleList";
@@ -85,6 +87,7 @@ interface EngineSpawningArgs {
   threats: AnimationList,
   preyList: PreyList,
   puffs: AnimationList,
+  smoke: AnimationList,
   explosions: AnimationList,
   shieldSpawns: AnimationList,
   pickupOutlines: AnimationList,
@@ -109,6 +112,7 @@ export function engineSpawning({
   shieldSpawns,
   pickupOutlines,
   puffs,
+  smoke,
   explosions,
   openDoors,
   playSound,
@@ -623,8 +627,21 @@ export function engineSpawning({
 
   function spawnExplosion(x: number, y: number) {
     const lifetime = ANIMATIONS[Image.Explosion3Sheet].frames * ANIMATIONS[Image.Explosion3Sheet].timePerFrame;
-    explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large);
+    explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large, { replaceExisting: true });
     explosions.addFlagAt(x, y, ThreatFlag.NoDamage);
+  }
+
+  function spawnSmoke(x: number, y: number, type: SmokeType) {
+    if (type === SmokeType.Large) {
+      const smokeLifetime = lerp(SMOKE_LIFETIME * 0.5, SMOKE_LIFETIME, Math.random());
+      smoke.add(x, y, smokeLifetime, SpritesheetRange.BigSmokeActive, SmokeType.Large, { replaceExisting: true });
+    } else if (type === SmokeType.LargeDissipate) {
+      const { frames, timePerFrame } = ANIMATIONS[SpritesheetRange.BigSmokeActive];
+      smoke.add(x, y, frames * timePerFrame, SpritesheetRange.BigSmokeOff, SmokeType.LargeDissipate);
+    } {
+      const smokeLifetime = lerp(SMOKE_LIFETIME * 0.5, SMOKE_LIFETIME, Math.random());
+      smoke.add(x, y, smokeLifetime, Image.SmokeSheet, SmokeType.Small);
+    }
   }
 
   return {
@@ -635,6 +652,7 @@ export function engineSpawning({
     spawnLegendaryItem,
     spawnMeatItem,
     spawnPuff,
+    spawnSmoke,
     spawnExplosion,
   };
 }

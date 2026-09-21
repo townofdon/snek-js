@@ -118,7 +118,6 @@ export const sketch = (p5: P5) => {
   const actionIds: Record<ActionKey, string | null> = { ...DEFAULT_ACTION_IDS_MAP };
   const startAction = (enumerator: IEnumerator, actionKey: Action, force = false) => {
     actions.stop(actionIds[actionKey]);
-    actions.start(enumerator);
     actionIds[actionKey] = actions.start(enumerator);
   }
   const stopAction = (actionKey: Action) => {

@@ -36,10 +36,10 @@ export class Coroutines {
         try { this._coroutines[i].return(); } catch { /* fail silently */ }
         this._coroutines[i] = null;
         this._coroutinesMap[id] = null;
-        this._coroutines = this._coroutines.slice(0, i).concat(this._coroutines.slice(i + 1))
         return;
       }
     }
+    this._coroutines = this._coroutines.filter(c => !!c);
     this._coroutinesMap[id] = null;
   }
 

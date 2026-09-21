@@ -139,7 +139,6 @@ export const sketch = (p5: P5) => {
       return;
     }
     actions.stop(actionIds[actionKey]);
-    actions.start(enumerator);
     actionIds[actionKey] = actions.start(enumerator);
   }
   const stopAction = (actionKey: Action) => {
@@ -774,8 +773,8 @@ export const sketch = (p5: P5) => {
     uiBindings.onPause();
     emitUIEvent(InputAction.Pause, Initiator.UI);
     sfx.play(Sound.unlock, 0.8);
-    startAction(changeMusicLowpass(0.07, 1500, 0.2), Action.ChangeMusicLowpass, true);
-    startAction(fadeMusic(0.6, 2000), Action.FadeMusic, true);
+    startAction(changeMusicLowpass(0.07, 750, 0.2), Action.ChangeMusicLowpass, true);
+    startAction(fadeMusic(0.6, 1000), Action.FadeMusic, true);
   }
 
   function unpause() {
@@ -785,8 +784,8 @@ export const sketch = (p5: P5) => {
     emitUIEvent(InputAction.UnPause, Initiator.UI);
     UI.hideSettingsMenu();
     sfx.play(Sound.unlock, 0.8);
-    startAction(changeMusicLowpass(1, 1500), Action.ChangeMusicLowpass, true);
-    startAction(fadeMusic(1, 1000), Action.FadeMusic, true);
+    startAction(changeMusicLowpass(1, 750), Action.ChangeMusicLowpass, true);
+    startAction(fadeMusic(1, 500), Action.FadeMusic, true);
     modal.hide();
   }
 

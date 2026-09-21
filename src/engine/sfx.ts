@@ -79,6 +79,7 @@ export class SFX implements ISFX {
         return;
       }
       this.sounds[sound].volume(volume);
+      this.sounds[sound].loop(false);
       this.sounds[sound].stop();
       this.sounds[sound].play();
     } catch (err) {

@@ -90,6 +90,7 @@ export function * startSceneDialogText({ p5, gfx, sfx, coroutines, fonts, text, 
   }
 
   if (delayAfter && delayAfter > 0) {
+    p5.keyIsPressed = false;
     let t = 0;
     while (t < delayAfter) {
       const skip = (
