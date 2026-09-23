@@ -5,6 +5,11 @@ import { BossIntro, BossStartArgs, Image, MapAnnotation, SnekMove, Sound } from 
 import { getCoordIndex, getCoordIndex2, getCoordX, getCoordY } from "@/utils";
 
 const SNEK_ENTER_SPEED = 50;
+const BOSS_QUOTES = [
+  "Get outa my lab!!",
+  "No sneks allowed in here.",
+  "Prepare to meet your maker!",
+];
 
 export class TechnicianStartScene extends BaseBossScene {
   private showBoss = false;
@@ -112,16 +117,18 @@ export class TechnicianStartScene extends BaseBossScene {
 
     if (this.type === BossIntro.Initial) {
       const rect = this.getRect(0.5, 0.575, 2 * 250, 2 * 250);
-      yield* startSceneDialogText({
-        p5: this.props.p5,
-        gfx: this.props.gfx,
-        sfx: this.sfx,
-        coroutines: this.props.coroutines,
-        fonts: this.props.fonts,
-        text: "Prepare to meet your maker!",
-        rect,
-        delayAfter: 1500,
-      } satisfies StartSceneDialogTextArgs);
+      for (let i = 0; i < BOSS_QUOTES.length; i++) {
+        yield* startSceneDialogText({
+          p5: this.props.p5,
+          gfx: this.props.gfx,
+          sfx: this.sfx,
+          coroutines: this.props.coroutines,
+          fonts: this.props.fonts,
+          text: BOSS_QUOTES[i],
+          rect,
+          delayAfter: 1500,
+        } satisfies StartSceneDialogTextArgs);
+      }
     }
 
     sfx.play(Sound.switch);

@@ -93,9 +93,10 @@ export class SFX implements ISFX {
         console.warn(`Sound not loaded: ${sound}`);
         return;
       }
+      this.sounds[sound].volume(volume);
       this.sounds[sound].loop(true);
       this.sounds[sound].stop();
-      this.play(sound, volume);
+      this.sounds[sound].play();
     } catch (err) {
       console.error(err);
     }
