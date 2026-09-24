@@ -845,6 +845,13 @@ export function engineRendering({
         } else if (threats.existsAtCoord(coord, ThreatType.Saw) && !state.isButtonPressed) {
           const elapsed = threats.getElapsedByCoord(coord);
           spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.SawActive, x, y, elapsed);
+        } else if (threats.existsAtCoord(coord, ThreatType.ElectricCoil)) {
+          const elapsed = threats.getElapsedByCoord(coord);
+          const blinking = shouldBlinkExpiringPickup(threats.getTimeRemaining(x, y));
+          if (blinking) gfxFGAction.push();
+          if (blinking) gfxFGAction.tint(0, 0, 0, 255);
+          spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.ElectricCoil, x, y, elapsed);
+          if (blinking) gfxFGAction.pop();
         } else if (threats.existsAtCoord(coord, ThreatType.Flamethrower) && !state.isButtonPressed) {
           // flamethrower base
           switch (getTileDir(x, y, es)) {

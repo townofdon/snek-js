@@ -998,6 +998,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
               break;
           }
           break;
+        case ThreatType.ElectricCoil:
+          drawSprite1x1(gfx, Image.ThreatSheet16, x, y, Threat16Frame.ElectricCoil0 - 1);
+          break;
         case ThreatType.None:
         default:
           break;

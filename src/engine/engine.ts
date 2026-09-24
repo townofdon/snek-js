@@ -351,6 +351,7 @@ export function engine({
         threats.restart(x, y);
         drawState.shouldRecalculateLasers = true;
         drawState.shouldDrawActionFG = true;
+        playSound(Sound.switch);
         return false;
       }
     }
@@ -410,12 +411,12 @@ export function engine({
   };
   const segments = new VectorList(); // snake segments
   const apples = new AppleList(); // food that the snake can eat to grow and score points
-  const threats = new AnimationList({ onAdd: onThreatAdd, onRemove: onThreatRemove, onLifetimeExpire: onThreatLifetimeExpire });
-  const doorsOpening = new AnimationList();
-  const fireTiles = new AnimationList();
-  const explosions = new AnimationList();
-  const puffs = new AnimationList();
-  const smoke = new AnimationList({ onRemove: onSmokeRemove });
+  const threats = new AnimationList({ onAdd: onThreatAdd, onRemove: onThreatRemove, onLifetimeExpire: onThreatLifetimeExpire }).setName('threats');
+  const doorsOpening = new AnimationList().setName('doorsOpening');
+  const fireTiles = new AnimationList().setName('fireTiles');
+  const explosions = new AnimationList().setName('explosions');
+  const puffs = new AnimationList().setName('puffs');
+  const smoke = new AnimationList({ onRemove: onSmokeRemove }).setName('smoke');
   const pointsAnim = new AnimationList();
   const shields = new AnimationList();
   const shieldSpawns = new AnimationList({ onLifetimeExpire: onShieldSpawnLifetimeExpire });
@@ -540,13 +541,16 @@ export function engine({
 
   const {
     spawnApple,
-    spawnOnlyApple,
+    spawnRegularApple,
     spawnArmorPickup,
     spawnMeatItem,
     spawnLegendaryItem,
-    spawnPuff,
-    spawnSmoke,
-    spawnExplosion,
+    spawnPuffAt,
+    spawnSmokeAt,
+    spawnThreat,
+    spawnHealthPickup,
+    spawnWeightLossPickup,
+    spawnExplosionAt,
     chooseSpawnLocation,
   } = engineSpawning({
     p5,
@@ -923,12 +927,16 @@ export function engine({
       spriteRenderer,
       difficulty: es.difficulty.index,
       sfx,
+      musicPlayer,
       startAction,
-      spawnOnlyApple,
+      spawnRegularApple,
       openDoors,
-      spawnPuff,
-      spawnSmoke,
-      spawnExplosion,
+      spawnPuffAt,
+      spawnSmokeAt,
+      spawnThreat,
+      spawnHealthPickup,
+      spawnWeightLossPickup,
+      spawnExplosionAt,
     } satisfies BossConstructorArgs);
 
     const bossTransition: (() => Promise<void> | undefined) = (() => {
@@ -957,6 +965,9 @@ export function engine({
             state.isMoving = true;
             onTriggerWinGame();
           }
+          if (es.level.moveAtLevelStart) {
+            state.isMoving = true;
+          }
           boss.current?.start();
           renderDifficultyUI();
           renderHeartsUI();
@@ -979,6 +990,9 @@ export function engine({
               musicPlayer.stopAllTracks();
             }
             musicPlayer.play(es.level.musicTrack);
+          }
+          if (es.level.moveAtLevelStart) {
+            state.isMoving = true;
           }
           boss.current?.start();
           startLogicLoop();
@@ -1091,6 +1105,9 @@ export function engine({
             threats.add(x, y, forever, SpritesheetRange.FlamethrowerActive, ThreatType.Flamethrower, {
               disabledImg: SpritesheetRange.FlamethrowerOff,
             });
+            break;
+          case ThreatType.ElectricCoil:
+            threats.add(x, y, forever, SpritesheetRange.ElectricCoil, ThreatType.ElectricCoil);
             break;
           default:
             break;
@@ -1663,38 +1680,38 @@ export function engine({
     drawState.shouldDrawActionFG = false;
     drawState.shouldDrawKeysLocks = false;
 
-    let animationDeltaTime = p5.deltaTime * Math.abs(Math.sign(loopState.deltaTime));
+    let animDeltaTime = p5.deltaTime * Math.abs(Math.sign(loopState.deltaTime));
     if (boss.current) {
-      animationDeltaTime = p5.deltaTime;
+      animDeltaTime = p5.deltaTime;
     }
-    if (!state.isInvertedColors && pointsAnim.tick(animationDeltaTime)) {
+    if (!state.isInvertedColors && pointsAnim.tick(animDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (doorsOpening.tick(animationDeltaTime)) {
+    if (doorsOpening.tick(animDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (!state.isInvertedColors && threats.tick(animationDeltaTime)) {
+    if (!state.isInvertedColors && threats.tick(p5.deltaTime * Math.abs(Math.sign(loopState.deltaTime)))) {
       drawState.shouldDrawActionFG = true;
     }
-    if (fireTiles.tick(animationDeltaTime)) {
+    if (fireTiles.tick(animDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (explosions.tick(animationDeltaTime)) {
+    if (explosions.tick(animDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (puffs.tick(animationDeltaTime)) {
+    if (puffs.tick(animDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (smoke.tick(animationDeltaTime)) {
+    if (smoke.tick(animDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (shields.tick(animationDeltaTime)) {
+    if (shields.tick(animDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (shieldSpawns.tick(animationDeltaTime)) {
+    if (shieldSpawns.tick(animDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (pickupOutlines.tick(animationDeltaTime)) {
+    if (pickupOutlines.tick(animDeltaTime)) {
       // draw to main gfx
     }
 
@@ -2046,11 +2063,11 @@ export function engine({
     if (state.isExited) return false;
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+    const isInvincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     const coord = getCoordIndex(vec);
     if (threats.existsAtCoord(coord, ThreatType.Mine) || threats.existsAtCoord(coord, ThreatType.Bomb)) {
       threats.removeByCoord(coord, RemovalReason.Explode);
       // check invincible
-      const isInvincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
       if (isInvincible) {
         return false;
       }
@@ -2064,6 +2081,9 @@ export function engine({
       }
       state.lastHurtBy = DamageType.HitMine;
       return true;
+    }
+    if (isInvincible && threats.existsAtCoord(coord, ThreatType.ElectricCoil)) {
+      threats.removeByCoord(coord, RemovalReason.Explode);
     }
     return false;
   }
@@ -2384,6 +2404,8 @@ export function engine({
     if (DISABLE_TRANSITIONS) {
       gotoNextLevel();
     } else if (getIsStartLevel()) {
+      gotoNextLevel();
+    } else if (es.level.quickExit) {
       gotoNextLevel();
     } else if (es.level.type === LevelType.Maze) {
       gotoNextLevel();
@@ -2791,10 +2813,14 @@ export function engine({
     let segmentAtCoord = false;
     let laserType = LaserType.Blue;
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
-      if (es.lasersMap[coord]?.damageActive && (coord === getCoordIndex(player.position) || segments.existsAtCoord(coord))) {
+      const playerCoord = getCoordIndex(player.position);
+      if (es.lasersMap[coord]?.damageActive && (coord === playerCoord || segments.existsAtCoord(coord))) {
         segmentAtCoord ||= segments.existsAtCoord(coord);
         overlappingLaser = true;
         if (es.lasersMap[coord].type === LaserType.Red) { laserType = LaserType.Red; }
+      }
+      if (coord === playerCoord && es.threatsMap[coord] === ThreatType.ElectricCoil && !byCoord(coord)(threats.hasFlagAt, ThreatFlag.NoDamage)) {
+        overlappingLaser = true;
       }
     }
     if (overlappingLaser) {
@@ -2829,8 +2855,13 @@ export function engine({
           byCoord(laserCell.coordDiodeA)(threats.addFlagAt, ThreatFlag.Crit);
           byCoord(laserCell.coordDiodeB)(threats.addFlagAt, ThreatFlag.Crit);
         }
+        // flag electric coil as non-damaging
+        if (isPlayerAtCoord && es.threatsMap[coord] === ThreatType.ElectricCoil) {
+          byCoord(coord)(threats.addFlagAt, ThreatFlag.NoDamage);
+        }
       }
     }
+    // electrocute the snakey
     for (let i = 0; i < times; i++) {
       state.timeSinceElectrocutionStart = 0;
       sfx.playLoop(Sound.electrocuteLoop);
@@ -2842,6 +2873,13 @@ export function engine({
       } else {
         state.lastHurtBy = DamageType.Electrocution;
         applyDamage(1);
+      }
+    }
+    // remove electric coil if present
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      const isPlayerAtCoord = coord === getCoordIndex(player.position) || segments.existsAtCoord(coord);
+      if (isPlayerAtCoord && es.threatsMap[coord] === ThreatType.ElectricCoil) {
+        threats.removeByCoord(coord, RemovalReason.Explode);
       }
     }
     // do not yield so that we guarantee this routine completely finishes before recalculateLasersMap() is called again.

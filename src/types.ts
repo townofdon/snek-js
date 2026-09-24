@@ -479,6 +479,8 @@ export interface Level{
   disableAppleSpawn?: boolean,
   disableNormalLoseMessages?: boolean,
   disableWallCollision?: boolean,
+  quickExit?: boolean,
+  moveAtLevelStart?: boolean,
   showTitle?: boolean,
   showQuoteOnLevelWin?: boolean,
   isWinGame?: boolean,
@@ -802,6 +804,7 @@ export enum ThreatType {
   WallSpikes,
   Saw,
   Flamethrower,
+  ElectricCoil,
 }
 export const THREAT_TYPE_MAX = Math.max(...Object.values(ThreatType).filter(v => typeof v === 'number')) + 1;
 
@@ -902,6 +905,7 @@ export enum FloodFillTile {
   ThreatWallSpikes,
   ThreatSaw,
   ThreatFlamethrower,
+  ThreatElectricCoil,
   PickupInvincibility,
   PickupReversibility,
   PickupArmor,
@@ -1081,7 +1085,7 @@ export interface IMusicPlayer {
   getVolume: () => void,
   isPlaying: (track?: MusicTrack) => boolean,
   play: (track?: MusicTrack, volume?: number, createAnalyser?: boolean, trackElapsed?: boolean) => Promise<AudioInfo>,
-  stopAllTracks: (args: { exclude?: MusicTrack[], unload?: boolean }) => void,
+  stopAllTracks: (args?: { exclude?: MusicTrack[], unload?: boolean }) => void,
   pause: (track?: MusicTrack) => void,
   halfSpeed: (track?: MusicTrack) => void,
   normalSpeed: (track?: MusicTrack) => void,
@@ -1372,6 +1376,7 @@ export enum SpritesheetRange {
   BossTileCircuitHit,
   BossTechnicianIdle,
   BossTechnicianHurt,
+  ElectricCoil,
 }
 export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange).filter(v => typeof v === 'number')) + 1;
 
@@ -1493,6 +1498,10 @@ export enum Threat16Frame {
   WarningSignYellow,
   WarningSignRed0,
   WarningSignRed1,
+  ElectricCoil0,
+  ElectricCoil1,
+  ElectricCoil2,
+  ElectricCoil3,
 }
 export const FRAME_COUNT_THREAT_16 = Math.max(...Object.values(Threat16Frame).filter(v => typeof v === 'number'));
 

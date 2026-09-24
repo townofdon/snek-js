@@ -11,4 +11,5 @@ export const BOSS_LEVEL_THE_TECHNICIAN = v2Level({
   pickupDrops: {},
   pickupDropsByFrame: {},
   startDark: true,
+  quickExit: true,
 }) satisfies Level;

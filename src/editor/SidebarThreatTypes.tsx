@@ -29,6 +29,7 @@ export const SidebarThreatTypes = ({ activeThreatType, options, setThreatType }:
     [ThreatType.WallSpikes]: useRef<HTMLCanvasElement>(null),
     [ThreatType.Saw]: useRef<HTMLCanvasElement>(null),
     [ThreatType.Flamethrower]: useRef<HTMLCanvasElement>(null),
+    [ThreatType.ElectricCoil]: useRef<HTMLCanvasElement>(null),
   } satisfies Record<ThreatType, React.MutableRefObject<HTMLCanvasElement>>;
 
   useLayoutEffect(() => {
@@ -65,6 +66,7 @@ export const SidebarThreatTypes = ({ activeThreatType, options, setThreatType }:
       [ThreatType.WallSpikes]: String(i++),
       [ThreatType.Saw]: String(i++),
       [ThreatType.Flamethrower]: String(i++),
+      [ThreatType.ElectricCoil]: String(i++),
     } satisfies Record<ThreatType, string>)[threatType];
     const color = threatType === activeThreatType ? '#ffffff' : '#444'
     return (
@@ -106,6 +108,7 @@ export const SidebarThreatTypes = ({ activeThreatType, options, setThreatType }:
           {renderButton(ThreatType.WallSpikes)}
           {renderButton(ThreatType.Saw)}
           {renderButton(ThreatType.Flamethrower)}
+          {renderButton(ThreatType.ElectricCoil)}
         </div>
       </Stack>
     </div>
@@ -124,6 +127,7 @@ const threatTypeLabel = (threatType: ThreatType) => {
     [ThreatType.WallSpikes]: "Wall Spikes",
     [ThreatType.Saw]: "Saw",
     [ThreatType.Flamethrower]: "Flamethrower",
+    [ThreatType.ElectricCoil]: "Electric Coil",
   } satisfies Record<ThreatType, string>)[threatType];
   return tooltipText || 'Unknown';
 }

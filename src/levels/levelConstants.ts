@@ -266,10 +266,11 @@ export enum TILECHAR {
   WallSpikes = '>',
   Saw = ']',
   Flamethrower = '{',
+  ElectricCoil = 'S',
   Button = '?',
   Pipe = 'P',
   PlayerSpawn = 'O',
-  // available chars: SU;',.}|/:"()
+  // available chars: U;',.}|/:"()
 }
 
 // validate TILECHAR
@@ -539,6 +540,7 @@ export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<FloodFillTile, BarrierType>
   [FloodFillTile.PickupWeightLossPill]: 0,
   [FloodFillTile.SwitchButton]: 0,
   [FloodFillTile.Pipe]: 0,
+  [FloodFillTile.ThreatElectricCoil]: 0,
 } satisfies Record<FloodFillTile, BarrierType>;
 
 type PowerupPickup =
@@ -618,7 +620,8 @@ type ThreatTileChar =
   | TILECHAR.WallSpikes
   | TILECHAR.Saw
   | TILECHAR.Flamethrower
-  | TILECHAR.Barricade;
+  | TILECHAR.Barricade
+  | TILECHAR.ElectricCoil;
 
 type ThreatFloodFillTile =
   | FloodFillTile.None
@@ -643,6 +646,7 @@ export const THREAT_TYPE_TO_TILE_CHAR: Record<ThreatType, TILECHAR> = {
   [ThreatType.WallSpikes]: TILECHAR.WallSpikes,
   [ThreatType.Saw]: TILECHAR.Saw,
   [ThreatType.Flamethrower]: TILECHAR.Flamethrower,
+  [ThreatType.ElectricCoil]: TILECHAR.ElectricCoil,
 } satisfies Record<ThreatType, TILECHAR>;
 
 export const TILE_CHAR_TO_THREAT_TYPE = {
@@ -655,6 +659,7 @@ export const TILE_CHAR_TO_THREAT_TYPE = {
   [TILECHAR.WallSpikes]: ThreatType.WallSpikes,
   [TILECHAR.Saw]: ThreatType.Saw,
   [TILECHAR.Flamethrower]: ThreatType.Flamethrower,
+  [TILECHAR.ElectricCoil]: ThreatType.ElectricCoil,
 } satisfies Record<ThreatTileChar, ThreatType>;
 
 export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> = {
@@ -668,6 +673,7 @@ export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> =
   [ThreatType.WallSpikes]: FloodFillTile.ThreatWallSpikes,
   [ThreatType.Saw]: FloodFillTile.ThreatSaw,
   [ThreatType.Flamethrower]: FloodFillTile.ThreatFlamethrower,
+  [ThreatType.ElectricCoil]: FloodFillTile.ThreatElectricCoil,
 } satisfies Record<ThreatType, FloodFillTile>
 
 export const FLOOD_FILL_TILE_TO_THREAT_TYPE: Record<ThreatFloodFillTile, ThreatType> = {

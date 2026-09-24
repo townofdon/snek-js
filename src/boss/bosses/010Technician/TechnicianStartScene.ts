@@ -30,6 +30,7 @@ export class TechnicianStartScene extends BaseBossScene {
 
     // snek entreunt
     if (this.type === BossIntro.Initial) {
+      gameState.isMoving = true;
       const moves: SnekMove[] = [
         { type: 'x', x: 5},
         { type: 'y', y: -3},
@@ -96,7 +97,7 @@ export class TechnicianStartScene extends BaseBossScene {
         }
       }
       yield* coroutines.waitForTime(500, undefined, true);
-      sfx.play(Sound.switchOff);
+      sfx.play(Sound.switch);
     }
 
     this.showBoss = true;
@@ -136,6 +137,7 @@ export class TechnicianStartScene extends BaseBossScene {
     es.deathIlluminationMap = {};
     yield* coroutines.waitForTime(500, undefined, true);
 
+    gameState.isMoving = false;
     this.cleanup();
   }
 

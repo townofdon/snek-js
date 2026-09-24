@@ -11,7 +11,7 @@ interface AnimationListConstructorOptions {
   onRemove?: (coord: number, reason: RemovalReason, type: number) => void,
 }
 
-interface AddItemOptions {
+export interface AddItemOptions {
   /**
    * Optional caller-provided flags to set per animation item.
    */
@@ -44,6 +44,7 @@ const DEFAULT_INTERNAL_FLAGS = 0 | FLAG_ENABLED;
  * Simple-to-use interface.
  */
 export class AnimationList implements ICollection, IFlaggable, IRemovable {
+  private name: string;
   private x: Uint8Array;
   private y: Uint8Array;
   private free: Uint8Array;
@@ -88,6 +89,11 @@ export class AnimationList implements ICollection, IFlaggable, IRemovable {
     this.disabledImg = {};
     this.numTimesDidChange = 0;
     this.reset();
+  }
+
+  public setName = (incoming: string) => {
+    this.name = incoming;
+    return this;
   }
 
   public reset = () => {
@@ -166,7 +172,7 @@ export class AnimationList implements ICollection, IFlaggable, IRemovable {
       if (shouldBlinkExpiringPickup(this.lifetime[i] - prevElapsed) !== shouldBlinkExpiringPickup(this.lifetime[i] - this.elapsed[i])) {
         didChange = true;
       }
-      if (this.elapsed[i] >= this.lifetime[i] || !this.lifetime[i]) {
+      if (this.elapsed[i] >= this.lifetime[i] || this.lifetime[i] <= 0) {
         const x = this.x[i];
         const y = this.y[i];
         const coord = getCoordIndex2(x, y);
@@ -195,33 +201,36 @@ export class AnimationList implements ICollection, IFlaggable, IRemovable {
     this.validate();
     if (!img) throw new Error(`invalid img value. val=${img}`);
     const coord = getCoordIndex2(x, y);
-    if (this.existsAt(x, y)) {
-      if (replaceExisting) {
-        this.remove(x, y, RemovalReason.Overwrite);
-      } else {
-        return;
+    let idx = this.getIndex(x, y);
+    if (idx >= 0 && !replaceExisting) {
+      return;
+    }
+    if (idx < 0) {
+      for (let i = 0; i < this.free.length; i++) {
+        if (this.free[i]) {
+          idx = i;
+          break;
+        }
       }
     }
-    for (let i = 0; i < this.free.length; i++) {
-      if (this.free[i]) {
-        this.x[i] = x;
-        this.y[i] = y;
-        this.free[i] = 0;
-        this.elapsed[i] = 0;
-        this.coordMap[coord] = true;
-        this.lifetime[i] = lifetime;
-        this.img[i] = img;
-        this.disabledImg[i] = disabledImg || undefined;
-        this.type[i] = type;
-        this.flags[i] = flags;
-        this.internalFlags[i] = DEFAULT_INTERNAL_FLAGS;
-        this.recalculateLength();
-        if (!enabled) {
-          this._removeInternalFlag(i, FLAG_ENABLED);
-        }
-        this.onAdd(getCoordIndex2(x, y), type);
-        return;
+    if (idx >= 0) {
+      this.free[idx] = 0;
+      this.x[idx] = x;
+      this.y[idx] = y;
+      this.elapsed[idx] = 0;
+      this.coordMap[coord] = true;
+      this.lifetime[idx] = lifetime;
+      this.img[idx] = img;
+      this.disabledImg[idx] = disabledImg || undefined;
+      this.type[idx] = type;
+      this.flags[idx] = flags;
+      this.internalFlags[idx] = DEFAULT_INTERNAL_FLAGS;
+      this.recalculateLength();
+      if (!enabled) {
+        this._removeInternalFlag(idx, FLAG_ENABLED);
       }
+      this.onAdd(getCoordIndex2(x, y), type);
+      return;
     }
     // no free elements - this should never happen.
     if (IS_LOCALHOST) {
@@ -258,13 +267,6 @@ export class AnimationList implements ICollection, IFlaggable, IRemovable {
         this.removeByIndex(i, reason);
         return;
       }
-    }
-
-    // item not found
-    if (IS_LOCALHOST) {
-      console.warn(
-        `[AnimationList] remove() could not find matching item for x=${x},y=${y}`,
-      );
     }
   };
 

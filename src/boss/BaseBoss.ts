@@ -16,6 +16,8 @@ import {
   ISFX,
   IVectorList,
   SmokeType,
+  ThreatType,
+  IMusicPlayer,
 } from "@/types";
 import { Renderer } from "@/engine/renderer";
 import { SpriteRenderer } from "@/engine/spriteRenderer";
@@ -36,12 +38,16 @@ export interface BossConstructorArgs {
   spriteRenderer: SpriteRenderer;
   difficulty: DifficultyIndex;
   sfx: ISFX;
+  musicPlayer: IMusicPlayer;
   startAction: (enumerator: IEnumerator, actionKey: Action) => void,
   openDoors: () => void;
-  spawnOnlyApple: () => number;
-  spawnPuff: (x: number, y: number) => void;
-  spawnSmoke: (x: number, y: number, type: SmokeType) => void;
-  spawnExplosion: (x: number, y: number) => void;
+  spawnRegularApple: () => number;
+  spawnPuffAt: (x: number, y: number) => void;
+  spawnSmokeAt: (x: number, y: number, type: SmokeType) => void;
+  spawnThreat: (threatType: ThreatType, numTries?: number, predicate?: (coord: number) => boolean) => number;
+  spawnHealthPickup: (predicate?: (coord: number) => boolean) => number,
+  spawnWeightLossPickup: (predicate?: (coord: number) => boolean) => number,
+  spawnExplosionAt: (x: number, y: number) => void;
 }
 
 export abstract class BaseBoss implements Boss {
@@ -58,12 +64,16 @@ export abstract class BaseBoss implements Boss {
   protected readonly spriteRenderer: SpriteRenderer;
   protected readonly difficulty: DifficultyIndex;
   protected readonly sfx: ISFX;
+  protected readonly musicPlayer: IMusicPlayer;
   protected readonly startAction: (enumerator: IEnumerator, actionKey: Action) => void;
   protected readonly openDoors: () => void;
-  protected readonly spawnOnlyApple: () => number;
-  protected readonly spawnPuff: (x: number, y: number) => void;
-  protected readonly spawnSmoke: (x: number, y: number, type: SmokeType) => void;
-  protected readonly spawnExplosion: (x: number, y: number) => void;
+  protected readonly spawnRegularApple: () => number;
+  protected readonly spawnPuffAt: (x: number, y: number) => void;
+  protected readonly spawnSmokeAt: (x: number, y: number, type: SmokeType) => void;
+  protected readonly spawnThreat: (threatType: ThreatType, lifetime?: number, predicate?: (coord: number) => boolean) => number;
+  protected readonly spawnHealthPickup: (predicate?: (coord: number) => boolean) => number;
+  protected readonly spawnWeightLossPickup: (predicate?: (coord: number) => boolean) => number;
+  protected readonly spawnExplosionAt: (x: number, y: number) => void;
 
   protected readonly coroutines: Coroutines;
 
@@ -81,12 +91,16 @@ export abstract class BaseBoss implements Boss {
     this.spriteRenderer = args.spriteRenderer;
     this.difficulty = args.difficulty;
     this.sfx = args.sfx;
+    this.musicPlayer = args.musicPlayer;
     this.startAction = args.startAction;
-    this.spawnOnlyApple = args.spawnOnlyApple;
+    this.spawnRegularApple = args.spawnRegularApple;
     this.openDoors = args.openDoors;
-    this.spawnPuff = args.spawnPuff;
-    this.spawnSmoke = args.spawnSmoke;
-    this.spawnExplosion = args.spawnExplosion;
+    this.spawnPuffAt = args.spawnPuffAt;
+    this.spawnSmokeAt = args.spawnSmokeAt;
+    this.spawnThreat = args.spawnThreat;
+    this.spawnHealthPickup = args.spawnHealthPickup;
+    this.spawnWeightLossPickup = args.spawnWeightLossPickup;
+    this.spawnExplosionAt = args.spawnExplosionAt;
     this.coroutines = new Coroutines(args.p5);
   }
 

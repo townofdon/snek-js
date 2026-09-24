@@ -54,7 +54,7 @@ import {
   PICKUP_MEAT_ITEMS,
   SMOKE_LIFETIME,
 } from "@/constants";
-import { AnimationList } from "@/collections/animationList";
+import { AddItemOptions, AnimationList } from "@/collections/animationList";
 import { AppleList } from "@/collections/appleList";
 import {
   clamp,
@@ -158,7 +158,7 @@ export function engineSpawning({
     maybeSpawnPrey();
   }
 
-  function spawnOnlyApple(): number {
+  function spawnRegularApple(): number {
     if (replay.mode === ReplayMode.Playback) {
       return -1;
     }
@@ -283,7 +283,7 @@ export function engineSpawning({
     if (coord < 0) {
       return false
     }
-    spawnHealthPickup(getCoordX(coord), getCoordY(coord));
+    spawnHealthPickupAt(getCoordX(coord), getCoordY(coord));
     return true;
   }
 
@@ -313,7 +313,7 @@ export function engineSpawning({
     if (coord < 0) {
       return false
     }
-    spawnWeightLossPickup(getCoordX(coord), getCoordY(coord));
+    spawnWeightLossPickupAt(getCoordX(coord), getCoordY(coord));
     return true;
   }
 
@@ -424,7 +424,7 @@ export function engineSpawning({
     playSound(Sound.shieldSpawn, 0.45);
   }
 
-  function chooseSpawnLocation(initialCoord = -1): number {
+  function chooseSpawnLocation(initialCoord = -1, predicate?: (coord: number) => boolean): number {
     if (initialCoord < 0) {
       initialCoord = getCoordIndex2(
         Math.floor(Math.random() * GRIDCOUNT_X - 2) + 1,
@@ -442,7 +442,8 @@ export function engineSpawning({
       );
     }
     const candidateFound = (x: number, y: number) => {
-      const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
+      const spawnedInsideOfSomething = (
+        es.barriersMap[getCoordIndex2(x, y)]
         || es.doorsMap[getCoordIndex2(x, y)]
         || es.nospawnsMap[getCoordIndex2(x, y)]
         || es.pickupsMap[getCoordIndex2(x, y)]
@@ -452,7 +453,9 @@ export function engineSpawning({
         || threats.existsAt(x, y)
         || apples.existsAt(x, y)
         || segments.containsCoord(getCoordIndex2(x, y))
-        || player.position.equals(x, y);
+        || player.position.equals(x, y)
+        || !(predicate?.(getCoordIndex2(x, y)) ?? true)
+      );
       return !spawnedInsideOfSomething;
     }
     const candidates = [initialCoord];
@@ -480,7 +483,16 @@ export function engineSpawning({
     return -1;
   }
 
-  function spawnHealthPickup(x: number, y: number) {
+  function spawnHealthPickup(predicate?: (coord: number) => boolean) {
+    const coord = chooseSpawnLocation(-1, predicate);
+    if (coord < 0) -1;
+    const x = getCoordX(coord);
+    const y = getCoordY(coord);
+    spawnHealthPickupAt(x, y);
+    return coord;
+  }
+
+  function spawnHealthPickupAt(x: number, y: number) {
     if (!apples.existsAt(x, y)) apples.add(x, y);
     es.pickupsMap[getCoordIndex2(x, y)] = {
       lifetime: PICKUP_LIFETIME_MS,
@@ -494,7 +506,16 @@ export function engineSpawning({
     }
   }
 
-  function spawnWeightLossPickup(x: number, y: number) {
+  function spawnWeightLossPickup(predicate?: (coord: number) => boolean) {
+    const coord = chooseSpawnLocation(-1, predicate);
+    if (coord < 0) -1;
+    const x = getCoordX(coord);
+    const y = getCoordY(coord);
+    spawnWeightLossPickupAt(x, y);
+    return coord;
+  }
+
+  function spawnWeightLossPickupAt(x: number, y: number) {
     if (!apples.existsAt(x, y)) apples.add(x, y);
     es.pickupsMap[getCoordIndex2(x, y)] = {
       lifetime: PICKUP_LIFETIME_MS,
@@ -523,41 +544,52 @@ export function engineSpawning({
     }
   }
 
-  function spawnThreat(threatType: ThreatType, numTries = 0) {
+  const spawnThreat: (threatType: ThreatType, lifetime?: number, predicate?: (coord: number) => boolean) => number =
+    function spawnThreatFn(threatType: ThreatType, lifetime?: number, predicate?: (coord: number) => boolean, numTries = 0) {
     const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
     const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
-    const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
+    const spawnedInsideOfSomething = (
+      es.barriersMap[getCoordIndex2(x, y)]
       || es.doorsMap[getCoordIndex2(x, y)]
       || es.nospawnsMap[getCoordIndex2(x, y)]
       || es.pickupsMap[getCoordIndex2(x, y)]
       || es.lasersMap[getCoordIndex2(x, y)]
       || es.pipesMap[getCoordIndex2(x, y)]
       || es.flamesMap[getCoordIndex2(x, y)]
+      || es.threatsMap[getCoordIndex2(x, y)]
       || threats.existsAt(x, y)
       || apples.existsAt(x, y)
       || segments.containsCoord(getCoordIndex2(x, y))
-      || player.position.equals(x, y);
+      || player.position.equals(x, y)
+      || !(predicate?.(getCoordIndex2(x, y)) ?? true)
+    );
     const spawnedTooCloseToPlayer = getManhattanDistance(x, y, player.position.x, player.position.y) < 5;
     if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
-      if (numTries < 30) spawnThreat(threatType, numTries + 1);
+      if (numTries < 30) spawnThreatFn(threatType, lifetime, predicate, numTries + 1);
     } else {
+      const opts: AddItemOptions = { replaceExisting: true };
       switch (threatType) {
         case ThreatType.Mine:
-          threats.add(x, y, PICKUP_LIFETIME_MS, Image.MineSheet, ThreatType.Mine);
+          threats.add(x, y, lifetime ?? PICKUP_LIFETIME_MS, Image.MineSheet, ThreatType.Mine, opts);
           break;
         case ThreatType.Bomb:
-          threats.add(x, y, PICKUP_LIFETIME_MS, SpritesheetRange.Bomb, ThreatType.Bomb);
+          threats.add(x, y, lifetime ?? PICKUP_LIFETIME_MS, SpritesheetRange.Bomb, ThreatType.Bomb, opts);
           break;
         case ThreatType.LaserDiode:
-          threats.add(x, y, LASER_WARN_LIFETIME, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode);
+          threats.add(x, y, lifetime ?? LASER_WARN_LIFETIME, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode, opts);
           threats.addFlagAt(x, y, ThreatFlag.Activating);
           break;
         case ThreatType.ExplodableBarrel:
-          threats.add(x, y, BARREL_WARN_LIFETIME, SpritesheetRange.Barrel, ThreatType.ExplodableBarrel);
+          threats.add(x, y, lifetime ?? BARREL_WARN_LIFETIME, SpritesheetRange.Barrel, ThreatType.ExplodableBarrel, opts);
+          break;
+        case ThreatType.ElectricCoil:
+          threats.add(x, y, lifetime ?? PICKUP_LIFETIME_MS, SpritesheetRange.ElectricCoil, ThreatType.ElectricCoil, opts);
           break;
       }
       drawState.shouldDrawActionFG = true;
+      return getCoordIndex2(x, y);
     }
+    return -1;
   }
 
   function spawnInvincibilityPickup(numTries = 0) {
@@ -620,18 +652,18 @@ export function engineSpawning({
     preyList.add(x, y, preyType);
   }
 
-  function spawnPuff(x: number, y: number) {
+  function spawnPuffAt(x: number, y: number) {
     const lifetime = ANIMATIONS[Image.PuffSheet].frames * ANIMATIONS[Image.PuffSheet].timePerFrame;
     puffs.add(x, y, lifetime, Image.PuffSheet);
   }
 
-  function spawnExplosion(x: number, y: number) {
+  function spawnExplosionAt(x: number, y: number) {
     const lifetime = ANIMATIONS[Image.Explosion3Sheet].frames * ANIMATIONS[Image.Explosion3Sheet].timePerFrame;
     explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large, { replaceExisting: true });
     explosions.addFlagAt(x, y, ThreatFlag.NoDamage);
   }
 
-  function spawnSmoke(x: number, y: number, type: SmokeType) {
+  function spawnSmokeAt(x: number, y: number, type: SmokeType) {
     if (type === SmokeType.Large) {
       const smokeLifetime = lerp(SMOKE_LIFETIME * 0.5, SMOKE_LIFETIME, Math.random());
       smoke.add(x, y, smokeLifetime, SpritesheetRange.BigSmokeActive, SmokeType.Large, { replaceExisting: true });
@@ -646,13 +678,16 @@ export function engineSpawning({
 
   return {
     spawnApple,
-    spawnOnlyApple,
+    spawnRegularApple,
     spawnArmorPickup,
     chooseSpawnLocation,
     spawnLegendaryItem,
     spawnMeatItem,
-    spawnPuff,
-    spawnSmoke,
-    spawnExplosion,
+    spawnThreat,
+    spawnHealthPickup,
+    spawnWeightLossPickup,
+    spawnPuffAt,
+    spawnSmokeAt,
+    spawnExplosionAt,
   };
 }

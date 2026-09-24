@@ -73,6 +73,7 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
       [ThreatType.WallSpikes]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.WallSpikes].current),
       [ThreatType.Saw]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Saw].current),
       [ThreatType.Flamethrower]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Flamethrower].current),
+      [ThreatType.ElectricCoil]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.ElectricCoil].current),
     } satisfies Record<ThreatType, P5.Graphics>;
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
@@ -134,6 +135,7 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
       spriteRenderer.drawSprite1x1(gfx[ThreatType.WallSpikes], Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Active4 - 1);
       spriteRenderer.drawSprite1x1(gfx[ThreatType.Saw], Image.ThreatSawSheet, x, y, ThreatSawFrame.Active1 - 1);
       spriteRenderer.drawSprite1x1(gfx[ThreatType.Flamethrower], Image.ThreatSheet16, x, y, Threat16Frame.FlamethrowerActive - 1);
+      spriteRenderer.drawSprite1x1(gfx[ThreatType.ElectricCoil], Image.ThreatSheet16, x, y, Threat16Frame.ElectricCoil0 - 1);
     }
   }
 

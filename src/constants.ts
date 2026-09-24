@@ -580,7 +580,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ThreatSheet16]: {
-    frames: 38,
+    frames: 42,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ThreatSheet48]: {
@@ -636,6 +636,12 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frames: 4,
     timePerFrame: 200,
     durations: [400, 200, 200, 200],
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.ElectricCoil]: {
+    src: Image.ThreatSheet16,
+    offset: Threat16Frame.ElectricCoil0 - 1,
+    frames: 4,
+    timePerFrame: 200,
   } satisfies AnimationDataForRange,
   [SpritesheetRange.LaserBlue]: {
     src: Image.ThreatSheet16,
