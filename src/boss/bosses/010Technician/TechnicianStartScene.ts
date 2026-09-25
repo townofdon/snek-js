@@ -117,7 +117,7 @@ export class TechnicianStartScene extends BaseBossScene {
     yield* coroutines.waitForTime(200);
 
     if (this.type === BossIntro.Initial) {
-      const rect = this.getRect(0.5, 0.575, 2 * 250, 2 * 250);
+      const rect = this.getRect(0.5, 0.55, 2 * 250, 2 * 250);
       for (let i = 0; i < BOSS_QUOTES.length; i++) {
         yield* startSceneDialogText({
           p5: this.props.p5,
@@ -128,6 +128,7 @@ export class TechnicianStartScene extends BaseBossScene {
           text: BOSS_QUOTES[i],
           rect,
           delayAfter: 1500,
+          centerParagraph: true,
         } satisfies StartSceneDialogTextArgs);
       }
     }
