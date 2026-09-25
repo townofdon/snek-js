@@ -987,8 +987,8 @@ export function engineRendering({
     for (let y = 0; y < GRIDCOUNT_Y; y++) {
       for (let x = 0; x < GRIDCOUNT_X; x++) {
         const coord = getCoordIndex2(x, y);
-        const gfxlsr = renderer.getMainGfx();
         const laser = es.lasersMap[coord];
+        const gfxlsr = laser?.type === LaserType.Warn ? gfxPresentation : renderer.getMainGfx();
         const shake = 2;
         if (laser?.type === LaserType.Blue) {
           const frames = [
