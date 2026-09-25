@@ -290,7 +290,7 @@ export class Renderer implements IRenderer {
     }
   }
 
-  eraseCorner = (gfx: P5 | P5.Graphics, background: string, x: number, y: number, corner: 'NE' | 'SE' | 'SW' | 'NW', screenshakeMul) => {
+  eraseCorner = (gfx: P5 | P5.Graphics, background: string, x: number, y: number, corner: 'NE' | 'SE' | 'SW' | 'NW', screenshakeMul: number) => {
     const size = 1;
     const strokeSize = STROKE_SIZE;
     const strokeOffset = 0;
@@ -302,41 +302,32 @@ export class Renderer implements IRenderer {
     const x1 = Math.floor(x0 + (BLOCK_SIZE_X * size) - strokeOffset);
     const y1 = Math.floor(y0 + (BLOCK_SIZE_Y * size) - strokeOffset);
     // inner rect
-    const x0i = Math.floor(x0 + borderSize);
-    const y0i = Math.floor(y0 + borderSize);
     const x1i = Math.floor(x1 - borderSize);
     const y1i = Math.floor(y1 - borderSize);
     // inner-inner rect
-    const x0b = Math.floor(x0 + borderSize * 2);
-    const y0b = Math.floor(y0 + borderSize * 2);
     const x1b = Math.floor(x1 - borderSize * 2);
     const y1b = Math.floor(y1 - borderSize * 2);
-    const drawQuad = (_x0: number, _y0: number, _x1: number, _y1: number, _x2: number, _y2: number, _x3: number, _y3: number) => {
-      gfx.quad(
-        MAP_OFFSET + _x0,
-        MAP_OFFSET + _y0,
-        MAP_OFFSET + _x1,
-        MAP_OFFSET + _y1,
-        MAP_OFFSET + _x2,
-        MAP_OFFSET + _y2,
-        MAP_OFFSET + _x3,
-        MAP_OFFSET + _y3);
+    const clearRect = (_x: number, _y: number, _w: number, _h: number) => {
+      (gfx.drawingContext as CanvasRenderingContext2D).clearRect(
+        MAP_OFFSET + _x,
+        MAP_OFFSET + _y,
+        _w * borderSize,
+        _h * borderSize,
+      );
     }
     gfx.fill(background)
-    // gfx.erase();
-    // all corners drawn clockwise - see: https://p5js.org/reference/p5/quad/
     if (corner === 'NE') {
-      drawQuad(x1, y0, x1, y0i, x1b, y0i, x1b, y0);
-      drawQuad(x1, y0, x1, y0b, x1i, y0b, x1i, y0);
+      clearRect(x1b, y0, 2, 1);
+      clearRect(x1i, y0, 1, 2);
     } else if (corner === 'SE') {
-      drawQuad(x1, y1, x1b, y1, x1b, y1i, x1, y1i);
-      drawQuad(x1, y1, x1i, y1, x1i, y1b, x1, y1b);
+      clearRect(x1b, y1i, 2, 1);
+      clearRect(x1i, y1b, 1, 2);
     } else if (corner === 'SW') {
-      drawQuad(x0, y1, x0, y1i, x0b, y1i, x0b, y1);
-      drawQuad(x0, y1, x0, y1b, x0i, y1b, x0i, y1);
+      clearRect(x0, y1i, 2, 1);
+      clearRect(x0, y1b, 1, 2);
     } else if (corner === 'NW') {
-      drawQuad(x0, y0, x0b, y0, x0b, y0i, x0, y0i);
-      drawQuad(x0, y0, x0i, y0, x0i, y0b, x0, y0b);
+      clearRect(x0, y0, 2, 1);
+      clearRect(x0, y0, 1, 2);
     }
   }
 
