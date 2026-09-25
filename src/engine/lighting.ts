@@ -66,16 +66,17 @@ export function updateLighting(
   if (!es) es = DEFAULT_ENGINE_STATE;
   resetLightmap(lightMap, globalLight);
   if (globalLight >= 1) return;
+  for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+    const val = es.illuminationMap[coord];
+    if (val) {
+      const x = Math.floor(coord % GRIDCOUNT_X);
+      const y = Math.floor(coord / GRIDCOUNT_X);
+      addBlocklight(lightMap, x, y, { strength: 1 * val });
+      addSpotlight(lightMap, x, y, { strength: 0.35 * val, radius: 1, falloff: 4 });
+    }
+  }
   // spike death, trapped, etc.
   if (gameState.isDeathIlluminating) {
-    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
-      if (es.deathIlluminationMap[coord]) {
-        const x = Math.floor(coord % GRIDCOUNT_X);
-        const y = Math.floor(coord / GRIDCOUNT_X);
-        addBlocklight(lightMap, x, y, { strength: 1 });
-        addSpotlight(lightMap, x, y, { strength: 0.35, radius: 1, falloff: 4 });
-      }
-    }
     return;
   };
   addSpotlight(lightMap, playerPosition.x, playerPosition.y, { radius: 2, falloff: 12 });
@@ -87,31 +88,31 @@ export function updateLighting(
       addSpotlight(lightMap, portalPosition.x, portalPosition.y, { strength: 0.5, radius: 0, falloff: 4 });
     }
   }
-  for (let i = 0; i < GRIDCOUNT_X * GRIDCOUNT_Y; i++) {
-    const x = Math.floor(i % GRIDCOUNT_X);
-    const y = Math.floor(i / GRIDCOUNT_X);
-    const isLaserAtCoord = es.lasersMap[i];
-    const isFireAtCoord = es.flamesMap[i] && !gameState.isButtonPressed;
+  for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
+    const isLaserAtCoord = es.lasersMap[coord] || es.threatsMap[coord] === ThreatType.ElectricCoil;
+    const isFireAtCoord = es.flamesMap[coord] && !gameState.isButtonPressed;
     const isExitAtCoord = (
       gameState.isDoorsOpen
       && !gameState.isExitingLevel
       && !gameState.isExited
       && ((x === 0 || y === 0 || x === GRIDCOUNT_X - 1 || y === GRIDCOUNT_Y - 1))
-      && (!es.barriersMap[i] || es.passablesMap[i])
-      && !es.portalsMap[i]
-      && (!es.nospawnsMap[i] || es.locksMap[i])
+      && (!es.barriersMap[coord] || es.passablesMap[coord])
+      && !es.portalsMap[coord]
+      && (!es.nospawnsMap[coord] || es.locksMap[coord])
     );
     const isPickupAtCoord = (
       pickupsMap &&
       (
-        pickupsMap[i]?.type === PickupType.Invincibility ||
-        pickupsMap[i]?.type === PickupType.Armor ||
-        pickupsMap[i]?.type === PickupType.HealthPack ||
-        pickupsMap[i]?.type === PickupType.WeightLossPill
+        pickupsMap[coord]?.type === PickupType.Invincibility ||
+        pickupsMap[coord]?.type === PickupType.Armor ||
+        pickupsMap[coord]?.type === PickupType.HealthPack ||
+        pickupsMap[coord]?.type === PickupType.WeightLossPill
       ) &&
-      !shouldBlinkExpiringPickup(pickupsMap[i]?.lifetime)
+      !shouldBlinkExpiringPickup(pickupsMap[coord]?.lifetime)
     );
-    if (isExitAtCoord || isPickupAtCoord || isLaserAtCoord || isFireAtCoord || explosions?.existsAtCoord(i)) {
+    if (isExitAtCoord || isPickupAtCoord || isLaserAtCoord || isFireAtCoord || explosions?.existsAtCoord(coord)) {
       addBlocklight(lightMap, x, y, { strength: 0.7 });
       addBlocklight(lightMap, x, y + 1, { strength: 0.3 });
       addBlocklight(lightMap, x, y - 1, { strength: 0.3 });

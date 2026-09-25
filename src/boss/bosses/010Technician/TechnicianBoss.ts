@@ -15,7 +15,7 @@ import {
   BarrierType,
   SmokeType,
   BossDamage,
-  MusicTrack,
+  BossComponentFrame,
 } from "@/types";
 import {
   coordToVec,
@@ -24,6 +24,8 @@ import {
   getCoordIndex2,
   getCoordX,
   getCoordY,
+  getCurrentFrame,
+  getFrameOffset,
   isAtMapEdge,
   lerp,
   recalculateLasersMap,
@@ -33,6 +35,7 @@ import {
 import { BaseBoss, BossConstructorArgs } from "../../BaseBoss";
 import { TechnicianStartScene } from "./TechnicianStartScene";
 import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_LOCALHOST, LASER_WARN_LIFETIME } from "@/constants";
+import { Easing } from "@/easing";
 
 
 enum CircuitState {
@@ -150,12 +153,18 @@ export class TheTechnician extends BaseBoss {
     ) {
       this.sfx.play(Sound.switch);
       this.weakpointsActive = true;
+      if (!this.isFinalPhase()) {
+        this.timeSinceLastPhaseStart = this.gameState.actualTimeElapsed;
+        this.coroutines.start(this.lightRoutine());
+      }
     }
   };
 
   public draw = (deltaTime: number) => {
     if (!this.active) return;
     let bossCoord = -1;
+
+    // draw circuits
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
       if (this.annotations[coord] === MapAnnotation.L7) {
         bossCoord = coord;
@@ -180,15 +189,26 @@ export class TheTechnician extends BaseBoss {
           circuitState = CircuitState.Off;
         }
         const shakeMul = 0.5;
+        const elapsed = this.gameState.actualTimeElapsed;
+        this.es.illuminationMap[coord] = 0;
         switch (circuitState) {
           case CircuitState.Weak:
-            this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTileCircuitWeak, x, y, this.gameState.actualTimeElapsed, 0, 1, shakeMul);
+            const frame: BossComponentFrame = getCurrentFrame(SpritesheetRange.BossTileCircuitWeak, elapsed) + getFrameOffset(SpritesheetRange.BossTileCircuitWeak)
+            const lightMap = {
+              [BossComponentFrame.TileCircuitWeak0 - 1]: 0.2,
+              [BossComponentFrame.TileCircuitWeak1 - 1]: 0.4,
+              [BossComponentFrame.TileCircuitWeak2 - 1]: 0.9,
+              [BossComponentFrame.TileCircuitWeak3 - 1]: 0.4,
+            };
+            this.es.illuminationMap[coord] = lightMap[frame] || 0.1;
+            this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTileCircuitWeak, x, y, elapsed, 0, 1, shakeMul);
             break;
           case CircuitState.Hit:
-            this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTileCircuitHit, x, y, this.gameState.actualTimeElapsed, 0, 1, shakeMul);
+            this.es.illuminationMap[coord] = lightMap[frame] || 0.1;
+            this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTileCircuitHit, x, y, elapsed, 0, 1, shakeMul);
             break;
           case CircuitState.Off:
-            this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTileCircuitOff, x, y, this.gameState.actualTimeElapsed, 0, 1, shakeMul);
+            this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTileCircuitOff, x, y, elapsed, 0, 1, shakeMul);
             break;
           case CircuitState.None:
             if (IS_LOCALHOST) {
@@ -199,6 +219,8 @@ export class TheTechnician extends BaseBoss {
         }
       }
     }
+
+    // draw boss
     if (bossCoord >= 0) {
       const shakeMul = 0.9;
       const x = getCoordX(bossCoord);
@@ -235,6 +257,15 @@ export class TheTechnician extends BaseBoss {
       // invalid
       this.spriteRenderer.drawImage1x1(this.p5, Image.__TEST__, 15, 15, 0, 1, 0);
     }
+
+    // light boss
+    if (this.stateMachine === BossStateMachine.Fighting) {
+      this.es.illuminationMap[bossCoord] = 1;
+      this.es.illuminationMap[bossCoord + 1] = 1;
+      this.es.illuminationMap[bossCoord + GRIDCOUNT_X] = 1;
+      this.es.illuminationMap[bossCoord + GRIDCOUNT_X + 1] = 1;
+    }
+
     this.coroutines.tick();
   };
 
@@ -264,17 +295,18 @@ export class TheTechnician extends BaseBoss {
     this.loopState.timeScale = 0;
     const bossCoord = this.getBossCoord();
     this.gameState.isDeathIlluminating = true;
-    this.coroutines.stop(this.spawnThreatsCoroutine);
+    this.gameState.globalLightOverride = undefined;
+    coroutines.stop(this.spawnThreatsCoroutine);
 
     // snek charges up
     // TODO: ADD CHARGE UP SOUND
     this.damage = BossDamage.Activating;
     this.sfx.play(Sound.acquireShield, 0.2);
-    this.es.deathIlluminationMap = {};
-    this.es.deathIlluminationMap = {};
-    this.es.deathIlluminationMap[getCoordIndex(this.player.position)] = true;
+    this.es.illuminationMap = {};
+    this.es.illuminationMap = {};
+    this.es.illuminationMap[getCoordIndex(this.player.position)] = 1;
     for (let i = 0; i < this.segments.length; i++) {
-      this.es.deathIlluminationMap[getCoordIndex(this.segments.get(i))] = true;
+      this.es.illuminationMap[getCoordIndex(this.segments.get(i))] = 1;
     }
     yield* coroutines.waitForTime(1250, (t) => {
       const t2 = (t * 6) % 1;
@@ -286,11 +318,11 @@ export class TheTechnician extends BaseBoss {
     // electrocute boss
     this.sfx.play(Sound.switchOff);
     this.damage = BossDamage.Inflicting;
-    this.es.deathIlluminationMap = {};
-    this.es.deathIlluminationMap[bossCoord] = true;
-    this.es.deathIlluminationMap[bossCoord + 1] = true;
-    this.es.deathIlluminationMap[bossCoord + GRIDCOUNT_X] = true;
-    this.es.deathIlluminationMap[bossCoord + GRIDCOUNT_X + 1] = true;
+    this.es.illuminationMap = {};
+    this.es.illuminationMap[bossCoord] = 1;
+    this.es.illuminationMap[bossCoord + 1] = 1;
+    this.es.illuminationMap[bossCoord + GRIDCOUNT_X] = 1;
+    this.es.illuminationMap[bossCoord + GRIDCOUNT_X + 1] = 1;
     yield* coroutines.waitForTime(200);
     const targetHp = lerp(100, 0, (this.phaseIdx + 1) / this.phases[this.difficulty].length);
     if (targetHp <= 0) {
@@ -309,7 +341,7 @@ export class TheTechnician extends BaseBoss {
     this.damage = BossDamage.Post;
     this.hp = targetHp;
     this.gameState.isDeathIlluminating = false;
-    this.es.deathIlluminationMap = {};
+    this.es.illuminationMap = {};
     this.weakpointsActive = false;
     this.circuits = {};
 
@@ -334,6 +366,9 @@ export class TheTechnician extends BaseBoss {
       this.timeSinceLastPhaseStart = this.gameState.actualTimeElapsed;
       this.damage = BossDamage.None;
       this.stateMachine = BossStateMachine.Fighting;
+      if (this.isFinalPhase()) {
+        coroutines.start(this.lightRoutine());
+      }
     }
   }
 
@@ -648,6 +683,15 @@ export class TheTechnician extends BaseBoss {
     this.sfx.playLoop(Sound.alarm);
     yield* this.coroutines.waitForTime(4000);
     this.sfx.stop(Sound.alarm);
+  }
+
+  private * lightRoutine() {
+    while (this.stateMachine === BossStateMachine.Fighting) {
+      const elapsed = this.gameState.actualTimeElapsed;
+      const t = triangle(((elapsed - this.timeSinceLastPhaseStart) / (3000 / 2)) % 2);
+      this.gameState.globalLightOverride = lerp(1, 0.1, Easing.inOutQuad(t));
+      yield null;
+    }
   }
 
   private spawnLaserDiode(x: number, y: number) {

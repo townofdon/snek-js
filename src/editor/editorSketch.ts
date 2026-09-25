@@ -122,7 +122,7 @@ export interface ExtendedSketchData extends EditorData {
   lasersMap: Record<number, LaserCell>,
   pipeConnectionsMap: Record<number, PipeConnection>,
   flamesMap: Record<number, boolean>,
-  deathIlluminationMap: Record<number, boolean>,
+  illuminationMap: Record<number, number>,
 }
 
 export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): EditorSketchReturn => {
@@ -132,7 +132,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     lasersMap: {},
     pipeConnectionsMap: {},
     flamesMap: {},
-    deathIlluminationMap: {},
+    illuminationMap: {},
     playerSpawnPosition: EDITOR_DEFAULTS.data.playerSpawnPosition.copy(),
     startDirection: EDITOR_DEFAULTS.data.startDirection,
   } satisfies ExtendedSketchData;

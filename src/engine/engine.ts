@@ -762,6 +762,7 @@ export function engine({
     state.isExited = false;
     state.isInvertedColors = false;
     state.isDeathIlluminating = false;
+    state.globalLightOverride = undefined;
     state.actualTimeElapsed = 0;
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
@@ -823,7 +824,7 @@ export function engine({
         es.switchesMap[getCoordIndex2(x, y)] = undefined;
         es.pipesMap[getCoordIndex2(x, y)] = undefined;
         es.flamesMap[getCoordIndex2(x, y)] = undefined;
-        es.deathIlluminationMap[getCoordIndex2(x, y)] = undefined;
+        es.illuminationMap[getCoordIndex2(x, y)] = undefined;
       }
     }
     apples.reset();
@@ -946,7 +947,8 @@ export function engine({
       const buildSceneAction = buildSceneActionFactory(p5, gfxPresentation, sfx, fonts);
       return buildSceneAction((p5, gfx, sfx, fonts, callbacks) => {
         musicPlayer.stopAllTracks();
-        return bossTransition(p5, gfx, sfx, es, state, player, segments, musicPlayer, fonts, spriteRenderer, callbacks, renderLoop)
+        const difficulty = es.difficulty.index;
+        return bossTransition(p5, gfx, sfx, es, state, player, segments, difficulty, musicPlayer, fonts, spriteRenderer, callbacks, renderLoop)
       });
     })();
 
@@ -1715,7 +1717,7 @@ export function engine({
       // draw to main gfx
     }
 
-    const globalLight = state.isDeathIlluminating ? 0 : (es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
+    const globalLight = state.isDeathIlluminating ? 0 : (state.globalLightOverride ?? es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
 
     if (
       state.isGameStarted &&
@@ -2619,10 +2621,10 @@ export function engine({
       }
     }
     if (trapped) {
-      es.deathIlluminationMap[getCoordIndex(player.position)] = true;
+      es.illuminationMap[getCoordIndex(player.position)] = 1;
       Object.entries(visited).forEach(([idxStr, vis]) => {
         if (vis && !Number.isNaN(Number(idxStr))) {
-          es.deathIlluminationMap[Number(idxStr)] = true;
+          es.illuminationMap[Number(idxStr)] = 1;
         }
       });
     }
@@ -2707,7 +2709,7 @@ export function engine({
         state.lastHurtBy = es.threatsMap[coord] === ThreatType.Saw ? DamageType.SawCut : DamageType.SpikePierce;
         es.level.deathLocations ||= {};
         es.level.deathLocations[coord] = true;
-        es.deathIlluminationMap[coord] = true;
+        es.illuminationMap[coord] = 1;
       }
     }
     if (instadeath) {

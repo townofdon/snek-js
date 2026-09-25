@@ -5,10 +5,26 @@ import { BossIntro, BossStartArgs, Image, MapAnnotation, SnekMove, Sound } from 
 import { getCoordIndex, getCoordIndex2, getCoordX, getCoordY } from "@/utils";
 
 const SNEK_ENTER_SPEED = 50;
-const BOSS_QUOTES = [
+const BOSS_QUOTES_EASY = [
   "Get outa my lab!!",
   "No sneks allowed in here.",
   "Prepare to meet your maker!",
+];
+const BOSS_QUOTES_MEDIUM = [
+  "What the SNEK?",
+  "Get outa my lab!!",
+  "Prepare for annihilation!",
+];
+const BOSS_QUOTES_HARD = [
+  "Get outa my lab!!",
+  "You dare interrupt my experiments??",
+  "I have just the surprise for you...",
+];
+const BOSS_QUOTES_ULTRA = [
+  "Another specimen!!",
+  "You will prove useful for my experiment!!",
+  "Mm hrm... indubitably...",
+  `I have prepared something...\nshocking for you!`,
 ];
 
 export class TechnicianStartScene extends BaseBossScene {
@@ -26,7 +42,7 @@ export class TechnicianStartScene extends BaseBossScene {
     this.showBoss = false;
     const bossCoord = this.getBossCoord();
     gameState.isDeathIlluminating = true;
-    es.deathIlluminationMap = {};
+    es.illuminationMap = {};
 
     // snek entreunt
     if (this.type === BossIntro.Initial) {
@@ -70,10 +86,10 @@ export class TechnicianStartScene extends BaseBossScene {
         gameState.steps += 1;
       }
       const moveLight = () => {
-        es.deathIlluminationMap = {};
-        es.deathIlluminationMap[getCoordIndex(player.position)] = true;
+        es.illuminationMap = {};
+        es.illuminationMap[getCoordIndex(player.position)] = 1;
         for (let i = 0; i < segments.length; i++) {
-          es.deathIlluminationMap[getCoordIndex(segments.get(i))] = true;
+          es.illuminationMap[getCoordIndex(segments.get(i))] = 1;
         }
       }
       for (let i = 0; i < moves.length; i++) {
@@ -101,10 +117,10 @@ export class TechnicianStartScene extends BaseBossScene {
     }
 
     this.showBoss = true;
-    es.deathIlluminationMap[bossCoord] = true;
-    es.deathIlluminationMap[bossCoord + 1] = true;
-    es.deathIlluminationMap[bossCoord + GRIDCOUNT_X] = true;
-    es.deathIlluminationMap[bossCoord + GRIDCOUNT_X + 1] = true;
+    es.illuminationMap[bossCoord] = 1;
+    es.illuminationMap[bossCoord + 1] = 1;
+    es.illuminationMap[bossCoord + GRIDCOUNT_X] = 1;
+    es.illuminationMap[bossCoord + GRIDCOUNT_X + 1] = 1;
 
     sfx.playLoop(Sound.alarm);
     if (this.type === BossIntro.Initial) {
@@ -118,14 +134,21 @@ export class TechnicianStartScene extends BaseBossScene {
 
     if (this.type === BossIntro.Initial) {
       const rect = this.getRect(0.5, 0.55, 2 * 250, 2 * 250);
-      for (let i = 0; i < BOSS_QUOTES.length; i++) {
+      const quotes = (() => {
+        if (this.difficulty === 1) return BOSS_QUOTES_EASY;
+        if (this.difficulty === 2) return BOSS_QUOTES_MEDIUM;
+        if (this.difficulty === 3) return BOSS_QUOTES_HARD;
+        if (this.difficulty === 4) return BOSS_QUOTES_ULTRA;
+        return BOSS_QUOTES_MEDIUM;
+      })()
+      for (let i = 0; i < quotes.length; i++) {
         yield* startSceneDialogText({
           p5: this.props.p5,
           gfx: this.props.gfx,
           sfx: this.sfx,
           coroutines: this.props.coroutines,
           fonts: this.props.fonts,
-          text: BOSS_QUOTES[i],
+          text: quotes[i],
           rect,
           delayAfter: 1500,
           centerParagraph: true,
@@ -135,7 +158,7 @@ export class TechnicianStartScene extends BaseBossScene {
 
     sfx.play(Sound.switch);
     gameState.isDeathIlluminating = false;
-    es.deathIlluminationMap = {};
+    es.illuminationMap = {};
     yield* coroutines.waitForTime(500, undefined, true);
 
     gameState.isMoving = false;

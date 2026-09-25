@@ -103,7 +103,7 @@ export const DEFAULT_ENGINE_STATE: EngineState = {
   switchesMap: {},
   pipesMap: {},
   flamesMap: {},
-  deathIlluminationMap: {},
+  illuminationMap: {},
   annotations: {},
   pipeOverrides: {},
 } satisfies EngineState;

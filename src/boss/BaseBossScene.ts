@@ -2,6 +2,7 @@ import { BaseScene } from "@/scenes/BaseScene";
 import {
   BossIntro,
   BossStartArgs,
+  DifficultyIndex,
   EngineState,
   GameState,
   ICollection,
@@ -20,10 +21,11 @@ export abstract class BaseBossScene extends BaseScene {
   protected readonly sfx: ISFX;
   protected readonly player: PlayerState;
   protected readonly segments: ICollection & IVectorList;
+  protected readonly difficulty: DifficultyIndex;
   protected readonly musicPlayer: IMusicPlayer;
   protected readonly renderLoop: () => void;
   constructor(...args: BossStartArgs) {
-    const [p5, gfx, sfx, es, gameState, player, segments, musicPlayer, fonts, spriteRenderer, callbacks, renderLoop] = args;
+    const [p5, gfx, sfx, es, gameState, player, segments, difficulty, musicPlayer, fonts, spriteRenderer, callbacks, renderLoop] = args;
     requireParam(p5, 'p5');
     requireParam(gfx, 'gfx');
     requireParam(sfx, 'sfx');
@@ -38,6 +40,7 @@ export abstract class BaseBossScene extends BaseScene {
     this.gameState = gameState;
     this.player = player;
     this.segments = segments;
+    this.difficulty = difficulty;
     this.musicPlayer = musicPlayer;
     this.renderLoop = renderLoop;
   }
