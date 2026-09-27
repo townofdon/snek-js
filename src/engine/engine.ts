@@ -2714,6 +2714,7 @@ export function engine({
         es.level.deathLocations ||= {};
         es.level.deathLocations[coord] = true;
         es.illuminationMap[coord] = 1;
+        drawState.shouldDrawActionFG = true;
       }
     }
     if (instadeath) {
@@ -2848,38 +2849,58 @@ export function engine({
    * which means the laser cells along that path will have updated diode a/b coords.
    */
   function* electrocutionRoutine(laserType: LaserType, segmentAtCoord: boolean): IEnumerator {
-    let times = (segmentAtCoord || laserType === LaserType.Red) ? 2 : 1;
-    const indestructible = laserType === LaserType.Red;
-    const hasArmor = heldItems.armor > 0;
-    if (hasArmor && !indestructible) {
+    const red = laserType === LaserType.Red;
+    const armorProtect = heldItems.armor > 0 && !red;
+    es.illuminationMap = {};
+    if (armorProtect) {
       playSound(Sound.alarm, 0.5);
-      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
-        const laserCell = es.lasersMap[coord];
-        const isPlayerAtCoord = coord === getCoordIndex(player.position) || segments.existsAtCoord(coord);
-        if (laserCell && isPlayerAtCoord) {
+    }
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      const laserCell = es.lasersMap[coord];
+      const isPlayerAtCoord = coord === getCoordIndex(player.position) || segments.existsAtCoord(coord);
+      if (laserCell && isPlayerAtCoord) {
+        if (armorProtect) {
           // overload diodes to blow!
           byCoord(laserCell.coordDiodeA)(threats.addFlagAt, ThreatFlag.Crit);
           byCoord(laserCell.coordDiodeB)(threats.addFlagAt, ThreatFlag.Crit);
         }
-        // flag electric coil as non-damaging
-        if (isPlayerAtCoord && es.threatsMap[coord] === ThreatType.ElectricCoil) {
-          byCoord(coord)(threats.addFlagAt, ThreatFlag.NoDamage);
+        // illuminate intersecting laser
+        state.isDeathIlluminating = true;
+        const horizontal = getCoordY(laserCell.coordDiodeA) === getCoordY(laserCell.coordDiodeB);
+        for (let lasercoord = laserCell.coordDiodeA; lasercoord <= laserCell.coordDiodeB; lasercoord += (horizontal ? 1 : GRIDCOUNT_X)) {
+          es.illuminationMap[lasercoord] = 1;
         }
       }
+      // flag electric coil as non-damaging
+      if (isPlayerAtCoord && es.threatsMap[coord] === ThreatType.ElectricCoil) {
+        byCoord(coord)(threats.addFlagAt, ThreatFlag.NoDamage);
+      }
+    }
+    // illuminate snakey
+    es.illuminationMap[getCoordIndex(player.position)] = 1;
+    for (let i = 0; i < segments.length; i++) {
+      es.illuminationMap[getCoordIndex(segments.get(i))] = 1;
     }
     // electrocute the snakey
-    for (let i = 0; i < times; i++) {
-      state.timeSinceElectrocutionStart = 0;
-      sfx.playLoop(Sound.electrocuteLoop);
-      yield* actions.waitForTime(hasArmor ? ELECTROCUTION_DURATION_MS / 2 : ELECTROCUTION_DURATION_MS);
-      sfx.stop(Sound.electrocuteLoop);
-      if (hasArmor && !indestructible) {
-        applyArmorProtection();
-        break;
-      } else {
-        state.lastHurtBy = DamageType.Electrocution;
-        applyDamage(1);
-      }
+    state.timeSinceElectrocutionStart = 0;
+    sfx.playLoop(Sound.electrocuteLoop);
+    let duration = armorProtect ? ELECTROCUTION_DURATION_MS / 2 : ELECTROCUTION_DURATION_MS;
+    if (red || (!armorProtect && segmentAtCoord)) {
+      duration = ELECTROCUTION_DURATION_MS * 2;
+    }
+    yield* actions.waitForTime(duration, () => {
+      state.timeSinceElectrocutionStart = state.timeSinceElectrocutionStart % ELECTROCUTION_DURATION_MS
+    });
+    // do not yield so that we guarantee this routine completely finishes before recalculateLasersMap() is called again.
+    state.timeSinceElectrocutionStart = Infinity;
+    state.isDeathIlluminating = false;
+    es.illuminationMap = {};
+    sfx.stop(Sound.electrocuteLoop);
+    if (armorProtect) {
+      applyArmorProtection();
+    } else {
+      state.lastHurtBy = DamageType.Electrocution;
+      applyDamage(red ? 5 : 1);
     }
     // remove electric coil if present
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
@@ -2888,18 +2909,17 @@ export function engine({
         threats.removeByCoord(coord, RemovalReason.Explode);
       }
     }
-    // do not yield so that we guarantee this routine completely finishes before recalculateLasersMap() is called again.
-    state.timeSinceElectrocutionStart = Infinity;
-    if (!hasArmor && segmentAtCoord) {
+    if (!armorProtect && segmentAtCoord) {
       applyDamage(5);
       return;
     }
     if (state.isLost) return;
     if (state.lives < 0) return;
-    if (!hasArmor || indestructible) {
+    if (!armorProtect) {
       reboundSnake(segments.length > 3 ? 2 : 1);
       return;
     }
+    // destroy laser diodes from armor protection
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
       const isPlayerAtCoord = coord === getCoordIndex(player.position) || segments.existsAtCoord(coord);
       // get latest laser cell because the map may have changed (see note above)
@@ -3075,10 +3095,10 @@ export function engine({
       if (threats.existsAtCoord(damageCoord, ThreatType.ExplodableBarrel) && threats.getTimeRemaining(tx, ty) > barrelLifetime) {
         threats.setLifetime(tx, ty, barrelLifetime);
       }
-      // destroy adjacent diodes
+      // // destroy adjacent diodes
       if (explosionType === ExplosionType.Large && threats.existsAtCoord(damageCoord, ThreatType.LaserDiode) && threats.getTimeRemaining(tx, ty) > LASER_DIODE_CRIT_LIFETIME) {
         threats.setLifetime(tx, ty, LASER_DIODE_CRIT_LIFETIME);
-        playSound(Sound.alarm, 0.5);
+        // playSound(Sound.alarm, 0.5);
       }
       // destroy adjacent mines
       if (explosionType === ExplosionType.Large && threats.existsAtCoord(damageCoord, ThreatType.Mine)) {

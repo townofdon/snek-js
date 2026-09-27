@@ -205,12 +205,17 @@ export class TheTechnician extends BaseBoss {
               [BossComponentFrame.TileCircuitWeak0 - 1]: 0.2,
               [BossComponentFrame.TileCircuitWeak1 - 1]: 0.4,
               [BossComponentFrame.TileCircuitWeak2 - 1]: 0.9,
-              [BossComponentFrame.TileCircuitWeak3 - 1]: 0.4,
+              [BossComponentFrame.TileCircuitWeak3 - 1]: 0.6,
             };
-            this.es.illuminationMap[coord] = Math.max(lightMap[frame] || 0.1, this.es.illuminationMap[coord]);
+            if (coord !== getCoordIndex(this.player.position)) {
+              this.es.illuminationMap[coord] = lightMap[frame] || 0.1;
+            }
             this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTileCircuitWeak, x, y, elapsed, 0, 1, shakeMul);
             break;
           case CircuitState.Hit:
+            if (coord !== getCoordIndex(this.player.position)) {
+              this.es.illuminationMap[coord] = 0;
+            }
             this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTileCircuitHit, x, y, elapsed, 0, 1, shakeMul);
             break;
           case CircuitState.Off:
@@ -536,6 +541,7 @@ export class TheTechnician extends BaseBoss {
         yield* coroutines.waitForTime(interval);
       }
     }
+    this.renderer.invalidateStaticCache();
   }
 
   private * spawnApples() {

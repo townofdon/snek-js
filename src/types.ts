@@ -1258,13 +1258,13 @@ export enum Image {
   ThemedSegmentSE = '__segment-se-rendered-at-runtime__',
   ThemedSegmentSW = '__segment-sw-rendered-at-runtime__',
   ThemedSegmentNW = '__segment-nw-rendered-at-runtime__',
+  ThemedButtN = '__butt-n-rendered-at-runtime__',
+  ThemedButtW = '__butt-w-rendered-at-runtime__',
+  ThemedButtS = '__butt-s-rendered-at-runtime__',
+  ThemedButtE = '__butt-e-rendered-at-runtime__',
   AppleTemplateSheet = 'snek-apple-sheet.png',
   SnekHead = 'snek-head.png',
   SnekHeadDead = 'snek-head-dead.png',
-  SnekSegmentDark = 'snek-segment-dark.png',
-  SnekSegmentB = 'snek-segment-b.png',
-  SnekSegmentD = 'snek-segment-d.png',
-  SnekSegmentE = 'snek-segment-e.png',
   SegmentsSheet = 'snek-segments-sheet.png',
   SnekButt = 'snek-butt.png',
   ControlsKeyboardMove = 'controls-keyboard-move2.png',
@@ -1342,6 +1342,10 @@ export type ThemedImage =
   | Image.ThemedSegmentSE
   | Image.ThemedSegmentSW
   | Image.ThemedSegmentNW
+  | Image.ThemedButtN
+  | Image.ThemedButtW
+  | Image.ThemedButtS
+  | Image.ThemedButtE
   | Image.ThemedPipes1
   | Image.ThemedPipes2
   | Image.ThemedPipes3
@@ -1366,6 +1370,7 @@ export enum SpritesheetRange {
   Spikes,
   WallSpikesDeploy,
   WallSpikesRetract,
+  WallSpikesDeathOverlay,
   SawActive,
   SawOff,
   FireTile,
@@ -1554,6 +1559,7 @@ export enum ThreatWallSpikesFrame {
   Retract2,
   Retract3,
   DeathOverlay,
+  Blood,
 }
 
 export enum ThreatSawFrame {
@@ -1594,6 +1600,14 @@ export enum SegmentFrame {
   SkelSegment2,
   SkelSegTurn,
   SkelHead,
+  Carnage,
+  SegmentB,
+  SegmentDark,
+  SegmentE,
+  ButtE,
+  ButtN,
+  ButtW,
+  ButtS,
 }
 
 export enum WearableFrame {

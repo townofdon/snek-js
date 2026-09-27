@@ -65,6 +65,7 @@ import {
   ButtonSheetFrame,
   PipeVariant,
   SmokeType,
+  ThreatWallSpikesFrame,
 } from "@/types";
 import { UI_CANVAS_LEFT, UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
 import { Renderer } from "../renderer";
@@ -449,6 +450,7 @@ export function engineRendering({
     if (!vec) return;
     if (i >= 1 && vec.equals(segments.get(i - 1))) return;
     const isMiddle = i < segments.length - 1;
+    const lastSegment = i === segments.length - 1;
     const dirPrev = i === 0
       ? getDirectionBetween(segments.get(i), player.position)
       : getDirectionBetween(segments.get(i), segments.get(i - 1));
@@ -544,6 +546,14 @@ export function engineRendering({
         spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentSW, vec.x, vec.y, 0, 1, 0);
       } else if (cornerNW) {
         spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentNW, vec.x, vec.y, 0, 1, 0);
+      } else if (lastSegment && dirPrev === DIR.LEFT) {
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtE, vec.x, vec.y, 0, 1, 0);
+      } else if (lastSegment && dirPrev === DIR.DOWN) {
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtN, vec.x, vec.y, 0, 1, 0);
+      } else if (lastSegment && dirPrev === DIR.RIGHT) {
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtW, vec.x, vec.y, 0, 1, 0);
+      } else if (lastSegment && dirPrev === DIR.UP) {
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtS, vec.x, vec.y, 0, 1, 0);
       } else {
         renderer.drawGraphicalComponent1x1Custom(gfx, graphicalComponents.snakeSegment, vec.x, vec.y);
       }
@@ -551,19 +561,19 @@ export function engineRendering({
       const decoInterval = 9;
       if (i === 0 && state.gameMode === GameMode.Cobra) {
         const direction = invertDirection(player.directionToFirstSegment);
-        spriteRenderer.drawImage3x3(Image.SnekSegmentB, vec.x, vec.y, getRotationFromDirection(direction));
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, vec.x, vec.y, SegmentFrame.SegmentB - 1, getRotationFromDirection(direction), 1, 1);
       } else if (i === 1) {
         const direction = getDirectionBetween(segments.get(0), segments.get(1));
-        spriteRenderer.drawImage3x3(Image.SnekSegmentE, vec.x, vec.y, getRotationFromDirection(direction));
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, vec.x, vec.y, SegmentFrame.SegmentE - 1, getRotationFromDirection(direction), 1, 1);
       } else if (i >= decoInterval && (i+2) % decoInterval === 0 && segments.length >= i+4) {
         const direction = getDirectionBetween(segments.get(i + 1), segments.get(i));
-        spriteRenderer.drawImage3x3(Image.SnekSegmentE, vec.x, vec.y, getRotationFromDirection(direction));
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, vec.x, vec.y, SegmentFrame.SegmentE - 1, getRotationFromDirection(direction), 1, 1);
       } else if (i >= decoInterval && (i+2) % decoInterval === 1 && segments.length >= i+3) {
         const direction = getDirectionBetween(segments.get(i), segments.get(i + 1));
-        spriteRenderer.drawImage3x3(Image.SnekSegmentDark, vec.x, vec.y, getRotationFromDirection(direction));
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, vec.x, vec.y, SegmentFrame.SegmentDark - 1, getRotationFromDirection(direction), 1, 1);
       } else if (i >= decoInterval && (i+2) % decoInterval === 2 && segments.length >= i+2) {
         const direction = getDirectionBetween(segments.get(i), segments.get(i + 1));
-        spriteRenderer.drawImage3x3(Image.SnekSegmentE, vec.x, vec.y, getRotationFromDirection(direction));
+        spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, vec.x, vec.y, SegmentFrame.SegmentE - 1, getRotationFromDirection(direction), 1, 1);
       }
       _drawSegmentArmor(vec, i, dirPrev);
     }
@@ -757,6 +767,7 @@ export function engineRendering({
   }
 
   function drawThreats(threats: AnimationList) {
+    const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     if (drawState.shouldDrawActionFG) {
       for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
         const x = Math.floor(coord % GRIDCOUNT_X);
@@ -817,7 +828,6 @@ export function engineRendering({
           }
         } else if (threats.existsAtCoord(coord, ThreatType.Spikes) && !state.isButtonPressed) {
           const elapsed = threats.getElapsedByCoord(coord);
-          const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
           if (getCoordIndex(player.position) === coord || segments.existsAtCoord(coord)) {
             if (!invincible) spriteRenderer.drawSprite1x1(gfxFGAction, Image.ButtonSheet, x, y, ButtonSheetFrame.SpikeDeathOverlay - 1);
           } else {
@@ -828,21 +838,41 @@ export function engineRendering({
           }
         } else if (threats.existsAtCoord(coord, ThreatType.WallSpikes) && !state.isButtonPressed) {
           const elapsed = threats.getElapsedByCoord(coord);
+          const isPlayerAtCoord = getCoordIndex(player.position) === coord || segments.existsAtCoord(coord);
+          const image = (isPlayerAtCoord && !invincible) ? SpritesheetRange.WallSpikesDeathOverlay : SpritesheetRange.WallSpikesDeploy;
           switch (getTileDir(x, y, es)) {
             case DIR.UP:
-              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, x, y, elapsed, Math.PI * 1.5);
+              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, image, x, y, elapsed, Math.PI * 1.5);
               break;
             case DIR.DOWN:
-              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, x, y, elapsed, Math.PI * 0.5);
+              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, image, x, y, elapsed, Math.PI * 0.5);
               break;
             case DIR.LEFT:
               withFlipx(gfxFGAction, x, y, true, (tx, ty) => {
-                spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, tx, ty, elapsed);
+                spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, image, tx, ty, elapsed);
               });
               break;
             case DIR.RIGHT:
-              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WallSpikesDeploy, x, y, elapsed);
+              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, image, x, y, elapsed);
               break;
+          }
+          if (!isPlayerAtCoord && es.level.deathLocations?.[coord] && elapsed > 400) {
+            switch (getTileDir(x, y, es)) {
+              case DIR.UP:
+                spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Blood - 1, Math.PI * 1.5);
+                break;
+              case DIR.DOWN:
+                spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Blood - 1, Math.PI * 0.5);
+                break;
+              case DIR.LEFT:
+                withFlipx(gfxFGAction, x, y, true, (tx, ty) => {
+                  spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatWallSpikesSheet, tx, ty, ThreatWallSpikesFrame.Blood - 1);
+                });
+                break;
+              case DIR.RIGHT:
+                spriteRenderer.drawSprite1x1(gfxFGAction, Image.ThreatWallSpikesSheet, x, y, ThreatWallSpikesFrame.Blood - 1);
+                break;
+            }
           }
         } else if (threats.existsAtCoord(coord, ThreatType.Saw) && !state.isButtonPressed) {
           const elapsed = threats.getElapsedByCoord(coord);

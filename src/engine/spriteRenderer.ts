@@ -10,6 +10,7 @@ import {
   ColorReplacementPalette,
   SpritesheetRange,
   ISpriteRenderer,
+  SegmentFrame,
 } from "../types";
 import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y, IMG_SCALE, IMG_X_OFFSET, MAP_OFFSET, STROKE_SIZE } from "../constants";
 import { getCurrentFrame, getRelativeDir, lerp, getNumFrames, getDerivedSprite, getFrameOffset, isSpritesheetImage } from "../utils";
@@ -46,6 +47,10 @@ export class SpriteRenderer implements ISpriteRenderer {
     [Image.ThemedSegmentSE]: null,
     [Image.ThemedSegmentSW]: null,
     [Image.ThemedSegmentNW]: null,
+    [Image.ThemedButtN]: null,
+    [Image.ThemedButtW]: null,
+    [Image.ThemedButtS]: null,
+    [Image.ThemedButtE]: null,
     [Image.ThemedBarrierFlat]: null,
     [Image.ThemedBarrierPyramid]: null,
     [Image.ThemedBarrierBrick]: null,
@@ -57,10 +62,6 @@ export class SpriteRenderer implements ISpriteRenderer {
     [Image.AppleTemplateSheet]: null,
     [Image.SnekHead]: null,
     [Image.SnekHeadDead]: null,
-    [Image.SnekSegmentDark]: null,
-    [Image.SnekSegmentB]: null,
-    [Image.SnekSegmentD]: null,
-    [Image.SnekSegmentE]: null,
     [Image.SegmentsSheet]: null,
     [Image.SnekButt]: null,
     [Image.KeySheet]: null,
@@ -228,6 +229,10 @@ export class SpriteRenderer implements ISpriteRenderer {
     this.setThemedImageFromSprite(colors, 48, Image.ThemedSegmentSE, Image.TileSheet48, 4);
     this.setThemedImageFromSprite(colors, 48, Image.ThemedSegmentSW, Image.TileSheet48, 5);
     this.setThemedImageFromSprite(colors, 48, Image.ThemedSegmentNW, Image.TileSheet48, 6);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedButtE, Image.SegmentsSheet, SegmentFrame.ButtE - 1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedButtN, Image.SegmentsSheet, SegmentFrame.ButtN - 1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedButtW, Image.SegmentsSheet, SegmentFrame.ButtW - 1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedButtS, Image.SegmentsSheet, SegmentFrame.ButtS - 1);
   }
 
   private setThemedImageFromSprite(colors: ColorReplacementPalette, size: 16 | 48, dest: ThemedImage, sourceSprite: Image, frame: number, matchSize = false) {
@@ -318,10 +323,6 @@ export class SpriteRenderer implements ISpriteRenderer {
       this.loadImage(Image.AppleTemplateSheet);
       this.loadImage(Image.SnekHead);
       this.loadImage(Image.SnekHeadDead);
-      this.loadImage(Image.SnekSegmentDark);
-      this.loadImage(Image.SnekSegmentB);
-      this.loadImage(Image.SnekSegmentD);
-      this.loadImage(Image.SnekSegmentE);
       this.loadImage(Image.SegmentsSheet);
       this.loadImage(Image.SnekButt);
       this.loadImage(Image.KeySheet);

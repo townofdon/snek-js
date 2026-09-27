@@ -448,7 +448,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 100,
   } satisfies AnimationData,
   [Image.SegmentsSheet]: {
-    frames: 6,
+    frames: 14,
     timePerFrame: 100,
   } satisfies AnimationData,
   [Image.KeySheet]: {
@@ -592,7 +592,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ThreatWallSpikesSheet]: {
-    frames: 16,
+    frames: 17,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.ThreatSawSheet]: {
@@ -726,6 +726,13 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     src: Image.ThreatWallSpikesSheet,
     offset: ThreatWallSpikesFrame.Retract0 - 1,
     frames: 4,
+    timePerFrame: 100,
+    oneShot: true,
+  } satisfies AnimationDataForRange,
+  [SpritesheetRange.WallSpikesDeathOverlay]: {
+    src: Image.ThreatWallSpikesSheet,
+    offset: ThreatWallSpikesFrame.DeathOverlay - 1,
+    frames: 1,
     timePerFrame: 100,
     oneShot: true,
   } satisfies AnimationDataForRange,
