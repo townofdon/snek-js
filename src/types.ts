@@ -153,6 +153,8 @@ export enum DamageType {
   SpikePierce,
   SawCut,
   Burn,
+  MortalRuin,
+  MortalRuinHide,
 }
 
 export enum InputType {
@@ -320,6 +322,7 @@ export interface EngineState {
   illuminationMap: Record<number, number>,
   annotations: Record<number, MapAnnotation>,
   pipeOverrides: Record<number, PipeConnection>,
+  snekDamage: Record<number, DamageType>,
 }
 
 export interface Outfit {
@@ -1258,6 +1261,7 @@ export enum Image {
   ThemedSegmentSE = '__segment-se-rendered-at-runtime__',
   ThemedSegmentSW = '__segment-sw-rendered-at-runtime__',
   ThemedSegmentNW = '__segment-nw-rendered-at-runtime__',
+  ThemedSegmentMortalRuin = '__segment-mortal-ruin-rendered-at-runtime__',
   ThemedButtN = '__butt-n-rendered-at-runtime__',
   ThemedButtW = '__butt-w-rendered-at-runtime__',
   ThemedButtS = '__butt-s-rendered-at-runtime__',
@@ -1342,6 +1346,7 @@ export type ThemedImage =
   | Image.ThemedSegmentSE
   | Image.ThemedSegmentSW
   | Image.ThemedSegmentNW
+  | Image.ThemedSegmentMortalRuin
   | Image.ThemedButtN
   | Image.ThemedButtW
   | Image.ThemedButtS

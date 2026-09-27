@@ -202,6 +202,18 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions, loadLevel }:
         checked={options.spawnMines}
         onChange={(val) => setOptions({ ...options, spawnMines: val })}
       />
+      <ToggleField
+        label="Spawn bombs"
+        name="spawnBombs"
+        checked={options.spawnBombs}
+        onChange={(val) => setOptions({ ...options, spawnBombs: val })}
+      />
+      <ToggleField
+        label="Spawn barrels"
+        name="spawnBarrels"
+        checked={options.spawnBarrels}
+        onChange={(val) => setOptions({ ...options, spawnBarrels: val })}
+      />
       <hr />
       <SelectLevelDropdown loadLevel={loadLevel} />
     </div>

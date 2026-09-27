@@ -106,6 +106,7 @@ export const DEFAULT_ENGINE_STATE: EngineState = {
   illuminationMap: {},
   annotations: {},
   pipeOverrides: {},
+  snekDamage: {},
 } satisfies EngineState;
 
 export const DEFAULT_ACTION_IDS_MAP: Record<ActionKey, string | null> = {

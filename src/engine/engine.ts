@@ -1030,6 +1030,7 @@ export function engine({
     es.diffSelectMap = levelData.diffSelectMap;
     es.pipeOverrides = es.level.pipeOverrides || {};
     es.annotations = es.level.annotations || {};
+    es.snekDamage = {};
 
     // set es.level metadata
     es.level.numLocks = es.locks.length;
@@ -1432,6 +1433,7 @@ export function engine({
         state.lastHurtBy === DamageType.HitLock ||
         state.lastHurtBy === DamageType.HitSelf
       ) { spawnHurtParticles(); }
+      applyMortalRuin();
       renderHeartsUI();
       flashScreen(HURT_FORGIVENESS_TIME);
       startScreenShake();
@@ -2110,7 +2112,6 @@ export function engine({
       0, -1,
       0, 1,
     ];
-    outer:
     for (let y = 0; y < GRIDCOUNT_Y; y++) {
       for (let x = 0; x < GRIDCOUNT_X; x++) {
         const coord = getCoordIndex2(x, y);
@@ -2128,7 +2129,9 @@ export function engine({
           const damageCoord = getCoordIndex2(damagex, damagey);
           if (pos === damageCoord || segments.existsAtCoord(damageCoord)) {
             hit = true;
-            break outer;
+            if (state.lives <= 0 && heldItems.armor <= 0) {
+              es.snekDamage[damageCoord] = DamageType.Explosive;
+            }
           }
         }
       }
@@ -2711,6 +2714,9 @@ export function engine({
       if (mortalRuin && playerAtCoord) {
         instadeath = true;
         state.lastHurtBy = es.threatsMap[coord] === ThreatType.Saw ? DamageType.SawCut : DamageType.SpikePierce;
+        if (es.threatsMap[coord] === ThreatType.Saw) {
+          es.snekDamage[coord] = DamageType.SawCut;
+        }
         es.level.deathLocations ||= {};
         es.level.deathLocations[coord] = true;
         es.illuminationMap[coord] = 1;
@@ -2718,6 +2724,7 @@ export function engine({
       }
     }
     if (instadeath) {
+      applyMortalRuin();
       playSound(Sound.stab);
       startAction(epicDeathRoutine(), Action.EpicDeath);
     }
@@ -2734,6 +2741,34 @@ export function engine({
     applyDamage(5);
     // tick one additional frame so that handleSpikeDeath is not called again.
     yield null;
+  }
+
+  function applyMortalRuin() {
+    // decapitate snek
+    if (es.snekDamage[getCoordIndex(player.position)] === DamageType.SawCut) {
+      for (let i = segments.length - 1; i > 0; i--) {
+        segments.get(i).set(segments.get(i - 1));
+      }
+      segments.get(0).set(player.position);
+      player.position.add(dirToUnitVector(player.direction));
+      es.snekDamage[getCoordIndex(player.position)] = DamageType.MortalRuin;
+      es.snekDamage[getCoordIndex(segments.get(0))] = DamageType.MortalRuin;
+      es.snekDamage[getCoordIndex(segments.get(1))] = DamageType.MortalRuin;
+      es.illuminationMap[getCoordIndex(player.position)] = 1;
+    }
+    // carnage lay in the wake of snek
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (!segments.existsAtCoord(coord)) {
+        continue;
+      }
+      if (es.snekDamage[coord] === DamageType.SawCut || es.snekDamage[coord] === DamageType.Explosive) {
+        const idx = segments.getIndexAtCoord(coord);
+        if (idx > 0) { es.snekDamage[getCoordIndex(segments.get(idx - 1))] = DamageType.MortalRuin; }
+        if (idx === 0 || idx === segments.length - 1) { es.snekDamage[coord] = DamageType.MortalRuin; }
+        else if (idx >= 1) { es.snekDamage[coord] = DamageType.MortalRuinHide; }
+        if (idx < segments.length - 1) { es.snekDamage[getCoordIndex(segments.get(idx + 1))] = DamageType.MortalRuin; }
+      }
+    }
   }
 
   function handleSnakeDamage(didReceiveDamage: boolean) {
@@ -2907,6 +2942,9 @@ export function engine({
       const isPlayerAtCoord = coord === getCoordIndex(player.position) || segments.existsAtCoord(coord);
       if (isPlayerAtCoord && es.threatsMap[coord] === ThreatType.ElectricCoil) {
         threats.removeByCoord(coord, RemovalReason.Explode);
+      }
+      if (isPlayerAtCoord) {
+        es.snekDamage[coord] = DamageType.Electrocution;
       }
     }
     if (!armorProtect && segmentAtCoord) {

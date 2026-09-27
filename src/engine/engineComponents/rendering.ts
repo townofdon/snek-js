@@ -520,42 +520,64 @@ export function engineRendering({
       const color = gradients.calc(reversibleColorGradient, ((i + cycle) % (NUM_SNAKE_INVINCIBLE_COLORS - 1)) / (NUM_SNAKE_INVINCIBLE_COLORS - 1));
       renderer.drawSquare(vec.x, vec.y, color.toString(), color.toString(), drawPlayerOptions);
       _drawSegmentArmor(vec, i, dirPrev);
-    } else if (state.isInvertedColors) {
-      renderer.drawSquareStatic(gfxFG, vec.x, vec.y,
-        PALETTE.deathInvert.playerTail,
-        PALETTE.deathInvert.playerTailStroke,
-        drawPlayerOptionsDeath);
-      const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : es.level.colors.background;
-      if (cornerNE) {
-        renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'NE', drawPlayerOptionsDeath.screenshakeMul);
-      } else if (cornerSE) {
-        renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'SE', drawPlayerOptionsDeath.screenshakeMul);
-      } else if (cornerSW) {
-        renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'SW', drawPlayerOptionsDeath.screenshakeMul);
-      } else if (cornerNW) {
-        renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'NW', drawPlayerOptionsDeath.screenshakeMul);
+    // } else if (state.isInvertedColors) {
+    //   renderer.drawSquareStatic(gfxFG, vec.x, vec.y,
+    //     PALETTE.deathInvert.playerTail,
+    //     PALETTE.deathInvert.playerTailStroke,
+    //     drawPlayerOptionsDeath);
+    //   const backgroundColor = state.isInvertedColors && replay.mode !== ReplayMode.Playback ? PALETTE.deathInvert.background : es.level.colors.background;
+    //   if (cornerNE) {
+    //     renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'NE', drawPlayerOptionsDeath.screenshakeMul);
+    //   } else if (cornerSE) {
+    //     renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'SE', drawPlayerOptionsDeath.screenshakeMul);
+    //   } else if (cornerSW) {
+    //     renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'SW', drawPlayerOptionsDeath.screenshakeMul);
+    //   } else if (cornerNW) {
+    //     renderer.eraseCorner(gfxFG, backgroundColor, vec.x, vec.y, 'NW', drawPlayerOptionsDeath.screenshakeMul);
+    //   }
+    } else if (es.snekDamage[getCoordIndex(vec)] === DamageType.MortalRuinHide) {
+      // hide mortal ruin
+    } else if (es.snekDamage[getCoordIndex(vec)] === DamageType.MortalRuin) {
+      const gfx = renderer.getMainGfx();
+      const prev = getCoordIndex(segments.get(i - 1));
+      const next = getCoordIndex(segments.get(i + 1));
+      let dir = DIR.RIGHT;
+      if (i === 0) {
+        dir = player.directionToFirstSegment;
+      } else if (i === segments.length - 1) {
+        dir = getDirectionBetween(segments.get(i), segments.get(i - 1));
+      } else if (prev && es.snekDamage[prev] !== DamageType.MortalRuin && es.snekDamage[prev] !== DamageType.MortalRuinHide) {
+        dir = getDirectionBetween(segments.get(i), segments.get(i - 1));
+      } else if (es.snekDamage[next] !== DamageType.MortalRuin && es.snekDamage[next] !== DamageType.MortalRuinHide) {
+        dir = getDirectionBetween(segments.get(i), segments.get(i + 1));
+      } else if (prev && es.snekDamage[prev] === DamageType.MortalRuin) {
+        dir = getDirectionBetween(segments.get(i), segments.get(i - 1));
+      } else if (es.snekDamage[next] === DamageType.MortalRuin) {
+        dir = getDirectionBetween(segments.get(i), segments.get(i + 1));
       }
+      const rot = getRotationFromDirection(dir);
+      spriteRenderer.drawImage1x1(gfx, Image.ThemedSegmentMortalRuin, vec.x, vec.y, rot, 1, 1);
     } else {
       const gfx = renderer.getMainGfx();
       // draw normal segment
       if (cornerNE) {
-        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentNE, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentNE, vec.x, vec.y, 0, 1, 1);
       } else if (cornerSE) {
-        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentSE, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentSE, vec.x, vec.y, 0, 1, 1);
       } else if (cornerSW) {
-        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentSW, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentSW, vec.x, vec.y, 0, 1, 1);
       } else if (cornerNW) {
-        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentNW, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentNW, vec.x, vec.y, 0, 1, 1);
       } else if (lastSegment && dirPrev === DIR.LEFT) {
-        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtE, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtE, vec.x, vec.y, 0, 1, 1);
       } else if (lastSegment && dirPrev === DIR.DOWN) {
-        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtN, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtN, vec.x, vec.y, 0, 1, 1);
       } else if (lastSegment && dirPrev === DIR.RIGHT) {
-        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtW, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtW, vec.x, vec.y, 0, 1, 1);
       } else if (lastSegment && dirPrev === DIR.UP) {
-        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtS, vec.x, vec.y, 0, 1, 0);
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedButtS, vec.x, vec.y, 0, 1, 1);
       } else {
-        renderer.drawGraphicalComponent1x1Custom(gfx, graphicalComponents.snakeSegment, vec.x, vec.y);
+        renderer.drawGraphicalComponent1x1Custom(gfx, graphicalComponents.snakeSegment, vec.x, vec.y, 1, 1);
       }
       // draw decorative segment overlay
       const decoInterval = 9;

@@ -47,6 +47,7 @@ export class SpriteRenderer implements ISpriteRenderer {
     [Image.ThemedSegmentSE]: null,
     [Image.ThemedSegmentSW]: null,
     [Image.ThemedSegmentNW]: null,
+    [Image.ThemedSegmentMortalRuin]: null,
     [Image.ThemedButtN]: null,
     [Image.ThemedButtW]: null,
     [Image.ThemedButtS]: null,
@@ -233,6 +234,7 @@ export class SpriteRenderer implements ISpriteRenderer {
     this.setThemedImageFromSprite(colors, 16, Image.ThemedButtN, Image.SegmentsSheet, SegmentFrame.ButtN - 1);
     this.setThemedImageFromSprite(colors, 16, Image.ThemedButtW, Image.SegmentsSheet, SegmentFrame.ButtW - 1);
     this.setThemedImageFromSprite(colors, 16, Image.ThemedButtS, Image.SegmentsSheet, SegmentFrame.ButtS - 1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedSegmentMortalRuin, Image.SegmentsSheet, SegmentFrame.Carnage - 1);
   }
 
   private setThemedImageFromSprite(colors: ColorReplacementPalette, size: 16 | 48, dest: ThemedImage, sourceSprite: Image, frame: number, matchSize = false) {
