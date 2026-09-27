@@ -9,6 +9,7 @@ import { GameModeMenuElement } from './uiTypes';
 import { BLOCK_SIZE_X, DIMENSIONS } from '@/constants';
 
 export const UI_PARENT_ID = 'game-container';
+export const UI_CANVAS_LEFT = 'ui-canvas-left';
 export const UI_CANVAS_RIGHT = 'ui-canvas-right';
 const GAME_ID = 'game';
 const $GAME = document.getElementById('game');

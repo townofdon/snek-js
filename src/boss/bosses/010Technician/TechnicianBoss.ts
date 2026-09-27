@@ -51,9 +51,9 @@ export class TheTechnician extends BaseBoss {
   private stateMachine: BossStateMachine = 0;
   private damage: BossDamage = 0;
   private phaseIdx = 0;
-  private circuits: Record<number, CircuitState>;
+  private circuits: Record<number, CircuitState> = {};
 
-  private hp = 100;
+  private hp = 0;
   private spawnThreatsCoroutine: string;
   private timeSinceLastPhaseStart = 0;
 
@@ -82,6 +82,9 @@ export class TheTechnician extends BaseBoss {
     });
   }
 
+  public getHP = () => this.hp;
+  public getStateMachine = () => this.stateMachine;
+
   public intro = (...args: BossStartArgs) => {
     this.active = false;
     this.phaseIdx = 0;
@@ -93,6 +96,7 @@ export class TheTechnician extends BaseBoss {
     this.startScene = scene;
     return this.startScene;
   };
+
   public quickIntro = (...args: BossStartArgs) => {
     this.active = false;
     this.phaseIdx = 0;
@@ -106,15 +110,19 @@ export class TheTechnician extends BaseBoss {
     this.startScene = scene;
     return this.startScene;
   };
+
   public start = () => {
     this.active = true;
+    this.stateMachine = BossStateMachine.Intro;
     this.startAction(this.startRoutine(), Action.BossTransition);
   }
+
   public cleanup = () => {
     this.active = false;
     this.startScene?.cleanup();
     this.startScene = null;
   };
+
   public tick = (deltaTime: number) => {
     if (!this.active) return;
     if (this.stateMachine !== BossStateMachine.Fighting) return;
@@ -190,7 +198,6 @@ export class TheTechnician extends BaseBoss {
         }
         const shakeMul = 0.5;
         const elapsed = this.gameState.actualTimeElapsed;
-        this.es.illuminationMap[coord] = 0;
         switch (circuitState) {
           case CircuitState.Weak:
             const frame: BossComponentFrame = getCurrentFrame(SpritesheetRange.BossTileCircuitWeak, elapsed) + getFrameOffset(SpritesheetRange.BossTileCircuitWeak)
@@ -200,11 +207,10 @@ export class TheTechnician extends BaseBoss {
               [BossComponentFrame.TileCircuitWeak2 - 1]: 0.9,
               [BossComponentFrame.TileCircuitWeak3 - 1]: 0.4,
             };
-            this.es.illuminationMap[coord] = lightMap[frame] || 0.1;
+            this.es.illuminationMap[coord] = Math.max(lightMap[frame] || 0.1, this.es.illuminationMap[coord]);
             this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTileCircuitWeak, x, y, elapsed, 0, 1, shakeMul);
             break;
           case CircuitState.Hit:
-            this.es.illuminationMap[coord] = lightMap[frame] || 0.1;
             this.spriteRenderer.drawSpritesheetAnim1x1(this.p5, SpritesheetRange.BossTileCircuitHit, x, y, elapsed, 0, 1, shakeMul);
             break;
           case CircuitState.Off:
@@ -278,6 +284,15 @@ export class TheTechnician extends BaseBoss {
   };
 
   private * startRoutine() {
+    const prevTimeScale = this.loopState.timeScale;
+    this.loopState.timeScale = 0;
+    this.sfx.playLoop(Sound.uiChipLoop);
+    yield* this.coroutines.waitForTime(1000, (t) => {
+      this.hp = t * 100;
+    });
+    this.sfx.stop(Sound.uiChipLoop);
+    this.hp = 100;
+    this.loopState.timeScale = prevTimeScale;
     this.updateCircuits();
     yield* this.spawnApples();
     yield* this.spawnThreats();
@@ -297,12 +312,13 @@ export class TheTechnician extends BaseBoss {
     this.gameState.isDeathIlluminating = true;
     this.gameState.globalLightOverride = undefined;
     coroutines.stop(this.spawnThreatsCoroutine);
+    // give other scripts one stack frame to react to new state machine status
+    yield null;
 
     // snek charges up
     // TODO: ADD CHARGE UP SOUND
     this.damage = BossDamage.Activating;
     this.sfx.play(Sound.acquireShield, 0.2);
-    this.es.illuminationMap = {};
     this.es.illuminationMap = {};
     this.es.illuminationMap[getCoordIndex(this.player.position)] = 1;
     for (let i = 0; i < this.segments.length; i++) {
@@ -689,7 +705,7 @@ export class TheTechnician extends BaseBoss {
     while (this.stateMachine === BossStateMachine.Fighting) {
       const elapsed = this.gameState.actualTimeElapsed;
       const t = triangle(((elapsed - this.timeSinceLastPhaseStart) / (3000 / 2)) % 2);
-      this.gameState.globalLightOverride = lerp(1, 0.1, Easing.inOutQuad(t));
+      this.gameState.globalLightOverride = lerp(1, 0.1, Easing.inOutCubic(t));
       yield null;
     }
   }

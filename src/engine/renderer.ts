@@ -17,6 +17,12 @@ import {
   ScreenShakeState,
   SpritesheetImage,
   Tutorial,
+  Boss,
+  Stats,
+  Level,
+  Difficulty,
+  SpritesheetRange,
+  BossStateMachine,
 } from "../types";
 import {
   ACCENT_COLOR,
@@ -37,7 +43,7 @@ import {
   SHOW_FPS,
   STROKE_SIZE,
 } from "../constants";
-import { clamp, getRotationFromDirection, lerp, oscilateLinear } from "../utils";
+import { clamp, getLevelProgress, getRotationFromDirection, lerp, oscilateLinear } from "../utils";
 import { SpriteRenderer } from "./spriteRenderer";
 import { Easing } from "../easing";
 import { getBorderColorVariant } from "@/palettes";
@@ -779,6 +785,94 @@ export class Renderer implements IRenderer {
     gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text(text, textX, textY);
+  }
+
+  drawLeftUI = (gfx: P5 | P5.Graphics, progress: number, boss: Boss | null) => {
+    if (this.replay.mode === ReplayMode.Playback) return;
+    if (this.gameState.isGameWon) return;
+    if (!this.gameState.isGameStarted) return;
+
+    if (boss) {
+      this.drawBossHealthbar(gfx, boss);
+      return;
+    }
+    // TODO: draw level progress
+  }
+
+  private bossLagHp = 0;
+  private bossLastTimeDamage = 0;
+  private bossPrevHp = 0;
+  private bossPrevState = BossStateMachine.None;
+  private drawBossHealthbar = (gfx: P5 | P5.Graphics, boss: Boss) => {
+    const lag = 800;
+    const hp = boss.getHP();
+    const bossState = boss.getStateMachine();
+    const elapsed = this.gameState.actualTimeElapsed;
+    if (bossState === BossStateMachine.Defeated) {
+      return;
+    }
+    if (bossState === BossStateMachine.Intro && hp <= 0) {
+      return;
+    }
+    if(bossState === BossStateMachine.Intro) {
+      this.bossLagHp = 0;
+      this.bossLastTimeDamage = 0;
+    }
+    if (this.bossPrevState !== bossState && bossState === BossStateMachine.TakingDamage) {
+      this.bossLagHp = hp;
+      this.bossLastTimeDamage = elapsed;
+    }
+    if (bossState === BossStateMachine.TakingDamage && hp < this.bossPrevHp) {
+      this.bossLastTimeDamage = elapsed;
+    }
+    this.bossPrevHp = hp;
+    this.bossPrevState = bossState;
+    const xoffset = 2;
+    const textcolor = "#fff";
+    const bosstext = "boss";
+    const rows = 28;
+    // draw boss text
+    const textX = BLOCK_SIZE_X * 4 - 4;
+    const textY = BLOCK_SIZE_Y * 1 + 12;
+    gfx.fill(textcolor);
+    gfx.strokeWeight(2 * 4);
+    gfx.textSize(2 * 8);
+    gfx.textAlign(this.p5.RIGHT, this.p5.TOP);
+    gfx.textFont(this.fonts.variants.miniMood);
+    gfx.text(bosstext, textX, textY);
+    // draw hp blocks
+    for (let row = 0; row < rows; row++) {
+      const val = (row / (rows - 1)) * 100;
+      const empty = val > hp || hp === 0;
+      const x = xoffset;
+      const y = GRIDCOUNT_Y - 1 - row;
+      if (empty) {
+        this.spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.BossHPEmpty, x, y, elapsed, 0, 1, 0);
+      } else {
+        this.spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.BossHPMain, x, y, elapsed, 0, 1, 0);
+      }
+    }
+    // draw damage lag
+    if (hp !== this.bossLagHp) {
+      let max = 0;
+      for (let row = 0; row < rows; row++) {
+        const val = (row / (rows - 1)) * 100;
+        if (val < hp) continue;
+        if (val > this.bossLagHp) break;
+        max++;
+      }
+      let i = 0;
+      for (let row = 0; row < rows; row++) {
+        const val = (row / (rows - 1)) * 100;
+        if (val < hp) continue;
+        if (val > this.bossLagHp) break;
+        const x = xoffset;
+        const y = GRIDCOUNT_Y - 1 - row;
+        const t = Math.max(elapsed - this.bossLastTimeDamage - Easing.inQuad((max - i) / max) * lag, 0);
+        this.spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.BossHPDissolve, x, y, t, 0, 1, 0);
+        i++;
+      }
+    }
   }
 
   drawRightUI = (gfx: P5 | P5.Graphics, armorCount: number, reversiblesCount: number) => {

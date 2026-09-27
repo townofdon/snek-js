@@ -66,7 +66,7 @@ import {
   PipeVariant,
   SmokeType,
 } from "@/types";
-import { UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
+import { UI_CANVAS_LEFT, UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
 import { Renderer } from "../renderer";
 import { PALETTE } from "@/palettes";
 import { SpriteRenderer } from "../spriteRenderer";
@@ -152,6 +152,7 @@ export function engineRendering({
   const gfxFGAction: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
   const gfxLighting: P5.Graphics = p5.createGraphics(DIMENSIONS.x, DIMENSIONS.y, p5.P2D);
   const gfxUIRight: P5.Graphics = p5.createGraphics(BLOCK_SIZE_X, DIMENSIONS.y, p5.P2D, document.getElementById(UI_CANVAS_RIGHT));
+  const gfxUILeft: P5.Graphics = p5.createGraphics(BLOCK_SIZE_X * 4, DIMENSIONS.y, p5.P2D, document.getElementById(UI_CANVAS_LEFT));
   gfxBG.addClass('static-gfx-canvas').addClass('bg').parent(UI_PARENT_ID).addClass('gfx-bg').id('canvas-bg');
   gfxExitLights.addClass('static-gfx-canvas').addClass('fg0').parent(UI_PARENT_ID).addClass('gfx-exit-lights');
   gfxKeysLocks.addClass('static-gfx-canvas').addClass('fg1').parent(UI_PARENT_ID).addClass('gfx-keys-locks').id('canvas-keys-locks');
@@ -291,6 +292,7 @@ export function engineRendering({
     gfxExitLights.clear(0, 0, 0, 0);
     gfxLighting.clear(0, 0, 0, 0);
     gfxPresentation.clear(0, 0, 0, 0);
+    gfxUILeft.clear(0, 0, 0, 0);
     gfxUIRight.clear(0, 0, 0, 0);
     if (drawState.shouldDrawApples) {
       gfxApples.clear(0, 0, 0, 0);
@@ -1573,6 +1575,7 @@ export function engineRendering({
     gfxFG,
     gfxFGAction,
     gfxLighting,
+    gfxUILeft,
     gfxUIRight,
     initGraphics,
     resetGraphics,

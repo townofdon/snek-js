@@ -111,6 +111,7 @@ export class SpriteRenderer implements ISpriteRenderer {
     [Image.ThreatFlameSheet]: null,
     [Image.BossComponents]: null,
     [Image.BossTechnician]: null,
+    [Image.BossHealthbar]: null,
   } satisfies Record<Image, P5.Image | null>;
 
   constructor(props: SpriteRendererConstructorProps) {
@@ -367,6 +368,7 @@ export class SpriteRenderer implements ISpriteRenderer {
       this.loadImage(Image.ThreatFlameSheet);
       this.loadImage(Image.BossComponents);
       this.loadImage(Image.BossTechnician);
+      this.loadImage(Image.BossHealthbar);
     } catch (err) {
       console.error(err)
     }

@@ -315,6 +315,16 @@ main {
   width: 16px;
 }
 
+.ui-canvas-left {
+  display: block !important;
+  position: absolute;
+  right: 100%;
+  top: 0;
+  bottom: 0;
+  /* width will be overridden in JS */
+  width: 16px;
+}
+
 .blur {
   filter: blur(2px);
   backdrop-filter: blur(2px);

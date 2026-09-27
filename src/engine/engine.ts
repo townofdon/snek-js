@@ -453,6 +453,7 @@ export function engine({
     gfxFG,
     gfxFGAction,
     gfxLighting,
+    gfxUILeft,
     gfxUIRight,
     initGraphics,
     resetGraphics,
@@ -708,6 +709,7 @@ export function engine({
   function getMaybeTitleScene() {
       const annotation = (() => {
         if (!es.level.id) return '';
+        if (hasLevelBoss(es.level)) return '';
         if (state.isRandomizer) {
           const levelNum = (20 - getNumRandomLevelsRemaining()) || 20;
           return `${levelNum} / 20`;
@@ -1600,6 +1602,7 @@ export function engine({
 
     if (state.appMode === AppMode.StartScreen) return;
     if (state.isPaused) {
+      renderer.drawLeftUI(gfxUILeft, getLevelProgress(stats, es.level, es.difficulty), boss.current);
       renderer.drawRightUI(gfxUIRight, heldItems.armor, heldItems.reversibles);
       return;
     }
@@ -1733,6 +1736,7 @@ export function engine({
     if (es.level.renderInstructions) {
       es.level.renderInstructions(gfxPresentation, renderer, state, es.level.colors);
     }
+    renderer.drawLeftUI(gfxUILeft, getLevelProgress(stats, es.level, es.difficulty), boss.current);
     renderer.drawRightUI(gfxUIRight, heldItems.armor, heldItems.reversibles);
     renderer.drawTutorialMoveControls(gfxPresentation);
     renderer.drawTutorialRewindControls(gfxPresentation, player.position, rewindAllowed());

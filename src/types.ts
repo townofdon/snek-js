@@ -584,8 +584,8 @@ export type BossStartArgs = [
 ];
 
 export interface Boss {
-  // getCurrentState: () => BossStateMachine,
-  // getCurrentPhase: () => BossAgro,
+  getStateMachine: () => BossStateMachine,
+  getHP: () => number;
   intro: (...args: BossStartArgs) => Scene,
   quickIntro: (...args: BossStartArgs) => Scene,
   start: () => void,
@@ -1324,6 +1324,7 @@ export enum Image {
   Points10000 = 'snek-points-10000.png',
   BossComponents = 'snek-boss-components.png',
   BossTechnician = 'snek-boss-technician.png',
+  BossHealthbar = 'snek-boss-healthbar.png'
 }
 
 export type ThemedImage =
@@ -1379,6 +1380,9 @@ export enum SpritesheetRange {
   BossTechnicianIdle,
   BossTechnicianHurt,
   ElectricCoil,
+  BossHPMain,
+  BossHPDissolve,
+  BossHPEmpty,
 }
 export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange).filter(v => typeof v === 'number')) + 1;
 
@@ -1430,6 +1434,7 @@ export type SpritesheetImage =
   | Image.EditorAnnotationsSheet
   | Image.BossComponents
   | Image.BossTechnician
+  | Image.BossHealthbar
 ;
 
 export enum Threat48Frame {

@@ -825,6 +825,33 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frames: 2,
     timePerFrame: 100,
   },
+  [Image.BossHealthbar]: {
+    frames: 25,
+    timePerFrame: 200,
+    frameWidth: 32,
+    frameHeight: 16,
+  },
+  [SpritesheetRange.BossHPMain]: {
+    src: Image.BossHealthbar,
+    offset: 0,
+    frames: 14,
+    timePerFrame: 100,
+    durations: [4000, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60, 60],
+  },
+  [SpritesheetRange.BossHPDissolve]: {
+    src: Image.BossHealthbar,
+    offset: 14,
+    frames: 10,
+    timePerFrame: 60,
+    oneShot: true,
+  },
+  [SpritesheetRange.BossHPEmpty]: {
+    src: Image.BossHealthbar,
+    offset: 24,
+    frames: 1,
+    timePerFrame: 999999,
+    oneShot: true,
+  },
 } satisfies (Record<SpritesheetImage, AnimationData> & Record<SpritesheetRange, AnimationDataForRange>);
 
 // validate ANIMATIONS data

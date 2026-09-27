@@ -18,6 +18,7 @@ import {
   SmokeType,
   ThreatType,
   IMusicPlayer,
+  BossStateMachine,
 } from "@/types";
 import { Renderer } from "@/engine/renderer";
 import { SpriteRenderer } from "@/engine/spriteRenderer";
@@ -107,6 +108,8 @@ export abstract class BaseBoss implements Boss {
   protected abstract readonly startScene: Scene;
   protected abstract readonly phases: Record<DifficultyIndex, BossAgro[]>;
 
+  public abstract getHP: () => number;
+  public abstract getStateMachine: () => BossStateMachine;
   public abstract intro: (...args: BossStartArgs) => Scene;
   public abstract quickIntro: (...args: BossStartArgs) => Scene;
   public abstract start: () => void;
