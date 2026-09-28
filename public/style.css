@@ -902,12 +902,12 @@ button.game-mode.back {
   z-index: 25;
   display: block;
   position: absolute;
-  top: calc(50% + 16px);
+  top: calc(60% + 16px);
   left: 16px;
   bottom: 16px;
   right: 16px;
   border: 8px groove rgba(256,256,256,.5);
-  background: #0096888f;
+  background: #0000008f;
   border-radius: 4px;
   color: #fff;
   font-family: MiniMOOD, 'VT323', monospace;
@@ -920,6 +920,7 @@ button.game-mode.back {
   left: 16px;
   bottom: 16px;
   right: 16px;
+  gap: 16px;
   display: flex;
   align-items: center;
   justify-content: center;

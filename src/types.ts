@@ -364,12 +364,23 @@ export enum ResolutionMode {
   FillScreen,
 }
 
-export interface GameSettings {
+export interface DebugSettings {
+  easyExit: boolean,
+  disableTransitions: boolean,
+}
+
+export interface BaseGameSettings {
   musicVolume: number,
   sfxVolume: number,
   isScreenShakeDisabled: boolean,
   resolutionMode: ResolutionMode,
   fullScreen: boolean,
+}
+
+export interface GameSettings extends BaseGameSettings {
+  debug: DebugSettings,
+  setEasyExit: (val: boolean) => void,
+  setDisableTransitions: (val: boolean) => void,
 }
 
 export type LevelId = string;

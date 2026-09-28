@@ -32,6 +32,7 @@ interface StackProps {
   className?: string;
   style?: React.CSSProperties;
   children?: React.ReactNode;
+  gap?: number
 }
 
 export const Stack = ({
@@ -45,6 +46,7 @@ export const Stack = ({
   className,
   style,
   children,
+  gap,
 }: StackProps) => {
   return (
     <div
@@ -64,7 +66,10 @@ export const Stack = ({
         [styles.marginTop]: marginTop,
         [styles.noChildMargin]: noChildMargin,
       })}
-      style={style}
+      style={{
+        ...style,
+        ...(gap ? { gap }: {}),
+      }}
     >
       {children}
     </div>

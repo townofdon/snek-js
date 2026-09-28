@@ -93,6 +93,9 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
       || !ORDER[this.selectedGroup]
       || !ORDER[this.selectedGroup][this.selectedIndex]
     ) {
+
+      console.log('goto-first');
+
       return this.gotoFirst();
     }
     const currentGroupSize = ORDER[this.selectedGroup].length;
@@ -100,7 +103,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
     const nextGroupSize = ORDER[nextGroupIndex].length;
     const nextIndex = this.opts.disableGridNav
       ? 0
-      : Math.round(this.selectedIndex * ((nextGroupSize - 1) / (currentGroupSize - 1)));
+      : (Math.round(this.selectedIndex * ((nextGroupSize - 1) / (currentGroupSize - 1))) || 0);
     const nextElement = ORDER[nextGroupIndex][nextIndex];
     const didSelect = (elem: HTMLElement | null) => !!elem && elem === document.activeElement
     let node = document.getElementById(nextElement);
@@ -519,8 +522,11 @@ export enum PauseMenuElement {
   ButtonResume = 'pauseButtonResume',
   ButtonMainMenu = 'pauseButtonMainMenu',
   ButtonSettings = 'pauseButtonSettings',
-  DropdownDebugWarp = 'debug-menu-warp-dropdown',
-}
+  DebugDropdownWarp = 'debug-menu-warp-dropdown',
+  DebugDropdownDifficulty = 'debug-menu-difficulty',
+  DebugCheckboxEasyExit = 'debug-checkbox-easy-exit',
+  DebugCheckboxDisableTransitions = 'debug-checkbox-disable-transitions',
+};
 
 const PAUSE_MENU_ELEMENT_ORDER = [
   [
@@ -529,9 +535,18 @@ const PAUSE_MENU_ELEMENT_ORDER = [
     PauseMenuElement.ButtonSettings,
   ],
   [
-    PauseMenuElement.DropdownDebugWarp,
+    PauseMenuElement.DebugDropdownWarp,
   ],
-]
+  [
+    PauseMenuElement.DebugDropdownDifficulty,
+  ],
+  [
+    PauseMenuElement.DebugCheckboxEasyExit,
+  ],
+  [
+    PauseMenuElement.DebugCheckboxDisableTransitions,
+  ],
+];
 
 export class PauseMenuNavMap extends GroupedNavMap<PauseMenuElement> {
   constructor(callAction: (element: PauseMenuElement) => void) {

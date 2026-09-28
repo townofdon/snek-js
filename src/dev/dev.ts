@@ -66,8 +66,14 @@ const settings: GameSettings = {
   musicVolume: 1,
   sfxVolume: 1,
   isScreenShakeDisabled: false,
-  resolutionMode: ResolutionMode.PixelPerfect,
+  resolutionMode: ResolutionMode.FillScreen,
   fullScreen: true,
+  debug: {
+    easyExit: false,
+    disableTransitions: false,
+  },
+  setEasyExit: () => {},
+  setDisableTransitions: () => {},
 }
 const state: GameState = { ...DEFAULT_GAME_STATE };
 const stats: Stats = { ...DEFAULT_BASE_STATS, applesEatenThisLevel: 0, totalLevelTimeElapsed: 0 } satisfies Stats;

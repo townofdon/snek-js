@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import Select, { ActionMeta, OnChangeValue } from 'react-select'
+import React, { useEffect, useRef, useState } from 'react';
+import Select, { ActionMeta, GroupBase, OnChangeValue } from 'react-select'
 
 import { FieldLabel } from './FieldLabel';
 
@@ -17,13 +17,52 @@ interface DropdownFieldProps {
   onChange: (val: Option) => void;
   defaultValue?: string,
   placeholder?: string
+  onMenuOpen?: () => void,
+  onMenuClose?: () => void,
 }
 
-export const DropdownField = ({ id, label, options, value, onChange, placeholder = "Select an option", defaultValue }: DropdownFieldProps) => {
+export const DropdownField = ({
+  id,
+  label,
+  options,
+  value,
+  onChange,
+  onMenuOpen,
+  onMenuClose,
+  placeholder = "Select an option",
+  defaultValue,
+}: DropdownFieldProps) => {
   const select = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleChange = (option: OnChangeValue<Option, false>, actionMeta: ActionMeta<Option>) => {
+    setMenuOpen(false);
     onChange(option);
+  }
+  const handleKeyDown: React.KeyboardEventHandler<HTMLDivElement> = (ev) => {
+    if (!menuOpen && (ev.key === ' ' || ev.key === 'Enter')) {
+      ev.preventDefault();
+      select.current?.onMenuOpen?.();
+    }
+    if (menuOpen && ev.key === 'Backspace') {
+      select.current?.onMenuClose?.();
+    }
+  }
+
+  useEffect(() => {
+    if (menuOpen) {
+      onMenuOpen?.();
+    } else {
+      onMenuClose?.();
+    }
+  }, [menuOpen]);
+
+  const handleMenuOpen = () => {
+    setMenuOpen(true);
+  }
+
+  const handleMenuClose = () => {
+    setMenuOpen(false);
   }
 
   const selectedOption = options.find(option => option.value === value) || options.find(option => option.value === defaultValue);
@@ -39,6 +78,14 @@ export const DropdownField = ({ id, label, options, value, onChange, placeholder
       classNamePrefix="react-select"
       menuShouldScrollIntoView
       menuPlacement="top"
+      openMenuOnFocus={false}
+      tabSelectsValue={false}
+      openMenuOnClick
+      closeMenuOnSelect
+      onKeyDown={handleKeyDown}
+      onMenuOpen={handleMenuOpen}
+      onMenuClose={handleMenuClose}
+      tabIndex={0}
     />
   );
 

@@ -100,6 +100,12 @@ const settings: GameSettings = {
   isScreenShakeDisabled: false,
   resolutionMode: ResolutionMode.PixelPerfect,
   fullScreen: true,
+  debug: {
+    easyExit: false,
+    disableTransitions: false,
+  },
+  setEasyExit: () => {},
+  setDisableTransitions: () => {},
 }
 const state: GameState = { ...DEFAULT_GAME_STATE };
 const stats: Stats = { ...DEFAULT_BASE_STATS, applesEatenThisLevel: 0, totalLevelTimeElapsed: 0 } satisfies Stats;

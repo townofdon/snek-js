@@ -1,16 +1,21 @@
-import { GameSettings, ResolutionMode } from "../types";
+import { BaseGameSettings, DebugSettings, GameSettings, ResolutionMode } from "../types";
 import { BaseStore } from "./BaseStore";
 
 class SettingsStore extends BaseStore<GameSettings> implements GameSettings {
   public get key(): string { return "settings"; }
 
-  private readonly defaultValue: GameSettings = {
+  private readonly defaultValue: BaseGameSettings = {
     musicVolume: 1,
     sfxVolume: 1,
     isScreenShakeDisabled: false,
     resolutionMode: ResolutionMode.FillScreen,
     fullScreen: true,
   };
+
+  private debugState: DebugSettings = {
+    easyExit: false,
+    disableTransitions: false,
+  } satisfies DebugSettings;
 
   private state: GameSettings = {
     ...this.defaultValue,
@@ -39,6 +44,14 @@ class SettingsStore extends BaseStore<GameSettings> implements GameSettings {
     this.set({ fullScreen: val });
     triggerFullscreenChange(val);
   }
+
+  public setEasyExit(val: boolean) {
+    this.debugState.easyExit = val;
+  }
+  public setDisableTransitions(val: boolean) {
+    this.debugState.disableTransitions = val;
+  }
+  public get debug() { return { ...this.debugState }; }
 }
 
 export const triggerFullscreenChange = (incoming: boolean) => {

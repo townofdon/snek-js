@@ -28,7 +28,10 @@
     <%= htmlWebpackPlugin
       .tags
       .headTags
-      .filter((tag) => tag.attributes?.src?.includes('main.bundle'))
+      .filter((tag) =>
+        tag.attributes?.src?.includes('main.bundle') ||
+        /main.*\.css$/.test(tag.attributes?.href)
+      )
       .join('')
     %>
   </head>

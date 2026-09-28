@@ -9,9 +9,11 @@ import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from "@/levels/levelConstants
 import { DropdownField, Option } from "@/components/Field";
 import { Stack } from "@/components/Stack";
 import { findLevelWarpIndex } from "@/levels/levelUtils";
+import { CheckboxField } from "./components/CheckboxField";
 
 export const DebugMenu = () => {
   const [showing, setShowing] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const forceRerender = useForceRerender();
   const debugMenu = useRef<HTMLDivElement>(null);
   const pauseMenuNavMap = useRef<PauseMenuNavMap>(null);
@@ -53,7 +55,13 @@ export const DebugMenu = () => {
   const handleSetLevel = (option: Option) => {
     const id = option.value;
     const match = levelsToInclude.find(level => level.id === id);
-    if (!match) return;
+    const idx = findLevelWarpIndex(match)
+    if (!match) {
+      throw new Error(`no match for level id=${id}`)
+    }
+    if (!idx) {
+      throw new Error(`no warp index found for level id=${id}`);
+    }
     setSelectedLevel(match);
     bridge.callAction(InputAction.WarpToLevel, findLevelWarpIndex(match));
   }
@@ -96,16 +104,24 @@ export const DebugMenu = () => {
 
   useEffect(() => {
     if (showing) {
+      // note - the debug menu defers to the pauseMenuNavMap defined in uiBindings
       bridge.debugMenu.onNavigate = (navDir) => {
         const focused = document.activeElement && debugMenu.current?.contains(document.activeElement);
-        // if focused, intercept navigation input
-        return focused;
+        const interceptNavigationInput = focused && menuOpen;
+        return interceptNavigationInput;
       }
       bridge.debugMenu.onInteract = () => {
-        return pauseMenuNavMap.current.callSelected();
+        const focused = document.activeElement && debugMenu.current?.contains(document.activeElement);
+        const clickable = (document.activeElement as HTMLInputElement)?.type === 'checkbox';
+        const interceptNavigationInput = focused && clickable;
+        if (!interceptNavigationInput) return false;
+        (document.activeElement as HTMLInputElement).click();
+        return true;
       }
       bridge.debugMenu.onCancel = () => {
-        return false;
+        const focused = document.activeElement && debugMenu.current?.contains(document.activeElement);
+        const interceptNavigationInput = focused && menuOpen;
+        return interceptNavigationInput;
       }
     } else {
       bridge.debugMenu.onNavigate = null;
@@ -113,32 +129,74 @@ export const DebugMenu = () => {
       bridge.debugMenu.onCancel = null;
       pauseMenuNavMap.current = null;
     }
-  }, [showing]);
+  }, [showing, menuOpen]);
 
   if (!showing) return;
 
+  const onMenuOpen = () => { setMenuOpen(true); }
+  const onMenuClose = () => { setMenuOpen(false); }
+
+  const handleChangeEasyExit = (checked: boolean) => {
+    if (!showing) return;
+    bridge.settings.setEasyExit(checked);
+    forceRerender();
+  }
+
+  const handleChangeDisableTransitions = (checked: boolean) => {
+    if (!showing) return;
+    bridge.settings.setDisableTransitions(checked);
+    forceRerender();
+  }
+
   return (
     <div ref={debugMenu} id="debug-menu" className="debug-menu">
-      <Stack className="content">
-        <Stack row>
-          <DropdownField
-            id={PauseMenuElement.DropdownDebugWarp}
-            label="Warp To Level"
-            options={levelOptions}
-            value={selectedLevel.id}
-            defaultValue={LEVEL_01.id}
-            onChange={handleSetLevel}
-          />
-        </Stack>
-        <Stack row>
-          <DropdownField
-            id="debug-menu-difficulty-dropdown"
-            label="Difficulty"
-            options={difficultyOptions}
-            value={String(difficulty)}
-            defaultValue={'3'}
-            onChange={handleSetDifficulty}
-          />
+      <Stack col className="content">
+        <Stack col align="start">
+          <Stack row>
+            <h2 className="minimood">debug</h2>
+          </Stack>
+          <Stack row>
+            <DropdownField
+              id={PauseMenuElement.DebugDropdownWarp}
+              label="Warp To Level"
+              options={levelOptions}
+              value={selectedLevel.id}
+              defaultValue={LEVEL_01.id}
+              onChange={handleSetLevel}
+              onMenuOpen={onMenuOpen}
+              onMenuClose={onMenuClose}
+            />
+          </Stack>
+          <Stack row>
+            <DropdownField
+              id={PauseMenuElement.DebugDropdownDifficulty}
+              label="Difficulty"
+              options={difficultyOptions}
+              value={String(difficulty)}
+              defaultValue={'3'}
+              onChange={handleSetDifficulty}
+              onMenuOpen={onMenuOpen}
+              onMenuClose={onMenuClose}
+            />
+          </Stack>
+          <Stack row>
+            <CheckboxField
+              id={PauseMenuElement.DebugCheckboxEasyExit}
+              name="easy-exit"
+              label="Enable Easy Exit"
+              checked={bridge.settings.debug.easyExit}
+              onChange={handleChangeEasyExit}
+            />
+          </Stack>
+          <Stack row>
+            <CheckboxField
+              id={PauseMenuElement.DebugCheckboxDisableTransitions}
+              name="disable-transitions"
+              label="Disable Transitions"
+              checked={bridge.settings.debug.disableTransitions}
+              onChange={handleChangeDisableTransitions}
+            />
+          </Stack>
         </Stack>
       </Stack>
     </div>

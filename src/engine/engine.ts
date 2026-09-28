@@ -6,11 +6,9 @@ import {
   ANIMATIONS,
   CLEAR_BONUS,
   COBRA_SCORE_MOD,
-  DEBUG_EASY_LEVEL_EXIT,
   DEFAULT_PAR_TIME,
   DEFAULT_PORTALS,
   DIFFICULTY_MEDIUM,
-  DISABLE_TRANSITIONS,
   FRAMERATE,
   FRAME_DUR_MS,
   GLOBAL_LIGHT_DEFAULT,
@@ -653,6 +651,7 @@ export function engine({
 
   function setDifficulty(incoming: Difficulty) {
     es.difficulty = { ...incoming }
+    renderDifficultyUI();
   }
 
   function getLevel() {
@@ -664,6 +663,8 @@ export function engine({
   }
 
   function renderDifficultyUI() {
+    if (!state.isGameStarted) return;
+    if (state.appMode !== AppMode.Game) return;
     if (es.level === START_LEVEL) return;
     if (es.level === START_LEVEL_COBRA) return;
     if (es.level.type === LevelType.Maze) return;
@@ -990,7 +991,7 @@ export function engine({
         .catch(err => { console.error(err); })
         .finally(() => {
           if (replay.mode !== ReplayMode.Playback && (state.isGameStarted || state.isGameStarting)) {
-            if (DISABLE_TRANSITIONS) {
+            if (settings.debug.disableTransitions) {
               musicPlayer.stopAllTracks();
             }
             musicPlayer.play(es.level.musicTrack);
@@ -2051,7 +2052,7 @@ export function engine({
   function getHasClearedLevel() {
     const applesMod = es.level.applesModOverride || es.difficulty.applesMod || 1;
     if (state.isGameWon) return false;
-    if (DEBUG_EASY_LEVEL_EXIT && stats.applesEatenThisLevel > 0) return true;
+    if (settings.debug.easyExit && stats.applesEatenThisLevel > 0) return true;
     if (stats.applesEatenThisLevel >= es.level.applesToClear * applesMod) return true;
     if (state.timeElapsed >= es.level.timeToClear && stats.applesEatenThisLevel >= es.level.applesToClear * applesMod * 0.5) return true;
     return false;
@@ -2410,7 +2411,7 @@ export function engine({
       return;
     }
 
-    if (DISABLE_TRANSITIONS) {
+    if (settings.debug.disableTransitions) {
       gotoNextLevel();
     } else if (getIsStartLevel()) {
       gotoNextLevel();
@@ -2425,7 +2426,7 @@ export function engine({
       const isPerfect = apples.length === 0 && state.collisions === 0;
       const hasAllApples = apples.length === 0;
       const hasAllLocks = !!es.level.numLocks && es.locks.length === 0;
-      const shouldRecordLevelCompletion = !DEBUG_EASY_LEVEL_EXIT &&
+      const shouldRecordLevelCompletion = !settings.debug.easyExit &&
         state.gameMode !== GameMode.Casual &&
         !!levelToSave?.id;
 

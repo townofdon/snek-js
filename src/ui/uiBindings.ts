@@ -217,7 +217,7 @@ export class UIBindings implements UIHandler {
       }
     }
     if (this.gameState.isPaused) {
-      if (bridge.debugMenu.onNavigate(navDir)) {
+      if (bridge.debugMenu.onNavigate?.(navDir)) {
         return true;
       }
       switch (navDir) {
@@ -262,6 +262,9 @@ export class UIBindings implements UIHandler {
       return this.gameOverMenuNavMap.callSelected();
     }
     if (this.gameState.isPaused) {
+      if (bridge.debugMenu.onInteract?.()) {
+        return true;
+      }
       return this.pauseMenuNavMap.callSelected();
     }
     return false;
@@ -277,6 +280,13 @@ export class UIBindings implements UIHandler {
     }
     if (UI.getIsGameModeMenuShowing()) {
       this.callAction(InputAction.HideGameModeMenu);
+      return true;
+    }
+    if (this.gameState.isPaused) {
+      if (bridge.debugMenu.onCancel?.()) {
+        return true;
+      }
+      this.callAction(InputAction.UnPause);
       return true;
     }
     return false;

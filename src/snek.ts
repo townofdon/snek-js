@@ -16,7 +16,6 @@ import {
   DIMENSIONS,
   MAX_LIVES,
   DIFFICULTY_EASY,
-  DISABLE_TRANSITIONS,
   DIFFICULTY_MEDIUM,
 } from './constants';
 import {
@@ -584,7 +583,7 @@ export const sketch = (p5: P5) => {
   }
 
   function* startGameRoutine(levelNum = -1): IEnumerator {
-    if (!DISABLE_TRANSITIONS) {
+    if (!settings.debug.disableTransitions) {
       yield* coroutines.waitForTime(1000, (t) => {
         const freq = .2;
         const shouldShow = t % freq > freq * 0.5;
@@ -644,7 +643,7 @@ export const sketch = (p5: P5) => {
   function initLevel(shouldShowTransitions = true) {
     const level = getLevel();
     const difficulty = getDifficulty();
-    if (DISABLE_TRANSITIONS) {
+    if (settings.debug.disableTransitions) {
       shouldShowTransitions = false;
     }
     if (replay.mode === ReplayMode.Playback) {
@@ -721,7 +720,7 @@ export const sketch = (p5: P5) => {
   }
 
   function warpToLevel(levelNum = 1) {
-    if (getIsStartLevel() || state.gameMode === GameMode.Cobra) return;
+    // if (getIsStartLevel() || state.gameMode === GameMode.Cobra) return;
     if (levelNum === 9999) {
       const levelName = prompt('Input level name');
       let found: Level = null;
@@ -928,7 +927,7 @@ export const sketch = (p5: P5) => {
 
     const level = getLevel();
     const challengeLevelIndex = CHALLENGE_LEVELS.indexOf(level);
-    const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !DISABLE_TRANSITIONS;
+    const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !settings.debug.disableTransitions;
     stats.applesEatenThisLevel = 0;
     if (!getIsStartLevel()) {
       stats.numLevelsCleared += 1;

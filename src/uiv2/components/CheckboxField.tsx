@@ -1,6 +1,7 @@
 import React, { forwardRef } from "react";
 
 interface CheckboxFieldProps {
+  id?: string;
   label?: string;
   caption?: string;
   name: string;
@@ -10,13 +11,13 @@ interface CheckboxFieldProps {
   className?: string;
 }
 
-export const CheckboxField = forwardRef<HTMLInputElement, CheckboxFieldProps>(({ name, label, caption, checked, onChange, disabled, className }: CheckboxFieldProps, ref) => {
+export const CheckboxField = forwardRef<HTMLInputElement, CheckboxFieldProps>(({ id, name, label, caption, checked, onChange, disabled, className }: CheckboxFieldProps, ref) => {
   const handleChange: React.ChangeEventHandler<HTMLInputElement> = (ev) => {
     onChange(ev.target.checked);
   }
   const checkbox = (
     <>
-      <input ref={ref} type="checkbox" name={name} checked={checked} onChange={handleChange} disabled={disabled} className={className} />
+      <input id={id} ref={ref} type="checkbox" name={name} checked={checked} onChange={handleChange} disabled={disabled} className={className} />
       <span className="checkmark"></span>
     </>
   );

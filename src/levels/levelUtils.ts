@@ -156,6 +156,7 @@ export function getWarpLevelFromNum(levelNum: number): Level {
 export const START_CHALLENGE_LEVEL_NUM = LEVEL_ID_TO_WARP_INDEX[X_SNEKCITY.id];
 
 export function findLevelWarpIndex(level: Level): number {
+  if (!level) return -1;
   return LEVEL_ID_TO_WARP_INDEX[level.id] || -1;
 }
 
