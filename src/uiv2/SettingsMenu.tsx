@@ -149,7 +149,7 @@ export const SettingsMenu = () => {
       bridge.settingsMenu.onCancel = null;
       settingsMenuNavMap.current = null;
     }
-  }, [showing])
+  }, [showing]);
 
   if (!showing) return;
   if (!bridge.gameState) return;
