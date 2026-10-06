@@ -38,7 +38,7 @@ import {
 } from '../types';
 import { Modal } from '../ui/modal';
 import { UI, UI_PARENT_ID } from '../ui/ui';
-import { showPauseUIPreviewMode } from '../ui/uiComponents';
+import { showPauseUI, showPauseUIPreviewMode } from '../ui/uiComponents';
 import { engine } from '../engine/engine';
 import { resumeAudioContext } from '../engine/audio';
 import { Coroutines } from '../engine/coroutines';
@@ -385,9 +385,19 @@ export const sketch = (p5: P5) => {
     if (state.isExitingLevel || state.isExited) return;
     state.isPaused = true;
     showPauseUIPreviewMode(uiElements, { unpause });
+    showPauseUI(uiElements, {
+      unpause,
+      confirmShowMainMenu: null,
+      showInGameSettingsMenu,
+    })
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(0.07, 750, 0.2), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(0.6, 1000), Action.FadeMusic, true);
+  }
+
+  function showInGameSettingsMenu() {
+    sfx.play(Sound.unlock);
+    UI.showSettingsMenu();
   }
 
   function unpause() {

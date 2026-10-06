@@ -1,0 +1,14 @@
+import { MusicTrack } from "../../types";
+import { toTime } from "../../utils";
+import { v2Level } from "../v2Level";
+
+// url: <http://localhost:3000/snek-js/editor/?data=TnNycnNfdlhYdnNzc21tc3Nzc3Jyc3NOKSlpeUtpSz1wcFkpKXNjaVpyYy0tWnJOVU9aU1NzTionJ08qSkpzanNnYU1NTU1hZ2pKSnNOKicnTypTU3NOVU9ac2MtLVpyY2lacgpQUCkmISggaUt5aSlrTlBycnNfdldXdl9zcnJQcwp8NDM1fFJJR0hUfGZ1ZWwgZGVwb3RiMjAwMFY4M3hWM2J4MC44NHwjMTVDMkNCUTExOURBNG4yMzc1OFEyRTRBNzZ%25252BbjcyQzNGflE0QzgyQTlRM0Y2QzhEUUZGQjQxRlFGRkM4NTdRRkZERDk5YmhoaGIxYnhWVlY0SyAnT3cpKXcocS1ZKSYmSnNOcEFBLS0temktLS0taXotLS1BQXBLISBMPWlZISEhPWlZTQpkLVkhKCEhISghcWROCnN3PVEtI1NzTiohSyghISEoSypVKSkhKCBWMHxZPSFaSygpKV9zc3lzc2EKdi1ZIUwhcXZifDFjCnJVZ04%25252BIUtMSz5zaC0xLTEtMWkqKmpOPicnTz56UFBuUTE2MTkyNVEycT0td089eHxWeW1wcG16ayZ%25252BUTFGMjMzMwF%25252Benl4d3Fua2ppaGdjYmFfWllWVVNRT05NTEtKKSgnIV8%25253D&id=416f386b-b944-4d69-b76a-3720891371f8>
+
+export const X_FUELDEPOT = v2Level({
+  id: 'fuel-depot',
+  name: 'fuel depot',
+  parTime: toTime({ minutes: 2, seconds: 0 }),
+  layoutV2: 'TnNycnNfdlhYdnNzc21tc3Nzc3Jyc3NOKSlpeUtpSz1wcFkpKXNjaVpyYy0tWnJOVU9aU1NzTionJ08qSkpzanNnYU1NTU1hZ2pKSnNOKicnTypTU3NOVU9ac2MtLVpyY2lacgpQUCkmISggaUt5aSlrTlBycnNfdldXdl9zcnJQcwp8NDM1fFJJR0hUfGZ1ZWwgZGVwb3RiMjAwMFY4M3hWM2J4MC44NHwjMTVDMkNCUTExOURBNG4yMzc1OFEyRTRBNzZ%252BbjcyQzNGflE0QzgyQTlRM0Y2QzhEUUZGQjQxRlFGRkM4NTdRRkZERDk5YmhoaGIxYnhWVlY0SyAnT3cpKXcocS1ZKSYmSnNOcEFBLS0temktLS0taXotLS1BQXBLISBMPWlZISEhPWlZTQpkLVkhKCEhISghcWROCnN3PVEtI1NzTiohSyghISEoSypVKSkhKCBWMHxZPSFaSygpKV9zc3lzc2EKdi1ZIUwhcXZifDFjCnJVZ04%252BIUtMSz5zaC0xLTEtMWkqKmpOPicnTz56UFBuUTE2MTkyNVEycT0td089eHxWeW1wcG16ayZ%252BUTFGMjMzMwF%252Benl4d3Fua2ppaGdjYmFfWllWVVNRT05NTEtKKSgnIV8%253D',
+  annotations: {  },
+  musicTrack: MusicTrack.dangerZone,
+});

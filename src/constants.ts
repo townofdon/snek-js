@@ -434,15 +434,15 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     ],
   } satisfies AnimationData,
   [Image.ThemedPipes1]: {
-    frames: 16,
+    frames: 17,
     timePerFrame: 100,
   } satisfies AnimationData,
   [Image.ThemedPipes2]: {
-    frames: 16,
+    frames: 17,
     timePerFrame: 100,
   } satisfies AnimationData,
   [Image.ThemedPipes3]: {
-    frames: 16,
+    frames: 17,
     timePerFrame: 100,
   } satisfies AnimationData,
   [Image.SegmentsSheet]: {
@@ -494,7 +494,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.PipesSheet]: {
-    frames: 96,
+    frames: 119,
     timePerFrame: 100,
   } satisfies AnimationData,
   [Image.PickupsSheet]: {

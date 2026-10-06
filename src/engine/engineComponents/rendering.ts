@@ -758,7 +758,7 @@ export function engineRendering({
         const x = Math.floor(coord % GRIDCOUNT_X);
         const y = Math.floor(coord / GRIDCOUNT_X);
         // note: frame is 0-indexed
-        const frame = es.pipesMap[coord] % 16;
+        const frame = es.pipesMap[coord] % 17;
         if (es.level.pipeVariant === PipeVariant.Themed1) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes1, x, y, frame);
         } else if (es.level.pipeVariant === PipeVariant.Themed2) {
@@ -766,7 +766,7 @@ export function engineRendering({
         } else if (es.level.pipeVariant === PipeVariant.Themed3) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes3, x, y, frame);
         } else {
-          const offset = (Math.max(es.level.pipeVariant || 1, 1) - 1) * 16;
+          const offset = (Math.max(es.level.pipeVariant || 1, 1) - 1) * 17;
           spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, x, y, frame + offset);
         }
       }

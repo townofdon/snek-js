@@ -2,7 +2,7 @@ import P5, { Vector } from "p5";
 import { DEFAULT_PORTALS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { BarrierType, Key, KeyChannel, Level, LevelData, LevelType, Portal, PortalChannel, PortalExitMode, SwitchType, ThreatType } from "../types";
 import { coordToVec, getCoordIndex } from "../utils";
-import { LEVEL_01 } from "./campaign/level01";
+import { LEVEL_01 } from "./ep01/level01";
 import { TILE_CHAR_TO_BARRIER_TYPE, TILE_CHAR_TO_PICKUP_TYPE, TILE_CHAR_TO_SWITCH_TYPE, TILE_CHAR_TO_THREAT_TYPE, TILECHAR } from "./levelConstants";
 
 export function buildLevel(level: Level, isEditor = false): LevelData {

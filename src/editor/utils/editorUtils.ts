@@ -21,7 +21,7 @@ import { clamp, coordToVec, getCoordIndex, getCoordIndex2, toDIR } from "../../u
 import { GRIDCOUNT_X, GRIDCOUNT_Y, START_SNAKE_SIZE } from "../../constants";
 import { bton, ntob } from "./Base64";
 import { buildLevel } from "../../levels/levelBuilder";
-import { LEVEL_01 } from "../../levels/campaign/level01";
+import { LEVEL_01 } from "../../levels/ep01/level01";
 import { EDITOR_DEFAULTS } from "../editorConstants";
 import { indexToMusicTrack, musicTracktoIndex } from "./musicTrackUtils";
 import {

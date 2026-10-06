@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 
-import { CHALLENGE_LEVELS, LEVELS, SECRET_LEVELS } from "../../levels/levelConstants";
-import { LEVEL_01 } from "../../levels/campaign/level01";
+import { CHALLENGE_LEVELS, LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS } from "../../levels/levelConstants";
+import { LEVEL_01 } from "../../levels/ep01/level01";
 
 import { Level } from "../../types";
 import { Stack } from "@/components/Stack";
 import { DropdownField, Option } from "@/components/Field/DropdownField";
 
 import * as styles from './EditorOptions.css'
-import { LEVEL_01_HARD } from "@/levels/campaign/level01hard";
-import { LEVEL_01_ULTRA } from "@/levels/campaign/level01ultra";
+import { LEVEL_01_HARD } from "@/levels/ep01/level01hard";
+import { LEVEL_01_ULTRA } from "@/levels/ep01/level01ultra";
 
 interface SelectLevelDropdownProps {
   loadLevel: (level: Level) => void;
@@ -19,9 +19,10 @@ export const SelectLevelDropdown = ({ loadLevel }: SelectLevelDropdownProps) => 
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVEL_01);
 
   const levelsToInclude = [
-    ...LEVELS,
+    ...LEVELS_EP_01,
     ...SECRET_LEVELS,
-    ...CHALLENGE_LEVELS,
+    ...LEVELS_EP_02,
+    ...LEVELS_EP_03,
   ];
 
   const handleSetLevel = (option: Option) => {

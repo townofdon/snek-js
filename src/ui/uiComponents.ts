@@ -40,7 +40,7 @@ export function showPauseUI(uiElements: HTMLElement[], callbacks: ShowPauseMenuC
     button.classList.add('minimood', 'focus-invert');
     button.id = 'pauseButtonResume';
   }
-  {
+  if (confirmShowMainMenu) {
     const button = UI.drawButton("MAIN MENU", 176, 16, confirmShowMainMenu, uiElements)
     button.classList.add('minimood', 'focus-invert');
     button.id = 'pauseButtonMainMenu';
