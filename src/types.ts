@@ -966,6 +966,8 @@ export enum InputAction {
   ToggleCasualMode,
   ToggleCobraMode,
   ToggleScreenshakeDisabled,
+  TogglePixelPerfect,
+  ToggleFullScreen,
   ShowLeaderboard,
   EnterQuoteMode,
   EnterOstMode,

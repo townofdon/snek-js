@@ -10,6 +10,42 @@
   --button-hover-color: rgb(208, 204, 198);
   --button-hover-border-color: rgb(59, 63, 66);
 
+  --newbutton-src-default: url('assets/graphics/ui-button-default.png');
+  --newbutton-src-primary: url('assets/graphics/ui-button-primary.png');
+  --newbutton-src-secondary: url('assets/graphics/ui-button-secondary.png');
+  --newbutton-src-white: url('assets/graphics/ui-button-white.png');
+  --newbutton-src-red: url('assets/graphics/ui-button-red.png');
+  --newbutton-src-orange: url('assets/graphics/ui-button-orange.png');
+  --newbutton-src-green: url('assets/graphics/ui-button-green.png');
+  --newbutton-src-purple: url('assets/graphics/ui-button-purple.png');
+  --newbutton-bg-default: #34373d;
+  --newbutton-bg-primary: #4d6a94;
+  --newbutton-bg-secondary: #595e64;
+  --newbutton-bg-white: #c6dbde;
+  --newbutton-bg-red: #911d55;
+  --newbutton-bg-orange: #9c4f41;
+  --newbutton-bg-green: #357985;
+  --newbutton-bg-purple: #7c618b;
+  --newbutton-color-default: #dfeded;
+  --newbutton-color-primary: #e6cc8a;
+  --newbutton-color-secondary: #dfeded;
+  --newbutton-color-white: #405578;
+  --newbutton-color-red: #ffac7f;
+  --newbutton-color-orange: #fafac3;
+  --newbutton-color-green: #c6e7c7;
+  --newbutton-color-purple: #e6a3a3;
+  --newbutton-size: 32px; /* size of button itself */
+  --newbutton-inset: 5px;
+  --newbutton-inset-slice: 5;
+
+  --ui-arrows-src: url('assets/graphics/ui-arrows.png');
+  --ui-arrows-size: 5px;
+  --ui-arrows-top: 8px;
+  --ui-arrows-margin: 10px;
+  --ui-arrows-anim-offset: 5px;
+  --ui-arrows-frames: 8;
+  --ui-arrow-offset: 0px; /* animated */
+
   --title-sprite-img-grayblue: url('assets/graphics/snek-title-grayblue.png');
   --title-sprite-img-gray: url('assets/graphics/snek-title-gray.png');
   --title-sprite-img-green: url('assets/graphics/snek-title-green.png');
@@ -245,6 +281,16 @@ canvas {
   align-items: center;
 }
 
+.text-left {
+  text-align: left;
+}
+.text-center {
+  text-align: center;
+}
+.text-right {
+  text-align: right;
+}
+
 .overflow-hidden {
   overflow: hidden;
 }
@@ -377,6 +423,132 @@ p {
 
 .main-title > .variant > span:nth-child(4) {
   animation-delay: 1.2s;
+}
+
+button.newbutton, a.newbutton {
+  --newbutton-src: var(--newbutton-src-default);
+  --newbutton-bg: var(--newbutton-bg-default);
+  --newbutton-color: var(--newbutton-color-default);
+  --ui-arrow-frame: 0;
+  position: relative;
+  background: black;
+  background-color: var(--newbutton-bg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-clip: padding-box; 
+  border-image-source: var(--newbutton-src);
+  color: var(--newbutton-color);
+  border-width: var(--newbutton-inset);
+  border-image-slice: var(--newbutton-inset-slice);
+  min-width: var(--newbutton-size);
+  min-height: var(--newbutton-size);
+  border-image-repeat: round;
+  border-style: solid;
+  box-sizing: border-box;
+  position: relative;
+  padding: 4px 16px;
+  padding-bottom: 0px;
+  padding-top: 4.8px;
+  border-radius: 0;
+  font-size: 1em;
+  font-size: 9.6px;
+  font-family: 'MiniMOOD', 'VT323', BIOSfontII, monospace;
+  box-shadow: none;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  box-shadow: 0 0 0 1px #00000035;
+  /* try to make pixel-perfect */
+  image-rendering: -moz-crisp-edges;
+  image-rendering: pixelated;
+  /* try to remove line artifacts */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  outline: none!important;
+}
+button.newbutton.primary, a.newbutton.primary {
+  --newbutton-src: var(--newbutton-src-primary);
+  --newbutton-bg: var(--newbutton-bg-primary);
+  --newbutton-color: var(--newbutton-color-primary);
+}
+button.newbutton.select-white:focus, a.newbutton.select-white:focus,
+button.newbutton.select-white:active, a.newbutton.select-white:active,
+button.newbutton.white, a.newbutton.white {
+  --newbutton-src: var(--newbutton-src-white);
+  --newbutton-bg: var(--newbutton-bg-white);
+  --newbutton-color: var(--newbutton-color-white);
+}
+button.newbutton:not(.select-white):focus, a.newbutton:not(.select-white):focus,
+button.newbutton:not(.select-white):active, a.newbutton:not(.select-white):active,
+button.newbutton.white, a.newbutton.white {
+  outline: 2px solid var(--newbutton-bg-white)!important;
+  z-index: 9999;
+}
+button.newbutton:focus, a.newbutton:focus,
+button.newbutton:active, a.newbutton:active {
+  filter: none;
+  --button-filter: brightness(1) grayscale(0);
+}
+button.newbutton.secondary, a.newbutton.secondary {
+  --newbutton-src: var(--newbutton-src-secondary);
+  --newbutton-bg: var(--newbutton-bg-secondary);
+  --newbutton-color: var(--newbutton-color-secondary);
+}
+button.newbutton.red, a.newbutton.red {
+  --newbutton-src: var(--newbutton-src-red);
+  --newbutton-bg: var(--newbutton-bg-red);
+  --newbutton-color: var(--newbutton-color-red);
+}
+button.newbutton.orange, a.newbutton.orange {
+  --newbutton-src: var(--newbutton-src-orange);
+  --newbutton-bg: var(--newbutton-bg-orange);
+  --newbutton-color: var(--newbutton-color-orange);
+}
+button.newbutton.green, a.newbutton.green {
+  --newbutton-src: var(--newbutton-src-green);
+  --newbutton-bg: var(--newbutton-bg-green);
+  --newbutton-color: var(--newbutton-color-green);
+}
+button.newbutton.purple, a.newbutton.purple {
+  --newbutton-src: var(--newbutton-src-purple);
+  --newbutton-bg: var(--newbutton-bg-purple);
+  --newbutton-color: var(--newbutton-color-purple);
+}
+
+#main.step-1 {
+  --ui-arrow-offset: var(--ui-arrows-anim-offset);
+}
+#main.step-2 {
+  --ui-arrow-offset: 0px;
+}
+
+/* focus / selection arrows */
+button.newbutton.ui-arrows:focus::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: var(--ui-arrows-top);
+  margin-right: var(--ui-arrows-margin);
+  transform: scale(3) translateX(calc(-1 * var(--ui-arrow-offset)));
+  width: var(--ui-arrows-size);
+  height: var(--ui-arrows-size);
+  background-image: var(--ui-arrows-src);
+  background-size: calc(var(--ui-arrows-size) * var(--ui-arrows-frames));
+  background-position: calc(-1 * var(--ui-arrow-frame) * var(--ui-arrows-size)) 0;
+}
+button.newbutton.ui-arrows:focus::after {
+  content: "";
+  position: absolute;
+  left: 100%;
+  top: var(--ui-arrows-top);
+  margin-left: var(--ui-arrows-margin);
+  transform: scale(-3, 3) translateX(calc(-1 * var(--ui-arrow-offset)));
+  width: var(--ui-arrows-size);
+  height: var(--ui-arrows-size);
+  background-image: var(--ui-arrows-src);
+  background-size: calc(var(--ui-arrows-size) * var(--ui-arrows-frames));
+  background-position: calc(-1 * var(--ui-arrows-size) * var(--ui-arrow-frame)) 0;
 }
 
 button,
@@ -514,68 +686,19 @@ button.snek-audio-viz-button.frequency-spectrum { background-position: calc(-3 *
 .main-ui-buttons .button-start-game {
   position: absolute;
   z-index: 10;
-  min-width: 120px;
+  min-width: 132px;
   transform: translateY(calc(-156px * 2)) scale(2);
-}
-.main-ui-buttons .button-start-game:focus,
-.main-ui-buttons .button-start-game:active,
-.main-ui-buttons .button-start-game.active {
-  outline: none;
-  background-color: #c4d5d5;
-  color: #242C4A;
-  border-color: #DFEDED;
-  /* --button-filter: brightness(1) grayscale(0); */
 }
 
 .main-ui-buttons .button-quit-game {
   position: absolute;
   z-index: 10;
-  min-width: 120px;
+  min-width: 132px;
   transform: translateY(calc(-116px * 2)) scale(2);
 }
-.main-ui-buttons .button-quit-game:focus,
-.main-ui-buttons .button-quit-game:active,
-.main-ui-buttons .button-quit-game.active {
-  outline: none;
-  background-color: #c4d5d5;
-  color: #242C4A;
-  border-color: #DFEDED;
-  --button-filter: brightness(1) grayscale(0);
-}
 
-.button:focus:before,
-button:focus:before,
-.main-ui-buttons .button-start-game:focus:before {
-  content: "";
-  display: inline-block;
-  animation-name: selection-expand;
-  animation-duration: var(--selection-expand-duration);
-  animation-iteration-count: infinite;
-  animation-timing-function: cubic-bezier(.5,0,.5,1);
-  animation-fill-mode: backwards;
-  position: absolute;
-  /* z-index: 10; */
-  /* left: -20px;
-  right: -20px;
-  top: -16px;
-  bottom: -20px; */
-  background: white;
-  transform: scaleX(1) scaleY(1);
-  /* --button-filter: brightness(1) grayscale(0); */
-  /* clip-path: var(--path);
-  -webkit-clip-path: var(--path); */
-  background: transparent;
-  border-radius: 8px;
-  border: 2px solid white;
-  --selection-offset: -8px;
-  left: var(--selection-offset);
-  right: var(--selection-offset);
-  top: var(--selection-offset);
-  bottom: var(--selection-offset);
-}
-
-.main-ui-buttons .button,
-.main-ui-buttons button {
+.main-ui-buttons .button:not(.ui-arrows),
+.main-ui-buttons button:not(.ui-arrows) {
   animation-name: anim-dim;
   animation-duration: var(--hover-duration);
   animation-iteration-count: infinite;
@@ -666,12 +789,7 @@ button.ui-sprite:hover,
 button.ui-sprite:active,
 button.ui-sprite:focus,
 button.ui-sprite.selected {
-  --button-filter: brightness(1) grayscale(1) invert(1);
-}
-a.ui-sprite:focus:before,
-button.ui-sprite:focus:before {
-  /* background-color: black; */
-  border-color: black;
+  --button-filter: brightness(1) grayscale(1);
 }
 
 a.ui-sprite,
@@ -683,8 +801,9 @@ button.ui-sprite {
   width: var(--ui-sprite-width);
   height: var(--ui-sprite-height);
   padding: 0;
-  border-radius: 4px;
   text-decoration: none;
+  border-radius: 4px;
+  corner-shape: bevel;
 }
 a.ui-sprite.active,
 a.ui-sprite:hover,

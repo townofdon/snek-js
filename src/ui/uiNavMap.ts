@@ -420,6 +420,8 @@ export enum SettingsMenuElement {
   CheckboxCasualMode,
   CheckboxCobraMode,
   CheckboxDisableScreenshake,
+  CheckboxPixelPerfect,
+  CheckboxFullScreen,
   SliderMusicVolume,
   SliderSfxVolume,
   ButtonClose,
@@ -429,6 +431,8 @@ const SETTINGS_MENU_ELEMENT_ORDER = [
   SettingsMenuElement.CheckboxCasualMode,
   SettingsMenuElement.CheckboxCobraMode,
   SettingsMenuElement.CheckboxDisableScreenshake,
+  SettingsMenuElement.CheckboxPixelPerfect,
+  SettingsMenuElement.CheckboxFullScreen,
   SettingsMenuElement.SliderMusicVolume,
   SettingsMenuElement.SliderSfxVolume,
   SettingsMenuElement.ButtonClose,
@@ -456,6 +460,12 @@ export class SettingsMenuNavMap implements NavMap {
       return true
     } else if (focused === SettingsMenuElement.CheckboxDisableScreenshake) {
       this.callAction(InputAction.ToggleScreenshakeDisabled);
+      return true
+    } else if (focused === SettingsMenuElement.CheckboxPixelPerfect) {
+      this.callAction(InputAction.TogglePixelPerfect);
+      return true
+    } else if (focused === SettingsMenuElement.CheckboxFullScreen) {
+      this.callAction(InputAction.ToggleFullScreen);
       return true
     }
     return true

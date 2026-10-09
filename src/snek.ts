@@ -64,6 +64,7 @@ import {
   Outfit,
   HeldItems,
   Initiator,
+  ResolutionMode,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -293,6 +294,12 @@ export const sketch = (p5: P5) => {
       case InputAction.ToggleScreenshakeDisabled:
         toggleScreenshakeDisabled();
         break;
+      case InputAction.TogglePixelPerfect:
+        togglePixelPerfect();
+        break;
+      case InputAction.ToggleFullScreen:
+        toggleFullScreen();
+        break;
       case InputAction.ShowLeaderboard:
         showLeaderboard();
         break;
@@ -476,6 +483,22 @@ export const sketch = (p5: P5) => {
   function toggleScreenshakeDisabled(value?: boolean) {
     sfx.play(Sound.uiBlip);
     settings.isScreenShakeDisabled = value ?? !settings.isScreenShakeDisabled;
+    uiBindings.refreshFieldValues();
+  }
+
+  function togglePixelPerfect(value?: boolean) {
+    sfx.play(Sound.uiBlip);
+    if (value === true || settings.resolutionMode === ResolutionMode.FillScreen) {
+      settings.resolutionMode = ResolutionMode.PixelPerfect;
+    } else if (value === false || settings.resolutionMode === ResolutionMode.PixelPerfect) {
+      settings.resolutionMode = ResolutionMode.FillScreen;
+    }
+    uiBindings.refreshFieldValues();
+  }
+
+  function toggleFullScreen(value?: boolean) {
+    sfx.play(Sound.uiBlip);
+    settings.fullScreen = value ?? !settings.fullScreen;
     uiBindings.refreshFieldValues();
   }
 

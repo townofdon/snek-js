@@ -246,16 +246,16 @@ export const MainMenu = () => {
           tabIndex={0}
           ref={buttons.start}
           id="ui-button-start"
-          className="button-start-game"
+          className="button-start-game newbutton ui-arrows select-white"
           onClick={handleStartGame}
         >
-          &gt;&gt; start game
+          start game
         </button>
         <button
           tabIndex={0}
           ref={buttons.quit}
           id="ui-button-quit"
-          className="button-quit-game"
+          className="button-quit-game newbutton ui-arrows select-white"
           onClick={handleQuitGame}
         >
           quit
@@ -264,7 +264,7 @@ export const MainMenu = () => {
           tabIndex={0}
           ref={buttons.ostMode}
           id="ui-button-ost-mode"
-          className="button ui-sprite headphones"
+          className="button ui-sprite newbutton headphones"
           onClick={handleEnterOstMode}
         >
           <span className="tooltip align-left">OST Mode</span>
@@ -273,7 +273,7 @@ export const MainMenu = () => {
           tabIndex={0}
           ref={buttons.quoteMode}
           id="ui-button-quote-mode"
-          className="button ui-sprite quote"
+          className="button ui-sprite newbutton quote"
           onClick={handleEnterQuoteMode}
         >
           <span className="tooltip align-left">Quote Mode</span>
@@ -284,7 +284,7 @@ export const MainMenu = () => {
           href="https://townofdon.github.io/snek-js/community/"
           target="_blank"
           id="ui-button-community"
-          className="button ui-sprite community"
+          className="button ui-sprite newbutton community"
         >
           <span className="tooltip align-right">Community</span>
         </a>
@@ -292,7 +292,7 @@ export const MainMenu = () => {
           tabIndex={0}
           ref={buttons.leaderboard}
           id="ui-button-leaderboard"
-          className="button ui-sprite trophy"
+          className="button ui-sprite newbutton trophy"
           onClick={handleShowLeaderboard}
         >
           <span className="tooltip align-right">Leaderboard</span>
@@ -301,7 +301,7 @@ export const MainMenu = () => {
           tabIndex={0}
           ref={buttons.settings}
           id="ui-button-settings"
-          className="button ui-sprite gear"
+          className="button ui-sprite newbutton gear"
           onClick={handleShowSettingsMenu}
         >
           <span className="tooltip align-right">Settings</span>

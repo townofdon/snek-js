@@ -5,7 +5,7 @@ import { InputAction, Level } from "@/types";
 import { PauseMenuElement, PauseMenuNavMap } from "@/ui/uiNavMap";
 import { bridge } from "./uiBridge";
 import { LEVEL_01 } from "@/levels/ep01/level01";
-import { CHALLENGE_LEVELS, LEVELS_EP_01, SECRET_LEVELS } from "@/levels/levelConstants";
+import { CHALLENGE_LEVELS, LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS } from "@/levels/levelConstants";
 import { DropdownField, Option } from "@/components/Field";
 import { Stack } from "@/components/Stack";
 import { findLevelWarpIndex } from "@/levels/levelUtils";
@@ -24,7 +24,8 @@ export const DebugMenu = () => {
   const levelsToInclude = [
     ...LEVELS_EP_01,
     ...SECRET_LEVELS,
-    ...CHALLENGE_LEVELS,
+    ...LEVELS_EP_02,
+    ...LEVELS_EP_03,
   ];
 
   const levelToOption = (level: Level): Option => ({

@@ -353,8 +353,6 @@ export class TheTechnician extends BaseBoss {
     this.sfx.playLoop(Sound.electrocuteLoop);
     yield* coroutines.waitForTime(1250, (t) => {
       this.hp = lerp(currentHp, targetHp, t);
-      // TODO: UPDATE BOSS HEALTH BAR
-      console.log(`hp=${this.hp}`);
     });
     this.sfx.stop(Sound.electrocuteLoop);
     yield* coroutines.waitForTime(80);
