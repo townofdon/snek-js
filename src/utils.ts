@@ -1120,7 +1120,7 @@ export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConn
   }
 }
 
-export const validPipeMove = (fromCoord: number, toCoord: number, es: EngineState): boolean => {
+export const validPipeMove = (fromCoord: number, toCoord: number, state: GameState, es: EngineState): boolean => {
   if (fromCoord === toCoord) return false;
   const frx = getCoordX(fromCoord);
   const fry = getCoordY(fromCoord);
@@ -1132,6 +1132,12 @@ export const validPipeMove = (fromCoord: number, toCoord: number, es: EngineStat
   const from = es.pipeOverrides[fromCoord] || es.pipesMap[fromCoord];
   const to = es.pipeOverrides[toCoord] || es.pipesMap[toCoord];
   if (!from || !to) {
+    return false;
+  }
+  if (to === PipeConnection.Barrier) {
+    return false;
+  }
+  if (!state.isDoorsOpen && to === PipeConnection.Door) {
     return false;
   }
   if (FLAG_NORTH & from && FLAG_SOUTH & to) return true;
@@ -1242,7 +1248,7 @@ export const findPipeExit = (entryCoord: number, entryDir: DIR, state: GameState
     && y >= 0 && y <= GRIDCOUNT_Y - 1
     && es.pipesMap[getCoordIndex2(x, y)]
     && !visited[getCoordIndex2(x, y)];
-  const validMove = (x: number, y: number) => valid(x, y) && validPipeMove(getCoordIndex(node), getCoordIndex2(x, y), es);
+  const validMove = (x: number, y: number) => valid(x, y) && validPipeMove(getCoordIndex(node), getCoordIndex2(x, y), state, es);
   const move = (direction: DIR) => {
     dir = direction;
     switch (direction) {

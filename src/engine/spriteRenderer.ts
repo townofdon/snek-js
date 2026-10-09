@@ -183,7 +183,7 @@ export class SpriteRenderer implements ISpriteRenderer {
       main: this.p5.color(darker(palette.apple)),
       alt: this.p5.color(darker(palette.appleStroke)),
     } satisfies ColorReplacementPalette;;
-    this.setThemedImageFromSpriteRange(pipeColors, 16, Image.ThemedPipes3, Image.PipesSheet, 80, 95);
+    this.setThemedImageFromSpriteRange(pipeColors, 16, Image.ThemedPipes3, Image.PipesSheet, 85, 101);
   }
 
   setThemedBorderImages = (palette: ExtendedPalette) => {
@@ -202,7 +202,7 @@ export class SpriteRenderer implements ISpriteRenderer {
     this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierBrick, Image.TileSheet16, 23);
     this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierStone, Image.TileSheet16, 25);
     this.setThemedImageFromSprite(colors, 48, Image.ThemedPortalColumns, Image.TileSheet48, 0);
-    this.setThemedImageFromSpriteRange(colors, 16, Image.ThemedPipes1, Image.PipesSheet, 80, 95);
+    this.setThemedImageFromSpriteRange(colors, 16, Image.ThemedPipes1, Image.PipesSheet, 85, 101);
   }
 
   setThemedDoorImage = (palette: ExtendedPalette) => {
@@ -216,7 +216,7 @@ export class SpriteRenderer implements ISpriteRenderer {
     } satisfies ColorReplacementPalette;
     this.setThemedImageFromSprite(colors, 16, Image.ThemedDoor, Image.TileSheet16, 9);
     this.setThemedImageFromSprite(colors, 16, Image.ThemedDoorAlt, Image.TileSheet16, 8);
-    this.setThemedImageFromSpriteRange(colors, 16, Image.ThemedPipes2, Image.PipesSheet, 80, 95);
+    this.setThemedImageFromSpriteRange(colors, 16, Image.ThemedPipes2, Image.PipesSheet, 85, 101);
   }
 
   setThemedSegmentImage = (background: string, lineColor: string) => {

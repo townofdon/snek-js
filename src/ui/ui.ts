@@ -12,6 +12,7 @@ export const UI_PARENT_ID = 'game-container';
 export const UI_CANVAS_LEFT = 'ui-canvas-left';
 export const UI_CANVAS_RIGHT = 'ui-canvas-right';
 const GAME_ID = 'game';
+const $MAIN = requireElementById<HTMLElement>('main');
 const $GAME = document.getElementById('game');
 const $GAME_CONTAINER = document.getElementById('game-container');
 const $UI_CANVAS_RIGHT = document.getElementById('ui-canvas-right');
@@ -67,6 +68,16 @@ export class UI {
 
   static disableGameBlur() {
     $GAME.classList.remove('blur');
+  }
+
+  static syncSelectionToAudio(step: 1 | 2) {
+    if (step === 1) {
+      $MAIN.classList.remove('step-2');
+      $MAIN.classList.add('step-1');
+    } else {
+      $MAIN.classList.remove('step-1');
+      $MAIN.classList.add('step-2');
+    }
   }
 
   static hideStartScreen() {

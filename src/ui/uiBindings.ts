@@ -248,6 +248,7 @@ export class UIBindings implements UIHandler {
   handleUIInteract: UIInteractHandler = () => {
     if (UI.getIsLevelSelectMenuShowing()) {
       return this.levelSelectMenuNavMap.callSelected();
+      // return bridge.levelSelectMenu?.onInteract?.() || false;
     }
     if (UI.getIsSettingsMenuShowing()) {
       return bridge.settingsMenu?.onInteract?.() || false;
@@ -273,7 +274,7 @@ export class UIBindings implements UIHandler {
   handleUICancel: UICancelHandler = () => {
     if (UI.getIsLevelSelectMenuShowing()) {
       this.callAction(InputAction.HideLevelSelectMenu);
-      return true;
+      // return bridge.levelSelectMenu?.onCancel?.() || false;
     }
     if (UI.getIsSettingsMenuShowing()) {
       return bridge.settingsMenu?.onCancel?.() || false;

@@ -9,7 +9,7 @@ import {
   HeldItems,
   DamageType,
   InputType,
-  Mapset,
+  Episode,
   Outfit,
   PickupType,
   WearableFrame,
@@ -20,7 +20,7 @@ import {
 export const DEFAULT_GAME_STATE: GameState = {
   appMode: AppMode.StartScreen,
   gameMode: GameMode.Normal,
-  mapset: Mapset.Campaign,
+  episode: Episode.E1,
   isRandomizer: false,
   isPreloaded: false,
   isGameStarted: false,

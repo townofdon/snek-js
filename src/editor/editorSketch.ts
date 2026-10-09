@@ -1009,7 +1009,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
     function drawPipe(x: number, y: number, pipeConnection: PipeConnection, isStatic = true) {
       // note: frame is 0-indexed
-      const frame = pipeConnection % 16;
+      const frame = pipeConnection % 17;
       if (isStatic) {
         if (options.pipeVariant === PipeVariant.Themed1) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes1, x, y, frame);
@@ -1018,7 +1018,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         } else if (options.pipeVariant === PipeVariant.Themed3) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes3, x, y, frame);
         } else {
-          const offset = (Math.max(options.pipeVariant, 1) - 1) * 16;
+          const offset = (Math.max(options.pipeVariant, 1) - 1) * 17;
           spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, x, y, frame + offset);
         }
       } else {
@@ -1029,7 +1029,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         } else if (options.pipeVariant === PipeVariant.Themed3) {
           spriteRenderer.drawSprite1x1(p5, Image.ThemedPipes3, x, y, frame);
         } else {
-          const offset = (Math.max(options.pipeVariant, 1) - 1) * 16;
+          const offset = (Math.max(options.pipeVariant, 1) - 1) * 17;
           spriteRenderer.drawSprite1x1(p5, Image.PipesSheet, x, y, frame + offset);
         }
       }

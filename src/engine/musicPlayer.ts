@@ -97,7 +97,7 @@ export class MusicPlayer implements IMusicPlayer {
     return getAnalyser(this.fullPath(track));
   }
 
-  async play(track?: MusicTrack, volume = 1, createAnalyser = false, trackElapsed = false): Promise<AudioInfo> {
+  async play(track?: MusicTrack, volume = 1, createAnalyser = false, trackElapsed = true): Promise<AudioInfo> {
     const nilInfo = {
       path: "",
       durationMs: 0,
@@ -221,7 +221,12 @@ export class MusicPlayer implements IMusicPlayer {
     if (!track) {
       return 0;
     }
-    return getTimeElapsed(this.fullPath(track))
+    return getTimeElapsed(this.fullPath(track));
+  }
+
+  getTimeElapsedCurrentTrack() {
+    if (!this.state.currentTrack) return 0;
+    return getTimeElapsed(this.fullPath(this.state.currentTrack));
   }
 
   load(track: MusicTrack | undefined) {

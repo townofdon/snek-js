@@ -3,9 +3,9 @@ import { v4 as uuid } from 'uuid';
 import expect from "expect"
 
 import { buildLevel } from "../../levels/levelBuilder";
-import { LEVEL_01 } from "../../levels/campaign/level01";
-import { LEVEL_10 } from "../../levels/campaign/level10";
-import { LEVELS, TILECHAR } from "../../levels/levelConstants";
+import { LEVEL_01 } from "../../levels/ep01/level01";
+import { LEVEL_10 } from "../../levels/ep01/level10";
+import { LEVELS_EP_01, TILECHAR } from "../../levels/levelConstants";
 import { BarrierType, DIR, EditorData, EditorOptions, KeyChannel, Level, LevelType, MusicTrack, PickupType, PipeVariant, PortalExitMode, ThreatType } from "../../types"
 import { coordToVec, getCoordIndex2 } from "../../utils";
 
@@ -459,7 +459,7 @@ describe('editorUtils', () => {
           throw err;
         }
       };
-      LEVELS
+      LEVELS_EP_01
         .filter(level => level !== LEVEL_01 && level.type !== LevelType.Maze && level.type !== LevelType.WarpZone)
         .forEach(testLevel)
     });

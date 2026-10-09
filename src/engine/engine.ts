@@ -159,12 +159,12 @@ import {
   CHALLENGE_LEVELS,
   getLevelBoss,
   hasLevelBoss,
-  LEVELS,
+  LEVELS_EP_01,
   START_LEVEL,
   START_LEVEL_COBRA,
 } from "../levels/levelConstants";
-import { LEVEL_01 } from '../levels/campaign/level01';
-import { LEVEL_99 } from '../levels/campaign/level99';
+import { LEVEL_01 } from '../levels/ep01/level01';
+import { LEVEL_99 } from '../levels/ep01/level99';
 import { LEVEL_WIN_GAME } from '../levels/winGame';
 import { VARIANT_LEVEL_99 } from '../levels/bonusLevels/variantLevel99';
 import { WinLevelScene } from '../scenes/WinLevelScene';
@@ -183,8 +183,8 @@ import { buildSceneActionFactory } from '../scenes/sceneUtils';
 import { TitleScene, TitleSceneOptions } from '../scenes/TitleScene';
 import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 import { resumeAudioContext, setMusicVolume, setSfxVolume } from './audio';
-import { LEVEL_01_HARD } from '../levels/campaign/level01hard';
-import { LEVEL_01_ULTRA } from '../levels/campaign/level01ultra';
+import { LEVEL_01_HARD } from '../levels/ep01/level01hard';
+import { LEVEL_01_ULTRA } from '../levels/ep01/level01ultra';
 import { SaveDataStore } from '../stores/SaveDataStore';
 import { AStar } from '../astar/astar';
 import { FLAG_PREY_BURNED, FLAG_PREY_ELECTROCUTED, FLAG_PREY_STUNNED, FLAG_PREY_TRAPPED, PreyList } from '../collections/preyList';
@@ -1744,6 +1744,14 @@ export function engine({
     renderer.drawTutorialMoveControls(gfxPresentation);
     renderer.drawTutorialRewindControls(gfxPresentation, player.position, rewindAllowed());
     renderer.drawFps(gfxPresentation, metrics.gameLoopProcessingTime);
+
+    const bpm = 85;
+    const musicTrackElapsed = Math.max(musicPlayer.getTimeElapsedCurrentTrack() || state.actualTimeElapsed || 0, 0);
+    if ((musicTrackElapsed * (bpm / 60)) % 2 >= 1) {
+      UI.syncSelectionToAudio(1);
+    } else {
+      UI.syncSelectionToAudio(2);
+    }
 
     if (state.isLost && state.gameMode !== GameMode.Cobra) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
@@ -3522,7 +3530,7 @@ export function engine({
         a.download = fileName;
         a.click();
       }
-      const trueIndex = findLevelWarpIndex(LEVELS[state.levelIndex % LEVELS.length]);
+      const trueIndex = findLevelWarpIndex(LEVELS_EP_01[state.levelIndex % LEVELS_EP_01.length]);
       if (trueIndex < 0) throw new Error('replay capture failed: findLevelWarpIndex returned -1');
       const fileName = `snek-data-${trueIndex}-${replay.levelName}-${replay.timeCaptureStarted}.json`;
       download(JSON.stringify(replay), fileName, 'application/json');

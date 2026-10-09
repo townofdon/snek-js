@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import Select, { ActionMeta, GroupBase, OnChangeValue } from 'react-select'
+import Select, { ActionMeta, OnChangeValue } from 'react-select'
 
 import { FieldLabel } from './FieldLabel';
 

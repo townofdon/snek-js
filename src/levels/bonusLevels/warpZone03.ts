@@ -1,8 +1,8 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { getCoordIndex2 } from "../../utils";
-import { LEVEL_13 } from "../campaign/level13";
-import { TUTORIAL_LEVEL_40 } from "../campaign/tutorialLevel40";
+import { LEVEL_13 } from "../ep01/level13";
+import { TUTORIAL_LEVEL_40 } from "../ep01/tutorialLevel40";
 
 const name = 'warp zone 03';
 

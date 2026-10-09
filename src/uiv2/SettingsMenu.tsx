@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { useForceRerender } from "./hooks/useForceRerender";
-import { GameMode, InputAction, UINavDir } from "@/types";
+import { GameMode, InputAction, ResolutionMode, UINavDir } from "@/types";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { SettingsMenuElement, SettingsMenuNavMap } from "@/ui/uiNavMap";
 import { bridge } from "./uiBridge";
@@ -54,6 +54,8 @@ export const SettingsMenu = () => {
     [SettingsMenuElement.CheckboxCasualMode]: useRef<HTMLInputElement>(null),
     [SettingsMenuElement.CheckboxCobraMode]: useRef<HTMLInputElement>(null),
     [SettingsMenuElement.CheckboxDisableScreenshake]: useRef<HTMLInputElement>(null),
+    [SettingsMenuElement.CheckboxPixelPerfect]: useRef<HTMLInputElement>(null),
+    [SettingsMenuElement.CheckboxFullScreen]: useRef<HTMLInputElement>(null),
     [SettingsMenuElement.SliderMusicVolume]: useRef<HTMLInputElement>(null),
     [SettingsMenuElement.SliderSfxVolume]: useRef<HTMLInputElement>(null),
     [SettingsMenuElement.ButtonClose]: useRef<HTMLButtonElement>(null),
@@ -79,6 +81,8 @@ export const SettingsMenu = () => {
         [SettingsMenuElement.CheckboxCasualMode]: elements[SettingsMenuElement.CheckboxCasualMode].current,
         [SettingsMenuElement.CheckboxCobraMode]: elements[SettingsMenuElement.CheckboxCobraMode].current,
         [SettingsMenuElement.CheckboxDisableScreenshake]: elements[SettingsMenuElement.CheckboxDisableScreenshake].current,
+        [SettingsMenuElement.CheckboxPixelPerfect]: elements[SettingsMenuElement.CheckboxPixelPerfect].current,
+        [SettingsMenuElement.CheckboxFullScreen]: elements[SettingsMenuElement.CheckboxFullScreen].current,
         [SettingsMenuElement.SliderMusicVolume]: elements[SettingsMenuElement.SliderMusicVolume].current,
         [SettingsMenuElement.SliderSfxVolume]: elements[SettingsMenuElement.SliderSfxVolume].current,
         [SettingsMenuElement.ButtonClose]: elements[SettingsMenuElement.ButtonClose].current,
@@ -149,7 +153,7 @@ export const SettingsMenu = () => {
       bridge.settingsMenu.onCancel = null;
       settingsMenuNavMap.current = null;
     }
-  }, [showing])
+  }, [showing]);
 
   if (!showing) return;
   if (!bridge.gameState) return;
@@ -164,7 +168,7 @@ export const SettingsMenu = () => {
     forceRerender();
   }
 
-  const handleChangeCobraMode = (checked) => {
+  const handleChangeCobraMode = (checked: boolean) => {
     if (!active) return;
     if (checked) {
       bridge.gameState.gameMode = GameMode.Cobra;
@@ -174,7 +178,7 @@ export const SettingsMenu = () => {
     forceRerender();
   }
 
-  const handleChangeDisableScreenshake = (checked) => {
+  const handleChangeDisableScreenshake = (checked: boolean) => {
     if (!active) return;
     bridge.settings.isScreenShakeDisabled = checked;
     forceRerender();
@@ -184,6 +188,22 @@ export const SettingsMenu = () => {
     if (!active) return;
     bridge.settings.musicVolume = val;
     setMusicVolume(val);
+    forceRerender();
+  }
+
+  const handleChangeFullScreen = (checked: boolean) => {
+    if (!active) return;
+    bridge.settings.fullScreen = checked;
+    forceRerender();
+  }
+
+  const handleChangePixelPerfect = (checked: boolean) => {
+    if (!active) return;
+    if (checked) {
+      bridge.settings.resolutionMode = ResolutionMode.PixelPerfect;
+    } else {
+      bridge.settings.resolutionMode = ResolutionMode.FillScreen;
+    }
     forceRerender();
   }
 
@@ -235,6 +255,20 @@ export const SettingsMenu = () => {
             checked={bridge.settings.isScreenShakeDisabled}
             onChange={handleChangeDisableScreenshake}
           />
+          <CheckboxField
+            ref={elements[SettingsMenuElement.CheckboxPixelPerfect]}
+            name="resolution-mode"
+            label="Pixel Perfect"
+            checked={bridge.settings.resolutionMode === ResolutionMode.PixelPerfect}
+            onChange={handleChangePixelPerfect}
+          />
+          <CheckboxField
+            ref={elements[SettingsMenuElement.CheckboxFullScreen]}
+            name="full-screen"
+            label="Fullscreen"
+            checked={bridge.settings.fullScreen}
+            onChange={handleChangeFullScreen}
+          />
         </section>
         <section id="settings-section-audio">
           <h4>Audio</h4>
@@ -260,7 +294,7 @@ export const SettingsMenu = () => {
         <button
           ref={elements[SettingsMenuElement.ButtonClose]}
           id="settings-menu-close-button"
-          className="button"
+          className="button newbutton select-white ui-arrows text-center"
           onClick={handleClose}
         >
           close

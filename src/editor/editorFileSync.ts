@@ -62,6 +62,9 @@ import path from 'node:path';
       content = replaceProperty(content, 'annotations', `{ ${annotationsStr} }`);
 
       if (url) {
+        if (!/^\/\/ url: <.*>$/gm.test(content)) {
+          throw new Error('Could not find url in source file - expected format: "// url: <your-url>"')
+        }
         content = replaceProperty(content, 'url', `<${url}>`);
       }
 

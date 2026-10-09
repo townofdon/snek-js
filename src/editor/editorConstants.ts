@@ -15,7 +15,7 @@ import {
 } from "../types";
 import { PALETTE } from '../palettes';
 import { buildLevel } from '../levels/levelBuilder';
-import { LEVEL_01 } from '../levels/campaign/level01';
+import { LEVEL_01 } from '../levels/ep01/level01';
 import { DEFAULT_GAME_STATE } from '@/defaults';
 
 const levelData = buildLevel(LEVEL_01);

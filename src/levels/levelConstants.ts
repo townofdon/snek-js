@@ -1,33 +1,33 @@
 import { BarrierType, Boss, FloodFillTile, Level, PickupType, SwitchType, ThreatType } from "../types";
-import { LEVEL_00 } from "./campaign/level00";
-import { LEVEL_01 } from "./campaign/level01";
-import { LEVEL_02 } from "./campaign/level02";
-import { LEVEL_03 } from "./campaign/level03";
-import { LEVEL_04 } from "./campaign/level04";
-import { LEVEL_05 } from "./campaign/level05";
-import { LEVEL_06 } from "./campaign/level06";
-import { LEVEL_07 } from "./campaign/level07";
-import { LEVEL_08 } from "./campaign/level08";
-import { LEVEL_09 } from "./campaign/level09";
-import { LEVEL_10 } from "./campaign/level10";
-import { LEVEL_12 } from "./campaign/level12";
-import { LEVEL_11 } from "./campaign/level11";
-import { LEVEL_13 } from "./campaign/level13";
-import { LEVEL_14 } from "./campaign/level14";
-import { LEVEL_15 } from "./campaign/level15";
-import { LEVEL_16 } from "./campaign/level16";
-import { LEVEL_17 } from "./campaign/level17";
-import { LEVEL_18 } from "./campaign/level18";
-import { LEVEL_19 } from "./campaign/level19";
-import { LEVEL_20 } from "./campaign/level20";
-import { LEVEL_99 } from "./campaign/level99";
-import { TUTORIAL_LEVEL_10 } from "./campaign/tutorialLevel10";
-import { TUTORIAL_LEVEL_11 } from "./campaign/tutorialLevel11";
-import { TUTORIAL_LEVEL_20 } from "./campaign/tutorialLevel20";
-import { TUTORIAL_LEVEL_30 } from "./campaign/tutorialLevel30";
-import { TUTORIAL_LEVEL_40 } from "./campaign/tutorialLevel40";
-import { TUTORIAL_LEVEL_50 } from "./campaign/tutorialLevel50";
-import { TUTORIAL_LEVEL_51 } from "./campaign/tutorialLevel51";
+import { LEVEL_00 } from "./ep01/level00";
+import { LEVEL_01 } from "./ep01/level01";
+import { LEVEL_02 } from "./ep01/level02";
+import { LEVEL_03 } from "./ep01/level03";
+import { LEVEL_04 } from "./ep01/level04";
+import { LEVEL_05 } from "./ep01/level05";
+import { LEVEL_06 } from "./ep01/level06";
+import { LEVEL_07 } from "./ep01/level07";
+import { LEVEL_08 } from "./ep01/level08";
+import { LEVEL_09 } from "./ep01/level09";
+import { LEVEL_10 } from "./ep01/level10";
+import { LEVEL_12 } from "./ep01/level12";
+import { LEVEL_11 } from "./ep01/level11";
+import { LEVEL_13 } from "./ep01/level13";
+import { LEVEL_14 } from "./ep01/level14";
+import { LEVEL_15 } from "./ep01/level15";
+import { LEVEL_16 } from "./ep01/level16";
+import { LEVEL_17 } from "./ep01/level17";
+import { LEVEL_18 } from "./ep01/level18";
+import { LEVEL_19 } from "./ep01/level19";
+import { LEVEL_20 } from "./ep01/level20";
+import { LEVEL_99 } from "./ep01/level99";
+import { TUTORIAL_LEVEL_10 } from "./ep01/tutorialLevel10";
+import { TUTORIAL_LEVEL_11 } from "./ep01/tutorialLevel11";
+import { TUTORIAL_LEVEL_20 } from "./ep01/tutorialLevel20";
+import { TUTORIAL_LEVEL_30 } from "./ep01/tutorialLevel30";
+import { TUTORIAL_LEVEL_40 } from "./ep01/tutorialLevel40";
+import { TUTORIAL_LEVEL_50 } from "./ep01/tutorialLevel50";
+import { TUTORIAL_LEVEL_51 } from "./ep01/tutorialLevel51";
 import { LEVEL_WIN_GAME } from "./winGame";
 import { MAZE_01 } from "./mazes/maze01";
 import { MAZE_01_COBRA } from "./mazes/maze01-cobra";
@@ -41,35 +41,44 @@ import { VARIANT_LEVEL_08 } from "./bonusLevels/variantLevel08";
 import { VARIANT_LEVEL_10 } from "./bonusLevels/variantLevel10";
 import { VARIANT_LEVEL_15 } from "./bonusLevels/variantLevel15";
 import { VARIANT_LEVEL_99 } from "./bonusLevels/variantLevel99";
-import { X_ACROPOLIS } from "./challenge/acropolis";
-import { X_BEACONS } from "./challenge/beacons";
-import { X_CASA } from "./challenge/casa";
-import { X_CATACOMBS } from "./challenge/catacombs";
-import { X_FORTITUDE } from "./challenge/fortitude";
-import { X_GUARDIAN } from "./challenge/guardian";
-import { X_KINGS_HALL } from "./challenge/kingsHall";
-import { X_STONEMAZE } from "./challenge/stonemaze";
-import { X_LAST_RITES } from "./challenge/lastRites";
-import { X_MAKEITOUTALIVE } from "./challenge/makeitoutalive";
-import { X_QUANTUM_ENTANGLEMENT } from "./challenge/quantumEntanglement";
-import { X_SKILL_CHECK } from "./challenge/skillCheck";
-import { X_TOO_SIMPLE } from "./challenge/tooSimple";
-import { X_UNWIND } from "./challenge/unwind";
-import { X_UNDERGROUND } from "./challenge/underground";
-import { X_GAUNTLET } from "./challenge/gauntlet";
-import { X_SNEKCITY } from "./challenge/snekcity";
-import { X_CUBISM } from "./challenge/cubism";
-import { X_DIGIN } from "./challenge/digIn";
-import { X_DATACENTER } from "./challenge/dataCenter";
-import { X_SEARCHLIGHT } from "./challenge/searchlight";
+import { X_ACROPOLIS } from "./ep02/acropolis";
+import { X_BEACONS } from "./ep02/beacons";
+import { X_CASA } from "./ep02/casa";
+import { X_CATACOMBS } from "./ep02/catacombs";
+import { X_FORTITUDE } from "./ep02/fortitude";
+import { X_GUARDIAN } from "./ep02/guardian";
+import { X_KINGS_HALL } from "./ep02/kingsHall";
+import { X_STONEMAZE } from "./ep02/stonemaze";
+import { X_LAST_RITES } from "./ep02/lastRites";
+import { X_MAKEITOUTALIVE } from "./ep02/makeitoutalive";
+import { X_QUANTUM_ENTANGLEMENT } from "./ep03/quantumEntanglement";
+import { X_SKILL_CHECK } from "./ep02/skillCheck";
+import { X_TOO_SIMPLE } from "./ep02/tooSimple";
+import { X_UNWIND } from "./ep02/unwind";
+import { X_UNDERGROUND } from "./ep02/underground";
+import { X_GAUNTLET } from "./ep02/gauntlet";
+import { X_SNEKCITY } from "./ep02/snekcity";
+import { X_CUBISM } from "./ep02/cubism";
+import { X_DIGIN } from "./ep02/digIn";
+import { X_DATACENTER } from "./ep02/dataCenter";
+import { X_SEARCHLIGHT } from "./ep02/searchlight";
 import { MAZE_04_LOOT_ROOM } from "./mazes/maze04-lootroom";
 import { MAZE_03_STORAGE } from "./mazes/maze03-storage";
-import { LEVEL_01_HARD } from "./campaign/level01hard";
-import { LEVEL_01_ULTRA } from "./campaign/level01ultra";
+import { LEVEL_01_HARD } from "./ep01/level01hard";
+import { LEVEL_01_ULTRA } from "./ep01/level01ultra";
 import { Tile } from "@/editor/editorTypes";
 import { BossConstructorArgs } from "@/boss/BaseBoss";
 import { TheTechnician } from "@/boss/bosses/010Technician/TechnicianBoss";
 import { BOSS_LEVEL_THE_TECHNICIAN } from "./boss/bossLevelTechnician";
+import { X_DETHRATTLE } from "./ep03/dethrattle";
+import { X_DOOMSCROLL } from "./ep03/doomscroll";
+import { X_WALLCRUSHER } from "./ep03/wallcrusher";
+import { X_MECHANICAL_ROOM } from "./ep03/mechanicalRoom";
+import { X_BACKCHANNELS } from "./ep03/backChannels";
+import { X_FUELDEPOT } from "./ep03/fuelDepot";
+import { X_POINTTAKEN } from "./ep03/pointTaken";
+import { X_SHORT_FUSE } from "./ep03/shortFuse";
+import { X_SPACEPORT } from "./ep03/spaceport";
 
 const LEVEL_BOSS_MAP = {
   [BOSS_LEVEL_THE_TECHNICIAN.id]: TheTechnician,
@@ -90,7 +99,7 @@ export function getLevelBoss(level: Level, bossArgs: BossConstructorArgs): Boss 
   return new boss(bossArgs) satisfies Boss;
 }
 
-export const LEVELS: Level[] = [
+export const LEVELS_EP_01: Level[] = [
     MAZE_01,
     LEVEL_01,
     TUTORIAL_LEVEL_10,
@@ -123,7 +132,43 @@ export const LEVELS: Level[] = [
     LEVEL_WIN_GAME,
 ];
 
-export const CAMPAIGN_LEVELS = LEVELS.filter(level => {
+export const LEVELS_EP_02: Level[] = [
+    X_SNEKCITY,
+    X_ACROPOLIS, // rm?
+    X_BEACONS, // rm?
+    X_CUBISM, // --rework
+    X_CASA,
+    X_DIGIN, // --rework
+    X_CATACOMBS,
+    X_FORTITUDE,
+    X_GUARDIAN,
+    X_SEARCHLIGHT, // rm?
+    X_KINGS_HALL,
+    X_LAST_RITES,
+    X_MAKEITOUTALIVE,
+    X_SKILL_CHECK, // rm?
+    X_STONEMAZE,
+    X_TOO_SIMPLE,
+    X_DATACENTER, // rm?
+    X_UNDERGROUND,
+    X_UNWIND,
+    X_GAUNTLET,
+];
+
+export const LEVELS_EP_03: Level[] = [
+  X_BACKCHANNELS,
+  X_DETHRATTLE,
+  X_DOOMSCROLL,
+  X_FUELDEPOT,
+  X_MECHANICAL_ROOM,
+  X_POINTTAKEN,
+  X_QUANTUM_ENTANGLEMENT,
+  X_SHORT_FUSE,
+  X_SPACEPORT,
+  X_WALLCRUSHER,
+];
+
+export const CAMPAIGN_LEVELS = LEVELS_EP_01.filter(level => {
     switch (level) {
         case MAZE_01:
         case TUTORIAL_LEVEL_10:

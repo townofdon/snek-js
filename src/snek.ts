@@ -5,7 +5,7 @@ import {
   MAIN_TITLE_SCREEN_LEVEL,
   START_LEVEL,
   START_LEVEL_COBRA,
-  LEVELS,
+  LEVELS_EP_01,
   FIRST_CHALLENGE_LEVEL,
   CHALLENGE_LEVELS,
   SECRET_LEVELS,
@@ -58,12 +58,13 @@ import {
   ActionKey,
   Action,
   SNEKALYTICS_EVENT_TYPE,
-  Mapset,
+  Episode,
   InputType,
   Level,
   Outfit,
   HeldItems,
   Initiator,
+  ResolutionMode,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -293,6 +294,12 @@ export const sketch = (p5: P5) => {
       case InputAction.ToggleScreenshakeDisabled:
         toggleScreenshakeDisabled();
         break;
+      case InputAction.TogglePixelPerfect:
+        togglePixelPerfect();
+        break;
+      case InputAction.ToggleFullScreen:
+        toggleFullScreen();
+        break;
       case InputAction.ShowLeaderboard:
         showLeaderboard();
         break;
@@ -344,7 +351,7 @@ export const sketch = (p5: P5) => {
   function setup() {
     UI.init();
     state.appMode = AppMode.StartScreen;
-    state.mapset = Mapset.Campaign;
+    state.episode = Episode.E1;
     state.isRandomizer = false;
     state.isGameStarted = false;
     state.isGameStarting = false;
@@ -479,6 +486,22 @@ export const sketch = (p5: P5) => {
     uiBindings.refreshFieldValues();
   }
 
+  function togglePixelPerfect(value?: boolean) {
+    sfx.play(Sound.uiBlip);
+    if (value === true || settings.resolutionMode === ResolutionMode.FillScreen) {
+      settings.resolutionMode = ResolutionMode.PixelPerfect;
+    } else if (value === false || settings.resolutionMode === ResolutionMode.PixelPerfect) {
+      settings.resolutionMode = ResolutionMode.FillScreen;
+    }
+    uiBindings.refreshFieldValues();
+  }
+
+  function toggleFullScreen(value?: boolean) {
+    sfx.play(Sound.uiBlip);
+    settings.fullScreen = value ?? !settings.fullScreen;
+    uiBindings.refreshFieldValues();
+  }
+
   function hideStartScreen() {
     if (!state.isPreloaded) return;
     showMainMenu();
@@ -492,7 +515,7 @@ export const sketch = (p5: P5) => {
     triggerFullscreenChange(settings.fullScreen);
 
     state.appMode = AppMode.Game;
-    state.mapset = Mapset.Campaign;
+    state.episode = Episode.E1;
     state.isGameStarted = false;
     state.isGameStarting = false;
     state.isRandomizer = false;
@@ -598,7 +621,7 @@ export const sketch = (p5: P5) => {
     }
     state.nextLevel = levelNum >= 1 ? getWarpLevelFromNum(levelNum) : null;
     if (getIsChallengeLevel(state.nextLevel)) {
-      state.mapset = Mapset.Challenge;
+      state.episode = Episode.E2;
     }
     setLevel(state.gameMode === GameMode.Cobra ? START_LEVEL_COBRA : START_LEVEL);
     setDifficulty(DIFFICULTY_EASY);
@@ -613,7 +636,13 @@ export const sketch = (p5: P5) => {
       eventType: SNEKALYTICS_EVENT_TYPE.NEW_GAME,
       playthroughId,
       difficulty: '-',
-      levelName: state.mapset === Mapset.Challenge ? 'CHALLENGE' : 'CAMPAIGN',
+      levelName: (() => {
+        if (!state.episode) return 'Unknown';
+        if (state.episode === Episode.E1) return 'E1';
+        if (state.episode === Episode.E2) return 'E2';
+        if (state.episode === Episode.E3) return 'E3';
+        return 'Unknown';
+      })(),
       levelProgress: 0,
       levelTimeProgress: 0,
       score: 0,
@@ -725,7 +754,7 @@ export const sketch = (p5: P5) => {
       const levelName = prompt('Input level name');
       let found: Level = null;
       const iteratee = (lev: Level) => lev.name.toLowerCase() === levelName.toLowerCase();
-      if (!found) found = LEVELS.find(iteratee);
+      if (!found) found = LEVELS_EP_01.find(iteratee);
       if (!found) found = CHALLENGE_LEVELS.find(iteratee);
       if (!found) found = SECRET_LEVELS.find(iteratee);
       if (found) {
@@ -890,7 +919,7 @@ export const sketch = (p5: P5) => {
       setDifficulty(getDifficultyFromIndex(nextDifficultyIndex));
       setLevel(START_LEVEL_COBRA);
       setLevelIndexFromCurrentLevel();
-      if (state.mapset === Mapset.Challenge) {
+      if (state.episode === Episode.E1) {
         state.nextLevel = FIRST_CHALLENGE_LEVEL;
       }
       saveDataStore.save({
@@ -934,6 +963,8 @@ export const sketch = (p5: P5) => {
       stats.numLevelsEverCleared += 1;
     }
 
+    // const 
+
     const nextLevel = state.isRandomizer ? getNextRandomLevel() : (state.nextLevel || level.nextLevel);
     if (nextLevel) {
       setLevel(nextLevel)
@@ -942,7 +973,7 @@ export const sketch = (p5: P5) => {
       setLevel(CHALLENGE_LEVELS[(challengeLevelIndex + 1) % CHALLENGE_LEVELS.length]);
     } else {
       state.levelIndex++;
-      setLevel(LEVELS[state.levelIndex % LEVELS.length]);
+      setLevel(LEVELS_EP_01[state.levelIndex % LEVELS_EP_01.length]);
     }
     state.nextLevel = null;
 
@@ -1012,13 +1043,13 @@ export const sketch = (p5: P5) => {
     // if -1, hydrate lose messages for all levels
     if (levelIndex < 0) {
       for (let i = 0; i <= 99; i++) {
-        const level = LEVELS[i];
+        const level = LEVELS_EP_01[i];
         if (!level) continue;
         if (!level.extraLoseMessages) continue;
         loseMessages[i] = [...level.extraLoseMessages];
       }
     } else {
-      const level = LEVELS[levelIndex || -1] || getLevel();
+      const level = LEVELS_EP_01[levelIndex || -1] || getLevel();
       if (!level) return;
       if (!level.extraLoseMessages) return;
       loseMessages[levelIndex] = [...level.extraLoseMessages];
@@ -1090,8 +1121,8 @@ export const sketch = (p5: P5) => {
 
   function setLevelIndexFromCurrentLevel() {
     state.levelIndex = 0;
-    for (let i = 0; i < LEVELS.length; i++) {
-      if (getLevel() === LEVELS[i]) {
+    for (let i = 0; i < LEVELS_EP_01.length; i++) {
+      if (getLevel() === LEVELS_EP_01[i]) {
         state.levelIndex = i;
         break;
       }

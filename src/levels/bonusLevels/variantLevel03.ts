@@ -1,7 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, PortalExitMode, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
-import { TUTORIAL_LEVEL_11 } from "../campaign/tutorialLevel11";
+import { TUTORIAL_LEVEL_11 } from "../ep01/tutorialLevel11";
 import { SECRET_LEVEL_10 } from "./secretLevel10";
 
 const name = 'metroteque'

@@ -53,9 +53,11 @@ export enum AppMode {
   Leaderboard,
 }
 
-export enum Mapset {
-  Campaign,
-  Challenge,
+export enum Episode {
+  None = 0,
+  E1,
+  E2,
+  E3,
 }
 
 export enum GameMode {
@@ -196,7 +198,7 @@ export interface Stats extends BaseStats {
 export interface GameState {
   appMode: AppMode,
   gameMode: GameMode,
-  mapset: Mapset,
+  episode: Episode,
   isRandomizer: boolean,
   isPreloaded: boolean,
   isGameStarted: boolean,
@@ -774,6 +776,8 @@ export enum PipeConnection {
   SWE,  // 0b1110
   NSWE, // 0b1111
   Island, // special case - no neighbors
+  Barrier,
+  Door, // TODO: ADD DOOR SPRITE
 }
 
 export enum MapAnnotation {
@@ -962,6 +966,8 @@ export enum InputAction {
   ToggleCasualMode,
   ToggleCobraMode,
   ToggleScreenshakeDisabled,
+  TogglePixelPerfect,
+  ToggleFullScreen,
   ShowLeaderboard,
   EnterQuoteMode,
   EnterOstMode,

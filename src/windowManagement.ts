@@ -3,21 +3,17 @@ import { lerp } from "./utils";
 import { settings } from './stores/SettingsStore';
 import { ResolutionMode } from "./types";
 
-window.addEventListener('resize', handleWindowResize)
-
 interface WindowState {
-  isResizing: boolean,
   targetScale: number,
   currentScale: number,
 }
 
 const state: WindowState = {
-  isResizing: false,
   targetScale: 1,
   currentScale: 1,
 }
 
-function handleWindowResize() {
+function calcTargetScale() {
   if (settings.resolutionMode === ResolutionMode.FillScreen) {
     const scaleX = window.innerWidth / DIMENSIONS.x;
     const scaleY = window.innerHeight / DIMENSIONS.y;
@@ -35,22 +31,17 @@ function handleWindowResize() {
     }
     state.targetScale = scale;
   }
-  if (!state.isResizing) {
-    state.isResizing = true;
-    incrementallyScaleWindow();
-  }
 }
 
 function incrementallyScaleWindow() {
-  if (state.targetScale === state.currentScale) {
-    state.isResizing = false;
-    return;
+  calcTargetScale();
+  if (state.targetScale !== state.currentScale) {
+    state.currentScale = lerp(state.currentScale, state.targetScale, 0.1);
+    const main = document.getElementById('main');
+    main.style.width = `${DIMENSIONS.x}px`;
+    main.style.height = `${DIMENSIONS.y}px`;
+    main.style.transform = `scale(${state.currentScale})`;
   }
-  state.currentScale = lerp(state.currentScale, state.targetScale, 0.1);
-  const main = document.getElementById('main');
-  main.style.width = `${DIMENSIONS.x}px`;
-  main.style.height = `${DIMENSIONS.y}px`;
-  main.style.transform = `scale(${state.currentScale})`;
   requestAnimationFrame(incrementallyScaleWindow);
 }
 
@@ -58,7 +49,7 @@ const query = new URLSearchParams(window.location.search);
 const disableFullscreen = query.get('disableFullscreen') === 'true';
 
 if (!disableFullscreen) {
-  handleWindowResize();
+  incrementallyScaleWindow();
 }
 
 // show/hide mouse cursor

@@ -5,6 +5,7 @@ import { IS_LOCALHOST } from '@/constants';
 import { MainMenu } from './MainMenu';
 import { SettingsMenu } from './SettingsMenu';
 import { DebugMenu } from './DebugMenu';
+import { LevelSelectMenu } from './LevelSelectMenu';
 
 const requireElementById = (id: string) => {
   const node = document.getElementById(id);
@@ -20,6 +21,11 @@ createRoot(requireElementById('main-menu-v2')).render(
 createRoot(requireElementById('settings-menu-v2')).render(
   <React.StrictMode>
     <SettingsMenu />
+  </React.StrictMode>
+);
+createRoot(requireElementById('level-select-menu-v2')).render(
+  <React.StrictMode>
+    <LevelSelectMenu />
   </React.StrictMode>
 );
 if (IS_LOCALHOST) {
