@@ -93,9 +93,6 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
       || !ORDER[this.selectedGroup]
       || !ORDER[this.selectedGroup][this.selectedIndex]
     ) {
-
-      console.log('goto-first');
-
       return this.gotoFirst();
     }
     const currentGroupSize = ORDER[this.selectedGroup].length;

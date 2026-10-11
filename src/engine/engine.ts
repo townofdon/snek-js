@@ -198,6 +198,7 @@ import { engineMovement } from './engineComponents/movement';
 import { engineRendering } from './engineComponents/rendering';
 import { engineSpawning } from './engineComponents/spawning';
 import { BossConstructorArgs } from '@/boss/BaseBoss';
+import { engineLogic } from './engineComponents/logic';
 
 interface EngineParams {
   p5: P5,
@@ -517,7 +518,6 @@ export function engine({
     handlePipeTravel,
     reboundSnake,
     rewindAllowed,
-    checkHasHit,
     checkCollision,
     checkPortalTeleportWillHit,
     getDirectionSnakeForward,
@@ -532,10 +532,20 @@ export function engine({
     heldItems,
     stats,
     startAutoRewind,
-    checkArmorProtection,
     playSound,
     stopRewinding,
     proceedToNextReplayClip,
+  });
+
+  const logic = engineLogic({
+    state,
+    es,
+    player,
+    loopState,
+    segments,
+    replay,
+    heldItems,
+    stats,
   });
 
   const {
@@ -1405,18 +1415,158 @@ export function engine({
     handleDifficultySelect();
     handleSetNextLevel();
 
-    const checkBarricade = state.timeSinceLastMove < BUTTON_RELEASE_DAMAGE_DELAY && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY;
-    const didHit = checkHasHit(player.position, true, checkBarricade) || checkMineHit(player.position) || checkExplosionHit(player.position);
+    let skip = false;
+    let didHit = false;
+    let didDamageEnvironment = false;
+    let didApplyArmor = false;
+    const invincible = logic.invincible();
+
+    // damage environment
+    const canBreakWalls = (logic.canBreakWalls() && logic.wallBreakableAt(coord));
+    const canBreakWallsWithoutDamage = logic.invincible() || logic.canBreakWallsWithoutDamage();
+    if (canBreakWalls && !es.passablesMap[coord] && isBreakableBarrier(es.barriersMap[coord])) {
+      didDamageEnvironment = true;
+      removeBarrierTile(coord);
+      playSound(Sound.xplodeLong);
+      startScreenShake(2, 0, 0.8);
+    }
+    if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
+      didDamageEnvironment = true;
+      const timeRemaining = byCoord(coord)(threats.getTimeRemaining);
+      if (timeRemaining <= BARREL_CRIT_LIFETIME || logic.canExplodeBarrelAt(coord)) {
+        threats.removeByCoord(coord, RemovalReason.Explode);
+      } else if (timeRemaining <= BARREL_WARN_LIFETIME) {
+        byCoord(coord)(threats.setLifetime, BARREL_CRIT_LIFETIME);
+        byCoord(coord)(threats.setSprite, SpritesheetRange.BarrelFireB);
+      } else {
+        byCoord(coord)(threats.setLifetime, BARREL_WARN_LIFETIME);
+        // note - this ensures that the burning animation plays
+        byCoord(coord)(threats.setSprite, SpritesheetRange.BarrelFireA);
+      }
+    }
+    if (didDamageEnvironment && !canBreakWallsWithoutDamage) {
+      didHit = true;
+      state.lastHurtBy = DamageType.HitBarrier;
+    }
+
+    // check if snek hit something
+    skip = (false
+      || didHit
+      || state.isRewinding
+      || state.isExitingLevel
+      || state.isExited
+      || state.isGameWon
+      || state.timeSinceHurt < HURT_STUN_TIME
+    );
+    if (!skip) {
+      const checkBarricade = state.timeSinceLastMove < BUTTON_RELEASE_DAMAGE_DELAY && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY;
+      const hit = checkCollision(player.position, checkBarricade);
+      if (hit) {
+        state.lastHurtBy = hit;
+        didHit = true;
+      }
+    }
+    didHit ||= checkMineHit(player.position) || checkExplosionHit(player.position);
+
+    // check armor protection
+    if (didHit && heldItems.armor > 0 && !isSnakeTrapped()) {
+      didApplyArmor = true;
+      didHit = false; // you saw nothing!
+      if (invincible) {
+        state.timeSinceArmorProtection = 0;
+        startAutoRewind();
+        startScreenShake(0.3, 0.8);
+      } else {
+        applyArmorProtection();
+      }
+    }
+
+    if (didDamageEnvironment || didApplyArmor) {
+      state.lungeStepsRemaining = 0;
+      state.timeSinceArmorProtection = 0;
+      state.timeSinceLungeStart = Infinity;
+      reboundSnake(3);
+    }
+
+    // spike death
+    let instadeath = false;
+    skip = (false
+      || state.isExitingLevel
+      || state.isExited
+      || state.isLost
+      || state.isDeathIlluminating
+      || actionRunning(Action.EpicDeath)
+      || state.isButtonPressed
+      || state.timeSinceInvincibleStart < es.difficulty.invincibilityTime
+      || state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY
+    );
+    if (!skip) {
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+        const mortalRuin = false
+          || es.threatsMap[coord] === ThreatType.Spikes
+          || es.threatsMap[coord] === ThreatType.WallSpikes
+          || es.threatsMap[coord] === ThreatType.Saw;
+        const playerAtCoord = getCoordIndex(player.position) === coord || segments.existsAtCoord(coord);
+        if (mortalRuin && playerAtCoord) {
+          instadeath = true;
+          state.lastHurtBy = es.threatsMap[coord] === ThreatType.Saw ? DamageType.SawCut : DamageType.SpikePierce;
+          if (es.threatsMap[coord] === ThreatType.Saw) {
+            es.snekDamage[coord] = DamageType.SawCut;
+          }
+          es.level.deathLocations ||= {};
+          es.level.deathLocations[coord] = true;
+          es.illuminationMap[coord] = 1;
+          drawState.shouldDrawActionFG = true;
+        }
+      }
+    }
+    if (instadeath) {
+      applyMortalRuin();
+      playSound(Sound.stab);
+      startAction(epicDeathRoutine(), Action.EpicDeath);
+    }
+
+    // snake trapped
+    skip = (false
+      || !didHit
+      || state.lives <= 0
+      || state.isExitingLevel
+      || state.isExited
+      || state.isLost
+      || state.isDeathIlluminating
+      || actionRunning(Action.EpicDeath)
+      || state.gameMode === GameMode.Casual
+      || !isSnakeTrapped()
+    )
+    if (!skip && threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
+      skip = true;
+      threats.removeByCoord(coord, RemovalReason.Explode);
+    }
+    if (!skip && heldItems.reversibles > 0 && rewindAllowed(true)) {
+      skip = true;
+      didHit = false;
+      heldItems.reversibles -= 1;
+      state.timeSinceReverseStart = 0;
+      reboundSnake(1);
+      startAutoRewind();
+      playSound(Sound.hurtSave);
+    }
+    if (!skip) {
+      if (heldItems.armor > 0) {
+        heldItems.armor -= 1;
+      }
+      playSound(Sound.stab);
+      startAction(epicDeathRoutine(), Action.EpicDeath);
+    }
+
     if (didHit) {
       player.directionLastHit = player.direction;
       state.collisions += 1;
       if (state.lives === 0) {
         state.isLost = true;
       }
-      damageEnvironmentAtPosition(coord);
     }
-    handleSnakeSpikeDeath();
-    handleSnakeTrapped(didHit && state.lives > 0);
+
     handleSnakeDamage(didHit && state.lives > 0);
     handleSnakeElectrocution();
     handleSnekFireDamage();
@@ -1424,7 +1574,7 @@ export function engine({
     handlePreyFireDamage();
     handlePreyTrapped();
 
-    // handle snake death
+    // snake death
     if (state.isLost || state.lives < 0) {
       state.isLost = true;
       state.lives = 0;
@@ -1444,7 +1594,9 @@ export function engine({
     }
 
     const didMove = handleSnakeMovement();
-    handleSnakeRewind();
+    if (state.isRewinding) {
+      handleSnakeRewind();
+    }
 
     handleSnakeMovementDuringReplay(didHit);
     handleCaptureReplayInfo(didMove, didHit);
@@ -2092,7 +2244,7 @@ export function engine({
       if (heldItems.armor > 0) {
         heldItems.armor -= 1;
         state.timeSinceArmorProtection = 0;
-        reboundSnake(segments.length > 3 ? 2 : 1);
+        reboundSnake(2);
         playSound(Sound.hurtSave);
         return false;
       }
@@ -2164,7 +2316,7 @@ export function engine({
     const currentMove = dirToUnitVector(dir);
     for (let i = 0; i < numMoves; i++) {
       const futurePosition = pos.add(currentMove);
-      const willHit = checkHasHit(futurePosition, false) || checkPortalTeleportWillHit(futurePosition, dir);
+      const willHit = !!checkCollision(futurePosition) || checkPortalTeleportWillHit(futurePosition, dir);
       if (willHit) return true;
     }
     return false;
@@ -2486,6 +2638,8 @@ export function engine({
     if (state.lastHurtBy === DamageType.HitMine) return;
     if (state.lastHurtBy === DamageType.QuantumEntanglement) return;
     if (state.lastHurtBy === DamageType.Electrocution) return;
+    if (state.lastHurtBy === DamageType.MortalRuin) return;
+    if (state.lastHurtBy === DamageType.Explosive) return;
 
     const isGameOver = state.isLost && state.lives === 0;
     const move = es.moves[0];
@@ -2506,14 +2660,14 @@ export function engine({
     const futurePosition = isGameOver
       ? segments.get(0).copy().add(currentMove)
       : player.position.copy().add(currentMove);
-    const willHitSomething = checkHasHit(futurePosition);
+    const willHitSomething = !!checkCollision(futurePosition);
     if (willHitSomething) {
       state.timeSinceHurtForgiveness = 0;
       return;
     }
 
     if (isGameOver) {
-      reboundSnake(segments.length > 3 ? 2 : 1);
+      reboundSnake(2);
       playSound(Sound.hurt3);
     } else {
       state.lives += 1;
@@ -2530,24 +2684,6 @@ export function engine({
     renderHeartsUI();
     stopAction(Action.GameOver);
     renderer.invalidateStaticCache();
-  }
-
-  function checkArmorProtection(vec: Vector): boolean {
-    if (heldItems.armor <= 0) return false;
-
-    const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
-    const coord = getCoordIndex(vec);
-    if (invincible) {
-      state.timeSinceArmorProtection = 0;
-      startAutoRewind()
-      startScreenShake(0.3, 0.8);
-    } else if (!damageEnvironmentAtPosition(coord) && isSnakeTrapped()) {
-      return false;
-    } else {
-      applyArmorProtection();
-      reboundSnake(segments.length > 3 ? 2 : 1);
-    }
-    return true;
   }
 
   function applyArmorProtection(): void {
@@ -2571,50 +2707,20 @@ export function engine({
     recalculateLasersMap(es, threats);
   }
 
-  /**
-   * apply "damage" to explosive barrel, breakable wall, etc.
-   * determine if a wall should be destroyed while the player is lunging.
-   */
-  const damageEnvironmentAtPosition = (coord: number): boolean => {
-    const lunging = state.lungeStepsRemaining > 0 || state.timeSinceLungeStart < SPEED_LIMIT_ULTRA * (LUNGE_STEPS + 1);
-    const swole = getLevelProgress(stats, es.level, es.difficulty) > 0.45 || segments.length >= 50;
-    const canBreakWalls = (lunging && swole) || heldItems.armor > 0;
-    if (canBreakWalls && !es.passablesMap[coord] && isBreakableBarrier(es.barriersMap[coord])) {
-      removeBarrierTile(coord);
-      playSound(Sound.xplodeLong);
-      startScreenShake(2, 0, 0.8);
-      return true;
-    } else if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
-      const timeRemaining = byCoord(coord)(threats.getTimeRemaining);
-      if (timeRemaining <= BARREL_CRIT_LIFETIME) {
-        threats.removeByCoord(coord, RemovalReason.Explode);
-      } else if (timeRemaining <= BARREL_WARN_LIFETIME) {
-        byCoord(coord)(threats.setLifetime, BARREL_CRIT_LIFETIME);
-        byCoord(coord)(threats.setSprite, SpritesheetRange.BarrelFireB);
-      } else {
-        byCoord(coord)(threats.setLifetime, BARREL_WARN_LIFETIME);
-        // note - this ensures that the burning animation plays
-        byCoord(coord)(threats.setSprite, SpritesheetRange.BarrelFireA);
-      }
-      return true;
-    }
-    return false;
-  }
-
   function isSnakeTrapped() {
     if (![DamageType.HitBarrier, DamageType.HitDoor, DamageType.HitSelf, DamageType.HitLock].includes(state.lastHurtBy)) return false;
-    const hasHit = checkHasHit(player.position);
+    const hasHit = !!checkCollision(player.position);
     let trapped = true;
     let maxSegmentIndex = -1;
     const visited: Record<number, boolean> = {};
     const grid = buildTrappedFloodGrid(checkCollision, segments, player.position);
     outer:
-    for (let i = 0; i <= 3; i++) {
+    for (let idx = 0; idx <= Math.min(3, segments.length - 2); idx++) {
       // skip checking adjacent tiles around player position when their current pos overlaps a collidable tile
-      if (hasHit && i === 0) {
+      if (hasHit && idx === 0) {
         continue;
       }
-      const pos = i === 0 ? player.position : segments.get(i - 1);
+      const pos = idx === 0 ? player.position : segments.get(idx - 1);
       for (let i = 0; i < 4; i++) {
         let dir = DIR.UP;
         if (i === 1) dir = DIR.RIGHT;
@@ -2624,7 +2730,7 @@ export function engine({
         if (visited[getCoordIndex(test)]) {
           continue;
         }
-        if (!test.equals(player.position) && !checkHasHit(test)) {
+        if (!test.equals(player.position) && !checkCollision(test)) {
           const result = floodFillTrapped(getCoordIndex(test), 10, grid, visited);
           trapped = analyzeFloodFillTrappedResult(result, segments.length);
           if (trapped && result.maxSegmentIndex > maxSegmentIndex) {
@@ -2645,35 +2751,6 @@ export function engine({
       });
     }
     return trapped;
-  }
-
-  // if snake has trapped itself, die immediately
-  function handleSnakeTrapped(didReceiveDamage: boolean) {
-    if (!didReceiveDamage) return;
-    if (state.isExitingLevel || state.isExited) return;
-    if (state.isLost) return;
-    if (state.isDeathIlluminating) return;
-    if (actionRunning(Action.EpicDeath)) return;
-    if (state.gameMode === GameMode.Casual) return;
-    const trapped = isSnakeTrapped();
-    if (!trapped) {
-      return;
-    }
-    const coord = getCoordIndex(player.position);
-    if (threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
-      threats.removeByCoord(coord, RemovalReason.Explode);
-      return;
-    }
-    if (heldItems.reversibles > 0) {
-      heldItems.reversibles -= 1;
-      state.timeSinceReverseStart = 0;
-      reboundSnake(1);
-      startAutoRewind();
-      playSound(Sound.hurtSave);
-      return;
-    }
-    playSound(Sound.stab);
-    startAction(epicDeathRoutine(), Action.EpicDeath);
   }
 
   function handlePreyTrapped() {
@@ -2703,40 +2780,6 @@ export function engine({
     spawnLegendaryItem(x, y);
     drawState.shouldDrawActionFG = true;
     drawState.shouldDrawApples = true;
-  }
-
-  function handleSnakeSpikeDeath() {
-    if (state.isExitingLevel || state.isExited) return;
-    if (state.isLost) return;
-    if (state.isDeathIlluminating) return;
-    if (actionRunning(Action.EpicDeath)) return;
-    if (state.isButtonPressed) return;
-    if (state.timeSinceInvincibleStart < es.difficulty.invincibilityTime) return;
-    if (state.timeSinceButtonPressChanged < BUTTON_RELEASE_DAMAGE_DELAY) return;
-    let instadeath = false;
-    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
-      const mortalRuin = false
-        || es.threatsMap[coord] === ThreatType.Spikes
-        || es.threatsMap[coord] === ThreatType.WallSpikes
-        || es.threatsMap[coord] === ThreatType.Saw;
-      const playerAtCoord = getCoordIndex(player.position) === coord || segments.existsAtCoord(coord);
-      if (mortalRuin && playerAtCoord) {
-        instadeath = true;
-        state.lastHurtBy = es.threatsMap[coord] === ThreatType.Saw ? DamageType.SawCut : DamageType.SpikePierce;
-        if (es.threatsMap[coord] === ThreatType.Saw) {
-          es.snekDamage[coord] = DamageType.SawCut;
-        }
-        es.level.deathLocations ||= {};
-        es.level.deathLocations[coord] = true;
-        es.illuminationMap[coord] = 1;
-        drawState.shouldDrawActionFG = true;
-      }
-    }
-    if (instadeath) {
-      applyMortalRuin();
-      playSound(Sound.stab);
-      startAction(epicDeathRoutine(), Action.EpicDeath);
-    }
   }
 
   function* epicDeathRoutine(): IEnumerator {
@@ -2804,7 +2847,7 @@ export function engine({
       state.lastHurtBy === DamageType.HitSelf ||
       state.lastHurtBy === DamageType.HitMine
     ) {
-      reboundSnake(segments.length > 3 ? 2 : 1);
+      reboundSnake(2);
     }
     player.directionToFirstSegment = getDirectionSnakeBackward();
 
@@ -2963,7 +3006,7 @@ export function engine({
     if (state.isLost) return;
     if (state.lives < 0) return;
     if (!armorProtect) {
-      reboundSnake(segments.length > 3 ? 2 : 1);
+      reboundSnake(2);
       return;
     }
     // destroy laser diodes from armor protection
@@ -3062,7 +3105,7 @@ export function engine({
         smoke.add(getCoordX(coord), getCoordY(coord), frames * timePerFrame, SpritesheetRange.BigSmokeOff, SmokeType.LargeDissipate);
       }
     }
-    reboundSnake(segments.length > 3 ? 2 : 1);
+    reboundSnake(2);
     stopAction(Action.Burnination);
   }
 
@@ -3504,7 +3547,9 @@ export function engine({
     renderer.invalidateStaticCache();
     loopState.timeScale = 1;
     startScreenShake(1, 0.4);
-    musicPlayer.halfSpeed(es.level.musicTrack);
+    if (replay.mode !== ReplayMode.Playback) {
+      musicPlayer.halfSpeed(es.level.musicTrack);
+    }
     if (replay.mode === ReplayMode.Playback) {
       yield* coroutines.waitForTime(1000);
       proceedToNextReplayClip();

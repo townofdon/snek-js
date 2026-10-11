@@ -13,10 +13,12 @@ import {
   INVINCIBILITY_EXPIRE_FLASH_MS,
   IS_DEV,
   IS_LOCALHOST,
+  LUNGE_STEPS,
   PICKUP_EXPIRE_WARN_MS,
   PICKUP_LIFETIME_MS_EPIC,
   PICKUP_LIFETIME_MS_GALACTIC,
   PICKUP_LIFETIME_MS_LEGENDARY,
+  SPEED_LIMIT_ULTRA,
   THREAT_LASER_MAX_SPAN,
 } from "./constants";
 import {
@@ -63,6 +65,8 @@ import {
   FLAG_EAST,
   DamageType,
   MapAnnotation,
+  IVectorList,
+  HeldItems,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 

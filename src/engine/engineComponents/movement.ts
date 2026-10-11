@@ -44,11 +44,13 @@ import {
   getBestPortalExitDirection,
   getCoordIndex,
   getDirectionBetween,
+  getLevelProgress,
   invertDirection,
   isBreakableBarrier,
   lerp,
   rotateSystemAfterPortalTraverse,
 } from "@/utils";
+import { engineLogic } from "./logic";
 
 interface EngineMovementArgs {
   state: GameState,
@@ -60,7 +62,6 @@ interface EngineMovementArgs {
   heldItems: HeldItems,
   stats: Stats,
   startAutoRewind: () => void,
-  checkArmorProtection: (vec: Vector) => boolean,
   playSound: (sound: Sound, volume?: number, force?: boolean) => void,
   stopRewinding: () => void,
   proceedToNextReplayClip: () => void,
@@ -76,11 +77,21 @@ export function engineMovement({
   heldItems,
   stats,
   startAutoRewind,
-  checkArmorProtection,
   playSound,
   stopRewinding,
   proceedToNextReplayClip,
 }: EngineMovementArgs) {
+
+  const logic = engineLogic({
+    state,
+    es,
+    player,
+    loopState,
+    segments,
+    replay,
+    heldItems,
+    stats,
+  });
 
   function handleSnakeMovement(): boolean {
     if (!state.isMoving) return false;
@@ -253,20 +264,19 @@ export function engineMovement({
       return false;
     }
 
-    // determine if next move will be into something, allow for grace period before injuring snakey
-    const willHitSomething = checkHasHit(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
-    const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
+    // calc grace period
+    const willHitSomething = checkCollision(futurePosition) || checkPortalTeleportWillHit(futurePosition, player.direction);
+    const invincible = logic.invincible();
     const canAutoRewind = rewindAllowed(invincible);
+    const canBreakWallsWithoutDamage = logic.canBreakWallsWithoutDamage();
+    const breakable = (logic.wallBreakableAt(getCoordIndex(futurePosition)) && canBreakWallsWithoutDamage)
+      || (logic.canExplodeBarrelAt(getCoordIndex(futurePosition)));
     const hurtGraceTime = _getHurtGraceTime(futurePosition, canAutoRewind);
-    if (willHitSomething && state.timeSinceGraceStarted <= hurtGraceTime) {
+    if (!breakable && willHitSomething && state.timeSinceGraceStarted <= hurtGraceTime) {
       state.timeSinceGraceStarted += loopState.deltaTime;
       return false;
     }
-    if (willHitSomething && checkArmorProtection(futurePosition)) {
-      state.timeSinceGraceStarted = 0;
-      return false;
-    }
-    if (willHitSomething && canAutoRewind) {
+    if (!breakable && willHitSomething && canAutoRewind) {
       state.timeSinceGraceStarted = 0;
       startAutoRewind();
       return false;
@@ -278,7 +288,7 @@ export function engineMovement({
     // extra move on first lunge frame
     if (isFirstLungeFrame
       && !willHitSomething
-      && !checkHasHit(player.position.copy().add(currentMove))
+      && !checkCollision(player.position.copy().add(currentMove))
       && !segments.existsAt(player.position.x, player.position.y)
     ) {
       moveSegments();
@@ -328,12 +338,24 @@ export function engineMovement({
    * Move snake back after it hits something
    */
   function reboundSnake(numTimes = 2) {
-    for (let times = 0; times < numTimes; times++) {
-      if (segments.length > 1) {
+    if (segments.length - 2 < numTimes) {
+      // snek size <= 4 (head + 3 segments)
+      for (let times = 0; times < numTimes; times++) {
         player.position.set(segments.get(0));
+        const dir = getDirectionBetween(segments.get(segments.length - 1), segments.get(segments.length - 2));
+        for (let i = 0; i < segments.length - 1; i++) {
+          segments.setVec(i, segments.get(i + 1));
+        }
+        segments.get(segments.length - 1).add(dirToUnitVector(dir));
       }
-      for (let i = 0; i < segments.length - 1; i++) {
-        segments.setVec(i, segments.get(i + 1));
+    } else {
+      for (let times = 0; times < numTimes; times++) {
+        if (segments.length > 1) {
+          player.position.set(segments.get(0));
+        }
+        for (let i = 0; i < segments.length - 1; i++) {
+          segments.setVec(i, segments.get(i + 1));
+        }
       }
     }
   }
@@ -394,18 +416,6 @@ export function engineMovement({
       return DamageType.HitBarrier;
     }
     return DamageType.None;
-  }
-
-  function checkHasHit(vec: Vector, updateLastHurtBy = true, checkBarricade = true): boolean {
-    if (state.isExitingLevel) return false;
-    if (state.isExited) return false;
-    if (state.isGameWon) return false;
-    if (state.timeSinceHurt < HURT_STUN_TIME) return false;
-    const hit = checkCollision(vec, checkBarricade);
-    if (hit && updateLastHurtBy) {
-      state.lastHurtBy = hit;
-    }
-    return !!hit;
   }
 
   function checkPortalTeleportWillHit(position: Vector, dir: DIR): boolean {
@@ -532,7 +542,6 @@ export function engineMovement({
     handlePipeTravel,
     reboundSnake,
     rewindAllowed,
-    checkHasHit,
     checkCollision,
     checkPortalTeleportWillHit,
     getDirectionSnakeForward,
