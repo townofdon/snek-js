@@ -1522,6 +1522,7 @@ export function engine({
     }
     if (instadeath) {
       applyMortalRuin();
+      sfx.stopAll();
       playSound(Sound.stab);
       startAction(epicDeathRoutine(), Action.EpicDeath);
     }
@@ -1555,6 +1556,7 @@ export function engine({
       if (heldItems.armor > 0) {
         heldItems.armor -= 1;
       }
+      sfx.stopAll();
       playSound(Sound.stab);
       startAction(epicDeathRoutine(), Action.EpicDeath);
     }

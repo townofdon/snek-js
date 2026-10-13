@@ -110,6 +110,10 @@ export class SFX implements ISFX {
     this.sounds[sound].stop();
   }
 
+  stopAll() {
+    Object.keys(this.sounds).forEach((sound: keyof SoundVariants) => this.stop(sound));
+  }
+
   async load() {
     try {
       const relativeDir = getRelativeDir();

@@ -1100,6 +1100,7 @@ export interface ISFX {
   play: (sound: keyof SoundVariants, volume?: number) => void
   playLoop: (sound: keyof SoundVariants, volume?: number) => void
   stop: (sound: keyof SoundVariants) => void
+  stopAll: () => void
   load: () => void
   isPlaying: (sound: keyof SoundVariants) => boolean
 }
