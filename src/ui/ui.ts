@@ -144,12 +144,10 @@ export class UI {
       return;
     }
     UI.activeMenu = ActiveMenu.LevelSelectMenu;
-    document.getElementById('level-select-menu').classList.remove('hidden');
     emitUIEvent(InputAction.ShowLevelSelectMenu, Initiator.UI);
   }
 
   static hideLevelSelectMenu() {
-    document.getElementById('level-select-menu').classList.add('hidden');
     if (UI.getIsLevelSelectMenuShowing()) {
       UI.activeMenu = ActiveMenu.None;
     }
@@ -437,49 +435,6 @@ export class UI {
     div.style.mixBlendMode = 'hard-light';
     requireElementById<HTMLElement>(UI_PARENT_ID).appendChild(div);
     return div;
-  }
-
-  static renderLevelSelectMenuCompletion(store: SaveDataStore) {
-    const levelsContainer = requireElementById<HTMLDivElement>('level-select-levels');
-    const levels = levelsContainer.children;
-    for (const levelElem of levels) {
-      const levelNum = parseElementLevelNum(levelElem as HTMLButtonElement);
-      const level = getWarpLevelFromNum(levelNum);
-      const completed = (difficultyIndex: DifficultyIndex) => store.getLevelCompleted(level.id, difficultyIndex);
-      UI.renderLevelCompletion(levelElem as HTMLElement, completed);
-    }
-  }
-
-  static renderLevelCompletion(elem: HTMLElement, completed: (difficultyIndex: DifficultyIndex) => boolean) {
-    const newContainer = () => {
-      const outer = document.createElement('div');
-      const status = (difficulty: string, completed: boolean) => {
-        const el = document.createElement('div');
-        el.classList.add(difficulty);
-        if (completed) el.classList.add('completed');
-        return el;
-      }
-      outer.classList.add('completion-status')
-      outer.append(status('medium', completed(2)));
-      outer.append(status('hard', completed(3)));
-      outer.append(status('ultra', completed(4)));
-      return outer;
-    }
-    const existing = elem.querySelector('.completion-status');
-    if (!existing) {
-      elem.prepend(newContainer());
-      return;
-    }
-    const setStatus = (difficulty: string, completed: boolean) => {
-      if (completed) {
-        existing.querySelector(difficulty)?.classList.add('completed');
-      } else {
-        existing.querySelector(difficulty)?.classList.remove('completed');
-      }
-    }
-    setStatus('.medium', completed(2));
-    setStatus('.hard', completed(3));
-    setStatus('.ultra', completed(4));
   }
 
   static disableScreenScroll() {

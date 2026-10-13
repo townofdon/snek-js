@@ -155,7 +155,7 @@ import { PortalParticleSystem2 } from './particleSystems/PortalParticleSystem2';
 import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleSystem2';
 import { buildLevel } from '../levels/levelBuilder';
 import {
-  CAMPAIGN_LEVELS,
+  CAMPAIGN_LEVELS_EP_01,
   CHALLENGE_LEVELS,
   getLevelBoss,
   hasLevelBoss,
@@ -726,8 +726,8 @@ export function engine({
           return `${levelNum} / 20`;
         }
         {
-          const levelIndex = CAMPAIGN_LEVELS.indexOf(es.level);
-          if (levelIndex >= 0) return `${levelIndex + 1} / ${CAMPAIGN_LEVELS.length}`;
+          const levelIndex = CAMPAIGN_LEVELS_EP_01.indexOf(es.level);
+          if (levelIndex >= 0) return `${levelIndex + 1} / ${CAMPAIGN_LEVELS_EP_01.length}`;
         }
         {
           const levelIndex = CHALLENGE_LEVELS.indexOf(es.level);

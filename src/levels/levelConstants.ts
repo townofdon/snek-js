@@ -168,7 +168,7 @@ export const LEVELS_EP_03: Level[] = [
   X_WALLCRUSHER,
 ];
 
-export const CAMPAIGN_LEVELS = LEVELS_EP_01.filter(level => {
+const countableLevel = (level: Level) => {
     switch (level) {
         case MAZE_01:
         case TUTORIAL_LEVEL_10:
@@ -183,7 +183,23 @@ export const CAMPAIGN_LEVELS = LEVELS_EP_01.filter(level => {
         default:
             return true;
     }
-});
+}
+const selectableLevel = (level: Level) => {
+    switch (level) {
+        case MAZE_01:
+        case LEVEL_WIN_GAME:
+            return false;
+        default:
+            return true;
+    }
+}
+
+export const CAMPAIGN_LEVELS_EP_01 = LEVELS_EP_01.filter(countableLevel);
+export const CAMPAIGN_LEVELS_EP_02 = LEVELS_EP_02.filter(countableLevel);
+export const CAMPAIGN_LEVELS_EP_03 = LEVELS_EP_03.filter(countableLevel);
+export const SELECTABLE_LEVELS_EP_01 = LEVELS_EP_01.filter(selectableLevel);
+export const SELECTABLE_LEVELS_EP_02 = LEVELS_EP_02.filter(selectableLevel);
+export const SELECTABLE_LEVELS_EP_03 = LEVELS_EP_03.filter(selectableLevel);
 
 export const SECRET_LEVELS = [
     LEVEL_01_HARD,

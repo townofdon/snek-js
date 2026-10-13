@@ -974,6 +974,8 @@ export enum InputAction {
   ProceedToNextReplayClip,
   Pause,
   UnPause,
+  ButtonBlinkOn,
+  ButtonBlinkOff,
   StartMoving,
   StartRewinding,
   GotoCommunityPage,

@@ -1,11 +1,37 @@
 import React, { useEffect, useState } from "react"
 import { useForceRerender } from "./hooks/useForceRerender";
-import { InputAction } from "@/types";
+import { Episode, InputAction, Level, UINavDir } from "@/types";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
+import { saveDataStore } from '@/stores/SaveDataStore';
+import { SELECTABLE_LEVELS_EP_01, SELECTABLE_LEVELS_EP_02, SELECTABLE_LEVELS_EP_03 } from "@/levels/levelConstants";
+import { bridge } from "./uiBridge";
+import { findLevelWarpIndex, getIsChallengeLevel } from "@/levels/levelUtils";
 
 export const LevelSelectMenu = () => {
+  const [selectedLevelIdx, setSelectedLevelIdx] = useState(0);
+  const [selectedEpisode, setSelectedEpisode] = useState(Episode.E1);
   const [showing, setShowing] = useState(false);
+  const [disabled, setDisabled] = useState(false);
+  const [blink, setBlink] = useState(true);
   const forceRerender = useForceRerender();
+
+  const levels = (() => {
+    if (selectedEpisode === Episode.E1) return SELECTABLE_LEVELS_EP_01;
+    if (selectedEpisode === Episode.E2) return SELECTABLE_LEVELS_EP_02;
+    if (selectedEpisode === Episode.E3) return SELECTABLE_LEVELS_EP_03;
+    return SELECTABLE_LEVELS_EP_01;
+  })();
+
+  const levelcurr = levels[(selectedLevelIdx + 0) % levels.length] || null;
+  let levelprev = levels[(selectedLevelIdx - 1) % levels.length] || null;
+  let levelnext = levels[(selectedLevelIdx + 1) % levels.length] || null;
+
+  if (selectedLevelIdx % levels.length === 0) {
+    levelprev = null;
+  }
+  if (selectedLevelIdx % levels.length === levels.length - 1) {
+    levelnext = null;
+  }
 
   useEffect(() => {
     const handleUIEvent = (action: InputAction = InputAction.None) => {
@@ -13,8 +39,12 @@ export const LevelSelectMenu = () => {
         case InputAction.ForceRerender:
           forceRerender();
           break;
+        case InputAction.StartGame:
+          setDisabled(true);
+          break;
         case InputAction.ShowLevelSelectMenu:
           setShowing(true);
+          setDisabled(false);
           break;
         case InputAction.HideLevelSelectMenu:
           setShowing(false);
@@ -28,6 +58,12 @@ export const LevelSelectMenu = () => {
         case InputAction.ShowGameModeMenu:
           setShowing(false);
           break;
+        case InputAction.ButtonBlinkOn:
+          setBlink(false);
+          break;
+        case InputAction.ButtonBlinkOff:
+          setBlink(true);
+          break;
         default:
           break;
       }
@@ -38,108 +74,111 @@ export const LevelSelectMenu = () => {
     }
   }, []);
 
-  // handleUIInteract
-  // return levelSelectMenuNavMap.callSelected();
-
-  // handleUICancel
-  // this.callAction(InputAction.HideLevelSelectMenu);
-
-  // useEffect(() => {
-  //   if (showing && elements[SettingsMenuElement.CheckboxDisableScreenshake].current) {
-  //     const settingsMenuElements: Record<SettingsMenuElement, HTMLInputElement | HTMLButtonElement> = {
-  //       [SettingsMenuElement.CheckboxCasualMode]: elements[SettingsMenuElement.CheckboxCasualMode].current,
-  //       [SettingsMenuElement.CheckboxCobraMode]: elements[SettingsMenuElement.CheckboxCobraMode].current,
-  //       [SettingsMenuElement.CheckboxDisableScreenshake]: elements[SettingsMenuElement.CheckboxDisableScreenshake].current,
-  //       [SettingsMenuElement.SliderMusicVolume]: elements[SettingsMenuElement.SliderMusicVolume].current,
-  //       [SettingsMenuElement.SliderSfxVolume]: elements[SettingsMenuElement.SliderSfxVolume].current,
-  //       [SettingsMenuElement.ButtonClose]: elements[SettingsMenuElement.ButtonClose].current,
-  //     }
-  //     settingsMenuNavMap.current = new SettingsMenuNavMap(settingsMenuElements, bridge.callAction);
-  //     bridge.settingsMenu.onNavigate = (navDir: UINavDir) => {
-  //       const moveSlider = (focused: SettingsMenuElement | null, direction: number): boolean => {
-  //         if (focused === SettingsMenuElement.SliderMusicVolume) {
-  //           const elem = settingsMenuElements[SettingsMenuElement.SliderMusicVolume] as HTMLInputElement;
-  //           const volume = Math.max((parseFloat(elem.value) || 0) + (direction * 0.1), 0);
-  //           bridge.settings.musicVolume = volume;
-  //           setMusicVolume(volume);
-  //           forceRerender();
-  //           return true;
-  //         } else if (focused === SettingsMenuElement.SliderSfxVolume) {
-  //           const elem = settingsMenuElements[SettingsMenuElement.SliderSfxVolume] as HTMLInputElement;
-  //           const volume = Math.max((parseFloat(elem.value) || 0) + (direction * 0.1), 0);
-  //           bridge.settings.sfxVolume = volume;
-  //           setSfxVolume(volume);
-  //           bridge.callAction(InputAction.TestAudio);
-  //           forceRerender();
-  //           return true;
-  //         }
-  //         return false;
-  //       }
-  //       switch (navDir) {
-  //         case UINavDir.Prev:
-  //         case UINavDir.Up:
-  //           settingsMenuNavMap.current.gotoPrev();
-  //           break;
-  //         case UINavDir.Next:
-  //         case UINavDir.Down:
-  //           settingsMenuNavMap.current.gotoNext();
-  //           break;
-  //         case UINavDir.Left:
-  //           if (gamepadPressed(getGamepad(), Button.DpadLeft)) {
-  //             const focused = settingsMenuNavMap.current.getFocused();
-  //             const handled = moveSlider(focused, -1);
-  //             if (handled) forceRerender();
-  //             return handled;
-  //           }
-  //           // do not handle event so that slider can receive left/right DOM event
-  //           return false;
-  //         case UINavDir.Right:
-  //           if (gamepadPressed(getGamepad(), Button.DpadRight)) {
-  //             const focused = settingsMenuNavMap.current.getFocused();
-  //             const handled = moveSlider(focused, 1);
-  //             if (handled) forceRerender();
-  //             return handled;
-  //           }
-  //           // do not handle event so that slider can receive left/right DOM event
-  //           return false;
-  //       }
-  //       return true;
-  //     };
-  //     bridge.settingsMenu.onInteract = () => {
-  //       const handled = settingsMenuNavMap.current.callSelected()
-  //       if (handled) forceRerender();
-  //       return handled;
-  //     };
-  //     bridge.settingsMenu.onCancel = () => {
-  //       bridge.callAction(InputAction.HideSettingsMenu);
-  //       return true;
-  //     };
-  //   } else {
-  //     bridge.settingsMenu.onNavigate = null;
-  //     bridge.settingsMenu.onInteract = null;
-  //     bridge.settingsMenu.onCancel = null;
-  //     settingsMenuNavMap.current = null;
-  //   }
-  // }, [showing]);
+  useEffect(() => {
+    if (showing && !disabled) {
+      bridge.levelSelectMenu.onNavigate = (navDir: UINavDir) => {
+        switch (navDir) {
+          case UINavDir.Prev:
+            setSelectedLevelIdx(prev => Math.max(prev - 1, 0));
+            break;
+          case UINavDir.Next:
+            setSelectedLevelIdx(prev => prev + 1);
+            break;
+          case UINavDir.Up:
+            setSelectedEpisode(prev => {
+              let newEpisode = prev - 1;
+              if (newEpisode < Episode.E1) newEpisode = Episode.E3;
+              return newEpisode;
+            });
+            setSelectedLevelIdx(0);
+            break;
+          case UINavDir.Down:
+            setSelectedEpisode(prev => {
+              let newEpisode = prev + 1;
+              if (newEpisode > Episode.E3) newEpisode = Episode.E1;
+              return newEpisode;
+            });
+            setSelectedLevelIdx(0);  
+            break;
+          case UINavDir.Left:
+            setSelectedLevelIdx(prev => Math.max(prev - 1, 0));
+            break;
+          case UINavDir.Right:
+            setSelectedLevelIdx(prev => prev + 1);
+            break;
+        }
+        return true;
+      }
+      bridge.levelSelectMenu.onInteract = () => {
+        if (!levelcurr) return;
+        bridge.callAction(InputAction.StartGame, findLevelWarpIndex(levelcurr));
+        setDisabled(true);
+        return true;
+      }
+      bridge.levelSelectMenu.onCancel = () => {
+        bridge.callAction(InputAction.HideLevelSelectMenu);
+        return true;
+      }
+    } else {
+      bridge.levelSelectMenu.onNavigate = null;
+      bridge.levelSelectMenu.onInteract = null;
+      bridge.levelSelectMenu.onCancel = null;
+    }
+  }, [showing, disabled, levelcurr]);
 
   if (!showing) return null;
 
-  return null;
+  if (!levelcurr) {
+    console.error(`could not find level of index ${selectedLevelIdx}`);
+    return null;
+  }
+
+  const displayLevel = (level: Level | null, active: boolean) => {
+    if (!level) return null;
+    const slug = level.name.toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '-').replace(/^-+|-+$/g, '');
+    const preview = `assets/graphics/level-preview/${slug}.jpg`;
+    const completedMedium = saveDataStore.getLevelCompleted(level.id, 2);
+    const completedHard = saveDataStore.getLevelCompleted(level.id, 3);
+    const completedUltra = saveDataStore.getLevelCompleted(level.id, 4);
+    return (
+      <button id={`select-level-${slug}`} className={`select-level${active ? ' active' : ''}`} onClick={() => {
+        if (disabled) return;
+        bridge.callAction(InputAction.StartGame, findLevelWarpIndex(level));
+        setDisabled(true);
+      }}>
+        {active && (
+          <div className="completion-status">
+            <div className={`medium${completedMedium ? " completed" : ""}`}></div>
+            <div className={`hard${completedHard ? " completed" : ""}`}></div>
+            <div className={`ultra${completedUltra ? " completed" : ""}`}></div>
+          </div>
+        )}
+        <img alt={`Select level ${level.name}`} src={preview} width="150" height="150" onError={(ev) => {
+          console.error(ev);
+        }} />
+      </button>
+    )
+  };
 
   return (
-    <div id="level-select-menu" className="settings-menu level-select-menu hidden">
+    <div id="level-select-menu" className="settings-menu level-select-menu">
       <div className="background blur"></div>
       <div className="content">
         <h2 className="center">Level Select</h2>
-        <h3 id="level-select-challenge-heading" className="center challenge-heading hidden">Challenge</h3>
+        {getIsChallengeLevel(levelcurr) && (
+          <h3 id="level-select-challenge-heading" className="center challenge-heading">Challenge</h3>
+        )}
         <h3 className="center level-name">
           <span className="transform-flip-x"><img src="assets/graphics/editor-play.png" width="16" height="16" /></span>
-          <span id="level-select-map-number" className="num">01</span>
-          <span id="level-select-map-name" className="name">Snekadia</span>
+          <span id="level-select-map-number" className="num">{String((selectedLevelIdx % levels.length) + 1).padStart(2, '0')}</span>
+          <span id="level-select-map-name" className="name">{levelcurr.name}</span>
           <span><img src="assets/graphics/editor-play.png" width="16" height="16" /></span>
         </h3>
         <div id="level-select-levels" className="levels">
-          <button id="select-level-snekadia" className="select-level" data-level="1">
+          {displayLevel(levelprev, false)}
+          {blink && displayLevel(levelcurr, true)}
+          {displayLevel(levelnext, false)}
+          {/* <button id="select-level-snekadia" className="select-level" data-level="1">
             <div className="completion-status">
               <div className="medium"></div>
               <div className="hard"></div>
@@ -309,9 +348,9 @@ export const LevelSelectMenu = () => {
           </button>
           <button id="select-level-x-gauntlet" className="select-level" data-level="416">
             <img alt="Select level x-gauntlet" src="assets/graphics/level-preview/gauntlet.jpg" width="150" height="150" />
-          </button>
+          </button> */}
         </div>
-        <button id="button-level-select-back" className="button back">&lt;- back</button>
+        {/* <button id="button-level-select-back" className="button newbutton select-white ui-arrows back">&lt;- back</button> */}
       </div>
     </div>
   )

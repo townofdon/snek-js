@@ -1,13 +1,10 @@
 
 import P5 from 'p5';
-import { setMusicVolume, setSfxVolume } from '../engine/audio';
 import {
   GameMode,
   GameSettings,
   GameState,
   Initiator,
-  ISFX,
-  Sound,
   UICancelHandler,
   UIHandler,
   UIInteractHandler,
@@ -19,16 +16,14 @@ import {
   GameModeMenuNavMap,
   GameOverMenuElement,
   GameOverMenuNavMap,
-  LevelSelectMenuNavMap,
   PauseMenuElement,
   PauseMenuNavMap,
 } from './uiNavMap';
 import { UI } from './ui';
 import { parseElementLevelNum, requireElementById } from './uiUtils';
 import { unsubscribeOnUIEvent, onUIEvent, emitUIEvent } from './uiEvents';
-import { getIsChallengeLevel, getWarpLevelFromNum, START_CHALLENGE_LEVEL_NUM } from '../levels/levelUtils';
+import { START_CHALLENGE_LEVEL_NUM } from '../levels/levelUtils';
 import { GameModeMenuElement } from './uiTypes';
-import { CHALLENGE_LEVELS } from '../levels/levelConstants';
 import { bridge } from '@/uiv2/uiBridge';
 import { SaveDataStore } from '@/stores/SaveDataStore';
 
@@ -99,14 +94,16 @@ export class UIBindings implements UIHandler {
     [GameModeMenuElement.Randomizer]: undefined,
     [GameModeMenuElement.Back]: undefined
   }
-  private levelSelectMenuNavMap: LevelSelectMenuNavMap;
-  private levelSelectMenu: HTMLElement;
-  private levelSelectMenuBackButton: HTMLButtonElement;
-  private levelSelectChallengeHeading: HTMLElement;
-  private levelSelectMapNum: HTMLElement;
-  private levelSelectMapName: HTMLElement;
-  private levelSelectScroll: HTMLElement;
-  private levelSelectItems: HTMLElement[];
+
+  // TODO: REMOVE
+  // private levelSelectMenuNavMap: LevelSelectMenuNavMap;
+  // private levelSelectMenu: HTMLElement;
+  // private levelSelectMenuBackButton: HTMLButtonElement;
+  // private levelSelectChallengeHeading: HTMLElement;
+  // private levelSelectMapNum: HTMLElement;
+  // private levelSelectMapName: HTMLElement;
+  // private levelSelectScroll: HTMLElement;
+  // private levelSelectItems: HTMLElement[];
 
   constructor(p5: P5, gameState: GameState, settings: GameSettings, saveDataStore: SaveDataStore, callAction: (action: InputAction, p0?: any) => void) {
     this.p5 = p5;
@@ -120,62 +117,66 @@ export class UIBindings implements UIHandler {
     this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
     this.gameOverMenuNavMap = new GameOverMenuNavMap(this.callGameOverMenuAction);
     this.gameModeMenuNavMap = new GameModeMenuNavMap(this.callGameModeMenuAction);
-    this.levelSelectMenuNavMap = new LevelSelectMenuNavMap(
-      this.callLevelSelectMenuAction,
-      this.levelSelectItems.map((elem => elem.id)),
-    )
+
+    // TODO: REMOVE
+    // this.levelSelectMenuNavMap = new LevelSelectMenuNavMap(
+    //   this.callLevelSelectMenuAction,
+    //   this.levelSelectItems.map((elem => elem.id)),
+    // );
     onUIEvent(this.handleUIEvent);
     window.addEventListener('blur', this.handleWindowBlur);
   }
 
   handleUINavigation: UINavEventHandler = (navDir) => {
     if (UI.getIsLevelSelectMenuShowing()) {
-      const success = (() => {
-        switch (navDir) {
-          case UINavDir.Up:
-            return this.levelSelectMenuNavMap.gotoUp();
-          case UINavDir.Down:
-            return this.levelSelectMenuNavMap.gotoDown();
-          case UINavDir.Prev:
-          case UINavDir.Left:
-            return this.levelSelectMenuNavMap.gotoLeft();
-          case UINavDir.Next:
-          case UINavDir.Right:
-            return this.levelSelectMenuNavMap.gotoRight();
-          default:
-            return false;
-        }
-      })()
-      if (!success) {
-        return false;
-      }
-      const elem = this.levelSelectMenuNavMap.getActiveElement();
-      if (elem.id === 'button-level-select-back') {
-        return true;
-      }
-      const levelNum = parseElementLevelNum(elem as HTMLButtonElement);
-      const level = getWarpLevelFromNum(levelNum);
-      const [, idx] = this.levelSelectMenuNavMap.getActiveIndex();
-      if (!elem || idx < 0) {
-        console.warn('active level or active index not found', elem, idx);
-        return true;
-      }
-      const reg = /scale\((.+)\)/;
-      const scale = parseFloat(this.main.style.transform?.match(reg)[1]) || 1;
-      const diff = this.levelSelectItems[1].getBoundingClientRect().x - this.levelSelectItems[0].getBoundingClientRect().x;
-      const maxScroll = (diff / scale) * this.levelSelectItems.length;
-      const scrollAmt = idx / this.levelSelectItems.length;
-      if (getIsChallengeLevel(level)) {
-        const challengeLevelIndex = CHALLENGE_LEVELS.indexOf(level);
-        this.levelSelectChallengeHeading.classList.remove('hidden');
-        this.levelSelectMapNum.innerText = String(challengeLevelIndex + 1).padStart(2, '0');
-      } else {
-        this.levelSelectChallengeHeading.classList.add('hidden');
-        this.levelSelectMapNum.innerText = String(idx + 1).padStart(2, '0');
-      }
-      this.levelSelectMapName.innerText = level.name;
-      this.levelSelectScroll.scrollTo({ left: scrollAmt * maxScroll });
-      return true;
+      return bridge.levelSelectMenu?.onNavigate?.(navDir) || false;
+      // TODO: REMOVE
+      // const success = (() => {
+      //   switch (navDir) {
+      //     case UINavDir.Up:
+      //       return this.levelSelectMenuNavMap.gotoUp();
+      //     case UINavDir.Down:
+      //       return this.levelSelectMenuNavMap.gotoDown();
+      //     case UINavDir.Prev:
+      //     case UINavDir.Left:
+      //       return this.levelSelectMenuNavMap.gotoLeft();
+      //     case UINavDir.Next:
+      //     case UINavDir.Right:
+      //       return this.levelSelectMenuNavMap.gotoRight();
+      //     default:
+      //       return false;
+      //   }
+      // })()
+      // if (!success) {
+      //   return false;
+      // }
+      // const elem = this.levelSelectMenuNavMap.getActiveElement();
+      // if (elem.id === 'button-level-select-back') {
+      //   return true;
+      // }
+      // const levelNum = parseElementLevelNum(elem as HTMLButtonElement);
+      // const level = getWarpLevelFromNum(levelNum);
+      // const [, idx] = this.levelSelectMenuNavMap.getActiveIndex();
+      // if (!elem || idx < 0) {
+      //   console.warn('active level or active index not found', elem, idx);
+      //   return true;
+      // }
+      // const reg = /scale\((.+)\)/;
+      // const scale = parseFloat(this.main.style.transform?.match(reg)[1]) || 1;
+      // const diff = this.levelSelectItems[1].getBoundingClientRect().x - this.levelSelectItems[0].getBoundingClientRect().x;
+      // const maxScroll = (diff / scale) * this.levelSelectItems.length;
+      // const scrollAmt = idx / this.levelSelectItems.length;
+      // if (getIsChallengeLevel(level)) {
+      //   const challengeLevelIndex = CHALLENGE_LEVELS.indexOf(level);
+      //   this.levelSelectChallengeHeading.classList.remove('hidden');
+      //   this.levelSelectMapNum.innerText = String(challengeLevelIndex + 1).padStart(2, '0');
+      // } else {
+      //   this.levelSelectChallengeHeading.classList.add('hidden');
+      //   this.levelSelectMapNum.innerText = String(idx + 1).padStart(2, '0');
+      // }
+      // this.levelSelectMapName.innerText = level.name;
+      // this.levelSelectScroll.scrollTo({ left: scrollAmt * maxScroll });
+      // return true;
     }
     if (UI.getIsSettingsMenuShowing()) {
       return bridge.settingsMenu?.onNavigate?.(navDir) || false;
@@ -247,8 +248,9 @@ export class UIBindings implements UIHandler {
 
   handleUIInteract: UIInteractHandler = () => {
     if (UI.getIsLevelSelectMenuShowing()) {
-      return this.levelSelectMenuNavMap.callSelected();
-      // return bridge.levelSelectMenu?.onInteract?.() || false;
+      // TODO: REMOVE
+      // return this.levelSelectMenuNavMap.callSelected();
+      return bridge.levelSelectMenu?.onInteract?.() || false;
     }
     if (UI.getIsSettingsMenuShowing()) {
       return bridge.settingsMenu?.onInteract?.() || false;
@@ -273,8 +275,9 @@ export class UIBindings implements UIHandler {
 
   handleUICancel: UICancelHandler = () => {
     if (UI.getIsLevelSelectMenuShowing()) {
-      this.callAction(InputAction.HideLevelSelectMenu);
-      // return bridge.levelSelectMenu?.onCancel?.() || false;
+      // TODO: REMOVE
+      // this.callAction(InputAction.HideLevelSelectMenu);
+      return bridge.levelSelectMenu?.onCancel?.() || false;
     }
     if (UI.getIsSettingsMenuShowing()) {
       return bridge.settingsMenu?.onCancel?.() || false;
@@ -341,20 +344,21 @@ export class UIBindings implements UIHandler {
     this.gameModeMenuElements[GameModeMenuElement.Randomizer] = requireElementById<HTMLButtonElement>(GameModeMenuElement.Randomizer);
     this.gameModeMenuElements[GameModeMenuElement.Back] = requireElementById<HTMLButtonElement>(GameModeMenuElement.Back);
 
-    this.levelSelectMenu = requireElementById<HTMLElement>('level-select-menu');
-    this.levelSelectMenuBackButton = requireElementById<HTMLButtonElement>('button-level-select-back');
-    this.levelSelectChallengeHeading = requireElementById<HTMLElement>('level-select-challenge-heading');
-    this.levelSelectMapNum = requireElementById<HTMLElement>('level-select-map-number');
-    this.levelSelectMapName = requireElementById<HTMLElement>('level-select-map-name');
-    this.levelSelectScroll = requireElementById<HTMLElement>('level-select-levels');
-    this.levelSelectItems = (() => {
-      const order: HTMLElement[] = []
-      const buttons = this.levelSelectMenu.querySelectorAll('button.select-level');
-      buttons.forEach(button => {
-        order.push(button as HTMLElement);
-      })
-      return order;
-    })()
+    // TODO: REMOVE
+    // this.levelSelectMenu = requireElementById<HTMLElement>('level-select-menu');
+    // this.levelSelectMenuBackButton = requireElementById<HTMLButtonElement>('button-level-select-back');
+    // this.levelSelectChallengeHeading = requireElementById<HTMLElement>('level-select-challenge-heading');
+    // this.levelSelectMapNum = requireElementById<HTMLElement>('level-select-map-number');
+    // this.levelSelectMapName = requireElementById<HTMLElement>('level-select-map-name');
+    // this.levelSelectScroll = requireElementById<HTMLElement>('level-select-levels');
+    // this.levelSelectItems = (() => {
+    //   const order: HTMLElement[] = []
+    //   const buttons = this.levelSelectMenu.querySelectorAll('button.select-level');
+    //   buttons.forEach(button => {
+    //     order.push(button as HTMLElement);
+    //   })
+    //   return order;
+    // })()
   }
 
   private handleUIEvent = (action: InputAction = InputAction.None) => {
@@ -373,19 +377,20 @@ export class UIBindings implements UIHandler {
         this.gameModeMenuElements[GameModeMenuElement.Randomizer].removeEventListener('click', this.onSelectGameModeRandomizer);
         this.gameModeMenuElements[GameModeMenuElement.Back].removeEventListener('click', this.onSelectGameModeBack);
       }
-      if (action === InputAction.ShowLevelSelectMenu) {
-        this.levelSelectMenu.addEventListener('click', this.onLevelSelect);
-        this.levelSelectMenuBackButton.addEventListener('click', this.onHideLevelSelectMenu);
-        this.levelSelectMenuNavMap.gotoFirst();
-        this.levelSelectScroll.scrollTo({ left: 0 });
-        this.levelSelectMapNum.innerText = '01';
-        this.levelSelectMapName.innerText = 'Snekadia';
-        this.levelSelectChallengeHeading.classList.add('hidden');
-      }
-      if (cleanup || action === InputAction.HideLevelSelectMenu) {
-        this.levelSelectMenu.removeEventListener('click', this.onLevelSelect);
-        this.levelSelectMenuBackButton.removeEventListener('click', this.onHideLevelSelectMenu);
-      }
+      // TODO: REMOVE
+      // if (action === InputAction.ShowLevelSelectMenu) {
+      //   this.levelSelectMenu.addEventListener('click', this.onLevelSelect);
+      //   this.levelSelectMenuBackButton.addEventListener('click', this.onHideLevelSelectMenu);
+      //   this.levelSelectMenuNavMap.gotoFirst();
+      //   this.levelSelectScroll.scrollTo({ left: 0 });
+      //   this.levelSelectMapNum.innerText = '01';
+      //   this.levelSelectMapName.innerText = 'Snekadia';
+      //   this.levelSelectChallengeHeading.classList.add('hidden');
+      // }
+      // if (cleanup || action === InputAction.HideLevelSelectMenu) {
+      //   this.levelSelectMenu.removeEventListener('click', this.onLevelSelect);
+      //   this.levelSelectMenuBackButton.removeEventListener('click', this.onHideLevelSelectMenu);
+      // }
   }
 
   public cleanup = () => {
@@ -407,13 +412,18 @@ export class UIBindings implements UIHandler {
       this.gameModeMenuElements[GameModeMenuElement.Campaign].style.visibility = visible ? 'visible' : 'hidden';
       this.gameModeMenuElements[GameModeMenuElement.Campaign].classList.add('active');
     }
-    if (levelNum > 0 && this.levelSelectMenu) {
-      const elem = this.levelSelectMenu.querySelector(`button[data-level="${levelNum}"]`) as HTMLElement;
-      if (elem) {
-        elem.style.visibility = visible ? 'visible' : 'hidden';
-        elem.classList.add('active');
-      }
+    if (visible) {
+      emitUIEvent(InputAction.ButtonBlinkOn, Initiator.UI);
+    } else {
+      emitUIEvent(InputAction.ButtonBlinkOff, Initiator.UI);
     }
+    // if (levelNum > 0 && this.levelSelectMenu) {
+    //   const elem = this.levelSelectMenu.querySelector(`button[data-level="${levelNum}"]`) as HTMLElement;
+    //   if (elem) {
+    //     elem.style.visibility = visible ? 'visible' : 'hidden';
+    //     elem.classList.add('active');
+    //   }
+    // }
   }
 
   // private overrideEscapeKeydown = (event: KeyboardEvent) => {

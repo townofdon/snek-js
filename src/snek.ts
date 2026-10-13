@@ -544,7 +544,8 @@ export const sketch = (p5: P5) => {
     tutorial.needsMoveControls = true;
     tutorial.needsRewindControls = true;
 
-    UI.renderLevelSelectMenuCompletion(saveDataStore);
+    // TODO: REMOVE
+    // UI.renderLevelSelectMenuCompletion(saveDataStore);
     UI.enableScreenScroll();
     UI.hideGameModeMenu();
     showMainMenuUI();
