@@ -79,6 +79,14 @@ import { X_FUELDEPOT } from "./ep03/fuelDepot";
 import { X_POINTTAKEN } from "./ep03/pointTaken";
 import { X_SHORT_FUSE } from "./ep03/shortFuse";
 import { X_SPACEPORT } from "./ep03/spaceport";
+import { MAZE_02_NE } from "./mazes/maze02ne";
+import { MAZE_02_NW } from "./mazes/maze02nw";
+import { MAZE_02_SE } from "./mazes/maze02se";
+import { MAZE_02_SW } from "./mazes/maze02sw";
+import { WARP_ZONE_01 } from "./bonusLevels/warpZone01";
+import { WARP_ZONE_02 } from "./bonusLevels/warpZone02";
+import { WARP_ZONE_03 } from "./bonusLevels/warpZone03";
+import { LEVEL_01_D } from "./ep01/level01d";
 
 const LEVEL_BOSS_MAP = {
   [BOSS_LEVEL_THE_TECHNICIAN.id]: TheTechnician,
@@ -99,14 +107,45 @@ export function getLevelBoss(level: Level, bossArgs: BossConstructorArgs): Boss 
   return new boss(bossArgs) satisfies Boss;
 }
 
+export const NEXT_LEVEL_MAP: Record<string, Level> = {
+  // EP_01
+  [LEVEL_01_HARD.id]: TUTORIAL_LEVEL_10,
+  [LEVEL_01_ULTRA.id]: LEVEL_02,
+  [LEVEL_01_D.id]: LEVEL_02,
+  [WARP_ZONE_01.id]: LEVEL_02,
+  [WARP_ZONE_02.id]: LEVEL_11,
+  [WARP_ZONE_03.id]: LEVEL_13,
+  [SECRET_LEVEL_10.id]: LEVEL_04,
+  [SECRET_LEVEL_20.id]: LEVEL_10,
+  [SECRET_LEVEL_21.id]: SECRET_LEVEL_20,
+  [VARIANT_LEVEL_03.id]: LEVEL_04,
+  [VARIANT_LEVEL_05.id]: BOSS_LEVEL_THE_TECHNICIAN,
+  [VARIANT_LEVEL_07.id]: LEVEL_08,
+  [VARIANT_LEVEL_08.id]: SECRET_LEVEL_20,
+  [VARIANT_LEVEL_10.id]: TUTORIAL_LEVEL_20,
+  [VARIANT_LEVEL_15.id]: TUTORIAL_LEVEL_40,
+  [VARIANT_LEVEL_99.id]: LEVEL_WIN_GAME,
+  [TUTORIAL_LEVEL_51.id]: VARIANT_LEVEL_07,
+  [MAZE_02_NE.id]: BOSS_LEVEL_THE_TECHNICIAN,
+  [MAZE_02_NW.id]: BOSS_LEVEL_THE_TECHNICIAN,
+  [MAZE_02_SE.id]: BOSS_LEVEL_THE_TECHNICIAN,
+  [MAZE_02_SW.id]: BOSS_LEVEL_THE_TECHNICIAN,
+  [MAZE_03_STORAGE.id]: LEVEL_08,
+  [MAZE_04_LOOT_ROOM.id]: VARIANT_LEVEL_08,
+};
+
 export const LEVELS_EP_01: Level[] = [
     MAZE_01,
     LEVEL_01,
     TUTORIAL_LEVEL_10,
+    // -> WARP_ZONE_01
     LEVEL_02,
+    // -> VARIANT_LEVEL_03
     TUTORIAL_LEVEL_11,
     LEVEL_03,
+    // -> SECRET_LEVEL_10
     LEVEL_04,
+    // -> VARIANT_LEVEL_05
     BOSS_LEVEL_THE_TECHNICIAN,
     LEVEL_05,
     LEVEL_06,
@@ -204,6 +243,7 @@ export const SELECTABLE_LEVELS_EP_03 = LEVELS_EP_03.filter(selectableLevel);
 export const SECRET_LEVELS = [
     LEVEL_01_HARD,
     LEVEL_01_ULTRA,
+    LEVEL_01_D,
     SECRET_LEVEL_10,
     SECRET_LEVEL_20,
     SECRET_LEVEL_21,
@@ -215,9 +255,16 @@ export const SECRET_LEVELS = [
     VARIANT_LEVEL_15,
     VARIANT_LEVEL_99,
     TUTORIAL_LEVEL_51,
+    MAZE_02_NE,
+    MAZE_02_NW,
+    MAZE_02_SE,
+    MAZE_02_SW,
     MAZE_03_STORAGE,
     MAZE_04_LOOT_ROOM,
-]
+    WARP_ZONE_01,
+    WARP_ZONE_02,
+    WARP_ZONE_03,
+];
 
 export const CHALLENGE_LEVELS: Level[] = [
     X_SNEKCITY,

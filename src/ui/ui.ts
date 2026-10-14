@@ -1,10 +1,7 @@
-import P5 from 'p5';
 
-import { getOrCreateElementById, parseElementLevelNum, requireElementById } from './uiUtils';
+import { getOrCreateElementById, requireElementById } from './uiUtils';
 import { emitUIEvent } from './uiEvents';
-import { DifficultyIndex, Initiator, InputAction } from '../types';
-import { getWarpLevelFromNum } from '../levels/levelUtils';
-import { SaveDataStore } from '../stores/SaveDataStore';
+import { Initiator, InputAction } from '../types';
 import { GameModeMenuElement } from './uiTypes';
 import { BLOCK_SIZE_X, DIMENSIONS } from '@/constants';
 

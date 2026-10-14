@@ -1,14 +1,13 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { getCoordIndex2 } from "../../utils";
-import { LEVEL_11 } from "../ep01/level11";
 import { TUTORIAL_LEVEL_30 } from "../ep01/tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "../ep01/tutorialLevel40";
 
 const name = 'warp zone 02';
 
 export const WARP_ZONE_02: Level = {
-  id: '',
+  id: 'warp-zone-2',
   type: LevelType.WarpZone,
   name,
   timeToClear: Infinity,
@@ -67,7 +66,6 @@ XXXXXXXXXXXXXXXXXJD DKXXXXXXXX
   },
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.5,
-  nextLevel: LEVEL_11,
   nextLevelMap: {
     [getCoordIndex2(19, 0)]: TUTORIAL_LEVEL_30,
     [getCoordIndex2(19, 29)]: TUTORIAL_LEVEL_40,

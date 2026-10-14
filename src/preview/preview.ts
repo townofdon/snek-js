@@ -188,7 +188,6 @@ export const sketch = (p5: P5) => {
     clearUI,
     gotoNextLevel,
     proceedToNextReplayClip: () => {},
-    warpToLevel: () => {},
     handleInputAction,
     onUINavigate,
     onGameOver,

@@ -8,7 +8,7 @@ import {
   LEVELS_EP_01,
   FIRST_CHALLENGE_LEVEL,
   CHALLENGE_LEVELS,
-  SECRET_LEVELS,
+  NEXT_LEVEL_MAP,
 } from './levels/levelConstants';
 import {
   RECORD_REPLAY_STATE,
@@ -34,11 +34,11 @@ import {
   shuffleArray,
 } from './utils';
 import {
-  findLevelWarpIndex,
+  getLevelById,
   getIsChallengeLevel,
   getNextRandomLevel,
-  getWarpLevelFromNum,
   hydrateRandomLevels,
+  REPLAY_LEVEL_INDEX,
 } from './levels/levelUtils';
 import {
   DamageType,
@@ -60,7 +60,6 @@ import {
   SNEKALYTICS_EVENT_TYPE,
   Episode,
   InputType,
-  Level,
   Outfit,
   HeldItems,
   Initiator,
@@ -210,7 +209,6 @@ export const sketch = (p5: P5) => {
     clearUI,
     gotoNextLevel,
     proceedToNextReplayClip,
-    warpToLevel,
     handleInputAction,
     onUINavigate,
     onGameOver,
@@ -268,14 +266,14 @@ export const sketch = (p5: P5) => {
         break;
       case InputAction.StartGame:
         {
-          const levelNum = typeof p0 === 'number' ? p0 : -1;
-          startGame(levelNum);
+          const levelId = String(p0 || '<empty>');
+          startGame(levelId);
         }
         break;
       case InputAction.WarpToLevel:
         {
-          const levelNum = typeof p0 === 'number' ? p0 : -1;
-          warpToLevel(levelNum);
+          const levelId = String(p0 || '<empty>');
+          warpToLevel(levelId);
           emitUIEvent(InputAction.WarpToLevel, Initiator.UI);
         }
         break;
@@ -588,9 +586,10 @@ export const sketch = (p5: P5) => {
     UI.showLevelSelectMenu();
   }
 
-  function startGame(levelNum = -1) {
+  function startGame(levelId: string) {
     if (!state.isPreloaded) return;
     if (state.isGameStarting) return;
+    if (!levelId) throw new Error('level id missing');
     playthroughId = uuid();
     state.isGameStarting = true;
     state.lives = MAX_LIVES;
@@ -601,15 +600,15 @@ export const sketch = (p5: P5) => {
       sfx.stop(Sound.invincibleLoop);
     }, 0)
     playSound(Sound.uiConfirm, 1, true);
-    coroutines.start(startGameRoutine(levelNum));
+    coroutines.start(startGameRoutine(levelId));
   }
 
-  function* startGameRoutine(levelNum = -1): IEnumerator {
+  function* startGameRoutine(levelId: string): IEnumerator {
     if (!settings.debug.disableTransitions) {
       yield* coroutines.waitForTime(1000, (t) => {
         const freq = .2;
         const shouldShow = t % freq > freq * 0.5;
-        uiBindings.setStartButtonVisibility(shouldShow, levelNum);
+        uiBindings.setStartButtonVisibility(shouldShow, levelId);
       });
     } else {
       yield null;
@@ -618,7 +617,7 @@ export const sketch = (p5: P5) => {
     if (state.isRandomizer) {
       hydrateRandomLevels();
     }
-    state.nextLevel = levelNum >= 1 ? getWarpLevelFromNum(levelNum) : null;
+    state.nextLevel = getLevelById(levelId);
     if (getIsChallengeLevel(state.nextLevel)) {
       state.episode = Episode.E2;
     }
@@ -680,7 +679,8 @@ export const sketch = (p5: P5) => {
       coroutines.stopAll();
       replay.mode = RECORD_REPLAY_STATE ? ReplayMode.Capture : ReplayMode.Disabled;
       replay.timeCaptureStarted = (new Date()).toISOString();
-      replay.levelIndex = state.levelIndex;
+      replay.levelId = level.id;
+      replay.levelIndex = state.levelIndex; // legacy
       replay.levelName = level.name;
       replay.difficulty = { ...difficulty };
       replay.applesToSpawn = [];
@@ -747,24 +747,10 @@ export const sketch = (p5: P5) => {
     });
   }
 
-  function warpToLevel(levelNum = 1) {
-    // if (getIsStartLevel() || state.gameMode === GameMode.Cobra) return;
-    if (levelNum === 9999) {
-      const levelName = prompt('Input level name');
-      let found: Level = null;
-      const iteratee = (lev: Level) => lev.name.toLowerCase() === levelName.toLowerCase();
-      if (!found) found = LEVELS_EP_01.find(iteratee);
-      if (!found) found = CHALLENGE_LEVELS.find(iteratee);
-      if (!found) found = SECRET_LEVELS.find(iteratee);
-      if (found) {
-        levelNum = findLevelWarpIndex(found);
-      } else {
-        alert(`could not find level "${levelName}" :(`);
-        return;
-      }
-    }
+  function warpToLevel(levelId: string) {
+    if (!levelId) throw new Error('level id missing');
     const fromLevel = getLevel();
-    const toLevel = getWarpLevelFromNum(levelNum);
+    const toLevel = getLevelById(levelId);
     recordSnekalyticsEvent({
       eventType: SNEKALYTICS_EVENT_TYPE.WARP,
       playthroughId,
@@ -922,7 +908,7 @@ export const sketch = (p5: P5) => {
         state.nextLevel = FIRST_CHALLENGE_LEVEL;
       }
       saveDataStore.save({
-        currentLevel: findLevelWarpIndex(getLevel()),
+        currentLevelId: getLevel().id,
         gameMode: state.gameMode,
         difficulty: getDifficulty().index,
         stats,
@@ -962,7 +948,7 @@ export const sketch = (p5: P5) => {
       stats.numLevelsEverCleared += 1;
     }
 
-    const nextLevel = state.isRandomizer ? getNextRandomLevel() : (state.nextLevel || level.nextLevel);
+    const nextLevel = state.isRandomizer ? getNextRandomLevel() : (state.nextLevel || NEXT_LEVEL_MAP[level.id] || undefined);
 
     if (nextLevel) {
       setLevel(nextLevel)
@@ -978,7 +964,7 @@ export const sketch = (p5: P5) => {
 
     maybeSaveReplayStateToFile();
     saveDataStore.save({
-      currentLevel: findLevelWarpIndex(getLevel()),
+      currentLevelId: getLevel().id,
       gameMode: state.gameMode,
       difficulty: getDifficulty().index,
       stats,
@@ -1159,7 +1145,11 @@ export const sketch = (p5: P5) => {
       replay.levelIndex = clip.levelIndex;
       replay.positions = clip.positions;
       replay.lastFrame = lastFrame;
-      setLevel(getWarpLevelFromNum(clip.levelIndex));
+      if (clip.levelId) {
+        setLevel(getLevelById(clip.levelId));
+      } else {
+        setLevel(REPLAY_LEVEL_INDEX[clip.levelIndex]);
+      }
       setLevelIndexFromCurrentLevel();
       setDifficulty(clip.difficulty);
       initLevel(false);

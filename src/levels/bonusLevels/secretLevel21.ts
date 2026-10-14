@@ -69,5 +69,4 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   },
   musicTrack: MusicTrack.slime_exitmusic,
   globalLight: 0.2,
-  nextLevel: SECRET_LEVEL_20,
 };

@@ -66,7 +66,6 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     9: PortalExitMode.SameDirection,
     0: PortalExitMode.SameDirection,
   },
-  nextLevel: LEVEL_04,
   nextLevelMap: {
     [getCoordIndex2(14, 0)]: SECRET_LEVEL_10,
     [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,

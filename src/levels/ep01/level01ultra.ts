@@ -54,7 +54,6 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   ],
   musicTrack: MusicTrack.champion,
   titleVariant: TitleVariant.Yellow,
-  nextLevel: LEVEL_02,
   recordProgressAsLevel: LEVEL_01,
   pickupDropsByFrame: {
     40: { likelihood: 1, type: ItemDropType.Invincibility },

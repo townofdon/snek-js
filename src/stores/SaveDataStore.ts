@@ -58,12 +58,12 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
   }
 
   public getIsSlotUsed = (slot: SaveSlot): boolean => {
-    return !!this.getSlot(slot)?.currentLevel;
+    return !!this.getSlot(slot)?.currentLevelId;
   };
 
   public newSaveSlot = (slot: SaveSlot, gameMode: GameMode) => {
     const newSlotData = {
-      currentLevel: 0,
+      currentLevelId: '',
       gameMode,
       difficulty: DIFFICULTY_EASY.index,
       wearablesUnlocked: { ...DEFAULT_WEARABLES_UNLOCKED },
@@ -94,7 +94,7 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
       throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
     }
     const data = {
-      currentLevel: incoming.currentLevel,
+      currentLevelId: incoming.currentLevelId,
       gameMode: incoming.gameMode,
       difficulty: incoming.difficulty,
       wearablesUnlocked: this.getSlot(slot).wearablesUnlocked,

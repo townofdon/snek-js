@@ -22,7 +22,7 @@ import {
 import { UI } from './ui';
 import { parseElementLevelNum, requireElementById } from './uiUtils';
 import { unsubscribeOnUIEvent, onUIEvent, emitUIEvent } from './uiEvents';
-import { START_CHALLENGE_LEVEL_NUM } from '../levels/levelUtils';
+import { START_CHALLENGE_LEVEL_ID } from '../levels/levelUtils';
 import { GameModeMenuElement } from './uiTypes';
 import { bridge } from '@/uiv2/uiBridge';
 import { SaveDataStore } from '@/stores/SaveDataStore';
@@ -60,7 +60,7 @@ export class UIBindings implements UIHandler {
         this.callAction(InputAction.StartGame);
         break;
       case GameModeMenuElement.Challenge:
-        this.callAction(InputAction.StartGame, START_CHALLENGE_LEVEL_NUM);
+        this.callAction(InputAction.StartGame, START_CHALLENGE_LEVEL_ID);
         break;
       case GameModeMenuElement.LevelSelect:
         this.callAction(InputAction.ShowLevelSelectMenu);
@@ -303,12 +303,12 @@ export class UIBindings implements UIHandler {
     window.removeEventListener('blur', this.handleWindowBlur);
   }
 
-  public setStartButtonVisibility = (visible: boolean, levelNum = -1) => {
+  public setStartButtonVisibility = (visible: boolean, levelId: string) => {
     const { isRandomizer } = this.gameState;
     if (isRandomizer) {
       this.gameModeMenuElements[GameModeMenuElement.Randomizer].style.visibility = visible ? 'visible' : 'hidden';
       this.gameModeMenuElements[GameModeMenuElement.Randomizer].classList.add('active');
-    } else if (levelNum === START_CHALLENGE_LEVEL_NUM) {
+    } else if (levelId === START_CHALLENGE_LEVEL_ID) {
       this.gameModeMenuElements[GameModeMenuElement.Challenge].style.visibility = visible ? 'visible' : 'hidden';
       this.gameModeMenuElements[GameModeMenuElement.Challenge].classList.add('active');
     } else {
@@ -340,7 +340,7 @@ export class UIBindings implements UIHandler {
   }
 
   private onSelectGameModeChallenge = () => {
-    this.callAction(InputAction.StartGame, START_CHALLENGE_LEVEL_NUM);
+    this.callAction(InputAction.StartGame, START_CHALLENGE_LEVEL_ID);
   }
 
   private onSelectGameModeLevelSelect = () => {

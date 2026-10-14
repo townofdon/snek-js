@@ -53,12 +53,10 @@ import { NoOpUnlockedMusicStore } from '../stores/UnlockedMusicStore';
 import { applyGamepadUIActions, tickGamepad } from '@/engine/gamepad';
 import { UIBindings } from '@/ui/uiBindings';
 import { saveDataStore } from '@/stores/SaveDataStore';
-import { MAZE_03_STORAGE } from '@/levels/mazes/maze03-storage';
-import { findLevelFromId } from '@/levels/levelUtils';
+import { getLevelById } from '@/levels/levelUtils';
 
 const query = new URLSearchParams(window.location.search);
-const levelFromQuery = findLevelFromId(query.get('level'));
-const level = levelFromQuery || MAZE_03_STORAGE;
+const level = getLevelById(query.get('level'));
 const difficultyIndex = parseInt(query.get('difficulty')) || DIFFICULTY_HARD.index;
 const disableFullscreen = query.get('disableFullscreen') === 'true';
 
@@ -154,7 +152,6 @@ export const sketch = (p5: P5) => {
     clearUI,
     gotoNextLevel,
     proceedToNextReplayClip: () => {},
-    warpToLevel: () => {},
     handleInputAction,
     onUINavigate,
     onGameOver,

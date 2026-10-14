@@ -18,7 +18,6 @@ import { AppMode, ClickState, DIR, GameMode, GameState, InputAction, RecentMoveT
 import { invertDirection, isOppositeDirection, isOrthogonalDirection, isSameDirection, rotateDirection } from "../utils";
 
 export interface InputCallbacks {
-  onWarpToLevel: (level: number) => void,
   onAddMove: (move: DIR) => void,
   onLunge: (dir: DIR) => void,
   onResetMoves: () => void,

@@ -1,7 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, TitleVariant, LevelType } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
-import { LEVEL_02 } from "./level02";
 
 export const LEVEL_01_D: Level = {
   id: 'C01d',
@@ -58,5 +57,4 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
     [getCoordIndex2(10, 29)]: null,
     [getCoordIndex2(18, 29)]: null,
   },
-  nextLevel: LEVEL_02,
 };

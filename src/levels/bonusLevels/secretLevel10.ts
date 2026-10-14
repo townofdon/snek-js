@@ -67,5 +67,4 @@ XXXXXX  XXXXXX  XXXXXX  XXXXXX
   },
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.2,
-  nextLevel: LEVEL_04,
 };

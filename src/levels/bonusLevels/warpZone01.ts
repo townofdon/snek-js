@@ -1,7 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { getCoordIndex2 } from "../../utils";
-import { LEVEL_02 } from "../ep01/level02";
 import { TUTORIAL_LEVEL_20 } from "../ep01/tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "../ep01/tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "../ep01/tutorialLevel40";
@@ -9,15 +8,13 @@ import { TUTORIAL_LEVEL_40 } from "../ep01/tutorialLevel40";
 const name = 'warp zone 01';
 
 export const WARP_ZONE_01: Level = {
-  id: '',
+  id: 'warp-zone-1',
   type: LevelType.WarpZone,
   name,
   timeToClear: Infinity,
   applesToClear: Infinity,
   disableAppleSpawn: true,
   numApplesStart: 0,
-  // extraHurtGraceTime: 10,
-  // snakeStartSizeOverride: 150,
   growthMod: 0,
   layout: `
 XXXXXXXXXXXXXXXXX1D D3XXXXXXXX
@@ -68,7 +65,6 @@ XXXXXXXXXXXXXXXXXJD DKXXXXXXXX
   },
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.5,
-  nextLevel: LEVEL_02,
   nextLevelMap: {
     [getCoordIndex2(29, 14)]: TUTORIAL_LEVEL_20,
     [getCoordIndex2(19, 0)]: TUTORIAL_LEVEL_30,

@@ -1,7 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
-import { LEVEL_06 } from "../ep01/level06";
 import { MAZE_02_NE } from "../mazes/maze02ne";
 import { MAZE_02_NW } from "../mazes/maze02nw";
 import { MAZE_02_SE } from "../mazes/maze02se";
@@ -54,7 +53,6 @@ XXXXXXXXXXXXXxdxXXXXXXXXXXXXXX
   showTitle: true,
   musicTrack: MusicTrack.lostcolony,
   titleVariant: TitleVariant.GrayBlue,
-  nextLevel: LEVEL_06,
   nextLevelMap: {
     [getCoordIndex2(0, 7)]: MAZE_02_NW,
     [getCoordIndex2(0, 8)]: MAZE_02_NW,

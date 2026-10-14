@@ -388,7 +388,7 @@ export interface GameSettings extends BaseGameSettings {
 export type LevelId = string;
 
 export interface SaveSlotData {
-  currentLevel: number,
+  currentLevelId: string,
   gameMode: GameMode,
   difficulty: DifficultyIndex,
   wearablesUnlocked: Record<WearableFrame, boolean>,
@@ -514,7 +514,6 @@ export interface Level{
    */
   startDark?: boolean,
   nextLevelMap?: Record<number, Level>,
-  nextLevel?: Level,
   appleSlowdownMod?: number,
   speedLimit?: number,
   applesModOverride?: number,
@@ -1725,6 +1724,7 @@ export enum ReplayMode {
 
 export interface Replay {
   mode: ReplayMode,
+  levelId?: string,
   levelIndex: number,
   levelName: string,
   difficulty: Difficulty,

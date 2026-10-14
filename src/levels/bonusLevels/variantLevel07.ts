@@ -53,7 +53,6 @@ XXXXXXXXXXXXXDDDDXXXXXXXXXXXXX
   ],
   musicTrack: MusicTrack.stonemaze,
   globalLight: 0.4,
-  nextLevel: LEVEL_08,
   nextLevelMap: {
     [getCoordIndex2(14, 0)]: VARIANT_LEVEL_08,
     [getCoordIndex2(15, 0)]: VARIANT_LEVEL_08,

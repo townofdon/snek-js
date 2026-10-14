@@ -73,7 +73,6 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   showQuoteOnLevelWin: false,
   titleVariant: TitleVariant.Red,
   musicTrack: MusicTrack.slyguy,
-  nextLevel: LEVEL_WIN_GAME,
   pickupDrops: {
     [ItemDropType.Invincibility]: true,
     [ItemDropType.Mine]: true,

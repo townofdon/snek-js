@@ -2,6 +2,7 @@ import { DamageType, LoseMessage } from "./types";
 
 export const LOSE_MESSAGES: LoseMessage[] = [
     ["Now that was an interesting move...", (state, stats, difficulty) => difficulty.index <= 2],
+    ["I came here to chew bubble gum and play SNEK.<br/>And I'm all outa bubble gum.", (state, stats, difficulty) => true],
     ["The real key is to not do that thing you just did.", (state, stats, difficulty) => difficulty.index <= 3],
     ["Why did you do that?", (state, stats, difficulty) => difficulty.index <= 2],
     ["That was a killer move.", (state, stats, difficulty) => difficulty.index <= 3],

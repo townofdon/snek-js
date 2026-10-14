@@ -75,5 +75,4 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   },
   musicTrack: MusicTrack.creeplord,
   globalLight: 0.2,
-  nextLevel: LEVEL_10,
 };

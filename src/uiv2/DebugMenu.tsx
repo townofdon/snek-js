@@ -5,10 +5,9 @@ import { InputAction, Level } from "@/types";
 import { PauseMenuElement, PauseMenuNavMap } from "@/ui/uiNavMap";
 import { bridge } from "./uiBridge";
 import { LEVEL_01 } from "@/levels/ep01/level01";
-import { CHALLENGE_LEVELS, LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS } from "@/levels/levelConstants";
+import { LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS } from "@/levels/levelConstants";
 import { DropdownField, Option } from "@/components/Field";
 import { Stack } from "@/components/Stack";
-import { findLevelWarpIndex } from "@/levels/levelUtils";
 import { CheckboxField } from "./components/CheckboxField";
 
 export const DebugMenu = () => {
@@ -56,15 +55,11 @@ export const DebugMenu = () => {
   const handleSetLevel = (option: Option) => {
     const id = option.value;
     const match = levelsToInclude.find(level => level.id === id);
-    const idx = findLevelWarpIndex(match)
     if (!match) {
       throw new Error(`no match for level id=${id}`)
     }
-    if (!idx) {
-      throw new Error(`no warp index found for level id=${id}`);
-    }
     setSelectedLevel(match);
-    bridge.callAction(InputAction.WarpToLevel, findLevelWarpIndex(match));
+    bridge.callAction(InputAction.WarpToLevel, id);
   }
 
   const handleSetDifficulty = (option: Option) => {

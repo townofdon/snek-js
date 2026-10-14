@@ -142,6 +142,7 @@ import {
   floodFillTrapped,
   analyzeFloodFillTrappedResult,
   makeCheckPreyCollision,
+  sluggify,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -168,7 +169,7 @@ import { LEVEL_99 } from '../levels/ep01/level99';
 import { LEVEL_WIN_GAME } from '../levels/winGame';
 import { VARIANT_LEVEL_99 } from '../levels/bonusLevels/variantLevel99';
 import { WinLevelScene } from '../scenes/WinLevelScene';
-import { findLevelWarpIndex, getNumRandomLevelsRemaining } from '../levels/levelUtils';
+import { getNumRandomLevelsRemaining } from '../levels/levelUtils';
 import { SpriteRenderer } from './spriteRenderer';
 import { Renderer } from './renderer';
 import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
@@ -224,7 +225,6 @@ interface EngineParams {
   clearUI: (force?: boolean) => void,
   gotoNextLevel: () => void,
   proceedToNextReplayClip: () => void,
-  warpToLevel: (levelNum?: number) => void,
   handleInputAction: (action: InputAction) => void,
   onUINavigate: UINavEventHandler,
   onGameOver: () => void,
@@ -256,7 +256,6 @@ export function engine({
   clearUI,
   gotoNextLevel,
   proceedToNextReplayClip,
-  warpToLevel,
   handleInputAction,
   onUINavigate,
   onGameOver,
@@ -1659,7 +1658,6 @@ export function engine({
   //#region USER INPUT
 
   const inputCallbacks: InputCallbacks = {
-    onWarpToLevel: warpToLevel,
     onAddMove,
     onLunge,
     onResetMoves,
@@ -1737,7 +1735,7 @@ export function engine({
     // await overlayOntoCanvas(apples, dest, ...sourceDimensions, ...destinationDimensions);
     await overlayOntoCanvas(action, dest, ...sourceDimensions, ...destinationDimensions);
     const img = await getCanvasImage(dest, `map-${Date.now()}.png`);
-    downloadFile(img, `map-${findLevelWarpIndex(es.level)}-${es.level.name}.png`, 'img/png');
+    downloadFile(img, `map-${sluggify(es.level.name)}.png`, 'img/png');
     renderer.invalidateStaticCache();
   }
 
@@ -3577,9 +3575,7 @@ export function engine({
         a.download = fileName;
         a.click();
       }
-      const trueIndex = findLevelWarpIndex(LEVELS_EP_01[state.levelIndex % LEVELS_EP_01.length]);
-      if (trueIndex < 0) throw new Error('replay capture failed: findLevelWarpIndex returned -1');
-      const fileName = `snek-data-${trueIndex}-${replay.levelName}-${replay.timeCaptureStarted}.json`;
+      const fileName = `snek-data-${sluggify(replay.levelName)}-${replay.timeCaptureStarted}.json`;
       download(JSON.stringify(replay), fileName, 'application/json');
       console.log(`saved file "${fileName}"`);
     } catch (err) {

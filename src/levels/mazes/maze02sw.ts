@@ -1,6 +1,5 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
-import { LEVEL_06 } from "../ep01/level06";
 
 const name = 'maze-02-sw';
 
@@ -62,5 +61,4 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
   },
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.2,
-  nextLevel: LEVEL_06,
 };

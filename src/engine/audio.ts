@@ -6,6 +6,7 @@ import { inverseLerp, lerp } from "../utils";
 const DEBUG_AUDIO = false;
 const DEBUG_MIXRACK = false;
 
+const playing: Record<string, boolean> = {};
 const audioBufferMap: Record<string, AudioBuffer> = {}
 const audioSourceMap: Record<string, AudioBufferSourceNode> = {}
 const audioGainNodeMap: Record<string, GainNode> = {}
@@ -266,8 +267,14 @@ export async function loadSfxAudio({ src }: { src: [string] }) {
 }
 
 export async function playMusic(path: string, options: AudioSourceOptions) {
+  playing[path] = true;
   await loadAudioBuffer(path);
-  return playAudio(path, musicGainNode, options);
+  if (playing[path]) {
+    return playAudio(path, musicGainNode, options);
+  } else {
+    unloadAudio(path);
+    return null;
+  }
 }
 
 export async function setPlaybackRate(path: string, rate: number) {
@@ -302,6 +309,7 @@ export function stopAudio(path: string) {
   } catch (err) {
     console.warn(`err on stopAudio(${path}): ${err}`);
   } finally {
+    playing[path] = false;
     audioSourceMap[path]?.disconnect();
     audioAnalyserMap[path]?.disconnect();
     audioGainNodeMap[path]?.disconnect();

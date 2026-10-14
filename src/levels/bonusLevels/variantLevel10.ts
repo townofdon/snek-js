@@ -56,7 +56,6 @@ XXXXXXXXXXXXXXDDXXXXXXXXXXXXXX
   ],
   musicTrack: MusicTrack.dangerZone,
   titleVariant: TitleVariant.Red,
-  nextLevel: TUTORIAL_LEVEL_20,
   pickupDrops: {
     [ItemDropType.Invincibility]: false,
     [ItemDropType.Mine]: true,

@@ -52,7 +52,6 @@ XXXXXXXXXXXXDDDDDDXXXXXXXXXXXX
   musicTrack: MusicTrack.slime_megacreep,
   titleVariant: TitleVariant.Green,
   globalLight: 0.2,
-  nextLevel: SECRET_LEVEL_20,
   nextLevelMap: {
     [getCoordIndex2(29, 16)]: SECRET_LEVEL_21,
     [getCoordIndex2(29, 17)]: SECRET_LEVEL_21,

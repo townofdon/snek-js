@@ -5,7 +5,8 @@ import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { saveDataStore } from '@/stores/SaveDataStore';
 import { SELECTABLE_LEVELS_EP_01, SELECTABLE_LEVELS_EP_02, SELECTABLE_LEVELS_EP_03 } from "@/levels/levelConstants";
 import { bridge } from "./uiBridge";
-import { findLevelWarpIndex, getIsChallengeLevel } from "@/levels/levelUtils";
+import { getIsChallengeLevel } from "@/levels/levelUtils";
+import { sluggify } from "@/utils";
 
 export const LevelSelectMenu = () => {
   const [selectedLevelIdx, setSelectedLevelIdx] = useState(0);
@@ -111,7 +112,7 @@ export const LevelSelectMenu = () => {
       }
       bridge.levelSelectMenu.onInteract = () => {
         if (!levelcurr) return;
-        bridge.callAction(InputAction.StartGame, findLevelWarpIndex(levelcurr));
+        bridge.callAction(InputAction.StartGame, levelcurr.id);
         setDisabled(true);
         return true;
       }
@@ -135,7 +136,7 @@ export const LevelSelectMenu = () => {
 
   const displayLevel = (level: Level | null, active: boolean) => {
     if (!level) return null;
-    const slug = level.name.toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '-').replace(/^-+|-+$/g, '');
+    const slug = sluggify(level.name);
     const preview = `assets/graphics/level-preview/${slug}.jpg`;
     const completedMedium = saveDataStore.getLevelCompleted(level.id, 2);
     const completedHard = saveDataStore.getLevelCompleted(level.id, 3);
@@ -143,7 +144,7 @@ export const LevelSelectMenu = () => {
     return (
       <button id={`select-level-${slug}`} className={`select-level${active ? ' active' : ''}`} onClick={() => {
         if (disabled) return;
-        bridge.callAction(InputAction.StartGame, findLevelWarpIndex(level));
+        bridge.callAction(InputAction.StartGame, level.id);
         setDisabled(true);
       }}>
         {active && (
