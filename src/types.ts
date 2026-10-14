@@ -516,6 +516,7 @@ export interface Level{
   nextLevelMap?: Record<number, Level>,
   nextLevel?: Level,
   appleSlowdownMod?: number,
+  speedLimit?: number,
   applesModOverride?: number,
   /**
    * pickup drop config by "frame" (number of apples eaten)
@@ -1292,7 +1293,7 @@ export enum Image {
   SegmentsSheet = 'snek-segments-sheet.png',
   SnekButt = 'snek-butt.png',
   ControlsKeyboardMove = 'controls-keyboard-move2.png',
-  ControlsKeyboardTurn = 'controls-keyboard-turn2.png',
+  ControlsKeyboardTurn = 'controls-keyboard-uturn-sheet.png',
   ControlsKeyboardDelete = 'controls-keyboard-delete.png',
   ControlsKeyboardSprint = 'controls-keyboard-sprint.png',
   ControlsGamepadMove = 'controls-gamepad-move.png',
@@ -1465,6 +1466,7 @@ export type SpritesheetImage =
   | Image.BossComponents
   | Image.BossTechnician
   | Image.BossHealthbar
+  | Image.ControlsKeyboardTurn
 ;
 
 export enum Threat48Frame {

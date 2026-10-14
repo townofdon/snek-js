@@ -857,6 +857,12 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 999999,
     oneShot: true,
   },
+  [Image.ControlsKeyboardTurn]: {
+    frames: 4,
+    timePerFrame: 300,
+    frameWidth: 76,
+    frameHeight: 52,
+  } satisfies AnimationData,
 } satisfies (Record<SpritesheetImage, AnimationData> & Record<SpritesheetRange, AnimationDataForRange>);
 
 // validate ANIMATIONS data

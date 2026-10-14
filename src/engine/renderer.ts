@@ -683,11 +683,11 @@ export class Renderer implements IRenderer {
     if (inputType === InputType.Keyboard) {
       const tx = MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth * 0.5);
       const ty = MAP_OFFSET + BLOCK_SIZE_Y * (y + 5);
-      const imgx = BLOCK_SIZE_X * (x + 1.4);
-      const imgy = BLOCK_SIZE_Y * (y + 0.4);
+      const imgx = x + 1.4;
+      const imgy = y + 0.4;
       gfx.textAlign(this.p5.CENTER, this.p5.CENTER);
       gfx.text("U-TURN", tx, ty);
-      this.spriteRenderer.drawImage(Image.ControlsKeyboardTurn, imgx, imgy, gfx);
+      this.spriteRenderer.drawSpritesheetAnim1x1(gfx, Image.ControlsKeyboardTurn, imgx, imgy, this.elapsed, 0, 1, 0);
     } else {
       const imgx = BLOCK_SIZE_X * (x + 0.5);
       const imgy = BLOCK_SIZE_Y * (y + 0.8);

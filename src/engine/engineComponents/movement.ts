@@ -464,9 +464,10 @@ export function engineMovement({
     if (es.difficulty.index === 4 && state.isSprinting) {
       return es.difficulty.sprintLimit;
     }
-    return lerp(es.difficulty.speedStart,
+    const time = lerp(es.difficulty.speedStart,
       state.isSprinting ? es.difficulty.sprintLimit : es.difficulty.speedLimit,
       state.currentSpeed / es.difficulty.speedSteps);
+    return Math.max(time, es.level.speedLimit || 0);
   }
 
   function _updateCurrentMoveSpeed() {

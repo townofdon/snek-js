@@ -1,3 +1,4 @@
+import { SPEED_LIMIT_MEDIUM } from "@/constants";
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { toTime } from "../../utils";
@@ -15,8 +16,7 @@ export const SECRET_LEVEL_10: Level = {
   disableAppleSpawn: true,
   numApplesStart: 0,
   appleSlowdownMod: 0.5,
-  // extraHurtGraceTime: 10,
-  // snakeStartSizeOverride: 150,
+  speedLimit: SPEED_LIMIT_MEDIUM,
   growthMod: 0,
   layout: `
 XXXXXX  XXXXXX  XXXXXX  XXXXXX

@@ -18,7 +18,6 @@ export const SECRET_LEVEL_20: Level = {
   numApplesStart: 0,
   appleSlowdownMod: 0.75,
   extraHurtGraceTime: 30,
-  // snakeStartSizeOverride: 150,
   growthMod: 0,
   layout: `
 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
