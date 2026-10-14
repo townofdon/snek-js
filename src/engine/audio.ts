@@ -283,8 +283,10 @@ export async function getPlaybackRate(path: string): Promise<number> {
 }
 
 export function getTimeElapsed(path: string): number {
-  if (audioTimeStartedMap[path] === undefined || audioTimeStartedMap[path] < 0) return 0;
-  return Math.max(audioContext.currentTime - audioTimeStartedMap[path], 0);
+  const timestarted = audioTimeStartedMap[path] || 0;
+  if (!timestarted || timestarted < 0) return 0;
+  if (timestarted > audioContext.currentTime) return 0;
+  return Math.max(audioContext.currentTime - timestarted, 0);
 }
 
 export function stopAudio(path: string) {

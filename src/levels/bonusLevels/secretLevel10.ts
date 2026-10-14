@@ -2,7 +2,7 @@ import { SPEED_LIMIT_MEDIUM } from "@/constants";
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, LevelType, MusicTrack, PortalExitMode } from "../../types";
 import { toTime } from "../../utils";
-import { TUTORIAL_LEVEL_11 } from "../ep01/tutorialLevel11";
+import { LEVEL_04 } from "../ep01/level04";
 
 const name = 'secret area 1-1';
 
@@ -67,5 +67,5 @@ XXXXXX  XXXXXX  XXXXXX  XXXXXX
   },
   musicTrack: MusicTrack.backrooms,
   globalLight: 0.2,
-  nextLevel: TUTORIAL_LEVEL_11,
+  nextLevel: LEVEL_04,
 };

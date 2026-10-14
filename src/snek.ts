@@ -962,9 +962,8 @@ export const sketch = (p5: P5) => {
       stats.numLevelsEverCleared += 1;
     }
 
-    // const 
-
     const nextLevel = state.isRandomizer ? getNextRandomLevel() : (state.nextLevel || level.nextLevel);
+
     if (nextLevel) {
       setLevel(nextLevel)
       setLevelIndexFromCurrentLevel();
@@ -974,6 +973,7 @@ export const sketch = (p5: P5) => {
       state.levelIndex++;
       setLevel(LEVELS_EP_01[state.levelIndex % LEVELS_EP_01.length]);
     }
+
     state.nextLevel = null;
 
     maybeSaveReplayStateToFile();

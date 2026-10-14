@@ -1,6 +1,7 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, PortalExitMode, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
+import { LEVEL_04 } from "../ep01/level04";
 import { TUTORIAL_LEVEL_11 } from "../ep01/tutorialLevel11";
 import { SECRET_LEVEL_10 } from "./secretLevel10";
 
@@ -65,7 +66,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
     9: PortalExitMode.SameDirection,
     0: PortalExitMode.SameDirection,
   },
-  nextLevel: TUTORIAL_LEVEL_11,
+  nextLevel: LEVEL_04,
   nextLevelMap: {
     [getCoordIndex2(14, 0)]: SECRET_LEVEL_10,
     [getCoordIndex2(14, 29)]: SECRET_LEVEL_10,
