@@ -6,7 +6,8 @@ import { InputCallbacks, validateMove } from "../controls";
 import {
   Axis,
   Button,
-} from "./StandardGamepadMapping";
+  GamepadType,
+} from "./gamepadTypes";
 
 const TRIGGER_THRESHOLD = 0.25;
 const AXIS_DEADZONE = 0.33;
@@ -35,10 +36,15 @@ const framePressed: Record<Button, number> = {
 
 const gamepadState = {
   frame: 0,
+  type: GamepadType.None,
 }
 
 export function getGamepad(): Gamepad | null {
   return navigator.getGamepads()?.[0];
+}
+
+export function getGamepadType() {
+  return gamepadState.type;
 }
 
 export function tickGamepad() {
@@ -396,11 +402,21 @@ function getCurrentGamepadMove(playerDirection: DIR): MOVE {
   return MOVE.Nil;
 }
 
+function parseGamepadType(idStr: string): GamepadType {
+  const id = idStr.toLowerCase();
+  if (id.includes("xbox") || id.includes("x-input")) return GamepadType.Xbox;
+  if (id.includes("playstation") || id.includes("dualshock") || id.includes("dualsense") || id.includes("054c")) return GamepadType.Playstation;
+  if (id.includes("nintendo") || id.includes("switch")) return GamepadType.Nintendo;
+  return GamepadType.Xbox;
+}
+
 function handleGamepadConnected(event: GamepadEvent) {
   console.log("Gamepad connected:", event.gamepad.id);
+  gamepadState.type = parseGamepadType(event.gamepad.id);
 }
 function handleGamepadDisconnected(event: GamepadEvent) {
   console.log("Gamepad disconnected:", event.gamepad.id);
+  gamepadState.type = GamepadType.None;
 }
 window.addEventListener("gamepadconnected", handleGamepadConnected, false);
 window.addEventListener("gamepaddisconnected", handleGamepadDisconnected, false);

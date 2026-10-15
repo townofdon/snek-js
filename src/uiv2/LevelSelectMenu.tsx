@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react"
 import { useForceRerender } from "./hooks/useForceRerender";
-import { Episode, InputAction, Level, UINavDir } from "@/types";
+import { Episode, InputAction, InputType, Level, UINavDir } from "@/types";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { saveDataStore } from '@/stores/SaveDataStore';
 import { SELECTABLE_LEVELS_EP_01, SELECTABLE_LEVELS_EP_02, SELECTABLE_LEVELS_EP_03 } from "@/levels/levelConstants";
 import { bridge } from "./uiBridge";
 import { getIsChallengeLevel } from "@/levels/levelUtils";
 import { sluggify } from "@/utils";
+import { GamepadType, getGamepadType } from "@/engine/gamepad";
+import { Stack } from "@/components/Stack";
 
 export const LevelSelectMenu = () => {
   const [selectedLevelIdx, setSelectedLevelIdx] = useState(0);
@@ -15,6 +17,8 @@ export const LevelSelectMenu = () => {
   const [disabled, setDisabled] = useState(false);
   const [blink, setBlink] = useState(true);
   const forceRerender = useForceRerender();
+
+  const inputType = bridge.gameState.inputType;
 
   const levels = (() => {
     if (selectedEpisode === Episode.E1) return SELECTABLE_LEVELS_EP_01;
@@ -46,6 +50,9 @@ export const LevelSelectMenu = () => {
         case InputAction.ShowLevelSelectMenu:
           setShowing(true);
           setDisabled(false);
+          setSelectedEpisode(Episode.E1);
+          setSelectedLevelIdx(0);
+          setBlink(false);
           break;
         case InputAction.HideLevelSelectMenu:
           setShowing(false);
@@ -179,180 +186,81 @@ export const LevelSelectMenu = () => {
           {displayLevel(levelprev, false)}
           {blink && displayLevel(levelcurr, true)}
           {displayLevel(levelnext, false)}
-          {/* <button id="select-level-snekadia" className="select-level" data-level="1">
-            <div className="completion-status">
-              <div className="medium"></div>
-              <div className="hard"></div>
-              <div className="ultra"></div>
-            </div>
-            <img alt="Select level snekadia" src="assets/graphics/level-preview/snekadia.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-plaza" className="select-level" data-level="2">
-            <img alt="Select level plaza" src="assets/graphics/level-preview/plaza.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-metro" className="select-level" data-level="3">
-            <img alt="Select level metro" src="assets/graphics/level-preview/metro.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-turnaround" className="select-level" data-level="110">
-            <img alt="Select level turnaround" src="assets/graphics/level-preview/turnaround.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-facility" className="select-level" data-level="4">
-            <img alt="Select level facility" src="assets/graphics/level-preview/facility.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-panopticon" className="select-level" data-level="5">
-            <img alt="Select level panopticon" src="assets/graphics/level-preview/panopticon.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-lobby" className="select-level" data-level="6">
-            <img alt="Select level lobby" src="assets/graphics/level-preview/lobby.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-factory-floor" className="select-level" data-level="7">
-            <img alt="Select level factory-floor" src="assets/graphics/level-preview/factory-floor.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-courtyard" className="select-level" data-level="8">
-            <img alt="Select level courtyard" src="assets/graphics/level-preview/courtyard.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-labyrinth" className="select-level" data-level="9">
-            <img alt="Select level labyrinth" src="assets/graphics/level-preview/labyrinth.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-factor" className="select-level" data-level="10">
-            <img alt="Select level x-factor" src="assets/graphics/level-preview/x-factor.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-turnonadime" className="select-level" data-level="120">
-            <img alt="Select level turnonadime" src="assets/graphics/level-preview/turnonadime.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-sneksqueeze" className="select-level" data-level="11">
-            <img alt="Select level sneksqueeze" src="assets/graphics/level-preview/sneksqueeze.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-boxed" className="select-level" data-level="12">
-            <img alt="Select level boxed" src="assets/graphics/level-preview/boxed.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-portal" className="select-level" data-level="130">
-            <img alt="Select level portal" src="assets/graphics/level-preview/portal.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-sci-lab" className="select-level" data-level="13">
-            <img alt="Select level sci-lab" src="assets/graphics/level-preview/sci-lab.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-test-chamber" className="select-level" data-level="14">
-            <img alt="Select level test-chamber" src="assets/graphics/level-preview/test-chamber.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-quantum-mirror" className="select-level" data-level="15">
-            <img alt="Select level quantum-mirror" src="assets/graphics/level-preview/quantum-mirror.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-gatekeeper" className="select-level" data-level="140">
-            <img alt="Select level gatekeeper" src="assets/graphics/level-preview/gatekeeper.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-bait-switch" className="select-level" data-level="16">
-            <img alt="Select level bait-&-switch" src="assets/graphics/level-preview/bait-switch.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-ruins" className="select-level" data-level="17">
-            <img alt="Select level ruins" src="assets/graphics/level-preview/ruins.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-computer-room" className="select-level" data-level="18">
-            <img alt="Select level computer-room" src="assets/graphics/level-preview/computer-room.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-escada" className="select-level" data-level="19">
-            <img alt="Select level escada" src="assets/graphics/level-preview/escada.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-survive" className="select-level" data-level="99">
-            <img alt="Select level survive" src="assets/graphics/level-preview/survive.jpg" width="150" height="150" />
-          </button>
-
-
-          <button id="select-level-metroteque" className="select-level" data-level="203">
-            <img alt="Select level metroteque" src="assets/graphics/level-preview/metroteque.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-the-diamond" className="select-level" data-level="205">
-            <img alt="Select level the-diamond" src="assets/graphics/level-preview/the-diamond.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-factory-subfloor" className="select-level" data-level="207">
-            <img alt="Select level factory-subfloor" src="assets/graphics/level-preview/factory-subfloor.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-boneyard" className="select-level" data-level="208">
-            <img alt="Select level boneyard" src="assets/graphics/level-preview/boneyard.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-security-station" className="select-level" data-level="210">
-            <img alt="Select level security-station" src="assets/graphics/level-preview/security-station.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-phased-reality" className="select-level" data-level="215">
-            <img alt="Select level phased-reality" src="assets/graphics/level-preview/phased-reality.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-endurance" className="select-level" data-level="299">
-            <img alt="Select level endurance" src="assets/graphics/level-preview/endurance.jpg" width="150" height="150" />
-          </button>
-
-          <button id="select-level-secret-area-1-1" className="select-level" data-level="310">
-            <img alt="Select level secret-area-1-1" src="assets/graphics/level-preview/secret-area-1-1.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-secret-area-5-1" className="select-level" data-level="321">
-            <img alt="Select level secret-area-5-1" src="assets/graphics/level-preview/secret-area-5-1.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-secret-area-5-2" className="select-level" data-level="320">
-            <img alt="Select level secret-area-5-2" src="assets/graphics/level-preview/secret-area-5-2.jpg" width="150" height="150" />
-          </button>
-
-          <button id="select-level-x-snekcity" className="select-level" data-level="417">
-            <img alt="Select level x-snekcity" src="assets/graphics/level-preview/snekcity.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-acropolis" className="select-level" data-level="401">
-            <img alt="Select level x-acropolis" src="assets/graphics/level-preview/acropolis.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-beacons" className="select-level" data-level="402">
-            <img alt="Select level x-beacons" src="assets/graphics/level-preview/beacons.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-cubism" className="select-level" data-level="418">
-            <img alt="Select level x-cubism" src="assets/graphics/level-preview/cubism.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-casa" className="select-level" data-level="403">
-            <img alt="Select level x-casa" src="assets/graphics/level-preview/casa.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-digin" className="select-level" data-level="419">
-            <img alt="Select level x-digin" src="assets/graphics/level-preview/digin.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-catacombs" className="select-level" data-level="404">
-            <img alt="Select level x-catacombs" src="assets/graphics/level-preview/catacombs.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-fortitude" className="select-level" data-level="405">
-            <img alt="Select level x-fortitude" src="assets/graphics/level-preview/fortitude.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-guardian" className="select-level" data-level="406">
-            <img alt="Select level x-guardian" src="assets/graphics/level-preview/guardian.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-kings-hall" className="select-level" data-level="407">
-            <img alt="Select level x-kings-hall" src="assets/graphics/level-preview/kings-hall.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-last-rites" className="select-level" data-level="409">
-            <img alt="Select level x-last-rites" src="assets/graphics/level-preview/last-rites.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-makeitoutalive" className="select-level" data-level="410">
-            <img alt="Select level x-makeitoutalive" src="assets/graphics/level-preview/makeitoutalive.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-quantum-entanglement" className="select-level" data-level="411">
-            <img alt="Select level x-quantum-entanglement" src="assets/graphics/level-preview/quantum-entanglement.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-skillcheck" className="select-level" data-level="412">
-            <img alt="Select level x-skillcheck" src="assets/graphics/level-preview/skillcheck.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-stonemaze" className="select-level" data-level="408">
-            <img alt="Select level x-stonemaze" src="assets/graphics/level-preview/stonemaze.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-toosimple" className="select-level" data-level="413">
-            <img alt="Select level x-toosimple" src="assets/graphics/level-preview/toosimple.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-datacenter" className="select-level" data-level="420">
-            <img alt="Select level x-datacenter" src="assets/graphics/level-preview/datacenter.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-underground" className="select-level" data-level="414">
-            <img alt="Select level x-underground" src="assets/graphics/level-preview/underground.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-unwind" className="select-level" data-level="415">
-            <img alt="Select level x-unwind" src="assets/graphics/level-preview/unwind.jpg" width="150" height="150" />
-          </button>
-          <button id="select-level-x-gauntlet" className="select-level" data-level="416">
-            <img alt="Select level x-gauntlet" src="assets/graphics/level-preview/gauntlet.jpg" width="150" height="150" />
-          </button> */}
         </div>
-        {/* <button id="button-level-select-back" className="button newbutton select-white ui-arrows back">&lt;- back</button> */}
+        <div className="level-select-episode position-absolute" style={{ bottom: 60 }}>
+          <span className="overworld-icon vert-arrows" style={{ marginBottom: 8 }} />
+          <h4 className="minimood episode">{episodeDisplay(selectedEpisode)}</h4>
+        </div>
+        <div className="level-select-controls position-absolute" style={{ bottom: 60, right: 40 }}>
+          <Controls inputType={inputType} />
+        </div>
       </div>
     </div>
   )
+}
+
+interface ControlsProps {
+  inputType: InputType,
+}
+function Controls({ inputType }: ControlsProps) {
+  const gamepadType = getGamepadType();
+  if (inputType === InputType.Keyboard) {
+    return (
+      <>
+        <Stack row>
+          <span className="controls-key escape position-absolute" style={{ right: '100%' }} />
+          <p className="minimood">Back</p>
+        </Stack>
+        <Stack>
+          <span className="controls-key return position-absolute" style={{ right: '100%' }} />
+          <p className="minimood">Select</p>
+        </Stack>
+      </>
+    );
+  }
+  return (
+    <>
+      <Stack row>
+        {(gamepadType === GamepadType.Xbox) && (
+          <span className="controls-button xbox-a position-absolute" style={{ right: '100%', marginRight: 10 }} />
+        )}
+        {gamepadType === GamepadType.Playstation && (
+          <span className="controls-button ps-x position-absolute" style={{ right: '100%', marginRight: 10 }} />
+        )}
+        {gamepadType === GamepadType.Nintendo && (
+          <span className="controls-button switch-b position-absolute" style={{ right: '100%', marginRight: 10 }} />
+        )}
+        <p className="minimood">Select</p>
+      </Stack>
+      <Stack row>
+        {(gamepadType === GamepadType.Xbox) && (
+          <span className="controls-button xbox-b position-absolute" style={{ right: '100%', marginRight: 10 }} />
+        )}
+        {(gamepadType === GamepadType.Playstation) && (
+          <span className="controls-button ps-o position-absolute" style={{ right: '100%', marginRight: 10 }} />
+        )}
+        {(gamepadType === GamepadType.Nintendo) && (
+          <span className="controls-button switch-a position-absolute" style={{ right: '100%', marginRight: 10 }} />
+        )}
+        <p className="minimood">Back</p>
+      </Stack>
+    </>
+  )
+}
+
+function episodeDisplay(episode: Episode): string {
+  switch (episode) {
+    case Episode.E1:
+      return 'E1: Knee-Deep In The SNEK';
+    case Episode.E2:
+      return 'E2: Live and Let SNEK';
+    case Episode.E3:
+      return 'E3: Quantum Snekanics';
+      // return 'E3: The Lord of the SNEK';
+      // return 'E3: Truth and Snekonciliation';
+      // return 'E3: The Silent SNEKographer';
+      // return 'E3: Moonsnekker';
+    case Episode.None:
+      return 'ERR: The Good, The Bad, and The Snekly';
+  }
 }

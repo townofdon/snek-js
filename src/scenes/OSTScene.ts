@@ -17,7 +17,7 @@ import { UI } from "../ui/ui";
 import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { SpriteRenderer } from "../engine/spriteRenderer";
 import { getGamepad, tickGamepad, wasPressedThisFrame } from "../engine/gamepad";
-import { Button } from "../engine/gamepad/StandardGamepadMapping";
+import { Button } from "../engine/gamepad/gamepadTypes";
 import { musicTrackFadeoutOverride } from "../editor/utils/musicTrackUtils";
 
 const TSMOD = 2 * 0.8;

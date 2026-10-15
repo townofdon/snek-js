@@ -2,7 +2,7 @@ import P5 from "p5";
 import { FontsInstance, Quote, ISFX, SceneCallbacks, Sound } from "../types";
 import { BaseScene } from "./BaseScene";
 import { getGamepad, tickGamepad, wasPressedThisFrame } from "../engine/gamepad";
-import { Button } from "../engine/gamepad/StandardGamepadMapping";
+import { Button } from "../engine/gamepad/gamepadTypes";
 import { drawPressAnyKey, startSceneDialogText, StartSceneDialogTextArgs } from "./sceneUtils";
 
 // const AUTHOR_PADDING = 15;

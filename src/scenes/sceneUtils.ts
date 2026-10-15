@@ -1,7 +1,7 @@
 import P5 from "p5";
 import { FontsInstance, ISFX, Scene, SceneCallbacks, Sound } from "../types";
 import { getGamepad, wasPressedThisFrame } from "@/engine/gamepad";
-import { Button } from "@/engine/gamepad/StandardGamepadMapping";
+import { Button } from "@/engine/gamepad/gamepadTypes";
 import { Coroutines } from "@/engine/coroutines";
 import { DIMENSIONS } from "@/constants";
 import { clamp } from "@/utils";

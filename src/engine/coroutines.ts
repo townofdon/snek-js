@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid';
 import { IEnumerator } from "../types";
 import { clamp } from "../utils";
 import { anyButtonPressedThisFrame, getGamepad, wasPressedThisFrame } from "./gamepad";
-import { Button } from "./gamepad/StandardGamepadMapping";
+import { Button } from "./gamepad/gamepadTypes";
 
 type UUID = string;
 

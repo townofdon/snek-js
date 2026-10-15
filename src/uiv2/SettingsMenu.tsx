@@ -5,7 +5,7 @@ import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { SettingsMenuElement, SettingsMenuNavMap } from "@/ui/uiNavMap";
 import { bridge } from "./uiBridge";
 import { gamepadPressed, getGamepad } from "@/engine/gamepad";
-import { Button } from "@/engine/gamepad/StandardGamepadMapping";
+import { Button } from "@/engine/gamepad/gamepadTypes";
 import { CheckboxField } from "@/uiv2/components/CheckboxField";
 import { DOM } from "@/ui/uiUtils";
 import { setMusicVolume, setSfxVolume } from "@/engine/audio";

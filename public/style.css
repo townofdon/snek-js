@@ -46,6 +46,18 @@
   --ui-arrows-frames: 8;
   --ui-arrow-offset: 0px; /* animated */
 
+  --overworld-icons-src: url('assets/graphics/overworld-icons.png');
+  --overworld-icons-size: 16px;
+  --overworld-icons-frames: 19;
+
+  --control-gamepad-buttons-src: url('assets/graphics/controls-gamepad-buttons.png');
+  --control-gamepad-buttons-size: 16px;
+  --control-gamepad-buttons-frames: 18;
+
+  --control-keyboard-keys-src: url('assets/graphics/controls-keyboard-keys.png');
+  --control-keyboard-keys-size: 16px;
+  --control-keyboard-keys-frames: 7;
+
   --title-sprite-img-grayblue: url('assets/graphics/snek-title-grayblue.png');
   --title-sprite-img-gray: url('assets/graphics/snek-title-gray.png');
   --title-sprite-img-green: url('assets/graphics/snek-title-green.png');
@@ -1159,6 +1171,94 @@ button.game-mode.back {
 .level-select-menu button.select-level > .completion-status > .ultra.completed {
   background-position: calc(0 * var(--lvl-status-width)) 0;
 }
+.level-select-menu .level-select-episode {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+.level-select-menu .level-select-episode .episode {
+  color: #e6cc8a;
+  font-size: 1.5em;
+  line-height: 1em;
+}
+.level-select-menu .overworld-icon {
+  --frame: 0;
+  display: inline-flex;
+  width: var(--overworld-icons-size);
+  height: var(--overworld-icons-size);
+  background-color: transparent;
+  background-image: var(--overworld-icons-src);
+  background-size: calc(var(--overworld-icons-size) * var(--overworld-icons-frames)) var(--overworld-icons-size);
+  background-position: calc(-1 * var(--overworld-icons-size) * (var(--frame) - 1)) 0;
+  transform: scale(2);
+  transform-origin: center center;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+/* frame is 1-indexed */
+.level-select-menu .overworld-icon.select { --frame: 1; }
+.level-select-menu .overworld-icon.boss { --frame: 2; }
+.level-select-menu .overworld-icon.arrow-left { --frame: 3; }
+.level-select-menu .overworld-icon.arrow-right { --frame: 4; }
+.level-select-menu .overworld-icon.vert-arrows { --frame: 5; }
+.level-select-menu .overworld-icon.flag { --frame: 6; }
+
+.level-select-controls .controls-button {
+  --frame: 0;
+  display: inline-flex;
+  width: var(--control-gamepad-buttons-size);
+  height: var(--control-gamepad-buttons-size);
+  background-color: transparent;
+  background-image: var(--control-gamepad-buttons-src);
+  background-size: calc(var(--control-gamepad-buttons-size) * var(--control-gamepad-buttons-frames)) var(--control-gamepad-buttons-size);
+  background-position: calc(-1 * var(--control-gamepad-buttons-size) * (var(--frame) - 1)) 0;
+  transform: scale(2);
+  transform-origin: center center;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+/* frame is 1-indexed */
+.level-select-controls .controls-button.xbox-x { --frame: 1; }
+.level-select-controls .controls-button.xbox-y { --frame: 2; }
+.level-select-controls .controls-button.xbox-a { --frame: 3; }
+.level-select-controls .controls-button.xbox-b { --frame: 4; }
+.level-select-controls .controls-button.xbox-select { --frame: 5; }
+.level-select-controls .controls-button.xbox-start { --frame: 6; }
+.level-select-controls .controls-button.ps-square { --frame: 7; }
+.level-select-controls .controls-button.ps-triangle { --frame: 8; }
+.level-select-controls .controls-button.ps-x { --frame: 9; }
+.level-select-controls .controls-button.ps-o { --frame: 10; }
+.level-select-controls .controls-button.ps-select { --frame: 11; }
+.level-select-controls .controls-button.ps-start { --frame: 12; }
+.level-select-controls .controls-button.switch-y { --frame: 13; }
+.level-select-controls .controls-button.switch-x { --frame: 14; }
+.level-select-controls .controls-button.switch-b { --frame: 15; }
+.level-select-controls .controls-button.switch-a { --frame: 16; }
+.level-select-controls .controls-button.switch-minus { --frame: 17; }
+.level-select-controls .controls-button.switch-plus { --frame: 18; }
+
+.level-select-controls .controls-key {
+  --frame: 0;
+  --framespan: 1;
+  display: inline-flex;
+  width: calc(var(--control-keyboard-keys-size) * var(--framespan));
+  height: var(--control-keyboard-keys-size);
+  background-color: transparent;
+  background-image: var(--control-keyboard-keys-src);
+  background-size: calc(var(--control-keyboard-keys-size) * var(--control-keyboard-keys-frames)) var(--control-keyboard-keys-size);
+  background-position: calc(-1 * var(--control-keyboard-keys-size) * (var(--frame) - 1)) 0;
+  transform: scale(2);
+  transform-origin: center right;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+/* frame is 1-indexed */
+.level-select-controls .controls-key.escape { --frame: 1; }
+.level-select-controls .controls-key.return { --frame: 2; --framespan: 2; }
+.level-select-controls .controls-key.shift { --frame: 4; --framespan: 2; }
+.level-select-controls .controls-key.backspace { --frame: 6; --framespan: 2; }
+
 
 .modal {
   z-index: 50;
