@@ -161,6 +161,7 @@ import {
   getLevelBoss,
   hasLevelBoss,
   LEVELS_EP_01,
+  SECRET_LEVEL_MAP,
   START_LEVEL,
   START_LEVEL_COBRA,
 } from "../levels/levelConstants";
@@ -1041,6 +1042,16 @@ export function engine({
     es.pipeOverrides = es.level.pipeOverrides || {};
     es.annotations = es.level.annotations || {};
     es.snekDamage = {};
+
+    if (SECRET_LEVEL_MAP[es.level.id]) {
+      es.level.nextLevelMap ??= {};
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+        const annotation = es.level.annotations[coord];
+        if (annotation && SECRET_LEVEL_MAP[es.level.id][annotation]) {
+          es.level.nextLevelMap[coord] = SECRET_LEVEL_MAP[es.level.id][annotation];
+        }
+      }
+    }
 
     // set es.level metadata
     es.level.numLocks = es.locks.length;

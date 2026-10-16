@@ -1,16 +1,12 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
-import { getCoordIndex2, toTime } from "../../utils";
-import { MAZE_02_NE } from "../mazes/maze02ne";
-import { MAZE_02_NW } from "../mazes/maze02nw";
-import { MAZE_02_SE } from "../mazes/maze02se";
-import { MAZE_02_SW } from "../mazes/maze02sw";
+import { toTime } from "../../utils";
 
-const name = 'the diamond';
+// url: <http://localhost:3000/snek-js/editor/?id=623e4cc1-62f0-4f87-a6b7-9995d95ea7b3&data=akpZWSpidnh2YllZVWNZZ3VYCnNacEpYZilPKkpmKSlPWEpyKCF5ZGRkeSEocm1TKHIqbCoKd20oV21NX2tfTW0gVyhtd2xTIChTKHIqSnIoISkpKU9KZikpT1hKWGYpTyoKcFpzSnVnKmNVWVlidnh2YllZWVhqCnw2MTN8UklHSFR8dGhlIGRpYW1vbmR8OTAwMFY1Vjh8VjN8MC43NXxWMXwjNjhCMkE5UTQ4OEM4NHpFNzZEODNRRTI1MDZBUTI2MkEyQnozMDM0MzZRMjYyQTJCUTk3ODc4RlE2MjU2NUNRRkZGNkYxUTBBMEUxNFFFOUVGRkZ8cXFxMXwxNnxWVlZWVjEhKS09LSkoLCcpICAqWFhKCipMPS0pKHJtKnlPICEocm0qUHd5Km1yKCktUS0jUypKKFd5ZGRkeSAhVVlYSipYd354S0tLeXkoS0tLeCtfd1kqSipWMHxXISBZKipaCitfKCptcihXLUx%25252BCmN3KF8qWEsoKSkgKEsqWF8od2ZtcighZ1hKWFAtLSkocm0qeXdZSmpKWVkqTnhkeE5ZWVlYbEooVypYXypYIFcocCtfKmZPKH5xMS0xLTEtc1hQPS0tLUx3KnVQPT1Mdyp5KCh6UTFEMjAyMFF%25252BXysBfnp5dXNxcGxqZ2ZjWllXVlVTUVBPTEoqKSghXw%25253D%25253D>
 
 export const VARIANT_LEVEL_05: Level = {
   id: 'C205',
-  name,
+  name: 'the diamond',
   timeToClear: 1000 * 60 * 1.5,
   parTime: toTime({ minutes: 0, seconds: 45 }),
   applesToClear: 50,
@@ -48,21 +44,12 @@ XXXXXX_+xKKK~~~~~KKKx+_XXXXXXX
 XXXXXXXXXXXXXXxXXXXXXXXXXXXXXX
 XXXXXXXXXXXXXxdxXXXXXXXXXXXXXX
 `,
-  layoutV2: 'Z0pXVypidnh2YldXVVpXZnVYCnFZbEpYYylPKkpjKSlPWEpyKCF5ZGRkeSEocm1TKHIqaioKd20oVm1NX2tfTW0gVihtd2pTIChTKHIqSnIoISkpKU9KYykpT1hKWGMpTyoKbFlxSnVmKlpVV1didnh2YldXV1hnCnw2MTN8UklHSFR8dGhlIGRpYW1vbmR8OTAwMHM1czh8czN8MC43NXxzMXwjNjhCMkE5UTQ4OEM4NHpFNzZEODNRRTI1MDZBUTI2MkEyQnozMDM0MzZRMjYyQTJCUTk3ODc4RlE2MjU2NUNRRkZGNkYxUTBBMEUxNFFFOUVGRkZ8cHBwMXwxNnwwISktPS0pKCwnKSAgKlhYSgoqTD0tKShybSp5TyAhKHJtKlB3eSptcigpLVEtI1MqSihWeWRkZHkgIVVXWEoqWHd%252BeEtLS3l5KEtLS3grX3dXKkoqViEgVyoqWQorXygqbXIoVi1MfgpadyhfKlhLKCkpIChLKlhfKHdjbXIoIWZYSlhQLS0pKHJtKnl3V0pnSldXKk54ZHhOV1dXWGpKKFYqWF8qWCBWKGwrXypjTyh%252BcDEtMS0xLXFYUD0tLS1MdypzMHx1UD09THcqeSgoelExRDIwMjBRfl8rAX56eXVzcXBsamdmY1pZV1ZVU1FQT0xKKikoIV8%253D',
+  layoutV2: 'akpZWSpidnh2YllZVWNZZ3VYCnNacEpYZilPKkpmKSlPWEpyKCF5ZGRkeSEocm1TKHIqbCoKd20oV21NX2tfTW0gVyhtd2xTIChTKHIqSnIoISkpKU9KZikpT1hKWGYpTyoKcFpzSnVnKmNVWVlidnh2YllZWVhqCnw2MTN8UklHSFR8dGhlIGRpYW1vbmR8OTAwMFY1Vjh8VjN8MC43NXxWMXwjNjhCMkE5UTQ4OEM4NHpFNzZEODNRRTI1MDZBUTI2MkEyQnozMDM0MzZRMjYyQTJCUTk3ODc4RlE2MjU2NUNRRkZGNkYxUTBBMEUxNFFFOUVGRkZ8cXFxMXwxNnxWVlZWVjEhKS09LSkoLCcpICAqWFhKCipMPS0pKHJtKnlPICEocm0qUHd5Km1yKCktUS0jUypKKFd5ZGRkeSAhVVlYSipYd354S0tLeXkoS0tLeCtfd1kqSipWMHxXISBZKipaCitfKCptcihXLUx%252BCmN3KF8qWEsoKSkgKEsqWF8od2ZtcighZ1hKWFAtLSkocm0qeXdZSmpKWVkqTnhkeE5ZWVlYbEooVypYXypYIFcocCtfKmZPKH5xMS0xLTEtc1hQPS0tLUx3KnVQPT1Mdyp5KCh6UTFEMjAyMFF%252BXysBfnp5dXNxcGxqZ2ZjWllXVlVTUVBPTEoqKSghXw%253D%253D',
   colors: getExtendedPalette(PALETTE.darkStar),
+  annotations: { 210: 1, 239: 2, 240: 1, 269: 2, 630: 3, 659: 4, 660: 3, 689: 4 },
   showTitle: true,
   musicTrack: MusicTrack.lostcolony,
   titleVariant: TitleVariant.GrayBlue,
-  nextLevelMap: {
-    [getCoordIndex2(0, 7)]: MAZE_02_NW,
-    [getCoordIndex2(0, 8)]: MAZE_02_NW,
-    [getCoordIndex2(29, 7)]: MAZE_02_NE,
-    [getCoordIndex2(29, 8)]: MAZE_02_NE,
-    [getCoordIndex2(0, 21)]: MAZE_02_SW,
-    [getCoordIndex2(0, 22)]: MAZE_02_SW,
-    [getCoordIndex2(29, 21)]: MAZE_02_SE,
-    [getCoordIndex2(29, 22)]: MAZE_02_SE,
-  },
   pickupDropsByFrame: {
     49: { likelihood: 1, type: ItemDropType.Invincibility },
   },

@@ -1,14 +1,12 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
-import { WARP_ZONE_01 } from "../bonusLevels/warpZone01";
-import { LEVEL_01_D } from "./level01d";
 
-const name = 'turnaround';
+// url: <http://localhost:3000/snek-js/editor/?id=ac73ddb3-0ea7-4104-9353-a4f27714d047&data=ekxxYydOVVFleEVjVipPbCpqak9ndnhjYydPKU1YZlMhU2JYWnNleEooKF9fX19kTiFtKHAhU2J%25252BZS1KKHN2KU0gZnAhLU9YWikqLUooKil%25252BWX4pKi0hcChTISAqKU1ZTSlPWHhTSihPKgp%25252BYihmcCFjCmRfX19fX1NKIFRPdilzWGJTZlMhWE0pYydRZypqT1ZUVk8qbE8qVmNWKk9aTlVRTlVxdlF6WChRCnw1NzR8UklHSFR8dHVybmFyb3VuZHwzMDAwMFAyMnwtaWkyNXkwLjV8IzE1QzJDQksxMTlEQTRoMkMyQzYzSzMzMzM3MWtoMTkxOTM4a0s0QjNGNzJLNTY0ODg0d0I0MUZ3Qzg1N3dERDk5fFdXV2k0eVBQUDEhIG0gJ3NzKCAgKVoKWHgqdlpFWFZKZlMgcEstI0xYKytNWFpaTgpjT3h4UDB8UWNYUy0tVUVFWEVFVmRkVzEtMS0xLVkocCBTKFMhLVp4WGMnJ2UKKk9mIVMoZyopUUVYRVFYKWhLMEQwRDFDS2kxfGpPVnhWa0sxMzEzMkFsKU14VU1aKW09PXBBQXFRTidWWEVzWFh2WE93S0ZGeXxQUHpOTExYTH4nWAF%25252Benl3dnNxcG1sa2ppaGdmZWNaWVdWVVNRUE9OTUxLSkUqKSgnIV8%25253D>
 
 export const TUTORIAL_LEVEL_10: Level = {
   id: 'C110',
-  name,
+  name: 'turnaround',
   timeToClear: Infinity,
   parTime: toTime({ minutes: 0, seconds: 5 }),
   applesToClear: 10,
@@ -48,7 +46,8 @@ XXXXXXXXXDDXDDXXDDXDDXXXXXXXXX
 XXXXXXXXXxxXDDXXDDXxxXXXXXXXXX
 XXXXXXXXX==X++XX++X++XXXXXXXXX
   `,
-  layoutV2: 'eUxxYydOU1BleEVjVSpPbCpqak9ndnhjYydPKU1YZlEhUWJYWnNleEooKF9fX19kTiFtKHAhUWJ6ZS1KKHN2KU0gZnAhLU9YWikqLUooKil6V3opKi0hcChRfiopTVdNKU9YeFFKKE8qCnpiKGZwIWMKZF9fX19fUUogVE92KXNYYlFmUSFYTSljJ1BnKmpPVVRVTypsTypVY1UqT1pOU1BOU3F2UHlYKFAKfDU3NHxSSUdIVHx0dXJuYXJvdW5kfDMwMDAwMHwyMnwtaWkyNVlZWS41fCMxNUMyQ0JLMTE5REE0aDJDMkM2M0szMzMzNzFraDE5MTkzOGtLNEIzRjcySzU2NDg4NHdCNDFGd0M4NTd3REQ5OXxWVlZpNFl%252BbSAnc3MoICApWgpYeCp2WkVYVUpmUSBwSy0jTFgrK01YWlpOCmNPeHhQY1hRLS1TRUVYRUVVZGRWMS0xLTEtVyhwIFEoUSEtWXwwWnhYYycnZQoqT2YhUShnKilQRVhFUFgpaEswRDBEMUNLaTF8ak9VeFVrSzEzMTMyQWwpTXhTTVopbT09cEFBcVBOJ1VYRXNYWHZYT3dLRkZ5TkxMWEx6J1h%252BISABfnp5d3ZzcXBtbGtqaWhnZmVjWllXVlVTUVBPTk1MS0pFKikoJyFf',
+  layoutV2: 'ekxxYydOVVFleEVjVipPbCpqak9ndnhjYydPKU1YZlMhU2JYWnNleEooKF9fX19kTiFtKHAhU2J%252BZS1KKHN2KU0gZnAhLU9YWikqLUooKil%252BWX4pKi0hcChTISAqKU1ZTSlPWHhTSihPKgp%252BYihmcCFjCmRfX19fX1NKIFRPdilzWGJTZlMhWE0pYydRZypqT1ZUVk8qbE8qVmNWKk9aTlVRTlVxdlF6WChRCnw1NzR8UklHSFR8dHVybmFyb3VuZHwzMDAwMFAyMnwtaWkyNXkwLjV8IzE1QzJDQksxMTlEQTRoMkMyQzYzSzMzMzM3MWtoMTkxOTM4a0s0QjNGNzJLNTY0ODg0d0I0MUZ3Qzg1N3dERDk5fFdXV2k0eVBQUDEhIG0gJ3NzKCAgKVoKWHgqdlpFWFZKZlMgcEstI0xYKytNWFpaTgpjT3h4UDB8UWNYUy0tVUVFWEVFVmRkVzEtMS0xLVkocCBTKFMhLVp4WGMnJ2UKKk9mIVMoZyopUUVYRVFYKWhLMEQwRDFDS2kxfGpPVnhWa0sxMzEzMkFsKU14VU1aKW09PXBBQXFRTidWWEVzWFh2WE93S0ZGeXxQUHpOTExYTH4nWAF%252Benl3dnNxcG1sa2ppaGdmZWNaWVdWVVNRUE9OTUxLSkUqKSgnIV8%253D',
+  annotations: { 570: 1, 879: 0, 880: 0, 881: 0, 882: 0, 883: 0, 884: 0, 885: 0, 886: 0, 887: 0, 889: 2, 890: 2 },
   colors: getExtendedPalette(PALETTE.hospital),
   renderInstructions: (gfx, renderer, state, palette) => {
     if (!state.isDoorsOpen) renderer.drawTutorialTurnControls(gfx, 11, 22);
@@ -68,9 +67,4 @@ XXXXXXXXX==X++XX++X++XXXXXXXXX
     [ItemDropType.Mine]: false,
   },
   armorDrop: getCoordIndex2(14, 14),
-  nextLevelMap: {
-    [getCoordIndex2(0, 19)]: LEVEL_01_D,
-    [getCoordIndex2(19, 29)]: WARP_ZONE_01,
-    [getCoordIndex2(20, 29)]: WARP_ZONE_01,
-  },
 };

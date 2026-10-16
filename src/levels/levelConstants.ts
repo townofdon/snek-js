@@ -1,4 +1,13 @@
-import { BarrierType, Boss, FloodFillTile, Level, PickupType, SwitchType, ThreatType } from "../types";
+import {
+  BarrierType,
+  Boss,
+  FloodFillTile,
+  Level,
+  MapAnnotation,
+  PickupType,
+  SwitchType,
+  ThreatType,
+} from "../types";
 import { LEVEL_00 } from "./ep01/level00";
 import { LEVEL_01 } from "./ep01/level01";
 import { LEVEL_02 } from "./ep01/level02";
@@ -134,65 +143,83 @@ export const NEXT_LEVEL_MAP: Record<string, Level> = {
   [MAZE_04_LOOT_ROOM.id]: VARIANT_LEVEL_08,
 };
 
+type SecretLevelMapping = Partial<Record<MapAnnotation, Level>>;
+export const SECRET_LEVEL_MAP: Record<string, SecretLevelMapping> = {
+  [VARIANT_LEVEL_05.id]: {
+    [MapAnnotation.L1]: MAZE_02_NW,
+    [MapAnnotation.L2]: MAZE_02_NE,
+    [MapAnnotation.L3]: MAZE_02_SW,
+    [MapAnnotation.L4]: MAZE_02_SE,
+  },
+  [TUTORIAL_LEVEL_10.id]: {
+    [MapAnnotation.L1]: LEVEL_01_D,
+    [MapAnnotation.L2]: WARP_ZONE_01,
+  },
+}
+
+export const SELECTABLE_LEVELS_EP_01: Level[] = [
+  LEVEL_01,
+  TUTORIAL_LEVEL_10,
+  LEVEL_02,
+  TUTORIAL_LEVEL_11,
+  LEVEL_03,
+  LEVEL_04,
+  BOSS_LEVEL_THE_TECHNICIAN,
+  LEVEL_05,
+  LEVEL_06,
+  TUTORIAL_LEVEL_50,
+  LEVEL_07,
+  LEVEL_08,
+  LEVEL_09,
+  LEVEL_10,
+  TUTORIAL_LEVEL_20,
+  LEVEL_11,
+  LEVEL_12,
+  TUTORIAL_LEVEL_30,
+  LEVEL_13,
+  LEVEL_14,
+  LEVEL_15,
+  TUTORIAL_LEVEL_40,
+  LEVEL_16,
+  LEVEL_17,
+  LEVEL_18,
+  LEVEL_19,
+  LEVEL_20,
+  LEVEL_99,
+];
+
+export const EXTENDED_LEVELS_EP_01: Level[] = [];
+
 export const LEVELS_EP_01: Level[] = [
-    MAZE_01,
-    LEVEL_01,
-    TUTORIAL_LEVEL_10,
-    // -> WARP_ZONE_01
-    LEVEL_02,
-    // -> VARIANT_LEVEL_03
-    TUTORIAL_LEVEL_11,
-    LEVEL_03,
-    // -> SECRET_LEVEL_10
-    LEVEL_04,
-    // -> VARIANT_LEVEL_05
-    BOSS_LEVEL_THE_TECHNICIAN,
-    LEVEL_05,
-    LEVEL_06,
-    TUTORIAL_LEVEL_50,
-    LEVEL_07,
-    LEVEL_08,
-    LEVEL_09,
-    LEVEL_10,
-    TUTORIAL_LEVEL_20,
-    LEVEL_11,
-    LEVEL_12,
-    TUTORIAL_LEVEL_30,
-    LEVEL_13,
-    LEVEL_14,
-    LEVEL_15,
-    TUTORIAL_LEVEL_40,
-    LEVEL_16,
-    LEVEL_17,
-    LEVEL_18,
-    LEVEL_19,
-    LEVEL_20,
-    LEVEL_99,
-    LEVEL_WIN_GAME,
+  MAZE_01,
+  ...SELECTABLE_LEVELS_EP_01,
+  LEVEL_WIN_GAME,
 ];
 
 export const LEVELS_EP_02: Level[] = [
-    X_SNEKCITY,
-    X_ACROPOLIS, // rm?
-    X_BEACONS, // rm?
-    X_CUBISM, // --rework
-    X_CASA,
-    X_DIGIN, // --rework
-    X_CATACOMBS,
-    X_FORTITUDE,
-    X_GUARDIAN,
-    X_SEARCHLIGHT, // rm?
-    X_KINGS_HALL,
-    X_LAST_RITES,
-    X_MAKEITOUTALIVE,
-    X_SKILL_CHECK, // rm?
-    X_STONEMAZE,
-    X_TOO_SIMPLE,
-    X_DATACENTER, // rm?
-    X_UNDERGROUND,
-    X_UNWIND,
-    X_GAUNTLET,
+  X_SNEKCITY,
+  X_ACROPOLIS, // rm?
+  X_BEACONS, // rm?
+  X_CUBISM, // --rework
+  X_CASA,
+  X_DIGIN, // --rework
+  X_CATACOMBS,
+  X_FORTITUDE,
+  X_GUARDIAN,
+  X_SEARCHLIGHT, // rm?
+  X_KINGS_HALL,
+  X_LAST_RITES,
+  X_MAKEITOUTALIVE,
+  X_SKILL_CHECK, // rm?
+  X_STONEMAZE,
+  X_TOO_SIMPLE,
+  X_DATACENTER, // rm?
+  X_UNDERGROUND,
+  X_UNWIND,
+  X_GAUNTLET,
 ];
+
+export const SELECTABLE_LEVELS_EP_02 = LEVELS_EP_02;
 
 export const LEVELS_EP_03: Level[] = [
   X_BACKCHANNELS,
@@ -207,87 +234,77 @@ export const LEVELS_EP_03: Level[] = [
   X_WALLCRUSHER,
 ];
 
+export const SELECTABLE_LEVELS_EP_03 = LEVELS_EP_03;
+
 const countableLevel = (level: Level) => {
-    switch (level) {
-        case MAZE_01:
-        case TUTORIAL_LEVEL_10:
-        case TUTORIAL_LEVEL_11:
-        case TUTORIAL_LEVEL_20:
-        case TUTORIAL_LEVEL_30:
-        case TUTORIAL_LEVEL_40:
-        case TUTORIAL_LEVEL_50:
-        case TUTORIAL_LEVEL_51:
-        case LEVEL_WIN_GAME:
-            return false;
-        default:
-            return true;
-    }
-}
-const selectableLevel = (level: Level) => {
-    switch (level) {
-        case MAZE_01:
-        case LEVEL_WIN_GAME:
-            return false;
-        default:
-            return true;
-    }
-}
+  switch (level) {
+    case MAZE_01:
+    case TUTORIAL_LEVEL_10:
+    case TUTORIAL_LEVEL_11:
+    case TUTORIAL_LEVEL_20:
+    case TUTORIAL_LEVEL_30:
+    case TUTORIAL_LEVEL_40:
+    case TUTORIAL_LEVEL_50:
+    case TUTORIAL_LEVEL_51:
+    case LEVEL_WIN_GAME:
+      return false;
+    default:
+      return true;
+  }
+};
 
 export const CAMPAIGN_LEVELS_EP_01 = LEVELS_EP_01.filter(countableLevel);
 export const CAMPAIGN_LEVELS_EP_02 = LEVELS_EP_02.filter(countableLevel);
 export const CAMPAIGN_LEVELS_EP_03 = LEVELS_EP_03.filter(countableLevel);
-export const SELECTABLE_LEVELS_EP_01 = LEVELS_EP_01.filter(selectableLevel);
-export const SELECTABLE_LEVELS_EP_02 = LEVELS_EP_02.filter(selectableLevel);
-export const SELECTABLE_LEVELS_EP_03 = LEVELS_EP_03.filter(selectableLevel);
 
 export const SECRET_LEVELS = [
-    LEVEL_01_HARD,
-    LEVEL_01_ULTRA,
-    LEVEL_01_D,
-    SECRET_LEVEL_10,
-    SECRET_LEVEL_20,
-    SECRET_LEVEL_21,
-    VARIANT_LEVEL_03,
-    VARIANT_LEVEL_05,
-    VARIANT_LEVEL_07,
-    VARIANT_LEVEL_08,
-    VARIANT_LEVEL_10,
-    VARIANT_LEVEL_15,
-    VARIANT_LEVEL_99,
-    TUTORIAL_LEVEL_51,
-    MAZE_02_NE,
-    MAZE_02_NW,
-    MAZE_02_SE,
-    MAZE_02_SW,
-    MAZE_03_STORAGE,
-    MAZE_04_LOOT_ROOM,
-    WARP_ZONE_01,
-    WARP_ZONE_02,
-    WARP_ZONE_03,
+  LEVEL_01_HARD,
+  LEVEL_01_ULTRA,
+  LEVEL_01_D,
+  SECRET_LEVEL_10,
+  SECRET_LEVEL_20,
+  SECRET_LEVEL_21,
+  VARIANT_LEVEL_03,
+  VARIANT_LEVEL_05,
+  VARIANT_LEVEL_07,
+  VARIANT_LEVEL_08,
+  VARIANT_LEVEL_10,
+  VARIANT_LEVEL_15,
+  VARIANT_LEVEL_99,
+  TUTORIAL_LEVEL_51,
+  MAZE_02_NE,
+  MAZE_02_NW,
+  MAZE_02_SE,
+  MAZE_02_SW,
+  MAZE_03_STORAGE,
+  MAZE_04_LOOT_ROOM,
+  WARP_ZONE_01,
+  WARP_ZONE_02,
+  WARP_ZONE_03,
 ];
 
 export const CHALLENGE_LEVELS: Level[] = [
-    X_SNEKCITY,
-    X_ACROPOLIS,
-    X_BEACONS,
-    X_CUBISM,
-    X_CASA,
-    X_DIGIN,
-    X_CATACOMBS,
-    X_FORTITUDE,
-    X_GUARDIAN,
-    X_SEARCHLIGHT,
-    X_KINGS_HALL,
-    X_LAST_RITES,
-    X_MAKEITOUTALIVE,
-    X_QUANTUM_ENTANGLEMENT,
-    X_SKILL_CHECK,
-    X_STONEMAZE,
-    X_TOO_SIMPLE,
-    X_DATACENTER,
-    X_UNDERGROUND,
-    X_UNWIND,
-    X_GAUNTLET,
+  X_SNEKCITY,
+  X_ACROPOLIS,
+  X_BEACONS,
+  X_CUBISM,
+  X_CASA,
+  X_DIGIN,
+  X_CATACOMBS,
+  X_FORTITUDE,
+  X_GUARDIAN,
+  X_SEARCHLIGHT,
+  X_KINGS_HALL,
+  X_LAST_RITES,
+  X_MAKEITOUTALIVE,
+  X_QUANTUM_ENTANGLEMENT,
+  X_SKILL_CHECK,
+  X_STONEMAZE,
+  X_TOO_SIMPLE,
+  X_DATACENTER,
+  X_UNDERGROUND,
+  X_UNWIND,
+  X_GAUNTLET,
 ];
 
 export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;
@@ -297,96 +314,96 @@ export const START_LEVEL_COBRA = MAZE_01_COBRA;
 export const FIRST_CHALLENGE_LEVEL = X_SNEKCITY;
 
 export enum TILECHAR {
-  None = '',
-  Barrier = 'X',
-  BarrierPassable = 'x',
-  BarrierSkull = 'Z',
-  BarrierSkullThemed = 'z',
-  BarrierIndent = 'C',
-  BarrierIndentThemed = 'c',
-  BarrierFireTile = 'F',
-  BarrierFlat = 'V',
-  BarrierFlatThemed = 'v',
-  BarrierPyramid = 'B',
-  BarrierPyramidThemed = 'b',
-  BarrierExitSign = 'N',
-  BarrierRadar = 'n',
-  BarrierComputerChip = 'M',
-  BarrierMetalPlate = 'm',
-  BarrierPanel0 = 'q',
-  BarrierPanel1 = 'w',
-  BarrierPanel2 = 'e',
-  BarrierPanel3 = 'r',
-  BarrierPanel4 = 't',
-  BarrierPanel5 = 'y',
-  BarrierBrick = 'Q',
-  BarrierBrickThemed = 'W',
-  BarrierBrickWhite = 'E',
-  BarrierStone = 'R',
-  BarrierStoneThemed = 'T',
-  BarrierCompPanelWhite = 'Y',
-  BarrierCompPanel = 'g',
-  BarrierGrateWhite = 'G',
-  BarrierGrateYellow = 'h',
-  BarrierRuby = 'H',
-  BarrierFanDuct = 'f',
-  BarrierExhaustPlate = 'p',
-  BarrierMetalPlate2 = 's',
-  Door = 'D',
-  DoorAlt = 'd',
-  Deco1 = '-',
-  Deco2 = '=',
-  Deco1Alt = '_',
-  Deco2Alt = '+',
-  Apple = 'A',
-  AppleAlt = 'a',
-  Portal0 = '0',
-  Portal1 = '1',
-  Portal2 = '2',
-  Portal3 = '3',
-  Portal4 = '4',
-  Portal5 = '5',
-  Portal6 = '6',
-  Portal7 = '7',
-  Portal8 = '8',
-  Portal9 = '9',
-  BarrierKeyYellow = 'u',
-  BarrierKeyRed = 'i',
-  BarrierKeyBlue = 'o',
-  KeyYellow = 'j',
-  KeyRed = 'k',
-  KeyBlue = 'l',
-  LockYellow = 'J',
-  LockRed = 'K',
-  LockBlue = 'L',
-  Nospawn = '~',
-  Mine = '*',
-  Invincibility = '!',
-  Reversibility = '@',
-  Armor = '#',
-  HealthPack = '$',
-  WeightLossPill = '%',
-  LaserDiode = '^',
-  ExplodableBarrel = '&',
-  Barricade = 'I',
-  Bomb = '[',
-  Spikes = '<',
-  WallSpikes = '>',
-  Saw = ']',
-  Flamethrower = '{',
-  ElectricCoil = 'S',
-  Button = '?',
-  Pipe = 'P',
-  PlayerSpawn = 'O',
+  None = "",
+  Barrier = "X",
+  BarrierPassable = "x",
+  BarrierSkull = "Z",
+  BarrierSkullThemed = "z",
+  BarrierIndent = "C",
+  BarrierIndentThemed = "c",
+  BarrierFireTile = "F",
+  BarrierFlat = "V",
+  BarrierFlatThemed = "v",
+  BarrierPyramid = "B",
+  BarrierPyramidThemed = "b",
+  BarrierExitSign = "N",
+  BarrierRadar = "n",
+  BarrierComputerChip = "M",
+  BarrierMetalPlate = "m",
+  BarrierPanel0 = "q",
+  BarrierPanel1 = "w",
+  BarrierPanel2 = "e",
+  BarrierPanel3 = "r",
+  BarrierPanel4 = "t",
+  BarrierPanel5 = "y",
+  BarrierBrick = "Q",
+  BarrierBrickThemed = "W",
+  BarrierBrickWhite = "E",
+  BarrierStone = "R",
+  BarrierStoneThemed = "T",
+  BarrierCompPanelWhite = "Y",
+  BarrierCompPanel = "g",
+  BarrierGrateWhite = "G",
+  BarrierGrateYellow = "h",
+  BarrierRuby = "H",
+  BarrierFanDuct = "f",
+  BarrierExhaustPlate = "p",
+  BarrierMetalPlate2 = "s",
+  Door = "D",
+  DoorAlt = "d",
+  Deco1 = "-",
+  Deco2 = "=",
+  Deco1Alt = "_",
+  Deco2Alt = "+",
+  Apple = "A",
+  AppleAlt = "a",
+  Portal0 = "0",
+  Portal1 = "1",
+  Portal2 = "2",
+  Portal3 = "3",
+  Portal4 = "4",
+  Portal5 = "5",
+  Portal6 = "6",
+  Portal7 = "7",
+  Portal8 = "8",
+  Portal9 = "9",
+  BarrierKeyYellow = "u",
+  BarrierKeyRed = "i",
+  BarrierKeyBlue = "o",
+  KeyYellow = "j",
+  KeyRed = "k",
+  KeyBlue = "l",
+  LockYellow = "J",
+  LockRed = "K",
+  LockBlue = "L",
+  Nospawn = "~",
+  Mine = "*",
+  Invincibility = "!",
+  Reversibility = "@",
+  Armor = "#",
+  HealthPack = "$",
+  WeightLossPill = "%",
+  LaserDiode = "^",
+  ExplodableBarrel = "&",
+  Barricade = "I",
+  Bomb = "[",
+  Spikes = "<",
+  WallSpikes = ">",
+  Saw = "]",
+  Flamethrower = "{",
+  ElectricCoil = "S",
+  Button = "?",
+  Pipe = "P",
+  PlayerSpawn = "O",
   // available chars: U;',.}|/:"()
 }
 
 // validate TILECHAR
 (() => {
   const found = {} satisfies Partial<Record<string, boolean>>;
-  Object.values(TILECHAR).forEach(v => {
+  Object.values(TILECHAR).forEach((v) => {
     if (found[v]) {
-        throw new Error(`Duplicate TILECHAR found for "${v}"`);
+      throw new Error(`Duplicate TILECHAR found for "${v}"`);
     }
     found[v] = true;
   });
@@ -575,7 +592,10 @@ export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
   [BarrierType.MetalPlate2]: FloodFillTile.BarrierMetalPlate2,
 } satisfies Record<BarrierType, FloodFillTile>;
 
-export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<FloodFillTile, BarrierType> = {
+export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<
+  FloodFillTile,
+  BarrierType
+> = {
   [FloodFillTile.None]: 0,
   [FloodFillTile.Passable]: 0,
   [FloodFillTile.Barrier]: BarrierType.Default,
@@ -688,7 +708,10 @@ type PickupTypeTile =
   | PickupType.HealthPack
   | PickupType.WeightLossPill;
 
-export const TILE_CHAR_TO_PICKUP_TYPE: Record<PickupTileChar, 0 | PowerupPickup> = {
+export const TILE_CHAR_TO_PICKUP_TYPE: Record<
+  PickupTileChar,
+  0 | PowerupPickup
+> = {
   [TILECHAR.Invincibility]: PickupType.Invincibility,
   [TILECHAR.Reversibility]: PickupType.Reversibility,
   [TILECHAR.Armor]: PickupType.Armor,
@@ -696,7 +719,10 @@ export const TILE_CHAR_TO_PICKUP_TYPE: Record<PickupTileChar, 0 | PowerupPickup>
   [TILECHAR.WeightLossPill]: PickupType.WeightLossPill,
 } satisfies Record<PickupTileChar, 0 | PowerupPickup>;
 
-export const PICKUP_TYPE_TO_FLOOD_FILL_TILE: Record<PickupTypeTile, FloodFillTile> = {
+export const PICKUP_TYPE_TO_FLOOD_FILL_TILE: Record<
+  PickupTypeTile,
+  FloodFillTile
+> = {
   [PickupType.Invincibility]: FloodFillTile.PickupInvincibility,
   [PickupType.Reversibility]: FloodFillTile.PickupReversibility,
   [PickupType.Armor]: FloodFillTile.PickupArmor,
@@ -711,7 +737,10 @@ type PickupFloodFillTile =
   | FloodFillTile.PickupHealthPack
   | FloodFillTile.PickupWeightLossPill;
 
-export const FLOOD_FILL_TILE_TO_PICKUP_TYPE: Record<PickupFloodFillTile, 0 | PowerupPickup> = {
+export const FLOOD_FILL_TILE_TO_PICKUP_TYPE: Record<
+  PickupFloodFillTile,
+  0 | PowerupPickup
+> = {
   [FloodFillTile.PickupInvincibility]: PickupType.Invincibility,
   [FloodFillTile.PickupReversibility]: PickupType.Reversibility,
   [FloodFillTile.PickupArmor]: PickupType.Armor,
@@ -770,21 +799,25 @@ export const TILE_CHAR_TO_THREAT_TYPE = {
   [TILECHAR.ElectricCoil]: ThreatType.ElectricCoil,
 } satisfies Record<ThreatTileChar, ThreatType>;
 
-export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> = {
-  [ThreatType.None]: 0,
-  [ThreatType.Mine]: FloodFillTile.ThreatMine,
-  [ThreatType.Bomb]: FloodFillTile.ThreatBomb,
-  [ThreatType.LaserDiode]: FloodFillTile.ThreatLaserDiode,
-  [ThreatType.ExplodableBarrel]: FloodFillTile.ThreatExplodableBarrel,
-  [ThreatType.Barricade]: FloodFillTile.ThreatBarricade,
-  [ThreatType.Spikes]: FloodFillTile.ThreatSpikes,
-  [ThreatType.WallSpikes]: FloodFillTile.ThreatWallSpikes,
-  [ThreatType.Saw]: FloodFillTile.ThreatSaw,
-  [ThreatType.Flamethrower]: FloodFillTile.ThreatFlamethrower,
-  [ThreatType.ElectricCoil]: FloodFillTile.ThreatElectricCoil,
-} satisfies Record<ThreatType, FloodFillTile>
+export const THREAT_TYPE_TO_FLOOD_FILL_TILE: Record<ThreatType, FloodFillTile> =
+  {
+    [ThreatType.None]: 0,
+    [ThreatType.Mine]: FloodFillTile.ThreatMine,
+    [ThreatType.Bomb]: FloodFillTile.ThreatBomb,
+    [ThreatType.LaserDiode]: FloodFillTile.ThreatLaserDiode,
+    [ThreatType.ExplodableBarrel]: FloodFillTile.ThreatExplodableBarrel,
+    [ThreatType.Barricade]: FloodFillTile.ThreatBarricade,
+    [ThreatType.Spikes]: FloodFillTile.ThreatSpikes,
+    [ThreatType.WallSpikes]: FloodFillTile.ThreatWallSpikes,
+    [ThreatType.Saw]: FloodFillTile.ThreatSaw,
+    [ThreatType.Flamethrower]: FloodFillTile.ThreatFlamethrower,
+    [ThreatType.ElectricCoil]: FloodFillTile.ThreatElectricCoil,
+  } satisfies Record<ThreatType, FloodFillTile>;
 
-export const FLOOD_FILL_TILE_TO_THREAT_TYPE: Record<ThreatFloodFillTile, ThreatType> = {
+export const FLOOD_FILL_TILE_TO_THREAT_TYPE: Record<
+  ThreatFloodFillTile,
+  ThreatType
+> = {
   [FloodFillTile.None]: 0,
   [FloodFillTile.ThreatMine]: ThreatType.Mine,
   [FloodFillTile.ThreatBomb]: ThreatType.Bomb,
@@ -797,28 +830,29 @@ export const FLOOD_FILL_TILE_TO_THREAT_TYPE: Record<ThreatFloodFillTile, ThreatT
   [FloodFillTile.ThreatFlamethrower]: ThreatType.Flamethrower,
 } satisfies Record<ThreatFloodFillTile, ThreatType>;
 
-type SwitchTileChar =
-  | TILECHAR.Button;
+type SwitchTileChar = TILECHAR.Button;
 
-type SwitchFloodFillTile =
-  | FloodFillTile.None
-  | FloodFillTile.SwitchButton;
+type SwitchFloodFillTile = FloodFillTile.None | FloodFillTile.SwitchButton;
 
 export const SWITCH_TYPE_TO_TILE_CHAR: Record<SwitchType, TILECHAR> = {
   [SwitchType.None]: TILECHAR.None,
   [SwitchType.Button]: TILECHAR.Button,
-} satisfies Record<SwitchType, TILECHAR>
+} satisfies Record<SwitchType, TILECHAR>;
 
 export const TILE_CHAR_TO_SWITCH_TYPE: Record<SwitchTileChar, SwitchType> = {
   [TILECHAR.Button]: SwitchType.Button,
-} satisfies Record<SwitchTileChar, SwitchType>
+} satisfies Record<SwitchTileChar, SwitchType>;
 
-export const SWITCH_TYPE_TO_FLOOD_FILL_TILE: Record<SwitchType, FloodFillTile> = {
-  [SwitchType.None]: FloodFillTile.None,
-  [SwitchType.Button]: FloodFillTile.SwitchButton,
-} satisfies Record<SwitchType, FloodFillTile>
+export const SWITCH_TYPE_TO_FLOOD_FILL_TILE: Record<SwitchType, FloodFillTile> =
+  {
+    [SwitchType.None]: FloodFillTile.None,
+    [SwitchType.Button]: FloodFillTile.SwitchButton,
+  } satisfies Record<SwitchType, FloodFillTile>;
 
-export const FLOOD_FILL_TILE_TO_SWITCH_TYPE: Record<SwitchFloodFillTile, SwitchType> = {
+export const FLOOD_FILL_TILE_TO_SWITCH_TYPE: Record<
+  SwitchFloodFillTile,
+  SwitchType
+> = {
   [FloodFillTile.None]: SwitchType.None,
   [FloodFillTile.SwitchButton]: SwitchType.Button,
-} satisfies Record<SwitchFloodFillTile, SwitchType>
+} satisfies Record<SwitchFloodFillTile, SwitchType>;

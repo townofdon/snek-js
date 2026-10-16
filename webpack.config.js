@@ -30,6 +30,7 @@ module.exports = (env) => {
       astarTester: './src/astar/tester/index',
       ...(isDev ? {
         dev: './src/dev/index',
+        levelViz: './src/levelViz/index',
       } : {}),
     },
     output: {
@@ -116,7 +117,13 @@ module.exports = (env) => {
           filename: 'dev/index.html',
           template: './public/pages/dev/index.ejs',
           inject: false,
-        })
+        }),
+        new HtmlWebpackPlugin({
+          title: 'SNEK DEV',
+          filename: 'level-viz/index.html',
+          template: './public/pages/level-viz/index.ejs',
+          inject: false,
+        }),
       ] : []),
       new MiniCssExtractPlugin({
         filename: "[name]-[contenthash].css",

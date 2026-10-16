@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" type="text/css" href="../style.css">
+
+    <!-- google fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Monofett&family=VT323&display=swap" rel="stylesheet">
+
+    <meta charset="utf-8" />
+    <title>SNEK::LevelViz</title>
+    <link rel="icon" type="image/png" href="assets/graphics/snek-favicon.png">
+
+    <%= htmlWebpackPlugin
+      .tags
+      .headTags
+      .filter((tag) => tag.attributes?.src?.includes('levelViz.bundle'))
+      .join('')
+    %>
+    <style></style>
+  </head>
+  <body>
+    <div id="main">
+      <canvas id="game-canvas" class="p5Canvas" style="width: 960px; height: 960px;" width="960" height="960"></canvas>
+    </div>
+  </body>
+</html>
