@@ -15,7 +15,7 @@ export const LevelSelectMenu = () => {
   const [selectedEpisode, setSelectedEpisode] = useState(Episode.E1);
   const [showing, setShowing] = useState(false);
   const [disabled, setDisabled] = useState(false);
-  const [blink, setBlink] = useState(true);
+  const [blink, setBlink] = useState(false);
   const forceRerender = useForceRerender();
 
   const inputType = bridge.gameState.inputType;
@@ -67,10 +67,10 @@ export const LevelSelectMenu = () => {
           setShowing(false);
           break;
         case InputAction.ButtonBlinkOn:
-          setBlink(false);
+          setBlink(true);
           break;
         case InputAction.ButtonBlinkOff:
-          setBlink(true);
+          setBlink(false);
           break;
         default:
           break;
@@ -184,7 +184,7 @@ export const LevelSelectMenu = () => {
         </h3>
         <div id="level-select-levels" className="levels">
           {displayLevel(levelprev, false)}
-          {blink && displayLevel(levelcurr, true)}
+          {!blink && displayLevel(levelcurr, true)}
           {displayLevel(levelnext, false)}
         </div>
         <div className="level-select-episode position-absolute" style={{ bottom: 60 }}>
