@@ -6,6 +6,7 @@ import { MainMenu } from './MainMenu';
 import { SettingsMenu } from './SettingsMenu';
 import { DebugMenu } from './DebugMenu';
 import { LevelSelectMenu } from './LevelSelectMenu';
+import { GameModeMenu } from './GameModeMenu';
 
 const requireElementById = (id: string) => {
   const node = document.getElementById(id);
@@ -26,6 +27,11 @@ createRoot(requireElementById('settings-menu-v2')).render(
 createRoot(requireElementById('level-select-menu-v2')).render(
   <React.StrictMode>
     <LevelSelectMenu />
+  </React.StrictMode>
+);
+createRoot(requireElementById('game-mode-menu-v2')).render(
+  <React.StrictMode>
+    <GameModeMenu />
   </React.StrictMode>
 );
 if (IS_LOCALHOST) {

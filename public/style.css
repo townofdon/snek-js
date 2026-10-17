@@ -331,6 +331,10 @@ canvas {
   display: none!important;
 }
 
+.invisible {
+  visibility: hidden!important;
+}
+
 .transform-flip-x {
   transform: scaleX(-1);
 }
@@ -922,11 +926,11 @@ button.game-mode {
 button.game-mode.campaign {
   color: #E9C46A;
 }
-button.game-mode.challenge {
-  color: #8e6ced;
-}
-button.game-mode.level-select {
+button.game-mode.arcade {
   color: #E76F51;
+}
+button.game-mode.tutorial {
+  color: #8e6ced;
 }
 button.game-mode.randomizer {
   color: #2FB1A2;

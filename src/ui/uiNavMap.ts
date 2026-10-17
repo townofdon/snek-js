@@ -1,6 +1,5 @@
 import { IS_DEV } from "../constants";
 import { InputAction } from "../types";
-import { GameModeMenuElement } from "./uiTypes";
 import { DOM } from "./uiUtils";
 
 
@@ -579,14 +578,18 @@ export class GameOverMenuNavMap extends GroupedNavMap<GameOverMenuElement> {
   }
 }
 
-
+export enum GameModeMenuElement {
+  Campaign = 'button-game-mode-campaign',
+  Arcade = 'button-game-mode-arcade',
+  Tutorial = 'button-game-mode-tutorial',
+  Back = 'button-game-mode-back',
+}
 
 const GAME_MODE_MENU_ELEMENT_ORDER = [
   [
     GameModeMenuElement.Campaign,
-    GameModeMenuElement.Challenge,
-    GameModeMenuElement.LevelSelect,
-    GameModeMenuElement.Randomizer,
+    GameModeMenuElement.Arcade,
+    GameModeMenuElement.Tutorial,
     GameModeMenuElement.Back,
   ],
 ];

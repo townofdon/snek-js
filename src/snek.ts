@@ -571,8 +571,7 @@ export const sketch = (p5: P5) => {
   function showGameModeMenu() {
     playSound(Sound.unlock, 1, true);
     UI.hideLevelSelectMenu();
-    UI.showGameModeMenu(state.gameMode === GameMode.Cobra);
-    uiBindings.onSelectGameMode();
+    UI.showGameModeMenu();
   }
 
   function showLevelSelectMenu() {

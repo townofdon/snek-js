@@ -694,6 +694,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             case MapAnnotation.ForceDirE:
               spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 13);
               break;
+            case MapAnnotation.Exit:
+              spriteRenderer.drawSprite1x1(p5, Image.EditorAnnotationsSheet, x, y, 14);
+              break;
             case MapAnnotation.None:
               break;
           }

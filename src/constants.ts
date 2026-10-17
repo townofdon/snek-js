@@ -604,7 +604,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frameHeight: 16,
   } satisfies AnimationData,
   [Image.EditorAnnotationsSheet]: {
-    frames: 14,
+    frames: 15,
     timePerFrame: 200,
     frameWidth: 16,
     frameHeight: 16,

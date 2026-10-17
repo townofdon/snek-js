@@ -2,7 +2,6 @@
 import { getOrCreateElementById, requireElementById } from './uiUtils';
 import { emitUIEvent } from './uiEvents';
 import { Initiator, InputAction } from '../types';
-import { GameModeMenuElement } from './uiTypes';
 import { BLOCK_SIZE_X, DIMENSIONS } from '@/constants';
 
 export const UI_PARENT_ID = 'game-container';
@@ -97,22 +96,15 @@ export class UI {
     emitUIEvent(InputAction.HideMainMenu, Initiator.UI);
   }
 
-  static showGameModeMenu(isCobraMode: boolean) {
+  static showGameModeMenu() {
     if (UI.getIsGameModeMenuShowing()) {
       return;
     }
     UI.activeMenu = ActiveMenu.GameModeMenu;
-    document.getElementById('select-game-mode-menu').classList.remove('hidden');
-    if (isCobraMode) {
-      document.getElementById(GameModeMenuElement.LevelSelect)?.classList.add('hidden');
-    } else {
-      document.getElementById(GameModeMenuElement.LevelSelect)?.classList.remove('hidden');
-    }
     emitUIEvent(InputAction.ShowGameModeMenu, Initiator.UI);
   }
 
   static hideGameModeMenu() {
-    document.getElementById('select-game-mode-menu').classList.add('hidden');
     if (UI.getIsGameModeMenuShowing()) {
       UI.activeMenu = ActiveMenu.None;
     }

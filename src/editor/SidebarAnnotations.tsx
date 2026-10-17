@@ -32,6 +32,7 @@ export const SidebarMapAnnotations = ({ activeAnnotation: activeMapAnnotation, s
     [MapAnnotation.ForceDirS]: useRef<HTMLCanvasElement>(null),
     [MapAnnotation.ForceDirW]: useRef<HTMLCanvasElement>(null),
     [MapAnnotation.ForceDirE]: useRef<HTMLCanvasElement>(null),
+    [MapAnnotation.Exit]: useRef<HTMLCanvasElement>(null),
   } satisfies Record<MapAnnotation, React.MutableRefObject<HTMLCanvasElement>>;
 
   useLayoutEffect(() => {
@@ -62,6 +63,7 @@ export const SidebarMapAnnotations = ({ activeAnnotation: activeMapAnnotation, s
       [MapAnnotation.ForceDirS]: 'S',
       [MapAnnotation.ForceDirW]: 'W',
       [MapAnnotation.ForceDirE]: 'E',
+      [MapAnnotation.Exit]: 'X',
     } satisfies Record<MapAnnotation, string>)[annotation];
     const color = annotation === activeMapAnnotation ? '#ffffff' : '#444'
     return (
@@ -109,6 +111,7 @@ export const SidebarMapAnnotations = ({ activeAnnotation: activeMapAnnotation, s
           {renderButton(MapAnnotation.ForceDirS)}
           {renderButton(MapAnnotation.ForceDirW)}
           {renderButton(MapAnnotation.ForceDirE)}
+          {renderButton(MapAnnotation.Exit)}
         </div>
       </Stack>
     </div>
@@ -132,6 +135,7 @@ const annotationLabel = (annotation: MapAnnotation) => {
     [MapAnnotation.ForceDirS]: 'Force Dir S',
     [MapAnnotation.ForceDirW]: 'Force Dir W',
     [MapAnnotation.ForceDirE]: 'Force Dir E',
+    [MapAnnotation.Exit]: 'Exit',
   } satisfies Record<MapAnnotation, string>)[annotation];
   return tooltipText || 'Unknown';
 }

@@ -220,6 +220,11 @@ export const Editor = () => {
         MapAnnotation.L8,
         MapAnnotation.L9,
         MapAnnotation.LA,
+        MapAnnotation.ForceDirN,
+        MapAnnotation.ForceDirS,
+        MapAnnotation.ForceDirW,
+        MapAnnotation.ForceDirE,
+        MapAnnotation.Exit,
       ];
       const idx = order.indexOf(annotationRef.current);
       setAnnotation(idx >= 0 ? order[(idx + order.length + direction) % order.length] : MapAnnotation.L1);

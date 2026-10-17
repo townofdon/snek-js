@@ -44,6 +44,7 @@ export const sidebarAnnotationsSketch = (container: HTMLElement, canvas: Record<
       [MapAnnotation.ForceDirS]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.ForceDirS].current),
       [MapAnnotation.ForceDirW]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.ForceDirW].current),
       [MapAnnotation.ForceDirE]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.ForceDirE].current),
+      [MapAnnotation.Exit]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[MapAnnotation.Exit].current),
     } satisfies Record<MapAnnotation, P5.Graphics>;
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
@@ -106,6 +107,7 @@ export const sidebarAnnotationsSketch = (container: HTMLElement, canvas: Record<
       spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.ForceDirS], Image.EditorAnnotationsSheet, x, y, 11);
       spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.ForceDirW], Image.EditorAnnotationsSheet, x, y, 12);
       spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.ForceDirE], Image.EditorAnnotationsSheet, x, y, 13);
+      spriteRenderer.drawSprite1x1Static(gfx[MapAnnotation.Exit], Image.EditorAnnotationsSheet, x, y, 14);
     }
   }
 

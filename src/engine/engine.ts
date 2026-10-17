@@ -1915,7 +1915,7 @@ export function engine({
     renderer.drawFps(gfxPresentation, metrics.gameLoopProcessingTime);
 
     const bpm = 85;
-    const musicTrackElapsed = Math.max(musicPlayer.getTimeElapsedCurrentTrack() || state.actualTimeElapsed || 0, 0);
+    const musicTrackElapsed = Math.max(musicPlayer.getTimeElapsedCurrentTrack() || 0, 0);
     if ((musicTrackElapsed * (bpm / 60)) % 2 >= 1) {
       UI.syncSelectionToAudio(1);
     } else {

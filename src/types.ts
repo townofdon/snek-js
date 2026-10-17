@@ -64,6 +64,8 @@ export enum GameMode {
   Normal,
   Casual,
   Cobra,
+  Arcade,
+  Tutorial,
 }
 
 export enum DIR {
@@ -796,6 +798,7 @@ export enum MapAnnotation {
   ForceDirS,
   ForceDirW,
   ForceDirE,
+  Exit,
 }
 
 export interface LevelPickup {
@@ -953,6 +956,8 @@ export enum InputAction {
   HideMainMenu,
   ConfirmGotoMainMenu,
   ConfirmQuitGame,
+  ShowCampaignMenu,
+  HideCampaignMenu,
   ShowSettingsMenu,
   HideSettingsMenu,
   ShowLevelSelectMenu,

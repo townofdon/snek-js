@@ -1,7 +1,6 @@
 
 import P5 from 'p5';
 import {
-  GameMode,
   GameSettings,
   GameState,
   Initiator,
@@ -13,17 +12,13 @@ import {
 } from '../types';
 import { InputAction } from '../types';
 import {
-  GameModeMenuNavMap,
   GameOverMenuElement,
   GameOverMenuNavMap,
   PauseMenuElement,
   PauseMenuNavMap,
 } from './uiNavMap';
 import { UI } from './ui';
-import { parseElementLevelNum, requireElementById } from './uiUtils';
 import { unsubscribeOnUIEvent, onUIEvent, emitUIEvent } from './uiEvents';
-import { START_CHALLENGE_LEVEL_ID } from '../levels/levelUtils';
-import { GameModeMenuElement } from './uiTypes';
 import { bridge } from '@/uiv2/uiBridge';
 import { SaveDataStore } from '@/stores/SaveDataStore';
 
@@ -54,46 +49,9 @@ export class UIBindings implements UIHandler {
         break;
     }
   }
-  private callGameModeMenuAction = (element: GameModeMenuElement) => {
-    switch (element) {
-      case GameModeMenuElement.Campaign:
-        this.callAction(InputAction.StartGame);
-        break;
-      case GameModeMenuElement.Challenge:
-        this.callAction(InputAction.StartGame, START_CHALLENGE_LEVEL_ID);
-        break;
-      case GameModeMenuElement.LevelSelect:
-        this.callAction(InputAction.ShowLevelSelectMenu);
-        break;
-      case GameModeMenuElement.Randomizer:
-        this.onSelectGameModeRandomizer();
-        break;
-      case GameModeMenuElement.Back:
-        this.callAction(InputAction.HideGameModeMenu);
-        break;
-    }
-  }
 
-  private callLevelSelectMenuAction = (id: string) => {
-    const elem = document.getElementById(id);
-    if (!elem) {
-      console.warn(`could not find element with id '${id}'`)
-      return;
-    }
-    elem.click();
-  }
-
-  private main: HTMLElement;
   private pauseMenuNavMap: PauseMenuNavMap;
   private gameOverMenuNavMap: GameOverMenuNavMap;
-  private gameModeMenuNavMap: GameModeMenuNavMap;
-  private gameModeMenuElements: Record<GameModeMenuElement, HTMLButtonElement> = {
-    [GameModeMenuElement.Campaign]: undefined,
-    [GameModeMenuElement.Challenge]: undefined,
-    [GameModeMenuElement.LevelSelect]: undefined,
-    [GameModeMenuElement.Randomizer]: undefined,
-    [GameModeMenuElement.Back]: undefined
-  }
 
   constructor(p5: P5, gameState: GameState, settings: GameSettings, saveDataStore: SaveDataStore, callAction: (action: InputAction, p0?: any) => void) {
     this.p5 = p5;
@@ -103,10 +61,8 @@ export class UIBindings implements UIHandler {
     bridge.gameState = gameState;
     bridge.settings = settings;
     bridge.saveDataStore = saveDataStore;
-    this.assignElements();
     this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
     this.gameOverMenuNavMap = new GameOverMenuNavMap(this.callGameOverMenuAction);
-    this.gameModeMenuNavMap = new GameModeMenuNavMap(this.callGameModeMenuAction);
     onUIEvent(this.handleUIEvent);
     window.addEventListener('blur', this.handleWindowBlur);
   }
@@ -122,19 +78,7 @@ export class UIBindings implements UIHandler {
       return bridge.mainMenu?.onNavigate?.(navDir) || false;
     }
     if (UI.getIsGameModeMenuShowing()) {
-      switch (navDir) {
-        case UINavDir.Prev:
-        case UINavDir.Up:
-        case UINavDir.Left:
-          this.gameModeMenuNavMap.gotoPrev();
-          break;
-        case UINavDir.Next:
-        case UINavDir.Down:
-        case UINavDir.Right:
-          this.gameModeMenuNavMap.gotoNext();
-          break;
-      }
-      return true;
+      return bridge.gameModeMenu?.onNavigate?.(navDir) || false;
     }
     if (this.gameState.isLost) {
       switch (navDir) {
@@ -194,7 +138,7 @@ export class UIBindings implements UIHandler {
       return bridge.mainMenu?.onInteract?.() || false;
     }
     if (UI.getIsGameModeMenuShowing()) {
-      return this.gameModeMenuNavMap.callSelected();
+      return bridge.gameModeMenu?.onInteract?.() || false;
     }
     if (this.gameState.isLost) {
       return this.gameOverMenuNavMap.callSelected();
@@ -216,8 +160,7 @@ export class UIBindings implements UIHandler {
       return bridge.settingsMenu?.onCancel?.() || false;
     }
     if (UI.getIsGameModeMenuShowing()) {
-      this.callAction(InputAction.HideGameModeMenu);
-      return true;
+      return bridge.gameModeMenu?.onCancel?.() || false;
     }
     if (this.gameState.isPaused) {
       if (bridge.debugMenu.onCancel?.()) {
@@ -253,47 +196,12 @@ export class UIBindings implements UIHandler {
     }
   }
 
-  onSelectGameMode = () => {
-    if (UI.getIsGameModeMenuShowing()) {
-      this.gameModeMenuNavMap.gotoFirst();
-    }
-  }
-
   refreshFieldValues() {
-    if (this.gameState.gameMode === GameMode.Cobra) {
-      this.gameModeMenuElements[GameModeMenuElement.LevelSelect].classList.add('hidden');
-    } else {
-      this.gameModeMenuElements[GameModeMenuElement.LevelSelect].classList.remove('hidden');
-    }
     emitUIEvent(InputAction.ForceRerender, Initiator.UI);
   }
 
-  private assignElements = () => {
-    this.main = requireElementById<HTMLElement>('main');
-
-    this.gameModeMenuElements[GameModeMenuElement.Campaign] = requireElementById<HTMLButtonElement>(GameModeMenuElement.Campaign);
-    this.gameModeMenuElements[GameModeMenuElement.Challenge] = requireElementById<HTMLButtonElement>(GameModeMenuElement.Challenge);
-    this.gameModeMenuElements[GameModeMenuElement.LevelSelect] = requireElementById<HTMLButtonElement>(GameModeMenuElement.LevelSelect);
-    this.gameModeMenuElements[GameModeMenuElement.Randomizer] = requireElementById<HTMLButtonElement>(GameModeMenuElement.Randomizer);
-    this.gameModeMenuElements[GameModeMenuElement.Back] = requireElementById<HTMLButtonElement>(GameModeMenuElement.Back);
-  }
-
   private handleUIEvent = (action: InputAction = InputAction.None) => {
-      const cleanup = false;
-      if (action === InputAction.ShowGameModeMenu) {
-        this.gameModeMenuElements[GameModeMenuElement.Campaign].addEventListener('click', this.onSelectGameModeCampaign);
-        this.gameModeMenuElements[GameModeMenuElement.Challenge].addEventListener('click', this.onSelectGameModeChallenge);
-        this.gameModeMenuElements[GameModeMenuElement.LevelSelect].addEventListener('click', this.onSelectGameModeLevelSelect);
-        this.gameModeMenuElements[GameModeMenuElement.Randomizer].addEventListener('click', this.onSelectGameModeRandomizer);
-        this.gameModeMenuElements[GameModeMenuElement.Back].addEventListener('click', this.onSelectGameModeBack);
-      }
-      if (cleanup || action === InputAction.HideGameModeMenu) {
-        this.gameModeMenuElements[GameModeMenuElement.Campaign].removeEventListener('click', this.onSelectGameModeCampaign);
-        this.gameModeMenuElements[GameModeMenuElement.Challenge].removeEventListener('click', this.onSelectGameModeChallenge);
-        this.gameModeMenuElements[GameModeMenuElement.LevelSelect].removeEventListener('click', this.onSelectGameModeLevelSelect);
-        this.gameModeMenuElements[GameModeMenuElement.Randomizer].removeEventListener('click', this.onSelectGameModeRandomizer);
-        this.gameModeMenuElements[GameModeMenuElement.Back].removeEventListener('click', this.onSelectGameModeBack);
-      }
+    // silence is golden
   }
 
   public cleanup = () => {
@@ -305,16 +213,6 @@ export class UIBindings implements UIHandler {
 
   public setStartButtonVisibility = (visible: boolean, levelId: string) => {
     const { isRandomizer } = this.gameState;
-    if (isRandomizer) {
-      this.gameModeMenuElements[GameModeMenuElement.Randomizer].style.visibility = visible ? 'visible' : 'hidden';
-      this.gameModeMenuElements[GameModeMenuElement.Randomizer].classList.add('active');
-    } else if (levelId === START_CHALLENGE_LEVEL_ID) {
-      this.gameModeMenuElements[GameModeMenuElement.Challenge].style.visibility = visible ? 'visible' : 'hidden';
-      this.gameModeMenuElements[GameModeMenuElement.Challenge].classList.add('active');
-    } else {
-      this.gameModeMenuElements[GameModeMenuElement.Campaign].style.visibility = visible ? 'visible' : 'hidden';
-      this.gameModeMenuElements[GameModeMenuElement.Campaign].classList.add('active');
-    }
     if (visible) {
       emitUIEvent(InputAction.ButtonBlinkOn, Initiator.UI);
     } else {
@@ -333,26 +231,5 @@ export class UIBindings implements UIHandler {
   private handleWindowBlur = () => {
     this.p5.deltaTime = 0;
     this.callAction(InputAction.Pause);
-  }
-
-  private onSelectGameModeCampaign = () => {
-    this.callAction(InputAction.StartGame);
-  }
-
-  private onSelectGameModeChallenge = () => {
-    this.callAction(InputAction.StartGame, START_CHALLENGE_LEVEL_ID);
-  }
-
-  private onSelectGameModeLevelSelect = () => {
-    this.callAction(InputAction.ShowLevelSelectMenu);
-  }
-
-  private onSelectGameModeRandomizer = () => {
-    this.gameState.isRandomizer = true;
-    this.callAction(InputAction.StartGame);
-  }
-
-  private onSelectGameModeBack = () => {
-    this.callAction(InputAction.HideGameModeMenu);
   }
 }

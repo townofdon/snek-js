@@ -6,6 +6,7 @@ type HandlerKey = (
   | 'settingsMenu'
   | 'debugMenu'
   | 'levelSelectMenu'
+  | 'gameModeMenu'
 );
 type CallAction = (action: InputAction, p0?: any) => void
 
@@ -38,6 +39,7 @@ export const bridge: Record<HandlerKey, BridgeHandler> & { callAction: CallActio
   settingsMenu: { ...DEFAULT_HANDLER},
   debugMenu: { ...DEFAULT_HANDLER},
   levelSelectMenu: { ...DEFAULT_HANDLER},
+  gameModeMenu: { ...DEFAULT_HANDLER},
   callAction: () => {},
   ...bridgeProps,
 };

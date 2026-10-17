@@ -37,6 +37,12 @@ export const MainMenu = () => {
           setShowing(false);
           setActive(false);
           break;
+        case InputAction.ShowCampaignMenu:
+          setActive(false);
+          break;
+        case InputAction.ShowLevelSelectMenu:
+          setActive(false);
+          break;
         case InputAction.ShowSettingsMenu:
           setActive(false);
           break;
@@ -249,7 +255,7 @@ export const MainMenu = () => {
           className="button-start-game newbutton ui-arrows select-white"
           onClick={handleStartGame}
         >
-          start game
+          play
         </button>
         <button
           tabIndex={0}

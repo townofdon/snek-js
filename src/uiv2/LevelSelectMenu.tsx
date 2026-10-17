@@ -44,9 +44,6 @@ export const LevelSelectMenu = () => {
         case InputAction.ForceRerender:
           forceRerender();
           break;
-        case InputAction.StartGame:
-          setDisabled(true);
-          break;
         case InputAction.ShowLevelSelectMenu:
           setShowing(true);
           setDisabled(false);
@@ -65,6 +62,9 @@ export const LevelSelectMenu = () => {
           break;
         case InputAction.ShowGameModeMenu:
           setShowing(false);
+          break;
+        case InputAction.StartGame:
+          setDisabled(true);
           break;
         case InputAction.ButtonBlinkOn:
           setBlink(true);
