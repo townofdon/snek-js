@@ -41,13 +41,11 @@ import {
   REPLAY_LEVEL_INDEX,
 } from './levels/levelUtils';
 import {
-  DamageType,
   IEnumerator,
   Replay,
   ReplayMode,
   Sound,
   Stats,
-  LoseMessage,
   MusicTrack,
   AppMode,
   TitleVariant,
@@ -82,7 +80,7 @@ import { Fonts } from './fonts';
 import { quotes as allQuotes } from './quotes';
 import { replayClips } from './replayClips/replayClips';
 import { WinLevelScene } from './scenes/WinLevelScene';
-import { LOSE_MESSAGES } from './messages';
+import { nextLoseMessage } from './messages';
 import { OSTScene } from './scenes/OSTScene';
 import { QuoteScene } from './scenes/QuoteScene';
 import { WinGameScene } from './scenes/WinGameScene';
@@ -115,8 +113,6 @@ const tutorial: Tutorial = {
   needsMoveControls: false,
   needsRewindControls: false,
 } satisfies Tutorial;
-
-const loseMessages: Record<number, LoseMessage[]> = {};
 
 let uiElements: HTMLElement[] = [];
 let quotes = allQuotes.slice();
@@ -545,7 +541,6 @@ export const sketch = (p5: P5) => {
     UI.enableScreenScroll();
     UI.hideGameModeMenu();
     showMainMenuUI();
-    hydrateLoseMessages(-1);
   }
 
   function showMainMenuUI() {
@@ -988,57 +983,10 @@ export const sketch = (p5: P5) => {
     }
   }
 
-  // I will buy a beer for whoever can decipher my spaghetticode
-  const getNextLoseMessage = (numIterations = 0): string => {
-    if (state.lastHurtBy === DamageType.QuantumEntanglement) {
-      const messages = [
-        'You caused a rift in the snektime continuum.',
-        'Attempting to be in two places at once can have disastrous results.',
-        'Quantum entangle yourself lately?',
-        'After a million years of being stuck in an infinite portal, you discover the horrifying truth that time loops back on itself.',
-      ];
-      const index = Math.floor(p5.random(0, messages.length));
-      return messages[index];
-    }
+  const getNextLoseMessage = (): string => {
     const level = getLevel();
     const difficulty = getDifficulty();
-    const allMessages = (loseMessages[state.levelIndex] || []).concat(level.disableNormalLoseMessages ? [] : loseMessages[-1]);
-    const relevantMessages = allMessages.filter(([message, callback]) => {
-      if (callback) return callback(state, stats, difficulty);
-      return state.lastHurtBy !== DamageType.HitLock && stats.numLevelsCleared <= 2;
-    }).map((contents) => contents[0]);
-    if (relevantMessages.length <= 0) {
-      if (numIterations > 0) {
-        return "Death smiles at us all. All we can do is smile back.";
-      }
-      hydrateLoseMessages(state.levelIndex);
-      return getNextLoseMessage(numIterations + 1);
-    }
-    const randomMessage = relevantMessages[Math.floor(p5.random(0, relevantMessages.length))];
-    // remove from existing messages
-    loseMessages[-1] = loseMessages[-1].filter(([message, callback]) => message != randomMessage);
-    if (loseMessages[state.levelIndex]) {
-      loseMessages[state.levelIndex] = loseMessages[state.levelIndex].filter(([message, callback]) => message != randomMessage);
-    }
-    return randomMessage;
-  }
-
-  const hydrateLoseMessages = (levelIndex: number) => {
-    loseMessages[-1] = [...LOSE_MESSAGES];
-    // if -1, hydrate lose messages for all levels
-    if (levelIndex < 0) {
-      for (let i = 0; i <= 99; i++) {
-        const level = LEVELS_EP_01[i];
-        if (!level) continue;
-        if (!level.extraLoseMessages) continue;
-        loseMessages[i] = [...level.extraLoseMessages];
-      }
-    } else {
-      const level = LEVELS_EP_01[levelIndex || -1] || getLevel();
-      if (!level) return;
-      if (!level.extraLoseMessages) return;
-      loseMessages[levelIndex] = [...level.extraLoseMessages];
-    }
+    return nextLoseMessage(state, stats, difficulty.index, level.disableNormalLoseMessages, level.extraLoseMessages);
   }
 
   function getNextQuote() {

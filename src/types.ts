@@ -1078,7 +1078,7 @@ export interface LevelData {
 }
 
 export type LoseMessage = [string] | [string, GetShouldShowLoseMessage];
-export type GetShouldShowLoseMessage = (state: GameState, stats: Stats, difficulty: Difficulty) => boolean;
+export type GetShouldShowLoseMessage = (state: GameState, stats: Stats, difficultyIndex: DifficultyIndex) => boolean;
 
 export interface Quote {
   message: string[]

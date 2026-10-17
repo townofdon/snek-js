@@ -118,7 +118,12 @@ export function stripLeadingSlash(str: string): string {
   return str.replace(/^\//, '');
 }
 
+/**
+ * return a new shuffled array without mutating
+ */
 export function shuffleArray<T>(array: T[]) {
+  if (!array || !array.length) return [];
+  if (array.length === 1) return [...array];
   const copy = array.slice()
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));

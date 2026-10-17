@@ -1467,6 +1467,9 @@ export function engine({
       || state.isExited
       || state.isGameWon
       || state.timeSinceHurt < HURT_STUN_TIME
+      || state.lives < 0
+      || state.isLost
+      || actionRunning(Action.EpicDeath)
     );
     if (!skip) {
       const checkBarricade = state.timeSinceLastMove < BUTTON_RELEASE_DAMAGE_DELAY && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY;
@@ -1504,6 +1507,7 @@ export function engine({
       || state.isExitingLevel
       || state.isExited
       || state.isLost
+      || state.lives < 0
       || state.isDeathIlluminating
       || actionRunning(Action.EpicDeath)
       || state.isButtonPressed
@@ -1540,7 +1544,7 @@ export function engine({
     // snake trapped
     skip = (false
       || !didHit
-      || state.lives <= 0
+      || state.lives < 0
       || state.isExitingLevel
       || state.isExited
       || state.isLost
@@ -1717,6 +1721,8 @@ export function engine({
     if (state.lungeStepsRemaining > 0) return;
     if (loopState.timeScale === 0) return;
     if (state.timeSinceLungeStart < LUNGE_COOLDOWN) return;
+    if (state.isLost) return;
+    if (state.lives < 0) return;
     state.timeSinceLungeStart = 0;
     state.lungeStepsRemaining = LUNGE_STEPS;
     player.direction = dir;
@@ -3511,6 +3517,7 @@ export function engine({
   }
 
   function showGameOver() {
+    stopAction(Action.EpicDeath);
     state.isLost = true;
     state.timeSinceHurt = Infinity;
     if (replay.mode !== ReplayMode.Playback) {

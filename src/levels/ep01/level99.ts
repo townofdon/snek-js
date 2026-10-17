@@ -50,7 +50,7 @@ XXXXXXXXXXXXXXLLXXXXXXXXXXXXXX
   colors: getExtendedPalette(PALETTE.darkStar),
   showTitle: true,
   extraLoseMessages: [
-    ["What? Not enough apples for ya?"],
+    ["What? Not enough treats for ya?"],
     ["Don't quit now, this is the final level!"],
     ["Aggh you are almost to the finish line!"],
     ["I can see the determination on your face."],

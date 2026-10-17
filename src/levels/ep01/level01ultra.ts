@@ -48,9 +48,9 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   showTitle: true,
   showQuoteOnLevelWin: true,
   extraLoseMessages: [
-    ["How did you mess this one up?", (state, stats, difficulty) => difficulty.index >= 3],
-    ["You couldn't miss the broad side of a barn.", (state, stats, difficulty) => difficulty.index >= 4],
-    ["Maybe let's dial down the difficulty?", (state, stats, difficulty) => difficulty.index >= 4],
+    ["How did you mess this one up?", (state, stats, difficulty) => difficulty >= 3],
+    ["You couldn't miss the broad side of a barn.", (state, stats, difficulty) => difficulty >= 4],
+    ["Maybe let's dial down the difficulty?", (state, stats, difficulty) => difficulty >= 4],
   ],
   musicTrack: MusicTrack.champion,
   titleVariant: TitleVariant.Yellow,

@@ -11,8 +11,8 @@ export function showGameOverUI(loseMessage: string, uiElements: HTMLElement[]) {
   const padding = 72;
   UI.drawDarkOverlay(uiElements);
   UI.drawText('YOU DIED!', '22px', yInit, uiElements, { color: ACCENT_COLOR });
-  const height = UI.drawText(loseMessage, '9.6px', yInit + padding, uiElements, { width: 400 });
-  UI.drawText('[Press any key]', '6px', yInit + padding * 2 - 25 + height, uiElements, { width: 400, color: '#988473' })
+  const height = UI.drawText(loseMessage, '9.6px', yInit + padding, uiElements, { width: 300 });
+  UI.drawText('[Press any key]', '6px', yInit + padding * 2 - 25 + height, uiElements, { width: 300, color: '#9b976c' })
 }
 
 interface ShowPauseMenuCallbacks {

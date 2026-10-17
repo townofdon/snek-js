@@ -119,7 +119,7 @@ export function getLevelBoss(level: Level, bossArgs: BossConstructorArgs): Boss 
 export const NEXT_LEVEL_MAP: Record<string, Level> = {
   // EP_01
   [LEVEL_01_HARD.id]: TUTORIAL_LEVEL_10,
-  [LEVEL_01_ULTRA.id]: LEVEL_02,
+  [LEVEL_01_ULTRA.id]: TUTORIAL_LEVEL_10,
   [LEVEL_01_D.id]: LEVEL_02,
   [WARP_ZONE_01.id]: LEVEL_02,
   [WARP_ZONE_02.id]: LEVEL_11,

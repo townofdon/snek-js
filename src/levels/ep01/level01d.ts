@@ -48,8 +48,8 @@ XXXXXXXXXXXXXdddXXXXXXXXXXXXXX
   showTitle: false,
   showQuoteOnLevelWin: false,
   extraLoseMessages: [
-    ["It's quiet. Too quiet.", (state, stats, difficulty) => difficulty.index >= 3],
-    ["The best way forwards is backwards, they say.", (state, stats, difficulty) => difficulty.index >= 3],
+    ["It's quiet. Too quiet.", (state, stats, difficulty) => difficulty >= 3],
+    ["The best way forwards is backwards, they say.", (state, stats, difficulty) => difficulty >= 3],
   ],
   musicTrack: MusicTrack.backrooms,
   titleVariant: TitleVariant.Yellow,
