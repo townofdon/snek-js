@@ -122,6 +122,7 @@ export const DEFAULT_ACTION_IDS_MAP: Record<ActionKey, string | null> = {
   [Action.Burnination]: null,
   [Action.EpicDeath]: null,
   [Action.BossTransition]: null,
+  [Action.OpenDoors]: null,
 }
 
 export const DEFAULT_BASE_STATS = {

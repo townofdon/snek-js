@@ -64,6 +64,7 @@ import {
   LUNGE_STEPS,
   SPEED_LIMIT_ULTRA,
   BURN_DURATION_MS,
+  MAX_APPLES_TO_CLEAR,
 } from "../constants";
 import {
   Action,
@@ -115,6 +116,7 @@ import {
   SmokeType,
   Boss,
   RemovalReason,
+  MapAnnotation,
 } from "../types";
 import {
   clamp,
@@ -230,6 +232,7 @@ interface EngineParams {
   onUINavigate: UINavEventHandler,
   onGameOver: () => void,
   onGameOverCobra: () => void,
+  onGameOverArcade: () => void,
   onRecordLevelProgress: SaveDataStore['recordLevelCompletion'],
 }
 
@@ -261,6 +264,7 @@ export function engine({
   onUINavigate,
   onGameOver,
   onGameOverCobra,
+  onGameOverArcade,
   onRecordLevelProgress,
 }: EngineParams) {
   const boss: { current: Boss | null } = { current: null };
@@ -793,7 +797,7 @@ export function engine({
     state.timeSinceLungeStart = Infinity;
     state.timeSinceButtonPressChanged = Infinity;
     state.timeSinceGraceStarted = 0;
-    state.lives = state.gameMode === GameMode.Cobra ? state.lives : MAX_LIVES;
+    state.lives = (state.gameMode === GameMode.Cobra || state.gameMode === GameMode.Arcade) ? state.lives : MAX_LIVES;
     state.collisions = 0;
     screenShake.timeSinceStarted = Infinity;
     screenShake.timeSinceLastStep = Infinity;
@@ -1617,11 +1621,13 @@ export function engine({
     handleSnakeMovementDuringReplay(didHit);
     handleCaptureReplayInfo(didMove, didHit);
 
-    if (getHasClearedLevel() && !state.isDoorsOpen) {
+    let didOpenDoors = false;
+    if (getHasClearedLevel() && !state.isDoorsOpen && !actionRunning(Action.OpenDoors)) {
       openDoors();
+      didOpenDoors = true;
     }
 
-    if (didEat && state.isDoorsOpen && apples.length === 0 && preyList.length === 0 && es.level.armorDrop && replay.mode !== ReplayMode.Playback) {
+    if (didEat && didOpenDoors && apples.length === 0 && preyList.length === 0 && es.level.armorDrop && replay.mode !== ReplayMode.Playback) {
       const loc = chooseSpawnLocation(es.level.armorDrop);
       if (loc >= 0) {
         spawnArmorPickup(getCoordX(getCoordX(loc)), getCoordY(loc));
@@ -1873,7 +1879,7 @@ export function engine({
     if (fireTiles.tick(animDeltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
-    if (explosions.tick(animDeltaTime)) {
+    if (explosions.tick(state.isLost ? animDeltaTime : p5.deltaTime)) {
       drawState.shouldDrawActionFG = true;
     }
     if (puffs.tick(animDeltaTime)) {
@@ -1922,16 +1928,17 @@ export function engine({
       UI.syncSelectionToAudio(2);
     }
 
-    if (state.isLost && state.gameMode !== GameMode.Cobra) return;
     if (!state.isGameStarted && replay.mode !== ReplayMode.Playback) return;
 
     // tick time elapsed
-    if (state.isMoving || replay.mode === ReplayMode.Playback) {
+    if ((!state.isLost && state.isMoving) || replay.mode === ReplayMode.Playback) {
       state.timeElapsed += p5.deltaTime;
     }
     state.actualTimeElapsed += p5.deltaTime;
 
-    handleSnakeExitLevelUI();
+    if (!state.isLost && state.isExitingLevel && replay.mode !== ReplayMode.Playback) {
+      winLevelScene.draw();
+    }
 
     renderer.tick();
 
@@ -1944,9 +1951,7 @@ export function engine({
         }
       }
     }
-
-    return true;
-  })
+  });
 
   //#endregion RENDER LOOP
 
@@ -2232,6 +2237,7 @@ export function engine({
     if (settings.debug.easyExit && stats.applesEatenThisLevel > 0) return true;
     if (stats.applesEatenThisLevel >= es.level.applesToClear * applesMod) return true;
     if (state.timeElapsed >= es.level.timeToClear && stats.applesEatenThisLevel >= es.level.applesToClear * applesMod * 0.5) return true;
+    if (stats.applesEatenThisLevel >= MAX_APPLES_TO_CLEAR) return true;
     return false;
   }
 
@@ -2480,6 +2486,7 @@ export function engine({
   }
 
   function handleSetNextLevel() {
+    if (state.gameMode === GameMode.Arcade) return;
     const nextLevel = es.level.nextLevelMap?.[getCoordIndex(player.position)];
     if (!nextLevel) return;
     state.nextLevel = nextLevel;
@@ -2570,12 +2577,6 @@ export function engine({
     renderScoreUI();
   }
 
-  function handleSnakeExitLevelUI() {
-    if (state.isExitingLevel && replay.mode !== ReplayMode.Playback) {
-      winLevelScene.draw();
-    }
-  }
-
   function handleSnakeExitLevelFinish() {
     if (!state.isExitingLevel) return;
     if (state.isExited) return;
@@ -2588,28 +2589,34 @@ export function engine({
       return;
     }
 
+    const levelToSave = es.level.recordProgressAsLevel || es.level;
+    const isPerfect = apples.length === 0 && state.collisions === 0;
+    const hasAllApples = apples.length === 0;
+    const hasAllLocks = !!es.level.numLocks && es.locks.length === 0;
+    const shouldRecordLevelCompletion = (false
+      && !settings.debug.easyExit
+      && state.gameMode !== GameMode.Tutorial
+      && state.gameMode !== GameMode.Arcade
+      && !!levelToSave.id
+    );
+
+    if (shouldRecordLevelCompletion) {
+      onRecordLevelProgress(levelToSave.id, es.difficulty.index, isPerfect, stats.totalLevelTimeElapsed);
+    }
+
     if (settings.debug.disableTransitions) {
       gotoNextLevel();
     } else if (getIsStartLevel()) {
       gotoNextLevel();
     } else if (es.level.quickExit) {
       gotoNextLevel();
+    } else if (state.gameMode === GameMode.Tutorial) {
+      gotoNextLevel();
     } else if (es.level.type === LevelType.Maze) {
       gotoNextLevel();
     } else if (es.level.type === LevelType.WarpZone) {
       gotoNextLevel();
     } else {
-      const levelToSave = es.level.recordProgressAsLevel || es.level;
-      const isPerfect = apples.length === 0 && state.collisions === 0;
-      const hasAllApples = apples.length === 0;
-      const hasAllLocks = !!es.level.numLocks && es.locks.length === 0;
-      const shouldRecordLevelCompletion = !settings.debug.easyExit &&
-        state.gameMode !== GameMode.Casual &&
-        !!levelToSave?.id;
-
-      if (shouldRecordLevelCompletion) {
-        onRecordLevelProgress(levelToSave.id, es.difficulty.index, isPerfect, stats.totalLevelTimeElapsed);
-      }
 
       winLevelScene.triggerLevelExit({
         score: stats.score,
@@ -3442,6 +3449,22 @@ export function engine({
 
   function openDoors() {
     if (state.isDoorsOpen) return;
+    if (actionRunning(Action.OpenDoors)) return;
+    startAction(openDoorsRoutine(), Action.OpenDoors);
+  }
+
+  function* openDoorsRoutine() {
+    loopState.timeScale = 0;
+    for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+      if (es.barriersMap[coord] && es.annotations[coord] === MapAnnotation.Exit) {
+        removeBarrierTile(coord);
+        playSound(Sound.xpound);
+        startScreenShake(2, 0, 0.8);
+        yield* coroutines.waitForTime(66);
+      }
+    }
+    state.isDoorsOpen = true;
+    loopState.timeScale = 1;
     playSound(Sound.doorOpen);
     const lifetime = ANIMATIONS[Image.DoorOpenSheet].frames * ANIMATIONS[Image.DoorOpenSheet].timePerFrame;
     es.doors.forEach(door => {
@@ -3450,7 +3473,6 @@ export function engine({
       const y = door.y;
       doorsOpening.add(x, y, lifetime, Image.DoorOpenSheet);
     });
-    state.isDoorsOpen = true;
     startExitParticles();
     es.doors = [];
     es.doorsMap = {};
@@ -3518,6 +3540,7 @@ export function engine({
 
   function showGameOver() {
     stopAction(Action.EpicDeath);
+    stopAction(Action.OpenDoors);
     state.isLost = true;
     state.timeSinceHurt = Infinity;
     if (replay.mode !== ReplayMode.Playback) {
@@ -3541,7 +3564,7 @@ export function engine({
   }
 
   function* showGameOverRoutine(): IEnumerator {
-    if (state.gameMode !== GameMode.Cobra) {
+    if (state.gameMode !== GameMode.Cobra && state.gameMode !== GameMode.Arcade) {
       stats.score = parseInt(String(stats.score * 0.5), 10);
     }
     loopState.timeScale = 0;
@@ -3558,6 +3581,7 @@ export function engine({
     renderer.invalidateStaticCache();
     yield* coroutines.waitForTime(HURT_STUN_TIME * 2.5);
     state.isInvertedColors = false;
+    state.isDeathIlluminating = false;
     drawState.shouldDrawApples = true;
     drawState.shouldDrawActionFG = true;
     drawState.shouldDrawKeysLocks = true;
@@ -3576,6 +3600,11 @@ export function engine({
       clearUI();
       UI.clearLabels();
       onGameOverCobra();
+    } else if (state.gameMode === GameMode.Arcade) {
+      startAction(fadeMusic(0.3, 500), Action.FadeMusic);
+      clearUI();
+      UI.clearLabels();
+      onGameOverArcade();
     } else {
       startAction(fadeMusic(0.3, 500), Action.FadeMusic);
       renderScoreUI(stats.score);

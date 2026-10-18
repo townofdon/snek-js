@@ -72,6 +72,7 @@ export const START_SNAKE_SIZE = 3;
 export const SPEED_INCREMENT_SPEED_MS = 600;
 export const SPRINT_INCREMENT_SPEED_MS = 250;
 export const NUM_APPLES_START = 3;
+export const MAX_APPLES_TO_CLEAR = 300;
 
 export const SCORE_INCREMENT = 10;
 export const CLEAR_BONUS = 40;

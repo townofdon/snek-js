@@ -14,6 +14,7 @@ import {
   IS_DEV,
   IS_LOCALHOST,
   LUNGE_STEPS,
+  MAX_APPLES_TO_CLEAR,
   PICKUP_EXPIRE_WARN_MS,
   PICKUP_LIFETIME_MS_EPIC,
   PICKUP_LIFETIME_MS_GALACTIC,
@@ -443,7 +444,9 @@ export function getElementPosition(el: HTMLElement) {
 }
 
 export function getLevelProgress(stats: Stats, level: Level, difficulty: Difficulty) {
-  return clamp(stats.applesEatenThisLevel / (level.applesToClear * (level.applesModOverride || difficulty.applesMod)), 0, 1);
+  let applesToClear = (level.applesToClear * (level.applesModOverride || difficulty.applesMod));
+  applesToClear = Math.min(applesToClear, MAX_APPLES_TO_CLEAR);
+  return clamp(stats.applesEatenThisLevel / applesToClear, 0, 1);
 }
 
 export function toRarity(num: number): PickupRarity {

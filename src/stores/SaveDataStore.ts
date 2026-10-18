@@ -80,10 +80,11 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
 
   public resetCurrentSaveSlot = () => {
     const slot = this.currentSlot;
-    if (!slot) {
-      throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
+    if (slot) {
+      this.setSlot(slot, null);
+    } else {
+      console.error(`[SaveDataStore] Save slot is unset: ${slot}`)
     }
-    this.setSlot(slot, null);
   }
 
   public save = async (incoming: Omit<SaveSlotData, 'wearablesUnlocked'>) => {

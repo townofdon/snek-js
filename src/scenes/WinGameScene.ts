@@ -173,9 +173,9 @@ export class WinGameScene extends BaseScene {
 
   private getHasHighscore = () => {
     const { leaderboardResults } = this.state;
-    const isCasualModeEnabled = this.gameState.gameMode === GameMode.Casual
+    const casualmode = this.gameState.gameMode === GameMode.Casual;
     const { score } = this.stats;
-    if (isCasualModeEnabled) {
+    if (casualmode) {
       return false;
     }
     if (!leaderboardResults || !leaderboardResults.length) {
@@ -207,7 +207,8 @@ export class WinGameScene extends BaseScene {
   *action() {
     const { p5, coroutines } = this.props;
     const sfx = this.sfx;
-    const isCasualModeEnabled = this.gameState.gameMode === GameMode.Casual
+    const casualMode = this.gameState.gameMode === GameMode.Casual;
+    const arcadeMode = this.gameState.gameMode === GameMode.Arcade;
     const { score, numApplesEverEaten, numDeaths, totalGameTimeElapsed: totalTimeElapsed, numLevelsCleared } = this.stats;
     let playingChipSound = ""
 
@@ -224,7 +225,7 @@ export class WinGameScene extends BaseScene {
     sfx.play(Sound.xpound);
     yield* coroutines.waitForTime(500);
 
-    if (!isCasualModeEnabled) {
+    if (!casualMode) {
       this.fieldVisible[FIELD.POINTS] = true;
       sfx.play(Sound.xplode);
       yield* coroutines.waitForTime(200);
@@ -257,7 +258,7 @@ export class WinGameScene extends BaseScene {
     yield* this.incrementField(FIELD.APPLES, numApplesEverEaten, 700);
     yield* coroutines.waitForTime(500);
 
-    if (!isCasualModeEnabled) {
+    if (!casualMode) {
       this.fieldVisible[FIELD.DEATHS] = true;
       sfx.play(Sound.xplode);
       yield* coroutines.waitForTime(200);
@@ -287,7 +288,7 @@ export class WinGameScene extends BaseScene {
     });
 
     // show highscore entry
-    if (!isCasualModeEnabled && this.getHasHighscore()) {
+    if (arcadeMode && this.getHasHighscore()) {
       this.hideAllFields();
       this.fieldVisible[FIELD.HIGHSCORE_ENTRY] = true;
       const modalHighScoreEntry = this.modalHighScoreEntry;
@@ -332,7 +333,7 @@ export class WinGameScene extends BaseScene {
       }
       if (this.getHasHighscore()) {
         this.fieldVisible[FIELD.LEADERBOARD_HECK_YEAH] = true;
-      } else if (!isCasualModeEnabled) {
+      } else if (!casualMode) {
         this.fieldVisible[FIELD.LEADERBOARD_NON_QUALIFYING_SCORE] = true;
       }
     }
@@ -340,7 +341,7 @@ export class WinGameScene extends BaseScene {
     yield* coroutines.waitForTime(500);
 
     yield* coroutines.waitForEnterKey(() => {
-      if (this.getHasHighscore() || isCasualModeEnabled) {
+      if (this.getHasHighscore() || casualMode) {
         this.drawPressEnter(0.1);
       } else {
         this.drawPressEnter(0.125);
@@ -601,8 +602,8 @@ export class WinGameScene extends BaseScene {
 
   private drawHasHighscore = (yPos: number) => {
     const { p5, gfx, fonts } = this.props;
-    const { timeElapsed } = this.gameState;
-    const t = (timeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
+    const { actualTimeElapsed } = this.gameState;
+    const t = (actualTimeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
     const color = this.getColor(t, NEW_HIGHSCORE_COLORS);
     gfx.fill(color);
     gfx.stroke(Color(color).darken(0.4).hex());
@@ -615,8 +616,8 @@ export class WinGameScene extends BaseScene {
 
   private drawNewLabel = (x: number, y: number, align: P5.HORIZ_ALIGN = 'left') => {
     const { p5, gfx, fonts } = this.props;
-    const { timeElapsed } = this.gameState;
-    const t = (timeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
+    const { actualTimeElapsed } = this.gameState;
+    const t = (actualTimeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
     const color = this.getColor(t, NEW_HIGHSCORE_COLORS);
     // gfx.fill("#fff");
     gfx.fill(color);
@@ -631,15 +632,15 @@ export class WinGameScene extends BaseScene {
 
   private drawLeaderboard = () => {
     const { p5 } = this.props;
-    const { timeElapsed } = this.gameState;
-    const isCasualModeEnabled = this.gameState.gameMode === GameMode.Casual
+    const { actualTimeElapsed } = this.gameState;
+    const casualmode = this.gameState.gameMode === GameMode.Casual
     const { score } = this.stats;
     const newResult: HighScoreEntry = {
       id: "123",
       name: this.state.highscoreEntryName,
-      score: isCasualModeEnabled ? 0 : score,
+      score: casualmode ? 0 : score,
     }
-    const newResults = isCasualModeEnabled
+    const newResults = casualmode
       ? this.state.leaderboardResults
       : this.state.leaderboardResults.concat(newResult).sort((a, b) => {
         const diff = a.score - b.score;
@@ -647,7 +648,7 @@ export class WinGameScene extends BaseScene {
         return diff;
       }).reverse();
 
-    const tDeco = (Math.cos(timeElapsed / (HIGHSCORE_GRADIENT_CYCLE_TIME_MS * 2) * Math.PI) + 1) * 0.5;
+    const tDeco = (Math.cos(actualTimeElapsed / (HIGHSCORE_GRADIENT_CYCLE_TIME_MS * 2) * Math.PI) + 1) * 0.5;
     const decoOffset = 0.02 * tDeco;
     const fieldOptions = {
       strokeSize: 5,
@@ -662,7 +663,7 @@ export class WinGameScene extends BaseScene {
     for (let i = 0; i < newResults.length && i < 10; i++) {
       const result = newResults[i];
       if (newResult.id === result.id) {
-        const t = (timeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
+        const t = (actualTimeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
         const color0 = this.getColor(t, NEW_HIGHSCORE_COLORS);
         const color1 = Color(color0).darken(0.7).hex();
         const color2 = this.getColor(t + 0.1, NEW_HIGHSCORE_COLORS);
@@ -693,9 +694,9 @@ export class WinGameScene extends BaseScene {
   }
 
   private drawNonQualifyingScore = () => {
-    const { p5, gfx } = this.props;
+    const { gfx } = this.props;
     const { score } = this.stats;
-    const { timeElapsed } = this.gameState;
+    const { actualTimeElapsed } = this.gameState;
     const name = "YOUR SCORE"
     const yPos = 0.85;
     const fieldOptions = {
@@ -704,7 +705,7 @@ export class WinGameScene extends BaseScene {
       colLeft: 0.54,
       colRight: 0.58,
     }
-    const t = (timeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
+    const t = (actualTimeElapsed / HIGHSCORE_GRADIENT_CYCLE_TIME_MS) % 1;
     const color0 = this.getColor(t, NEW_HIGHSCORE_COLORS);
     this.drawField(name, score, yPos, {
       color0: color0,

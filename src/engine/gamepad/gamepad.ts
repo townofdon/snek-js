@@ -270,7 +270,7 @@ export function applyGamepadUIActions(
 
   const isGame = state.appMode === AppMode.Game && state.isGameStarted
 
-  if (isGame && !state.isLost && !state.isGameWon && wasPressedThisFrame(gamepad, Button.Start)) {
+  if (isGame && !state.isDeathIlluminating && !state.isLost && !state.isGameWon && wasPressedThisFrame(gamepad, Button.Start)) {
     if (state.isPaused) {
       callAction(InputAction.UnPause);
       return true;

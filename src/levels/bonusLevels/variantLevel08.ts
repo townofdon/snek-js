@@ -1,7 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { getCoordIndex2, toTime } from "../../utils";
-import { SECRET_LEVEL_20 } from "./secretLevel20";
 import { SECRET_LEVEL_21 } from "./secretLevel21";
 
 const name = 'boneyard';

@@ -1,7 +1,6 @@
 import { PALETTE, getExtendedPalette } from "../../palettes";
 import { Level, MusicTrack, ItemDropType, TitleVariant } from "../../types";
 import { toTime } from "../../utils";
-import { LEVEL_WIN_GAME } from "../winGame";
 
 const name = 'endurance';
 

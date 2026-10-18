@@ -1,5 +1,5 @@
 import { IS_LOCALHOST } from "@/constants";
-import { Episode, Level } from "../types";
+import { Episode, GameMode, Level } from "../types";
 import { shuffleArray } from "../utils";
 
 import { LEVEL_01 } from "./ep01/level01";
@@ -28,11 +28,12 @@ import { TUTORIAL_LEVEL_20 } from "./ep01/tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./ep01/tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "./ep01/tutorialLevel40";
 import { TUTORIAL_LEVEL_50 } from "./ep01/tutorialLevel50";
-import { CHALLENGE_LEVELS, LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS } from "./levelConstants";
+import { ARCADE_LEVELS, CHALLENGE_LEVELS, LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS, TUTORIAL_LEVELS } from "./levelConstants";
 import { LEVEL_WIN_GAME } from "./winGame";
 import { X_SNEKCITY } from "./ep02/snekcity";
 import { TUTORIAL_LEVEL_51 } from "./ep01/tutorialLevel51";
 import { LEVEL_16 } from "./ep01/level16";
+import { MAZE_04_LOOT_ROOM } from "./mazes/maze04-lootroom";
 
 export const REPLAY_LEVEL_INDEX = {
   1: LEVEL_01,
@@ -147,4 +148,28 @@ export function getLevelById(id: string): Level {
     if (pool[i].id === id) return pool[i];
   }
   return null;
+}
+
+export function getStartLevel(gameMode: GameMode, episode: Episode): Level {
+  switch (gameMode) {
+    case GameMode.Normal:
+      // fallthrough
+    case GameMode.Casual:
+      // fallthrough
+    case GameMode.Cobra:
+      switch (episode) {
+        case Episode.E1:
+          return LEVELS_EP_01[0];
+        case Episode.E2:
+          return LEVELS_EP_02[0];
+        case Episode.E3:
+          return LEVELS_EP_03[0];
+      }
+      return LEVELS_EP_01[0];
+    case GameMode.Arcade:
+      return ARCADE_LEVELS[0][0];
+    case GameMode.Tutorial:
+      return TUTORIAL_LEVELS[0];
+  }
+  return MAZE_04_LOOT_ROOM;
 }

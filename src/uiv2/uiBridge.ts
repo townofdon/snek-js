@@ -1,5 +1,7 @@
-import { SaveDataStore } from "@/stores/SaveDataStore";
-import { GameSettings, GameState, InputAction, UICancelHandler, UIInteractHandler, UINavDir, UINavEventHandler } from "@/types";
+import { DEFAULT_GAME_STATE } from "@/defaults";
+import { saveDataStore, SaveDataStore } from "@/stores/SaveDataStore";
+import { settings } from '@/stores/SettingsStore';
+import { GameSettings, GameState, InputAction, UICancelHandler, UIInteractHandler, UINavEventHandler } from "@/types";
 
 type HandlerKey = (
   | 'mainMenu'
@@ -29,9 +31,9 @@ interface BridgeProperties {
 }
 
 const bridgeProps: BridgeProperties = {
-  gameState: null,
-  saveDataStore: null,
-  settings: null,
+  gameState: { ...DEFAULT_GAME_STATE },
+  saveDataStore: saveDataStore,
+  settings: settings,
 } satisfies BridgeProperties
 
 export const bridge: Record<HandlerKey, BridgeHandler> & { callAction: CallAction | null } & BridgeProperties = {

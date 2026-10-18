@@ -156,6 +156,7 @@ export const sketch = (p5: P5) => {
     onUINavigate,
     onGameOver,
     onGameOverCobra: onGameOver,
+    onGameOverArcade: onGameOver,
     onRecordLevelProgress: () => {},
   });
 

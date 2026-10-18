@@ -36,6 +36,7 @@ export enum Action {
   Burnination = 'Burnination',
   EpicDeath = 'EpicDeath',
   BossTransition = 'BossTransition',
+  OpenDoors = 'OpenDoors',
 }
 
 export type ActionKey = keyof typeof Action

@@ -9,6 +9,10 @@ import {
   FIRST_CHALLENGE_LEVEL,
   CHALLENGE_LEVELS,
   NEXT_LEVEL_MAP,
+  ARCADE_LEVELS,
+  TUTORIAL_LEVELS,
+  LEVELS_EP_02,
+  LEVELS_EP_03,
 } from './levels/levelConstants';
 import {
   RECORD_REPLAY_STATE,
@@ -39,6 +43,7 @@ import {
   getNextRandomLevel,
   hydrateRandomLevels,
   REPLAY_LEVEL_INDEX,
+  getStartLevel,
 } from './levels/levelUtils';
 import {
   IEnumerator,
@@ -62,6 +67,7 @@ import {
   HeldItems,
   Initiator,
   ResolutionMode,
+  Level,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -209,6 +215,7 @@ export const sketch = (p5: P5) => {
     onUINavigate,
     onGameOver,
     onGameOverCobra,
+    onGameOverArcade,
     onRecordLevelProgress: saveDataStore.recordLevelCompletion,
   });
 
@@ -262,7 +269,7 @@ export const sketch = (p5: P5) => {
         break;
       case InputAction.StartGame:
         {
-          const levelId = String(p0 || '<empty>');
+          const levelId = String(p0 || '');
           startGame(levelId);
         }
         break;
@@ -367,7 +374,7 @@ export const sketch = (p5: P5) => {
           levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
           levelTimeProgress: state.timeElapsed,
           score: stats.score,
-          isCobra: state.gameMode === GameMode.Cobra,
+          mode: state.gameMode,
         });
       }
     })
@@ -509,13 +516,12 @@ export const sketch = (p5: P5) => {
     triggerFullscreenChange(settings.fullScreen);
 
     state.appMode = AppMode.Game;
+    state.gameMode = GameMode.Normal;
     state.episode = Episode.E1;
     state.isGameStarted = false;
     state.isGameStarting = false;
     state.isRandomizer = false;
-    if (state.gameMode === GameMode.Cobra) {
-      state.gameMode = GameMode.Normal;
-    }
+    state.levelIndex = 0;
     setLevel(MAIN_TITLE_SCREEN_LEVEL);
 
     musicPlayer.stopAllTracks();
@@ -580,13 +586,13 @@ export const sketch = (p5: P5) => {
     UI.showLevelSelectMenu();
   }
 
-  function startGame(levelId: string) {
+  function startGame(levelId: string | undefined) {
     if (!state.isPreloaded) return;
     if (state.isGameStarting) return;
-    if (!levelId) throw new Error('level id missing');
     playthroughId = uuid();
     state.isGameStarting = true;
     state.lives = MAX_LIVES;
+    levelsSeen = {};
     resetStats();
     UI.disableScreenScroll();
     setTimeout(() => {
@@ -597,7 +603,7 @@ export const sketch = (p5: P5) => {
     coroutines.start(startGameRoutine(levelId));
   }
 
-  function* startGameRoutine(levelId: string): IEnumerator {
+  function* startGameRoutine(levelId: string | undefined): IEnumerator {
     if (!settings.debug.disableTransitions) {
       yield* coroutines.waitForTime(1000, (t) => {
         const freq = .2;
@@ -611,12 +617,17 @@ export const sketch = (p5: P5) => {
     if (state.isRandomizer) {
       hydrateRandomLevels();
     }
-    state.nextLevel = getLevelById(levelId);
-    if (getIsChallengeLevel(state.nextLevel)) {
-      state.episode = Episode.E2;
+    state.nextLevel = levelId ? getLevelById(levelId) : null;
+    if (!state.nextLevel) {
+      state.nextLevel = getStartLevel(state.gameMode, state.episode);
     }
     setLevel(state.gameMode === GameMode.Cobra ? START_LEVEL_COBRA : START_LEVEL);
     setDifficulty(DIFFICULTY_EASY);
+    if (state.gameMode === GameMode.Tutorial) {
+      state.nextLevel = null;
+      setLevel(getStartLevel(GameMode.Tutorial, Episode.E1));
+      setDifficulty(DIFFICULTY_MEDIUM);
+    }
 
     setLevelIndexFromCurrentLevel();
     initLevel()
@@ -638,7 +649,7 @@ export const sketch = (p5: P5) => {
       levelProgress: 0,
       levelTimeProgress: 0,
       score: 0,
-      isCobra: state.gameMode === GameMode.Cobra,
+      mode: state.gameMode,
     });
   }
 
@@ -688,7 +699,7 @@ export const sketch = (p5: P5) => {
     resetLevel({ shouldShowTransitions, transition: titleScene, onTriggerWinGame });
 
     if (!state.isGameStarted && replay.mode === ReplayMode.Playback) {
-      startAction(mainTitleFader.setTitleVariant(getLevel().titleVariant ?? TitleVariant.GrayBlue), Action.SetTitleVariant, true);
+      startAction(mainTitleFader.setTitleVariant(getLevel()?.titleVariant ?? TitleVariant.GrayBlue), Action.SetTitleVariant, true);
     }
   }
 
@@ -700,11 +711,12 @@ export const sketch = (p5: P5) => {
 
   function handleRenderWinGameScene() {
     if (state.isInvertedColors) return;
+    if (state.isDeathIlluminating) return;
     if (replay.mode === ReplayMode.Playback) return;
-    if (state.isLost && state.gameMode !== GameMode.Cobra) return;
     if (!state.isGameStarted) return;
     const isCobraGameOver = state.isLost && state.gameMode === GameMode.Cobra;
-    if (state.isGameWon || isCobraGameOver) {
+    const isArcadeGameOver = state.isLost && state.gameMode === GameMode.Arcade;
+    if (state.isGameWon || isCobraGameOver || isArcadeGameOver) {
       winGameScene.draw();
     }
   }
@@ -720,7 +732,22 @@ export const sketch = (p5: P5) => {
       levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
       levelTimeProgress: state.timeElapsed,
       score: stats.score,
-      isCobra: state.gameMode === GameMode.Cobra,
+      mode: state.gameMode,
+    });
+  }
+
+  function onGameOverArcade() {
+    winGameScene.trigger();
+    UI.enableScreenScroll();
+    recordSnekalyticsEvent({
+      eventType: SNEKALYTICS_EVENT_TYPE.DEATH,
+      playthroughId,
+      difficulty: getDifficultyName(getDifficulty().index),
+      levelName: getLevel().name,
+      levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
+      levelTimeProgress: state.timeElapsed,
+      score: stats.score,
+      mode: state.gameMode,
     });
   }
 
@@ -737,7 +764,7 @@ export const sketch = (p5: P5) => {
       levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
       levelTimeProgress: state.timeElapsed,
       score: stats.score,
-      isCobra: state.gameMode === GameMode.Cobra,
+      mode: state.gameMode,
     });
   }
 
@@ -753,7 +780,7 @@ export const sketch = (p5: P5) => {
       levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
       levelTimeProgress: state.timeElapsed,
       score: stats.score,
-      isCobra: false,
+      mode: state.gameMode,
     });
     clearBackground();
     stats.numLevelsCleared = 0;
@@ -806,7 +833,7 @@ export const sketch = (p5: P5) => {
         levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
         levelTimeProgress: state.timeElapsed,
         score: stats.score,
-        isCobra: state.gameMode === GameMode.Cobra,
+        mode: state.gameMode,
       });
       modal.hide();
       showMainMenu();
@@ -873,6 +900,8 @@ export const sketch = (p5: P5) => {
     UI.showSettingsMenu();
   }
 
+  let levelsSeen: Record<string, boolean> = {};
+
   function gotoNextLevel() {
     if (replay.mode === ReplayMode.Playback) return;
 
@@ -881,35 +910,41 @@ export const sketch = (p5: P5) => {
     clearBackground();
 
     if (state.isGameWon) {
-      recordSnekalyticsEvent({
-        eventType: SNEKALYTICS_EVENT_TYPE.WIN_GAME,
-        playthroughId,
-        difficulty: getDifficultyName(getDifficulty().index),
-        levelName: getLevel().name,
-        levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
-        levelTimeProgress: state.timeElapsed,
-        score: stats.score,
-        isCobra: false,
-      });
-      resetStats();
-      state.gameMode = GameMode.Cobra;
-      state.nextLevel = null;
-      const nextDifficultyIndex = getDifficulty().index + 1;
-      setDifficulty(getDifficultyFromIndex(nextDifficultyIndex));
-      setLevel(START_LEVEL_COBRA);
-      setLevelIndexFromCurrentLevel();
-      if (state.episode === Episode.E1) {
-        state.nextLevel = FIRST_CHALLENGE_LEVEL;
-      }
-      saveDataStore.save({
-        currentLevelId: getLevel().id,
-        gameMode: state.gameMode,
-        difficulty: getDifficulty().index,
-        stats,
-        heldItems,
-      });
-      initLevel();
+      // TODO: GOTO NEXT EPISODE OR SHOW CREDITS
+      modal.hide();
+      showMainMenu();
+      sfx.play(Sound.doorOpen);
       return;
+      // recordSnekalyticsEvent({
+      //   eventType: SNEKALYTICS_EVENT_TYPE.WIN_GAME,
+      //   playthroughId,
+      //   difficulty: getDifficultyName(getDifficulty().index),
+      //   levelName: getLevel().name,
+      //   levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
+      //   levelTimeProgress: state.timeElapsed,
+      //   score: stats.score,
+      //   mode: state.gameMode,
+      // });
+      // resetStats();
+      // state.gameMode = GameMode.Cobra;
+      // state.nextLevel = null;
+      // const nextDifficultyIndex = getDifficulty().index + 1;
+      // setDifficulty(getDifficultyFromIndex(nextDifficultyIndex));
+      // setLevel(START_LEVEL_COBRA);
+      // setLevelIndexFromCurrentLevel();
+      // if (state.episode === Episode.E1) {
+      //   state.nextLevel = FIRST_CHALLENGE_LEVEL;
+      // }
+
+      // saveDataStore.save({
+      //   currentLevelId: getLevel().id,
+      //   gameMode: state.gameMode,
+      //   difficulty: getDifficulty().index,
+      //   stats,
+      //   heldItems,
+      // });
+      // initLevel();
+      // return;
     }
 
     if (state.isLost && state.gameMode === GameMode.Cobra) {
@@ -920,7 +955,14 @@ export const sketch = (p5: P5) => {
       return;
     }
 
-    if (getLevel() !== START_LEVEL && getLevel() !== START_LEVEL_COBRA) {
+    if (state.isLost && state.gameMode === GameMode.Arcade) {
+      winGameScene.reset();
+      resetStats();
+      showMainMenu();
+      return;
+    }
+
+    if (!state.isLost && getIsStartLevel()) {
       recordSnekalyticsEvent({
         eventType: SNEKALYTICS_EVENT_TYPE.WIN_LEVEL,
         playthroughId,
@@ -929,12 +971,11 @@ export const sketch = (p5: P5) => {
         levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
         levelTimeProgress: state.timeElapsed,
         score: stats.score,
-        isCobra: state.gameMode === GameMode.Cobra,
+        mode: state.gameMode,
       });
     }
 
     const level = getLevel();
-    const challengeLevelIndex = CHALLENGE_LEVELS.indexOf(level);
     const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !settings.debug.disableTransitions;
     stats.applesEatenThisLevel = 0;
     if (!getIsStartLevel()) {
@@ -942,16 +983,72 @@ export const sketch = (p5: P5) => {
       stats.numLevelsEverCleared += 1;
     }
 
+    if (state.gameMode === GameMode.Arcade && state.nextLevel) {
+      setLevel(state.nextLevel)
+      levelsSeen[state.nextLevel.id] = true;
+      state.nextLevel = null;
+      initLevel();
+      return;
+    }
+
+    if (state.gameMode === GameMode.Arcade) {
+      const level = getLevel();
+      if (level) { levelsSeen[level.id] = true; }
+      let tierIdx = ARCADE_LEVELS.findIndex(tier => tier.includes(level));
+      let candidates: Level[] = [];
+      for (let i = 0; candidates.length === 0 && i < 100; i++) {
+        candidates = ARCADE_LEVELS[tierIdx].filter(arclevel => !levelsSeen[arclevel.id]);
+        tierIdx++;
+        if (tierIdx === ARCADE_LEVELS.length && candidates.length === 0) {
+          tierIdx = 0;
+          levelsSeen = {};
+        }
+      }
+      let next: Level = null;
+      if (candidates.length === 0) {
+        levelsSeen = {};
+        next = getStartLevel(GameMode.Arcade, Episode.E1);
+      } else {
+        next = shuffleArray(candidates)[Math.floor(Math.random() * candidates.length)];
+      }
+
+      setLevel(next)
+      levelsSeen[next.id] = true;
+      state.nextLevel = null;
+
+      if (!getLevel()) {
+        stopLogicLoop();
+        throw new Error('level was not set.');
+      }
+
+      initLevel();
+      return;
+    }
+
+    if (state.gameMode === GameMode.Tutorial) {
+      const level = getLevel();
+      const idx = TUTORIAL_LEVELS.indexOf(level);
+      const nextLevel = TUTORIAL_LEVELS[(idx + 1) % TUTORIAL_LEVELS.length];
+      setLevel(nextLevel)
+      setLevelIndexFromCurrentLevel();
+      initLevel();
+      return;
+    }
+
     const nextLevel = state.isRandomizer ? getNextRandomLevel() : (state.nextLevel || NEXT_LEVEL_MAP[level.id] || undefined);
 
     if (nextLevel) {
       setLevel(nextLevel)
       setLevelIndexFromCurrentLevel();
-    } else if (getIsChallengeLevel(level) && challengeLevelIndex > -1) {
-      setLevel(CHALLENGE_LEVELS[(challengeLevelIndex + 1) % CHALLENGE_LEVELS.length]);
-    } else {
+    } else if (state.episode === Episode.E1) {
       state.levelIndex++;
       setLevel(LEVELS_EP_01[state.levelIndex % LEVELS_EP_01.length]);
+    } else if (state.episode === Episode.E2) {
+      state.levelIndex++;
+      setLevel(LEVELS_EP_02[state.levelIndex % LEVELS_EP_02.length]);
+    } else if (state.episode === Episode.E3) {
+      state.levelIndex++;
+      setLevel(LEVELS_EP_03[state.levelIndex % LEVELS_EP_03.length]);
     }
 
     state.nextLevel = null;

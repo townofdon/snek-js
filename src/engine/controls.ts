@@ -79,11 +79,16 @@ export function handleKeyPressed(
   }
 
   if (state.isLost && state.timeSinceHurt > 200) {
-    if (keyCode === ENTER && state.gameMode !== GameMode.Cobra) callAction(InputAction.RetryLevel);
+    if (keyCode === ENTER && state.gameMode !== GameMode.Cobra && state.gameMode !== GameMode.Arcade) callAction(InputAction.RetryLevel);
     return;
   }
 
-  if (!state.isLost && !state.isGameWon && [ENTER, ESCAPE, KEYCODE_ALPHA_P].includes(keyCode)) {
+  const pauseKeyPressed = (false
+    || ENTER === keyCode
+    || ESCAPE === keyCode
+    || KEYCODE_ALPHA_P === keyCode
+  );
+  if (!state.isDeathIlluminating && !state.isLost && !state.isGameWon && pauseKeyPressed) {
     if (state.isPaused) {
       callAction(InputAction.UnPause);
     } else {

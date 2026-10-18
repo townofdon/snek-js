@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { bridge } from "./uiBridge";
-import { GameMode, InputAction, UINavDir } from "@/types";
+import { Episode, GameMode, InputAction, UINavDir } from "@/types";
 import { useForceRerender } from "./hooks/useForceRerender";
 import { GameModeMenuElement, GameModeMenuNavMap } from "@/ui/uiNavMap";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
@@ -106,7 +106,8 @@ export const GameModeMenu = () => {
         return gameModeMenuNavMap.current.callSelected();
       }
       bridge.gameModeMenu.onCancel = () => {
-        return false;
+        bridge.callAction(InputAction.HideGameModeMenu);
+        return true;
       }
     } else {
       bridge.gameModeMenu.onNavigate = null;
@@ -128,6 +129,7 @@ export const GameModeMenu = () => {
     if (disabled) return;
     setActiveId(GameModeMenuElement.Campaign);
     bridge.gameState.gameMode = GameMode.Normal;
+    bridge.gameState.episode = Episode.E1;
     bridge.callAction(InputAction.StartGame);
     // TODO: SHOW CAMPAIGN MENU INSTEAD
     // bridge.callAction(InputAction.ShowCampaignMenu);
@@ -137,6 +139,7 @@ export const GameModeMenu = () => {
     if (disabled) return;
     setActiveId(GameModeMenuElement.Arcade);
     bridge.gameState.gameMode = GameMode.Arcade;
+    bridge.gameState.episode = Episode.E1;
     bridge.callAction(InputAction.StartGame);
   }
 
@@ -144,6 +147,7 @@ export const GameModeMenu = () => {
     if (disabled) return;
     setActiveId(GameModeMenuElement.Tutorial);
     bridge.gameState.gameMode = GameMode.Tutorial;
+    bridge.gameState.episode = Episode.E1;
     bridge.callAction(InputAction.StartGame);
   }
 

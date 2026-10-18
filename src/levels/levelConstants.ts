@@ -96,6 +96,9 @@ import { WARP_ZONE_01 } from "./bonusLevels/warpZone01";
 import { WARP_ZONE_02 } from "./bonusLevels/warpZone02";
 import { WARP_ZONE_03 } from "./bonusLevels/warpZone03";
 import { LEVEL_01_D } from "./ep01/level01d";
+import { LEVEL_ARENA_01 } from "./arena/arena01";
+import { LEVEL_ARENA_02 } from "./arena/arena02";
+import { TUTORIAL_LEVEL_00 } from "./ep01/tutorialLevel00";
 
 const LEVEL_BOSS_MAP = {
   [BOSS_LEVEL_THE_TECHNICIAN.id]: TheTechnician,
@@ -157,6 +160,36 @@ export const SECRET_LEVEL_MAP: Record<string, SecretLevelMapping> = {
   },
 }
 
+export const TUTORIAL_LEVELS = [
+  TUTORIAL_LEVEL_00,
+  TUTORIAL_LEVEL_10,
+  TUTORIAL_LEVEL_11,
+  TUTORIAL_LEVEL_50,
+  TUTORIAL_LEVEL_30,
+  TUTORIAL_LEVEL_40,
+  // TODO: ADD DEDICATED TUTORIAL END
+  LEVEL_WIN_GAME,
+];
+
+export const ARCADE_LEVELS = [
+  [LEVEL_ARENA_01],
+  [LEVEL_03, LEVEL_04, LEVEL_05, LEVEL_08],
+  [LEVEL_ARENA_02],
+  [LEVEL_06, LEVEL_07, LEVEL_09, VARIANT_LEVEL_10],
+  [LEVEL_ARENA_02 /* TODO: ADD ARENA */ ],
+  [LEVEL_12, LEVEL_13, LEVEL_14, LEVEL_15],
+  [LEVEL_ARENA_02 /* TODO: ADD ARENA */ ],
+  [LEVEL_19, LEVEL_20, VARIANT_LEVEL_99],
+  [LEVEL_ARENA_02 /* TODO: ADD ARENA */ ],
+  [VARIANT_LEVEL_05, VARIANT_LEVEL_08, MAZE_03_STORAGE],
+  [LEVEL_ARENA_02 /* TODO: ADD ARENA */ ],
+  [X_DIGIN, X_FORTITUDE, X_GUARDIAN, X_TOO_SIMPLE],
+  [LEVEL_ARENA_02 /* TODO: ADD ARENA */ ],
+  [X_GAUNTLET, X_FUELDEPOT, X_MECHANICAL_ROOM],
+  [LEVEL_ARENA_02 /* TODO: ADD ARENA */ ],
+  [X_POINTTAKEN, X_WALLCRUSHER, X_DETHRATTLE],
+]
+
 export const SELECTABLE_LEVELS_EP_01: Level[] = [
   LEVEL_01,
   TUTORIAL_LEVEL_10,
@@ -191,7 +224,6 @@ export const SELECTABLE_LEVELS_EP_01: Level[] = [
 export const EXTENDED_LEVELS_EP_01: Level[] = [];
 
 export const LEVELS_EP_01: Level[] = [
-  MAZE_01,
   ...SELECTABLE_LEVELS_EP_01,
   LEVEL_WIN_GAME,
 ];
