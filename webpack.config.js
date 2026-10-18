@@ -61,6 +61,8 @@ module.exports = (env) => {
                 "**/graphics/*.ase",
                 "**/graphics/*.ppd",
                 "**/graphics/promo",
+                "**/graphics/_promo",
+                "**/graphics/_reference",
                 "**/sounds/*.aup3",
                 "**/sounds/*.aup3-shm",
                 "**/sounds/*.aup3-wal",
