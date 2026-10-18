@@ -24,6 +24,7 @@ enum ActiveMenu {
   SettingsMenu,
   GameModeMenu,
   LevelSelectMenu,
+  SaveSlotMenu,
 }
 
 export class UI {
@@ -33,6 +34,7 @@ export class UI {
   static getIsSettingsMenuShowing = () => UI.activeMenu === ActiveMenu.SettingsMenu;
   static getIsGameModeMenuShowing = () => UI.activeMenu === ActiveMenu.GameModeMenu;
   static getIsLevelSelectMenuShowing = () => UI.activeMenu === ActiveMenu.LevelSelectMenu;
+  static getIsSaveSlotMenuShowing = () => UI.activeMenu === ActiveMenu.SaveSlotMenu;
 
   static init() {
     $GAME.style.width = String(DIMENSIONS.x) + 'px';
@@ -141,6 +143,21 @@ export class UI {
       UI.activeMenu = ActiveMenu.None;
     }
     emitUIEvent(InputAction.HideLevelSelectMenu, Initiator.UI);
+  }
+
+  static showSaveSlotMenu() {
+    if (UI.getIsSaveSlotMenuShowing()) {
+      return;
+    }
+    UI.activeMenu = ActiveMenu.SaveSlotMenu;
+    emitUIEvent(InputAction.ShowSaveSlotMenu, Initiator.UI);
+  }
+
+  static hideSaveSlotMenu() {
+    if (UI.getIsSaveSlotMenuShowing()) {
+      UI.activeMenu = ActiveMenu.None;
+    }
+    emitUIEvent(InputAction.HideSaveSlotMenu, Initiator.UI);
   }
 
   static showLoader(yPos: number) {

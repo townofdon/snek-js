@@ -267,6 +267,12 @@ export const sketch = (p5: P5) => {
       case InputAction.HideLevelSelectMenu:
         if (!state.isGameStarted) showGameModeMenu();
         break;
+      case InputAction.ShowSaveSlotMenu:
+        if (!state.isGameStarted) showSaveSlotMenu();
+        break;
+      case InputAction.HideSaveSlotMenu:
+        if (!state.isGameStarted) showGameModeMenu();
+        break;
       case InputAction.StartGame:
         {
           const levelId = String(p0 || '');
@@ -584,6 +590,12 @@ export const sketch = (p5: P5) => {
     playSound(Sound.unlock, 1, true);
     UI.hideGameModeMenu();
     UI.showLevelSelectMenu();
+  }
+
+  function showSaveSlotMenu() {
+    playSound(Sound.unlock, 1, true);
+    UI.hideGameModeMenu();
+    UI.showSaveSlotMenu();
   }
 
   function startGame(levelId: string | undefined) {

@@ -1,11 +1,6 @@
 import { UI } from "./ui";
 import { ACCENT_COLOR } from '../constants';
 
-interface GameOverCallbacks {
-  confirmShowMainMenu: () => void
-  initLevel(shouldShowTransitions?: boolean): void
-}
-
 export function showGameOverUI(loseMessage: string, uiElements: HTMLElement[]) {
   const yInit = 160;
   const padding = 72;
