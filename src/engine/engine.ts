@@ -202,7 +202,7 @@ import { engineRendering } from './engineComponents/rendering';
 import { engineSpawning } from './engineComponents/spawning';
 import { BossConstructorArgs } from '@/boss/BaseBoss';
 import { engineLogic } from './engineComponents/logic';
-import { canAchieve, checkAchievementForDeath, checkAchievementForLevelCompletion, checkAchievementForLevelReached, checkArcadeAchievement } from '@/achievements';
+import { allowAchievements, checkAchievementForDeath, checkAchievementForLevelCompletion, checkAchievementForLevelReached, checkArcadeAchievement } from '@/achievements';
 
 interface EngineParams {
   p5: P5,
@@ -1004,7 +1004,7 @@ export function engine({
           resumeAudioContext().then(() => {
             musicPlayer.play(es.level.musicTrack);
           });
-          if (canAchieve(state, replay.mode)) {
+          if (allowAchievements(state, replay.mode)) {
             checkAchievementForLevelReached({
               levelId: es.level.id,
               episode: state.episode,
@@ -1033,7 +1033,7 @@ export function engine({
           renderScoreUI();
           renderLevelName();
           UI.showGfxCanvas();
-          if (canAchieve(state, replay.mode)) {
+          if (allowAchievements(state, replay.mode)) {
             checkAchievementForLevelReached({
               levelId: es.level.id,
               episode: state.episode,
@@ -1356,7 +1356,7 @@ export function engine({
       didEat = true;
     }
 
-    if (didEat && state.gameMode === GameMode.Arcade && canAchieve(state, replay.mode)) {
+    if (didEat && state.gameMode === GameMode.Arcade && allowAchievements(state, replay.mode)) {
       checkArcadeAchievement(stats.score, stats.totalGameTimeElapsed)
     }
 
@@ -2650,7 +2650,7 @@ export function engine({
 
     if (shouldRecordLevelCompletion) {
       onRecordLevelProgress(levelToSave.id, es.difficulty.index, perfect, stats.totalLevelTimeElapsed);
-      if (canAchieve(state, replay.mode)) {
+      if (allowAchievements(state, replay.mode)) {
         checkAchievementForLevelCompletion({
           levelId: es.level.id,
           episode: state.episode,
@@ -3629,7 +3629,7 @@ export function engine({
     }
     coroutines.start(showGameOverRoutine());
     maybeSaveReplayStateToFile();
-    if (canAchieve(state, replay.mode)) {
+    if (allowAchievements(state, replay.mode)) {
       checkAchievementForDeath(state.lastHurtBy, state.isTrapped);
     }
   }

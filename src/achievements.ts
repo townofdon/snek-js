@@ -42,7 +42,7 @@ export function unlockAchievement(achievement: Achievement) {
   EE.emit(AchievementEvent, achievement);
 }
 
-export function canAchieve(state: GameState, replayMode: ReplayMode) {
+export function allowAchievements(state: GameState, replayMode: ReplayMode) {
   if (replayMode === ReplayMode.Playback) {
     return false;
   }
@@ -106,7 +106,7 @@ export function checkAchievementForDeath(damage: DamageType, isTrapped: boolean)
     unlockAchievement(Achievement.DieFromTrappedSelf);
   }
 
-  if (damage === DamageType.HitLock) {
+  if (!isTrapped && damage === DamageType.HitLock) {
     unlockAchievement(Achievement.DieFromHitLockedGate);
   }
 
@@ -144,9 +144,6 @@ export interface GameCompletionStats {
  * Check if an achievement has been unlocked when beating the game (all 3 episodes).
  */
 export function checkAchievementForGameCompletion(completion: GameCompletionStats, stats: Stats) {
-  // SpeedRun = 300,
-  // SpeedRunDeathless = 310,
-  // SpeedRunUltraCobra = 320,
   unlockAchievement(Achievement.BeatGame);
 
   if (completion.difficultyIndex === 3) {
