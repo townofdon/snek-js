@@ -17,8 +17,7 @@ import {
   PauseMenuElement,
   PauseMenuNavMap,
 } from './uiNavMap';
-import { UI } from './ui';
-import { unsubscribeOnUIEvent, onUIEvent, emitUIEvent } from './uiEvents';
+import { emitUIEvent } from './uiEvents';
 import { bridge } from '@/uiv2/uiBridge';
 import { SaveDataStore } from '@/stores/SaveDataStore';
 
@@ -63,22 +62,24 @@ export class UIBindings implements UIHandler {
     bridge.saveDataStore = saveDataStore;
     this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
     this.gameOverMenuNavMap = new GameOverMenuNavMap(this.callGameOverMenuAction);
-    onUIEvent(this.handleUIEvent);
     window.addEventListener('blur', this.handleWindowBlur);
   }
 
   handleUINavigation: UINavEventHandler = (navDir) => {
-    if (UI.getIsLevelSelectMenuShowing()) {
+    if (bridge.levelSelectMenu.showing) {
       return bridge.levelSelectMenu?.onNavigate?.(navDir) || false;
     }
-    if (UI.getIsSettingsMenuShowing()) {
+    if (bridge.settingsMenu.showing) {
       return bridge.settingsMenu?.onNavigate?.(navDir) || false;
     }
-    if (UI.getIsMainMenuShowing()) {
-      return bridge.mainMenu?.onNavigate?.(navDir) || false;
-    }
-    if (UI.getIsGameModeMenuShowing()) {
+    if (bridge.gameModeMenu.showing) {
       return bridge.gameModeMenu?.onNavigate?.(navDir) || false;
+    }
+    if (bridge.saveSlotMenu.showing) {
+      return bridge.saveSlotMenu?.onNavigate?.(navDir) || false;
+    }
+    if (bridge.mainMenu.showing) {
+      return bridge.mainMenu?.onNavigate?.(navDir) || false;
     }
     if (this.gameState.isLost) {
       switch (navDir) {
@@ -128,17 +129,20 @@ export class UIBindings implements UIHandler {
   }
 
   handleUIInteract: UIInteractHandler = () => {
-    if (UI.getIsLevelSelectMenuShowing()) {
+    if (bridge.levelSelectMenu.showing) {
       return bridge.levelSelectMenu?.onInteract?.() || false;
     }
-    if (UI.getIsSettingsMenuShowing()) {
+    if (bridge.settingsMenu.showing) {
       return bridge.settingsMenu?.onInteract?.() || false;
     }
-    if (UI.getIsMainMenuShowing()) {
-      return bridge.mainMenu?.onInteract?.() || false;
-    }
-    if (UI.getIsGameModeMenuShowing()) {
+    if (bridge.gameModeMenu.showing) {
       return bridge.gameModeMenu?.onInteract?.() || false;
+    }
+    if (bridge.saveSlotMenu.showing) {
+      return bridge.saveSlotMenu?.onInteract?.() || false;
+    }
+    if (bridge.mainMenu.showing) {
+      return bridge.mainMenu?.onInteract?.() || false;
     }
     if (this.gameState.isLost) {
       return this.gameOverMenuNavMap.callSelected();
@@ -153,14 +157,17 @@ export class UIBindings implements UIHandler {
   }
 
   handleUICancel: UICancelHandler = () => {
-    if (UI.getIsLevelSelectMenuShowing()) {
+    if (bridge.levelSelectMenu.showing) {
       return bridge.levelSelectMenu?.onCancel?.() || false;
     }
-    if (UI.getIsSettingsMenuShowing()) {
+    if (bridge.settingsMenu.showing) {
       return bridge.settingsMenu?.onCancel?.() || false;
     }
-    if (UI.getIsGameModeMenuShowing()) {
+    if (bridge.gameModeMenu.showing) {
       return bridge.gameModeMenu?.onCancel?.() || false;
+    }
+    if (bridge.saveSlotMenu.showing) {
+      return bridge.saveSlotMenu?.onCancel?.() || false;
     }
     if (this.gameState.isPaused) {
       if (bridge.debugMenu.onCancel?.()) {
@@ -173,25 +180,25 @@ export class UIBindings implements UIHandler {
   }
 
   onPause = () => {
-    if (this.gameState.isPaused && !UI.getIsSettingsMenuShowing() && !UI.getIsMainMenuShowing()) {
+    if (this.gameState.isPaused && !bridge.settingsMenu.showing && !bridge.mainMenu.showing) {
       this.pauseMenuNavMap.gotoFirst();
     }
   }
 
   onPauseCancelModal = () => {
-    if (this.gameState.isPaused && !UI.getIsSettingsMenuShowing() && !UI.getIsMainMenuShowing()) {
+    if (this.gameState.isPaused && !bridge.settingsMenu.showing && !bridge.mainMenu.showing) {
       this.pauseMenuNavMap.gotoCurrent();
     }
   }
 
   onGameOver = () => {
-    if (this.gameState.isLost && !UI.getIsSettingsMenuShowing() && !UI.getIsMainMenuShowing()) {
+    if (this.gameState.isLost && !bridge.settingsMenu.showing && !bridge.mainMenu.showing) {
       this.gameOverMenuNavMap.gotoFirst();
     }
   }
 
   onGameOverCancelModal = () => {
-    if (this.gameState.isLost && !UI.getIsSettingsMenuShowing() && !UI.getIsMainMenuShowing()) {
+    if (this.gameState.isLost && !bridge.settingsMenu.showing && !bridge.mainMenu.showing) {
       this.gameOverMenuNavMap.gotoCurrent();
     }
   }
@@ -200,19 +207,7 @@ export class UIBindings implements UIHandler {
     emitUIEvent(InputAction.ForceRerender, Initiator.UI);
   }
 
-  private handleUIEvent = (action: InputAction = InputAction.None) => {
-    // silence is golden
-  }
-
-  public cleanup = () => {
-    unsubscribeOnUIEvent(this.handleUIEvent);
-    // this.handleUIEvent(InputAction.Cleanup);
-    // document.removeEventListener('keydown', this.overrideEscapeKeydown);
-    window.removeEventListener('blur', this.handleWindowBlur);
-  }
-
-  public setStartButtonVisibility = (visible: boolean, levelId: string) => {
-    const { isRandomizer } = this.gameState;
+  public setStartButtonVisibility = (visible: boolean) => {
     if (visible) {
       emitUIEvent(InputAction.ButtonBlinkOn, Initiator.UI);
     } else {

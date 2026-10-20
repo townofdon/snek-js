@@ -1,6 +1,5 @@
 import { IS_LOCALHOST } from "@/constants";
 import { Episode, GameMode, Level } from "../types";
-import { shuffleArray } from "../utils";
 
 import { LEVEL_01 } from "./ep01/level01";
 import { LEVEL_02 } from "./ep01/level02";
@@ -28,8 +27,7 @@ import { TUTORIAL_LEVEL_20 } from "./ep01/tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./ep01/tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "./ep01/tutorialLevel40";
 import { TUTORIAL_LEVEL_50 } from "./ep01/tutorialLevel50";
-import { ARCADE_LEVELS, CHALLENGE_LEVELS, LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS, TUTORIAL_LEVELS } from "./levelConstants";
-import { LEVEL_WIN_GAME } from "./winGame";
+import { ALL_LEVELS, ARCADE_LEVELS, LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS, TUTORIAL_LEVELS } from "./levelConstants";
 import { X_SNEKCITY } from "./ep02/snekcity";
 import { TUTORIAL_LEVEL_51 } from "./ep01/tutorialLevel51";
 import { LEVEL_16 } from "./ep01/level16";
@@ -68,13 +66,6 @@ export const REPLAY_LEVEL_INDEX = {
 
 export const START_CHALLENGE_LEVEL_ID = X_SNEKCITY.id;
 
-// TODO: REMOVE IN FAVOR OF getEpisodeFromLevel()
-export function getIsChallengeLevel(level: Level) {
-  if (!level) return false;
-  return LEVELS_EP_02.includes(level);
-  // return level.id.length && level.id[0].toLowerCase() === 'x';
-}
-
 export function getEpisodeFromLevel(level: Level) {
   if (!level) return Episode.None;
   if (LEVELS_EP_01.includes(level)) return Episode.E1;
@@ -83,43 +74,10 @@ export function getEpisodeFromLevel(level: Level) {
   return Episode.None;
 }
 
-export function hydrateRandomLevels() {
-  let pool = [
-    ...LEVELS_EP_01,
-    ...SECRET_LEVELS,
-    ...CHALLENGE_LEVELS,
-  ].filter(level => !!level.id);
-  for (let i = 0; i < 5; i++) {
-    pool = shuffleArray(pool);
-  }
-  randomLevels = pool.slice(0, 20);
-}
-
-let randomLevels: Level[] = [];
-hydrateRandomLevels();
-
-export function getNumRandomLevelsRemaining() {
-  return randomLevels.length;
-}
-
-export function getNextRandomLevel(): Level | null {
-  if (!randomLevels.length) {
-    hydrateRandomLevels();
-    return LEVEL_WIN_GAME;
-  }
-  const level = randomLevels.shift();
-  return level;
-}
-
 export function validateLevels() {
   if (!IS_LOCALHOST) return;
   const idMap: Record<string, Level> = {};
-  [
-    ...LEVELS_EP_01,
-    ...LEVELS_EP_02,
-    ...LEVELS_EP_03,
-    ...SECRET_LEVELS,
-  ].forEach(level => {
+  ALL_LEVELS.forEach(level => {
     // validate level ID
     if (!level.id) {
       throw new Error(`level "${level.name}" (${level.id}) has no ID!`);
@@ -136,18 +94,13 @@ export function validateLevels() {
  */
 export function getLevelById(id: string): Level {
   if (!id) {
-    throw new Error(`unable to find level for id=${id || '<empty>'}`);
+    throw new Error(`getLevelById: id missing`);
   }
-  const pool = [
-    ...LEVELS_EP_01,
-    ...LEVELS_EP_02,
-    ...LEVELS_EP_03,
-    ...SECRET_LEVELS,
-  ];
+  const pool = ALL_LEVELS;
   for (let i = 0; i < pool.length; i++) {
     if (pool[i].id === id) return pool[i];
   }
-  return null;
+  throw new Error(`unable to find level for id=${id || '<empty>'}`);
 }
 
 export function getStartLevel(gameMode: GameMode, episode: Episode): Level {

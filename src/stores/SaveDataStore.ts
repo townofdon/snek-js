@@ -1,6 +1,6 @@
 import { DIFFICULTY_EASY } from "@/constants";
-import { DEFAULT_HELD_ITEMS, DEFAULT_BASE_STATS, DEFAULT_WEARABLES_UNLOCKED } from "@/defaults";
-import { DifficultyIndex, GameMode, LevelCompletion, LevelId, SaveData, SaveSlot, SaveSlotData, WearableFrame } from "../types";
+import { DEFAULT_HELD_ITEMS, DEFAULT_BASE_STATS, DEFAULT_WEARABLES_UNLOCKED, DEFAULT_OUTFIT } from "@/defaults";
+import { Achievement, DifficultyIndex, Episode, GameMode, LevelCompletion, LevelId, SaveData, SaveSlot, SaveSlotData, WearableFrame } from "../types";
 import { BaseStore } from "./BaseStore";
 
 class SaveDataStoreImpl extends BaseStore<SaveData> {
@@ -9,9 +9,10 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
   private readonly defaultValue: SaveData = {
     isCobraModeUnlocked: false,
     completion: {},
-    slot0: null,
+    achievements: {},
     slot1: null,
     slot2: null,
+    slot3: null,
   } satisfies SaveData;
 
   private state: SaveData = {
@@ -26,14 +27,14 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
     this.setStore(this.state);
   };
 
-  private getSlot = (slot: SaveSlot): SaveSlotData => {
+  public getSlot = (slot: SaveSlot): SaveSlotData => {
     switch (slot) {
-      case SaveSlot.Slot0:
-        return this.state.slot0;
       case SaveSlot.Slot1:
         return this.state.slot1;
       case SaveSlot.Slot2:
         return this.state.slot2;
+      case SaveSlot.Slot3:
+        return this.state.slot3;
       case SaveSlot.Unset:
       default:
         return null;
@@ -42,14 +43,14 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
 
   private setSlot = (slot: SaveSlot, data: SaveSlotData) => {
     switch (slot) {
-      case SaveSlot.Slot0:
-        this.set({ slot0: data });
-        break;
       case SaveSlot.Slot1:
         this.set({ slot1: data });
         break;
       case SaveSlot.Slot2:
         this.set({ slot2: data });
+        break;
+      case SaveSlot.Slot3:
+        this.set({ slot3: data });
         break;
       case SaveSlot.Unset:
       default:
@@ -58,17 +59,27 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
   }
 
   public getIsSlotUsed = (slot: SaveSlot): boolean => {
-    return !!this.getSlot(slot)?.currentLevelId;
+    return !!this.getSlot(slot)?.lastLevelId;
   };
 
-  public newSaveSlot = (slot: SaveSlot, gameMode: GameMode) => {
+  public setCurrentSaveSlot = (slot: SaveSlot) => {
+    this.currentSlot = slot;
+  }
+
+  public clearCurrentSaveSlot = () => {
+    this.currentSlot = SaveSlot.Unset;
+  }
+
+  public newSaveSlot = (slot: SaveSlot, gameMode: GameMode, levelId: string, episode: Episode) => {
     const newSlotData = {
-      currentLevelId: '',
+      lastLevelId: levelId,
+      episode,
       gameMode,
       difficulty: DIFFICULTY_EASY.index,
       wearablesUnlocked: { ...DEFAULT_WEARABLES_UNLOCKED },
       stats: { ...DEFAULT_BASE_STATS },
       heldItems: { ...DEFAULT_HELD_ITEMS },
+      outfit: { ...DEFAULT_OUTFIT },
     } satisfies SaveSlotData;
     this.currentSlot = slot;
     this.setSlot(slot, newSlotData);
@@ -82,23 +93,21 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
     const slot = this.currentSlot;
     if (slot) {
       this.setSlot(slot, null);
-    } else {
-      console.error(`[SaveDataStore] Save slot is unset: ${slot}`)
     }
   }
 
-  public save = async (incoming: Omit<SaveSlotData, 'wearablesUnlocked'>) => {
-    // TODO: enable save slots
-    return;
+  public save = async (incoming: Omit<SaveSlotData, 'wearablesUnlocked' | 'outfit'>) => {
     const slot = this.currentSlot;
     if (!slot) {
       throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
     }
+    const saveSlotData = this.getSlot(slot);
     const data = {
-      currentLevelId: incoming.currentLevelId,
+      ...saveSlotData,
+      lastLevelId: incoming.lastLevelId,
+      episode: incoming.episode,
       gameMode: incoming.gameMode,
       difficulty: incoming.difficulty,
-      wearablesUnlocked: this.getSlot(slot).wearablesUnlocked,
       stats: { ...incoming.stats },
       heldItems: { ...incoming.heldItems },
     } satisfies SaveSlotData;
@@ -118,7 +127,19 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
     this.setSlot(slot, data);
   }
 
-  public getUnlockedWearables = (): WearableFrame[] => {
+  public getUnlockedWearables = (): Partial<Record<WearableFrame, boolean>> => {
+    const slot = this.currentSlot;
+    if (!slot) {
+      throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
+    }
+    const data = this.getSlot(slot);
+    if (!data) {
+      return {};
+    }
+    return data.wearablesUnlocked;
+  }
+
+  public getUnlockedWearablesList = (): WearableFrame[] => {
     const slot = this.currentSlot;
     if (!slot) {
       throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
@@ -147,6 +168,15 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
   public unlockCobraMode = () => {
     this.state.isCobraModeUnlocked = true;
     this.setStore(this.state);
+  }
+
+  public getAchievements = () => ({ ...this.state.achievements, });
+
+  public setAchievement = (achievement: Achievement) => {
+    if (!achievement) return;
+    const achievements = this.state.achievements;
+    achievements[achievement] = true;
+    this.set({ achievements });
   }
 
   public recordLevelCompletion = (levelId: LevelId | undefined, difficultyIndex: DifficultyIndex, perfect: boolean, time: number) => {

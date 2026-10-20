@@ -77,6 +77,7 @@ export const SettingsMenu = () => {
 
   useEffect(() => {
     if (showing && elements[SettingsMenuElement.CheckboxDisableScreenshake].current) {
+      bridge.settingsMenu.showing = true;
       const settingsMenuElements: Record<SettingsMenuElement, HTMLInputElement | HTMLButtonElement> = {
         [SettingsMenuElement.CheckboxCasualMode]: elements[SettingsMenuElement.CheckboxCasualMode].current,
         [SettingsMenuElement.CheckboxCobraMode]: elements[SettingsMenuElement.CheckboxCobraMode].current,
@@ -148,6 +149,7 @@ export const SettingsMenu = () => {
         return true;
       };
     } else {
+      bridge.settingsMenu.showing = false;
       bridge.settingsMenu.onNavigate = null;
       bridge.settingsMenu.onInteract = null;
       bridge.settingsMenu.onCancel = null;

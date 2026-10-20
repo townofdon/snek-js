@@ -119,6 +119,17 @@ export function getLevelBoss(level: Level, bossArgs: BossConstructorArgs): Boss 
   return new boss(bossArgs) satisfies Boss;
 }
 
+const dedupe = (levels: Level[]) => {
+  const seen = new Map<Level, boolean>();
+  const uniq: Level[] = [];
+  levels.filter(v => !!v).forEach(level => {
+    if (seen.get(level)) return;
+    uniq.push(level);
+    seen.set(level, true);
+  });
+  return uniq;
+}
+
 export const NEXT_LEVEL_MAP: Record<string, Level> = {
   // EP_01
   [LEVEL_01_HARD.id]: TUTORIAL_LEVEL_10,
@@ -290,9 +301,6 @@ export const CAMPAIGN_LEVELS_EP_02 = LEVELS_EP_02.filter(countableLevel);
 export const CAMPAIGN_LEVELS_EP_03 = LEVELS_EP_03.filter(countableLevel);
 
 export const SECRET_LEVELS = [
-  LEVEL_01_HARD,
-  LEVEL_01_ULTRA,
-  LEVEL_01_D,
   SECRET_LEVEL_10,
   SECRET_LEVEL_20,
   SECRET_LEVEL_21,
@@ -313,6 +321,31 @@ export const SECRET_LEVELS = [
   WARP_ZONE_01,
   WARP_ZONE_02,
   WARP_ZONE_03,
+];
+
+export const ALL_LEVELS = dedupe([
+  LEVEL_01_HARD,
+  LEVEL_01_ULTRA,
+  LEVEL_01_D,
+  MAZE_01,
+  MAZE_01_COBRA,
+  ...TUTORIAL_LEVELS,
+  ...SECRET_LEVELS,
+  ...LEVELS_EP_01,
+  ...LEVELS_EP_02,
+  ...LEVELS_EP_03,
+  LEVEL_ARENA_01,
+  LEVEL_ARENA_02,
+]);
+
+export const EDITOR_LEVELS = [
+  ...LEVELS_EP_01,
+  LEVEL_01_HARD,
+  LEVEL_01_ULTRA,
+  LEVEL_01_D,
+  ...SECRET_LEVELS,
+  ...LEVELS_EP_02,
+  ...LEVELS_EP_03,
 ];
 
 export const CHALLENGE_LEVELS: Level[] = [

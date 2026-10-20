@@ -7,6 +7,7 @@ export const recordSnekalyticsEvent = (event: {
   eventType: SNEKALYTICS_EVENT_TYPE,
   playthroughId: string,
   difficulty: string,
+  episode: string,
   levelName: string,
   levelProgress: Number,
   levelTimeProgress: Number,

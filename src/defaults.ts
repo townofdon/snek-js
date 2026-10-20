@@ -15,13 +15,13 @@ import {
   WearableFrame,
   ActionKey,
   Action,
+  Stats,
 } from "./types";
 
 export const DEFAULT_GAME_STATE: GameState = {
   appMode: AppMode.StartScreen,
   gameMode: GameMode.Normal,
   episode: Episode.E1,
-  isRandomizer: false,
   isPreloaded: false,
   isGameStarted: false,
   isGameStarting: false,
@@ -30,6 +30,7 @@ export const DEFAULT_GAME_STATE: GameState = {
   isSprinting: false,
   isRewinding: false,
   isButtonPressed: false,
+  isTrapped: false,
   isLost: false,
   isGameWon: false,
   isDoorsOpen: false,
@@ -133,7 +134,20 @@ export const DEFAULT_BASE_STATS = {
   numPointsEverScored: 0,
   numApplesEverEaten: 0,
   totalGameTimeElapsed: 0,
+  perfect: true,
+  noApplesLeft: true,
 } satisfies BaseStats;
+
+export const DEFAULT_STATS = {
+  ...DEFAULT_BASE_STATS,
+  applesEatenThisLevel: 0,
+  totalLevelTimeElapsed: 0,
+  blueKeyCollected: false,
+  yellowKeyCollected: false,
+  redKeyCollected: false,
+  anyPowerupCollected: false,
+  minesRemaining: 0,
+} satisfies Stats;
 
 export const DEFAULT_WEARABLES_UNLOCKED: Record<WearableFrame, boolean> = Object.values(WearableFrame)
   .filter(v => typeof v !== 'string')

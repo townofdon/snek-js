@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from "react"
 import { useForceRerender } from "./hooks/useForceRerender";
-import { Episode, InputAction, InputType, Level, UINavDir } from "@/types";
+import { Episode, GameMode, InputAction, InputType, Level, NewGameArgs, UINavDir } from "@/types";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { saveDataStore } from '@/stores/SaveDataStore';
 import { SELECTABLE_LEVELS_EP_01, SELECTABLE_LEVELS_EP_02, SELECTABLE_LEVELS_EP_03 } from "@/levels/levelConstants";
 import { bridge } from "./uiBridge";
-import { getIsChallengeLevel } from "@/levels/levelUtils";
-import { sluggify } from "@/utils";
+import { episodeDisplay, sluggify } from "@/utils";
 import { GamepadType, getGamepadType } from "@/engine/gamepad";
 import { Stack } from "@/components/Stack";
 
@@ -63,7 +62,10 @@ export const LevelSelectMenu = () => {
         case InputAction.ShowGameModeMenu:
           setShowing(false);
           break;
-        case InputAction.StartGame:
+        case InputAction.ShowSaveSlotMenu:
+          setShowing(false);
+          break;
+        case InputAction.NewGame:
           setDisabled(true);
           break;
         case InputAction.ButtonBlinkOn:
@@ -84,6 +86,7 @@ export const LevelSelectMenu = () => {
 
   useEffect(() => {
     if (showing && !disabled) {
+      bridge.levelSelectMenu.showing = true;
       bridge.levelSelectMenu.onNavigate = (navDir: UINavDir) => {
         switch (navDir) {
           case UINavDir.Prev:
@@ -119,7 +122,12 @@ export const LevelSelectMenu = () => {
       }
       bridge.levelSelectMenu.onInteract = () => {
         if (!levelcurr) return;
-        bridge.callAction(InputAction.StartGame, levelcurr.id);
+        const newGameArgs = {
+          levelId: levelcurr.id,
+          episode: selectedEpisode,
+          gameMode: bridge.gameState.gameMode,
+        } satisfies NewGameArgs;
+        bridge.callAction(InputAction.NewGame, newGameArgs);
         setDisabled(true);
         return true;
       }
@@ -128,6 +136,7 @@ export const LevelSelectMenu = () => {
         return true;
       }
     } else {
+      bridge.levelSelectMenu.showing = false;
       bridge.levelSelectMenu.onNavigate = null;
       bridge.levelSelectMenu.onInteract = null;
       bridge.levelSelectMenu.onCancel = null;
@@ -151,7 +160,12 @@ export const LevelSelectMenu = () => {
     return (
       <button id={`select-level-${slug}`} className={`select-level${active ? ' active' : ''}`} onClick={() => {
         if (disabled) return;
-        bridge.callAction(InputAction.StartGame, level.id);
+        const newGameArgs = {
+          levelId: levelcurr.id,
+          episode: selectedEpisode,
+          gameMode: bridge.gameState.gameMode,
+        } satisfies NewGameArgs;
+        bridge.callAction(InputAction.NewGame, newGameArgs);
         setDisabled(true);
       }}>
         {active && (
@@ -172,10 +186,7 @@ export const LevelSelectMenu = () => {
     <div id="level-select-menu" className="settings-menu level-select-menu">
       <div className="background blur"></div>
       <div className="content">
-        <h2 className="center">Level Select</h2>
-        {getIsChallengeLevel(levelcurr) && (
-          <h3 id="level-select-challenge-heading" className="center challenge-heading">Challenge</h3>
-        )}
+        <h2 className="center title-gradient">Level Select</h2>
         <h3 className="center level-name">
           <span className="transform-flip-x"><img src="assets/graphics/editor-play.png" width="16" height="16" /></span>
           <span id="level-select-map-number" className="num">{String((selectedLevelIdx % levels.length) + 1).padStart(2, '0')}</span>
@@ -191,7 +202,7 @@ export const LevelSelectMenu = () => {
           <span className="overworld-icon vert-arrows" style={{ marginBottom: 8 }} />
           <h4 className="minimood episode">{episodeDisplay(selectedEpisode)}</h4>
         </div>
-        <div className="level-select-controls position-absolute" style={{ bottom: 60, right: 40 }}>
+        <div className="menu-controls position-absolute" style={{ bottom: 60, right: 40 }}>
           <Controls inputType={inputType} />
         </div>
       </div>
@@ -246,21 +257,4 @@ function Controls({ inputType }: ControlsProps) {
       </Stack>
     </>
   )
-}
-
-function episodeDisplay(episode: Episode): string {
-  switch (episode) {
-    case Episode.E1:
-      return 'E1: Knee-Deep In The SNEK';
-    case Episode.E2:
-      return 'E2: Live and Let SNEK';
-    case Episode.E3:
-      return 'E3: Quantum Snekanics';
-      // return 'E3: The Lord of the SNEK';
-      // return 'E3: Truth and Snekonciliation';
-      // return 'E3: The Silent SNEKographer';
-      // return 'E3: Moonsnekker';
-    case Episode.None:
-      return 'ERR: The Good, The Bad, and The Snekly';
-  }
 }

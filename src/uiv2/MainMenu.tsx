@@ -37,7 +37,7 @@ export const MainMenu = () => {
           setShowing(false);
           setActive(false);
           break;
-        case InputAction.ShowCampaignMenu:
+        case InputAction.ShowCampaignModeMenu:
           setActive(false);
           break;
         case InputAction.ShowLevelSelectMenu:
@@ -64,6 +64,7 @@ export const MainMenu = () => {
 
   useEffect(() => {
     if (showing) {
+      bridge.mainMenu.showing = true;
       const mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
         [MainMenuButton.StartGame]: buttons.start.current,
         [MainMenuButton.QuitGame]: buttons.quit.current,
@@ -111,6 +112,7 @@ export const MainMenu = () => {
         return false;
       }
     } else {
+      bridge.mainMenu.showing = false;
       bridge.mainMenu.onNavigate = null;
       bridge.mainMenu.onInteract = null;
       bridge.mainMenu.onCancel = null;

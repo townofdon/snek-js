@@ -10,10 +10,10 @@ import {
 } from '../constants';
 import {
   DEFAULT_ACTION_IDS_MAP,
-  DEFAULT_BASE_STATS,
   DEFAULT_GAME_STATE,
   DEFAULT_HELD_ITEMS,
   DEFAULT_OUTFIT,
+  DEFAULT_STATS,
 } from "@/defaults";
 import {
   getDifficultyFromIndex,
@@ -74,7 +74,7 @@ const settings: GameSettings = {
   setDisableTransitions: () => {},
 }
 const state: GameState = { ...DEFAULT_GAME_STATE };
-const stats: Stats = { ...DEFAULT_BASE_STATS, applesEatenThisLevel: 0, totalLevelTimeElapsed: 0 } satisfies Stats;
+const stats: Stats = { ...DEFAULT_STATS };
 const outfit: Outfit = { ...DEFAULT_OUTFIT };
 const heldItems: HeldItems = { ...DEFAULT_HELD_ITEMS };
 const tutorial: Tutorial = {

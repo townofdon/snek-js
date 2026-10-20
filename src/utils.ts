@@ -68,6 +68,7 @@ import {
   MapAnnotation,
   IVectorList,
   HeldItems,
+  Episode,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -1507,4 +1508,21 @@ export const outOfBounds = (x: number, y: number): boolean => {
 
 export const sluggify = (val: string) => {
   return String(val || '').toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+export function episodeDisplay(episode: Episode): string {
+  switch (episode) {
+    case Episode.E1:
+      return 'E1: Knee-Deep In The SNEK';
+    case Episode.E2:
+      return 'E2: Live and Let SNEK';
+    case Episode.E3:
+      return 'E3: Quantum Snekanics';
+      // return 'E3: The Lord of the SNEK';
+      // return 'E3: Truth and Snekonciliation';
+      // return 'E3: The Silent SNEKographer';
+      // return 'E3: Moonsnekker';
+    case Episode.None:
+      return 'ERR: The Good, The Bad, and The Snekly';
+  }
 }

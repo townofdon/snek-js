@@ -27,8 +27,10 @@ import {
   DEFAULT_BASE_STATS,
   DEFAULT_HELD_ITEMS,
   DEFAULT_OUTFIT,
+  DEFAULT_STATS,
 } from './defaults';
 import {
+  episodeDisplay,
   getDifficultyFromIndex,
   getDifficultyName,
   getLevelProgress,
@@ -39,9 +41,6 @@ import {
 } from './utils';
 import {
   getLevelById,
-  getIsChallengeLevel,
-  getNextRandomLevel,
-  hydrateRandomLevels,
   REPLAY_LEVEL_INDEX,
   getStartLevel,
 } from './levels/levelUtils';
@@ -68,6 +67,9 @@ import {
   Initiator,
   ResolutionMode,
   Level,
+  Achievement,
+  SaveSlotData,
+  NewGameArgs,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -98,10 +100,11 @@ import { applyGamepadUIActions, resetGamepad, tickGamepad } from './engine/gamep
 import { settings, triggerFullscreenChange } from './stores/SettingsStore';
 import { state } from './gameState';
 import { emitUIEvent } from './ui/uiEvents';
+import { unlockAchievement } from './achievements';
 
 const queryParams = parseUrlQueryParams();
 
-const stats: Stats = { ...DEFAULT_BASE_STATS, applesEatenThisLevel: 0, totalLevelTimeElapsed: 0 } satisfies Stats;
+const stats: Stats = { ...DEFAULT_STATS } satisfies Stats;
 const outfit: Outfit = { ...DEFAULT_OUTFIT };
 const heldItems: HeldItems = { ...DEFAULT_HELD_ITEMS };
 const replay: Replay = {
@@ -174,6 +177,7 @@ export const sketch = (p5: P5) => {
     resetStats,
     resetGraphics,
     renderLoop,
+    setStats,
     startMoving,
     requestPlayerRewind,
     startScreenShake,
@@ -265,7 +269,7 @@ export const sketch = (p5: P5) => {
         if (!state.isGameStarted) showLevelSelectMenu();
         break;
       case InputAction.HideLevelSelectMenu:
-        if (!state.isGameStarted) showGameModeMenu();
+        if (!state.isGameStarted) showSaveSlotMenu();
         break;
       case InputAction.ShowSaveSlotMenu:
         if (!state.isGameStarted) showSaveSlotMenu();
@@ -273,11 +277,11 @@ export const sketch = (p5: P5) => {
       case InputAction.HideSaveSlotMenu:
         if (!state.isGameStarted) showGameModeMenu();
         break;
-      case InputAction.StartGame:
-        {
-          const levelId = String(p0 || '');
-          startGame(levelId);
-        }
+      case InputAction.NewGame:
+        newGame(p0 as NewGameArgs);
+        break;
+      case InputAction.LoadGame:
+        loadGame(p0 as SaveSlotData);
         break;
       case InputAction.WarpToLevel:
         {
@@ -337,6 +341,9 @@ export const sketch = (p5: P5) => {
       case InputAction.TestAudio:
         sfx.play(Sound.eat);
         break;
+      case InputAction.ConfirmResetCurrentSaveSlot:
+        confirmResetSaveSlot();
+        break;
     }
   }
 
@@ -359,7 +366,6 @@ export const sketch = (p5: P5) => {
     UI.init();
     state.appMode = AppMode.StartScreen;
     state.episode = Episode.E1;
-    state.isRandomizer = false;
     state.isGameStarted = false;
     state.isGameStarting = false;
     setLevel(MAIN_TITLE_SCREEN_LEVEL);
@@ -376,6 +382,7 @@ export const sketch = (p5: P5) => {
           eventType: SNEKALYTICS_EVENT_TYPE.QUIT_GAME,
           playthroughId,
           difficulty: getDifficultyName(getDifficulty().index),
+          episode: episodeDisplay(state.episode),
           levelName: getLevel().name,
           levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
           levelTimeProgress: state.timeElapsed,
@@ -526,7 +533,6 @@ export const sketch = (p5: P5) => {
     state.episode = Episode.E1;
     state.isGameStarted = false;
     state.isGameStarting = false;
-    state.isRandomizer = false;
     state.levelIndex = 0;
     setLevel(MAIN_TITLE_SCREEN_LEVEL);
 
@@ -583,6 +589,7 @@ export const sketch = (p5: P5) => {
   function showGameModeMenu() {
     playSound(Sound.unlock, 1, true);
     UI.hideLevelSelectMenu();
+    UI.hideSaveSlotMenu();
     UI.showGameModeMenu();
   }
 
@@ -595,40 +602,48 @@ export const sketch = (p5: P5) => {
   function showSaveSlotMenu() {
     playSound(Sound.unlock, 1, true);
     UI.hideGameModeMenu();
+    UI.hideLevelSelectMenu();
     UI.showSaveSlotMenu();
   }
 
-  function startGame(levelId: string | undefined) {
-    if (!state.isPreloaded) return;
-    if (state.isGameStarting) return;
-    playthroughId = uuid();
-    state.isGameStarting = true;
+  function loadGame(data: SaveSlotData) {
+    state.gameMode = data.gameMode;
+    state.episode = data.episode;
+    outfit.back = data.outfit?.back || DEFAULT_OUTFIT.back;
+    outfit.exclusive = data.outfit?.exclusive || DEFAULT_OUTFIT.exclusive;
+    outfit.eyes = data.outfit?.eyes || DEFAULT_OUTFIT.eyes;
+    outfit.hair = data.outfit?.hair || DEFAULT_OUTFIT.hair;
+    outfit.hat = data.outfit?.hat || DEFAULT_OUTFIT.hat;
+    setDifficulty(getDifficultyFromIndex(data.difficulty));
+    setLevel(getLevelById(data.lastLevelId));
+    setLevelIndexFromCurrentLevel();
     state.lives = MAX_LIVES;
-    levelsSeen = {};
-    resetStats();
-    UI.disableScreenScroll();
-    setTimeout(() => {
-      musicPlayer.stopAllTracks();
-      sfx.stop(Sound.invincibleLoop);
-    }, 0)
-    playSound(Sound.uiConfirm, 1, true);
-    coroutines.start(startGameRoutine(levelId));
+    state.nextLevel = null;
+    setStats(data.stats);
+    recordSnekalyticsEvent({
+      eventType: SNEKALYTICS_EVENT_TYPE.LOAD_GAME,
+      playthroughId,
+      difficulty: getDifficultyName(getDifficulty().index),
+      levelName: 'start',
+      episode: episodeDisplay(state.episode),
+      levelProgress: 0,
+      levelTimeProgress: 0,
+      score: 0,
+      mode: state.gameMode,
+    });
+    startGame();
   }
 
-  function* startGameRoutine(levelId: string | undefined): IEnumerator {
-    if (!settings.debug.disableTransitions) {
-      yield* coroutines.waitForTime(1000, (t) => {
-        const freq = .2;
-        const shouldShow = t % freq > freq * 0.5;
-        uiBindings.setStartButtonVisibility(shouldShow, levelId);
-      });
-    } else {
-      yield null;
-    }
-    stopReplay();
-    if (state.isRandomizer) {
-      hydrateRandomLevels();
-    }
+  function newGame(newGameArgs: NewGameArgs) {
+    const { levelId, episode, gameMode } = newGameArgs;
+    outfit.back = DEFAULT_OUTFIT.back;
+    outfit.exclusive = DEFAULT_OUTFIT.exclusive;
+    outfit.eyes = DEFAULT_OUTFIT.eyes;
+    outfit.hair = DEFAULT_OUTFIT.hair;
+    outfit.hat = DEFAULT_OUTFIT.hat;
+    state.lives = MAX_LIVES;
+    state.episode = episode;
+    state.gameMode = gameMode;
     state.nextLevel = levelId ? getLevelById(levelId) : null;
     if (!state.nextLevel) {
       state.nextLevel = getStartLevel(state.gameMode, state.episode);
@@ -640,29 +655,53 @@ export const sketch = (p5: P5) => {
       setLevel(getStartLevel(GameMode.Tutorial, Episode.E1));
       setDifficulty(DIFFICULTY_MEDIUM);
     }
-
     setLevelIndexFromCurrentLevel();
-    initLevel()
-    playSound(Sound.unlock);
-    state.isGameStarting = false;
-    state.isGameStarted = true;
-    replay.difficulty = { ...getDifficulty() };
+    resetStats();
     recordSnekalyticsEvent({
       eventType: SNEKALYTICS_EVENT_TYPE.NEW_GAME,
       playthroughId,
       difficulty: '-',
-      levelName: (() => {
-        if (!state.episode) return 'Unknown';
-        if (state.episode === Episode.E1) return 'E1';
-        if (state.episode === Episode.E2) return 'E2';
-        if (state.episode === Episode.E3) return 'E3';
-        return 'Unknown';
-      })(),
+      levelName: 'start',
+      episode: episodeDisplay(state.episode),
       levelProgress: 0,
       levelTimeProgress: 0,
       score: 0,
       mode: state.gameMode,
     });
+    startGame();
+  }
+
+  function startGame() {
+    if (state.isGameStarting) return;
+    playthroughId = uuid();
+    state.isGameStarting = true;
+    levelsSeen = {};
+    UI.disableScreenScroll();
+    setTimeout(() => {
+      musicPlayer.stopAllTracks();
+      sfx.stop(Sound.invincibleLoop);
+    }, 0)
+    playSound(Sound.uiConfirm, 1, true);
+    coroutines.start(startGameRoutine());
+  }
+
+  function* startGameRoutine(): IEnumerator {
+    if (!settings.debug.disableTransitions) {
+      yield* coroutines.waitForTime(1000, (t) => {
+        const freq = .2;
+        const shouldShow = t % freq > freq * 0.5;
+        uiBindings.setStartButtonVisibility(shouldShow);
+      });
+    } else {
+      yield null;
+    }
+    stopReplay();
+    UI.hideAllMenus();
+    initLevel()
+    playSound(Sound.unlock);
+    state.isGameStarting = false;
+    state.isGameStarted = true;
+    replay.difficulty = { ...getDifficulty() };
   }
 
   function clearUI(force = false) {
@@ -740,6 +779,7 @@ export const sketch = (p5: P5) => {
       eventType: SNEKALYTICS_EVENT_TYPE.DEATH,
       playthroughId,
       difficulty: getDifficultyName(getDifficulty().index),
+      episode: episodeDisplay(state.episode),
       levelName: getLevel().name,
       levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
       levelTimeProgress: state.timeElapsed,
@@ -755,6 +795,7 @@ export const sketch = (p5: P5) => {
       eventType: SNEKALYTICS_EVENT_TYPE.DEATH,
       playthroughId,
       difficulty: getDifficultyName(getDifficulty().index),
+      episode: episodeDisplay(state.episode),
       levelName: getLevel().name,
       levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
       levelTimeProgress: state.timeElapsed,
@@ -772,6 +813,7 @@ export const sketch = (p5: P5) => {
       eventType: SNEKALYTICS_EVENT_TYPE.DEATH,
       playthroughId,
       difficulty: getDifficultyName(getDifficulty().index),
+      episode: episodeDisplay(state.episode),
       levelName: getLevel().name,
       levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
       levelTimeProgress: state.timeElapsed,
@@ -788,6 +830,7 @@ export const sketch = (p5: P5) => {
       eventType: SNEKALYTICS_EVENT_TYPE.WARP,
       playthroughId,
       difficulty: getDifficultyName(getDifficulty().index),
+      episode: episodeDisplay(state.episode),
       levelName: `${fromLevel.name}-->${toLevel.name}`,
       levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
       levelTimeProgress: state.timeElapsed,
@@ -799,7 +842,13 @@ export const sketch = (p5: P5) => {
     musicPlayer.stopAllTracks();
     sfx.stop(Sound.invincibleLoop);
     setLevel(toLevel);
-    resetStats();
+    stats.score = 0;
+    stats.numPointsEverScored = 0;
+    stats.numLevelsCleared = 0;
+    stats.numLevelsEverCleared = 0;
+    stats.numApplesEverEaten = 0;
+    stats.perfect = false;
+    stats.noApplesLeft = false;
     setLevelIndexFromCurrentLevel();
     initLevel();
   }
@@ -835,12 +884,29 @@ export const sketch = (p5: P5) => {
     modal.hide();
   }
 
+  function confirmResetSaveSlot() {
+    const handleYes = () => {
+      modal.hide();
+      saveDataStore.resetCurrentSaveSlot();
+      emitUIEvent(InputAction.ResetCurrentSaveSlot, Initiator.UI);
+      sfx.play(Sound.doorOpen);
+    }
+    const handleNo = () => {
+      modal.hide();
+      sfx.play(Sound.uiBlip);
+      emitUIEvent(InputAction.CancelResetCurrentSaveSlot, Initiator.UI);
+    }
+    modal.show('Goto Main Menu?', 'Current score will be lost.', handleYes, handleNo);
+    sfx.play(Sound.unlock);
+  }
+
   function confirmShowMainMenu() {
     const handleYes = () => {
       recordSnekalyticsEvent({
         eventType: SNEKALYTICS_EVENT_TYPE.QUIT_GAME,
         playthroughId,
         difficulty: getDifficultyName(getDifficulty().index),
+        episode: episodeDisplay(state.episode),
         levelName: getLevel().name,
         levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
         levelTimeProgress: state.timeElapsed,
@@ -962,14 +1028,12 @@ export const sketch = (p5: P5) => {
     if (state.isLost && state.gameMode === GameMode.Cobra) {
       winGameScene.reset();
       saveDataStore.resetCurrentSaveSlot();
-      resetStats();
       showMainMenu();
       return;
     }
 
     if (state.isLost && state.gameMode === GameMode.Arcade) {
       winGameScene.reset();
-      resetStats();
       showMainMenu();
       return;
     }
@@ -979,6 +1043,7 @@ export const sketch = (p5: P5) => {
         eventType: SNEKALYTICS_EVENT_TYPE.WIN_LEVEL,
         playthroughId,
         difficulty: getDifficultyName(getDifficulty().index),
+        episode: episodeDisplay(state.episode),
         levelName: getLevel().name,
         levelProgress: getLevelProgress(stats, getLevel(), getDifficulty()),
         levelTimeProgress: state.timeElapsed,
@@ -1047,7 +1112,7 @@ export const sketch = (p5: P5) => {
       return;
     }
 
-    const nextLevel = state.isRandomizer ? getNextRandomLevel() : (state.nextLevel || NEXT_LEVEL_MAP[level.id] || undefined);
+    const nextLevel = state.nextLevel || NEXT_LEVEL_MAP[level.id] || undefined;
 
     if (nextLevel) {
       setLevel(nextLevel)
@@ -1067,7 +1132,8 @@ export const sketch = (p5: P5) => {
 
     maybeSaveReplayStateToFile();
     saveDataStore.save({
-      currentLevelId: getLevel().id,
+      lastLevelId: getLevel().id,
+      episode: state.episode,
       gameMode: state.gameMode,
       difficulty: getDifficulty().index,
       stats,
@@ -1157,7 +1223,8 @@ export const sketch = (p5: P5) => {
       showMainMenu();
     }
     musicPlayer.setVolume(1.3);
-    new OSTScene(p5, gfxPresentation, sfx, musicPlayer, fonts, unlockedMusicStore, spriteRenderer, { onEscapePress })
+    new OSTScene(p5, gfxPresentation, sfx, musicPlayer, fonts, unlockedMusicStore, spriteRenderer, { onEscapePress });
+    unlockAchievement(Achievement.EnterOSTMode);
   }
 
   function setLevelIndexFromCurrentLevel() {

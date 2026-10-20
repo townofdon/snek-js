@@ -188,21 +188,34 @@ export interface BaseStats {
    */
   numApplesEverEaten: number,
   totalGameTimeElapsed: number,
+  /**
+   * true at game start. Set to false when any mistake is made.
+   */
+  perfect: boolean,
+  /**
+   * true at game start. Set to false when any level is completed with any apples remaining.
+   */
+  noApplesLeft: boolean,
 }
 
 /**
  * Stats for a current game session.
  */
 export interface Stats extends BaseStats {
+  // -- level-specific stats --
   applesEatenThisLevel: number,
   totalLevelTimeElapsed: number,
+  blueKeyCollected: boolean,
+  yellowKeyCollected: boolean,
+  redKeyCollected: boolean,
+  anyPowerupCollected: boolean,
+  minesRemaining: number,
 }
 
 export interface GameState {
   appMode: AppMode,
   gameMode: GameMode,
   episode: Episode,
-  isRandomizer: boolean,
   isPreloaded: boolean,
   isGameStarted: boolean,
   isGameStarting: boolean,
@@ -212,6 +225,7 @@ export interface GameState {
   isRewinding: boolean,
   isButtonPressed: boolean,
   isLost: boolean,
+  isTrapped: boolean,
   isGameWon: boolean,
   isDoorsOpen: boolean,
   isExitingLevel: boolean,
@@ -390,20 +404,71 @@ export interface GameSettings extends BaseGameSettings {
 
 export type LevelId = string;
 
+export enum Achievement {
+  None = 0,
+  ReachSecretLevel = 10,
+  ReachSecretLevelLootRoom = 20,
+  ReachSecretLevelSnekadiaDark = 21,
+  EnterOSTMode = 40,
+  CollectAllWearableItems = 50,
+  BeatAnyLevelPerfect = 60,
+  BeatAnyLevelUltra = 61,
+  BeatAnyLevelNoHeartsLeft = 70,
+  BeatEpisode1 = 80,
+  BeatEpisode2 = 90,
+  BeatEpisode3 = 100,
+  BeatGameAllLevelsPerfect = 110,
+  BeatGameZeroDeaths = 120,
+  BeatGame100PercentApples = 130,
+  BeatGame = 140,
+  BeatGameHard = 150,
+  BeatGameUltra = 160,
+  BeatGameCobra = 170,
+  BeatGameUltraCobra = 180,
+  BeatLevelSnekadia = 190,
+  BeatLevelTechnician = 200,
+  BeatLevelXFactor = 210,
+  BeatLevelSurvive = 220,
+  BeatLevelEndurance = 230,
+  BeatLevelBaitSwitch_EarlyExit = 240,
+  BeatLevelRuins_NoYellowKey = 250,
+  BeatLevelRuins_PerfectAllGates = 260,
+  BeatLevelSurvive_NoRedKey = 270,
+  BeatLevelEndurance_NoPowerupsUsed = 280,
+  BeatLevelOrdnanceVault_PerfectAllMines = 290,
+  SpeedRun = 300,
+  SpeedRunDeathless = 310,
+  SpeedRunUltraCobra = 320,
+  ArcadeScoreMillionPoints = 330,
+  ArcadeSurviveOneHour = 340,
+  DieFromHitWall = 350,
+  DieFromHitSelf = 360,
+  DieFromTrappedSelf = 361,
+  DieFromHitLockedGate = 370,
+  DieFromHitMine = 380,
+  DieFromSpikes = 390,
+  DieFromLaser = 400,
+  DieFromExplosion = 410,
+  DieFromSawCut = 420,
+  DieFromBurn = 430,
+}
+
 export interface SaveSlotData {
-  currentLevelId: string,
+  lastLevelId: string,
+  episode: Episode,
   gameMode: GameMode,
   difficulty: DifficultyIndex,
   wearablesUnlocked: Record<WearableFrame, boolean>,
   stats: BaseStats,
   heldItems: HeldItems,
+  outfit: Outfit,
 }
 
 export enum SaveSlot {
   Unset = 0,
-  Slot0,
   Slot1,
   Slot2,
+  Slot3,
 }
 
 export interface SaveData {
@@ -412,9 +477,10 @@ export interface SaveData {
    * History of levels completed during any play session
    */
   completion: Record<LevelId, Record<DifficultyIndex, LevelCompletion>>,
-  slot0: SaveSlotData | null,
+  achievements: Partial<Record<Achievement, boolean>>,
   slot1: SaveSlotData | null,
   slot2: SaveSlotData | null,
+  slot3: SaveSlotData | null,
 }
 
 export interface LevelCompletion {
@@ -949,6 +1015,27 @@ export enum Initiator {
   GameModeMenu,
 }
 
+export interface NewGameArgs {
+  levelId: string,
+  episode: number,
+  gameMode: number,
+}
+
+type ArguableInputAction = (
+  | InputAction.NewGame
+  | InputAction.LoadGame
+  | InputAction.WarpToLevel
+  | InputAction.SetDifficulty
+);
+
+export type CallAction = {
+  (action: InputAction.NewGame, p0: NewGameArgs): void,
+  (action: InputAction.LoadGame, p0: SaveSlotData): void,
+  (action: InputAction.WarpToLevel, p0: string): void,
+  (action: InputAction.SetDifficulty, p0: DifficultyIndex): void,
+  (action: Exclude<InputAction, ArguableInputAction>): void,
+};
+
 export enum InputAction {
   None = 0,
   ForceRerender,
@@ -957,8 +1044,8 @@ export enum InputAction {
   HideMainMenu,
   ConfirmGotoMainMenu,
   ConfirmQuitGame,
-  ShowCampaignMenu,
-  HideCampaignMenu,
+  ShowCampaignModeMenu,
+  HideCampaignModeMenu,
   ShowSettingsMenu,
   HideSettingsMenu,
   ShowLevelSelectMenu,
@@ -968,7 +1055,8 @@ export enum InputAction {
   ShowSaveSlotMenu,
   HideSaveSlotMenu,
   RetryLevel,
-  StartGame,
+  NewGame,
+  LoadGame,
   WarpToLevel,
   SetDifficulty,
   ToggleCasualMode,
@@ -988,6 +1076,9 @@ export enum InputAction {
   StartRewinding,
   GotoCommunityPage,
   TestAudio,
+  ConfirmResetCurrentSaveSlot,
+  ResetCurrentSaveSlot,
+  CancelResetCurrentSaveSlot,
 }
 
 export interface EditorOptions {
@@ -2092,5 +2183,6 @@ export enum SNEKALYTICS_EVENT_TYPE {
   WIN_LEVEL = 'WIN_LEVEL',
   WIN_GAME = 'WIN_GAME',
   NEW_GAME = 'NEW_GAME',
+  LOAD_GAME = 'LOAD_GAME',
   QUIT_GAME = 'QUIT_GAME',
 }

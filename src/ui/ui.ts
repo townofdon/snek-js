@@ -30,12 +30,6 @@ enum ActiveMenu {
 export class UI {
   private static activeMenu = ActiveMenu.None;
 
-  static getIsMainMenuShowing = () => UI.activeMenu === ActiveMenu.MainMenu;
-  static getIsSettingsMenuShowing = () => UI.activeMenu === ActiveMenu.SettingsMenu;
-  static getIsGameModeMenuShowing = () => UI.activeMenu === ActiveMenu.GameModeMenu;
-  static getIsLevelSelectMenuShowing = () => UI.activeMenu === ActiveMenu.LevelSelectMenu;
-  static getIsSaveSlotMenuShowing = () => UI.activeMenu === ActiveMenu.SaveSlotMenu;
-
   static init() {
     $GAME.style.width = String(DIMENSIONS.x) + 'px';
     $GAME.style.height = String(DIMENSIONS.y) + 'px';
@@ -83,8 +77,17 @@ export class UI {
     document.getElementById('map-preview-splash')?.remove();
   }
 
+  static hideAllMenus() {
+    UI.activeMenu = ActiveMenu.None;
+    UI.hideMainMenu();
+    UI.hideGameModeMenu();
+    UI.hideLevelSelectMenu();
+    UI.hideSaveSlotMenu();
+    UI.hideSettingsMenu();
+  }
+
   static showMainMenu() {
-    if (UI.getIsMainMenuShowing()) {
+    if (UI.activeMenu === ActiveMenu.MainMenu) {
       return;
     }
     UI.activeMenu = ActiveMenu.MainMenu;
@@ -92,14 +95,14 @@ export class UI {
   }
 
   static hideMainMenu() {
-    if (UI.getIsMainMenuShowing()) {
+    if (UI.activeMenu === ActiveMenu.MainMenu) {
       UI.activeMenu = ActiveMenu.None;
     }
     emitUIEvent(InputAction.HideMainMenu, Initiator.UI);
   }
 
   static showGameModeMenu() {
-    if (UI.getIsGameModeMenuShowing()) {
+    if (UI.activeMenu === ActiveMenu.GameModeMenu) {
       return;
     }
     UI.activeMenu = ActiveMenu.GameModeMenu;
@@ -107,14 +110,14 @@ export class UI {
   }
 
   static hideGameModeMenu() {
-    if (UI.getIsGameModeMenuShowing()) {
+    if (UI.activeMenu === ActiveMenu.GameModeMenu) {
       UI.activeMenu = ActiveMenu.None;
     }
     emitUIEvent(InputAction.HideGameModeMenu, Initiator.UI);
   }
 
   static showSettingsMenu() {
-    if (UI.getIsSettingsMenuShowing()) {
+    if (UI.activeMenu === ActiveMenu.SettingsMenu) {
       return;
     }
     UI.activeMenu = ActiveMenu.SettingsMenu;
@@ -124,14 +127,14 @@ export class UI {
 
   static hideSettingsMenu() {
     UI.disableGameBlur();
-    if (UI.getIsSettingsMenuShowing()) {
+    if (UI.activeMenu === ActiveMenu.SettingsMenu) {
       UI.activeMenu = ActiveMenu.None;
     }
     emitUIEvent(InputAction.HideSettingsMenu, Initiator.UI);
   }
 
   static showLevelSelectMenu() {
-    if (UI.getIsLevelSelectMenuShowing()) {
+    if (UI.activeMenu === ActiveMenu.LevelSelectMenu) {
       return;
     }
     UI.activeMenu = ActiveMenu.LevelSelectMenu;
@@ -139,14 +142,14 @@ export class UI {
   }
 
   static hideLevelSelectMenu() {
-    if (UI.getIsLevelSelectMenuShowing()) {
+    if (UI.activeMenu === ActiveMenu.LevelSelectMenu) {
       UI.activeMenu = ActiveMenu.None;
     }
     emitUIEvent(InputAction.HideLevelSelectMenu, Initiator.UI);
   }
 
   static showSaveSlotMenu() {
-    if (UI.getIsSaveSlotMenuShowing()) {
+    if (UI.activeMenu === ActiveMenu.SaveSlotMenu) {
       return;
     }
     UI.activeMenu = ActiveMenu.SaveSlotMenu;
@@ -154,7 +157,7 @@ export class UI {
   }
 
   static hideSaveSlotMenu() {
-    if (UI.getIsSaveSlotMenuShowing()) {
+    if (UI.activeMenu === ActiveMenu.SaveSlotMenu) {
       UI.activeMenu = ActiveMenu.None;
     }
     emitUIEvent(InputAction.HideSaveSlotMenu, Initiator.UI);

@@ -62,7 +62,6 @@ import {
   BUTTON_RELEASE_DAMAGE_DELAY,
   LUNGE_COOLDOWN,
   LUNGE_STEPS,
-  SPEED_LIMIT_ULTRA,
   BURN_DURATION_MS,
   MAX_APPLES_TO_CLEAR,
 } from "../constants";
@@ -117,6 +116,7 @@ import {
   Boss,
   RemovalReason,
   MapAnnotation,
+  BaseStats,
 } from "../types";
 import {
   clamp,
@@ -159,10 +159,10 @@ import { GateUnlockParticleSystem2 } from './particleSystems/GateUnlockParticleS
 import { buildLevel } from '../levels/levelBuilder';
 import {
   CAMPAIGN_LEVELS_EP_01,
-  CHALLENGE_LEVELS,
+  CAMPAIGN_LEVELS_EP_02,
+  CAMPAIGN_LEVELS_EP_03,
   getLevelBoss,
   hasLevelBoss,
-  LEVELS_EP_01,
   SECRET_LEVEL_MAP,
   START_LEVEL,
   START_LEVEL_COBRA,
@@ -172,7 +172,6 @@ import { LEVEL_99 } from '../levels/ep01/level99';
 import { LEVEL_WIN_GAME } from '../levels/winGame';
 import { VARIANT_LEVEL_99 } from '../levels/bonusLevels/variantLevel99';
 import { WinLevelScene } from '../scenes/WinLevelScene';
-import { getNumRandomLevelsRemaining } from '../levels/levelUtils';
 import { SpriteRenderer } from './spriteRenderer';
 import { Renderer } from './renderer';
 import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
@@ -203,6 +202,7 @@ import { engineRendering } from './engineComponents/rendering';
 import { engineSpawning } from './engineComponents/spawning';
 import { BossConstructorArgs } from '@/boss/BaseBoss';
 import { engineLogic } from './engineComponents/logic';
+import { achievementsAvailable, checkAchievementForDeath, checkAchievementForLevelCompletion, checkAchievementForLevelReached } from '@/achievements';
 
 interface EngineParams {
   p5: P5,
@@ -725,17 +725,18 @@ export function engine({
       const annotation = (() => {
         if (!es.level.id) return '';
         if (hasLevelBoss(es.level)) return '';
-        if (state.isRandomizer) {
-          const levelNum = (20 - getNumRandomLevelsRemaining()) || 20;
-          return `${levelNum} / 20`;
-        }
+        if (state.gameMode === GameMode.Arcade) return '';
         {
           const levelIndex = CAMPAIGN_LEVELS_EP_01.indexOf(es.level);
           if (levelIndex >= 0) return `${levelIndex + 1} / ${CAMPAIGN_LEVELS_EP_01.length}`;
         }
         {
-          const levelIndex = CHALLENGE_LEVELS.indexOf(es.level);
-          if (levelIndex >= 0) return `${levelIndex + 1} / ${CHALLENGE_LEVELS.length}`;
+          const levelIndex = CAMPAIGN_LEVELS_EP_02.indexOf(es.level);
+          if (levelIndex >= 0) return `${levelIndex + 1} / ${CAMPAIGN_LEVELS_EP_02.length}`;
+        }
+        {
+          const levelIndex = CAMPAIGN_LEVELS_EP_03.indexOf(es.level);
+          if (levelIndex >= 0) return `${levelIndex + 1} / ${CAMPAIGN_LEVELS_EP_03.length}`;
         }
         if (es.level.author) return `by ${es.level.author}`;
         return ''
@@ -759,6 +760,11 @@ export function engine({
     // init stats
     stats.applesEatenThisLevel = 0;
     stats.totalLevelTimeElapsed = 0;
+    stats.blueKeyCollected = false;
+    stats.yellowKeyCollected = false;
+    stats.redKeyCollected = false;
+    stats.anyPowerupCollected = false;
+    stats.minesRemaining = 0;
     // init state for new level
     drawState.shouldDrawApples = true;
     drawState.shouldDrawKeysLocks = true;
@@ -772,6 +778,7 @@ export function engine({
     state.isRewinding = false;
     state.isSprinting = false;
     state.isLost = false;
+    state.isTrapped = false;
     state.isGameWon = false;
     state.isDoorsOpen = false;
     state.isButtonPressed = false;
@@ -996,7 +1003,14 @@ export function engine({
           musicPlayer.stopAllTracks();
           resumeAudioContext().then(() => {
             musicPlayer.play(es.level.musicTrack);
-          })
+          });
+          if (achievementsAvailable(state, replay.mode)) {
+            checkAchievementForLevelReached({
+              levelId: es.level.id,
+              episode: state.episode,
+              difficultyIndex: es.difficulty.index,
+            });
+          }
           startLogicLoop();
         })
     } else {
@@ -1014,12 +1028,19 @@ export function engine({
             state.isMoving = true;
           }
           boss.current?.start();
-          startLogicLoop();
           renderDifficultyUI();
           renderHeartsUI();
           renderScoreUI();
           renderLevelName();
           UI.showGfxCanvas();
+          if (achievementsAvailable(state, replay.mode)) {
+            checkAchievementForLevelReached({
+              levelId: es.level.id,
+              episode: state.episode,
+              difficultyIndex: es.difficulty.index,
+            });
+          }
+          startLogicLoop();
         });
     }
 
@@ -1571,6 +1592,7 @@ export function engine({
       playSound(Sound.hurtSave);
     }
     if (!skip) {
+      state.isTrapped = true;
       if (heldItems.armor > 0) {
         heldItems.armor -= 1;
       }
@@ -1621,13 +1643,11 @@ export function engine({
     handleSnakeMovementDuringReplay(didHit);
     handleCaptureReplayInfo(didMove, didHit);
 
-    let didOpenDoors = false;
     if (getHasClearedLevel() && !state.isDoorsOpen && !actionRunning(Action.OpenDoors)) {
       openDoors();
-      didOpenDoors = true;
     }
-
-    if (didEat && didOpenDoors && apples.length === 0 && preyList.length === 0 && es.level.armorDrop && replay.mode !== ReplayMode.Playback) {
+    const doorsOpen = state.isDoorsOpen || actionRunning(Action.OpenDoors);
+    if (didEat && doorsOpen && apples.length === 0 && preyList.length === 0 && es.level.armorDrop && replay.mode !== ReplayMode.Playback) {
       const loc = chooseSpawnLocation(es.level.armorDrop);
       if (loc >= 0) {
         spawnArmorPickup(getCoordX(getCoordX(loc)), getCoordY(loc));
@@ -1969,6 +1989,8 @@ export function engine({
   };
 
   function resetStats() {
+    stats.perfect = true;
+    stats.noApplesLeft = true;
     stats.numDeaths = 0;
     stats.numLevelsCleared = 0;
     stats.numLevelsEverCleared = 0;
@@ -1978,6 +2000,18 @@ export function engine({
     stats.applesEatenThisLevel = 0;
     stats.totalGameTimeElapsed = 0;
     stats.totalLevelTimeElapsed = 0;
+  }
+
+  function setStats(incoming: BaseStats) {
+    stats.perfect = incoming.perfect;
+    stats.noApplesLeft = incoming.noApplesLeft;
+    stats.score = incoming.score;
+    stats.numDeaths = incoming.numDeaths;
+    stats.numLevelsCleared = incoming.numLevelsCleared;
+    stats.numLevelsEverCleared = incoming.numLevelsEverCleared;
+    stats.numPointsEverScored = incoming.numPointsEverScored;
+    stats.numApplesEverEaten = incoming.numApplesEverEaten;
+    stats.totalGameTimeElapsed = incoming.totalGameTimeElapsed;
   }
 
   function startMoving() {
@@ -2533,11 +2567,15 @@ export function engine({
       }
     }
     // blow up all mines currently on the level
+    stats.minesRemaining = 0;
     let numExplosionsAtLevelExit = preyList.length;
     for (let x = 0; x < GRIDCOUNT_X; x++) {
       for (let y = 0; y < GRIDCOUNT_Y; y++) {
         const coord = getCoordIndex2(x, y);
-        if (threats.existsAtCoord(coord, ThreatType.Mine) || threats.existsAtCoord(coord, ThreatType.Bomb)) {
+        if (es.threatsMap[coord] === ThreatType.Mine) {
+          stats.minesRemaining++;
+        }
+        if (es.threatsMap[coord] === ThreatType.Mine || es.threatsMap[coord] === ThreatType.Bomb) {
           threats.removeByCoord(coord, RemovalReason.Explode);
           numExplosionsAtLevelExit++;
         }
@@ -2590,7 +2628,7 @@ export function engine({
     }
 
     const levelToSave = es.level.recordProgressAsLevel || es.level;
-    const isPerfect = apples.length === 0 && state.collisions === 0;
+    const perfect = apples.length === 0 && state.collisions === 0;
     const hasAllApples = apples.length === 0;
     const hasAllLocks = !!es.level.numLocks && es.locks.length === 0;
     const shouldRecordLevelCompletion = (false
@@ -2599,9 +2637,35 @@ export function engine({
       && state.gameMode !== GameMode.Arcade
       && !!levelToSave.id
     );
+    if (!perfect) {
+      stats.perfect = false;
+    }
+    if (!hasAllApples) {
+      stats.noApplesLeft = false;
+    }
 
     if (shouldRecordLevelCompletion) {
-      onRecordLevelProgress(levelToSave.id, es.difficulty.index, isPerfect, stats.totalLevelTimeElapsed);
+      onRecordLevelProgress(levelToSave.id, es.difficulty.index, perfect, stats.totalLevelTimeElapsed);
+      if (achievementsAvailable(state, replay.mode)) {
+        checkAchievementForLevelCompletion({
+          levelId: es.level.id,
+          episode: state.episode,
+          difficultyIndex: es.difficulty.index,
+          perfect,
+          hasAllApples,
+          hasAllLocks,
+          doorsOpen: state.isDoorsOpen,
+          blueKeyCollected: !es.keys.length,
+          yellowKeyCollected: stats.yellowKeyCollected,
+          redKeyCollected: stats.redKeyCollected,
+          anyPowerupCollected: stats.anyPowerupCollected,
+          livesRemaining: state.lives,
+          applesRemaining: apples.length,
+          locksRemaining: es.locks.length,
+          minesRemaining: stats.minesRemaining,
+          time: state.timeElapsed,
+        });
+      }
     }
 
     if (settings.debug.disableTransitions) {
@@ -2626,7 +2690,7 @@ export function engine({
         allLocksBonus: getAllLocksBonus(),
         perfectBonus: getPerfectBonus(),
         livesLeft: state.lives,
-        isPerfect,
+        isPerfect: perfect,
         hasAllApples,
         hasAllLocks,
         isCasualModeEnabled: state.gameMode === GameMode.Casual,
@@ -2635,8 +2699,8 @@ export function engine({
         clearTime: Math.floor(stats.totalLevelTimeElapsed / 1000) * 1000,
         onApplyScore: () => {
           musicPlayer.stopAllTracks();
-          const perfectBonus = isPerfect ? getPerfectBonus() : 0;
-          const allApplesBonus = (!isPerfect && hasAllApples) ? getAllApplesBonus() : 0;
+          const perfectBonus = perfect ? getPerfectBonus() : 0;
+          const allApplesBonus = (!perfect && hasAllApples) ? getAllApplesBonus() : 0;
           const allLocksBonus = hasAllLocks ? getAllLocksBonus() : 0;
           addPoints(getLevelClearBonus()
             + getLivesLeftBonus() * state.lives
@@ -3561,6 +3625,9 @@ export function engine({
     }
     coroutines.start(showGameOverRoutine());
     maybeSaveReplayStateToFile();
+    if (achievementsAvailable(state, replay.mode)) {
+      checkAchievementForDeath(state.lastHurtBy, state.isTrapped);
+    }
   }
 
   function* showGameOverRoutine(): IEnumerator {
@@ -3667,6 +3734,7 @@ export function engine({
     getLevel,
     getDifficulty,
     getMaybeTitleScene,
+    setStats,
     resetStats,
     resetLevel,
     resetGraphics,

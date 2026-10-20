@@ -1,7 +1,7 @@
 import { DEFAULT_GAME_STATE } from "@/defaults";
 import { saveDataStore, SaveDataStore } from "@/stores/SaveDataStore";
 import { settings } from '@/stores/SettingsStore';
-import { GameSettings, GameState, InputAction, UICancelHandler, UIInteractHandler, UINavEventHandler } from "@/types";
+import { CallAction, GameSettings, GameState, UICancelHandler, UIInteractHandler, UINavEventHandler } from "@/types";
 
 type HandlerKey = (
   | 'mainMenu'
@@ -9,19 +9,21 @@ type HandlerKey = (
   | 'debugMenu'
   | 'levelSelectMenu'
   | 'gameModeMenu'
+  | 'saveSlotMenu'
 );
-type CallAction = (action: InputAction, p0?: any) => void
 
 interface BridgeHandler {
   onNavigate: UINavEventHandler | null,
   onInteract: UIInteractHandler | null,
   onCancel: UICancelHandler | null,
+  showing: boolean,
 }
 
 const DEFAULT_HANDLER: BridgeHandler = {
   onNavigate: null,
   onInteract: null,
   onCancel: null,
+  showing: false,
 }
 
 interface BridgeProperties {
@@ -42,6 +44,7 @@ export const bridge: Record<HandlerKey, BridgeHandler> & { callAction: CallActio
   debugMenu: { ...DEFAULT_HANDLER},
   levelSelectMenu: { ...DEFAULT_HANDLER},
   gameModeMenu: { ...DEFAULT_HANDLER},
+  saveSlotMenu: { ...DEFAULT_HANDLER},
   callAction: () => {},
   ...bridgeProps,
 };

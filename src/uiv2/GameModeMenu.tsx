@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { bridge } from "./uiBridge";
-import { Episode, GameMode, InputAction, UINavDir } from "@/types";
+import { Episode, GameMode, InputAction, NewGameArgs, UINavDir } from "@/types";
 import { useForceRerender } from "./hooks/useForceRerender";
 import { GameModeMenuElement, GameModeMenuNavMap } from "@/ui/uiNavMap";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
@@ -38,7 +38,7 @@ export const GameModeMenu = () => {
         case InputAction.ShowMainMenu:
           setShowing(false);
           break;
-        case InputAction.ShowCampaignMenu:
+        case InputAction.ShowCampaignModeMenu:
           setShowing(false);
           break;
         case InputAction.ShowLevelSelectMenu:
@@ -47,7 +47,7 @@ export const GameModeMenu = () => {
         case InputAction.ShowSettingsMenu:
           setShowing(false);
           break;
-        case InputAction.StartGame:
+        case InputAction.NewGame:
           setDisabled(true);
           break;
         case InputAction.ButtonBlinkOn:
@@ -68,6 +68,7 @@ export const GameModeMenu = () => {
 
   useEffect(() => {
     if (showing && !disabled) {
+      bridge.gameModeMenu.showing = true;
       const callGameModeMenuAction = (element: GameModeMenuElement) => {
         const ids: string[] = [
           GameModeMenuElement.Campaign,
@@ -110,6 +111,7 @@ export const GameModeMenu = () => {
         return true;
       }
     } else {
+      bridge.gameModeMenu.showing = false;
       bridge.gameModeMenu.onNavigate = null;
       bridge.gameModeMenu.onInteract = null;
       bridge.gameModeMenu.onCancel = null;
@@ -128,27 +130,29 @@ export const GameModeMenu = () => {
   const handleSelectGameModeCampaign = () => {
     if (disabled) return;
     setActiveId(GameModeMenuElement.Campaign);
-    bridge.gameState.gameMode = GameMode.Normal;
-    bridge.gameState.episode = Episode.E1;
-    bridge.callAction(InputAction.StartGame);
-    // TODO: SHOW CAMPAIGN MENU INSTEAD
-    // bridge.callAction(InputAction.ShowCampaignMenu);
+    bridge.callAction(InputAction.ShowSaveSlotMenu);
   }
 
   const handleSelectGameModeArcade = () => {
     if (disabled) return;
     setActiveId(GameModeMenuElement.Arcade);
-    bridge.gameState.gameMode = GameMode.Arcade;
-    bridge.gameState.episode = Episode.E1;
-    bridge.callAction(InputAction.StartGame);
+    const newGameArgs = {
+      levelId: "",
+      episode: Episode.E1,
+      gameMode: GameMode.Arcade,
+    } satisfies NewGameArgs;
+    bridge.callAction(InputAction.NewGame, newGameArgs);
   }
 
   const handleSelectGameModeTutorial = () => {
     if (disabled) return;
     setActiveId(GameModeMenuElement.Tutorial);
-    bridge.gameState.gameMode = GameMode.Tutorial;
-    bridge.gameState.episode = Episode.E1;
-    bridge.callAction(InputAction.StartGame);
+    const newGameArgs = {
+      levelId: "",
+      episode: Episode.E1,
+      gameMode: GameMode.Tutorial,
+    } satisfies NewGameArgs;
+    bridge.callAction(InputAction.NewGame, newGameArgs);
   }
 
   const handleBack = () => {
@@ -182,7 +186,7 @@ export const GameModeMenu = () => {
     <div id="game-mode-menu" className="settings-menu">
       <div className="background blur"></div>
       <div className="content gap">
-        <h2>Game Mode</h2>
+        <h2 className="title-gradient">Main Menu</h2>
 
         <button
           tabIndex={0}

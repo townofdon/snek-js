@@ -397,6 +397,20 @@ p {
   text-shadow: 0px 3px 3px black;
 }
 
+.title-gradient {
+  --stop-1: 36%;
+  --stop-2: 50%;
+  color: #ffd3a3;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-image: linear-gradient(rgb(255, 211, 163), rgb(255, 211, 163) var(--stop-1), rgb(255, 172, 127) var(--stop-1), rgb(255, 172, 127) var(--stop-2), rgb(255, 135, 102) var(--stop-2), rgb(255, 135, 102) 100%);
+  /* text-shadow: 0px 2px 0px #405578, 0px 4px 0px #2a2e34!important; */
+  text-shadow: none!important;
+  filter: drop-shadow(0px 2px 0px #405578);
+  /* color: transparent; */
+  -webkit-text-fill-color: transparent;
+}
+
 @keyframes anim-hover {
   0%   { transform: translate(0, var(--hover-distance)); }
   50%  { transform: translate(0, calc(var(--hover-distance) * -1)); }
@@ -984,6 +998,8 @@ button.game-mode.back {
   bottom: 0;
   right: 0;
   background: rgba(0,0,0,0.65);
+  background: #242B4A;
+  background: #242B4Acc;
   border-radius: 4px;
 }
 
@@ -1062,6 +1078,23 @@ button.game-mode.back {
 }
 
 
+.save-slot-menu > .content {
+  transform: scale(1);
+}
+
+.save-slot-menu > .content > h2 {
+  transform: scale(2);
+}
+
+.selectable-slots {
+  display: flex;
+  flex-direction: column;
+}
+.selectable-slots > .slot {
+  border-image: none;
+}
+
+
 
 
 .level-select-menu > .content {
@@ -1073,12 +1106,12 @@ button.game-mode.back {
   user-select: none;
 }
 .level-select-menu > .content > h2 {
-  transform: scale(3);
+  transform: scale(2);
 }
 .level-select-menu > .content > .level-name {
   display: flex;
   gap: 16px;
-  transform: scale(3);
+  transform: scale(2);
   color: #aac3c0;
   margin-bottom: -72px;
   text-align: center;
@@ -1208,7 +1241,7 @@ button.game-mode.back {
 .level-select-menu .overworld-icon.vert-arrows { --frame: 5; }
 .level-select-menu .overworld-icon.flag { --frame: 6; }
 
-.level-select-controls .controls-button {
+.menu-controls .controls-button {
   --frame: 0;
   display: inline-flex;
   width: var(--control-gamepad-buttons-size);
@@ -1223,26 +1256,26 @@ button.game-mode.back {
   image-rendering: crisp-edges;
 }
 /* frame is 1-indexed */
-.level-select-controls .controls-button.xbox-x { --frame: 1; }
-.level-select-controls .controls-button.xbox-y { --frame: 2; }
-.level-select-controls .controls-button.xbox-a { --frame: 3; }
-.level-select-controls .controls-button.xbox-b { --frame: 4; }
-.level-select-controls .controls-button.xbox-select { --frame: 5; }
-.level-select-controls .controls-button.xbox-start { --frame: 6; }
-.level-select-controls .controls-button.ps-square { --frame: 7; }
-.level-select-controls .controls-button.ps-triangle { --frame: 8; }
-.level-select-controls .controls-button.ps-x { --frame: 9; }
-.level-select-controls .controls-button.ps-o { --frame: 10; }
-.level-select-controls .controls-button.ps-select { --frame: 11; }
-.level-select-controls .controls-button.ps-start { --frame: 12; }
-.level-select-controls .controls-button.switch-y { --frame: 13; }
-.level-select-controls .controls-button.switch-x { --frame: 14; }
-.level-select-controls .controls-button.switch-b { --frame: 15; }
-.level-select-controls .controls-button.switch-a { --frame: 16; }
-.level-select-controls .controls-button.switch-minus { --frame: 17; }
-.level-select-controls .controls-button.switch-plus { --frame: 18; }
+.menu-controls .controls-button.xbox-x { --frame: 1; }
+.menu-controls .controls-button.xbox-y { --frame: 2; }
+.menu-controls .controls-button.xbox-a { --frame: 3; }
+.menu-controls .controls-button.xbox-b { --frame: 4; }
+.menu-controls .controls-button.xbox-select { --frame: 5; }
+.menu-controls .controls-button.xbox-start { --frame: 6; }
+.menu-controls .controls-button.ps-square { --frame: 7; }
+.menu-controls .controls-button.ps-triangle { --frame: 8; }
+.menu-controls .controls-button.ps-x { --frame: 9; }
+.menu-controls .controls-button.ps-o { --frame: 10; }
+.menu-controls .controls-button.ps-select { --frame: 11; }
+.menu-controls .controls-button.ps-start { --frame: 12; }
+.menu-controls .controls-button.switch-y { --frame: 13; }
+.menu-controls .controls-button.switch-x { --frame: 14; }
+.menu-controls .controls-button.switch-b { --frame: 15; }
+.menu-controls .controls-button.switch-a { --frame: 16; }
+.menu-controls .controls-button.switch-minus { --frame: 17; }
+.menu-controls .controls-button.switch-plus { --frame: 18; }
 
-.level-select-controls .controls-key {
+.menu-controls .controls-key {
   --frame: 0;
   --framespan: 1;
   display: inline-flex;
@@ -1258,10 +1291,10 @@ button.game-mode.back {
   image-rendering: crisp-edges;
 }
 /* frame is 1-indexed */
-.level-select-controls .controls-key.escape { --frame: 1; }
-.level-select-controls .controls-key.return { --frame: 2; --framespan: 2; }
-.level-select-controls .controls-key.shift { --frame: 4; --framespan: 2; }
-.level-select-controls .controls-key.backspace { --frame: 6; --framespan: 2; }
+.menu-controls .controls-key.escape { --frame: 1; }
+.menu-controls .controls-key.return { --frame: 2; --framespan: 2; }
+.menu-controls .controls-key.shift { --frame: 4; --framespan: 2; }
+.menu-controls .controls-key.backspace { --frame: 6; --framespan: 2; }
 
 
 .modal {

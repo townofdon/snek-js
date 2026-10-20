@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { CHALLENGE_LEVELS, LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS } from "../../levels/levelConstants";
+import { EDITOR_LEVELS } from "../../levels/levelConstants";
 import { LEVEL_01 } from "../../levels/ep01/level01";
 
 import { Level } from "../../types";
@@ -19,10 +19,7 @@ export const SelectLevelDropdown = ({ loadLevel }: SelectLevelDropdownProps) => 
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVEL_01);
 
   const levelsToInclude = [
-    ...LEVELS_EP_01,
-    ...SECRET_LEVELS,
-    ...LEVELS_EP_02,
-    ...LEVELS_EP_03,
+    ...EDITOR_LEVELS
   ];
 
   const handleSetLevel = (option: Option) => {

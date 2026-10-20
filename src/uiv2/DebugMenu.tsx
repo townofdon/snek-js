@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react"
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { useForceRerender } from "./hooks/useForceRerender";
-import { InputAction, Level } from "@/types";
+import { DifficultyIndex, InputAction, Level } from "@/types";
 import { PauseMenuElement, PauseMenuNavMap } from "@/ui/uiNavMap";
 import { bridge } from "./uiBridge";
 import { LEVEL_01 } from "@/levels/ep01/level01";
-import { LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS } from "@/levels/levelConstants";
+import { EDITOR_LEVELS } from "@/levels/levelConstants";
 import { DropdownField, Option } from "@/components/Field";
 import { Stack } from "@/components/Stack";
 import { CheckboxField } from "./components/CheckboxField";
@@ -21,10 +21,7 @@ export const DebugMenu = () => {
   const [difficulty, setDifficulty] = useState<number>(3);
 
   const levelsToInclude = [
-    ...LEVELS_EP_01,
-    ...SECRET_LEVELS,
-    ...LEVELS_EP_02,
-    ...LEVELS_EP_03,
+    ...EDITOR_LEVELS,
   ];
 
   const levelToOption = (level: Level): Option => ({
@@ -66,7 +63,7 @@ export const DebugMenu = () => {
     const difficulty = parseInt(option.value, 10);
     if (!Number.isNaN(difficulty)) {
       setDifficulty(difficulty);
-      bridge.callAction(InputAction.SetDifficulty, difficulty);
+      bridge.callAction(InputAction.SetDifficulty, difficulty as DifficultyIndex);
     }
   }
 
@@ -100,6 +97,7 @@ export const DebugMenu = () => {
 
   useEffect(() => {
     if (showing) {
+      bridge.debugMenu.showing = true;
       // note - the debug menu defers to the pauseMenuNavMap defined in uiBindings
       bridge.debugMenu.onNavigate = (navDir) => {
         const focused = document.activeElement && debugMenu.current?.contains(document.activeElement);
@@ -120,6 +118,7 @@ export const DebugMenu = () => {
         return interceptNavigationInput;
       }
     } else {
+      bridge.debugMenu.showing = false;
       bridge.debugMenu.onNavigate = null;
       bridge.debugMenu.onInteract = null;
       bridge.debugMenu.onCancel = null;
