@@ -42,7 +42,7 @@ export function unlockAchievement(achievement: Achievement) {
   EE.emit(AchievementEvent, achievement);
 }
 
-export function achievementsAvailable(state: GameState, replayMode: ReplayMode) {
+export function canAchieve(state: GameState, replayMode: ReplayMode) {
   if (replayMode === ReplayMode.Playback) {
     return false;
   }
