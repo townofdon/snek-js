@@ -488,7 +488,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.TileSheet16]: {
-    frames: 35,
+    frames: 43,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.TileSheet48]: {

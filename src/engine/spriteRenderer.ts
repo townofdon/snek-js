@@ -11,6 +11,7 @@ import {
   SpritesheetRange,
   ISpriteRenderer,
   SegmentFrame,
+  Tile16Frame,
 } from "../types";
 import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y, IMG_SCALE, IMG_X_OFFSET, MAP_OFFSET, STROKE_SIZE } from "../constants";
 import { getCurrentFrame, getRelativeDir, lerp, getNumFrames, getDerivedSprite, getFrameOffset, isSpritesheetImage } from "../utils";
@@ -195,12 +196,12 @@ export class SpriteRenderer implements ISpriteRenderer {
       main: this.p5.color(palette.barrierStroke),
       alt: this.p5.color(palette.barrier)
     } satisfies ColorReplacementPalette;
-    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierSkull, Image.TileSheet16, 1);
-    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierIndent, Image.TileSheet16, 3);
-    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierFlat, Image.TileSheet16, 5);
-    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierPyramid, Image.TileSheet16, 7);
-    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierBrick, Image.TileSheet16, 23);
-    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierStone, Image.TileSheet16, 25);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierSkull, Image.TileSheet16, Tile16Frame.SkullThemed-1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierIndent, Image.TileSheet16, Tile16Frame.IndentThemed-1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierFlat, Image.TileSheet16, Tile16Frame.FlatThemed-1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierPyramid, Image.TileSheet16, Tile16Frame.PyramidThemed-1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierBrick, Image.TileSheet16, Tile16Frame.BrickThemed-1);
+    this.setThemedImageFromSprite(colors, 16, Image.ThemedBarrierStone, Image.TileSheet16, Tile16Frame.StoneThemed-1);
     this.setThemedImageFromSprite(colors, 48, Image.ThemedPortalColumns, Image.TileSheet48, 0);
     this.setThemedImageFromSpriteRange(colors, 16, Image.ThemedPipes1, Image.PipesSheet, 85, 101);
   }

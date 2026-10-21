@@ -17,6 +17,7 @@ import { LEVEL_17 } from "./levels/ep01/level17";
 import { LEVEL_18 } from "./levels/ep01/level18";
 import { MAZE_03_STORAGE } from "./levels/mazes/maze03-storage";
 import { toTime } from "./utils";
+import { IS_PREVIEW } from "./constants";
 
 const SPEED_RUN_TIME_MS = toTime({ minutes: 60, seconds: 0 });
 
@@ -43,6 +44,9 @@ export function unlockAchievement(achievement: Achievement) {
 }
 
 export function allowAchievements(state: GameState, replayMode: ReplayMode) {
+  if (IS_PREVIEW) {
+    return false;
+  }
   if (replayMode === ReplayMode.Playback) {
     return false;
   }

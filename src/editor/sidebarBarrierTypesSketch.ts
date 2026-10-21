@@ -8,6 +8,7 @@ import {
   Image,
   EditorGraphicalComponents,
   DrawSquareOptions,
+  Tile16Frame,
 } from '../types';
 import { SpriteRenderer } from '../engine/spriteRenderer';
 import { Renderer } from '../engine/renderer';
@@ -161,37 +162,37 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       const x = 0;
       const y = 0;
       spriteRenderer.drawSpritesheetAnim3x3(gfx[BarrierType.FireTile], Image.FireSheet, x, y, 0);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Skull], Image.TileSheet16, x, y, 0);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Skull], Image.TileSheet16, x, y, Tile16Frame.Skull-1);
       spriteRenderer.drawImage1x1Static(gfx[BarrierType.SkullThemed], Image.ThemedBarrierSkull, x, y, 0, 1, 0);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Indent], Image.TileSheet16, x, y, 2);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Indent], Image.TileSheet16, x, y, Tile16Frame.Indent-1);
       spriteRenderer.drawImage1x1Static(gfx[BarrierType.IndentThemed], Image.ThemedBarrierIndent, x, y, 0, 1, 0);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Flat], Image.TileSheet16, x, y, 4);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Flat], Image.TileSheet16, x, y, Tile16Frame.Flat-1);
       spriteRenderer.drawImage1x1Static(gfx[BarrierType.FlatThemed], Image.ThemedBarrierFlat, x, y, 0, 1, 0);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Pyramid], Image.TileSheet16, x, y, 6);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Pyramid], Image.TileSheet16, x, y, Tile16Frame.Pyramid-1);
       spriteRenderer.drawImage1x1Static(gfx[BarrierType.PyramidThemed], Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.ExitSign], Image.TileSheet16, x, y, 11);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Radar], Image.TileSheet16, x, y, 12);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.ComputerChip], Image.TileSheet16, x, y, 13);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.MetalPlate], Image.TileSheet16, x, y, 14);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel0], Image.TileSheet16, x, y, 15);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel1], Image.TileSheet16, x, y, 16);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel2], Image.TileSheet16, x, y, 17);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel3], Image.TileSheet16, x, y, 18);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel4], Image.TileSheet16, x, y, 19);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel5], Image.TileSheet16, x, y, 20);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Brick], Image.TileSheet16, x, y, 21);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.BrickWhite], Image.TileSheet16, x, y, 22);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.ExitSign], Image.TileSheet16, x, y, Tile16Frame.ExitSign-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Radar], Image.TileSheet16, x, y, Tile16Frame.Radar-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.ComputerChip], Image.TileSheet16, x, y, Tile16Frame.ComputerChip-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.MetalPlate], Image.TileSheet16, x, y, Tile16Frame.MetalPlate-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel0], Image.TileSheet16, x, y, Tile16Frame.Panel0-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel1], Image.TileSheet16, x, y, Tile16Frame.Panel1-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel2], Image.TileSheet16, x, y, Tile16Frame.Panel2-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel3], Image.TileSheet16, x, y, Tile16Frame.Panel3-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel4], Image.TileSheet16, x, y, Tile16Frame.Panel4-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Panel5], Image.TileSheet16, x, y, Tile16Frame.Panel5-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Brick], Image.TileSheet16, x, y, Tile16Frame.Brick-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.BrickWhite], Image.TileSheet16, x, y, Tile16Frame.BrickWhite-1);
       spriteRenderer.drawImage1x1Static(gfx[BarrierType.BrickThemed], Image.ThemedBarrierBrick, x, y, 0, 1, 0);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Stone], Image.TileSheet16, x, y, 24);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Stone], Image.TileSheet16, x, y, Tile16Frame.Stone-1);
       spriteRenderer.drawImage1x1Static(gfx[BarrierType.StoneThemed], Image.ThemedBarrierStone, x, y, 0, 1, 0);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.PanelWhite], Image.TileSheet16, x, y, 27);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.CompPanel], Image.TileSheet16, x, y, 28);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.GrateWhite], Image.TileSheet16, x, y, 29);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.GrateYellow], Image.TileSheet16, x, y, 30);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Ruby], Image.TileSheet16, x, y, 31);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.FanDuct], Image.TileSheet16, x, y, 32);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.ExhaustPlate], Image.TileSheet16, x, y, 33);
-      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.MetalPlate2], Image.TileSheet16, x, y, 34);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.PanelWhite], Image.TileSheet16, x, y, Tile16Frame.PanelWhite-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.CompPanel], Image.TileSheet16, x, y, Tile16Frame.CompPanel-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.GrateWhite], Image.TileSheet16, x, y, Tile16Frame.GrateWhite-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.GrateYellow], Image.TileSheet16, x, y, Tile16Frame.GrateYellow-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Ruby], Image.TileSheet16, x, y, Tile16Frame.Ruby-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.FanDuct], Image.TileSheet16, x, y, Tile16Frame.FanDuct-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.ExhaustPlate], Image.TileSheet16, x, y, Tile16Frame.ExhaustPlate-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.MetalPlate2], Image.TileSheet16, x, y, Tile16Frame.MetalPlate2-1);
       renderer.drawGraphicalComponentCustom(gfx[BarrierType.Default], graphicalComponents.barrier, x, y);
     }
   }

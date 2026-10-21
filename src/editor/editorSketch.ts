@@ -42,6 +42,7 @@ import {
   PipeVariant,
   SpritesheetImage,
   MapAnnotation,
+  Tile16Frame,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -764,97 +765,97 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           drawSpritesheetAnim3x3(gfx, Image.FireSheet, x, y, 0);
           break;
         case BarrierType.Skull:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 0);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Skull-1);
           break;
         case BarrierType.SkullThemed:
           drawImage1x1(gfx, Image.ThemedBarrierSkull, x, y, 0, 1, 0);
           break;
         case BarrierType.Indent:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 2);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Indent-1);
           break;
         case BarrierType.IndentThemed:
           drawImage1x1(gfx, Image.ThemedBarrierIndent, x, y, 0, 1, 0);
           break;
         case BarrierType.Flat:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 4);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Flat-1);
           break;
         case BarrierType.FlatThemed:
           drawImage1x1(gfx, Image.ThemedBarrierFlat, x, y, 0, 1, 0);
           break;
         case BarrierType.Pyramid:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 6);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Pyramid-1);
           break;
         case BarrierType.PyramidThemed:
           drawImage1x1(gfx, Image.ThemedBarrierPyramid, x, y, 0, 1, 0);
           break;
         case BarrierType.ExitSign:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 11);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.ExitSign-1);
           break;
         case BarrierType.Radar:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 12);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Radar-1);
           break;
         case BarrierType.ComputerChip:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 13);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.ComputerChip-1);
           break;
         case BarrierType.MetalPlate:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 14);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.MetalPlate-1);
           break;
         case BarrierType.Panel0:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 15);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Panel0-1);
           break;
         case BarrierType.Panel1:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 16);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Panel1-1);
           break;
         case BarrierType.Panel2:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 17);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Panel2-1);
           break;
         case BarrierType.Panel3:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 18);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Panel3-1);
           break;
         case BarrierType.Panel4:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 19);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Panel4-1);
           break;
         case BarrierType.Panel5:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 20);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Panel5-1);
           break;
         case BarrierType.Brick:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 21);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Brick-1);
           break;
         case BarrierType.BrickWhite:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 22);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.BrickWhite-1);
           break;
         case BarrierType.BrickThemed:
           drawImage1x1(gfx, Image.ThemedBarrierBrick, x, y, 0, 1, 0);
           break;
         case BarrierType.Stone:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 24);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Stone-1);
           break;
         case BarrierType.StoneThemed:
           drawImage1x1(gfx, Image.ThemedBarrierStone, x, y, 0, 1, 0);
           break;
         case BarrierType.PanelWhite:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 27);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelWhite-1);
           break;
         case BarrierType.CompPanel:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 28);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.CompPanel-1);
           break;
         case BarrierType.GrateWhite:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 29);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.GrateWhite-1);
           break;
         case BarrierType.GrateYellow:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 30);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.GrateYellow-1);
           break;
         case BarrierType.Ruby:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 31);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Ruby-1);
           break;
         case BarrierType.FanDuct:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 32);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.FanDuct-1);
           break;
         case BarrierType.ExhaustPlate:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 33);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.ExhaustPlate-1);
           break;
         case BarrierType.MetalPlate2:
-          drawSprite1x1(gfx, Image.TileSheet16, x, y, 34);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.MetalPlate2-1);
           break;
         case BarrierType.Default:
         default:
