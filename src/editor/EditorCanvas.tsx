@@ -170,6 +170,8 @@ export const EditorCanvas = ({
       </div>
       <div className={styles.mapBottomWarnings}>
         {!options.showAnnotations && <span style={{ color: '#f40' }}>Annotations Hidden</span>}
+        {!options.showNospawns && <span style={{ color: '#f40' }}>Nospawns Hidden</span>}
+        {!options.showLighting && <span style={{ color: '#f40' }}>Lighting Disabled</span>}
       </div>
     </div>
   );

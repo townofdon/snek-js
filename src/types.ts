@@ -1139,6 +1139,8 @@ export interface EditorOptions {
   portalExitConfig: Record<PortalChannel, PortalExitMode>,
   musicTrack: MusicTrack,
   showAnnotations: boolean,
+  showNospawns: boolean,
+  showLighting: boolean,
 }
 
 export type Maybe<T> = T | null | undefined;

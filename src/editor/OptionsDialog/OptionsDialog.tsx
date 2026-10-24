@@ -53,6 +53,18 @@ export const OptionsDialog = ({
               checked={options.showAnnotations}
               onChange={(val) => setOptions({ ...options, showAnnotations: val })}
             />
+            <ToggleField
+              label="Show Nospawns"
+              name="showNospawns"
+              checked={options.showNospawns}
+              onChange={(val) => setOptions({ ...options, showNospawns: val })}
+            />
+            <ToggleField
+              label="Preview Lighting"
+              name="showLighting"
+              checked={options.showLighting}
+              onChange={(val) => setOptions({ ...options, showLighting: val })}
+            />
           </div>
         </div>
       </div>

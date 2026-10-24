@@ -119,6 +119,8 @@ export const EDITOR_DEFAULTS: {
     musicTrack: MusicTrack.None,
     pipeVariant: PipeVariant.Green,
     showAnnotations: true,
+    showNospawns: true,
+    showLighting: true,
   },
 };
 

@@ -142,12 +142,14 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     startDirection: EDITOR_DEFAULTS.data.startDirection,
     lightSources: {},
   } satisfies ExtendedSketchData;
-  const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig' | 'pipeVariant' | 'showAnnotations'> = {
+  const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig' | 'pipeVariant' | 'showAnnotations' | 'showNospawns' | 'showLighting'> = {
     globalLight: EDITOR_DEFAULTS.options.globalLight,
     palette: { ...EDITOR_DEFAULTS.options.palette },
     portalExitConfig: { ...EDITOR_DEFAULTS.options.portalExitConfig },
     pipeVariant: EDITOR_DEFAULTS.options.pipeVariant,
     showAnnotations: EDITOR_DEFAULTS.options.showAnnotations,
+    showNospawns: EDITOR_DEFAULTS.options.showNospawns,
+    showLighting: EDITOR_DEFAULTS.options.showLighting,
   };
   const state: EditorState = {
     showingPreview: false,
@@ -269,6 +271,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     Object.keys(incoming).forEach((key: keyof EditorOptions) => {
       switch (key) {
         case 'showAnnotations':
+        case 'showNospawns':
+        case 'showLighting':
           if (options[key] !== incoming[key]) {
             options[key] = incoming[key];
             state.dirty = true;
@@ -436,7 +440,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             } satisfies LightSource;
           }
         });
-        updateLighting(0, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, fireTiles, null, data, renderer.getElapsed());
+        const globalLight = options.showLighting ? options.globalLight : 1;
+        updateLighting(0, globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, fireTiles, null, data, renderer.getElapsed());
         startPortalParticles();
         const pipes: Vector[] = Object.entries(data.pipesMap).filter(([_, val]) => !!val).map(([key]) => coordToVec(Number(key)));
         buildPipesMap(pipes, data.pipeConnectionsMap, data.pipeOverrides);
@@ -502,7 +507,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             drawDeco2(x, y);
           }
 
-          if (data.nospawnsMap[coord]) {
+          if (data.nospawnsMap[coord] && options.showNospawns) {
             const alpha = data.decoratives2Map[coord] ? 0.6 : data.decoratives1Map[coord] ? 0.4 : 0.25;
             renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.nospawn, x, y, alpha);
           }
