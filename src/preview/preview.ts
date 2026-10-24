@@ -525,6 +525,8 @@ async function loadLevel(queryData: string, loadMapImage = false, editorData: Ed
         [ItemDropType.LaserDiode]: options.spawnLasers,
       },
       pipeVariant: options.pipeVariant,
+      annotations: data.annotations,
+      pipeOverrides: data.pipeOverrides,
     };
 
     level.current = loaded;

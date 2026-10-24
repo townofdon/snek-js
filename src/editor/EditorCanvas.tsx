@@ -168,6 +168,9 @@ export const EditorCanvas = ({
           <span className={styles.val}>G</span>=fill
         </span>
       </div>
+      <div className={styles.mapBottomWarnings}>
+        {!options.showAnnotations && <span style={{ color: '#f40' }}>Annotations Hidden</span>}
+      </div>
     </div>
   );
 };

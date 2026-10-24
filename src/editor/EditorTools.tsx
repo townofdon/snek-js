@@ -6,16 +6,20 @@ import { ClearAllCommand, Command } from "./commands";
 import { EditorData } from "../types";
 import { EditorTool } from "./editorSketch";
 import { NavToggle } from "./Navigation/NavToggle";
+import { SetStateValue } from "./editorTypes";
 
 import * as styles from "./Editor.css";
+import { OptionsDialogToggle } from "./OptionsDialog/OptionsDialogToggle";
 
 interface EditorToolsProps {
   data: EditorData,
   activeTool: EditorTool,
   hasUndo: boolean,
   hasRedo: boolean,
+  setMapId: (val: string) => void,
   setTool: (tool: EditorTool) => void,
   setData: (data: EditorData) => void,
+  setOptionsShowing: (val: SetStateValue<boolean>) => void,
   executeCommand: (command: Command) => void,
   undo: () => void,
   redo: () => void,
@@ -26,8 +30,10 @@ export const EditorTools = ({
   activeTool,
   hasUndo,
   hasRedo,
+  setMapId,
   setTool,
   setData,
+  setOptionsShowing,
   executeCommand,
   undo,
   redo,
@@ -36,6 +42,7 @@ export const EditorTools = ({
     if (tool === EditorTool.Bomb) {
       const command = new ClearAllCommand(data, setData);
       executeCommand(command);
+      setMapId('');
       toast(`Map Cleared`, {
         icon: "✓",
         duration: 2500,
@@ -99,6 +106,7 @@ export const EditorTools = ({
   return (
     <div className={styles.editorTools}>
       <NavToggle />
+      <OptionsDialogToggle setOptionsShowing={setOptionsShowing} />
       <h1 className={styles.editorTitle}>
         SNEK
         <br />

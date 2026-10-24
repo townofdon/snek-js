@@ -1487,7 +1487,7 @@ export function engine({
 
     // damage environment
     const canBreakWalls = (logic.canBreakWalls() && logic.wallBreakableAt(coord));
-    const canBreakWallsWithoutDamage = logic.invincible() || logic.canBreakWallsWithoutDamage();
+    const canBreakWallsWithoutDamage = invincible || logic.canBreakWallsWithoutDamage();
     if (canBreakWalls && !es.passablesMap[coord] && isBreakableBarrier(es.barriersMap[coord])) {
       didDamageEnvironment = true;
       removeBarrierTile(coord);
@@ -1523,6 +1523,7 @@ export function engine({
       || state.timeSinceHurt < HURT_STUN_TIME
       || state.lives < 0
       || state.isLost
+      || invincible
       || actionRunning(Action.EpicDeath)
     );
     if (!skip) {
@@ -1611,7 +1612,8 @@ export function engine({
       skip = true;
       threats.removeByCoord(coord, RemovalReason.Explode);
     }
-    if (!skip && heldItems.reversibles > 0 && rewindAllowed(true)) {
+    // rewind
+    if (!skip && heldItems.reversibles > 0 && rewindAllowed(true) && !logic.invincible()) {
       skip = true;
       didHit = false;
       heldItems.reversibles -= 1;
@@ -1620,6 +1622,7 @@ export function engine({
       startAutoRewind();
       playSound(Sound.hurtSave);
     }
+    // trapped death
     if (!skip) {
       state.isTrapped = true;
       if (heldItems.armor > 0) {

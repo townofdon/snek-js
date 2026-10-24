@@ -142,11 +142,12 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     startDirection: EDITOR_DEFAULTS.data.startDirection,
     lightSources: {},
   } satisfies ExtendedSketchData;
-  const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig' | 'pipeVariant'> = {
+  const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig' | 'pipeVariant' | 'showAnnotations'> = {
     globalLight: EDITOR_DEFAULTS.options.globalLight,
     palette: { ...EDITOR_DEFAULTS.options.palette },
     portalExitConfig: { ...EDITOR_DEFAULTS.options.portalExitConfig },
     pipeVariant: EDITOR_DEFAULTS.options.pipeVariant,
+    showAnnotations: EDITOR_DEFAULTS.options.showAnnotations,
   };
   const state: EditorState = {
     showingPreview: false,
@@ -267,6 +268,12 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     }
     Object.keys(incoming).forEach((key: keyof EditorOptions) => {
       switch (key) {
+        case 'showAnnotations':
+          if (options[key] !== incoming[key]) {
+            options[key] = incoming[key];
+            state.dirty = true;
+          }
+          break;
         case 'globalLight':
           if (options[key] !== incoming[key]) {
             options[key] = incoming[key];
@@ -667,6 +674,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     }
 
     function drawAnnotations() {
+      if (!options.showAnnotations) return;
       for (let y = 0; y < GRIDCOUNT_Y; y++) {
         for (let x = 0; x < GRIDCOUNT_X; x++) {
           const coord = getCoordIndex2(x, y);

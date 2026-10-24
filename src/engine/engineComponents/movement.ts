@@ -524,6 +524,7 @@ export function engineMovement({
     if (state.isLost) return false;
     if (state.isGameWon) return false;
     if (state.timeSinceHurt < HURT_STUN_TIME) return false;
+    if (state.lungeStepsRemaining > 0) return false;
     if (_calculateSnakeSize() <= START_SNAKE_SIZE + 1) return false;
     // Conditions for which rewind is always allowed.
     if (state.gameMode === GameMode.Casual) return true;

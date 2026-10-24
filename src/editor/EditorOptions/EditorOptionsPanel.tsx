@@ -66,6 +66,7 @@ export const EditorOptionsPanel = ({
   const loadLevel = (level: Level) => {
     const command = new LoadLevelCommand(level, data, options, setData, setOptions);
     executeCommand(command);
+    setMapId('');
     toast(`Loaded Level`, {
       icon: "✓",
       duration: 2500,

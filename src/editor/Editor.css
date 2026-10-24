@@ -133,7 +133,8 @@ button,
 
 .mapBottomInfo,
 .mapBottomDescription,
-.mapBottomShortcuts {
+.mapBottomShortcuts,
+.mapBottomWarnings {
   display: flex;
   justify-content: space-between;
   width: 640px;
@@ -172,6 +173,8 @@ button,
   justify-content: space-between;
   margin-bottom: 10px;
 }
+
+.mapBottomWarnings {}
 
 .editorContainer {
   position: relative;

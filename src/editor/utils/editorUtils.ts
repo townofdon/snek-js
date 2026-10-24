@@ -176,6 +176,7 @@ export function decodeMapData(encoded: string, debug = false): [EditorData, Edit
     palette,
     portalExitConfig,
     musicTrack,
+    showAnnotations: true,
   }
 
   if (!layout) {
@@ -300,6 +301,7 @@ export function getEditorDataFromLevel(level: Level): [EditorData, EditorOptions
     spawnBarrels: !!level.pickupDrops?.[ItemDropType.ExplodableBarrel],
     spawnLasers: !!level.pickupDrops?.[ItemDropType.LaserDiode],
     pipeVariant: level.pipeVariant || PipeVariant.Green,
+    showAnnotations: true,
   };
   return [data, options];
 }

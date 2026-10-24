@@ -92,6 +92,7 @@ import { Stack } from "@/components/Stack";
 import { DropdownField, Option } from "@/components/Field";
 import { SidebarThreatTypes } from "./SidebarThreatTypes";
 import { SidebarMapAnnotations } from "./SidebarAnnotations";
+import { OptionsDialog } from "./OptionsDialog/OptionsDialog";
 
 import * as styles from "./Editor.css";
 
@@ -106,6 +107,7 @@ export const Editor = () => {
   const [mapId, setMapId] = useState('');
   const [initialized, setInitialized] = useState(false);
   const [isPreviewShowing, setPreviewShowing] = useState(false);
+  const [isOptionsDialogShowing, setOptionsDialogShowing] = useState(false);
   const [difficulty, setDifficulty] = useState<DifficultyIndex>(3);
   const [options, optionsRef, setOptions] = useRefState<EditorOptions>(EDITOR_DEFAULTS.options)
   const [data, dataRef, setData] = useRefState<EditorData>(EDITOR_DEFAULTS.data);
@@ -773,7 +775,6 @@ export const Editor = () => {
       <a href={`${getRelativeDir()}community`} className={cx("button minimood", styles.allMapsButton)}>
         <span>&lt;- All Maps</span>
       </a>
-      {/* <button className={cx("minimood", styles.allMapsButton)}>&lt;- All Maps</button> */}
       <div className={styles.container}>
         <Stack row>
           <h1
@@ -826,7 +827,9 @@ export const Editor = () => {
               activeTool={tool}
               setTool={setTool}
               data={data}
+              setMapId={setMapId}
               setData={setData}
+              setOptionsShowing={setOptionsDialogShowing}
               executeCommand={executeCommand}
               undo={undo}
               redo={redo}
@@ -895,6 +898,12 @@ export const Editor = () => {
         difficulty={difficulty}
         isPreviewShowing={isPreviewShowing}
         setPreviewShowing={setPreviewShowing}
+      />
+      <OptionsDialog
+        options={options}
+        setOptions={setOptions}
+        isOptionsDialogShowing={isOptionsDialogShowing}
+        setOptionsDialogShowing={setOptionsDialogShowing}
       />
       <Toaster
         containerClassName={styles.toastContainer}

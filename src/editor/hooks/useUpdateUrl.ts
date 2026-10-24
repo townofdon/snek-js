@@ -44,6 +44,8 @@ const setUrl = (mapId: string, data: EditorData, options: EditorOptions) => {
     const url = new URL(window.location.href);
     if (mapId) {
       url.searchParams.set("id", mapId);
+    } else {
+      url.searchParams.delete("id");
     }
     url.searchParams.set("data", encoded);
     history.pushState(null, "", url);
