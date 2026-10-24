@@ -1404,7 +1404,7 @@ export function engineRendering({
             spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.ExhaustPlate-1);
             break;
           case BarrierType.MetalPlate2:
-            spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.MetalPlate-1);
+            spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.MetalPlate2-1);
             break;
           case BarrierType.Glass:
             spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.Glass-1);
