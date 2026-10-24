@@ -117,6 +117,8 @@ import {
   RemovalReason,
   MapAnnotation,
   BaseStats,
+  LightSource,
+  LightType,
 } from "../types";
 import {
   clamp,
@@ -174,7 +176,7 @@ import { VARIANT_LEVEL_99 } from '../levels/bonusLevels/variantLevel99';
 import { WinLevelScene } from '../scenes/WinLevelScene';
 import { SpriteRenderer } from './spriteRenderer';
 import { Renderer } from './renderer';
-import { createLightmap, drawLighting, resetLightmap, updateLighting } from './lighting';
+import { drawLighting, initLightmap, updateLighting } from './lighting';
 import { MusicPlayer } from './musicPlayer';
 import { InputCallbacks, handleKeyPressed, validateMove } from './controls';
 import { applyGamepadRumble, applyGamepadMove, getCurrentGamepadSprint, resetGamepad } from './gamepad'
@@ -196,7 +198,7 @@ import { downloadFile } from '@/editor/utils/saveUtils';
 import { withErrorReporting } from '@/reporting';
 import { AcquirePickupParticleSystem } from './particleSystems/AcquirePickupParticleSystem';
 import { AcquirePickupScene, AcquirePickupSceneConstructorArgs } from '@/scenes/AcquirePickupScene';
-import { DEFAULT_ENGINE_STATE } from '@/defaults';
+import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE } from '@/defaults';
 import { engineMovement } from './engineComponents/movement';
 import { engineRendering } from './engineComponents/rendering';
 import { engineSpawning } from './engineComponents/spawning';
@@ -424,7 +426,7 @@ export function engine({
   const shields = new AnimationList();
   const shieldSpawns = new AnimationList({ onLifetimeExpire: onShieldSpawnLifetimeExpire });
   const pickupOutlines = new AnimationList();
-  const lightMap = createLightmap();
+  const lights = new AnimationList();
 
   const preySpawn: PreySpawn = {
     dropsByFrame: undefined
@@ -787,6 +789,7 @@ export function engine({
     state.isInvertedColors = false;
     state.isDeathIlluminating = false;
     state.globalLightOverride = undefined;
+    state.lightsOn = DEFAULT_GAME_STATE.lightsOn;
     state.actualTimeElapsed = 0;
     state.timeElapsed = 0;
     state.timeSinceLastMove = Infinity;
@@ -856,6 +859,7 @@ export function engine({
     shields.reset();
     shieldSpawns.reset();
     pickupOutlines.reset();
+    lights.reset();
     doorsOpening.reset();
     explosions.reset();
     smoke.reset();
@@ -1209,9 +1213,30 @@ export function engine({
       30: PreyType.Ant,
       35: PreyType.Grub,
     };
+    let hasDirectionalLight = false;
     es.barriers.forEach(barrier => {
       astar.setWall(barrier.vec.x, barrier.vec.y);
+      if (barrier.type === BarrierType.PanelLight) {
+        es.lightSources[getCoordIndex(barrier.vec)] = {
+          radius: 1,
+          falloff: 2,
+          strength: 0.7,
+          type: LightType.Point,
+        } satisfies LightSource;
+      } else if (barrier.type === BarrierType.WarningLight) {
+        hasDirectionalLight = true;
+        es.lightSources[getCoordIndex(barrier.vec)] = {
+          radius: 1,
+          falloff: 4,
+          strength: 0.3,
+          type: LightType.DirectionalSpotlight,
+        } satisfies LightSource;
+      }
     });
+    if (hasDirectionalLight) {
+      // add animation list to trigger gfxAction clear
+      lights.add(0, 0, 9999999999, SpritesheetRange.WarningLightOn);
+    }
     astar.setSnekCoord(getCoordIndex(player.position));
     es.doors.forEach(door => {
       astar.setWall(door.x, door.y);
@@ -1231,7 +1256,7 @@ export function engine({
     es.locks.forEach(lock => {
       astar.setObstacle(lock.position.x, lock.position.y);
     });
-    resetLightmap(lightMap, es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT);
+    initLightmap(es.level.globalLight ?? GLOBAL_LIGHT_DEFAULT, es.level.lightPalette);
     startPortalParticles();
     if (es.level.type === LevelType.WarpZone || (es.level.type === LevelType.Maze && es.level !== START_LEVEL && es.level !== START_LEVEL_COBRA)) {
       startExitParticles();
@@ -1931,8 +1956,8 @@ export function engine({
       !state.isInvertedColors &&
       state.timeSinceInvincibleStart >= es.difficulty.invincibilityTime
     ) {
-      updateLighting(p5.deltaTime, lightMap, globalLight, player.position, es.portals, es.pickupsMap, explosions, fireTiles, state, es);
-      drawLighting(lightMap, renderer, gfxLighting);
+      updateLighting(p5.deltaTime, globalLight, player.position, es.portals, es.pickupsMap, explosions, fireTiles, state, es, renderer.getElapsed());
+      drawLighting(renderer, gfxLighting);
     }
 
     if (es.level.renderInstructions) {

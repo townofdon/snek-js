@@ -232,6 +232,7 @@ export interface GameState {
   isExited: boolean,
   isInvertedColors: boolean,
   isDeathIlluminating: boolean,
+  lightsOn: boolean,
   globalLightOverride?: number,
   hasKeyYellow: boolean,
   hasKeyRed: boolean,
@@ -309,6 +310,23 @@ export interface GameState {
   inputType: InputType,
 }
 
+export enum LightPalette {
+  None = 0,
+  AmberViolet,
+}
+
+export enum LightType {
+  Point,
+  DirectionalSpotlight,
+}
+
+export interface LightSource {
+  radius: number,
+  falloff: number,
+  strength: number,
+  type: LightType,
+}
+
 export interface EngineState {
   level: Level,
   difficulty: Difficulty,
@@ -342,6 +360,7 @@ export interface EngineState {
   annotations: Record<number, MapAnnotation>,
   pipeOverrides: Record<number, PipeConnection>,
   snekDamage: Record<number, DamageType>,
+  lightSources: Record<number, LightSource>,
 }
 
 export interface Outfit {
@@ -578,6 +597,7 @@ export interface Level{
   musicTrack?: MusicTrack,
   titleVariant?: TitleVariant,
   globalLight?: number,
+  lightPalette?: LightPalette,
   /**
    * Start level with all lights turned off. Note - a scene must manually turn isDeathIlluminating off.
    */
@@ -793,6 +813,15 @@ export enum BarrierType {
   FanDuct,
   ExhaustPlate,
   MetalPlate2,
+  Glass,
+  PanelCircuit0,
+  PanelCircuit1,
+  PanelMolten0,
+  PanelMolten1,
+  PanelLight,
+  PanelSciBox,
+  PanelSciPillar,
+  WarningLight,
 }
 export const BARRIER_TYPE_MAX = Math.max(...Object.values(BarrierType).filter(v => typeof v === 'number')) + 1;
 
@@ -965,6 +994,15 @@ export enum FloodFillTile {
   BarrierFanDuct,
   BarrierExhaustPlate,
   BarrierMetalPlate2,
+  BarrierGlass,
+  BarrierPanelCircuit0,
+  BarrierPanelCircuit1,
+  BarrierPanelMolten0,
+  BarrierPanelMolten1,
+  BarrierPanelLight,
+  BarrierPanelSciBox,
+  BarrierPanelSciPillar,
+  BarrierWarningLight,
   Door,
   Deco1,
   Deco2,
@@ -1447,7 +1485,8 @@ export enum Image {
   Points10000 = 'snek-points-10000.png',
   BossComponents = 'snek-boss-components.png',
   BossTechnician = 'snek-boss-technician.png',
-  BossHealthbar = 'snek-boss-healthbar.png'
+  BossHealthbar = 'snek-boss-healthbar.png',
+  WarningLight = 'snek-warning-light.png',
 }
 
 export type ThemedImage =
@@ -1512,6 +1551,7 @@ export enum SpritesheetRange {
   BossHPMain,
   BossHPDissolve,
   BossHPEmpty,
+  WarningLightOn,
 }
 export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange).filter(v => typeof v === 'number')) + 1;
 
@@ -1565,6 +1605,7 @@ export type SpritesheetImage =
   | Image.BossTechnician
   | Image.BossHealthbar
   | Image.ControlsKeyboardTurn
+  | Image.WarningLight
 ;
 
 export enum Threat48Frame {
@@ -1633,13 +1674,15 @@ export enum Tile16Frame {
   FanDuct2,
   ExhaustPlate,
   MetalPlate2,
-  PanelSci0,
-  PanelSci1,
-  PanelSci2,
-  PanelSci3,
-  PanelSci4,
-  PanelSci5,
-  PanelSci6,
+  Glass,
+  PanelCircuit0,
+  PanelCircuit1,
+  PanelMolten0,
+  PanelMolten1,
+  PanelLightOff,
+  PanelLightOn,
+  PanelSciBox,
+  PanelSciPillar,
 }
 
 export enum Threat16Frame {

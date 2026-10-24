@@ -1406,6 +1406,42 @@ export function engineRendering({
           case BarrierType.MetalPlate2:
             spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.MetalPlate-1);
             break;
+          case BarrierType.Glass:
+            spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.Glass-1);
+            break;
+          case BarrierType.PanelCircuit0:
+            spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelCircuit0-1);
+            break;
+          case BarrierType.PanelCircuit1:
+            spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelCircuit1-1);
+            break;
+          case BarrierType.PanelMolten0:
+            spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelMolten0-1);
+            break;
+          case BarrierType.PanelMolten1:
+            renderer.drawGraphicalComponent1x1Static(gfx, graphicalComponents.barrier, x, y, 1, 0);
+            spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelMolten1-1);
+            break;
+          case BarrierType.PanelLight:
+            if (state.lightsOn) {
+              spriteRenderer.drawSprite1x1(gfxFGAction, Image.TileSheet16, x, y, Tile16Frame.PanelLightOn-1);
+            } else {
+              spriteRenderer.drawSprite1x1(gfxFGAction, Image.TileSheet16, x, y, Tile16Frame.PanelLightOff-1);
+            }
+            break;
+          case BarrierType.PanelSciBox:
+            spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelSciBox-1);
+            break;
+          case BarrierType.PanelSciPillar:
+            spriteRenderer.drawSprite1x1Static(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelSciPillar-1);
+            break;
+          case BarrierType.WarningLight:
+            if (state.lightsOn) {
+              spriteRenderer.drawSpritesheetAnim1x1(gfxFGAction, SpritesheetRange.WarningLightOn, x, y, elapsed);
+            } else {
+              spriteRenderer.drawSprite1x1(gfxFGAction, Image.WarningLight, x, y, 0);
+            }
+            break;
           default:
           case BarrierType.Unset:
           case BarrierType.Default:

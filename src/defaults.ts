@@ -38,6 +38,7 @@ export const DEFAULT_GAME_STATE: GameState = {
   isExited: false,
   isInvertedColors: false,
   isDeathIlluminating: false,
+  lightsOn: true,
   levelIndex: 0,
   actualTimeElapsed: 0,
   timeElapsed: 0,
@@ -108,6 +109,7 @@ export const DEFAULT_ENGINE_STATE: EngineState = {
   annotations: {},
   pipeOverrides: {},
   snekDamage: {},
+  lightSources: {},
 } satisfies EngineState;
 
 export const DEFAULT_ACTION_IDS_MAP: Record<ActionKey, string | null> = {

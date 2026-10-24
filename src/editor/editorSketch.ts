@@ -43,6 +43,9 @@ import {
   SpritesheetImage,
   MapAnnotation,
   Tile16Frame,
+  LightSource,
+  LightPalette,
+  LightType,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -124,6 +127,7 @@ export interface ExtendedSketchData extends EditorData {
   pipeConnectionsMap: Record<number, PipeConnection>,
   flamesMap: Record<number, boolean>,
   illuminationMap: Record<number, number>,
+  lightSources: Record<number, LightSource>,
 }
 
 export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObject<HTMLCanvasElement>): EditorSketchReturn => {
@@ -136,6 +140,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     illuminationMap: {},
     playerSpawnPosition: EDITOR_DEFAULTS.data.playerSpawnPosition.copy(),
     startDirection: EDITOR_DEFAULTS.data.startDirection,
+    lightSources: {},
   } satisfies ExtendedSketchData;
   const options: Pick<EditorOptions, 'globalLight' | 'palette' | 'portalExitConfig' | 'pipeVariant'> = {
     globalLight: EDITOR_DEFAULTS.options.globalLight,
@@ -334,7 +339,6 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
     const renderer = new Renderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
-    const lightMap = createLightmap();
     const fireTiles = new AnimationList();
     const threats = new AnimationList();
 
@@ -364,6 +368,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
      */
     p5.setup = setup;
     function setup() {
+      initLighting(p5);
       p5.createCanvas(DIMENSIONS.x, DIMENSIONS.y, p5.P2D).id("editor-canvas");
       p5.frameRate(60);
       canvas.current = document.getElementById("editor-canvas") as HTMLCanvasElement;
@@ -398,7 +403,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           const x = getCoordX(coord);
           const y = getCoordY(coord);
           threats.add(x, y, 999999999, SpritesheetRange.DiodeBlue, ThreatType.LaserDiode);
-        })
+        });
         recalculateLasersMap(data, threats);
         recalculateFlamesMap(data);
         state.dirty = false;
@@ -411,7 +416,20 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           return acc;
         }, {} as Record<number, boolean>);
         fireTiles.fillFromMap(fireBarriersMap, 99999999, Image.FireSheet);
-        updateLighting(0, lightMap, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, fireTiles, null, data);
+        Object.keys(data.barriersMap).map(Number).filter(Number.isInteger).forEach(coord => {
+          const x = getCoordX(coord);
+          const y = getCoordY(coord);
+          data.lightSources[coord] = undefined;
+          if (data.barriersMap[coord] === BarrierType.PanelLight || data.barriersMap[coord] === BarrierType.WarningLight) {
+            data.lightSources[coord] = {
+              radius: 1,
+              falloff: 2,
+              strength: 0.8,
+              type: LightType.Point,
+            } satisfies LightSource;
+          }
+        });
+        updateLighting(0, options.globalLight, data.playerSpawnPosition, getPortalsFromPortalsMap(), null, null, fireTiles, null, data, renderer.getElapsed());
         startPortalParticles();
         const pipes: Vector[] = Object.entries(data.pipesMap).filter(([_, val]) => !!val).map(([key]) => coordToVec(Number(key)));
         buildPipesMap(pipes, data.pipeConnectionsMap, data.pipeOverrides);
@@ -544,7 +562,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       drawAnnotations();
 
       if (options.globalLight < 1) {
-        drawLighting(lightMap, renderer, p5);
+        drawLighting(renderer, p5);
       }
 
       drawEditorSelection();
@@ -746,6 +764,13 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           spriteRenderer.drawSpritesheetAnim3x3(p5, image, x0, y0, elapsed);
         }
       }
+      const drawSpritesheetAnim1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage | SpritesheetRange, x0: number, y0: number, elapsed?: number) => {
+        if (isStatic) {
+          spriteRenderer.drawSpritesheetAnim1x1Static(gfx, image, x0, y0, elapsed);
+        } else {
+          spriteRenderer.drawSpritesheetAnim1x1(p5, image, x0, y0, elapsed);
+        }
+      }
       const drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x0: number, y0: number, frame?: number, rotation?: number, alpha?: number, screenshakeMul?: number) => {
         if (isStatic) {
           spriteRenderer.drawSprite1x1Static(gfx, image, x0, y0, frame, rotation, alpha, screenshakeMul);
@@ -856,6 +881,34 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           break;
         case BarrierType.MetalPlate2:
           drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.MetalPlate2-1);
+          break;
+        case BarrierType.Glass:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.Glass-1);
+          break;
+        case BarrierType.PanelCircuit0:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelCircuit0-1);
+          break;
+        case BarrierType.PanelCircuit1:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelCircuit1-1);
+          break;
+        case BarrierType.PanelMolten0:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelMolten0-1);
+          break;
+        case BarrierType.PanelMolten1:
+          if (!isStatic) renderer.drawGraphicalComponent(graphicalComponents.barrier, x, y);
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelMolten1-1);
+          break;
+        case BarrierType.PanelLight:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelLightOn-1);
+          break;
+        case BarrierType.PanelSciBox:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelSciBox-1);
+          break;
+        case BarrierType.PanelSciPillar:
+          drawSprite1x1(gfx, Image.TileSheet16, x, y, Tile16Frame.PanelSciPillar-1);
+          break;
+        case BarrierType.WarningLight:
+          drawSpritesheetAnim1x1(gfx, SpritesheetRange.WarningLightOn, x, y, renderer.getElapsed());
           break;
         case BarrierType.Default:
         default:

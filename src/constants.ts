@@ -488,7 +488,7 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.TileSheet16]: {
-    frames: 43,
+    frames: 45,
     timePerFrame: 200,
   } satisfies AnimationData,
   [Image.TileSheet48]: {
@@ -865,6 +865,16 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frameWidth: 76,
     frameHeight: 52,
   } satisfies AnimationData,
+  [Image.WarningLight]: {
+    frames: 5,
+    timePerFrame: 250,
+  } satisfies AnimationData,
+  [SpritesheetRange.WarningLightOn]: {
+    src: Image.WarningLight,
+    offset: 1,
+    frames: 4,
+    timePerFrame: 250,
+  } satisfies AnimationDataForRange,
 } satisfies (Record<SpritesheetImage, AnimationData> & Record<SpritesheetRange, AnimationDataForRange>);
 
 // validate ANIMATIONS data

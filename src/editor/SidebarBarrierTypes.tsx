@@ -53,6 +53,15 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
     [BarrierType.FanDuct]: useRef<HTMLCanvasElement>(null),
     [BarrierType.ExhaustPlate]: useRef<HTMLCanvasElement>(null),
     [BarrierType.MetalPlate2]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.Glass]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.PanelCircuit0]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.PanelCircuit1]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.PanelMolten0]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.PanelMolten1]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.PanelLight]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.PanelSciBox]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.PanelSciPillar]: useRef<HTMLCanvasElement>(null),
+    [BarrierType.WarningLight]: useRef<HTMLCanvasElement>(null),
   } satisfies Record<BarrierType, React.MutableRefObject<HTMLCanvasElement>>;
 
   useLayoutEffect(() => {
@@ -112,6 +121,15 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
       [BarrierType.FanDuct]: "31",
       [BarrierType.ExhaustPlate]: "32",
       [BarrierType.MetalPlate2]: "33",
+      [BarrierType.Glass]: "34",
+      [BarrierType.PanelCircuit0]: "35",
+      [BarrierType.PanelCircuit1]: "36",
+      [BarrierType.PanelMolten0]: "37",
+      [BarrierType.PanelMolten1]: "38",
+      [BarrierType.PanelLight]: "39",
+      [BarrierType.PanelSciBox]: "40",
+      [BarrierType.PanelSciPillar]: "41",
+      [BarrierType.WarningLight]: "42",
     } satisfies Record<BarrierType, string>)[barrierType];
     const color = barrierType === activeBarrierType ? '#ffffff' : '#444'
     return (
@@ -143,6 +161,17 @@ export const SidebarBarrierTypes = ({ activeBarrierType, options, setBarrierType
     <div className="sidebar-barrier-types" ref={container}>
       <label>style</label>
       <Stack justify="end" align="start" noChildMargin>
+        <div>
+          {renderButton(BarrierType.Glass, true)}
+          {renderButton(BarrierType.PanelCircuit0, true)}
+          {renderButton(BarrierType.PanelCircuit1, true)}
+          {renderButton(BarrierType.PanelMolten0, true)}
+          {renderButton(BarrierType.PanelMolten1, true)}
+          {renderButton(BarrierType.PanelLight, true)}
+          {renderButton(BarrierType.PanelSciBox, true)}
+          {renderButton(BarrierType.PanelSciPillar, true)}
+          {renderButton(BarrierType.WarningLight, true)}
+        </div>
         <div>
           {renderButton(BarrierType.MetalPlate, true)}
           {renderButton(BarrierType.Panel0, true)}
@@ -221,6 +250,15 @@ const barrierTypeLabel = (barrierType: BarrierType) => {
     [BarrierType.FanDuct]: "Fan Duct",
     [BarrierType.ExhaustPlate]: "Exhaust Plate",
     [BarrierType.MetalPlate2]: "Metal Plate 2",
+    [BarrierType.Glass]: "Glass",
+    [BarrierType.PanelCircuit0]: "Circuit Panel 1",
+    [BarrierType.PanelCircuit1]: "Circuit Panel 2",
+    [BarrierType.PanelMolten0]: "Molten 1",
+    [BarrierType.PanelMolten1]: "Molten 2",
+    [BarrierType.PanelLight]: "Recessed Light",
+    [BarrierType.PanelSciBox]: "SciFi Box",
+    [BarrierType.PanelSciPillar]: "SciFi Pillar",
+    [BarrierType.WarningLight]: "Warning Light",
   } satisfies Record<BarrierType, string>)[barrierType];
   return tooltipText || 'Unknown';
 }

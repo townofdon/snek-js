@@ -414,6 +414,15 @@ export enum TILECHAR {
   BarrierFanDuct = "f",
   BarrierExhaustPlate = "p",
   BarrierMetalPlate2 = "s",
+  BarrierGlass = "U",
+  BarrierPanelCircuit0 = ";",
+  BarrierPanelCircuit1 = "'",
+  BarrierPanelMolten0 = ",",
+  BarrierPanelMolten1 = ".",
+  BarrierPanelLight = "}",
+  BarrierPanelSciBox = "/",
+  BarrierPanelSciPillar = ":",
+  BarrierWarningLight = "(",
   Door = "D",
   DoorAlt = "d",
   Deco1 = "-",
@@ -460,7 +469,7 @@ export enum TILECHAR {
   Button = "?",
   Pipe = "P",
   PlayerSpawn = "O",
-  // available chars: U;',.}|/:"()
+  // available chars: |")
 }
 
 // validate TILECHAR
@@ -545,6 +554,15 @@ export const BARRIER_TYPE_TO_TILE_CHAR = {
   [BarrierType.FanDuct]: TILECHAR.BarrierFanDuct,
   [BarrierType.ExhaustPlate]: TILECHAR.BarrierExhaustPlate,
   [BarrierType.MetalPlate2]: TILECHAR.BarrierMetalPlate2,
+  [BarrierType.Glass]: TILECHAR.BarrierGlass,
+  [BarrierType.PanelCircuit0]: TILECHAR.BarrierPanelCircuit0,
+  [BarrierType.PanelCircuit1]: TILECHAR.BarrierPanelCircuit1,
+  [BarrierType.PanelMolten0]: TILECHAR.BarrierPanelMolten0,
+  [BarrierType.PanelMolten1]: TILECHAR.BarrierPanelMolten1,
+  [BarrierType.PanelLight]: TILECHAR.BarrierPanelLight,
+  [BarrierType.PanelSciBox]: TILECHAR.BarrierPanelSciBox,
+  [BarrierType.PanelSciPillar]: TILECHAR.BarrierPanelSciPillar,
+  [BarrierType.WarningLight]: TILECHAR.BarrierWarningLight,
 } satisfies Record<BarrierType, TILECHAR>;
 
 type TileBarrierType =
@@ -581,7 +599,16 @@ type TileBarrierType =
   | TILECHAR.BarrierRuby
   | TILECHAR.BarrierFanDuct
   | TILECHAR.BarrierExhaustPlate
-  | TILECHAR.BarrierMetalPlate2;
+  | TILECHAR.BarrierMetalPlate2
+  | TILECHAR.BarrierGlass
+  | TILECHAR.BarrierPanelCircuit0
+  | TILECHAR.BarrierPanelCircuit1
+  | TILECHAR.BarrierPanelMolten0
+  | TILECHAR.BarrierPanelMolten1
+  | TILECHAR.BarrierPanelLight
+  | TILECHAR.BarrierPanelSciBox
+  | TILECHAR.BarrierPanelSciPillar
+  | TILECHAR.BarrierWarningLight;
 
 export const TILE_CHAR_TO_BARRIER_TYPE: Record<TileBarrierType, BarrierType> = {
   [TILECHAR.Barrier]: BarrierType.Default,
@@ -618,6 +645,15 @@ export const TILE_CHAR_TO_BARRIER_TYPE: Record<TileBarrierType, BarrierType> = {
   [TILECHAR.BarrierFanDuct]: BarrierType.FanDuct,
   [TILECHAR.BarrierExhaustPlate]: BarrierType.ExhaustPlate,
   [TILECHAR.BarrierMetalPlate2]: BarrierType.MetalPlate2,
+  [TILECHAR.BarrierGlass]: BarrierType.Glass,
+  [TILECHAR.BarrierPanelCircuit0]: BarrierType.PanelCircuit0,
+  [TILECHAR.BarrierPanelCircuit1]: BarrierType.PanelCircuit1,
+  [TILECHAR.BarrierPanelMolten0]: BarrierType.PanelMolten0,
+  [TILECHAR.BarrierPanelMolten1]: BarrierType.PanelMolten1,
+  [TILECHAR.BarrierPanelLight]: BarrierType.PanelLight,
+  [TILECHAR.BarrierPanelSciBox]: BarrierType.PanelSciBox,
+  [TILECHAR.BarrierPanelSciPillar]: BarrierType.PanelSciPillar,
+  [TILECHAR.BarrierWarningLight]: BarrierType.WarningLight,
 } satisfies Record<TileBarrierType, BarrierType>;
 
 export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
@@ -655,6 +691,15 @@ export const BARRIER_TYPE_TO_FLOOD_FILL_TILE = {
   [BarrierType.FanDuct]: FloodFillTile.BarrierFanDuct,
   [BarrierType.ExhaustPlate]: FloodFillTile.BarrierExhaustPlate,
   [BarrierType.MetalPlate2]: FloodFillTile.BarrierMetalPlate2,
+  [BarrierType.Glass]: FloodFillTile.BarrierGlass,
+  [BarrierType.PanelCircuit0]: FloodFillTile.BarrierPanelCircuit0,
+  [BarrierType.PanelCircuit1]: FloodFillTile.BarrierPanelCircuit1,
+  [BarrierType.PanelMolten0]: FloodFillTile.BarrierPanelMolten0,
+  [BarrierType.PanelMolten1]: FloodFillTile.BarrierPanelMolten1,
+  [BarrierType.PanelLight]: FloodFillTile.BarrierPanelLight,
+  [BarrierType.PanelSciBox]: FloodFillTile.BarrierPanelSciBox,
+  [BarrierType.PanelSciPillar]: FloodFillTile.BarrierPanelSciPillar,
+  [BarrierType.WarningLight]: FloodFillTile.BarrierWarningLight,
 } satisfies Record<BarrierType, FloodFillTile>;
 
 export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<
@@ -696,6 +741,15 @@ export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<
   [FloodFillTile.BarrierFanDuct]: BarrierType.FanDuct,
   [FloodFillTile.BarrierExhaustPlate]: BarrierType.ExhaustPlate,
   [FloodFillTile.BarrierMetalPlate2]: BarrierType.MetalPlate2,
+  [FloodFillTile.BarrierGlass]: BarrierType.Glass,
+  [FloodFillTile.BarrierPanelCircuit0]: BarrierType.PanelCircuit0,
+  [FloodFillTile.BarrierPanelCircuit1]: BarrierType.PanelCircuit1,
+  [FloodFillTile.BarrierPanelMolten0]: BarrierType.PanelMolten0,
+  [FloodFillTile.BarrierPanelMolten1]: BarrierType.PanelMolten1,
+  [FloodFillTile.BarrierPanelLight]: BarrierType.PanelLight,
+  [FloodFillTile.BarrierPanelSciBox]: BarrierType.PanelSciBox,
+  [FloodFillTile.BarrierPanelSciPillar]: BarrierType.PanelSciPillar,
+  [FloodFillTile.BarrierWarningLight]: BarrierType.WarningLight,
   [FloodFillTile.Door]: 0,
   [FloodFillTile.Deco1]: 0,
   [FloodFillTile.Deco2]: 0,

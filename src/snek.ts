@@ -70,6 +70,7 @@ import {
   Achievement,
   SaveSlotData,
   NewGameArgs,
+  LightPalette,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';

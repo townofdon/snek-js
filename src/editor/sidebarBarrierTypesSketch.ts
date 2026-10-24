@@ -93,6 +93,15 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       [BarrierType.FanDuct]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.FanDuct].current),
       [BarrierType.ExhaustPlate]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.ExhaustPlate].current),
       [BarrierType.MetalPlate2]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.MetalPlate2].current),
+      [BarrierType.Glass]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Glass].current),
+      [BarrierType.PanelCircuit0]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.PanelCircuit0].current),
+      [BarrierType.PanelCircuit1]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.PanelCircuit1].current),
+      [BarrierType.PanelMolten0]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.PanelMolten0].current),
+      [BarrierType.PanelMolten1]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.PanelMolten1].current),
+      [BarrierType.PanelLight]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.PanelLight].current),
+      [BarrierType.PanelSciBox]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.PanelSciBox].current),
+      [BarrierType.PanelSciPillar]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.PanelSciPillar].current),
+      [BarrierType.WarningLight]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.WarningLight].current),
     } satisfies Record<BarrierType, P5.Graphics>;
     const graphicalComponents: Pick<EditorGraphicalComponents, 'barrier'> = {
       barrier: p5.createGraphics(BLOCK_SIZE_X * 3, BLOCK_SIZE_Y * 3),
@@ -193,6 +202,15 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.FanDuct], Image.TileSheet16, x, y, Tile16Frame.FanDuct-1);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.ExhaustPlate], Image.TileSheet16, x, y, Tile16Frame.ExhaustPlate-1);
       spriteRenderer.drawSprite1x1Static(gfx[BarrierType.MetalPlate2], Image.TileSheet16, x, y, Tile16Frame.MetalPlate2-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.Glass], Image.TileSheet16, x, y, Tile16Frame.Glass-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.PanelCircuit0], Image.TileSheet16, x, y, Tile16Frame.PanelCircuit0-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.PanelCircuit1], Image.TileSheet16, x, y, Tile16Frame.PanelCircuit1-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.PanelMolten0], Image.TileSheet16, x, y, Tile16Frame.PanelMolten0-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.PanelMolten1], Image.TileSheet16, x, y, Tile16Frame.PanelMolten1-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.PanelLight], Image.TileSheet16, x, y, Tile16Frame.PanelLightOn-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.PanelSciBox], Image.TileSheet16, x, y, Tile16Frame.PanelSciBox-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.PanelSciPillar], Image.TileSheet16, x, y, Tile16Frame.PanelSciPillar-1);
+      spriteRenderer.drawSprite1x1Static(gfx[BarrierType.WarningLight], Image.WarningLight, x, y, 0);
       renderer.drawGraphicalComponentCustom(gfx[BarrierType.Default], graphicalComponents.barrier, x, y);
     }
   }
