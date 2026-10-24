@@ -41,6 +41,7 @@ export class TechnicianStartScene extends BaseBossScene {
 
     this.showBoss = false;
     const bossCoord = this.getBossCoord();
+    gameState.lightsOn = false;
     gameState.isDeathIlluminating = true;
     es.illuminationMap = {};
 

@@ -314,6 +314,7 @@ export class TheTechnician extends BaseBoss {
     const prevTimeScale = this.loopState.timeScale;
     this.loopState.timeScale = 0;
     const bossCoord = this.getBossCoord();
+    this.gameState.lightsOn = false;
     this.gameState.isDeathIlluminating = true;
     this.gameState.globalLightOverride = undefined;
     coroutines.stop(this.spawnThreatsCoroutine);
@@ -706,6 +707,7 @@ export class TheTechnician extends BaseBoss {
   }
 
   private * lightRoutine() {
+    this.gameState.lightsOn = true;
     while (this.stateMachine === BossStateMachine.Fighting) {
       const elapsed = this.gameState.actualTimeElapsed;
       const t = triangle(((elapsed - this.timeSinceLastPhaseStart) / (3000 / 2)) % 2);
