@@ -48,15 +48,19 @@
 
   --overworld-icons-src: url('assets/graphics/overworld-icons.png');
   --overworld-icons-size: 16px;
-  --overworld-icons-frames: 19;
+  --overworld-icons-frames: 22;
 
   --control-gamepad-buttons-src: url('assets/graphics/controls-gamepad-buttons.png');
   --control-gamepad-buttons-size: 16px;
   --control-gamepad-buttons-frames: 18;
 
+  --control-gamepad-dpad-src: url('assets/graphics/controls-gamepad-dpad.png');
+  --control-gamepad-dpad-size: 32px;
+  --control-gamepad-dpad-frames: 5;
+
   --control-keyboard-keys-src: url('assets/graphics/controls-keyboard-keys.png');
   --control-keyboard-keys-size: 16px;
-  --control-keyboard-keys-frames: 7;
+  --control-keyboard-keys-frames: 11;
 
   --title-sprite-img-grayblue: url('assets/graphics/snek-title-grayblue.png');
   --title-sprite-img-gray: url('assets/graphics/snek-title-gray.png');
@@ -287,6 +291,33 @@ canvas {
   display: block;
 }
 
+.color-white { color: #fff; };
+.color-black { color: #000; }
+.color-a { color: #dfeded; }
+.color-b { color: #242b4a; }
+.color-c { color: #99c2db; }
+.color-d { color: #5d8bb3; }
+.color-e { color: #4d6a94; }
+.color-f { color: #405578; }
+.color-g { color: #524a63; }
+.color-h { color: #52216e; }
+.color-i { color: #911d55; }
+.color-j { color: #bf2651; }
+.color-k { color: #f54f4f; }
+.color-l { color: #ff8766; }
+.color-m { color: #ffac7f; }
+.color-n { color: #ffd3a3; }
+.color-o { color: #fafac3; }
+.color-p { color: #e6cc8a; }
+.color-q { color: #d6a57a; }
+.color-r { color: #b3785d; }
+.color-s { color: #9c4f41; }
+.color-u { color: #357985; }
+.color-v { color: #4c8f82; }
+.color-w { color: #78b392; }
+.color-x { color: #b5e0ba; }
+.color-y { color: #f0ece2; }
+
 .center {
   display: flex;
   justify-content: center;
@@ -325,6 +356,23 @@ canvas {
 
 .position-absolute {
   position: absolute;
+}
+
+.display-flex {
+  display: flex;
+}
+
+.display-inline-flex {
+  display: inline-flex;
+}
+
+.fullwidth,
+.full-width {
+  width: 100%;
+}
+
+.flex-row {
+  flex-direction: row;
 }
 
 .hidden {
@@ -554,6 +602,8 @@ button.newbutton.purple, a.newbutton.purple {
 }
 
 /* focus / selection arrows */
+.ui-arrows:focus::before,
+.ui-arrows.active::before,
 button.newbutton.ui-arrows:focus::before {
   content: "";
   position: absolute;
@@ -567,6 +617,8 @@ button.newbutton.ui-arrows:focus::before {
   background-size: calc(var(--ui-arrows-size) * var(--ui-arrows-frames));
   background-position: calc(-1 * var(--ui-arrow-frame) * var(--ui-arrows-size)) 0;
 }
+.ui-arrows:focus::after,
+.ui-arrows.active::after,
 button.newbutton.ui-arrows:focus::after {
   content: "";
   position: absolute;
@@ -579,6 +631,16 @@ button.newbutton.ui-arrows:focus::after {
   background-image: var(--ui-arrows-src);
   background-size: calc(var(--ui-arrows-size) * var(--ui-arrows-frames));
   background-position: calc(-1 * var(--ui-arrows-size) * var(--ui-arrow-frame)) 0;
+}
+.slot.ui-arrows.active::before,
+.slot.ui-arrows:focus::before {
+  top: 80px;
+  transform: scale(6) translateX(calc(-1 * var(--ui-arrow-offset)));
+}
+.slot.ui-arrows.active::after,
+.slot.ui-arrows:focus::after {
+  top: 80px;
+  transform: scale(-6, 6) translateX(calc(-1 * var(--ui-arrow-offset)));
 }
 
 button,
@@ -1085,13 +1147,96 @@ button.game-mode.back {
 .save-slot-menu > .content > h2 {
   transform: scale(2);
 }
+.save-slot-menu .menu-controls {
+  width: 540px;
+}
 
 .selectable-slots {
   display: flex;
   flex-direction: column;
+  background: #405578;
+  border: 4px solid #405578;
+  gap: 4px;
 }
-.selectable-slots > .slot {
+.selectable-slots .slot {
+  display: flex;
   border-image: none;
+  width: 540px;
+  height: 160px;
+  flex-direction: row;
+  padding: 0;
+  gap: 16px;
+  background: #242C4A;
+  color: #728795;
+  outline: none!important;
+  border: none;
+  box-shadow: none;
+}
+.selectable-slots .slot:not(.active) [class*=" color-"]:not(.always),
+.selectable-slots .slot:not(.active) [class^="color-"]:not(.always) {
+  color: #728795;
+}
+.selectable-slots .slot.active {
+  background: #405578;
+  color: #DFEDED;
+}
+.selectable-slots .save-slot-info {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  align-items: flex-end;
+  justify-content: center;
+  text-align: right;
+  gap: 8px;
+  padding: 16px;
+  font-size: 1.4em;
+}
+.selectable-slots .save-slot-info.empty {
+  align-items: center;
+  text-align: center;
+}
+.selectable-slots .slot.active .save-slot-info .save-slot-level-name {
+  color: #DFEDED;
+}
+.selectable-slots .slot.active .save-slot-info .save-slot-episode {
+  color: #99C2DB;
+}
+.selectable-slots .slot.active .save-slot-info .save-slot-time-played {
+  color: #FDD3A3;
+}
+.selectable-slots .save-slot-level-preview {
+  padding: 14px;
+  padding-left: 16px;
+  background: #000;
+}
+.selectable-slots .save-slot-level-preview .canvas-container.dim {
+  filter: brightness(0.15) grayscale(0.6) contrast(.9);
+}
+.selectable-slots .save-slot.reset-selected {
+  --offset: 160px;
+  overflow: hidden;
+}
+.selectable-slots .save-slot.reset-selected .save-slot-info {
+  transform: translateX(calc(-1 * var(--offset)));
+}
+.selectable-slots .save-slot.reset-selected .save-slot-level-preview {
+  transform: translateX(calc(-1 * var(--offset)));
+}
+.selectable-slots .save-slot.reset-selected .save-slot-reset-indicator {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  gap: 20px;
+  width: var(--offset);
+  background: #911d55;
+}
+.step-2 .selectable-slots .save-slot.reset-selected .save-slot-reset-indicator {
+  background: #bf2651;
 }
 
 
@@ -1113,17 +1258,17 @@ button.game-mode.back {
 .level-select-menu > .content > .level-name {
   display: flex;
   gap: 16px;
-  transform: scale(2);
   color: #aac3c0;
   margin-bottom: -72px;
   text-align: center;
+  font-size: 2em;
 }
 .level-select-menu > .content > .level-name .num {
   color: #596974;
 }
 .level-select-menu > .content > .level-name .name {
   align-self: flex-start;
-  margin-top: 3px;
+  gap: 8px;
 }
 .level-select-menu > .content > .challenge-heading {
   position: absolute;
@@ -1154,6 +1299,9 @@ button.game-mode.back {
   background: #000;
 }
 .level-select-menu > .content > .levels > .canvas-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: #000;
 }
 .level-select-menu > .content > .levels > .canvas-container.dim {
@@ -1161,6 +1309,22 @@ button.game-mode.back {
 }
 .level-select-menu > .content > .levels > .canvas-container.active {
   filter: brightness(1.25) grayscale(0) contrast(1.2);
+}
+.level-select-menu > .content > .levels > .canvas-container.locked {
+  align-items: flex-end;
+  background: #242b4a;
+}
+.level-select-menu > .content > .levels > .canvas-container.locked > .locked-level-text {
+  font-size: 1em;
+  padding: 15px;
+  text-align: center;
+  text-shadow: none;
+}
+.level-select-menu > .content > .levels > .canvas-container.locked.dim > .locked-level-text {
+  display: none;
+}
+.level-select-menu > .content > .levels > .canvas-container.locked > canvas {
+  display: none!important;
 }
 .level-select-menu button.select-level {
   position: relative;
@@ -1231,7 +1395,7 @@ button.game-mode.back {
   font-size: 1.5em;
   line-height: 1em;
 }
-.level-select-menu .overworld-icon {
+.overworld-icon {
   --frame: 0;
   display: inline-flex;
   width: var(--overworld-icons-size);
@@ -1246,12 +1410,15 @@ button.game-mode.back {
   image-rendering: crisp-edges;
 }
 /* frame is 1-indexed */
-.level-select-menu .overworld-icon.select { --frame: 1; }
-.level-select-menu .overworld-icon.boss { --frame: 2; }
-.level-select-menu .overworld-icon.arrow-left { --frame: 3; }
-.level-select-menu .overworld-icon.arrow-right { --frame: 4; }
-.level-select-menu .overworld-icon.vert-arrows { --frame: 5; }
-.level-select-menu .overworld-icon.flag { --frame: 6; }
+.overworld-icon.select { --frame: 1; }
+.overworld-icon.boss { --frame: 2; }
+.overworld-icon.arrow-left { --frame: 3; }
+.overworld-icon.arrow-right { --frame: 4; }
+.overworld-icon.vert-arrows { --frame: 5; }
+.overworld-icon.flag { --frame: 6; }
+.overworld-icon.lock { --frame: 7; }
+.overworld-icon.reset { --frame: 8; }
+.overworld-icon.trash { --frame: 9; }
 
 .menu-controls .controls-button {
   --frame: 0;
@@ -1287,6 +1454,27 @@ button.game-mode.back {
 .menu-controls .controls-button.switch-minus { --frame: 17; }
 .menu-controls .controls-button.switch-plus { --frame: 18; }
 
+.menu-controls .controls-dpad {
+  --frame: 1;
+  display: inline-flex;
+  width: calc(var(--control-gamepad-dpad-size));
+  height: var(--control-gamepad-dpad-size);
+  background-color: transparent;
+  background-image: var(--control-gamepad-dpad-src);
+  background-size: calc(var(--control-gamepad-dpad-size) * var(--control-gamepad-dpad-frames)) var(--control-gamepad-dpad-size);
+  background-position: calc(-1 * var(--control-gamepad-dpad-size) * (var(--frame) - 1)) 0;
+  transform: scale(2);
+  transform-origin: center right;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+/* frame is 1-indexed */
+.menu-controls .controls-dpad { --frame: 1; }
+.menu-controls .controls-dpad.up { --frame: 2; }
+.menu-controls .controls-dpad.down { --frame: 3; }
+.menu-controls .controls-dpad.left { --frame: 4; }
+.menu-controls .controls-dpad.right { --frame: 5; }
+
 .menu-controls .controls-key {
   --frame: 0;
   --framespan: 1;
@@ -1303,10 +1491,14 @@ button.game-mode.back {
   image-rendering: crisp-edges;
 }
 /* frame is 1-indexed */
-.menu-controls .controls-key.escape { --frame: 1; }
+.menu-controls .controls-key.escape { --frame: 1; --framespan: 1; }
 .menu-controls .controls-key.return { --frame: 2; --framespan: 2; }
 .menu-controls .controls-key.shift { --frame: 4; --framespan: 2; }
 .menu-controls .controls-key.backspace { --frame: 6; --framespan: 2; }
+.menu-controls .controls-key.up { --frame: 8; --framespan: 1; }
+.menu-controls .controls-key.down { --frame: 9; --framespan: 1; }
+.menu-controls .controls-key.left { --frame: 10; --framespan: 1; }
+.menu-controls .controls-key.right { --frame: 11; --framespan: 1; }
 
 
 .modal {

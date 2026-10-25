@@ -11,6 +11,7 @@ interface LevelPreviewProps {
   width: number,
   height: number,
   blink?: boolean,
+  locked?: boolean,
   deferLoading?: boolean,
   className?: string,
   style?: React.CSSProperties,
@@ -20,6 +21,7 @@ export const LevelPreview = ({
   width,
   height,
   blink,
+  locked,
   deferLoading,
   className,
   style,
@@ -64,12 +66,27 @@ export const LevelPreview = ({
       className={"canvas-container"
         + (blink ? " invisible" : "")
         + (className ? ` ${className}` : "")
+        + (locked ? ` locked` : "")
       }
       style={{
         ...style,
         width,
         height,
       }}
-    />
+    >
+      {locked && (
+        <>
+          <span className="overworld-icon lock"
+            style={{
+              position: 'absolute',
+              top: '45%',
+            }}
+          />
+          <p className="locked-level-text minimood">
+            Complete previous level first
+          </p>
+        </>
+      )}
+    </div>
   )
 }

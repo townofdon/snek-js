@@ -10,7 +10,10 @@ import { useForceRerender } from "./hooks/useForceRerender";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { useRefState } from "@/editor/hooks/useRefState";
 import { DOM } from "@/ui/uiUtils";
+import { LevelPreview } from "@/engine/levelPreview/LevelPreview";
 import { Stack } from "@/components/Stack";
+
+const LEVEL_PREVIEW_SIZE = 128;
 
 export const SaveSlotMenu = () => {
   const forceRerender = useForceRerender();
@@ -99,6 +102,7 @@ export const SaveSlotMenu = () => {
         ) {
           setSelectedSlot(SaveSlot.Slot1);
           setResetSlotSelected(false);
+          DOM.select(buttons.slot1.current);
           return true;
         }
         const selectedSlotUsed = saveDataStore.getIsSlotUsed(selectedSlotRef.current);
@@ -117,11 +121,11 @@ export const SaveSlotMenu = () => {
             break;
           case UINavDir.Left:
             if (!selectedSlotUsed) return false;
-            setResetSlotSelected(prev => !prev);
+            setResetSlotSelected(false);
             break;
           case UINavDir.Right:
             if (!selectedSlotUsed) return false;
-            setResetSlotSelected(prev => !prev);
+            setResetSlotSelected(true);
             break;
         }
         return true;
@@ -171,9 +175,6 @@ export const SaveSlotMenu = () => {
   const inputType = bridge.gameState.inputType;
 
   const handleClearSave = (slot: SaveSlot) => {
-    // TODO: REMOVE
-    console.log('remove:', slot);
-
     saveDataStore.setCurrentSaveSlot(slot);
     bridge.callAction(InputAction.ConfirmResetCurrentSaveSlot);
   }
@@ -209,7 +210,7 @@ export const SaveSlotMenu = () => {
             slotData={slot1}
             blink={blink}
             resetRef={buttons.reset}
-            isResetSlotSelected={isResetSlotSelected}
+            isResetSlotSelected={selectedSlot === SaveSlot.Slot1 && isResetSlotSelected}
             onClick={handleChooseSlot}
           />
           <SaveDataSlot
@@ -221,7 +222,7 @@ export const SaveSlotMenu = () => {
             slotData={slot2}
             blink={blink}
             resetRef={buttons.reset}
-            isResetSlotSelected={isResetSlotSelected}
+            isResetSlotSelected={selectedSlot === SaveSlot.Slot2 && isResetSlotSelected}
             onClick={handleChooseSlot}
           />
           <SaveDataSlot
@@ -233,24 +234,35 @@ export const SaveSlotMenu = () => {
             slotData={slot3}
             blink={blink}
             resetRef={buttons.reset}
-            isResetSlotSelected={isResetSlotSelected}
+            isResetSlotSelected={selectedSlot === SaveSlot.Slot3 && isResetSlotSelected}
             onClick={handleChooseSlot}
           />
         </SlotContainer>
 
-        <Stack className="menu-controls" row>
+        <div className="menu-controls position-relative">
           {inputType === InputType.Keyboard ? (
             <>
-              <Controls.ButtonBack inputType={inputType} />
-              <Controls.ButtonSelect inputType={inputType} />
+              <div style={{ position: 'absolute', left: 80 }}>
+                <Controls.ButtonBack inputType={inputType} />
+              </div>
+              <div style={{ position: 'absolute', right: 40 }}>
+                <Controls.ButtonSelect inputType={inputType} />
+                <Controls.ButtonRight inputType={inputType} label="Reset" />
+              </div>
             </>
           ) : (
             <>
-              <Controls.ButtonSelect inputType={inputType} />
-              <Controls.ButtonBack inputType={inputType} />
+              <div style={{ position: 'absolute', left: 70 }}>
+                <Controls.ButtonBack inputType={inputType} />
+              </div>
+              <div style={{ position: 'absolute', right: 40 }}>
+                <Controls.ButtonSelect inputType={inputType} />
+                <div style={{ height: 30 }} />
+                <Controls.ButtonRight inputType={inputType} label="Reset" />
+              </div>
             </>
           )}
-        </Stack>
+        </div>
       </div>
     </div>
   )
@@ -281,7 +293,6 @@ interface SaveDataSlotProps {
 function SaveDataSlot({
   id,
   slotRef,
-  resetRef,
   selected,
   empty,
   blink,
@@ -306,35 +317,56 @@ function SaveDataSlot({
   const episode = slotData?.episode;
   const timePlayedMs = slotData?.stats.totalGameTimeElapsed;
   const level = getLevelById(levelId);
+  const difficulty = slotData?.difficulty || 1;
   return (
-    <div>
+    <div className="position-relative">
       <Slot
         id={id}
         slotRef={slotRef}
-        className="save-slot"
+        className={"save-slot" + (isResetSlotSelected ? ' reset-selected' : '')}
         selected={selected}
-        focused={selected && !isResetSlotSelected}
+        focused={selected}
         blink={selected && blink}
         onClick={() => onClick(slot)}
       >
-        <span>
-          <span>
-            <span className="save-slot-level-name">{level.name}</span>
+        <span className="save-slot-info">
+          <Stack col align="end" noChildMargin gap={10}>
+            <Stack className="fullwidth" elem="span" row justify="end" gap={10}>
+              <span className="save-slot-level-name">{level.name}</span>
+              <span className="color-e always">-</span>
+              {difficulty === 1 && (
+                <span className="save-slot-difficulty color-x easy">Easy</span>
+              )}
+              {difficulty === 2 && (
+                <span className="save-slot-difficulty color-m medium">Medium</span>
+              )}
+              {difficulty === 3 && (
+                <span className="save-slot-difficulty color-l hard">Hard</span>
+              )}
+              {difficulty === 4 && (
+                <span className="save-slot-difficulty color-j Ultra">Ultra</span>
+              )}
+            </Stack>
             <span className="save-slot-episode">{episodeDisplay(episode)}</span>
             <span className="save-slot-time-played">{timeDisplay(timePlayedMs)}</span>
-          </span>
-          <span className="save-slot-level-preview">
-            level<br/>preview
-          </span>
+          </Stack>
         </span>
+        <span className="save-slot-level-preview">
+          <LevelPreview
+            level={level}
+            width={LEVEL_PREVIEW_SIZE}
+            height={LEVEL_PREVIEW_SIZE}
+            blink={selected && blink}
+            className={selected ? "active" : "dim"}
+          />
+        </span>
+        {isResetSlotSelected && (
+          <span className="save-slot-reset-indicator">
+            <span className="overworld-icon trash" />
+            <span className="minimood">Reset</span>
+          </span>
+        )}
       </Slot>
-      {selected && (
-        <div className="position-absolute" style={{ left: '100%', marginLeft: 20 }}>
-          <button ref={resetRef} className={"newbutton ui-arrows select-white" + (isResetSlotSelected ? " active" : "")}>
-            Reset
-          </button>
-        </div>
-      )}
     </div>
   );
 }
@@ -365,7 +397,9 @@ function EmptySlot({
       blink={blink}
       onClick={onClick}
     >
-      [Empty]
+      <span className="save-slot-info center empty">
+        [Empty]
+      </span>
     </Slot>
   );
 }

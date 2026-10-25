@@ -157,7 +157,16 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
     return this.state.isCobraModeUnlocked;
   }
 
-  public getLevelCompleted = (levelId: LevelId | undefined, difficultyIndex: DifficultyIndex) => {
+  public getLevelCompleted = (levelId: LevelId | undefined) => {
+    return !!(false
+      || this.state.completion[levelId]?.[1]?.completed
+      || this.state.completion[levelId]?.[2]?.completed
+      || this.state.completion[levelId]?.[3]?.completed
+      || this.state.completion[levelId]?.[4]?.completed
+    );
+  }
+
+  public getLevelCompletedByDifficulty = (levelId: LevelId | undefined, difficultyIndex: DifficultyIndex) => {
     return !!this.state.completion[levelId]?.[difficultyIndex]?.completed
   }
 

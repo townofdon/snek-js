@@ -32,7 +32,8 @@ interface StackProps {
   className?: string;
   style?: React.CSSProperties;
   children?: React.ReactNode;
-  gap?: number
+  gap?: number;
+  elem?: 'div' | 'span';
 }
 
 export const Stack = ({
@@ -47,25 +48,40 @@ export const Stack = ({
   style,
   children,
   gap,
+  elem,
 }: StackProps) => {
+  const classes = cx(styles.stack, className, {
+    [styles.row]: row || (!row && !col),
+    [styles.col]: col,
+    [styles.alignStart]: align === Align.start,
+    [styles.alignEnd]: align === Align.end,
+    [styles.alignStretch]: align === Align.stretch,
+    [styles.alignSpaceAround]: align === Align.spaceAround,
+    [styles.alignSpaceBetween]: align === Align.spaceBetween,
+    [styles.justifyStart]: justify === Justify.start,
+    [styles.justifyEnd]: justify === Justify.end,
+    [styles.justifySpaceAround]: justify === Justify.spaceAround,
+    [styles.justifySpaceBetween]: justify === Justify.spaceBetween,
+    [styles.marginBottom]: marginBottom,
+    [styles.marginTop]: marginTop,
+    [styles.noChildMargin]: noChildMargin,
+  });
+  if (elem === 'span') {
+    return (
+      <span
+        className={classes}
+        style={{
+          ...style,
+          ...(gap ? { gap }: {}),
+        }}
+      >
+        {children}
+      </span>
+    );
+  }
   return (
     <div
-      className={cx(styles.stack, className, {
-        [styles.row]: row || (!row && !col),
-        [styles.col]: col,
-        [styles.alignStart]: align === Align.start,
-        [styles.alignEnd]: align === Align.end,
-        [styles.alignStretch]: align === Align.stretch,
-        [styles.alignSpaceAround]: align === Align.spaceAround,
-        [styles.alignSpaceBetween]: align === Align.spaceBetween,
-        [styles.justifyStart]: justify === Justify.start,
-        [styles.justifyEnd]: justify === Justify.end,
-        [styles.justifySpaceAround]: justify === Justify.spaceAround,
-        [styles.justifySpaceBetween]: justify === Justify.spaceBetween,
-        [styles.marginBottom]: marginBottom,
-        [styles.marginTop]: marginTop,
-        [styles.noChildMargin]: noChildMargin,
-      })}
+      className={classes}
       style={{
         ...style,
         ...(gap ? { gap }: {}),

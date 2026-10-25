@@ -30,6 +30,10 @@ export interface AddItemOptions {
    * Set true to replace an existing element when adding a new element.
    */
   replaceExisting?: boolean,
+  /**
+   * Optional initial elapsed time.
+   */
+  elapsed?: number,
 }
 
 // INTERNAL FLAGS
@@ -217,7 +221,7 @@ export class AnimationList implements ICollection, IFlaggable, IRemovable {
       this.free[idx] = 0;
       this.x[idx] = x;
       this.y[idx] = y;
-      this.elapsed[idx] = 0;
+      this.elapsed[idx] = opts.elapsed || 0;
       this.coordMap[coord] = true;
       this.lifetime[idx] = lifetime;
       this.img[idx] = img;

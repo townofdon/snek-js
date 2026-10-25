@@ -232,14 +232,12 @@ export const SELECTABLE_LEVELS_EP_01: Level[] = [
   LEVEL_99,
 ];
 
-export const EXTENDED_LEVELS_EP_01: Level[] = [];
-
 export const LEVELS_EP_01: Level[] = [
   ...SELECTABLE_LEVELS_EP_01,
   LEVEL_WIN_GAME,
 ];
 
-export const LEVELS_EP_02: Level[] = [
+export const SELECTABLE_LEVELS_EP_02: Level[] = [
   X_SNEKCITY,
   X_ACROPOLIS, // rm?
   X_BEACONS, // rm?
@@ -262,9 +260,12 @@ export const LEVELS_EP_02: Level[] = [
   X_GAUNTLET,
 ];
 
-export const SELECTABLE_LEVELS_EP_02 = LEVELS_EP_02;
+export const LEVELS_EP_02: Level[] = [
+  ...SELECTABLE_LEVELS_EP_02,
+  LEVEL_WIN_GAME,
+];
 
-export const LEVELS_EP_03: Level[] = [
+export const SELECTABLE_LEVELS_EP_03: Level[] = [
   X_BACKCHANNELS,
   X_DETHRATTLE,
   X_DOOMSCROLL,
@@ -277,7 +278,10 @@ export const LEVELS_EP_03: Level[] = [
   X_WALLCRUSHER,
 ];
 
-export const SELECTABLE_LEVELS_EP_03 = LEVELS_EP_03;
+export const LEVELS_EP_03: Level[] = [
+  ...SELECTABLE_LEVELS_EP_03,
+  LEVEL_WIN_GAME,
+];
 
 const countableLevel = (level: Level) => {
   switch (level) {
@@ -338,7 +342,7 @@ export const ALL_LEVELS = dedupe([
   LEVEL_ARENA_02,
 ]);
 
-export const EDITOR_LEVELS = [
+export const EDITOR_LEVELS = dedupe([
   ...LEVELS_EP_01,
   LEVEL_01_HARD,
   LEVEL_01_ULTRA,
@@ -346,31 +350,7 @@ export const EDITOR_LEVELS = [
   ...SECRET_LEVELS,
   ...LEVELS_EP_02,
   ...LEVELS_EP_03,
-];
-
-export const CHALLENGE_LEVELS: Level[] = [
-  X_SNEKCITY,
-  X_ACROPOLIS,
-  X_BEACONS,
-  X_CUBISM,
-  X_CASA,
-  X_DIGIN,
-  X_CATACOMBS,
-  X_FORTITUDE,
-  X_GUARDIAN,
-  X_SEARCHLIGHT,
-  X_KINGS_HALL,
-  X_LAST_RITES,
-  X_MAKEITOUTALIVE,
-  X_QUANTUM_ENTANGLEMENT,
-  X_SKILL_CHECK,
-  X_STONEMAZE,
-  X_TOO_SIMPLE,
-  X_DATACENTER,
-  X_UNDERGROUND,
-  X_UNWIND,
-  X_GAUNTLET,
-];
+]);
 
 export const MAIN_TITLE_SCREEN_LEVEL = LEVEL_00;
 

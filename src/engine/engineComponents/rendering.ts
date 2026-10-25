@@ -73,6 +73,7 @@ import { Renderer } from "../renderer";
 import { PALETTE } from "@/palettes";
 import { SpriteRenderer } from "../spriteRenderer";
 import {
+  byCoord,
   checkIsMoving,
   dirToUnitVector,
   getCoordIndex,
@@ -84,6 +85,8 @@ import {
   isAtMapEdge,
   isNil,
   lerp,
+  neighborly,
+  outOfBounds,
   shouldBlinkExpiringPickup,
   toRarity,
   triangle,
@@ -450,6 +453,20 @@ export function engineRendering({
   function drawPlayerSegment(vec: Vector | undefined, i = 0) {
     if (!vec) return;
     if (i >= 1 && vec.equals(segments.get(i - 1))) return;
+    const gfx = renderer.getMainGfx();
+    const burnDeath = state.isLost && state.lastHurtBy === DamageType.Burn;
+    const coord = getCoordIndex(vec);
+    if (burnDeath) {
+      gfx.push();
+      if (es.flamesMap[coord]) {
+        gfx.tint(150, 152, 146);
+      } else if (neighborly(coord, es.flamesMap)) {
+        gfx.tint(180, 182, 186);
+      } else {
+        const t = triangle((vec.x + vec.y) / 5);
+        gfx.tint(lerp(170, 225, t), lerp(172, 225, t), lerp(166, 220, t));
+      }
+    }
     const isMiddle = i < segments.length - 1;
     const lastSegment = i === segments.length - 1;
     const dirPrev = i === 0
@@ -485,7 +502,6 @@ export function engineRendering({
     const invincible = !state.isExitingLevel && state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
     const electrocuted = state.timeSinceElectrocutionStart < ELECTROCUTION_DURATION_MS && Math.floor(state.timeSinceElectrocutionStart / ELECTROCUTION_FLASH_RATE) % 2 === 0;
     if (electrocuted) {
-      const gfx = renderer.getMainGfx();
       if (cornerNE) {
         spriteRenderer.drawSprite1x1(gfx, Image.SegmentsSheet, x, y, SegmentFrame.SkelSegTurn - 1, Math.PI * 0.5, 1);
       } else if (cornerSE) {
@@ -539,7 +555,6 @@ export function engineRendering({
     } else if (es.snekDamage[getCoordIndex(vec)] === DamageType.MortalRuinHide) {
       // hide mortal ruin
     } else if (es.snekDamage[getCoordIndex(vec)] === DamageType.MortalRuin) {
-      const gfx = renderer.getMainGfx();
       const prev = getCoordIndex(segments.get(i - 1));
       const next = getCoordIndex(segments.get(i + 1));
       let dir = DIR.RIGHT;
@@ -559,7 +574,6 @@ export function engineRendering({
       const rot = getRotationFromDirection(dir);
       spriteRenderer.drawImage1x1(gfx, Image.ThemedSegmentMortalRuin, vec.x, vec.y, rot, 1, 1);
     } else {
-      const gfx = renderer.getMainGfx();
       // draw normal segment
       if (cornerNE) {
         spriteRenderer.drawImage3x3Custom(gfx, Image.ThemedSegmentNE, vec.x, vec.y, 0, 1, 1);
@@ -600,9 +614,15 @@ export function engineRendering({
       }
       _drawSegmentArmor(vec, i, dirPrev);
     }
-    if (es.flamesMap[getCoordIndex(vec)] && !state.isButtonPressed && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY) {
-      const gfx = state.isInvertedColors ? gfxFGAction : renderer.getMainGfx();
-      spriteRenderer.drawSpritesheetAnim3x3(gfx, SpritesheetRange.Burn, vec.x, vec.y, state.actualTimeElapsed);
+    if (burnDeath) {
+      gfx.pop();
+    }
+    const flamesAtLocation = burnDeath && neighborly(coord, es.flamesMap) || (
+      es.flamesMap[getCoordIndex(vec)] && !state.isButtonPressed && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY
+    );
+    if (flamesAtLocation) {
+      const invgfx = state.isInvertedColors ? gfxFGAction : renderer.getMainGfx();
+      spriteRenderer.drawSpritesheetAnim3x3(invgfx, SpritesheetRange.Burn, vec.x, vec.y, state.actualTimeElapsed + 200 * i);
     }
     if (state.acquireProgression > 0) {
       const color = p5.lerpColor(p5.color('#ffffff00'), p5.color('#ffffffff'), state.acquireProgression);

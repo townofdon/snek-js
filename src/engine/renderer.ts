@@ -59,7 +59,7 @@ interface RendererConstructorProps {
 }
 
 export class Renderer implements IRenderer {
-  private gfxOverride = null;
+  private gfxOverride: (P5 | P5.Graphics) = null;
   private p5: P5 = null;
   private fonts: FontsInstance = null;
   private replay: Replay = null;

@@ -1,11 +1,11 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useForceRerender } from "./hooks/useForceRerender";
-import { Episode, InputAction, InputType, Level, NewGameArgs, UINavDir } from "@/types";
+import { Episode, InputAction, InputType, NewGameArgs, UINavDir } from "@/types";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { saveDataStore } from '@/stores/SaveDataStore';
 import { SELECTABLE_LEVELS_EP_01, SELECTABLE_LEVELS_EP_02, SELECTABLE_LEVELS_EP_03 } from "@/levels/levelConstants";
 import { bridge } from "./uiBridge";
-import { episodeDisplay, sluggify } from "@/utils";
+import { episodeDisplay } from "@/utils";
 import { GamepadType, getGamepadType } from "@/engine/gamepad";
 import { Stack } from "@/components/Stack";
 import { LevelPreview } from "@/engine/levelPreview/LevelPreview";
@@ -40,6 +40,10 @@ export const LevelSelectMenu = () => {
   if (selectedLevelIdx % levels.length === levels.length - 1) {
     levelnext = null;
   }
+
+  const lockedprev = !saveDataStore.getLevelCompleted(levelprev?.id) && levelprev !== levels[0];
+  const lockedcurr = !saveDataStore.getLevelCompleted(levelcurr?.id) && levelcurr !== levels[0];
+  const lockednext = !saveDataStore.getLevelCompleted(levelnext?.id) && levelnext !== levels[0];
 
   useEffect(() => {
     const handleUIEvent = (action: InputAction = InputAction.None) => {
@@ -125,7 +129,8 @@ export const LevelSelectMenu = () => {
         return true;
       }
       bridge.levelSelectMenu.onInteract = () => {
-        if (!levelcurr) return;
+        if (!levelcurr) return false;
+        if (lockedcurr) return false;
         const newGameArgs = {
           levelId: levelcurr.id,
           episode: selectedEpisode,
@@ -154,54 +159,30 @@ export const LevelSelectMenu = () => {
     return null;
   }
 
-  const displayLevel = (level: Level | null, active: boolean) => {
-    if (!level) return null;
-    const slug = sluggify(level.name);
-    const preview = `assets/graphics/level-preview/${slug}.jpg`;
-    const completedMedium = saveDataStore.getLevelCompleted(level.id, 2);
-    const completedHard = saveDataStore.getLevelCompleted(level.id, 3);
-    const completedUltra = saveDataStore.getLevelCompleted(level.id, 4);
-    return (
-      <button id={`select-level-${slug}`} className={`select-level${active ? ' active' : ''}`} onClick={() => {
-        if (disabled) return;
-        const newGameArgs = {
-          levelId: levelcurr.id,
-          episode: selectedEpisode,
-          gameMode: bridge.gameState.gameMode,
-        } satisfies NewGameArgs;
-        bridge.callAction(InputAction.NewGame, newGameArgs);
-        setDisabled(true);
-      }}>
-        {active && (
-          <div className="completion-status">
-            <div className={`medium${completedMedium ? " completed" : ""}`}></div>
-            <div className={`hard${completedHard ? " completed" : ""}`}></div>
-            <div className={`ultra${completedUltra ? " completed" : ""}`}></div>
-          </div>
-        )}
-        <img alt={`Select level ${level.name}`} src={preview} width="150" height="150" onError={(ev) => {
-          console.error(ev);
-        }} />
-      </button>
-    )
-  };
-
   return (
     <div id="level-select-menu" className="settings-menu level-select-menu">
       <div className="background blur"></div>
       <div className="content">
         <h2 className="center title-gradient">Level Select</h2>
         <h3 className="center level-name">
-          <span className="transform-flip-x"><img src="assets/graphics/editor-play.png" width="16" height="16" /></span>
+          <span className="overworld-icon arrow-left" style={{ marginTop: -11 }} />
           <span id="level-select-map-number" className="num">{String((selectedLevelIdx % levels.length) + 1).padStart(2, '0')}</span>
-          <span id="level-select-map-name" className="name">{levelcurr.name}</span>
-          <span><img src="assets/graphics/editor-play.png" width="16" height="16" /></span>
+          <span id="level-select-map-name" className="name display-inline-flex center">{lockedcurr ? (
+            <>
+              <span className="overworld-icon lock" style={{ marginTop: -14 }} />
+              <span>Locked</span>
+            </>
+          ) : (
+            levelcurr.name
+          )}</span>
+          <span className="overworld-icon arrow-right" style={{ marginTop: -11 }} />
         </h3>
         <div id="level-select-levels" className="levels">
           <LevelPreview
             level={levelprev}
             width={LEVEL_PREVIEW_SIZE}
             height={LEVEL_PREVIEW_SIZE}
+            locked={lockedprev}
             className="dim"
             style={{
               position: 'absolute',
@@ -214,12 +195,14 @@ export const LevelSelectMenu = () => {
             width={LEVEL_PREVIEW_SIZE}
             height={LEVEL_PREVIEW_SIZE}
             blink={blink}
+            locked={lockedcurr}
             className="active"
           />
           <LevelPreview
             level={levelnext}
             width={LEVEL_PREVIEW_SIZE}
             height={LEVEL_PREVIEW_SIZE}
+            locked={lockednext}
             className="dim"
             style={{
               position: 'absolute',

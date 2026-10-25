@@ -44,7 +44,7 @@ export function getGamepad(): Gamepad | null {
 }
 
 export function getGamepadType() {
-  return gamepadState.type;
+  return gamepadState.type || GamepadType.Xbox;
 }
 
 export function tickGamepad() {

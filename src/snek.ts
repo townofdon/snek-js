@@ -6,8 +6,6 @@ import {
   START_LEVEL,
   START_LEVEL_COBRA,
   LEVELS_EP_01,
-  FIRST_CHALLENGE_LEVEL,
-  CHALLENGE_LEVELS,
   NEXT_LEVEL_MAP,
   ARCADE_LEVELS,
   TUTORIAL_LEVELS,
@@ -24,7 +22,6 @@ import {
 } from './constants';
 import {
   DEFAULT_ACTION_IDS_MAP,
-  DEFAULT_BASE_STATS,
   DEFAULT_HELD_ITEMS,
   DEFAULT_OUTFIT,
   DEFAULT_STATS,
@@ -70,7 +67,6 @@ import {
   Achievement,
   SaveSlotData,
   NewGameArgs,
-  LightPalette,
 } from './types';
 import { MainTitleFader } from './ui/mainTitleFader';
 import { Modal } from './ui/modal';
@@ -608,6 +604,7 @@ export const sketch = (p5: P5) => {
   }
 
   function loadGame(data: SaveSlotData) {
+    tutorial.needsMoveControls = false;
     state.gameMode = data.gameMode;
     state.episode = data.episode;
     outfit.back = data.outfit?.back || DEFAULT_OUTFIT.back;
@@ -637,6 +634,7 @@ export const sketch = (p5: P5) => {
 
   function newGame(newGameArgs: NewGameArgs) {
     const { levelId, episode, gameMode } = newGameArgs;
+    tutorial.needsMoveControls = true;
     outfit.back = DEFAULT_OUTFIT.back;
     outfit.exclusive = DEFAULT_OUTFIT.exclusive;
     outfit.eyes = DEFAULT_OUTFIT.eyes;
@@ -897,7 +895,7 @@ export const sketch = (p5: P5) => {
       sfx.play(Sound.uiBlip);
       emitUIEvent(InputAction.CancelResetCurrentSaveSlot, Initiator.UI);
     }
-    modal.show('Goto Main Menu?', 'Current score will be lost.', handleYes, handleNo);
+    modal.show('Reset Save Slot?', 'This action cannot be undone.', handleYes, handleNo);
     sfx.play(Sound.unlock);
   }
 
@@ -981,6 +979,7 @@ export const sketch = (p5: P5) => {
 
   let levelsSeen: Record<string, boolean> = {};
 
+  //#region GOTO NEXT LEVEL
   function gotoNextLevel() {
     if (replay.mode === ReplayMode.Playback) return;
 
@@ -1157,6 +1156,7 @@ export const sketch = (p5: P5) => {
       initLevel();
     }
   }
+  //#endregion GOTO NEXT LEVEL
 
   const getNextLoseMessage = (): string => {
     const level = getLevel();
@@ -1230,10 +1230,28 @@ export const sketch = (p5: P5) => {
 
   function setLevelIndexFromCurrentLevel() {
     state.levelIndex = 0;
-    for (let i = 0; i < LEVELS_EP_01.length; i++) {
-      if (getLevel() === LEVELS_EP_01[i]) {
-        state.levelIndex = i;
-        break;
+    if (state.episode === Episode.E1) {
+      for (let i = 0; i < LEVELS_EP_01.length; i++) {
+        if (getLevel() === LEVELS_EP_01[i]) {
+          state.levelIndex = i;
+          break;
+        }
+      }
+    }
+    if (state.episode === Episode.E2) {
+      for (let i = 0; i < LEVELS_EP_02.length; i++) {
+        if (getLevel() === LEVELS_EP_02[i]) {
+          state.levelIndex = i;
+          break;
+        }
+      }
+    }
+    if (state.episode === Episode.E3) {
+      for (let i = 0; i < LEVELS_EP_03.length; i++) {
+        if (getLevel() === LEVELS_EP_03[i]) {
+          state.levelIndex = i;
+          break;
+        }
       }
     }
   }

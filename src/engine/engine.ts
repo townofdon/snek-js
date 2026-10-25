@@ -147,6 +147,7 @@ import {
   analyzeFloodFillTrappedResult,
   makeCheckPreyCollision,
   sluggify,
+  neighborly,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -3191,13 +3192,14 @@ export function engine({
   function* burninationRoutine(): IEnumerator {
     state.timeSinceBurnStart = 0;
     let segmentAtCoord = false;
+    const seen: Record<number, boolean> = {}
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
       if (es.flamesMap[coord] && (coord === getCoordIndex(player.position) || segments.existsAtCoord(coord))) {
         if (segments.existsAtCoord(coord)) {
           segmentAtCoord = true;
         }
-        smoke.removeByCoord(coord, RemovalReason.None);
-        smoke.add(getCoordX(coord), getCoordY(coord), 9999999, SpritesheetRange.BigSmokeActive, SmokeType.Large);
+        smoke.add(getCoordX(coord), getCoordY(coord), 9999999, SpritesheetRange.BigSmokeActive, SmokeType.Large, { replaceExisting: true });
+        seen[coord] = true;
       }
     }
     const hasArmor = heldItems.armor > 0;
@@ -3215,6 +3217,15 @@ export function engine({
       }
     }
     state.timeSinceBurnStart = Infinity;
+    if (state.isLost || state.lives < 0) {
+      // add smoke to neighbors
+      for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+        if (!seen[coord] && segments.existsAtCoord(coord) && neighborly(coord, es.flamesMap)) {
+          seen[coord] = true;
+          smoke.add(getCoordX(coord), getCoordY(coord), 9999999, SpritesheetRange.BigSmokeActive, SmokeType.Large, { replaceExisting: true, elapsed: Math.floor(Math.random() * 10) * 200 });
+        }
+      }
+    }
     if (state.isLost) return;
     if (state.lives < 0) return;
 

@@ -1506,6 +1506,17 @@ export const outOfBounds = (x: number, y: number): boolean => {
   return x < 0 || y < 0 || x >= GRIDCOUNT_X || y >= GRIDCOUNT_Y;
 }
 
+export const neighborly = (coord: number, map: Record<number, any>): boolean => {
+  const x = getCoordX(coord);
+  const y = getCoordY(coord);
+  if (map[coord]) return true;
+  if (!outOfBounds(x+1, y) && map[getCoordIndex2(x+1, y)]) return true;
+  if (!outOfBounds(x-1, y) && map[getCoordIndex2(x-1, y)]) return true;
+  if (!outOfBounds(x, y+1) && map[getCoordIndex2(x, y+1)]) return true;
+  if (!outOfBounds(x, y-1) && map[getCoordIndex2(x, y-1)]) return true;
+  return false;
+}
+
 export const sluggify = (val: string) => {
   return String(val || '').toLowerCase().trim().replace(/[^\w\s]/g, '').replace(/\s+/g, '-').replace(/^-+|-+$/g, '');
 }
