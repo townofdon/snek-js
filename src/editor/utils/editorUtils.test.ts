@@ -63,9 +63,9 @@ describe('editorUtils', () => {
         portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
         musicTrack: MusicTrack.None,
         pipeVariant: 1,
-        showAnnotations: false,
-        showNospawns: false,
-        showLighting: false,
+        showAnnotations: true,
+        showNospawns: true,
+        showLighting: true,
       }
       const data: EditorData = {
         ...EDITOR_DEFAULTS.emptyData(),
@@ -121,9 +121,9 @@ describe('editorUtils', () => {
         },
         musicTrack: MusicTrack.None,
         pipeVariant: 1,
-        showAnnotations: false,
-        showNospawns: false,
-        showLighting: false,
+        showAnnotations: true,
+        showNospawns: true,
+        showLighting: true,
       }
       const B1 = BarrierType.Default;
       const data: EditorData = {
@@ -225,9 +225,9 @@ describe('editorUtils', () => {
         portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
         musicTrack: MusicTrack.None,
         pipeVariant: 1,
-        showAnnotations: false,
-        showNospawns: false,
-        showLighting: false,
+        showAnnotations: true,
+        showNospawns: true,
+        showLighting: true,
       }
       const data: EditorData = {
         ...EDITOR_DEFAULTS.emptyData(),
@@ -295,9 +295,9 @@ describe('editorUtils', () => {
         portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
         musicTrack: MusicTrack.None,
         pipeVariant: 1,
-        showAnnotations: false,
-        showNospawns: false,
-        showLighting: false,
+        showAnnotations: true,
+        showNospawns: true,
+        showLighting: true,
       }
       const data = getEditorDataFromLayout(LEVEL_10.layout, new Vector(0, 0), DIR.UP);
       const encoded = encodeMapData(data, options);
@@ -532,9 +532,9 @@ describe('editorUtils data length', () => {
         portalExitConfig: EDITOR_DEFAULTS.options.portalExitConfig,
         musicTrack: MusicTrack.None,
         pipeVariant: randomInt(1, PipeVariant.Themed3),
-        showAnnotations: false,
-        showNospawns: false,
-        showLighting: false,
+        showAnnotations: true,
+        showNospawns: true,
+        showLighting: true,
       }
       const encoded = encodeMapData(data, options);
       const id = uuid();
