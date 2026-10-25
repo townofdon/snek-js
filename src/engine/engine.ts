@@ -270,7 +270,7 @@ export function engine({
   onRecordLevelProgress,
 }: EngineParams) {
   const boss: { current: Boss | null } = { current: null };
-  const es: EngineState = DEFAULT_ENGINE_STATE;
+  const es: EngineState = { ...DEFAULT_ENGINE_STATE };
   const loopState: LoopState = {
     interval: null,
     timePrevMs: 0,
@@ -852,6 +852,7 @@ export function engine({
         es.pipesMap[getCoordIndex2(x, y)] = undefined;
         es.flamesMap[getCoordIndex2(x, y)] = undefined;
         es.illuminationMap[getCoordIndex2(x, y)] = undefined;
+        es.lightSources[getCoordIndex2(x, y)] = undefined;
       }
     }
     apples.reset();

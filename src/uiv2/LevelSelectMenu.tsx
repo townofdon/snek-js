@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react"
 import { useForceRerender } from "./hooks/useForceRerender";
-import { Episode, GameMode, InputAction, InputType, Level, NewGameArgs, UINavDir } from "@/types";
+import { Episode, InputAction, InputType, Level, NewGameArgs, UINavDir } from "@/types";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { saveDataStore } from '@/stores/SaveDataStore';
 import { SELECTABLE_LEVELS_EP_01, SELECTABLE_LEVELS_EP_02, SELECTABLE_LEVELS_EP_03 } from "@/levels/levelConstants";
@@ -8,6 +8,10 @@ import { bridge } from "./uiBridge";
 import { episodeDisplay, sluggify } from "@/utils";
 import { GamepadType, getGamepadType } from "@/engine/gamepad";
 import { Stack } from "@/components/Stack";
+import { LevelPreview } from "@/engine/levelPreview/LevelPreview";
+
+const LEVEL_PREVIEW_SIZE = 240;
+const ADJACENT_LEVEL_POSITION = -60;
 
 export const LevelSelectMenu = () => {
   const [selectedLevelIdx, setSelectedLevelIdx] = useState(0);
@@ -194,10 +198,41 @@ export const LevelSelectMenu = () => {
           <span><img src="assets/graphics/editor-play.png" width="16" height="16" /></span>
         </h3>
         <div id="level-select-levels" className="levels">
+          <LevelPreview
+            level={levelprev}
+            width={LEVEL_PREVIEW_SIZE}
+            height={LEVEL_PREVIEW_SIZE}
+            className="dim"
+            style={{
+              position: 'absolute',
+              left: ADJACENT_LEVEL_POSITION,
+            }}
+            deferLoading
+          />
+          <LevelPreview
+            level={levelcurr}
+            width={LEVEL_PREVIEW_SIZE}
+            height={LEVEL_PREVIEW_SIZE}
+            blink={blink}
+            className="active"
+          />
+          <LevelPreview
+            level={levelnext}
+            width={LEVEL_PREVIEW_SIZE}
+            height={LEVEL_PREVIEW_SIZE}
+            className="dim"
+            style={{
+              position: 'absolute',
+              right: ADJACENT_LEVEL_POSITION,
+            }}
+            deferLoading
+          />
+        </div>
+        {/* <div id="level-select-levels" className="levels">
           {displayLevel(levelprev, false)}
           {!blink && displayLevel(levelcurr, true)}
           {displayLevel(levelnext, false)}
-        </div>
+        </div> */}
         <div className="level-select-episode position-absolute" style={{ bottom: 60 }}>
           <span className="overworld-icon vert-arrows" style={{ marginBottom: 8 }} />
           <h4 className="minimood episode">{episodeDisplay(selectedEpisode)}</h4>

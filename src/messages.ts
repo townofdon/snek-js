@@ -38,7 +38,7 @@ export const nextLoseMessage = (
 
 const LOSE_MESSAGES: LoseMessage[] = [
     ["Now that was an interesting move...", (state, stats, difficulty) => difficulty <= 2],
-    ["I came here to chew bubble gum and play SNEK.<br/>And I'm all outa bubble gum.", (state, stats, difficulty) => true],
+    ["I came here to chew bubble gum and play SNEK.<br/><br/>And I'm all outa bubble gum.", (state, stats, difficulty) => true],
     ["The real key is to not do that thing you just did.", (state, stats, difficulty) => difficulty <= 3],
     ["Why did you do that?", (state, stats, difficulty) => difficulty <= 2],
     ["That was a killer move.", (state, stats, difficulty) => difficulty <= 3],
@@ -208,7 +208,7 @@ const LOSE_MESSAGES_BY_DAMAGE_TYPE: Record<LoseMessageDamageType, string[]> = {
         "I don't recommend a career with the bomb squad.",
         "\"Mine\": a noun, not a possessive article.",
         "I can tell you're a pro at Minesweeper.",
-        "Helpful Remember:<br/>\"Minesweeper, not Mine-eater\".",
+        "Helpful Mnemonic:<br/>\"Minesweeper, not Mine-eater\".",
         "You're like a bull in a china shop.<br/>If the china shop had mines in it.",
     ],
     [DamageType.HitLock]: [

@@ -170,15 +170,6 @@ export const SaveSlotMenu = () => {
   const slot3 = saveDataStore.getSlot(SaveSlot.Slot3);
   const inputType = bridge.gameState.inputType;
 
-  console.log({
-    isUsedSlot1,
-    isUsedSlot2,
-    isUsedSlot3,
-    slot1,
-    slot2,
-    slot3,
-  });
-
   const handleClearSave = (slot: SaveSlot) => {
     // TODO: REMOVE
     console.log('remove:', slot);
