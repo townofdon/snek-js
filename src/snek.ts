@@ -925,7 +925,13 @@ export const sketch = (p5: P5) => {
         uiBindings.onPauseCancelModal();
       }
     }
-    modal.show('Goto Main Menu?', 'Current score will be lost.', handleYes, handleNo);
+    if (state.gameMode === GameMode.Arcade) {
+      modal.show('Goto Main Menu?', 'Current score will be lost.', handleYes, handleNo);
+    } else if (state.gameMode === GameMode.Tutorial) {
+      modal.show('Goto Main Menu?', 'You can revisit the tutorial at any time.', handleYes, handleNo);
+    } else {
+      modal.show('Goto Main Menu?', 'Your progress will be saved.', handleYes, handleNo);
+    }
     sfx.play(Sound.unlock);
   }
 
