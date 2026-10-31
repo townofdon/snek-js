@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { Episode, GameMode, InputAction, InputType, SaveSlot, SaveSlotData, UINavDir } from "@/types";
+import { GameMode, InputAction, InputType, SaveSlot, SaveSlotData, UINavDir } from "@/types";
 import { getLevelById } from "@/levels/levelUtils";
 import { episodeDisplay } from "@/utils";
 import { Slot, SlotContainer } from "./components/Slot";
@@ -10,10 +10,8 @@ import { useForceRerender } from "./hooks/useForceRerender";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { useRefState } from "@/editor/hooks/useRefState";
 import { DOM } from "@/ui/uiUtils";
-import { LevelPreview } from "@/engine/levelPreview/LevelPreview";
 import { Stack } from "@/components/Stack";
-
-const LEVEL_PREVIEW_SIZE = 128;
+import { LevelImage, LevelImageType } from "@/engine/levelPreview/LevelImage";
 
 export const SaveSlotMenu = () => {
   const forceRerender = useForceRerender();
@@ -352,10 +350,9 @@ function SaveDataSlot({
           </Stack>
         </span>
         <span className="save-slot-level-preview">
-          <LevelPreview
+          <LevelImage
             level={level}
-            width={LEVEL_PREVIEW_SIZE}
-            height={LEVEL_PREVIEW_SIZE}
+            type={LevelImageType.Thumbnail}
             blink={selected && blink}
             className={selected ? "active" : "dim"}
           />

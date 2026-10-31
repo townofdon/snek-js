@@ -1,10 +1,23 @@
 import React, { useEffect, useRef, useState } from "react";
+import EventEmitter from "eventemitter3";
 
 import { Level } from "@/types"
 import { levelPreviewSketch, LevelPreviewSketchReturn } from "./levelPreviewSketch";
 
 const DEFER_LOADING_DELAY = 100;
 const JITTER = 25;
+
+const EE = new EventEmitter();
+const LevelPreviewLoadEvent = 'LevelPreviewLoadEvent'
+export const emitLevelPreviewLoaded = (level: Level, canvas: HTMLCanvasElement) => {
+  EE.emit(LevelPreviewLoadEvent, level, canvas);
+}
+export const onLevelPreviewLoaded = (handler: (level: Level, canvas: HTMLCanvasElement) => void) => {
+  EE.on(LevelPreviewLoadEvent, handler);
+}
+export const offLevelPreviewLoaded = (handler: (level: Level, canvas: HTMLCanvasElement) => void) => {
+  EE.off(LevelPreviewLoadEvent, handler);
+}
 
 interface LevelPreviewProps {
   level: Level,
@@ -38,7 +51,10 @@ export const LevelPreview = ({
     if (level) {
       const load = () => {
         if (!sketch.current) {
-          sketch.current = levelPreviewSketch(container.current, canvas, width, height);
+          const onLoaded = (lvl: Level) => {
+            emitLevelPreviewLoaded(lvl, canvas.current);
+          }
+          sketch.current = levelPreviewSketch(container.current, canvas, width, height, onLoaded);
         }
         sketch.current?.setLevel(level);
       }

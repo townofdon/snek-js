@@ -31,6 +31,7 @@ module.exports = (env) => {
       ...(isDev ? {
         dev: './src/dev/index',
         levelViz: './src/levelViz/index',
+        levelPreviewGen: './src/tools/LevelPreviewGen',
       } : {}),
     },
     output: {
@@ -121,9 +122,15 @@ module.exports = (env) => {
           inject: false,
         }),
         new HtmlWebpackPlugin({
-          title: 'SNEK DEV',
+          title: 'SNEK::LevelViz',
           filename: 'level-viz/index.html',
           template: './public/pages/level-viz/index.ejs',
+          inject: false,
+        }),
+        new HtmlWebpackPlugin({
+          title: 'SNEK::LevelPreviewGen',
+          filename: 'level-preview-gen/index.html',
+          template: './public/pages/level-preview-gen/index.ejs',
           inject: false,
         }),
       ] : []),

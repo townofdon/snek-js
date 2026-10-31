@@ -8,9 +8,8 @@ import { bridge } from "./uiBridge";
 import { episodeDisplay } from "@/utils";
 import { GamepadType, getGamepadType } from "@/engine/gamepad";
 import { Stack } from "@/components/Stack";
-import { LevelPreview } from "@/engine/levelPreview/LevelPreview";
+import { LevelImage, LevelImageType } from "@/engine/levelPreview/LevelImage";
 
-const LEVEL_PREVIEW_SIZE = 240;
 const ADJACENT_LEVEL_POSITION = -60;
 
 export const LevelSelectMenu = () => {
@@ -178,44 +177,34 @@ export const LevelSelectMenu = () => {
           <span className="overworld-icon arrow-right" style={{ marginTop: -11 }} />
         </h3>
         <div id="level-select-levels" className="levels">
-          <LevelPreview
+          <LevelImage
             level={levelprev}
-            width={LEVEL_PREVIEW_SIZE}
-            height={LEVEL_PREVIEW_SIZE}
+            type={LevelImageType.Preview}
             locked={lockedprev}
             className="dim"
             style={{
               position: 'absolute',
               left: ADJACENT_LEVEL_POSITION,
             }}
-            deferLoading
           />
-          <LevelPreview
+          <LevelImage
             level={levelcurr}
-            width={LEVEL_PREVIEW_SIZE}
-            height={LEVEL_PREVIEW_SIZE}
+            type={LevelImageType.Preview}
             blink={blink}
             locked={lockedcurr}
             className="active"
           />
-          <LevelPreview
+          <LevelImage
             level={levelnext}
-            width={LEVEL_PREVIEW_SIZE}
-            height={LEVEL_PREVIEW_SIZE}
+            type={LevelImageType.Preview}
             locked={lockednext}
             className="dim"
             style={{
               position: 'absolute',
               right: ADJACENT_LEVEL_POSITION,
             }}
-            deferLoading
           />
         </div>
-        {/* <div id="level-select-levels" className="levels">
-          {displayLevel(levelprev, false)}
-          {!blink && displayLevel(levelcurr, true)}
-          {displayLevel(levelnext, false)}
-        </div> */}
         <div className="level-select-episode position-absolute" style={{ bottom: 60 }}>
           <span className="overworld-icon vert-arrows" style={{ marginBottom: 8 }} />
           <h4 className="minimood episode">{episodeDisplay(selectedEpisode)}</h4>

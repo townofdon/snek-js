@@ -1,4 +1,4 @@
-import P5 from "p5";
+import type P5 from "p5";
 import Color from "color";
 
 import {
@@ -33,6 +33,10 @@ export const IS_LOCALHOST = window.location.href.includes('localhost');
 export const IS_NWJS_PACKAGE = process.env.__NWJS_PACKAGE__ || false;
 export const IS_PREVIEW = window.location.pathname.includes('preview');
 const IS_EDITOR = window.location.pathname.includes('editor') || window.location.pathname.includes('astar-tester');
+
+export const LEVEL_PREVIEW_SIZE = 240;
+export const LEVEL_THUMBNAIL_SIZE = 128;
+export const LEVEL_THUMBNAIL_EXT = 'png';
 
 export const LEADERBOARD_API_HOST = 'https://dontownsendcreative.com/snek-leaderboard';
 export const MAP_API_HOST = 'https://dontownsendcreative.com/snek-leaderboard';

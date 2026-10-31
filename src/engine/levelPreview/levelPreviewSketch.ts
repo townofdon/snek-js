@@ -84,6 +84,7 @@ export const levelPreviewSketch = (
   canvas: React.MutableRefObject<HTMLCanvasElement>,
   width: number,
   height: number,
+  onLoaded: (lvl: Level) => void,
 ): LevelPreviewSketchReturn => {
   let level: Level;
   let data: ExtendedSketchData;
@@ -238,6 +239,7 @@ export const levelPreviewSketch = (
       const pipes: Vector[] = Object.entries(data.pipesMap).filter(([_, val]) => !!val).map(([key]) => coordToVec(Number(key)));
       buildPipesMap(pipes, data.pipeConnectionsMap, data.pipeOverrides);
       renderElements(data, options, extendedPalette);
+      onLoaded?.(level);
     }
 
     function cacheGraphicalComponents(extendedPalette: ExtendedPalette) {

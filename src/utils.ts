@@ -1537,3 +1537,16 @@ export function episodeDisplay(episode: Episode): string {
       return 'ERR: The Good, The Bad, and The Snekly';
   }
 }
+
+export function episodeAbbrev(episode: Episode): string {
+  switch (episode) {
+    case Episode.E1:
+      return 'e1';
+    case Episode.E2:
+      return 'e2';
+    case Episode.E3:
+      return 'e3';
+    case Episode.None:
+      return '';
+  }
+}

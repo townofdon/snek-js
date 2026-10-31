@@ -1,4 +1,6 @@
-import P5, { Vector } from "p5";
+import type P5 from "p5";
+
+type Vector = P5.Vector;
 
 /**
  * USAGE:

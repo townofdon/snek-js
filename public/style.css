@@ -287,6 +287,13 @@ p, button, .button {
   user-select: none;
 }
 
+img {
+  image-rendering: -moz-crisp-edges;          /* Firefox */
+  image-rendering: -webkit-optimize-contrast; /* Chrome and Safari (legacy) */
+  image-rendering: crisp-edges;               /* Standard for Firefox */
+  image-rendering: pixelated;                 /* Standard for Chrome, Edge, and Opera */
+}
+
 canvas {
   display: block;
 }
@@ -501,6 +508,11 @@ p {
 
 .main-title > .variant > span:nth-child(4) {
   animation-delay: 1.2s;
+}
+
+button.newbutton:disabled, a.newbutton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 button.newbutton, a.newbutton {
