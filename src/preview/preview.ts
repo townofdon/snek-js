@@ -203,7 +203,7 @@ export const sketch = (p5: P5) => {
       case InputAction.HideStartScreen:
         hideStartScreen();
         break;
-      case InputAction.ShowMainMenu:
+      case InputAction.ShowTitleScreen:
         // startPreview();
         break;
       case InputAction.ShowSettingsMenu:
@@ -212,9 +212,9 @@ export const sketch = (p5: P5) => {
       case InputAction.HideSettingsMenu:
         UI.hideSettingsMenu();
         sfx.play(Sound.doorOpen);
-        if (!state.isGameStarted) UI.showMainMenu();
+        if (!state.isGameStarted) UI.showTitleScreen();
         break;
-      case InputAction.ConfirmGotoMainMenu:
+      case InputAction.ConfirmGotoTitleScreen:
         break;
       case InputAction.RetryLevel:
         retryLevel();

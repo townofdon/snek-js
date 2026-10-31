@@ -35,7 +35,7 @@ export const GameModeMenu = () => {
         case InputAction.HideGameModeMenu:
           setShowing(false);
           break;
-        case InputAction.ShowMainMenu:
+        case InputAction.ShowTitleScreen:
           setShowing(false);
           break;
         case InputAction.ShowCampaignModeMenu:

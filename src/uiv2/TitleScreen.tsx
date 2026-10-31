@@ -4,10 +4,10 @@ import { useForceRerender } from "./hooks/useForceRerender";
 import { DOM } from "@/ui/uiUtils";
 import { state } from "@/gameState";
 import { GameMode, InputAction, UINavDir } from "@/types";
-import { MainMenuButton, MainMenuNavMap } from "@/ui/uiNavMap";
+import { TitleScreenMenuButton, TitleScreenMenuNavMap } from "@/ui/uiNavMap";
 import { bridge } from "./uiBridge";
 
-export const MainMenu = () => {
+export const TitleScreen = () => {
   const [showing, setShowing] = useState(false);
   const [active, setActive] = useState(false);
   const forceRerender = useForceRerender();
@@ -20,7 +20,7 @@ export const MainMenu = () => {
     leaderboard: useRef<HTMLButtonElement>(null),
     settings: useRef<HTMLButtonElement>(null),
   }
-  const mainMenuNavMap = useRef<MainMenuNavMap>(null);
+  const titleScreenMenuNavMap = useRef<TitleScreenMenuNavMap>(null);
 
   useEffect(() => {
     const handleUIEvent = (action: InputAction = InputAction.None) => {
@@ -28,12 +28,12 @@ export const MainMenu = () => {
         case InputAction.ForceRerender:
           forceRerender();
           break;
-        case InputAction.ShowMainMenu:
+        case InputAction.ShowTitleScreen:
           forceRerender();
           setShowing(true);
           setActive(true);
           break;
-        case InputAction.HideMainMenu:
+        case InputAction.HideTitleScreen:
           setShowing(false);
           setActive(false);
           break;
@@ -64,59 +64,59 @@ export const MainMenu = () => {
 
   useEffect(() => {
     if (showing) {
-      bridge.mainMenu.showing = true;
-      const mainMenuButtons: Record<MainMenuButton, HTMLButtonElement> = {
-        [MainMenuButton.StartGame]: buttons.start.current,
-        [MainMenuButton.QuitGame]: buttons.quit.current,
-        [MainMenuButton.OSTMode]: buttons.ostMode.current,
-        [MainMenuButton.QuoteMode]: buttons.quoteMode.current,
-        [MainMenuButton.Community]: buttons.community.current,
-        [MainMenuButton.Leaderboard]: buttons.leaderboard.current,
-        [MainMenuButton.Settings]: buttons.settings.current,
+      bridge.titleScreen.showing = true;
+      const titleScreenMenuButtons: Record<TitleScreenMenuButton, HTMLButtonElement> = {
+        [TitleScreenMenuButton.StartGame]: buttons.start.current,
+        [TitleScreenMenuButton.QuitGame]: buttons.quit.current,
+        [TitleScreenMenuButton.OSTMode]: buttons.ostMode.current,
+        [TitleScreenMenuButton.QuoteMode]: buttons.quoteMode.current,
+        [TitleScreenMenuButton.Community]: buttons.community.current,
+        [TitleScreenMenuButton.Leaderboard]: buttons.leaderboard.current,
+        [TitleScreenMenuButton.Settings]: buttons.settings.current,
       };
-      mainMenuNavMap.current = new MainMenuNavMap(
-        mainMenuButtons,
+      titleScreenMenuNavMap.current = new TitleScreenMenuNavMap(
+        titleScreenMenuButtons,
         {
-          [MainMenuButton.StartGame]: InputAction.ShowGameModeMenu,
-          [MainMenuButton.QuitGame]: InputAction.ConfirmQuitGame,
-          [MainMenuButton.OSTMode]: InputAction.EnterOstMode,
-          [MainMenuButton.QuoteMode]: InputAction.EnterQuoteMode,
-          [MainMenuButton.Leaderboard]: InputAction.ShowLeaderboard,
-          [MainMenuButton.Settings]: InputAction.ShowSettingsMenu,
-          [MainMenuButton.Community]: InputAction.GotoCommunityPage,
+          [TitleScreenMenuButton.StartGame]: InputAction.ShowGameModeMenu,
+          [TitleScreenMenuButton.QuitGame]: InputAction.ConfirmQuitGame,
+          [TitleScreenMenuButton.OSTMode]: InputAction.EnterOstMode,
+          [TitleScreenMenuButton.QuoteMode]: InputAction.EnterQuoteMode,
+          [TitleScreenMenuButton.Leaderboard]: InputAction.ShowLeaderboard,
+          [TitleScreenMenuButton.Settings]: InputAction.ShowSettingsMenu,
+          [TitleScreenMenuButton.Community]: InputAction.GotoCommunityPage,
         },
         bridge.callAction,
       );
-      bridge.mainMenu.onNavigate = (navDir) => {
+      bridge.titleScreen.onNavigate = (navDir) => {
         switch (navDir) {
           case UINavDir.Prev:
-            return mainMenuNavMap.current.gotoPrev();
+            return titleScreenMenuNavMap.current.gotoPrev();
           case UINavDir.Up:
-            return mainMenuNavMap.current.gotoUp();
+            return titleScreenMenuNavMap.current.gotoUp();
           case UINavDir.Left:
-            return mainMenuNavMap.current.gotoLeft();
+            return titleScreenMenuNavMap.current.gotoLeft();
           case UINavDir.Next:
-            return mainMenuNavMap.current.gotoNext();
+            return titleScreenMenuNavMap.current.gotoNext();
           case UINavDir.Down:
-            return mainMenuNavMap.current.gotoDown();
+            return titleScreenMenuNavMap.current.gotoDown();
           case UINavDir.Right:
-            return mainMenuNavMap.current.gotoRight();
+            return titleScreenMenuNavMap.current.gotoRight();
           default:
             return false;
         }
       }
-      bridge.mainMenu.onInteract = () => {
-        return mainMenuNavMap.current.callSelected();
+      bridge.titleScreen.onInteract = () => {
+        return titleScreenMenuNavMap.current.callSelected();
       }
-      bridge.mainMenu.onCancel = () => {
+      bridge.titleScreen.onCancel = () => {
         return false;
       }
     } else {
-      bridge.mainMenu.showing = false;
-      bridge.mainMenu.onNavigate = null;
-      bridge.mainMenu.onInteract = null;
-      bridge.mainMenu.onCancel = null;
-      mainMenuNavMap.current = null;
+      bridge.titleScreen.showing = false;
+      bridge.titleScreen.onNavigate = null;
+      bridge.titleScreen.onInteract = null;
+      bridge.titleScreen.onCancel = null;
+      titleScreenMenuNavMap.current = null;
     }
   }, [showing]);
 
@@ -315,22 +315,6 @@ export const MainMenu = () => {
           <span className="tooltip align-right">Settings</span>
         </button>
       </div>
-      {showLabelCasualMode && (
-        <div
-          id="main-menu-label-casual-mode"
-          className="main-menu-label-casual-mode"
-        >
-          <span>Casual Mode</span>
-        </div>
-      )}
-      {showLabelCobra && (
-        <div
-          id="main-menu-label-cobra-mode"
-          className="main-menu-label-cobra-mode"
-        >
-          <span>Cobra Mode</span>
-        </div>
-      )}
     </>
   );
 }

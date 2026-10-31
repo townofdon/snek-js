@@ -73,7 +73,7 @@ export const DebugMenu = () => {
         case InputAction.ForceRerender:
           forceRerender();
           break;
-        case InputAction.ShowMainMenu:
+        case InputAction.ShowTitleScreen:
           setShowing(false);
           break;
         case InputAction.Pause:

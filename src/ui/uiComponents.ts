@@ -12,7 +12,7 @@ export function showGameOverUI(loseMessage: string, uiElements: HTMLElement[]) {
 
 interface ShowPauseMenuCallbacks {
   unpause: () => void
-  confirmShowMainMenu: () => void
+  confirmShowTitleScreen: () => void
   showInGameSettingsMenu: () => void
 }
 
@@ -27,7 +27,7 @@ export function showPauseUIPreviewMode(uiElements: HTMLElement[], callbacks: Pic
 }
 
 export function showPauseUI(uiElements: HTMLElement[], callbacks: ShowPauseMenuCallbacks) {
-  const { unpause, confirmShowMainMenu, showInGameSettingsMenu } = callbacks;
+  const { unpause, confirmShowTitleScreen, showInGameSettingsMenu } = callbacks;
   UI.drawDarkOverlay(uiElements);
   UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR });
   {
@@ -35,8 +35,8 @@ export function showPauseUI(uiElements: HTMLElement[], callbacks: ShowPauseMenuC
     button.classList.add('minimood', 'focus-invert');
     button.id = 'pauseButtonResume';
   }
-  if (confirmShowMainMenu) {
-    const button = UI.drawButton("MAIN MENU", 176, 16, confirmShowMainMenu, uiElements)
+  if (confirmShowTitleScreen) {
+    const button = UI.drawButton("MAIN MENU", 176, 16, confirmShowTitleScreen, uiElements)
     button.classList.add('minimood', 'focus-invert');
     button.id = 'pauseButtonMainMenu';
   }

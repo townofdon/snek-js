@@ -71,6 +71,7 @@ const LOSE_MESSAGES: LoseMessage[] = [
 
     ["I think you just invented a new knot...", (state) => state.lastHurtBy === DamageType.HitSelf],
     ["Really got yourself coiled up there, huh.", (state, stats, difficulty) => state.isTrapped],
+    ["Neat design ya just made there.", (state, stats, difficulty) => state.isTrapped],
 
     ["What happened? I was napping.", (state, stats, difficulty) => difficulty <= 2],
     ["Can you garter up the courage to try again?", (state, stats, difficulty) => difficulty <= 2 && stats.numDeaths >= 2],
@@ -176,7 +177,7 @@ const LOSE_MESSAGES: LoseMessage[] = [
     ["Pay no mind to those<br/>who revel in your misfortune.", (state, stats, difficulty) => difficulty >= 4],
     ["A thin line exists<br/>between the stout-hearted<br/>and the foolhardy.", (state, stats, difficulty) => difficulty >= 4],
     ["Wow, you're really getting good.<br/><br/>...<br/><br/>At running into things.", (state, stats, difficulty) => difficulty >= 4],
-    // ["Holy snek, batman.", (state, stats, difficulty) => difficulty >= 4],
+    ["Holy bat, snekman.", (state, stats, difficulty) => difficulty >= 4],
     ["\"You will not surely die\" -<br />that was just metaphor.", (state, stats, difficulty) => difficulty >= 4],
     ["This reminds us that life is fragile.<br/><br/>And also not to run into things.", (state, stats, difficulty) => difficulty >= 4],
     ["Ashes to ashes.<br/><br/>Dust to dust.<br/><br/>Snek to wall.", (state, stats, difficulty) => difficulty >= 4 && state.lastHurtBy !== DamageType.HitSelf],

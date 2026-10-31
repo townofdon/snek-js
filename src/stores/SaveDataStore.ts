@@ -183,7 +183,7 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
 
   public setAchievement = (achievement: Achievement) => {
     if (!achievement) return;
-    const achievements = this.state.achievements;
+    const achievements = this.state.achievements || {};
     achievements[achievement] = true;
     this.set({ achievements });
   }

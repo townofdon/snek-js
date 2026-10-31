@@ -31,7 +31,7 @@ export class UIBindings implements UIHandler {
         this.callAction(InputAction.UnPause);
         break;
       case PauseMenuElement.ButtonMainMenu:
-        this.callAction(InputAction.ConfirmGotoMainMenu);
+        this.callAction(InputAction.ConfirmGotoTitleScreen);
         break;
       case PauseMenuElement.ButtonSettings:
         this.callAction(InputAction.ShowSettingsMenu);
@@ -44,7 +44,7 @@ export class UIBindings implements UIHandler {
         this.callAction(InputAction.RetryLevel);
         break;
       case GameOverMenuElement.ButtonMainMenu:
-        this.callAction(InputAction.ConfirmGotoMainMenu);
+        this.callAction(InputAction.ConfirmGotoTitleScreen);
         break;
     }
   }
@@ -78,8 +78,8 @@ export class UIBindings implements UIHandler {
     if (bridge.saveSlotMenu.showing) {
       return bridge.saveSlotMenu?.onNavigate?.(navDir) || false;
     }
-    if (bridge.mainMenu.showing) {
-      return bridge.mainMenu?.onNavigate?.(navDir) || false;
+    if (bridge.titleScreen.showing) {
+      return bridge.titleScreen?.onNavigate?.(navDir) || false;
     }
     if (this.gameState.isLost) {
       switch (navDir) {
@@ -141,8 +141,8 @@ export class UIBindings implements UIHandler {
     if (bridge.saveSlotMenu.showing) {
       return bridge.saveSlotMenu?.onInteract?.() || false;
     }
-    if (bridge.mainMenu.showing) {
-      return bridge.mainMenu?.onInteract?.() || false;
+    if (bridge.titleScreen.showing) {
+      return bridge.titleScreen?.onInteract?.() || false;
     }
     if (this.gameState.isLost) {
       return this.gameOverMenuNavMap.callSelected();
@@ -180,25 +180,25 @@ export class UIBindings implements UIHandler {
   }
 
   onPause = () => {
-    if (this.gameState.isPaused && !bridge.settingsMenu.showing && !bridge.mainMenu.showing) {
+    if (this.gameState.isPaused && !bridge.settingsMenu.showing && !bridge.titleScreen.showing) {
       this.pauseMenuNavMap.gotoFirst();
     }
   }
 
   onPauseCancelModal = () => {
-    if (this.gameState.isPaused && !bridge.settingsMenu.showing && !bridge.mainMenu.showing) {
+    if (this.gameState.isPaused && !bridge.settingsMenu.showing && !bridge.titleScreen.showing) {
       this.pauseMenuNavMap.gotoCurrent();
     }
   }
 
   onGameOver = () => {
-    if (this.gameState.isLost && !bridge.settingsMenu.showing && !bridge.mainMenu.showing) {
+    if (this.gameState.isLost && !bridge.settingsMenu.showing && !bridge.titleScreen.showing) {
       this.gameOverMenuNavMap.gotoFirst();
     }
   }
 
   onGameOverCancelModal = () => {
-    if (this.gameState.isLost && !bridge.settingsMenu.showing && !bridge.mainMenu.showing) {
+    if (this.gameState.isLost && !bridge.settingsMenu.showing && !bridge.titleScreen.showing) {
       this.gameOverMenuNavMap.gotoCurrent();
     }
   }
