@@ -2,7 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { IS_LOCALHOST, IS_PREVIEW } from '@/constants';
-import { MainMenu } from './MainMenu';
+import { TitleScreen } from './TitleScreen';
 import { SettingsMenu } from './SettingsMenu';
 import { DebugMenu } from './DebugMenu';
 import { LevelSelectMenu } from './LevelSelectMenu';
@@ -21,9 +21,9 @@ createRoot(requireElementById('settings-menu-v2')).render(
   </React.StrictMode>
 );
 if (!IS_PREVIEW) {
-  createRoot(requireElementById('main-menu-v2')).render(
+  createRoot(requireElementById('title-screen-v2')).render(
     <React.StrictMode>
-      <MainMenu />
+      <TitleScreen />
     </React.StrictMode>
   );
 }

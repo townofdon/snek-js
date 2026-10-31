@@ -4,7 +4,7 @@ import { settings } from '@/stores/SettingsStore';
 import { CallAction, GameSettings, GameState, UICancelHandler, UIInteractHandler, UINavEventHandler } from "@/types";
 
 type HandlerKey = (
-  | 'mainMenu'
+  | 'titleScreen'
   | 'settingsMenu'
   | 'debugMenu'
   | 'levelSelectMenu'
@@ -39,7 +39,7 @@ const bridgeProps: BridgeProperties = {
 } satisfies BridgeProperties
 
 export const bridge: Record<HandlerKey, BridgeHandler> & { callAction: CallAction | null } & BridgeProperties = {
-  mainMenu: { ...DEFAULT_HANDLER},
+  titleScreen: { ...DEFAULT_HANDLER},
   settingsMenu: { ...DEFAULT_HANDLER},
   debugMenu: { ...DEFAULT_HANDLER},
   levelSelectMenu: { ...DEFAULT_HANDLER},

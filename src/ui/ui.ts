@@ -20,7 +20,7 @@ const LABEL_BG_COLOR_INVERTED = 'rgba(255,255,255, 0.5)';
 
 enum ActiveMenu {
   None = 0,
-  MainMenu,
+  TitleScreen,
   SettingsMenu,
   GameModeMenu,
   LevelSelectMenu,
@@ -79,26 +79,26 @@ export class UI {
 
   static hideAllMenus() {
     UI.activeMenu = ActiveMenu.None;
-    UI.hideMainMenu();
+    UI.hideTitleScreen();
     UI.hideGameModeMenu();
     UI.hideLevelSelectMenu();
     UI.hideSaveSlotMenu();
     UI.hideSettingsMenu();
   }
 
-  static showMainMenu() {
-    if (UI.activeMenu === ActiveMenu.MainMenu) {
+  static showTitleScreen() {
+    if (UI.activeMenu === ActiveMenu.TitleScreen) {
       return;
     }
-    UI.activeMenu = ActiveMenu.MainMenu;
-    emitUIEvent(InputAction.ShowMainMenu, Initiator.UI);
+    UI.activeMenu = ActiveMenu.TitleScreen;
+    emitUIEvent(InputAction.ShowTitleScreen, Initiator.UI);
   }
 
-  static hideMainMenu() {
-    if (UI.activeMenu === ActiveMenu.MainMenu) {
+  static hideTitleScreen() {
+    if (UI.activeMenu === ActiveMenu.TitleScreen) {
       UI.activeMenu = ActiveMenu.None;
     }
-    emitUIEvent(InputAction.HideMainMenu, Initiator.UI);
+    emitUIEvent(InputAction.HideTitleScreen, Initiator.UI);
   }
 
   static showGameModeMenu() {

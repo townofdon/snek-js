@@ -233,8 +233,8 @@ export const sketch = (p5: P5) => {
       case InputAction.HideStartScreen:
         hideStartScreen();
         break;
-      case InputAction.ShowMainMenu:
-        showMainMenu();
+      case InputAction.ShowTitleScreen:
+        showTitleScreen();
         break;
       case InputAction.ShowSettingsMenu:
         showSettingsMenu();
@@ -242,14 +242,14 @@ export const sketch = (p5: P5) => {
       case InputAction.HideSettingsMenu:
         UI.hideSettingsMenu();
         sfx.play(Sound.doorOpen);
-        if (!state.isGameStarted) UI.showMainMenu();
+        if (!state.isGameStarted) UI.showTitleScreen();
         if (state.isPaused) uiBindings.onPauseCancelModal();
         break;
       case InputAction.ConfirmQuitGame:
         confirmQuitGame()
         break;
-      case InputAction.ConfirmGotoMainMenu:
-        confirmShowMainMenu();
+      case InputAction.ConfirmGotoTitleScreen:
+        confirmShowTitleScreen();
         break;
       case InputAction.RetryLevel:
         retryLevel();
@@ -260,7 +260,7 @@ export const sketch = (p5: P5) => {
       case InputAction.HideGameModeMenu:
         UI.hideGameModeMenu();
         sfx.play(Sound.doorOpen);
-        if (!state.isGameStarted) UI.showMainMenu();
+        if (!state.isGameStarted) UI.showTitleScreen();
         break;
       case InputAction.ShowLevelSelectMenu:
         if (!state.isGameStarted) showLevelSelectMenu();
@@ -515,12 +515,12 @@ export const sketch = (p5: P5) => {
 
   function hideStartScreen() {
     if (!state.isPreloaded) return;
-    showMainMenu();
+    showTitleScreen();
     UI.hideStartScreen();
     sfx.play(Sound.doorOpen);
   }
 
-  function showMainMenu() {
+  function showTitleScreen() {
     if (!state.isPreloaded) return;
 
     triggerFullscreenChange(settings.fullScreen);
@@ -555,13 +555,13 @@ export const sketch = (p5: P5) => {
 
     UI.enableScreenScroll();
     UI.hideGameModeMenu();
-    showMainMenuUI();
+    showTitleScreenUI();
   }
 
-  function showMainMenuUI() {
+  function showTitleScreenUI() {
     UI.clearLabels();
     UI.drawDarkOverlay(uiElements);
-    UI.showMainMenu();
+    UI.showTitleScreen();
     UI.hideSettingsMenu();
     uiBindings.refreshFieldValues();
     modal.hide();
@@ -580,7 +580,7 @@ export const sketch = (p5: P5) => {
   function hideLeaderboard() {
     state.appMode = AppMode.Game;
     playSound(Sound.unlock, 1, true);
-    showMainMenuUI();
+    showTitleScreenUI();
   }
 
   function showGameModeMenu() {
@@ -707,7 +707,7 @@ export const sketch = (p5: P5) => {
     if (!force && replay.mode === ReplayMode.Playback) return;
     uiElements.forEach(element => element.remove());
     uiElements = [];
-    UI.hideMainMenu();
+    UI.hideTitleScreen();
     UI.hideGameModeMenu();
     UI.hideLevelSelectMenu();
   }
@@ -861,7 +861,7 @@ export const sketch = (p5: P5) => {
     state.isPaused = true;
     showPauseUI(uiElements, {
       unpause,
-      confirmShowMainMenu,
+      confirmShowTitleScreen,
       showInGameSettingsMenu,
     });
     uiBindings.onPause();
@@ -899,7 +899,7 @@ export const sketch = (p5: P5) => {
     sfx.play(Sound.unlock);
   }
 
-  function confirmShowMainMenu() {
+  function confirmShowTitleScreen() {
     const handleYes = () => {
       recordSnekalyticsEvent({
         eventType: SNEKALYTICS_EVENT_TYPE.QUIT_GAME,
@@ -913,7 +913,7 @@ export const sketch = (p5: P5) => {
         mode: state.gameMode,
       });
       modal.hide();
-      showMainMenu();
+      showTitleScreen();
       sfx.play(Sound.doorOpen);
     }
     const handleNo = () => {
@@ -953,9 +953,9 @@ export const sketch = (p5: P5) => {
     const handleNo = () => {
       modal.hide();
       sfx.play(Sound.doorOpen);
-      UI.showMainMenu();
+      UI.showTitleScreen();
     }
-    UI.hideMainMenu();
+    UI.hideTitleScreen();
     const sayings = [
       'SNEKness awaits.',
       'To SNEK, or not to SNEK -\nthat is the question.',
@@ -996,7 +996,7 @@ export const sketch = (p5: P5) => {
     if (state.isGameWon) {
       // TODO: GOTO NEXT EPISODE OR SHOW CREDITS
       modal.hide();
-      showMainMenu();
+      showTitleScreen();
       sfx.play(Sound.doorOpen);
       return;
       // recordSnekalyticsEvent({
@@ -1034,13 +1034,13 @@ export const sketch = (p5: P5) => {
     if (state.isLost && state.gameMode === GameMode.Cobra) {
       winGameScene.reset();
       saveDataStore.resetCurrentSaveSlot();
-      showMainMenu();
+      showTitleScreen();
       return;
     }
 
     if (state.isLost && state.gameMode === GameMode.Arcade) {
       winGameScene.reset();
-      showMainMenu();
+      showTitleScreen();
       return;
     }
 
@@ -1201,7 +1201,7 @@ export const sketch = (p5: P5) => {
       musicPlayer.stopAllTracks();
       musicPlayer.setVolume(1);
       stopAction(Action.ExecuteQuotesMode);
-      showMainMenu();
+      showTitleScreen();
     }
     while (state.appMode === AppMode.Quote) {
       yield null;
@@ -1227,7 +1227,7 @@ export const sketch = (p5: P5) => {
       musicPlayer.stopAllTracks();
       musicPlayer.setVolume(1);
       sfx.stop(Sound.invincibleLoop);
-      showMainMenu();
+      showTitleScreen();
     }
     musicPlayer.setVolume(1.3);
     new OSTScene(p5, gfxPresentation, sfx, musicPlayer, fonts, unlockedMusicStore, spriteRenderer, { onEscapePress });

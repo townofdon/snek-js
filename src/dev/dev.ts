@@ -385,7 +385,7 @@ export const sketch = (p5: P5) => {
     showPauseUIPreviewMode(uiElements, { unpause });
     showPauseUI(uiElements, {
       unpause,
-      confirmShowMainMenu: null,
+      confirmShowTitleScreen: null,
       showInGameSettingsMenu,
     })
     sfx.play(Sound.unlock, 0.8);

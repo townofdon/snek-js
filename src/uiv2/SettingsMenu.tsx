@@ -31,7 +31,7 @@ export const SettingsMenu = () => {
           setShowing(false);
           setActive(false);
           break;
-        case InputAction.ShowMainMenu:
+        case InputAction.ShowTitleScreen:
           setActive(false);
           break;
         case InputAction.ShowGameModeMenu:
@@ -51,8 +51,6 @@ export const SettingsMenu = () => {
   }, []);
 
   const elements = {
-    [SettingsMenuElement.CheckboxCasualMode]: useRef<HTMLInputElement>(null),
-    [SettingsMenuElement.CheckboxCobraMode]: useRef<HTMLInputElement>(null),
     [SettingsMenuElement.CheckboxDisableScreenshake]: useRef<HTMLInputElement>(null),
     [SettingsMenuElement.CheckboxPixelPerfect]: useRef<HTMLInputElement>(null),
     [SettingsMenuElement.CheckboxFullScreen]: useRef<HTMLInputElement>(null),
@@ -62,16 +60,9 @@ export const SettingsMenu = () => {
   };
   const settingsMenuNavMap = useRef<SettingsMenuNavMap>(null);
 
-  const isInGameMenu = bridge.gameState?.isGameStarted || false;
-  const isCobraModeUnlocked = bridge.saveDataStore?.getIsCobraModeUnlocked() || false;
-
   useEffect(() => {
     if (showing && active) {
-      if (isInGameMenu) {
-        DOM.select(elements[SettingsMenuElement.CheckboxDisableScreenshake].current);
-      } else {
-        DOM.select(elements[SettingsMenuElement.CheckboxCasualMode].current);
-      }
+      DOM.select(elements[SettingsMenuElement.CheckboxDisableScreenshake].current);
     }
   }, [showing, active])
 
@@ -79,8 +70,6 @@ export const SettingsMenu = () => {
     if (showing && elements[SettingsMenuElement.CheckboxDisableScreenshake].current) {
       bridge.settingsMenu.showing = true;
       const settingsMenuElements: Record<SettingsMenuElement, HTMLInputElement | HTMLButtonElement> = {
-        [SettingsMenuElement.CheckboxCasualMode]: elements[SettingsMenuElement.CheckboxCasualMode].current,
-        [SettingsMenuElement.CheckboxCobraMode]: elements[SettingsMenuElement.CheckboxCobraMode].current,
         [SettingsMenuElement.CheckboxDisableScreenshake]: elements[SettingsMenuElement.CheckboxDisableScreenshake].current,
         [SettingsMenuElement.CheckboxPixelPerfect]: elements[SettingsMenuElement.CheckboxPixelPerfect].current,
         [SettingsMenuElement.CheckboxFullScreen]: elements[SettingsMenuElement.CheckboxFullScreen].current,
@@ -228,28 +217,6 @@ export const SettingsMenu = () => {
         <h2>Settings</h2>
         <section id="settings-section-gameplay">
           <h4>Gameplay</h4>
-          {!isInGameMenu && (
-            <>
-              <CheckboxField
-                ref={elements[SettingsMenuElement.CheckboxCasualMode]}
-                name="casual-mode"
-                label="Enable casual mode"
-                caption="Adds invincibility and move rewinding, but disables scoring"
-                checked={bridge.gameState.gameMode === GameMode.Casual}
-                onChange={handleChangeCasualMode}
-              />
-              {isCobraModeUnlocked && (
-                <CheckboxField
-                  ref={elements[SettingsMenuElement.CheckboxCobraMode]}
-                  name="cobra-mode"
-                  label="Enable COBRA mode"
-                  caption="Death = game over, hearts do not replenish"
-                  checked={bridge.gameState.gameMode === GameMode.Cobra}
-                  onChange={handleChangeCobraMode}
-                />
-              )}
-            </>
-          )}
           <CheckboxField
             ref={elements[SettingsMenuElement.CheckboxDisableScreenshake]}
             name="disable-screenshake"

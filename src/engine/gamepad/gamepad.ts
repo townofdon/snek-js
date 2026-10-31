@@ -264,7 +264,7 @@ export function applyGamepadUIActions(
   }
 
   if (state.appMode === AppMode.Quote) {
-    if (wasPressedThisFrame(gamepad, Button.East)) callAction(InputAction.ShowMainMenu);
+    if (wasPressedThisFrame(gamepad, Button.East)) callAction(InputAction.ShowTitleScreen);
     return true;
   }
 

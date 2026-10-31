@@ -60,7 +60,7 @@ export function handleKeyPressed(
   }
 
   if (state.appMode === AppMode.Quote) {
-    if (keyCode === ESCAPE) callAction(InputAction.ShowMainMenu);
+    if (keyCode === ESCAPE) callAction(InputAction.ShowTitleScreen);
     return;
   }
 

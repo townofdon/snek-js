@@ -235,7 +235,7 @@ export abstract class GroupedNavMap<ElementType extends string> implements NavMa
   }
 }
 
-export enum MainMenuButton {
+export enum TitleScreenMenuButton {
   StartGame,
   QuitGame,
   Settings,
@@ -248,29 +248,29 @@ export enum MainMenuButton {
 /**
  * Define the nav order for main menu buttons
  */
-export const MAIN_MENU_BUTTON_ORDER: MainMenuButton[] = [
-  MainMenuButton.StartGame,
-  MainMenuButton.QuitGame,
-  MainMenuButton.OSTMode,
-  MainMenuButton.QuoteMode,
-  MainMenuButton.Community,
-  MainMenuButton.Leaderboard,
-  MainMenuButton.Settings,
+export const MAIN_MENU_BUTTON_ORDER: TitleScreenMenuButton[] = [
+  TitleScreenMenuButton.StartGame,
+  TitleScreenMenuButton.QuitGame,
+  TitleScreenMenuButton.OSTMode,
+  TitleScreenMenuButton.QuoteMode,
+  TitleScreenMenuButton.Community,
+  TitleScreenMenuButton.Leaderboard,
+  TitleScreenMenuButton.Settings,
 ]
 
-export class MainMenuNavMap implements NavMap {
-  private readonly mainMenuButtons: Record<MainMenuButton, HTMLButtonElement>;
-  private readonly actionMap: Record<MainMenuButton, InputAction>;
+export class TitleScreenMenuNavMap implements NavMap {
+  private readonly buttons: Record<TitleScreenMenuButton, HTMLButtonElement>;
+  private readonly actionMap: Record<TitleScreenMenuButton, InputAction>;
   private readonly callAction: (action: InputAction) => void;
 
-  private selected: MainMenuButton | null = null;
+  private selected: TitleScreenMenuButton | null = null;
 
   constructor(
-    mainMenuButtons: Record<MainMenuButton, HTMLButtonElement>,
-    actionMap: Record<MainMenuButton, InputAction>,
+    titleScreenMenuButtons: Record<TitleScreenMenuButton, HTMLButtonElement>,
+    actionMap: Record<TitleScreenMenuButton, InputAction>,
     callAction: (action: InputAction) => void
   ) {
-    this.mainMenuButtons = mainMenuButtons;
+    this.buttons = titleScreenMenuButtons;
     this.actionMap = actionMap;
     this.callAction = callAction;
   }
@@ -278,23 +278,23 @@ export class MainMenuNavMap implements NavMap {
   callSelected = () => {
     const focused = this.getFocused();
     if (focused === null) return false;
-    if (focused !== MainMenuButton.StartGame) {
+    if (focused !== TitleScreenMenuButton.StartGame) {
       DOM.deselect(this.selectedTarget());
     }
     this.callAction(this.actionMap[focused]);
     return true;
   };
 
-  private getFocused = (): MainMenuButton | null => {
+  private getFocused = (): TitleScreenMenuButton | null => {
     if (!document.activeElement) return null;
     for (let i = 0; i < MAIN_MENU_BUTTON_ORDER.length; i++) {
-      const target = this.mainMenuButtons[MAIN_MENU_BUTTON_ORDER[i]];
+      const target = this.buttons[MAIN_MENU_BUTTON_ORDER[i]];
       if (target && target === document.activeElement) return MAIN_MENU_BUTTON_ORDER[i];
     }
     return null;
   }
 
-  private getButtonPosition = (button: MainMenuButton): number => {
+  private getButtonPosition = (button: TitleScreenMenuButton): number => {
     for (let i = 0; i < MAIN_MENU_BUTTON_ORDER.length; i++) {
       if (MAIN_MENU_BUTTON_ORDER[i] === button) return i;
     }
@@ -308,13 +308,13 @@ export class MainMenuNavMap implements NavMap {
     return (MAIN_MENU_BUTTON_ORDER.length + currentButtonPosition + direction) % MAIN_MENU_BUTTON_ORDER.length;
   }
 
-  private lookupElement = (button: MainMenuButton): HTMLElement | null => {
-    return this.mainMenuButtons[button] || null;
+  private lookupElement = (button: TitleScreenMenuButton): HTMLElement | null => {
+    return this.buttons[button] || null;
   }
 
   private selectedTarget = (): HTMLElement | null => {
     if (this.selected === null) return null;
-    return this.mainMenuButtons[this.selected] || null;
+    return this.buttons[this.selected] || null;
   }
 
   private goto = (direction: number) => {
@@ -327,7 +327,7 @@ export class MainMenuNavMap implements NavMap {
     }
   }
 
-  private gotoElem = (button: MainMenuButton) => {
+  private gotoElem = (button: TitleScreenMenuButton) => {
     this.selected = button;
     DOM.select(this.selectedTarget());
     return true;
@@ -354,14 +354,14 @@ export class MainMenuNavMap implements NavMap {
     const focused = this.getFocused()
     if (focused !== null) {
       switch (focused) {
-        case MainMenuButton.Community:
-        case MainMenuButton.Leaderboard:
-        case MainMenuButton.OSTMode:
-        case MainMenuButton.QuoteMode:
-        case MainMenuButton.Settings:
-          return this.gotoElem(MainMenuButton.QuitGame);
-        case MainMenuButton.StartGame:
-          return this.gotoElem(MainMenuButton.OSTMode);
+        case TitleScreenMenuButton.Community:
+        case TitleScreenMenuButton.Leaderboard:
+        case TitleScreenMenuButton.OSTMode:
+        case TitleScreenMenuButton.QuoteMode:
+        case TitleScreenMenuButton.Settings:
+          return this.gotoElem(TitleScreenMenuButton.QuitGame);
+        case TitleScreenMenuButton.StartGame:
+          return this.gotoElem(TitleScreenMenuButton.OSTMode);
       }
     }
     return this.gotoPrev()
@@ -370,14 +370,14 @@ export class MainMenuNavMap implements NavMap {
     const focused = this.getFocused()
     if (focused !== null) {
       switch (focused) {
-        case MainMenuButton.Community:
-        case MainMenuButton.Leaderboard:
-        case MainMenuButton.OSTMode:
-        case MainMenuButton.QuoteMode:
-        case MainMenuButton.Settings:
-          return this.gotoElem(MainMenuButton.StartGame);
-        case MainMenuButton.QuitGame:
-          return this.gotoElem(MainMenuButton.OSTMode);
+        case TitleScreenMenuButton.Community:
+        case TitleScreenMenuButton.Leaderboard:
+        case TitleScreenMenuButton.OSTMode:
+        case TitleScreenMenuButton.QuoteMode:
+        case TitleScreenMenuButton.Settings:
+          return this.gotoElem(TitleScreenMenuButton.StartGame);
+        case TitleScreenMenuButton.QuitGame:
+          return this.gotoElem(TitleScreenMenuButton.OSTMode);
       }
     }
     return this.gotoNext()
@@ -386,11 +386,11 @@ export class MainMenuNavMap implements NavMap {
     const focused = this.getFocused()
     if (focused !== null) {
       switch (focused) {
-        case MainMenuButton.OSTMode:
-            return this.gotoElem(MainMenuButton.Settings);
-        case MainMenuButton.StartGame:
+        case TitleScreenMenuButton.OSTMode:
+            return this.gotoElem(TitleScreenMenuButton.Settings);
+        case TitleScreenMenuButton.StartGame:
           return false;
-        case MainMenuButton.QuitGame:
+        case TitleScreenMenuButton.QuitGame:
           return false;
       }
     }
@@ -400,11 +400,11 @@ export class MainMenuNavMap implements NavMap {
     const focused = this.getFocused()
     if (focused !== null) {
       switch (focused) {
-        case MainMenuButton.Settings:
-          return this.gotoElem(MainMenuButton.OSTMode);
-        case MainMenuButton.StartGame:
+        case TitleScreenMenuButton.Settings:
+          return this.gotoElem(TitleScreenMenuButton.OSTMode);
+        case TitleScreenMenuButton.StartGame:
           return false;
-        case MainMenuButton.QuitGame:
+        case TitleScreenMenuButton.QuitGame:
           return false;
       }
     }
@@ -413,8 +413,6 @@ export class MainMenuNavMap implements NavMap {
 }
 
 export enum SettingsMenuElement {
-  CheckboxCasualMode,
-  CheckboxCobraMode,
   CheckboxDisableScreenshake,
   CheckboxPixelPerfect,
   CheckboxFullScreen,
@@ -424,8 +422,6 @@ export enum SettingsMenuElement {
 }
 
 const SETTINGS_MENU_ELEMENT_ORDER = [
-  SettingsMenuElement.CheckboxCasualMode,
-  SettingsMenuElement.CheckboxCobraMode,
   SettingsMenuElement.CheckboxDisableScreenshake,
   SettingsMenuElement.CheckboxPixelPerfect,
   SettingsMenuElement.CheckboxFullScreen,
@@ -447,12 +443,6 @@ export class SettingsMenuNavMap implements NavMap {
     const focused = this.getFocused();
     if (focused === SettingsMenuElement.ButtonClose) {
       this.callAction(InputAction.HideSettingsMenu);
-      return true
-    } else if (focused === SettingsMenuElement.CheckboxCasualMode) {
-      this.callAction(InputAction.ToggleCasualMode);
-      return true
-    } else if (focused === SettingsMenuElement.CheckboxCobraMode) {
-      this.callAction(InputAction.ToggleCobraMode);
       return true
     } else if (focused === SettingsMenuElement.CheckboxDisableScreenshake) {
       this.callAction(InputAction.ToggleScreenshakeDisabled);
