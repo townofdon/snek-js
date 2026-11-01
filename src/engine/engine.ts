@@ -3563,13 +3563,19 @@ export function engine({
 
   function* openDoorsRoutine() {
     loopState.timeScale = 0;
+    let didRemoveAnyBarrier = false;
     for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
       if (es.barriersMap[coord] && es.annotations[coord] === MapAnnotation.Exit) {
+        didRemoveAnyBarrier = true;
         removeBarrierTile(coord);
         playSound(Sound.xpound);
         startScreenShake(2, 0, 0.8);
         yield* coroutines.waitForTime(66);
       }
+    }
+    if (didRemoveAnyBarrier) {
+      state.currentSpeed = 0;
+      yield* coroutines.waitForTime(140);
     }
     state.isDoorsOpen = true;
     loopState.timeScale = 1;
