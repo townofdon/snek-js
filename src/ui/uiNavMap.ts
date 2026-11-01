@@ -595,3 +595,9 @@ export class LevelSelectMenuNavMap extends GroupedNavMap<string> {
     super(callAction, [levelSelectIds, ['button-level-select-back']], { preventScroll: true, disableGridNav: true })
   }
 }
+
+export enum GameModeMenuElement {
+  Casual = 'button-game-mode-casual',
+  Normal = 'button-game-mode-standard',
+  Cobra = 'button-game-mode-cobra',
+}

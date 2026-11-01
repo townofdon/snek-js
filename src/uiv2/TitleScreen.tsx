@@ -37,9 +37,6 @@ export const TitleScreen = () => {
           setShowing(false);
           setActive(false);
           break;
-        case InputAction.ShowCampaignModeMenu:
-          setActive(false);
-          break;
         case InputAction.ShowLevelSelectMenu:
           setActive(false);
           break;
@@ -47,6 +44,9 @@ export const TitleScreen = () => {
           setActive(false);
           break;
         case InputAction.ShowMainMenu:
+          setActive(false);
+          break;
+        case InputAction.ShowGameModeMenu:
           setActive(false);
           break;
         case InputAction.ShowLevelSelectMenu:

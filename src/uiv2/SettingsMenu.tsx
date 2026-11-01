@@ -40,6 +40,9 @@ export const SettingsMenu = () => {
         case InputAction.ShowLevelSelectMenu:
           setActive(false);
           break;
+        case InputAction.ShowGameModeMenu:
+          setActive(false);
+          break;
         default:
           break;
       }

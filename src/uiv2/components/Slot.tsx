@@ -9,6 +9,7 @@ interface SlotProps {
   className?: string,
   children: React.ReactNode,
   onClick: () => void,
+  onBlur?: () => void,
 }
 export const Slot = ({
   id,
@@ -19,6 +20,7 @@ export const Slot = ({
   className,
   children,
   onClick,
+  onBlur,
 }: SlotProps) => {
   return (
     <button
@@ -32,6 +34,7 @@ export const Slot = ({
         + (className ? ` ${className}` : "")
       }
       onClick={onClick}
+      onBlur={onBlur}
     >
       {children}
     </button>

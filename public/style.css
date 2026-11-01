@@ -50,6 +50,10 @@
   --overworld-icons-size: 16px;
   --overworld-icons-frames: 22;
 
+  --snek-tiles-16-src: url('assets/graphics/snek-tiles-16.png');
+  --snek-tiles-16-size: 16px;
+  --snek-tiles-16-frames: 45;
+
   --control-gamepad-buttons-src: url('assets/graphics/controls-gamepad-buttons.png');
   --control-gamepad-buttons-size: 16px;
   --control-gamepad-buttons-frames: 18;
@@ -1163,6 +1167,28 @@ button.main-menu.back {
   width: 540px;
 }
 
+.game-mode-menu > .content {
+  transform: scale(1);
+}
+
+.game-mode-menu > .content > h2 {
+  transform: scale(2);
+}
+.game-mode-menu .menu-controls {
+  width: 540px;
+}
+.game-mode-menu .game-mode-slot {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.game-mode-menu .game-mode-name {
+  font-size: 1.8em;
+}
+.game-mode-menu .game-mode-desc {
+  font-size: 1.2em;
+}
+
 .selectable-slots {
   display: flex;
   flex-direction: column;
@@ -1178,8 +1204,8 @@ button.main-menu.back {
   flex-direction: row;
   padding: 0;
   gap: 16px;
-  background: #242C4A;
-  color: #728795;
+  background: #242C4A!important;
+  color: #728795!important;
   outline: none!important;
   border: none;
   box-shadow: none;
@@ -1189,8 +1215,8 @@ button.main-menu.back {
   color: #728795;
 }
 .selectable-slots .slot.active {
-  background: #405578;
-  color: #DFEDED;
+  background: #405578!important;
+  color: #DFEDED!important;
 }
 .selectable-slots .save-slot-info {
   display: flex;
@@ -1431,6 +1457,24 @@ button.main-menu.back {
 .overworld-icon.lock { --frame: 7; }
 .overworld-icon.reset { --frame: 8; }
 .overworld-icon.trash { --frame: 9; }
+
+.snek-tile-16 {
+  --frame: 0;
+  display: inline-flex;
+  width: var(--snek-tiles-16-size);
+  height: var(--snek-tiles-16-size);
+  background-color: transparent;
+  background-image: var(--snek-tiles-16-src);
+  background-size: calc(var(--snek-tiles-16-size) * var(--snek-tiles-16-frames)) var(--snek-tiles-16-size);
+  background-position: calc(-1 * var(--snek-tiles-16-size) * (var(--frame) - 1)) 0;
+  transform: scale(2);
+  transform-origin: center center;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+/* frame is 1-indexed */
+.snek-tile-16.dim { transform: scale(2); filter: brightness(0.4) grayscale(0.6) contrast(.9); }
+.snek-tile-16.skull { --frame: 1; }
 
 .menu-controls .controls-button {
   --frame: 0;

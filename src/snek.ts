@@ -266,13 +266,19 @@ export const sketch = (p5: P5) => {
         if (!state.isGameStarted) showLevelSelectMenu();
         break;
       case InputAction.HideLevelSelectMenu:
-        if (!state.isGameStarted) showSaveSlotMenu();
+        if (!state.isGameStarted) showGameModeMenu();
         break;
       case InputAction.ShowSaveSlotMenu:
         if (!state.isGameStarted) showSaveSlotMenu();
         break;
       case InputAction.HideSaveSlotMenu:
         if (!state.isGameStarted) showMainMenu();
+        break;
+      case InputAction.ShowGameModeMenu:
+        if (!state.isGameStarted) showGameModeMenu();
+        break;
+      case InputAction.HideGameModeMenu:
+        if (!state.isGameStarted) showSaveSlotMenu();
         break;
       case InputAction.NewGame:
         newGame(p0 as NewGameArgs);
@@ -593,6 +599,8 @@ export const sketch = (p5: P5) => {
   function showLevelSelectMenu() {
     playSound(Sound.unlock, 1, true);
     UI.hideMainMenu();
+    UI.hideSaveSlotMenu();
+    UI.hideGameModeMenu();
     UI.showLevelSelectMenu();
   }
 
@@ -600,7 +608,16 @@ export const sketch = (p5: P5) => {
     playSound(Sound.unlock, 1, true);
     UI.hideMainMenu();
     UI.hideLevelSelectMenu();
+    UI.hideGameModeMenu();
     UI.showSaveSlotMenu();
+  }
+
+  function showGameModeMenu() {
+    playSound(Sound.unlock, 1, true);
+    UI.hideMainMenu();
+    UI.hideLevelSelectMenu();
+    UI.hideLevelSelectMenu();
+    UI.showGameModeMenu();
   }
 
   function loadGame(data: SaveSlotData) {

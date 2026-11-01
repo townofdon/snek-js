@@ -8,6 +8,7 @@ import { DebugMenu } from './DebugMenu';
 import { LevelSelectMenu } from './LevelSelectMenu';
 import { MainMenu } from './MainMenu';
 import { SaveSlotMenu } from './SaveSlotMenu';
+import { GameModeMenu } from './GameModeMenu';
 
 const requireElementById = (id: string) => {
   const node = document.getElementById(id);
@@ -45,6 +46,13 @@ if (!IS_PREVIEW) {
   createRoot(requireElementById('save-slot-menu-v2')).render(
     <React.StrictMode>
       <SaveSlotMenu />
+    </React.StrictMode>
+  );
+}
+if (!IS_PREVIEW) {
+  createRoot(requireElementById('game-mode-menu-v2')).render(
+    <React.StrictMode>
+      <GameModeMenu />
     </React.StrictMode>
   );
 }

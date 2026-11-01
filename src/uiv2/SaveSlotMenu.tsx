@@ -55,7 +55,7 @@ export const SaveSlotMenu = () => {
         case InputAction.ShowLevelSelectMenu:
           setShowing(false);
           break;
-        case InputAction.ShowCampaignModeMenu:
+        case InputAction.ShowGameModeMenu:
           setShowing(false);
           break;
         case InputAction.NewGame:
@@ -183,8 +183,7 @@ export const SaveSlotMenu = () => {
     if (empty) {
       saveDataStore.setCurrentSaveSlot(slot);
       bridge.gameState.gameMode = GameMode.Normal;
-      // TODO: ShowCampaignModeMenu
-      bridge.callAction(InputAction.ShowLevelSelectMenu);
+      bridge.callAction(InputAction.ShowGameModeMenu);
     } else {
       saveDataStore.setCurrentSaveSlot(slot);
       const slotData = saveDataStore.getSlot(slot);
@@ -316,6 +315,14 @@ function SaveDataSlot({
   const timePlayedMs = slotData?.stats.totalGameTimeElapsed;
   const level = getLevelById(levelId);
   const difficulty = slotData?.difficulty || 1;
+  const mode = slotData?.gameMode || GameMode.Normal;
+  const prefix = mode === GameMode.Casual ? <span className="color-w">Casual&nbsp;</span> : null;
+  const suffix = mode === GameMode.Cobra ? (
+    <>
+      &nbsp;
+      <span className="color-a" style={{ background: '#000000a1', paddingTop: 8, paddingLeft: 5, paddingRight: 5 }}>Cobra</span>
+    </>
+  ) : null;
   return (
     <div className="position-relative">
       <Slot
@@ -333,16 +340,16 @@ function SaveDataSlot({
               <span className="save-slot-level-name">{level.name}</span>
               <span className="color-e always">-</span>
               {difficulty === 1 && (
-                <span className="save-slot-difficulty color-x easy">Easy</span>
+                <span className="save-slot-difficulty color-x easy">{prefix}Easy{suffix}</span>
               )}
               {difficulty === 2 && (
-                <span className="save-slot-difficulty color-m medium">Medium</span>
+                <span className="save-slot-difficulty color-m medium">{prefix}Medium{suffix}</span>
               )}
               {difficulty === 3 && (
-                <span className="save-slot-difficulty color-l hard">Hard</span>
+                <span className="save-slot-difficulty color-l hard">{prefix}Hard{suffix}</span>
               )}
               {difficulty === 4 && (
-                <span className="save-slot-difficulty color-j Ultra">Ultra</span>
+                <span className="save-slot-difficulty color-j Ultra">{prefix}Ultra{suffix}</span>
               )}
             </Stack>
             <span className="save-slot-episode">{episodeDisplay(episode)}</span>

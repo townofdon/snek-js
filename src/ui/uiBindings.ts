@@ -78,6 +78,9 @@ export class UIBindings implements UIHandler {
     if (bridge.saveSlotMenu.showing) {
       return bridge.saveSlotMenu?.onNavigate?.(navDir) || false;
     }
+    if (bridge.gameModeMenu.showing) {
+      return bridge.gameModeMenu?.onNavigate?.(navDir) || false;
+    }
     if (bridge.titleScreen.showing) {
       return bridge.titleScreen?.onNavigate?.(navDir) || false;
     }
@@ -141,6 +144,9 @@ export class UIBindings implements UIHandler {
     if (bridge.saveSlotMenu.showing) {
       return bridge.saveSlotMenu?.onInteract?.() || false;
     }
+    if (bridge.gameModeMenu.showing) {
+      return bridge.gameModeMenu?.onInteract?.() || false;
+    }
     if (bridge.titleScreen.showing) {
       return bridge.titleScreen?.onInteract?.() || false;
     }
@@ -168,6 +174,9 @@ export class UIBindings implements UIHandler {
     }
     if (bridge.saveSlotMenu.showing) {
       return bridge.saveSlotMenu?.onCancel?.() || false;
+    }
+    if (bridge.gameModeMenu.showing) {
+      return bridge.gameModeMenu?.onCancel?.() || false;
     }
     if (this.gameState.isPaused) {
       if (bridge.debugMenu.onCancel?.()) {

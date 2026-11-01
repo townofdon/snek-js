@@ -38,13 +38,13 @@ export const MainMenu = () => {
         case InputAction.ShowTitleScreen:
           setShowing(false);
           break;
-        case InputAction.ShowCampaignModeMenu:
-          setShowing(false);
-          break;
         case InputAction.ShowLevelSelectMenu:
           setShowing(false);
           break;
         case InputAction.ShowSettingsMenu:
+          setShowing(false);
+          break;
+        case InputAction.ShowGameModeMenu:
           setShowing(false);
           break;
         case InputAction.NewGame:

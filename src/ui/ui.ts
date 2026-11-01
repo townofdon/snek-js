@@ -25,6 +25,7 @@ enum ActiveMenu {
   MainMenu,
   LevelSelectMenu,
   SaveSlotMenu,
+  GameModeMenu,
 }
 
 export class UI {
@@ -161,6 +162,21 @@ export class UI {
       UI.activeMenu = ActiveMenu.None;
     }
     emitUIEvent(InputAction.HideSaveSlotMenu, Initiator.UI);
+  }
+
+  static showGameModeMenu() {
+    if (UI.activeMenu === ActiveMenu.GameModeMenu) {
+      return;
+    }
+    UI.activeMenu = ActiveMenu.GameModeMenu;
+    emitUIEvent(InputAction.ShowGameModeMenu, Initiator.UI);
+  }
+
+  static hideGameModeMenu() {
+    if (UI.activeMenu === ActiveMenu.GameModeMenu) {
+      UI.activeMenu = ActiveMenu.None;
+    }
+    emitUIEvent(InputAction.HideGameModeMenu, Initiator.UI);
   }
 
   static showLoader(yPos: number) {
