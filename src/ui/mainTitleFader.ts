@@ -23,8 +23,13 @@ export class MainTitleFader {
   private static fadeTitleVariant = function* (variant: TitleVariant, prevVariant: TitleVariant, p5: P5): IEnumerator {
     if (variant === prevVariant) return;
 
-    const incoming = document.getElementById(MainTitleFader.getIdByTitleVariant(variant));
-    const outgoing = document.getElementById(MainTitleFader.getIdByTitleVariant(prevVariant));
+    let incoming: HTMLElement;
+    let outgoing: HTMLElement;
+    for (let i = 0; i < 100 && (!incoming || !outgoing); i++) {
+      incoming = document.getElementById(MainTitleFader.getIdByTitleVariant(variant));
+      outgoing = document.getElementById(MainTitleFader.getIdByTitleVariant(prevVariant));
+      if (!incoming || !outgoing) yield null;
+    }
     if (!incoming) throw new Error(`[MainTitleFader] Could not find elem for variant=${variant},id=${MainTitleFader.getIdByTitleVariant(variant)}`)
     if (!outgoing) throw new Error(`[MainTitleFader] Could not find elem for variant=${prevVariant},id=${MainTitleFader.getIdByTitleVariant(prevVariant)}`)
     let t = 0;

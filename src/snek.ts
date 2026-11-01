@@ -632,7 +632,7 @@ export const sketch = (p5: P5) => {
     setDifficulty(getDifficultyFromIndex(data.difficulty));
     setLevel(getLevelById(data.lastLevelId));
     setLevelIndexFromCurrentLevel();
-    state.lives = MAX_LIVES;
+    state.lives = data.gameMode === GameMode.Cobra ? (data.lives ?? MAX_LIVES) : MAX_LIVES;
     state.nextLevel = null;
     setStats(data.stats);
     recordSnekalyticsEvent({
@@ -1156,6 +1156,7 @@ export const sketch = (p5: P5) => {
     maybeSaveReplayStateToFile();
     saveDataStore.save({
       lastLevelId: getLevel().id,
+      lives: state.lives,
       episode: state.episode,
       gameMode: state.gameMode,
       difficulty: getDifficulty().index,

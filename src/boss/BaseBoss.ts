@@ -48,6 +48,7 @@ export interface BossConstructorArgs {
   spawnThreat: (threatType: ThreatType, numTries?: number, predicate?: (coord: number) => boolean) => number;
   spawnHealthPickup: (predicate?: (coord: number) => boolean) => number,
   spawnWeightLossPickup: (predicate?: (coord: number) => boolean) => number,
+  spawnInvincibilityPickup: (predicate?: (coord: number) => boolean) => number,
   spawnExplosionAt: (x: number, y: number) => void;
 }
 
@@ -74,6 +75,7 @@ export abstract class BaseBoss implements Boss {
   protected readonly spawnThreat: (threatType: ThreatType, lifetime?: number, predicate?: (coord: number) => boolean) => number;
   protected readonly spawnHealthPickup: (predicate?: (coord: number) => boolean) => number;
   protected readonly spawnWeightLossPickup: (predicate?: (coord: number) => boolean) => number;
+  protected readonly spawnInvincibilityPickup: (predicate?: (coord: number) => boolean) => number;
   protected readonly spawnExplosionAt: (x: number, y: number) => void;
 
   protected readonly coroutines: Coroutines;
@@ -101,6 +103,7 @@ export abstract class BaseBoss implements Boss {
     this.spawnThreat = args.spawnThreat;
     this.spawnHealthPickup = args.spawnHealthPickup;
     this.spawnWeightLossPickup = args.spawnWeightLossPickup;
+    this.spawnInvincibilityPickup = args.spawnInvincibilityPickup;
     this.spawnExplosionAt = args.spawnExplosionAt;
     this.coroutines = new Coroutines(args.p5);
   }

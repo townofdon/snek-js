@@ -476,6 +476,7 @@ export enum Achievement {
 
 export interface SaveSlotData {
   lastLevelId: string,
+  lives: number,
   episode: Episode,
   gameMode: GameMode,
   difficulty: DifficultyIndex,

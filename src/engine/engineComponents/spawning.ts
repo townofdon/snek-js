@@ -592,31 +592,52 @@ export function engineSpawning({
     return -1;
   }
 
-  function spawnInvincibilityPickup(numTries = 0) {
-    const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
-    const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
-    const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
-      || es.doorsMap[getCoordIndex2(x, y)]
-      || es.nospawnsMap[getCoordIndex2(x, y)]
-      || es.pickupsMap[getCoordIndex2(x, y)]
-      || es.lasersMap[getCoordIndex2(x, y)]
-      || es.pipesMap[getCoordIndex2(x, y)]
-      || es.flamesMap[getCoordIndex2(x, y)]
-      || threats.existsAt(x, y)
-      || segments.containsCoord(getCoordIndex2(x, y))
-      || player.position.equals(x, y);
-    const spawnedTooCloseToPlayer = getManhattanDistance(x, y, player.position.x, player.position.y) < 20;
-    if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
-      if (numTries < 30) spawnInvincibilityPickup(numTries + 1);
-    } else {
-      if (!apples.existsAt(x, y)) apples.add(x, y);
-      setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
-      es.pickupsMap[getCoordIndex2(x, y)] = {
-        lifetime: INVINCIBILITY_PICKUP_LIFETIME_MS,
-        type: PickupType.Invincibility,
-      };
-      state.timeSinceSpawnedAnyPickup = 0;
-    }
+  // function _spawnInvincibilityPickup(numTries = 0) {
+  //   const x = Math.floor(p5.random(GRIDCOUNT_X - 2)) + 1;
+  //   const y = Math.floor(p5.random(GRIDCOUNT_Y - 2)) + 1;
+  //   const spawnedInsideOfSomething = es.barriersMap[getCoordIndex2(x, y)]
+  //     || es.doorsMap[getCoordIndex2(x, y)]
+  //     || es.nospawnsMap[getCoordIndex2(x, y)]
+  //     || es.pickupsMap[getCoordIndex2(x, y)]
+  //     || es.lasersMap[getCoordIndex2(x, y)]
+  //     || es.pipesMap[getCoordIndex2(x, y)]
+  //     || es.flamesMap[getCoordIndex2(x, y)]
+  //     || threats.existsAt(x, y)
+  //     || segments.containsCoord(getCoordIndex2(x, y))
+  //     || player.position.equals(x, y);
+  //   const spawnedTooCloseToPlayer = getManhattanDistance(x, y, player.position.x, player.position.y) < 20;
+  //   if (spawnedInsideOfSomething || spawnedTooCloseToPlayer) {
+  //     if (numTries < 30) spawnInvincibilityPickup(numTries + 1);
+  //   } else {
+  //     if (!apples.existsAt(x, y)) apples.add(x, y);
+  //     setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
+  //     es.pickupsMap[getCoordIndex2(x, y)] = {
+  //       lifetime: INVINCIBILITY_PICKUP_LIFETIME_MS,
+  //       type: PickupType.Invincibility,
+  //     };
+  //     state.timeSinceSpawnedAnyPickup = 0;
+  //   }
+  // }
+
+  function spawnInvincibilityPickup(predicate?: (coord: number) => boolean) {
+    const coord = chooseSpawnLocation(-1, (pcoord => {
+      const px = getCoordX(pcoord);
+      const py = getCoordY(pcoord);
+      const spawnedTooCloseToPlayer = getManhattanDistance(px, py, player.position.x, player.position.y) < 20;
+      if (predicate) return !spawnedTooCloseToPlayer && predicate(pcoord);
+      return !spawnedTooCloseToPlayer;
+    }));
+    if (coord < 0) -1;
+    const x = getCoordX(coord);
+    const y = getCoordY(coord);
+    if (!apples.existsAt(x, y)) apples.add(x, y);
+    setTimeout(() => playSound(Sound.shieldSpawn, 0.45), PICKUP_SPAWN_SFX_DELAY);
+    es.pickupsMap[coord] = {
+      lifetime: INVINCIBILITY_PICKUP_LIFETIME_MS,
+      type: PickupType.Invincibility,
+    };
+    state.timeSinceSpawnedAnyPickup = 0;
+    return coord;
   }
 
   function maybeSpawnPrey() {
@@ -686,6 +707,7 @@ export function engineSpawning({
     spawnThreat,
     spawnHealthPickup,
     spawnWeightLossPickup,
+    spawnInvincibilityPickup,
     spawnPuffAt,
     spawnSmokeAt,
     spawnExplosionAt,

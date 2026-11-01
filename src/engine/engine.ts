@@ -191,7 +191,7 @@ import { buildMapLayout, decodeMapData } from '../editor/utils/editorUtils';
 import { resumeAudioContext, setMusicVolume, setSfxVolume } from './audio';
 import { LEVEL_01_HARD } from '../levels/ep01/level01hard';
 import { LEVEL_01_ULTRA } from '../levels/ep01/level01ultra';
-import { SaveDataStore } from '../stores/SaveDataStore';
+import { saveDataStore, SaveDataStore } from '../stores/SaveDataStore';
 import { AStar } from '../astar/astar';
 import { FLAG_PREY_BURNED, FLAG_PREY_ELECTROCUTED, FLAG_PREY_STUNNED, FLAG_PREY_TRAPPED, PreyList } from '../collections/preyList';
 import { getCanvasImage, overlayOntoCanvas } from '@/editor/utils/publishUtils';
@@ -378,6 +378,10 @@ export function engine({
         startScreenShake(2, 0, 0.8);
       }
       recalculateLasersMap(es, threats);
+      if (state.isLost) {
+        checkExplosionHit(coordToVec(coord));
+        applyMortalRuin();
+      }
     } else if (threatType === ThreatType.Bomb) {
       const lifetime = ANIMATIONS[Image.Explosion3Sheet].frames * ANIMATIONS[Image.Explosion3Sheet].timePerFrame;
       explosions.add(x, y, lifetime, Image.Explosion3Sheet, ExplosionType.Large);
@@ -386,6 +390,10 @@ export function engine({
       damageSurroundingTiles(coord, ExplosionType.Large);
       if (screenShake.timeSinceStarted >= SCREEN_SHAKE_DURATION_MS) {
         startScreenShake(2, 0, 0.8);
+      }
+      if (state.isLost) {
+        checkExplosionHit(coordToVec(coord));
+        applyMortalRuin();
       }
     } else if (threatType === ThreatType.Mine || reason === RemovalReason.LifetimeExpired || reason === RemovalReason.Explode) {
       const lifetime = ANIMATIONS[Image.ExplosionSheet].frames * ANIMATIONS[Image.ExplosionSheet].timePerFrame;
@@ -566,6 +574,7 @@ export function engine({
     spawnThreat,
     spawnHealthPickup,
     spawnWeightLossPickup,
+    spawnInvincibilityPickup,
     spawnExplosionAt,
     chooseSpawnLocation,
   } = engineSpawning({
@@ -967,6 +976,7 @@ export function engine({
       spawnThreat,
       spawnHealthPickup,
       spawnWeightLossPickup,
+      spawnInvincibilityPickup,
       spawnExplosionAt,
     } satisfies BossConstructorArgs);
 
@@ -1664,7 +1674,7 @@ export function engine({
       renderHeartsUI();
       flashScreen(HURT_FORGIVENESS_TIME);
       startScreenShake();
-      triggerGameOver();
+      maybeGameOver();
       playSound(Sound.death);
       return;
     }
@@ -3291,6 +3301,9 @@ export function engine({
     } else {
       playSound(Sound.hurt3);
     }
+    if (state.gameMode === GameMode.Cobra && state.lives >= 0) {
+      saveDataStore.updateLives(state.lives);
+    }
   }
 
   function damageSurroundingTiles(coord: number, explosionType: ExplosionType) {
@@ -3633,15 +3646,15 @@ export function engine({
     }
   }
 
-  function triggerGameOver() {
+  function maybeGameOver() {
     if (replay.mode === ReplayMode.Playback) {
       showGameOver();
     } else {
-      startAction(triggerGameOverRoutine(), Action.GameOver);
+      startAction(maybeGameOverRoutine(), Action.GameOver);
     }
   }
 
-  function* triggerGameOverRoutine(): IEnumerator {
+  function* maybeGameOverRoutine(): IEnumerator {
     // give player a chance to recover a death blow
     state.isLost = true;
     state.timeSinceHurt = 0;
@@ -3675,6 +3688,9 @@ export function engine({
     }
     coroutines.start(showGameOverRoutine());
     maybeSaveReplayStateToFile();
+    if (state.gameMode === GameMode.Cobra) {
+      saveDataStore.resetCurrentSaveSlot();
+    }
     if (allowAchievements(state, replay.mode)) {
       checkAchievementForDeath(state.lastHurtBy, state.isTrapped);
     }

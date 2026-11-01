@@ -16,6 +16,7 @@ import {
   SmokeType,
   BossDamage,
   BossComponentFrame,
+  PickupType,
 } from "@/types";
 import {
   coordToVec,
@@ -54,7 +55,8 @@ export class TheTechnician extends BaseBoss {
   private circuits: Record<number, CircuitState> = {};
 
   private hp = 0;
-  private spawnThreatsCoroutine: string;
+  private threatSpawner: string;
+  private powerupSpawner: string;
   private timeSinceLastPhaseStart = 0;
 
   private get phase() { return this.phases[this.difficulty]?.[this.phaseIdx] || BossAgro.L3; }
@@ -317,7 +319,9 @@ export class TheTechnician extends BaseBoss {
     this.gameState.lightsOn = false;
     this.gameState.isDeathIlluminating = true;
     this.gameState.globalLightOverride = undefined;
-    coroutines.stop(this.spawnThreatsCoroutine);
+    this.gameState.timeSinceInvincibleStart = Infinity;
+    coroutines.stop(this.threatSpawner);
+    coroutines.stop(this.powerupSpawner);
     // give other scripts one stack frame to react to new state machine status
     yield null;
 
@@ -379,7 +383,7 @@ export class TheTechnician extends BaseBoss {
       yield* this.spawnThreats();
       yield* this.spawnApples();
       this.spawnPowerups();
-      this.spawnThreatsCoroutine = this.coroutines.start(this.spawnThreatsRoutine());
+      this.threatSpawner = this.coroutines.start(this.spawnThreatsRoutine());
       this.gameState.currentSpeed = 0;
       this.sfx.play(Sound.moveStart);
       this.loopState.timeScale = prevTimeScale;
@@ -389,6 +393,7 @@ export class TheTechnician extends BaseBoss {
       if (this.isFinalPhase()) {
         coroutines.start(this.lightRoutine());
       }
+      this.powerupSpawner = coroutines.start(this.spawnPowerupsRoutine());
     }
   }
 
@@ -397,7 +402,7 @@ export class TheTechnician extends BaseBoss {
     const coroutines = this.coroutines;
     const prevTimeScale = this.loopState.timeScale;
     this.loopState.timeScale = 0;
-    this.coroutines.stop(this.spawnThreatsCoroutine);
+    this.coroutines.stop(this.threatSpawner);
 
     let explosionCoords = [];
     let bossCoord = -1;
@@ -563,12 +568,41 @@ export class TheTechnician extends BaseBoss {
   private spawnPowerups() {
     if (this.phase < BossAgro.L2) return;
     const lives = this.gameState.lives;
-    let chance = 0;
-    if (lives <= 2) { chance = 0.3; }
-    if (lives <= 1) { chance = 0.75; }
-    if (lives <= 0) { chance = 1; }
-    if (Math.random() <= chance) {
+    if (lives === 2) {
+      if (Math.random() <= 0.5) {
+        this.spawnHealthPickup();
+      }
+    } else if (lives <= 1) {
       this.spawnHealthPickup();
+    }
+    if (this.phase === BossAgro.L3 && lives >= 3) {
+      if (Math.random() <= 0.5) {
+        this.spawnWeightLossPickup();
+      }
+    }
+    if (this.phase === BossAgro.L4 && this.difficulty <= 3) {
+      this.spawnInvincibilityPickup();
+    }
+  }
+
+  private * spawnPowerupsRoutine() {
+    let pity = 0;
+    while (this.stateMachine === BossStateMachine.Fighting) {
+      const interval = { min: 1000 * 15, max: 1000 * 25 };
+      yield* this.coroutines.waitForTime(lerp(interval.min, interval.max, Math.random() + Number.EPSILON));
+      const lives = this.gameState.lives;
+      if (lives === 0 && Math.random() <= 0.3) {
+        this.spawnHealthPickup();
+      } else if (Math.random() <= lerp(0.28, 1, pity)) {
+        if (Math.random() > 0.5) {
+          this.spawnInvincibilityPickup();
+        } else {
+          this.spawnWeightLossPickup();
+        }
+        pity = 0;
+      } else {
+        pity += 0.2;
+      }
     }
   }
 
@@ -601,7 +635,7 @@ export class TheTechnician extends BaseBoss {
     spawns[BossAgro.L1][3] = { bombs: 0, coils: 0, mines: 2 };
     spawns[BossAgro.L2][3] = { bombs: 0, coils: 2, mines: 4 };
     spawns[BossAgro.L3][3] = { bombs: 2, coils: 3, mines: 2 };
-    spawns[BossAgro.L4][3] = { bombs: 4, coils: 4, mines: 0 };
+    spawns[BossAgro.L4][3] = { bombs: 2, coils: 3, mines: 0 };
 
     spawns[BossAgro.L1][4] = { bombs: 0, coils: 2, mines: 2 };
     spawns[BossAgro.L2][4] = { bombs: 2, coils: 3, mines: 4 };
@@ -612,7 +646,7 @@ export class TheTechnician extends BaseBoss {
     const numBombsToSpawn = spawns[this.phase][this.difficulty].bombs || 0;
     const numMinesToSpawn = spawns[this.phase][this.difficulty].mines || 0;
     for (let i = 0; i < numBombsToSpawn; i++) {
-      this.spawnBomb(6000, 8000);
+      this.spawnBomb(8000, 8000);
       yield* coroutines.waitForTime(80);
     }
     for (let i = 0; i < numCoilsToSpawn; i++) {
@@ -655,7 +689,7 @@ export class TheTechnician extends BaseBoss {
             this.spawnMine(5000, 8000);
             break;
           case ThreatType.Bomb:
-            this.spawnBomb(6000, 8000);
+            this.spawnBomb(8000, 8000);
             break;
           case ThreatType.ElectricCoil:
             this.spawnCoil(5000, 8000);
