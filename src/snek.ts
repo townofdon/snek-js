@@ -254,11 +254,11 @@ export const sketch = (p5: P5) => {
       case InputAction.RetryLevel:
         retryLevel();
         break;
-      case InputAction.ShowGameModeMenu:
-        if (!state.isGameStarted) showGameModeMenu();
+      case InputAction.ShowMainMenu:
+        if (!state.isGameStarted) showMainMenu();
         break;
-      case InputAction.HideGameModeMenu:
-        UI.hideGameModeMenu();
+      case InputAction.HideMainMenu:
+        UI.hideMainMenu();
         sfx.play(Sound.doorOpen);
         if (!state.isGameStarted) UI.showTitleScreen();
         break;
@@ -272,7 +272,7 @@ export const sketch = (p5: P5) => {
         if (!state.isGameStarted) showSaveSlotMenu();
         break;
       case InputAction.HideSaveSlotMenu:
-        if (!state.isGameStarted) showGameModeMenu();
+        if (!state.isGameStarted) showMainMenu();
         break;
       case InputAction.NewGame:
         newGame(p0 as NewGameArgs);
@@ -554,7 +554,7 @@ export const sketch = (p5: P5) => {
     tutorial.needsRewindControls = true;
 
     UI.enableScreenScroll();
-    UI.hideGameModeMenu();
+    UI.hideMainMenu();
     showTitleScreenUI();
   }
 
@@ -583,22 +583,22 @@ export const sketch = (p5: P5) => {
     showTitleScreenUI();
   }
 
-  function showGameModeMenu() {
+  function showMainMenu() {
     playSound(Sound.unlock, 1, true);
     UI.hideLevelSelectMenu();
     UI.hideSaveSlotMenu();
-    UI.showGameModeMenu();
+    UI.showMainMenu();
   }
 
   function showLevelSelectMenu() {
     playSound(Sound.unlock, 1, true);
-    UI.hideGameModeMenu();
+    UI.hideMainMenu();
     UI.showLevelSelectMenu();
   }
 
   function showSaveSlotMenu() {
     playSound(Sound.unlock, 1, true);
-    UI.hideGameModeMenu();
+    UI.hideMainMenu();
     UI.hideLevelSelectMenu();
     UI.showSaveSlotMenu();
   }
@@ -708,7 +708,7 @@ export const sketch = (p5: P5) => {
     uiElements.forEach(element => element.remove());
     uiElements = [];
     UI.hideTitleScreen();
-    UI.hideGameModeMenu();
+    UI.hideMainMenu();
     UI.hideLevelSelectMenu();
   }
 

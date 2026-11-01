@@ -1049,10 +1049,10 @@ export enum Initiator {
   None = 0,
   UI,
   User,
-  TitleScren,
+  TitleScreen,
   SettingsMenu,
   LevelSelectMenu,
-  GameModeMenu,
+  MainMenu,
 }
 
 export interface NewGameArgs {
@@ -1090,8 +1090,8 @@ export enum InputAction {
   HideSettingsMenu,
   ShowLevelSelectMenu,
   HideLevelSelectMenu,
-  ShowGameModeMenu,
-  HideGameModeMenu,
+  ShowMainMenu,
+  HideMainMenu,
   ShowSaveSlotMenu,
   HideSaveSlotMenu,
   RetryLevel,

@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { bridge } from "./uiBridge";
 import { Episode, GameMode, InputAction, NewGameArgs, UINavDir } from "@/types";
 import { useForceRerender } from "./hooks/useForceRerender";
-import { GameModeMenuElement, GameModeMenuNavMap } from "@/ui/uiNavMap";
+import { MainMenuElement, MainMenuNavMap } from "@/ui/uiNavMap";
 import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { DOM } from "@/ui/uiUtils";
 
-export const GameModeMenu = () => {
+export const MainMenu = () => {
   const [showing, setShowing] = useState(false);
   const [disabled, setDisabled] = useState(false);
   const [blink, setBlink] = useState(false);
@@ -18,7 +18,7 @@ export const GameModeMenu = () => {
     tutorial: useRef<HTMLButtonElement>(null),
     back: useRef<HTMLButtonElement>(null),
   }
-  const gameModeMenuNavMap = useRef<GameModeMenuNavMap>(null);
+  const mainMenuNavMap = useRef<MainMenuNavMap>(null);
 
   useEffect(() => {
     const handleUIEvent = (action: InputAction = InputAction.None) => {
@@ -26,13 +26,13 @@ export const GameModeMenu = () => {
         case InputAction.ForceRerender:
           forceRerender();
           break;
-        case InputAction.ShowGameModeMenu:
+        case InputAction.ShowMainMenu:
           setShowing(true);
           setBlink(false);
           setDisabled(false);
           setActiveId('');
           break;
-        case InputAction.HideGameModeMenu:
+        case InputAction.HideMainMenu:
           setShowing(false);
           break;
         case InputAction.ShowTitleScreen:
@@ -68,13 +68,13 @@ export const GameModeMenu = () => {
 
   useEffect(() => {
     if (showing && !disabled) {
-      bridge.gameModeMenu.showing = true;
-      const callGameModeMenuAction = (element: GameModeMenuElement) => {
+      bridge.mainMenu.showing = true;
+      const callMainMenuAction = (element: MainMenuElement) => {
         const ids: string[] = [
-          GameModeMenuElement.Campaign,
-          GameModeMenuElement.Arcade,
-          GameModeMenuElement.Tutorial,
-          GameModeMenuElement.Back,
+          MainMenuElement.Campaign,
+          MainMenuElement.Arcade,
+          MainMenuElement.Tutorial,
+          MainMenuElement.Back,
         ];
         if (
           !!document.activeElement
@@ -84,38 +84,38 @@ export const GameModeMenu = () => {
           document.activeElement?.click?.();
         }
       }
-      gameModeMenuNavMap.current = new GameModeMenuNavMap(callGameModeMenuAction);
-      bridge.gameModeMenu.onNavigate = (navDir) => {
+      mainMenuNavMap.current = new MainMenuNavMap(callMainMenuAction);
+      bridge.mainMenu.onNavigate = (navDir) => {
         switch (navDir) {
           case UINavDir.Prev:
-            return gameModeMenuNavMap.current.gotoPrev();
+            return mainMenuNavMap.current.gotoPrev();
           case UINavDir.Up:
-            return gameModeMenuNavMap.current.gotoPrev();
+            return mainMenuNavMap.current.gotoPrev();
           case UINavDir.Left:
-            return gameModeMenuNavMap.current.gotoPrev();
+            return mainMenuNavMap.current.gotoPrev();
           case UINavDir.Next:
-            return gameModeMenuNavMap.current.gotoNext();
+            return mainMenuNavMap.current.gotoNext();
           case UINavDir.Down:
-            return gameModeMenuNavMap.current.gotoNext();
+            return mainMenuNavMap.current.gotoNext();
           case UINavDir.Right:
-            return gameModeMenuNavMap.current.gotoNext();
+            return mainMenuNavMap.current.gotoNext();
           default:
             return false;
         }
       }
-      bridge.gameModeMenu.onInteract = () => {
-        return gameModeMenuNavMap.current.callSelected();
+      bridge.mainMenu.onInteract = () => {
+        return mainMenuNavMap.current.callSelected();
       }
-      bridge.gameModeMenu.onCancel = () => {
-        bridge.callAction(InputAction.HideGameModeMenu);
+      bridge.mainMenu.onCancel = () => {
+        bridge.callAction(InputAction.HideMainMenu);
         return true;
       }
     } else {
-      bridge.gameModeMenu.showing = false;
-      bridge.gameModeMenu.onNavigate = null;
-      bridge.gameModeMenu.onInteract = null;
-      bridge.gameModeMenu.onCancel = null;
-      gameModeMenuNavMap.current = null;
+      bridge.mainMenu.showing = false;
+      bridge.mainMenu.onNavigate = null;
+      bridge.mainMenu.onInteract = null;
+      bridge.mainMenu.onCancel = null;
+      mainMenuNavMap.current = null;
     }
   }, [showing, disabled]);
 
@@ -129,13 +129,13 @@ export const GameModeMenu = () => {
 
   const handleSelectGameModeCampaign = () => {
     if (disabled) return;
-    setActiveId(GameModeMenuElement.Campaign);
+    setActiveId(MainMenuElement.Campaign);
     bridge.callAction(InputAction.ShowSaveSlotMenu);
   }
 
   const handleSelectGameModeArcade = () => {
     if (disabled) return;
-    setActiveId(GameModeMenuElement.Arcade);
+    setActiveId(MainMenuElement.Arcade);
     const newGameArgs = {
       levelId: "",
       episode: Episode.E1,
@@ -146,7 +146,7 @@ export const GameModeMenu = () => {
 
   const handleSelectGameModeTutorial = () => {
     if (disabled) return;
-    setActiveId(GameModeMenuElement.Tutorial);
+    setActiveId(MainMenuElement.Tutorial);
     const newGameArgs = {
       levelId: "",
       episode: Episode.E1,
@@ -157,22 +157,22 @@ export const GameModeMenu = () => {
 
   const handleBack = () => {
     if (disabled) return;
-    bridge.callAction(InputAction.HideGameModeMenu);
+    bridge.callAction(InputAction.HideMainMenu);
   }
 
-  const classNameFor = (elem: GameModeMenuElement): string => {
-    let className = 'button newbutton ui-arrows select-white game-mode ';
+  const classNameFor = (elem: MainMenuElement): string => {
+    let className = 'button newbutton ui-arrows select-white main-menu ';
     switch (elem) {
-      case GameModeMenuElement.Campaign:
+      case MainMenuElement.Campaign:
         className += 'campaign ';
         break;
-      case GameModeMenuElement.Arcade:
+      case MainMenuElement.Arcade:
         className += 'arcade ';
         break;
-      case GameModeMenuElement.Tutorial:
+      case MainMenuElement.Tutorial:
         className += 'tutorial ';
         break;
-      case GameModeMenuElement.Back:
+      case MainMenuElement.Back:
         className += 'back ';
         break;
     }
@@ -183,7 +183,7 @@ export const GameModeMenu = () => {
   }
 
   return (
-    <div id="game-mode-menu" className="settings-menu">
+    <div id="main-menu" className="settings-menu">
       <div className="background blur"></div>
       <div className="content gap">
         <h2 className="title-gradient">Main Menu</h2>
@@ -191,8 +191,8 @@ export const GameModeMenu = () => {
         <button
           tabIndex={0}
           ref={buttons.campaign}
-          id={GameModeMenuElement.Campaign}
-          className={classNameFor(GameModeMenuElement.Campaign)}
+          id={MainMenuElement.Campaign}
+          className={classNameFor(MainMenuElement.Campaign)}
           onClick={handleSelectGameModeCampaign}
         >
           campaign
@@ -200,8 +200,8 @@ export const GameModeMenu = () => {
         <button
           tabIndex={0}
           ref={buttons.arcade}
-          id={GameModeMenuElement.Arcade}
-          className={classNameFor(GameModeMenuElement.Arcade)}
+          id={MainMenuElement.Arcade}
+          className={classNameFor(MainMenuElement.Arcade)}
           onClick={handleSelectGameModeArcade}
         >
           arcade
@@ -209,8 +209,8 @@ export const GameModeMenu = () => {
         <button
           tabIndex={0}
           ref={buttons.tutorial}
-          id={GameModeMenuElement.Tutorial}
-          className={classNameFor(GameModeMenuElement.Tutorial)}
+          id={MainMenuElement.Tutorial}
+          className={classNameFor(MainMenuElement.Tutorial)}
           onClick={handleSelectGameModeTutorial}
         >
           tutorial
@@ -218,8 +218,8 @@ export const GameModeMenu = () => {
         <button
           tabIndex={0}
           ref={buttons.back}
-          id={GameModeMenuElement.Back}
-          className={classNameFor(GameModeMenuElement.Back)}
+          id={MainMenuElement.Back}
+          className={classNameFor(MainMenuElement.Back)}
           onClick={handleBack}
         >
           &lt;- back

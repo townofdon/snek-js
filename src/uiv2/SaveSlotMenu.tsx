@@ -49,7 +49,7 @@ export const SaveSlotMenu = () => {
         case InputAction.ShowTitleScreen:
           setShowing(false);
           break;
-        case InputAction.ShowGameModeMenu:
+        case InputAction.ShowMainMenu:
           setShowing(false);
           break;
         case InputAction.ShowLevelSelectMenu:

@@ -46,7 +46,7 @@ export const TitleScreen = () => {
         case InputAction.ShowSettingsMenu:
           setActive(false);
           break;
-        case InputAction.ShowGameModeMenu:
+        case InputAction.ShowMainMenu:
           setActive(false);
           break;
         case InputAction.ShowLevelSelectMenu:
@@ -77,7 +77,7 @@ export const TitleScreen = () => {
       titleScreenMenuNavMap.current = new TitleScreenMenuNavMap(
         titleScreenMenuButtons,
         {
-          [TitleScreenMenuButton.StartGame]: InputAction.ShowGameModeMenu,
+          [TitleScreenMenuButton.StartGame]: InputAction.ShowMainMenu,
           [TitleScreenMenuButton.QuitGame]: InputAction.ConfirmQuitGame,
           [TitleScreenMenuButton.OSTMode]: InputAction.EnterOstMode,
           [TitleScreenMenuButton.QuoteMode]: InputAction.EnterQuoteMode,
@@ -133,7 +133,7 @@ export const TitleScreen = () => {
 
   const handleStartGame = () => {
     if (!active) return;
-    bridge.callAction(InputAction.ShowGameModeMenu);
+    bridge.callAction(InputAction.ShowMainMenu);
   }
 
   const handleQuitGame = () => {

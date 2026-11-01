@@ -34,7 +34,7 @@ export const SettingsMenu = () => {
         case InputAction.ShowTitleScreen:
           setActive(false);
           break;
-        case InputAction.ShowGameModeMenu:
+        case InputAction.ShowMainMenu:
           setActive(false);
           break;
         case InputAction.ShowLevelSelectMenu:

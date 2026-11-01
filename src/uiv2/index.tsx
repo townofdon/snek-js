@@ -6,7 +6,7 @@ import { TitleScreen } from './TitleScreen';
 import { SettingsMenu } from './SettingsMenu';
 import { DebugMenu } from './DebugMenu';
 import { LevelSelectMenu } from './LevelSelectMenu';
-import { GameModeMenu } from './GameModeMenu';
+import { MainMenu } from './MainMenu';
 import { SaveSlotMenu } from './SaveSlotMenu';
 
 const requireElementById = (id: string) => {
@@ -35,9 +35,9 @@ if (!IS_PREVIEW) {
   );
 }
 if (!IS_PREVIEW) {
-  createRoot(requireElementById('game-mode-menu-v2')).render(
+  createRoot(requireElementById('main-menu-v2')).render(
     <React.StrictMode>
-      <GameModeMenu />
+      <MainMenu />
     </React.StrictMode>
   );
 }

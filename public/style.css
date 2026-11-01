@@ -1007,23 +1007,23 @@ button:focus > .tooltip
 .tooltip.align-right { right: 0; }
 
 
-button.game-mode {
+button.main-menu {
   min-width: 160px;
   text-align: left;
 }
-button.game-mode.campaign {
+button.main-menu.campaign {
   color: #E9C46A;
 }
-button.game-mode.arcade {
+button.main-menu.arcade {
   color: #E76F51;
 }
-button.game-mode.tutorial {
+button.main-menu.tutorial {
   color: #8e6ced;
 }
-button.game-mode.randomizer {
+button.main-menu.randomizer {
   color: #2FB1A2;
 }
-button.game-mode.back {
+button.main-menu.back {
   color: #bbb;
 }
 

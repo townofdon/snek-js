@@ -66,7 +66,7 @@ export const LevelSelectMenu = () => {
         case InputAction.ShowTitleScreen:
           setShowing(false);
           break;
-        case InputAction.ShowGameModeMenu:
+        case InputAction.ShowMainMenu:
           setShowing(false);
           break;
         case InputAction.ShowSaveSlotMenu:

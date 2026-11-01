@@ -72,8 +72,8 @@ export class UIBindings implements UIHandler {
     if (bridge.settingsMenu.showing) {
       return bridge.settingsMenu?.onNavigate?.(navDir) || false;
     }
-    if (bridge.gameModeMenu.showing) {
-      return bridge.gameModeMenu?.onNavigate?.(navDir) || false;
+    if (bridge.mainMenu.showing) {
+      return bridge.mainMenu?.onNavigate?.(navDir) || false;
     }
     if (bridge.saveSlotMenu.showing) {
       return bridge.saveSlotMenu?.onNavigate?.(navDir) || false;
@@ -135,8 +135,8 @@ export class UIBindings implements UIHandler {
     if (bridge.settingsMenu.showing) {
       return bridge.settingsMenu?.onInteract?.() || false;
     }
-    if (bridge.gameModeMenu.showing) {
-      return bridge.gameModeMenu?.onInteract?.() || false;
+    if (bridge.mainMenu.showing) {
+      return bridge.mainMenu?.onInteract?.() || false;
     }
     if (bridge.saveSlotMenu.showing) {
       return bridge.saveSlotMenu?.onInteract?.() || false;
@@ -163,8 +163,8 @@ export class UIBindings implements UIHandler {
     if (bridge.settingsMenu.showing) {
       return bridge.settingsMenu?.onCancel?.() || false;
     }
-    if (bridge.gameModeMenu.showing) {
-      return bridge.gameModeMenu?.onCancel?.() || false;
+    if (bridge.mainMenu.showing) {
+      return bridge.mainMenu?.onCancel?.() || false;
     }
     if (bridge.saveSlotMenu.showing) {
       return bridge.saveSlotMenu?.onCancel?.() || false;

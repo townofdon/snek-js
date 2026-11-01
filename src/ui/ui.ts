@@ -22,7 +22,7 @@ enum ActiveMenu {
   None = 0,
   TitleScreen,
   SettingsMenu,
-  GameModeMenu,
+  MainMenu,
   LevelSelectMenu,
   SaveSlotMenu,
 }
@@ -80,7 +80,7 @@ export class UI {
   static hideAllMenus() {
     UI.activeMenu = ActiveMenu.None;
     UI.hideTitleScreen();
-    UI.hideGameModeMenu();
+    UI.hideMainMenu();
     UI.hideLevelSelectMenu();
     UI.hideSaveSlotMenu();
     UI.hideSettingsMenu();
@@ -101,19 +101,19 @@ export class UI {
     emitUIEvent(InputAction.HideTitleScreen, Initiator.UI);
   }
 
-  static showGameModeMenu() {
-    if (UI.activeMenu === ActiveMenu.GameModeMenu) {
+  static showMainMenu() {
+    if (UI.activeMenu === ActiveMenu.MainMenu) {
       return;
     }
-    UI.activeMenu = ActiveMenu.GameModeMenu;
-    emitUIEvent(InputAction.ShowGameModeMenu, Initiator.UI);
+    UI.activeMenu = ActiveMenu.MainMenu;
+    emitUIEvent(InputAction.ShowMainMenu, Initiator.UI);
   }
 
-  static hideGameModeMenu() {
-    if (UI.activeMenu === ActiveMenu.GameModeMenu) {
+  static hideMainMenu() {
+    if (UI.activeMenu === ActiveMenu.MainMenu) {
       UI.activeMenu = ActiveMenu.None;
     }
-    emitUIEvent(InputAction.HideGameModeMenu, Initiator.UI);
+    emitUIEvent(InputAction.HideMainMenu, Initiator.UI);
   }
 
   static showSettingsMenu() {

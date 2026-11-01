@@ -568,25 +568,25 @@ export class GameOverMenuNavMap extends GroupedNavMap<GameOverMenuElement> {
   }
 }
 
-export enum GameModeMenuElement {
-  Campaign = 'button-game-mode-campaign',
-  Arcade = 'button-game-mode-arcade',
-  Tutorial = 'button-game-mode-tutorial',
-  Back = 'button-game-mode-back',
+export enum MainMenuElement {
+  Campaign = 'button-main-menu-campaign',
+  Arcade = 'button-main-menu-arcade',
+  Tutorial = 'button-main-menu-tutorial',
+  Back = 'button-main-menu-back',
 }
 
-const GAME_MODE_MENU_ELEMENT_ORDER = [
+const MAIN_MENU_ELEMENT_ORDER = [
   [
-    GameModeMenuElement.Campaign,
-    GameModeMenuElement.Arcade,
-    GameModeMenuElement.Tutorial,
-    GameModeMenuElement.Back,
+    MainMenuElement.Campaign,
+    MainMenuElement.Arcade,
+    MainMenuElement.Tutorial,
+    MainMenuElement.Back,
   ],
 ];
 
-export class GameModeMenuNavMap extends GroupedNavMap<GameModeMenuElement> {
-  constructor(callAction: (element: GameModeMenuElement) => void) {
-    super(callAction, GAME_MODE_MENU_ELEMENT_ORDER)
+export class MainMenuNavMap extends GroupedNavMap<MainMenuElement> {
+  constructor(callAction: (element: MainMenuElement) => void) {
+    super(callAction, MAIN_MENU_ELEMENT_ORDER)
   }
 }
 
