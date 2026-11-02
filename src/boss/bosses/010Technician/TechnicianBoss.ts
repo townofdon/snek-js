@@ -16,7 +16,6 @@ import {
   SmokeType,
   BossDamage,
   BossComponentFrame,
-  PickupType,
 } from "@/types";
 import {
   coordToVec,
@@ -35,8 +34,24 @@ import {
 } from "@/utils";
 import { BaseBoss, BossConstructorArgs } from "../../BaseBoss";
 import { TechnicianStartScene } from "./TechnicianStartScene";
-import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_LOCALHOST, LASER_WARN_LIFETIME } from "@/constants";
+import {
+  GRIDCOUNT_X,
+  GRIDCOUNT_Y,
+  IS_LOCALHOST,
+  LASER_WARN_LIFETIME,
+} from "@/constants";
 import { Easing } from "@/easing";
+import {
+  spawnExplosionAt,
+  spawnHealthPickup,
+  spawnInvincibilityPickup,
+  spawnPuffAt,
+  spawnRegularApple,
+  spawnSmokeAt,
+  spawnThreat,
+  spawnWeightLossPickup,
+} from "@/engine/engineComponents/spawning";
+import { openDoors } from "@/engine/engineComponents/mutations";
 
 
 enum CircuitState {
@@ -398,6 +413,7 @@ export class TheTechnician extends BaseBoss {
   }
 
   private * dieRoutine() {
+    const ctx = this.ctx;
     this.stateMachine = BossStateMachine.Dying;
     const coroutines = this.coroutines;
     const prevTimeScale = this.loopState.timeScale;
@@ -425,7 +441,7 @@ export class TheTechnician extends BaseBoss {
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < explosionCoords.length; j++) {
         const coord = explosionCoords[j];
-        this.spawnExplosionAt(getCoordX(coord), getCoordY(coord));
+        spawnExplosionAt(ctx, getCoordX(coord), getCoordY(coord));
         this.sfx.play(Sound.xplode3);
         yield* coroutines.waitForTime(80);
       }
@@ -433,7 +449,7 @@ export class TheTechnician extends BaseBoss {
     for (let i = 0; i < 2; i++) {
       for (let j = 0; j < explosionCoords.length; j++) {
         const coord = explosionCoords[j];
-        this.spawnExplosionAt(getCoordX(coord), getCoordY(coord));
+        spawnExplosionAt(ctx, getCoordX(coord), getCoordY(coord));
         this.sfx.play(Sound.xplode3);
         yield* coroutines.waitForTime(30);
       }
@@ -450,7 +466,7 @@ export class TheTechnician extends BaseBoss {
     smokeCoords.forEach(coord => {
       const x = getCoordX(coord);
       const y = getCoordY(coord);
-      this.spawnSmokeAt(x, y, SmokeType.Large);
+      spawnSmokeAt(ctx, x, y, SmokeType.Large);
     });
 
     yield* this.removeThreats(100, true);
@@ -465,7 +481,7 @@ export class TheTechnician extends BaseBoss {
     this.loopState.timeScale = prevTimeScale;
     this.gameState.currentSpeed = 0;
     this.sfx.play(Sound.doorOpen);
-    this.openDoors();
+    openDoors(ctx);
   }
 
   private updateCircuits = () => {
@@ -549,16 +565,17 @@ export class TheTechnician extends BaseBoss {
   }
 
   private * spawnApples() {
+    const ctx = this.ctx;
     const coroutines = this.coroutines;
     const numApplesToSpawn = this.applesToSpawn[this.difficulty]?.[this.phaseIdx] || 0;
     if (!numApplesToSpawn) {
       throw new Error(`numApplesToSpawn was zero for difficulty=${this.difficulty},phase=${this.phaseIdx}`);
     }
     for (let i = 0; i < numApplesToSpawn; i++) {
-      const coord = this.spawnRegularApple();
+      const coord = spawnRegularApple(ctx);
       const x = getCoordX(coord);
       const y = getCoordY(coord);
-      this.spawnPuffAt(x, y);
+      spawnPuffAt(ctx, x, y);
       this.sfx.play(Sound.waterSplash);
       yield* coroutines.waitForTime(80);
     }
@@ -566,38 +583,40 @@ export class TheTechnician extends BaseBoss {
   }
 
   private spawnPowerups() {
+    const ctx = this.ctx;
     if (this.phase < BossAgro.L2) return;
     const lives = this.gameState.lives;
     if (lives === 2) {
       if (Math.random() <= 0.5) {
-        this.spawnHealthPickup();
+        spawnHealthPickup(ctx);
       }
     } else if (lives <= 1) {
-      this.spawnHealthPickup();
+      spawnHealthPickup(ctx);
     }
     if (this.phase === BossAgro.L3 && lives >= 3) {
       if (Math.random() <= 0.5) {
-        this.spawnWeightLossPickup();
+        spawnWeightLossPickup(ctx);
       }
     }
     if (this.phase === BossAgro.L4 && this.difficulty <= 3) {
-      this.spawnInvincibilityPickup();
+      spawnInvincibilityPickup(ctx);
     }
   }
 
   private * spawnPowerupsRoutine() {
+    const ctx = this.ctx;
     let pity = 0;
     while (this.stateMachine === BossStateMachine.Fighting) {
       const interval = { min: 1000 * 15, max: 1000 * 25 };
       yield* this.coroutines.waitForTime(lerp(interval.min, interval.max, Math.random() + Number.EPSILON));
       const lives = this.gameState.lives;
       if (lives === 0 && Math.random() <= 0.3) {
-        this.spawnHealthPickup();
+        spawnHealthPickup(ctx);
       } else if (Math.random() <= lerp(0.28, 1, pity)) {
         if (Math.random() > 0.5) {
-          this.spawnInvincibilityPickup();
+          spawnInvincibilityPickup(ctx);
         } else {
-          this.spawnWeightLossPickup();
+          spawnWeightLossPickup(ctx);
         }
         pity = 0;
       } else {
@@ -689,7 +708,7 @@ export class TheTechnician extends BaseBoss {
             this.spawnMine(5000, 8000);
             break;
           case ThreatType.Bomb:
-            this.spawnBomb(8000, 8000);
+            this.spawnBomb(6000, 8000);
             break;
           case ThreatType.ElectricCoil:
             this.spawnCoil(5000, 8000);
@@ -701,34 +720,37 @@ export class TheTechnician extends BaseBoss {
   }
 
   private spawnBomb(lifetimeMin: number, lifetimeMax: number) {
+    const ctx = this.ctx;
     const predicate = (coord: number) => !this.circuits[coord];
     const lifetime = lerp(lifetimeMin, lifetimeMax, Math.random() + Number.EPSILON);
-    const coord = this.spawnThreat(ThreatType.Bomb, lifetime, predicate);
+    const coord = spawnThreat(ctx, ThreatType.Bomb, lifetime, predicate);
     const x = getCoordX(coord);
     const y = getCoordY(coord);
-    this.spawnPuffAt(x, y);
+    spawnPuffAt(ctx, x, y);
     // TODO: UNIQUE SOUND
     this.sfx.play(Sound.waterSplash);
   }
 
   private spawnMine(lifetimeMin: number, lifetimeMax: number){
+    const ctx = this.ctx;
     const predicate = (coord: number) => !this.circuits[coord];
     const lifetime = lerp(lifetimeMin, lifetimeMax, Math.random() + Number.EPSILON);
-    const coord = this.spawnThreat(ThreatType.Mine, lifetime, predicate);
+    const coord = spawnThreat(ctx, ThreatType.Mine, lifetime, predicate);
     const x = getCoordX(coord);
     const y = getCoordY(coord);
-    this.spawnPuffAt(x, y);
+    spawnPuffAt(ctx, x, y);
     // TODO: UNIQUE SOUND
     this.sfx.play(Sound.stab);
   }
 
   private spawnCoil(lifetimeMin: number, lifetimeMax: number) {
+    const ctx = this.ctx;
     const predicate = (coord: number) => !this.circuits[coord];
     const lifetime = lerp(lifetimeMin, lifetimeMax, Math.random() + Number.EPSILON);
-    const coord = this.spawnThreat(ThreatType.ElectricCoil, lifetime, predicate);
+    const coord = spawnThreat(ctx, ThreatType.ElectricCoil, lifetime, predicate);
     const x = getCoordX(coord);
     const y = getCoordY(coord);
-    this.spawnPuffAt(x, y);
+    spawnPuffAt(ctx, x, y);
     // TODO: UNIQUE SOUND
     this.sfx.play(Sound.uiChip);
   }

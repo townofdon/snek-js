@@ -737,6 +737,10 @@ export interface IRenderer {
 export interface ISpriteRenderer {
   loadImages: () => void
   loadEditorImages: () => void
+  setThemedAppleImage: (palette: ExtendedPalette) => void,
+  setThemedBorderImages: (palette: ExtendedPalette) => void,
+  setThemedDoorImage: (palette: ExtendedPalette) => void,
+  setThemedSegmentImage: (background: string, lineColor: string) => void,
   drawImage3x3: (image: Image, x: number, y: number, rotation?: number, alpha?: number, screenshakeMul?: number, frame?: number, frames?: number) => void,
   drawImage3x3Custom: (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation?: number, alpha?: number, screenshakeMul?: number, frame?: number, frames?: number) => void,
   drawImage3x3Static: (gfx: P5 | P5.Graphics, image: Image, x: number, y: number, rotation?: number, alpha?: number, screenshakeMul?: number, frame?: number, frames?: number) => void,
@@ -1992,6 +1996,10 @@ export interface ParticleSystem2 {
   opt3?: EmitterOptions,
 }
 
+export interface IGateUnlockParticleSystem2 {
+  emit: (x: number, y: number, channel: KeyChannel) => void,
+}
+
 export interface EmitterOptions {
   gradientIndex: number,
   originOffset: number,
@@ -2239,10 +2247,35 @@ export interface ICollection {
   getIndexAtCoord: (coord: number) => number,
 }
 
-export interface IVectorList {
+export interface ILengthable {
+  length: number,
+}
+
+export interface IPreyList extends ICollection, ILengthable {
+  add: (x: number, y: number, preyType: PreyType) => boolean,
+  tick: (deltaTime: number) => boolean,
+  wasAtCoord: (coord: number, timeWindow: number) => number,
+  getTypeByCoord: (coord: number) => PreyType,
+  remove: (x: number, y: number) => void
+  removeByCoord: (coord: number) => void,
+  hasFlagAt: (x: number, y: number, flag: number) => boolean,
+  addFlagAt: (x: number, y: number, flag: number) => void,
+  hasFlagForAny: (flag: number) => boolean,
+}
+
+export interface IAppleList extends ICollection, IRemovable, ILengthable {
+  add: (x: number, y: number) => void,
+}
+
+export interface IVectorList extends ICollection {
+  add: (x: number, y: number) => void,
+  addVec: (vec: Vector) => void,
+  remove: (index: number) => void,
+  containsCoord: (coord: number) => boolean,
   length: number,
   setVec: (index: number, vec: Vector | undefined) => void,
   get: (index: number) => (Vector | undefined),
+  every: (predicate: (vec: Vector) => boolean) => boolean,
 }
 
 export enum RemovalReason {
@@ -2253,8 +2286,14 @@ export enum RemovalReason {
   Overwrite,
 }
 
-export interface IRemovable {
+export interface IRemovableWithReason {
   remove: (x: number, y: number, reason: RemovalReason) => void,
+  removeByCoord: (coord: number, reason: RemovalReason) => void,
+}
+
+export interface IRemovable {
+  remove: (x: number, y: number) => void,
+  removeByCoord: (coord: number) => void,
 }
 
 export interface IFlaggable {
@@ -2264,6 +2303,167 @@ export interface IFlaggable {
   removeFlagAt: (x: number, y: number, flag: number) => void,
   bulkAddFlag: (flag: number) => void;
   bulkRemoveFlag: (flag: number) => void;
+}
+
+export interface IAnimationList extends ICollection, IFlaggable, IRemovableWithReason {
+  readonly length: number,
+  setName: (incoming: string) => void,
+  reset: () => void,
+  fillFromMap: (map: Record<number, boolean>, lifetime: number, img: SpritesheetImage | SpritesheetRange) => void,
+  getLength: () => number,
+  getMaxLength: () => number,
+  getNumTimesDidChange: () => number,
+  forEach: (iteratee: (coord: number) => void) => void,
+  tick: (deltaTime: number) => boolean,
+  add: (x: number, y: number, lifetime: number, img: SpritesheetImage | SpritesheetRange, type?: number, opts?: AddAnimationListItemOptions) => void,
+  restart: (x: number, y: number) => void,
+  removeByCoord: (coord: number, reason: RemovalReason) => void,
+  remove: (x: number, y: number, reason: RemovalReason) => void,
+  existsAtVec: (vec: Vector) => boolean,
+  existsAtCoord: (coord: number, type?: number) => boolean,
+  getIndexAtCoord: (coord: number) => number,
+  getIndex: (x: number, y: number) => number,
+  existsAt: (x: number, y: number, type?: number) => boolean,
+  enabledAt: (x: number, y: number) => boolean,
+  enable: (x: number, y: number) => void,
+  disable: (x: number, y: number) => void,
+  getElapsedByVec: (vec: Vector) => number,
+  getElapsedByCoord: (coord: number) => number,
+  getElapsed: (x: number, y: number) => number,
+  getFrame: (x: number, y: number) => number,
+  getLifetime: (x: number, y: number) => number,
+  setLifetimeByCoord: (coord: number, lifetime: number) => void,
+  setLifetime: (x: number, y: number, lifetime: number) => void,
+  setSprite: (x: number, y: number, img: SpritesheetImage | SpritesheetRange) => void,
+  getTimeRemaining: (x: number, y: number) => number,
+  getClosestTraversalDistance: (x: number, y: number) => number,
+  getTypeByCoord: (coord: number) => number,
+  getType: (x: number, y: number) => number,
+  hasFlagAt: (x: number, y: number, flag: number) => boolean,
+  addFlagAt: (x: number, y: number, flag: number) => void,
+  removeFlagAt: (x: number, y: number, flag: number) => void,
+  bulkAddFlag: (flag: number) => void,
+  bulkRemoveFlag: (flag: number) => void,
+}
+
+export interface AddAnimationListItemOptions {
+  /**
+   * Optional caller-provided flags to set per animation item.
+   */
+  flags?: number,
+  /**
+   * Whether animation is playing. Default=true
+   *
+   * When false, tick() does not increment elapsed time unless disabledImg is provided.
+   */
+  enabled?: boolean,
+  /**
+   * Optional image to use as a replacement when disabled. Otherwise, nothing will show.
+   */
+  disabledImg?: SpritesheetImage | SpritesheetRange,
+  /**
+   * Set true to replace an existing element when adding a new element.
+   */
+  replaceExisting?: boolean,
+  /**
+   * Optional initial elapsed time.
+   */
+  elapsed?: number,
+}
+
+export interface AStarSearchOptions {
+  seed?: number,
+  minWeight?: number,
+  maxWeight?: number,
+  ignoreThreats?: boolean,
+  ignoreObstacles?: boolean,
+  sightRange?: number,
+  allowDiagonals?: boolean,
+}
+
+export interface IAStar {
+  reset: () => void,
+  setSnekCoord: (coord: number) => void,
+  setWall: (x: number, y: number) => void,
+  removeWall: (x: number, y: number) => void,
+  setObstacle: (x: number, y: number) => void,
+  removeObstacle: (x: number, y: number) => void,
+  setWallByCoord: (coord: number) => void,
+  getNextPathCoord: (fromCoord: number) => void,
+  getNextDirX: (fromCoord: number) => number,
+  getFinalPathCoord: () => void,
+  fleeFromCoord: (coord: number, opts?: AStarSearchOptions) => void,
+  fleeFrom: (x: number, y: number, opts?: AStarSearchOptions) => void,
+  search: (startx: number, starty: number, endx: number, endy: number, opts?: AStarSearchOptions) => boolean,
+  debugPrint: () => void,
+}
+
+export interface ICoroutines {
+  exists : (id: string) => boolean,
+  start : (enumerator: IEnumerator) => string,
+  stop : (id: string | null | undefined) => void,
+  stopAll : () => void,
+  tick : () => void,
+  waitForTime : (durationMs: number, callback?: (t: number) => void, allowSkip?: boolean) => IEnumerator,
+  waitForAnyKey : (callback?: () => void) => IEnumerator,
+  waitForEnterKey : (callback?: () => void) => IEnumerator,
+}
+
+export interface Context {
+  p5: P5,
+  es: EngineState,
+  state: GameState,
+  loopState: LoopState,
+  replay: Replay,
+  tutorial: Tutorial,
+  drawState: DrawState,
+  boss: { current: Boss | null },
+  stats: Stats,
+  astar: IAStar,
+  renderer: IRenderer,
+  spriteRenderer: ISpriteRenderer,
+  coroutines: ICoroutines,
+  sfx: ISFX,
+  musicPlayer: IMusicPlayer,
+  player: PlayerState,
+  heldItems: HeldItems,
+  segments: IVectorList,
+  apples: IAppleList,
+  threats: IAnimationList,
+  explosions: IAnimationList,
+  shields: IAnimationList,
+  shieldSpawns: IAnimationList,
+  pickupOutlines: IAnimationList,
+  pointsAnim: IAnimationList,
+  doorsOpening: IAnimationList,
+  fireTiles: IAnimationList,
+  lights: IAnimationList,
+  puffs: IAnimationList,
+  smoke: IAnimationList,
+  preyList: IPreyList,
+  preySpawn: PreySpawn,
+
+  appleParticleSystem: ParticleSystem2,
+  gateUnlockParticleSystem: IGateUnlockParticleSystem2,
+  impactParticleSystem: ParticleSystem2,
+
+  startExitParticles: () => void,
+  playSound: (sound: Sound, volume?: number, force?: boolean) => void,
+  startScreenShake: (magnitude?: number, normalizedTime?: number, timeScale?: number, force?: boolean) => void,
+  proceedToNextReplayClip: () => void,
+  flashScreen(extraDuration?: number): void,
+  renderHeartsUI: () => void,
+  renderScoreUI: () => void,
+  renderDifficultyUI: () => void,
+  renderLevelName: () => void,
+  maybeGameOver: () => void,
+  onLevelExitStart: () => void,
+  onLevelExitFinish: () => void,
+
+  startAction: (enumerator: IEnumerator, actionKey: Action, force?: boolean) => void,
+  stopAction: (actionKey: Action) => void,
+  clearAction: (actionKey: Action) => void,
+  actionRunning: (actionKey: Action) => boolean,
 }
 
 export enum SNEKALYTICS_EVENT_TYPE {

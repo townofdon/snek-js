@@ -117,7 +117,6 @@ export const sketch = (p5: P5) => {
     initGraphics,
     setLevel,
     setDifficulty,
-    getMaybeTitleScene,
     resetLevel,
     resetStats,
     renderLoop,
@@ -365,8 +364,7 @@ export const sketch = (p5: P5) => {
     coroutines.stopAll();
     modal.hide();
     winLevelScene.reset();
-    const titleScene = getMaybeTitleScene();
-    resetLevel({ shouldShowTransitions, transition: titleScene });
+    resetLevel({ shouldShowTransitions });
   }
 
   function onGameOver() {

@@ -27,7 +27,7 @@ import { TUTORIAL_LEVEL_20 } from "./ep01/tutorialLevel20";
 import { TUTORIAL_LEVEL_30 } from "./ep01/tutorialLevel30";
 import { TUTORIAL_LEVEL_40 } from "./ep01/tutorialLevel40";
 import { TUTORIAL_LEVEL_50 } from "./ep01/tutorialLevel50";
-import { ALL_LEVELS, ARCADE_LEVELS, LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS, TUTORIAL_LEVELS } from "./levelConstants";
+import { ALL_LEVELS, ARCADE_LEVELS, LEVELS_EP_01, LEVELS_EP_02, LEVELS_EP_03, SECRET_LEVELS, START_LEVEL, START_LEVEL_COBRA, TUTORIAL_LEVELS } from "./levelConstants";
 import { X_SNEKCITY } from "./ep02/snekcity";
 import { TUTORIAL_LEVEL_51 } from "./ep01/tutorialLevel51";
 import { LEVEL_16 } from "./ep01/level16";
@@ -65,6 +65,8 @@ export const REPLAY_LEVEL_INDEX = {
 } satisfies Record<number, Level>
 
 export const START_CHALLENGE_LEVEL_ID = X_SNEKCITY.id;
+
+export const getIsStartLevel = (level: Level) => (level === START_LEVEL || level === START_LEVEL_COBRA);
 
 export function getEpisodeFromLevel(level: Level) {
   if (!level) return Episode.None;

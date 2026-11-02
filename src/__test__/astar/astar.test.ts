@@ -1,10 +1,10 @@
 import assert from "assert";
 
-import { AStar, ASTAR_GRID_SIZE, AStarSearchOptions } from '../../astar/astar'
+import { AStar, ASTAR_GRID_SIZE } from '../../astar/astar'
 import { GRIDCOUNT_X } from "../../constants";
 import { getCoordIndex2, getCoordX, getCoordY } from "../../utils";
 import { AnimationList } from "../../collections/animationList";
-import { Image } from "@/types";
+import { AStarSearchOptions, Image } from "@/types";
 
 const DEBUG = process.env.DEBUG;
 
@@ -495,7 +495,7 @@ describe("Collections", () => {
         }
         let coord = getCoordIndex2(15, 15);
         let target = -1;
-        const opts: AStarSearchOptions = { seed: performance.now() % 1000 } satisfies AStarSearchOptions
+        const opts: AStarSearchOptions = { seed: performance.now() % 1000 } satisfies AStarSearchOptions;
 
         const flee = () => {
           const x = Math.floor(coord % GRIDCOUNT_X);

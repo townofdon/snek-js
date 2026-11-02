@@ -2,7 +2,7 @@ import P5 from 'p5';
 
 import { Emitters } from "../../collections/emitters";
 import { Gradients } from '../../collections/gradients';
-import { KeyChannel, EmitterOptions } from "../../types";
+import { KeyChannel, EmitterOptions, IGateUnlockParticleSystem2 } from "../../types";
 import { Easing } from '../../easing';
 
 const EMITTER_OPTIONS_BASE: EmitterOptions = {
@@ -56,7 +56,7 @@ const EMITTER_OPTIONS_TINY: EmitterOptions = {
   easingFnc: Easing.outQuad,
 }
 
-export class GateUnlockParticleSystem2 {
+export class GateUnlockParticleSystem2 implements IGateUnlockParticleSystem2 {
   private p5: P5;
   private emitters: Emitters;
   private gradients: Gradients;

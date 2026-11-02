@@ -1,7 +1,27 @@
-import { ANIMATIONS, GRIDCOUNT_X, PREY_LIFETIME, PREY_MOVE_TIME_ANT, PREY_MOVE_TIME_GRASSHOPPER, PREY_MOVE_TIME_GRUB, PREY_MOVE_TIME_MOUSE } from "../constants";
-import { AnimationData, ICollection, Image, PreyType } from "../types";
-import { getCoordIndex2, getCoordX, getCoordY, getManhattanDistance, shouldBlinkExpiringPickup } from "../utils";
-import { AStar, AStarSearchOptions } from "../astar/astar";
+import {
+  ANIMATIONS,
+  GRIDCOUNT_X,
+  PREY_LIFETIME,
+  PREY_MOVE_TIME_ANT,
+  PREY_MOVE_TIME_GRASSHOPPER,
+  PREY_MOVE_TIME_GRUB,
+  PREY_MOVE_TIME_MOUSE,
+} from "../constants";
+import {
+  AnimationData,
+  AStarSearchOptions,
+  Image,
+  IPreyList,
+  PreyType,
+} from "../types";
+import {
+  getCoordIndex2,
+  getCoordX,
+  getCoordY,
+  getManhattanDistance,
+  shouldBlinkExpiringPickup,
+} from "../utils";
+import { AStar } from "../astar/astar";
 
 export const MAX_NUM_PREY = 10;
 
@@ -15,7 +35,7 @@ interface PreyConstructorArgs {
   onLifetimeExpire?: (coord: number) => void
 }
 
-export class PreyList implements ICollection {
+export class PreyList implements IPreyList {
   private type: PreyType[] = [];
   private targetCoord: Int16Array = new Int16Array(MAX_NUM_PREY);
   private coord: Uint16Array = new Uint16Array(MAX_NUM_PREY);

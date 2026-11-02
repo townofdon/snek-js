@@ -40,6 +40,7 @@ import {
   getLevelById,
   REPLAY_LEVEL_INDEX,
   getStartLevel,
+  getIsStartLevel,
 } from './levels/levelUtils';
 import {
   IEnumerator,
@@ -169,7 +170,6 @@ export const sketch = (p5: P5) => {
     setDifficulty,
     getLevel,
     getDifficulty,
-    getMaybeTitleScene,
     resetLevel,
     resetStats,
     resetGraphics,
@@ -180,7 +180,6 @@ export const sketch = (p5: P5) => {
     startScreenShake,
     startLogicLoop,
     stopLogicLoop,
-    getIsStartLevel,
     clearBackground,
     changeMusicLowpass,
     playSound,
@@ -762,8 +761,7 @@ export const sketch = (p5: P5) => {
       winGameScene.reset();
     }
 
-    const titleScene = getMaybeTitleScene();
-    resetLevel({ shouldShowTransitions, transition: titleScene, onTriggerWinGame });
+    resetLevel({ shouldShowTransitions, onTriggerWinGame });
 
     if (!state.isGameStarted && replay.mode === ReplayMode.Playback) {
       startAction(mainTitleFader.setTitleVariant(getLevel()?.titleVariant ?? TitleVariant.GrayBlue), Action.SetTitleVariant, true);
@@ -1061,7 +1059,7 @@ export const sketch = (p5: P5) => {
       return;
     }
 
-    if (!state.isLost && getIsStartLevel()) {
+    if (!state.isLost && getIsStartLevel(getLevel())) {
       recordSnekalyticsEvent({
         eventType: SNEKALYTICS_EVENT_TYPE.WIN_LEVEL,
         playthroughId,
@@ -1078,7 +1076,7 @@ export const sketch = (p5: P5) => {
     const level = getLevel();
     const showQuoteOnLevelWin = !!level.showQuoteOnLevelWin && !settings.debug.disableTransitions;
     stats.applesEatenThisLevel = 0;
-    if (!getIsStartLevel()) {
+    if (!getIsStartLevel(getLevel())) {
       stats.numLevelsCleared += 1;
       stats.numLevelsEverCleared += 1;
     }

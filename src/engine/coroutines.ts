@@ -1,14 +1,14 @@
 import P5 from "p5";
 import { v4 as uuid } from 'uuid';
 
-import { IEnumerator } from "../types";
+import { ICoroutines, IEnumerator } from "../types";
 import { clamp } from "../utils";
 import { anyButtonPressedThisFrame, getGamepad, wasPressedThisFrame } from "./gamepad";
 import { Button } from "./gamepad/gamepadTypes";
 
 type UUID = string;
 
-export class Coroutines {
+export class Coroutines implements ICoroutines {
   private _p5: P5;
   private _coroutines: IEnumerator[] = []
   private _coroutinesMap: Record<UUID, IEnumerator> = {}
@@ -16,11 +16,11 @@ export class Coroutines {
   constructor(p5: P5) {
     this._p5 = p5;
   }
-  exists = (id: UUID): boolean => {
+  public exists = (id: UUID): boolean => {
     return id && !!this._coroutinesMap[id];
   }
 
-  start = (enumerator: IEnumerator): UUID => {
+  public start = (enumerator: IEnumerator): UUID => {
     if (!enumerator) return;
     const id = uuid();
     this._coroutines.push(enumerator);
@@ -28,7 +28,7 @@ export class Coroutines {
     return id;
   }
 
-  stop = (id: UUID | null | undefined) => {
+  public stop = (id: UUID | null | undefined) => {
     if (!id) return;
     if (!this._coroutinesMap[id]) return;
     for (let i = 0; i < this._coroutines.length; i++) {
@@ -43,12 +43,12 @@ export class Coroutines {
     this._coroutinesMap[id] = null;
   }
 
-  stopAll = () => {
+  public stopAll = () => {
     this._coroutines = [];
     this._coroutinesMap = {};
   }
 
-  tick = () => {
+  public tick = () => {
     for (let i = 0; i < this._coroutines.length; i++) {
       if (!this._coroutines[i]) continue;
       const value = this._coroutines[i].next();
@@ -60,15 +60,15 @@ export class Coroutines {
     this._coroutines = this._coroutines.filter(c => !!c);
   }
 
-  waitForTime = (durationMs: number, callback?: (t: number) => void, allowSkip = false): IEnumerator => {
+  public waitForTime = (durationMs: number, callback?: (t: number) => void, allowSkip = false): IEnumerator => {
     return this._waitForTime(durationMs, callback, allowSkip);
   }
 
-  waitForAnyKey = (callback?: () => void): IEnumerator => {
+  public waitForAnyKey = (callback?: () => void): IEnumerator => {
     return this._waitForAnyKey(callback);
   }
 
-  waitForEnterKey = (callback?: () => void): IEnumerator => {
+  public waitForEnterKey = (callback?: () => void): IEnumerator => {
     return this._waitForEnterKey(callback);
   }
 

@@ -2,7 +2,7 @@ import alea from '../lib/rng-alea';
 
 import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_DEV } from "../constants";
 import { getCoordIndex2, getCoordX, getEuclidianDistance, getManhattanDistance, lerp } from "../utils";
-import { ICollection } from '../types';
+import { AStarSearchOptions, IAStar, ICollection } from '../types';
 
 const THREAT_COST_MINE = 4;
 const THREAT_COST_SNEK = 6;
@@ -29,21 +29,11 @@ const DEFAULT_OPTIONS = {
   randomizeWeights: false,
 } satisfies AStarOptions;
 
-export interface AStarSearchOptions {
-  seed?: number,
-  minWeight?: number,
-  maxWeight?: number,
-  ignoreThreats?: boolean,
-  ignoreObstacles?: boolean,
-  sightRange?: number,
-  allowDiagonals?: boolean,
-}
-
 /**
  * Non-allocating A-Star search algorithm.
  * Uses a Binary Heap internally for performance.
  */
-export class AStar {
+export class AStar implements IAStar {
   private options: AStarOptions;
 
   // binary heap that keeps track of indices on the open list. mapping: index => coord

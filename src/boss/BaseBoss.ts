@@ -15,97 +15,64 @@ import {
   LoopState,
   ISFX,
   IVectorList,
-  SmokeType,
-  ThreatType,
   IMusicPlayer,
   BossStateMachine,
+  Context,
+  IAnimationList,
+  IRenderer,
+  ISpriteRenderer,
 } from "@/types";
-import { Renderer } from "@/engine/renderer";
-import { SpriteRenderer } from "@/engine/spriteRenderer";
 import { Coroutines } from "@/engine/coroutines";
-import { AnimationList } from "@/collections/animationList";
 
 export interface BossConstructorArgs {
-  p5: P5;
+  ctx: Context,
   gameState: GameState;
-  loopState: LoopState;
-  es: EngineState;
-  threats: AnimationList;
-  apples: ICollection;
-  player: PlayerState;
-  segments: ICollection & IVectorList;
   annotations: Record<number, MapAnnotation>;
-  renderer: Renderer;
-  spriteRenderer: SpriteRenderer;
+  renderer: IRenderer;
+  spriteRenderer: ISpriteRenderer;
   difficulty: DifficultyIndex;
   sfx: ISFX;
   musicPlayer: IMusicPlayer;
-  startAction: (enumerator: IEnumerator, actionKey: Action) => void,
-  openDoors: () => void;
-  spawnRegularApple: () => number;
-  spawnPuffAt: (x: number, y: number) => void;
-  spawnSmokeAt: (x: number, y: number, type: SmokeType) => void;
-  spawnThreat: (threatType: ThreatType, numTries?: number, predicate?: (coord: number) => boolean) => number;
-  spawnHealthPickup: (predicate?: (coord: number) => boolean) => number,
-  spawnWeightLossPickup: (predicate?: (coord: number) => boolean) => number,
-  spawnInvincibilityPickup: (predicate?: (coord: number) => boolean) => number,
-  spawnExplosionAt: (x: number, y: number) => void;
 }
 
 export abstract class BaseBoss implements Boss {
+  protected readonly ctx: Context;
   protected readonly p5: P5;
   protected readonly gameState: GameState;
   protected readonly loopState: LoopState;
   protected readonly es: EngineState;
-  protected readonly threats: AnimationList;
+  protected readonly threats: IAnimationList;
   protected readonly apples: ICollection;
   protected readonly player: PlayerState;
-  protected readonly segments: ICollection & IVectorList;
+  protected readonly segments: IVectorList;
   protected readonly annotations: Record<number, MapAnnotation>;
-  protected readonly renderer: Renderer;
-  protected readonly spriteRenderer: SpriteRenderer;
+  protected readonly renderer: IRenderer;
+  protected readonly spriteRenderer: ISpriteRenderer;
   protected readonly difficulty: DifficultyIndex;
   protected readonly sfx: ISFX;
   protected readonly musicPlayer: IMusicPlayer;
   protected readonly startAction: (enumerator: IEnumerator, actionKey: Action) => void;
-  protected readonly openDoors: () => void;
-  protected readonly spawnRegularApple: () => number;
-  protected readonly spawnPuffAt: (x: number, y: number) => void;
-  protected readonly spawnSmokeAt: (x: number, y: number, type: SmokeType) => void;
-  protected readonly spawnThreat: (threatType: ThreatType, lifetime?: number, predicate?: (coord: number) => boolean) => number;
-  protected readonly spawnHealthPickup: (predicate?: (coord: number) => boolean) => number;
-  protected readonly spawnWeightLossPickup: (predicate?: (coord: number) => boolean) => number;
-  protected readonly spawnInvincibilityPickup: (predicate?: (coord: number) => boolean) => number;
-  protected readonly spawnExplosionAt: (x: number, y: number) => void;
 
   protected readonly coroutines: Coroutines;
 
   public constructor(args: BossConstructorArgs) {
-    this.p5 = args.p5;
+    this.ctx = args.ctx;
+    this.p5 = args.ctx.p5;
     this.gameState = args.gameState;
-    this.loopState = args.loopState;
-    this.es = args.es;
-    this.threats = args.threats;
-    this.player = args.player;
-    this.segments = args.segments;
-    this.apples = args.apples;
+    this.loopState = args.ctx.loopState;
+    this.es = args.ctx.es;
+    this.threats = args.ctx.threats;
+    this.player = args.ctx.player;
+    this.segments = args.ctx.segments;
+    this.apples = args.ctx.apples;
     this.annotations = args.annotations;
     this.renderer = args.renderer;
     this.spriteRenderer = args.spriteRenderer;
     this.difficulty = args.difficulty;
     this.sfx = args.sfx;
     this.musicPlayer = args.musicPlayer;
-    this.startAction = args.startAction;
-    this.spawnRegularApple = args.spawnRegularApple;
-    this.openDoors = args.openDoors;
-    this.spawnPuffAt = args.spawnPuffAt;
-    this.spawnSmokeAt = args.spawnSmokeAt;
-    this.spawnThreat = args.spawnThreat;
-    this.spawnHealthPickup = args.spawnHealthPickup;
-    this.spawnWeightLossPickup = args.spawnWeightLossPickup;
-    this.spawnInvincibilityPickup = args.spawnInvincibilityPickup;
-    this.spawnExplosionAt = args.spawnExplosionAt;
-    this.coroutines = new Coroutines(args.p5);
+    this.startAction = args.ctx.startAction;
+    this.coroutines = new Coroutines(args.ctx.p5);
   }
 
   protected abstract readonly startScene: Scene;

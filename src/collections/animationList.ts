@@ -1,7 +1,7 @@
 import { Vector } from "p5";
 import { GRIDCOUNT_X, GRIDCOUNT_Y, IS_DEV, IS_LOCALHOST } from "../constants";
 import { getCoordIndex2, getCurrentFrame, getManhattanDistance, isNil, shouldBlinkExpiringPickup } from "../utils";
-import { ICollection, IFlaggable, IRemovable, RemovalReason, SpritesheetImage, SpritesheetRange } from "../types";
+import { AddAnimationListItemOptions, IAnimationList, ICollection, IFlaggable, IRemovable, IRemovableWithReason, RemovalReason, SpritesheetImage, SpritesheetRange } from "../types";
 
 export const INITIAL_ANIMATIONS_POOL_SIZE = GRIDCOUNT_X * GRIDCOUNT_Y;
 
@@ -9,31 +9,6 @@ interface AnimationListConstructorOptions {
   onLifetimeExpire?: (coord: number, type: number) => boolean,
   onAdd?: (coord: number, type: number) => void,
   onRemove?: (coord: number, reason: RemovalReason, type: number) => void,
-}
-
-export interface AddItemOptions {
-  /**
-   * Optional caller-provided flags to set per animation item.
-   */
-  flags?: number,
-  /**
-   * Whether animation is playing. Default=true
-   *
-   * When false, tick() does not increment elapsed time unless disabledImg is provided.
-   */
-  enabled?: boolean,
-  /**
-   * Optional image to use as a replacement when disabled. Otherwise, nothing will show.
-   */
-  disabledImg?: SpritesheetImage | SpritesheetRange,
-  /**
-   * Set true to replace an existing element when adding a new element.
-   */
-  replaceExisting?: boolean,
-  /**
-   * Optional initial elapsed time.
-   */
-  elapsed?: number,
 }
 
 // INTERNAL FLAGS
@@ -47,7 +22,7 @@ const DEFAULT_INTERNAL_FLAGS = 0 | FLAG_ENABLED;
  * Prevents garbage collection and buffs CPU perf.
  * Simple-to-use interface.
  */
-export class AnimationList implements ICollection, IFlaggable, IRemovable {
+export class AnimationList implements IAnimationList {
   private name: string;
   private x: Uint8Array;
   private y: Uint8Array;
@@ -199,7 +174,7 @@ export class AnimationList implements ICollection, IFlaggable, IRemovable {
     lifetime: number,
     img: SpritesheetImage | SpritesheetRange,
     type = 0,
-    opts: AddItemOptions = {},
+    opts: AddAnimationListItemOptions = {},
   ) => {
     const { disabledImg, enabled = true, flags = 0, replaceExisting = false } = opts;
     this.validate();

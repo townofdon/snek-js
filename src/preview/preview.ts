@@ -152,7 +152,6 @@ export const sketch = (p5: P5) => {
     initGraphics,
     setLevel,
     setDifficulty,
-    getMaybeTitleScene,
     resetLevel,
     resetStats,
     renderLoop,
@@ -423,8 +422,7 @@ export const sketch = (p5: P5) => {
     modal.hide();
     winLevelScene.reset();
     playSound(Sound.unlock);
-    const titleScene = getMaybeTitleScene();
-    resetLevel({ shouldShowTransitions, transition: titleScene });
+    resetLevel({ shouldShowTransitions });
   }
 
   function onGameOver() {
