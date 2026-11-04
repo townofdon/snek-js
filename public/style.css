@@ -202,6 +202,13 @@ main#main {
   background: #00000014;
 }
 
+main#main.crt {
+  border: 14px solid #2c2b27;
+  border-radius: 90px;
+  outline: 5px solid #373636;
+  box-shadow: -15px 16px 3px 4px black, 15px 16px 3px 4px black;
+}
+
 main div {
   cursor: none;
 }
