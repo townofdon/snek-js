@@ -135,6 +135,7 @@ import { getIsStartLevel } from '@/levels/levelUtils';
 import { damageSurroundingTiles } from './engineComponents/damage';
 import { resetLevelImpl, ResetLevelImplParams } from './engineComponents/resetLevel';
 import { transitions, TransitionsParams } from './engineComponents/transitions';
+import { emitLevelChangedEvent } from '@/ui/uiEvents';
 
 interface EngineParams {
   p5: P5,
@@ -592,6 +593,7 @@ export function engine({
         es.level = LEVEL_01_ULTRA;
       }
     }
+    emitLevelChangedEvent(es.level);
   }
 
   function setDifficulty(incoming: Difficulty) {
@@ -616,7 +618,7 @@ export function engine({
     if (es.level.type === LevelType.WarpZone) return;
     if (state.isGameWon) return;
     if (replay.mode === ReplayMode.Playback) return;
-    UI.renderDifficulty(es.difficulty.index, state.isInvertedColors, state.gameMode === GameMode.Casual, state.gameMode === GameMode.Cobra);
+    UI.renderDifficulty(es.difficulty.index, state.isInvertedColors, state.gameMode);
   }
 
   function renderHeartsUI() {
@@ -1160,7 +1162,7 @@ export function engine({
       startAction(fadeMusic(0, 500), Action.FadeMusic);
       if (isStartLevel) {
         playSound(Sound.doorOpenHuge);
-      } else if (es.level === LEVEL_99 || es.level === VARIANT_LEVEL_99 || es.level.playWinSound) {
+      } else if (state.gameMode !== GameMode.Arcade && (es.level === LEVEL_99 || es.level === VARIANT_LEVEL_99 || es.level.playWinSound)) {
         playSound(Sound.winGame);
       } else {
         playSound(Sound.winLevel);
@@ -1214,10 +1216,11 @@ export function engine({
     const perfect = apples.length === 0 && state.collisions === 0;
     const hasAllApples = apples.length === 0;
     const hasAllLocks = !!es.level.numLocks && es.locks.length === 0;
-    const shouldRecordLevelCompletion = (false
+    const shouldRecordLevelCompletion = (true
       && !settings.debug.easyExit
       && state.gameMode !== GameMode.Tutorial
       && state.gameMode !== GameMode.Arcade
+      && state.gameMode !== GameMode.Casual
       && !!levelToSave.id
     );
     if (!perfect) {
@@ -1259,6 +1262,8 @@ export function engine({
       gotoNextLevel();
     } else if (state.gameMode === GameMode.Tutorial) {
       gotoNextLevel();
+    } else if (state.gameMode === GameMode.Casual) {
+      gotoNextLevel();
     } else if (es.level.type === LevelType.Maze) {
       gotoNextLevel();
     } else if (es.level.type === LevelType.WarpZone) {
@@ -1276,7 +1281,6 @@ export function engine({
         isPerfect: perfect,
         hasAllApples,
         hasAllLocks,
-        isCasualModeEnabled: state.gameMode === GameMode.Casual,
         levelMusicTrack: getIsStartLevel(es.level) ? undefined : es.level.musicTrack,
         parTime: es.level.parTime || DEFAULT_PAR_TIME,
         clearTime: Math.floor(stats.totalLevelTimeElapsed / 1000) * 1000,

@@ -891,10 +891,12 @@ export class Renderer implements IRenderer {
       this.drawKeys(gfx, offsetY, paused);
       offsetY += 4;
     }
+    armorCount = Math.min(armorCount, 10);
     if (armorCount > 0) {
       this.drawItem(gfx, Image.UIShieldSheet, 0, offsetY, armorCount, paused);
       offsetY += armorCount + 1;
     }
+    reversiblesCount = Math.min(reversiblesCount, 8);
     if (reversiblesCount > 0) {
       this.drawItem(gfx, Image.UIShieldSheet, 1, offsetY, reversiblesCount, paused);
       offsetY += reversiblesCount + 1;

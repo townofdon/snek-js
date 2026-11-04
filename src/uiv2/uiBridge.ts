@@ -1,7 +1,7 @@
-import { DEFAULT_GAME_STATE } from "@/defaults";
+import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE } from "@/defaults";
 import { saveDataStore, SaveDataStore } from "@/stores/SaveDataStore";
 import { settings } from '@/stores/SettingsStore';
-import { CallAction, GameSettings, GameState, UICancelHandler, UIInteractHandler, UINavEventHandler } from "@/types";
+import { CallAction, EngineState, GameSettings, GameState, UICancelHandler, UIInteractHandler, UINavEventHandler } from "@/types";
 
 type HandlerKey = (
   | 'titleScreen'
@@ -28,12 +28,14 @@ const DEFAULT_HANDLER: BridgeHandler = {
 }
 
 interface BridgeProperties {
+  es: EngineState,
   gameState: GameState
   saveDataStore: SaveDataStore
   settings: GameSettings
 }
 
 const bridgeProps: BridgeProperties = {
+  es: { ...DEFAULT_ENGINE_STATE },
   gameState: { ...DEFAULT_GAME_STATE },
   saveDataStore: saveDataStore,
   settings: settings,

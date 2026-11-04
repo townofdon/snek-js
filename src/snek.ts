@@ -535,6 +535,9 @@ export const sketch = (p5: P5) => {
     state.episode = Episode.E1;
     state.isGameStarted = false;
     state.isGameStarting = false;
+    state.isGameWon = false;
+    state.isLost = false;
+    state.lives = 3;
     state.levelIndex = 0;
     setLevel(MAIN_TITLE_SCREEN_LEVEL);
 

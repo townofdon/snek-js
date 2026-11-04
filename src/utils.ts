@@ -69,6 +69,7 @@ import {
   IVectorList,
   HeldItems,
   Episode,
+  GameMode,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -1536,6 +1537,17 @@ export function episodeDisplay(episode: Episode): string {
     case Episode.None:
       return 'ERR: The Good, The Bad, and The Snekly';
   }
+}
+
+export function difficultyDisplay(difficulty: DifficultyIndex, gameMode: GameMode): string {
+  let text = 'UNKNOWN';
+  if (difficulty >= 1) text = 'EASY';
+  if (difficulty >= 2) text = 'MEDIUM';
+  if (difficulty >= 3) text = gameMode === GameMode.Cobra ? 'KING' : 'HARD';
+  if (difficulty >= 4) text = 'ULTRA';
+  // if (gameMode === GameMode.Casual) text += ' CASUAL';
+  // if (gameMode === GameMode.Cobra) text += ' COBRA';
+  return text;
 }
 
 export function episodeAbbrev(episode: Episode): string {

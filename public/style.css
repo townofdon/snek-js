@@ -46,6 +46,13 @@
   --ui-arrows-frames: 8;
   --ui-arrow-offset: 0px; /* animated */
 
+  --ui-line-src: url('assets/graphics/ui-line.png');
+  --ui-line-img-width: 240px;
+  --ui-line-img-height: 20px;
+  --ui-line-width: 60px;
+  --ui-line-height: 5px;
+  --ui-line-frames: 4;
+
   --overworld-icons-src: url('assets/graphics/overworld-icons.png');
   --overworld-icons-size: 16px;
   --overworld-icons-frames: 22;
@@ -189,6 +196,10 @@ html, body, main {
 
 main#main {
   font-size: 0.8em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #00000014;
 }
 
 main div {
@@ -291,7 +302,7 @@ p, button, .button {
   user-select: none;
 }
 
-img {
+img, .noblur {
   image-rendering: -moz-crisp-edges;          /* Firefox */
   image-rendering: -webkit-optimize-contrast; /* Chrome and Safari (legacy) */
   image-rendering: crisp-edges;               /* Standard for Firefox */
@@ -410,6 +421,14 @@ main {
 
 .minimood {
   font-family: 'MiniMOOD', 'VT323', monospace;
+}
+
+.font-bios {
+  font-family: BIOSfontII, 'VT323', monospace;
+}
+
+.font-retro {
+  font-family: RetroGaming, 'VT323', monospace;
 }
 
 .game {
@@ -1032,14 +1051,81 @@ button.main-menu.back {
 }
 
 
+.in-game-ui {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  box-sizing: border-box;
+  margin-left: 0;
+  color: white;
+}
+.in-game-ui.right {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: initial;
+  width: 160px;
+  padding: 20px;
+  gap: 0;
+  margin: 0;
+}
+.in-game-ui.left {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: initial;
+  width: 160px;
+  padding: 20px;
+  gap: 0;
+  margin: 0;
+}
+.in-game-ui p {
+  margin: 0;
+  margin-top: 3px;
+}
+.in-game-ui hr {
+  width: 100%;
+  border-style: solid;
+  border-color: #1cb198;
+}
+.in-game-ui .score {
+  font-size: 2em;
+}
+.in-game-ui .score.dark {
+  color: #333;
+}
+.in-game-ui .level-name {
+  font-size: 1.3em;
+  padding: 6px 4px;
+  text-align: center;
+}
+.in-game-ui .ui-lines {
+  display: block;
+  margin: 6px 0;
+  width: var(--ui-line-width);
+  height: var(--ui-line-height);
+  background-image: var(--ui-line-src);
+  background-size: var(--ui-line-img-width) --ui-line-img-height;
+  background-repeat: repeat;
+  background-position: 0 0;
+  transform: scale(2);
+}
+.in-game-ui .ui-lines.dark { background-position-y: calc(1 * -1 * var(--ui-line-height)); }
+.in-game-ui .ui-lines.red { background-position-y: calc(2 * -1 * var(--ui-line-height)); }
+.in-game-ui .ui-lines.blue { background-position-y: calc(3 * -1 * var(--ui-line-height)); }
+
+
 .settings-menu {
   z-index: 30;
   display: block;
   position: absolute;
   top: -2px;
-  left: -2px;
+  /* left: -2px; */
   bottom: -2px;
-  right: -2px;
+  /* right: -2px; */
+  width: 960px;
   border: none;
   color: #fff;
   font-family: MiniMOOD, 'VT323', monospace;
@@ -1743,19 +1829,23 @@ button.main-menu.back {
 }
 
 .ui-label.hearts-container {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  left: inherit;
-  top: 0px;
-  right: 32px;
+  left: initial;
+  top: initial;
+  right: initial;
+  bottom: initial;
   padding: 0px 4px;
   gap: 4px;
-  transform-origin: right top;
+  transform-origin: center;
   transform: scale(2);
   font-size: 12px;
   line-height: 9.6px;
   min-width: 55px;
+  margin-bottom: 45px;
+  background: none;
 }
 .ui-heart {
   display: inline-block;

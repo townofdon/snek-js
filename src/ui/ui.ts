@@ -1,7 +1,7 @@
 
 import { getOrCreateElementById, requireElementById } from './uiUtils';
-import { emitUIEvent } from './uiEvents';
-import { Initiator, InputAction } from '../types';
+import { emitDifficultyEvent, emitLevelNameEvent, emitLevelProgressEvent, emitLivesEvent, emitScoreEvent, emitUIEvent } from './uiEvents';
+import { DifficultyIndex, GameMode, Initiator, InputAction } from '../types';
 import { BLOCK_SIZE_X, DIMENSIONS } from '@/constants';
 
 export const UI_PARENT_ID = 'game-container';
@@ -14,9 +14,7 @@ const $GAME_CONTAINER = document.getElementById('game-container');
 const $UI_CANVAS_RIGHT = document.getElementById('ui-canvas-right');
 
 const LABEL_COLOR = '#fff';
-const LABEL_COLOR_INVERTED = '#000';
 const LABEL_BG_COLOR = 'rgb(7 11 15 / 52%)';
-const LABEL_BG_COLOR_INVERTED = 'rgba(255,255,255, 0.5)';
 
 enum ActiveMenu {
   None = 0,
@@ -225,133 +223,27 @@ export class UI {
     document.getElementById('score-field')?.remove();
     document.getElementById('difficulty-field')?.remove();
     document.getElementById('casual-rewind-tip-field')?.remove();
-  }
-
-  private static applyLevelNameStyles(
-    elem: HTMLElement,
-    backgroundColor: string,
-    color: string
-  ) {
-    if (!elem) return;
-    elem.style.backgroundColor = backgroundColor;
-    elem.style.color = color;
-    elem.classList.add('ui-label', 'level-name');
+    emitUIEvent(InputAction.HideInGameUI, Initiator.UI);
   }
 
   static renderLevelName(levelName = '', isInvertedColors: boolean, progress = 0) {
-    const progressColor = "#ffffffdd";
-    const id1 = 'level-name-field-1'
-    const id2 = 'level-name-field-2'
-    let elem1 = document.getElementById(id1);
-    let elem2 = document.getElementById(id2);
-    if (!elem1) {
-      elem1 = Object.assign(document.createElement('p'), {
-        id: id1,
-        textContent: levelName,
-      });
-      document.getElementById(UI_PARENT_ID).appendChild(elem1);
+    if (levelName.toLowerCase() !== 'init') {
+      emitUIEvent(InputAction.ShowInGameUI, Initiator.UI);
     }
-    if (!elem2 && progress > Number.EPSILON) {
-      elem2 = Object.assign(document.createElement('p'), {
-        id: id2,
-        textContent: levelName,
-      });
-      document.getElementById(UI_PARENT_ID).appendChild(elem2);
-    }
-    UI.applyLevelNameStyles(elem1, isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR, isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR);
-    UI.applyLevelNameStyles(elem2, isInvertedColors ? LABEL_COLOR_INVERTED : progressColor, isInvertedColors ? LABEL_BG_COLOR_INVERTED : "black");
-    if (progress > Number.EPSILON) {
-      UI.applyLevelProgressInverted(elem1, progress);
-      UI.applyLevelProgress(elem2, progress);
-    }
-  }
-
-  private static applyLevelProgress(elem: HTMLElement, progress: number) {
-    if (!elem) return;
-    const percentage = progress * 100;
-    const polygon = `polygon(0% 10%, ${percentage}% 10%, ${percentage}% 90%, 0 90%)`;
-    elem.style.clipPath = polygon;
-    elem.style.setProperty('-webkit-clip-path', polygon);
-  }
-
-  private static applyLevelProgressInverted(elem: HTMLElement, progress: number) {
-    if (!elem) return;
-    const percentage = progress * 100;
-    const polygon = `polygon(${percentage}% 0%, 100% 0%, 100% 100%, ${percentage}% 100%)`;
-    elem.style.clipPath = polygon;
-    elem.style.setProperty('-webkit-clip-path', polygon);
+    emitLevelNameEvent(levelName);
+    emitLevelProgressEvent(progress);
   }
 
   static renderHearts(numLives = 3, isInvertedColors: boolean) {
-    const containerId = "hearts-container";
-    const classNameContainer = "ui-label hearts-container";
-    const classNameHeart = 'ui-heart';
-    const classNameDamaged = 'damaged';
-    const classNameNoLivesLeft = 'no-lives-left';
-    const classNameDeathInverted = 'death-inverted';
-    const labelBackgroundColor = (() => {
-      if (isInvertedColors) return LABEL_BG_COLOR_INVERTED;
-      return numLives === 0 ? '#5c050ddb' : LABEL_BG_COLOR;
-    })()
-    const numHearts = 3;
-    let elem = document.getElementById(containerId);
-    if (!elem) {
-      const div = document.createElement('div');
-      for (let i = 0; i < numHearts; i++) {
-        const element = document.createElement('span');
-        element.className = classNameHeart;
-        div.appendChild(element);
-      }
-      div.className = classNameContainer;
-      div.id = containerId;
-      document.getElementById(UI_PARENT_ID)?.appendChild(div);
-      elem = document.getElementById(containerId);
-    }
-    if (!elem) return;
-    const children = elem.getElementsByTagName('span');
-    for (let i = 0; i < numHearts && i < children.length; i++) {
-      if (i < numLives) {
-        children[i].classList.remove(classNameDamaged);
-      } else {
-        children[i].classList.add(classNameDamaged);
-      }
-    }
-    elem.style.backgroundColor = labelBackgroundColor;
-    if (numLives === 0) {
-      elem.classList.add(classNameNoLivesLeft);
-    } else {
-      elem.classList.remove(classNameNoLivesLeft);
-    }
-    if (isInvertedColors) {
-      elem.classList.add(classNameDeathInverted);
-    } else {
-      elem.classList.remove(classNameDeathInverted);
-    }
+    emitLivesEvent(numLives, isInvertedColors);
   }
 
   static renderScore(score = 0, isInvertedColors: boolean) {
-    const id = 'score-field';
-    const elem = getOrCreateElementById(id, 'p', 'ui-label score', UI_PARENT_ID);
-    elem.innerText = String(score).padStart(8, '0');
-    elem.style.color = isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR;
-    elem.style.backgroundColor = isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
+    emitScoreEvent(score);
   }
 
-  static renderDifficulty(difficultyIndex = 0, isInvertedColors: boolean, isCasualModeEnabled = false, isCobraModeEnabled = false) {
-    const id = 'difficulty-field';
-    let difficultyText = 'UNKNOWN';
-    if (difficultyIndex >= 1) difficultyText = 'EASY';
-    if (difficultyIndex >= 2) difficultyText = 'MEDIUM';
-    if (difficultyIndex >= 3) difficultyText = isCobraModeEnabled ? 'KING' : 'HARD';
-    if (difficultyIndex >= 4) difficultyText = 'ULTRA';
-    if (isCasualModeEnabled) difficultyText += ' CASUAL';
-    if (isCobraModeEnabled) difficultyText += ' COBRA';
-    const p = getOrCreateElementById(id, 'p', 'ui-label difficulty', UI_PARENT_ID);
-    p.textContent = difficultyText;
-    p.innerText = difficultyText;
-    p.style.color = isInvertedColors ? LABEL_COLOR_INVERTED : LABEL_COLOR;
-    p.style.backgroundColor = isInvertedColors ? LABEL_BG_COLOR_INVERTED : LABEL_BG_COLOR;
-    document.getElementById(UI_PARENT_ID)?.appendChild(p);
+  static renderDifficulty(difficultyIndex: DifficultyIndex, isInvertedColors: boolean, gameMode: GameMode) {
+    emitDifficultyEvent(difficultyIndex);
   }
 
   static renderCasualRewindTip() {

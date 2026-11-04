@@ -9,6 +9,7 @@ import { LevelSelectMenu } from './LevelSelectMenu';
 import { MainMenu } from './MainMenu';
 import { SaveSlotMenu } from './SaveSlotMenu';
 import { GameModeMenu } from './GameModeMenu';
+import { InGameUI } from './InGameUI';
 
 const requireElementById = (id: string) => {
   const node = document.getElementById(id);
@@ -53,6 +54,13 @@ if (!IS_PREVIEW) {
   createRoot(requireElementById('game-mode-menu-v2')).render(
     <React.StrictMode>
       <GameModeMenu />
+    </React.StrictMode>
+  );
+}
+if (!IS_PREVIEW) {
+  createRoot(requireElementById('in-game-ui-v2')).render(
+    <React.StrictMode>
+      <InGameUI />
     </React.StrictMode>
   );
 }

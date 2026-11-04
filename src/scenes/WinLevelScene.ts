@@ -30,7 +30,6 @@ interface TriggerLevelExitParams {
   isPerfect: boolean,
   hasAllApples: boolean,
   hasAllLocks: boolean,
-  isCasualModeEnabled: boolean,
   levelMusicTrack?: MusicTrack,
   parTime: number,
   clearTime: number,
@@ -84,7 +83,6 @@ export class WinLevelScene extends BaseScene {
     hasAllApples,
     hasAllLocks,
     isPerfect,
-    isCasualModeEnabled,
     levelMusicTrack,
     parTime,
     clearTime,
@@ -105,14 +103,8 @@ export class WinLevelScene extends BaseScene {
     this.levelMusicTrack = levelMusicTrack || null;
     this.parTime = parTime;
     this.clearTime = clearTime;
-    if (isCasualModeEnabled) {
-      onApplyScore();
-      this.cleanup();
-      this.isTriggered = false;
-    } else {
-      this.onApplyScore = onApplyScore;
-      this.startActionsNoBind();
-    }
+    this.onApplyScore = onApplyScore;
+    this.startActionsNoBind();
     this.phrases = shuffleArray([...PHRASES]);
   }
 
