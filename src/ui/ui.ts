@@ -74,6 +74,8 @@ export class UI {
   static hideStartScreen() {
     document.getElementById('start-screen')?.remove();
     document.getElementById('map-preview-splash')?.remove();
+    document.getElementById('main-crt')?.remove();
+    document.getElementById('main-bg')?.remove();
   }
 
   static hideAllMenus() {
