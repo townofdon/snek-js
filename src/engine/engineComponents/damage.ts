@@ -60,7 +60,8 @@ import { spawnLegendaryItem, spawnMeatItem } from "./spawning";
 export function applyDamage(ctx: Context, amount: number) {
   const { es, state, replay, startScreenShake, renderHeartsUI, startAction, playSound, flashScreen } = ctx;
   if (state.gameMode === GameMode.Casual && replay.mode !== ReplayMode.Playback) {
-    state.isMoving = false;
+    // state.isMoving = false;
+    state.currentSpeed = 0;
   } else {
     state.lives -= Math.floor(amount);
   }
@@ -150,6 +151,7 @@ function* electrocutionRoutine(ctx: Context, laserType: LaserType, segmentAtCoor
   const { es, state, player, segments, heldItems, threats, sfx, coroutines, playSound, stopAction } = ctx;
   const red = laserType === LaserType.Red;
   const armorProtect = heldItems.armor > 0 && !red;
+  const casual = state.gameMode === GameMode.Casual;
   es.illuminationMap = {};
   if (armorProtect) {
     playSound(Sound.alarm, 0.5);
@@ -158,7 +160,7 @@ function* electrocutionRoutine(ctx: Context, laserType: LaserType, segmentAtCoor
     const laserCell = es.lasersMap[coord];
     const isPlayerAtCoord = coord === getCoordIndex(player.position) || segments.existsAtCoord(coord);
     if (laserCell && isPlayerAtCoord) {
-      if (armorProtect) {
+      if (armorProtect || casual) {
         // overload diodes to blow!
         byCoord(laserCell.coordDiodeA)(threats.addFlagAt, ThreatFlag.Crit);
         byCoord(laserCell.coordDiodeB)(threats.addFlagAt, ThreatFlag.Crit);
@@ -213,15 +215,15 @@ function* electrocutionRoutine(ctx: Context, laserType: LaserType, segmentAtCoor
   }
   if (!armorProtect && segmentAtCoord) {
     applyDamage(ctx, 5);
-    return;
+    if (!casual) return;
   }
   if (state.isLost) return;
   if (state.lives < 0) return;
   if (!armorProtect) {
     reboundSnake(ctx, 2);
-    return;
+    if (!casual) return;
   }
-  // destroy laser diodes from armor protection
+  // destroy laser diodes
   for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
     const isPlayerAtCoord = coord === getCoordIndex(player.position) || segments.existsAtCoord(coord);
     // get latest laser cell because the map may have changed (see note above)
