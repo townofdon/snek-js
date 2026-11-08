@@ -31,18 +31,15 @@ export function showPauseUI(uiElements: HTMLElement[], callbacks: ShowPauseMenuC
   UI.drawDarkOverlay(uiElements);
   UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR });
   {
-    const button = UI.drawButton("RESUME", 16, 16, unpause, uiElements)
-    button.classList.add('minimood', 'focus-invert');
+    const button = UI.drawButton("RESUME", 16, 16, unpause, uiElements);
     button.id = 'pauseButtonResume';
   }
   if (confirmShowTitleScreen) {
-    const button = UI.drawButton("MAIN MENU", 176, 16, confirmShowTitleScreen, uiElements)
-    button.classList.add('minimood', 'focus-invert');
+    const button = UI.drawButton("MAIN MENU", 176, 16, confirmShowTitleScreen, uiElements);
     button.id = 'pauseButtonMainMenu';
   }
   {
-    const button = UI.drawButton("SETTINGS", 356, 16, showInGameSettingsMenu, uiElements)
-    button.classList.add('minimood', 'focus-invert')
+    const button = UI.drawButton("SETTINGS", 356, 16, showInGameSettingsMenu, uiElements);
     button.id = 'pauseButtonSettings';
   }
 }

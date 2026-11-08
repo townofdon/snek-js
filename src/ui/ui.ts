@@ -289,6 +289,7 @@ export class UI {
     button.setAttribute("tabindex", "0");
     button.style.transformOrigin ='top left';
     button.style.transform = 'scale(2)';
+    button.classList.add('minimood', 'newbutton', 'select-white', 'ui-arrows');
     button.addEventListener('click', onClick);
     if (typeof parentId === 'string') {
       if (tooltip) {

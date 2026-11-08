@@ -122,7 +122,7 @@ const LOSE_MESSAGES: LoseMessage[] = [
     ["Sadly I cannot attend your funeral.<br /><br />I'm not a mourning person.", (state, stats, difficulty) => difficulty === 3],
     ["This humor is a little dark...<br /><br />is it tomb much for you?", (state, stats, difficulty) => difficulty === 3],
     ["We are only pawns in the game of Snek.", (state, stats, difficulty) => difficulty === 3],
-    ["Behold, the scales of justice.", (state, stats, difficulty) => difficulty === 3],
+    ["You've met the scales of justice.", (state, stats, difficulty) => difficulty === 3],
     ["Your twitch factor is off the charts.", (state, stats, difficulty) => difficulty === 3 && stats.numLevelsCleared >= 5],
     ["Hey, you're getting good at this...", (state, stats, difficulty) => difficulty === 3 && stats.numLevelsCleared >= 4],
     ["Heck, even I'm impressed.", (state, stats, difficulty) => difficulty === 3 && stats.numLevelsCleared >= 7],

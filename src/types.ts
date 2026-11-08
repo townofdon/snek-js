@@ -1099,6 +1099,8 @@ export enum InputAction {
   HideSaveSlotMenu,
   ShowGameModeMenu,
   HideGameModeMenu,
+  ShowWearablesMenu,
+  HideWearablesMenu,
   ShowInGameUI,
   HideInGameUI,
   RetryLevel,

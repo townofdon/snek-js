@@ -3,7 +3,7 @@ import { offDifficultyEvent, offLevelChangedEvent, offLevelNameEvent, offLevelPr
 import React, { useEffect, useState } from "react";
 import { bridge } from "./uiBridge";
 import { useForceRerender } from "./hooks/useForceRerender";
-import { difficultyDisplay } from "@/utils";
+import { difficultyDisplay, inverseLerp } from "@/utils";
 import { hasLevelBoss } from "@/levels/levelConstants";
 
 const LABEL_COLOR = '#fff';
@@ -31,6 +31,10 @@ export const InGameUI = () => {
           break;
         case InputAction.ShowInGameUI:
           setShowing(true);
+          forceRerender();
+          break;
+        case InputAction.Pause:
+          setShowing(false);
           break;
         case InputAction.HideInGameUI:
           setShowing(false);
@@ -130,6 +134,12 @@ export const InGameUI = () => {
     return parts.join('\n');
   }).join('\n');
 
+  const showLevelProgress = bridge.gameState.isGameStarted
+    && !hasBoss
+    && !bridge.gameState.isLost
+    && !bridge.gameState.isExitingLevel
+    && !bridge.gameState.isExited;
+  const doorsOpen = bridge.gameState.isDoorsOpen;
   const mode = bridge.gameState.gameMode;
   const prefix = mode === GameMode.Casual ? <span className="color-w">Casual&nbsp;</span> : null;
   const suffix = mode === GameMode.Cobra ? (
@@ -146,6 +156,22 @@ export const InGameUI = () => {
           <div className="position-relative">
             <p className="font-bios level-name position-absolute" style={getLevelNameStyle(true, progress)}>{levelNameDisplay}</p>
             <p className="font-bios level-name" style={getLevelNameStyle(false, progress)}>{levelNameDisplay}</p>
+          </div>
+        )}
+        {showLevelProgress && (
+          <div className="level-progress">
+            {!doorsOpen && progress > 0 && (
+              <div className="level-progress-meter stop0" style={getMeterStyle(progress, 0, 0.33)} />
+            )}
+            {!doorsOpen && progress >= .33 && (
+              <div className="level-progress-meter stop1" style={getMeterStyle(progress, 0.33, 0.66)} />
+            )}
+            {!doorsOpen && progress >= .66 && (
+              <div className="level-progress-meter stop2" style={getMeterStyle(progress, 0.66, 1)} />
+            )}
+            {doorsOpen && (
+              <div className="level-progress-meter rainbow" />
+            )}
           </div>
         )}
       </div>
@@ -187,6 +213,14 @@ const Line = ({ t, variant }: LineProps) => {
       style={{ backgroundPositionX: -norm * SPAN }}
     />
   )
+}
+
+function getMeterStyle(progress: number, from: number, to: number): React.CSSProperties {
+  const t = (1 - inverseLerp(from, to, progress)) * 100;
+  const polygon = `polygon(0% 100%, 0% ${t}%, 100% ${t}%, 100% 100%)`;
+  return {
+    clipPath: polygon,
+  };
 }
 
 function getLevelNameStyle(inverted: boolean, progress: number): React.CSSProperties {

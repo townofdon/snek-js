@@ -1,6 +1,6 @@
 import { DIFFICULTY_EASY, MAX_LIVES } from "@/constants";
 import { DEFAULT_HELD_ITEMS, DEFAULT_BASE_STATS, DEFAULT_WEARABLES_UNLOCKED, DEFAULT_OUTFIT } from "@/defaults";
-import { Achievement, DifficultyIndex, Episode, GameMode, LevelCompletion, LevelId, SaveData, SaveSlot, SaveSlotData, WearableFrame } from "../types";
+import { Achievement, DifficultyIndex, Episode, GameMode, LevelCompletion, LevelId, Outfit, SaveData, SaveSlot, SaveSlotData, WearableFrame } from "../types";
 import { BaseStore } from "./BaseStore";
 
 class SaveDataStoreImpl extends BaseStore<SaveData> {
@@ -166,6 +166,16 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
     return Object.keys(data.wearablesUnlocked)
       .filter((key: string) => data.wearablesUnlocked[WearableFrame[key]])
       .map(key => WearableFrame[key] || WearableFrame.None);
+  }
+
+  public setOutfit = (incoming: Partial<Outfit>) => {
+    const slot = this.currentSlot;
+    if (!slot) {
+      throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
+    }
+    const data = this.getSlot(slot);
+    data.outfit = { ...DEFAULT_OUTFIT, ...data.outfit, ...incoming };
+    this.setSlot(slot, data);
   }
 
   public getIsCobraModeUnlocked = (): boolean => {

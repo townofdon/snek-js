@@ -164,6 +164,7 @@ export const SaveSlotMenu = () => {
 
   if (!showing) return null;
 
+  const selectedSlotUsed = saveDataStore.getIsSlotUsed(selectedSlotRef.current);
   const isUsedSlot1 = saveDataStore.getIsSlotUsed(SaveSlot.Slot1);
   const isUsedSlot2 = saveDataStore.getIsSlotUsed(SaveSlot.Slot2);
   const isUsedSlot3 = saveDataStore.getIsSlotUsed(SaveSlot.Slot3);
@@ -244,7 +245,9 @@ export const SaveSlotMenu = () => {
               </div>
               <div style={{ position: 'absolute', right: 40 }}>
                 <Controls.ButtonSelect inputType={inputType} />
-                <Controls.ButtonRight inputType={inputType} label="Reset" />
+                {selectedSlotUsed && (
+                  <Controls.ButtonRight inputType={inputType} label="Reset" />
+                )}
               </div>
             </>
           ) : (
@@ -255,7 +258,9 @@ export const SaveSlotMenu = () => {
               <div style={{ position: 'absolute', right: 40 }}>
                 <Controls.ButtonSelect inputType={inputType} />
                 <div style={{ height: 30 }} />
-                <Controls.ButtonRight inputType={inputType} label="Reset" />
+                {selectedSlotUsed && (
+                  <Controls.ButtonRight inputType={inputType} label="Reset" />
+                )}
               </div>
             </>
           )}

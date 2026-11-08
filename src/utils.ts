@@ -70,6 +70,7 @@ import {
   HeldItems,
   Episode,
   GameMode,
+  WearableFrame,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -1560,5 +1561,64 @@ export function episodeAbbrev(episode: Episode): string {
       return 'e3';
     case Episode.None:
       return '';
+  }
+}
+
+export function wearableDisplay(item: WearableFrame): string {
+  switch (item) {
+    case WearableFrame.CowboyHat:
+      return "Cowboy Hat";
+    case WearableFrame.ChefHat:
+      return "Chef Hat";
+    case WearableFrame.IndianaJonesHat:
+      return "Indiana Jones Hat";
+    case WearableFrame.Sunglasses:
+      return "Sunglasses";
+    case WearableFrame.Monocle:
+      return "Monocle";
+    case WearableFrame.TechVisor:
+      return "TechVisor";
+    case WearableFrame.Glasses:
+      return "Glasses";
+    case WearableFrame.Mustache:
+      return "Mustache";
+    case WearableFrame.BanditMask:
+      return "Bandit Mask";
+    case WearableFrame.PirateOutfit:
+      return "Pirate Outfit";
+    case WearableFrame.CatEars:
+      return "Cat Ears";
+    case WearableFrame.Horns:
+      return "Horns";
+    case WearableFrame.NinjaBlue:
+      return "Ninja Blue";
+    case WearableFrame.NinjaPurple:
+      return "Ninja Purple";
+    case WearableFrame.BaseballCap:
+      return "Baseball Cap";
+    case WearableFrame.VikingHelmet:
+      return "Viking Helmet";
+    case WearableFrame.LuchadoreMaskRed:
+      return "Luchadore Mask Red";
+    case WearableFrame.LuchadoreMaskBlue:
+      return "Luchadore Mask Blue";
+    case WearableFrame.MexicanBlanket:
+      return "Mexican Blanket";
+    case WearableFrame.RoyalCape:
+      return "Royal Cape";
+    case WearableFrame.Crown:
+      return "Crown";
+    case WearableFrame.Cone:
+      return "Cone";
+    case WearableFrame.Crusher:
+      return "Crusher";
+    case WearableFrame.CrusherSeg1:
+      return "CrusherSeg1";
+    case WearableFrame.CrusherSeg2:
+      return "CrusherSeg2";
+    case WearableFrame.None:
+      return "None";
+    default:
+      return "Unknown";
   }
 }

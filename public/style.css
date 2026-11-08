@@ -53,6 +53,10 @@
   --ui-line-height: 5px;
   --ui-line-frames: 4;
 
+  --level-progress-meter-src: url('assets/graphics/ui-bars.png');
+  --level-progress-meter-size: 16px;
+  --level-progress-meter-frames: 5;
+
   --overworld-icons-src: url('assets/graphics/overworld-icons.png');
   --overworld-icons-size: 16px;
   --overworld-icons-frames: 22;
@@ -1145,6 +1149,58 @@ button.main-menu.back {
 .in-game-ui .ui-lines.dark { background-position-y: calc(1 * -1 * var(--ui-line-height)); }
 .in-game-ui .ui-lines.red { background-position-y: calc(2 * -1 * var(--ui-line-height)); }
 .in-game-ui .ui-lines.blue { background-position-y: calc(3 * -1 * var(--ui-line-height)); }
+
+.in-game-ui .level-progress {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin-top: calc(1 * 16px);
+  margin-left: calc(6 * 16px);
+  transform-origin: top left;
+  transform: scale(2);
+}
+.in-game-ui .level-progress-meter {
+  --frame: 2;
+  --yoffset: 0;
+  --span: 9;
+  --meter-line-spacing: 2px;
+  display: block;
+  position: absolute;
+  width: var(--level-progress-meter-size);
+  height: calc(var(--span) * var(--level-progress-meter-size));
+  background-image: var(--level-progress-meter-src);
+  background-size: calc(var(--level-progress-meter-frames) * var(--level-progress-meter-size)) var(--level-progress-meter-size);
+  background-position: calc(-1 * (var(--frame) - 1) * var(--level-progress-meter-size)) 0;
+}
+.in-game-ui .level-progress-meter.stop0 {
+  --frame: 2;
+  top: calc(2 * var(--span) * var(--level-progress-meter-size));
+}
+.in-game-ui .level-progress-meter.stop1 {
+  --frame: 3;
+  top: calc(1 * var(--span) * var(--level-progress-meter-size));
+}
+.in-game-ui .level-progress-meter.stop2 {
+  --frame: 4;
+  top: calc(0 * var(--span) * var(--level-progress-meter-size));
+}
+.in-game-ui .level-progress-meter.rainbow {
+  --frame: 5;
+  top: 0;
+  height: calc(3 * var(--span) * var(--level-progress-meter-size));
+  animation: levelProgressMeterRainbow 0.2s step-end infinite;
+}
+@keyframes levelProgressMeterRainbow {
+  0% {    background-position-y: calc(-1 * 0 * var(--meter-line-spacing)); }
+  12.5% { background-position-y: calc(-1 * 1 * var(--meter-line-spacing)); }
+  25% {   background-position-y: calc(-1 * 2 * var(--meter-line-spacing)); }
+  37.5% { background-position-y: calc(-1 * 3 * var(--meter-line-spacing)); }
+  50% {   background-position-y: calc(-1 * 4 * var(--meter-line-spacing)); }
+  62.5% { background-position-y: calc(-1 * 5 * var(--meter-line-spacing)); }
+  75% {   background-position-y: calc(-1 * 6 * var(--meter-line-spacing)); }
+  87.5% { background-position-y: calc(-1 * 7 * var(--meter-line-spacing)); }
+  100% {  background-position-y: calc(-1 * 0 * var(--meter-line-spacing)); }
+}
 
 
 .settings-menu {

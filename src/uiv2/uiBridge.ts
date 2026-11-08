@@ -1,7 +1,7 @@
-import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE } from "@/defaults";
+import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE, DEFAULT_OUTFIT } from "@/defaults";
 import { saveDataStore, SaveDataStore } from "@/stores/SaveDataStore";
 import { settings } from '@/stores/SettingsStore';
-import { CallAction, EngineState, GameSettings, GameState, UICancelHandler, UIInteractHandler, UINavEventHandler } from "@/types";
+import { CallAction, EngineState, GameSettings, GameState, Outfit, UICancelHandler, UIInteractHandler, UINavEventHandler } from "@/types";
 
 type HandlerKey = (
   | 'titleScreen'
@@ -11,6 +11,7 @@ type HandlerKey = (
   | 'mainMenu'
   | 'saveSlotMenu'
   | 'gameModeMenu'
+  | 'wearablesMenu'
 );
 
 interface BridgeHandler {
@@ -29,14 +30,16 @@ const DEFAULT_HANDLER: BridgeHandler = {
 
 interface BridgeProperties {
   es: EngineState,
-  gameState: GameState
-  saveDataStore: SaveDataStore
-  settings: GameSettings
+  gameState: GameState,
+  outfit: Outfit,
+  saveDataStore: SaveDataStore,
+  settings: GameSettings,
 }
 
 const bridgeProps: BridgeProperties = {
   es: { ...DEFAULT_ENGINE_STATE },
   gameState: { ...DEFAULT_GAME_STATE },
+  outfit: { ...DEFAULT_OUTFIT },
   saveDataStore: saveDataStore,
   settings: settings,
 } satisfies BridgeProperties
@@ -49,6 +52,7 @@ export const bridge: Record<HandlerKey, BridgeHandler> & { callAction: CallActio
   mainMenu: { ...DEFAULT_HANDLER},
   saveSlotMenu: { ...DEFAULT_HANDLER},
   gameModeMenu: { ...DEFAULT_HANDLER},
+  wearablesMenu: { ...DEFAULT_HANDLER},
   callAction: () => {},
   ...bridgeProps,
 };

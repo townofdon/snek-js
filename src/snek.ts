@@ -894,6 +894,7 @@ export const sketch = (p5: P5) => {
     state.isPaused = false;
     clearUI();
     emitUIEvent(InputAction.UnPause, Initiator.UI);
+    emitUIEvent(InputAction.ShowInGameUI, Initiator.UI);
     UI.hideSettingsMenu();
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(1, 750), Action.ChangeMusicLowpass, true);
@@ -1299,6 +1300,7 @@ export const sketch = (p5: P5) => {
     let clipIndex = 0;
 
     while (true) {
+      if (state.isGameStarting) return;
       const clip = clips[clipIndex % clips.length];
       if (!clip) {
         console.warn(`clip at index ${clipIndex} was null - clips.length=${clips.length}`);
@@ -1326,6 +1328,7 @@ export const sketch = (p5: P5) => {
       while (!replay.shouldProceedToNextClip) {
         yield null;
       }
+      if (state.isGameStarting) return;
     }
   }
 }
