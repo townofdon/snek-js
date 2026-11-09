@@ -4,6 +4,7 @@ import {
   GameSettings,
   GameState,
   Initiator,
+  Outfit,
   UICancelHandler,
   UIHandler,
   UIInteractHandler,
@@ -36,6 +37,9 @@ export class UIBindings implements UIHandler {
       case PauseMenuElement.ButtonSettings:
         this.callAction(InputAction.ShowSettingsMenu);
         break;
+      case PauseMenuElement.ButtonWearablesMenu:
+        this.callAction(InputAction.ShowWearablesMenu);
+        break;
     }
   }
   private callGameOverMenuAction = (element: GameOverMenuElement) => {
@@ -52,13 +56,14 @@ export class UIBindings implements UIHandler {
   private pauseMenuNavMap: PauseMenuNavMap;
   private gameOverMenuNavMap: GameOverMenuNavMap;
 
-  constructor(p5: P5, gameState: GameState, settings: GameSettings, saveDataStore: SaveDataStore, callAction: (action: InputAction, p0?: any) => void) {
+  constructor(p5: P5, gameState: GameState, settings: GameSettings, outfit: Outfit, saveDataStore: SaveDataStore, callAction: (action: InputAction, p0?: any) => void) {
     this.p5 = p5;
     this.gameState = gameState;
     this.callAction = callAction;
     bridge.callAction = callAction;
     bridge.gameState = gameState;
     bridge.settings = settings;
+    bridge.outfit = outfit;
     bridge.saveDataStore = saveDataStore;
     this.pauseMenuNavMap = new PauseMenuNavMap(this.callPauseMenuAction);
     this.gameOverMenuNavMap = new GameOverMenuNavMap(this.callGameOverMenuAction);
@@ -68,6 +73,9 @@ export class UIBindings implements UIHandler {
   handleUINavigation: UINavEventHandler = (navDir) => {
     if (bridge.levelSelectMenu.showing) {
       return bridge.levelSelectMenu?.onNavigate?.(navDir) || false;
+    }
+    if (bridge.wearablesMenu.showing) {
+      return bridge.wearablesMenu?.onNavigate?.(navDir) || false;
     }
     if (bridge.settingsMenu.showing) {
       return bridge.settingsMenu?.onNavigate?.(navDir) || false;
@@ -135,6 +143,9 @@ export class UIBindings implements UIHandler {
     if (bridge.levelSelectMenu.showing) {
       return bridge.levelSelectMenu?.onInteract?.() || false;
     }
+    if (bridge.wearablesMenu.showing) {
+      return bridge.wearablesMenu?.onInteract?.() || false;
+    }
     if (bridge.settingsMenu.showing) {
       return bridge.settingsMenu?.onInteract?.() || false;
     }
@@ -165,6 +176,9 @@ export class UIBindings implements UIHandler {
   handleUICancel: UICancelHandler = () => {
     if (bridge.levelSelectMenu.showing) {
       return bridge.levelSelectMenu?.onCancel?.() || false;
+    }
+    if (bridge.wearablesMenu.showing) {
+      return bridge.wearablesMenu?.onCancel?.() || false;
     }
     if (bridge.settingsMenu.showing) {
       return bridge.settingsMenu?.onCancel?.() || false;

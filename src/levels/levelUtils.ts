@@ -105,7 +105,7 @@ export function getLevelById(id: string): Level {
   throw new Error(`unable to find level for id=${id || '<empty>'}`);
 }
 
-export function getStartLevel(gameMode: GameMode, episode: Episode): Level {
+export function getFirstLevel(gameMode: GameMode, episode: Episode): Level {
   switch (gameMode) {
     case GameMode.Normal:
       // fallthrough

@@ -42,6 +42,9 @@ export const InGameUI = () => {
         case InputAction.ShowLevelSelectMenu:
           setShowing(false);
           break;
+        case InputAction.ShowWearablesMenu:
+          setShowing(false);
+          break;
         case InputAction.ShowSettingsMenu:
           setShowing(false);
           break;

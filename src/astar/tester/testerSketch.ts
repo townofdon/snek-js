@@ -17,7 +17,7 @@ import {
   PreyType,
 } from '@/types';
 import { SpriteRenderer } from '@/engine/spriteRenderer';
-import { Renderer } from '@/engine/renderer';
+import { renderer } from '@/engine/renderer';
 import { Fonts } from '@/fonts';
 import { PALETTE, getExtendedPalette } from '@/palettes';
 import { coordToVec, getCoordIndex2, getRotationFromDirection } from '@/utils';
@@ -107,7 +107,7 @@ export const testerSketch = (container: HTMLElement, canvas: React.MutableRefObj
     }
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
-    const renderer = new Renderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
+    renderer.init({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
     const drawPlayerOptions: DrawSquareOptions = { is3d: true, optimize: true }
     const drawAppleOptions: DrawSquareOptions = { size: 0.8, is3d: true, optimize: true }
     const drawBasicOptions: DrawSquareOptions = { optimize: true }

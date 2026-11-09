@@ -1567,13 +1567,13 @@ export function episodeAbbrev(episode: Episode): string {
 export function wearableDisplay(item: WearableFrame): string {
   switch (item) {
     case WearableFrame.CowboyHat:
-      return "Cowboy Hat";
+      return "Straw Hat";
     case WearableFrame.ChefHat:
       return "Chef Hat";
     case WearableFrame.IndianaJonesHat:
-      return "Indiana Jones Hat";
+      return "Cowboy Jones";
     case WearableFrame.Sunglasses:
-      return "Sunglasses";
+      return "Deal with it";
     case WearableFrame.Monocle:
       return "Monocle";
     case WearableFrame.TechVisor:
@@ -1599,11 +1599,11 @@ export function wearableDisplay(item: WearableFrame): string {
     case WearableFrame.VikingHelmet:
       return "Viking Helmet";
     case WearableFrame.LuchadoreMaskRed:
-      return "Luchadore Mask Red";
+      return "Luchadore Red";
     case WearableFrame.LuchadoreMaskBlue:
-      return "Luchadore Mask Blue";
+      return "Luchadore Blue";
     case WearableFrame.MexicanBlanket:
-      return "Mexican Blanket";
+      return "Multicolored Cape";
     case WearableFrame.RoyalCape:
       return "Royal Cape";
     case WearableFrame.Crown:
@@ -1616,6 +1616,10 @@ export function wearableDisplay(item: WearableFrame): string {
       return "CrusherSeg1";
     case WearableFrame.CrusherSeg2:
       return "CrusherSeg2";
+    case WearableFrame.Aviators:
+      return "Aviators";
+    case WearableFrame._ThinGlasses:
+      return "Thin Glasses";
     case WearableFrame.None:
       return "None";
     default:

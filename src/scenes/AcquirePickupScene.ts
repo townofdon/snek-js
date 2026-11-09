@@ -1,10 +1,9 @@
 import P5 from "p5";
-import { FontsInstance, GameState, PlayerState, SceneCallbacks, ISFX } from "@/types";
+import { FontsInstance, GameState, PlayerState, SceneCallbacks, ISFX, IRenderer } from "@/types";
 import { BaseScene } from "./BaseScene";
 import { SpriteRenderer } from "@/engine/spriteRenderer";
 import { MusicPlayer } from "@/engine/musicPlayer";
 import { VectorList } from "@/collections/vectorList";
-import { Renderer } from "@/engine/renderer";
 import { ACCENT_COLOR, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "@/constants";
 import { Easing } from "@/easing";
 
@@ -20,7 +19,7 @@ export interface AcquirePickupSceneConstructorArgs {
   sfx: ISFX;
   musicPlayer: MusicPlayer;
   fonts: FontsInstance;
-  renderer: Renderer;
+  renderer: IRenderer;
   spriteRenderer: SpriteRenderer;
   callbacks: SceneCallbacks & AcquireCallbacks;
   gameState: GameState;
@@ -58,7 +57,7 @@ export class AcquirePickupScene extends BaseScene {
   private gfxFGAction: P5.Graphics;
   private sfx: ISFX;
   private musicPlayer: MusicPlayer;
-  private renderer: Renderer;
+  private renderer: IRenderer;
   private spriteRenderer: SpriteRenderer;
   private gameState: GameState;
   private segments: VectorList;

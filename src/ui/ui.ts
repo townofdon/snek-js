@@ -24,6 +24,7 @@ enum ActiveMenu {
   LevelSelectMenu,
   SaveSlotMenu,
   GameModeMenu,
+  WearablesMenu,
 }
 
 export class UI {
@@ -132,6 +133,23 @@ export class UI {
       UI.activeMenu = ActiveMenu.None;
     }
     emitUIEvent(InputAction.HideSettingsMenu, Initiator.UI);
+  }
+
+  static showWearablesMenu() {
+    if (UI.activeMenu === ActiveMenu.WearablesMenu) {
+      return;
+    }
+    UI.activeMenu = ActiveMenu.WearablesMenu;
+    UI.enableGameBlur();
+    emitUIEvent(InputAction.ShowWearablesMenu, Initiator.UI);
+  }
+
+  static hideWearablesMenu() {
+    UI.disableGameBlur();
+    if (UI.activeMenu === ActiveMenu.WearablesMenu) {
+      UI.activeMenu = ActiveMenu.None;
+    }
+    emitUIEvent(InputAction.HideWearablesMenu, Initiator.UI);
   }
 
   static showLevelSelectMenu() {
@@ -301,7 +319,13 @@ export class UI {
     return button;
   }
 
-  static drawText(textStr = '', fontSize = '9.6px', y = 0, uiElements: HTMLElement[], { color = '#fff', width = 480, margin = '48px auto' } = {}) {
+  static drawText(textStr = '', fontSize = '9.6px', y = 0, uiElements: HTMLElement[], {
+    color = '#fff',
+    width = 480,
+    margin = '48px auto',
+    className = '',
+    id = '',
+  } = {}) {
     const element = document.createElement('p');
     element.innerHTML = textStr;
     element.classList.add('minimood');
@@ -317,6 +341,12 @@ export class UI {
     element.style.top = `${2 * y}px`;
     element.style.left = 'initial';
     element.style.margin = margin;
+    if (className) {
+      element.classList.add(...className.split(' '));
+    }
+    if (id) {
+      element.id = id;
+    }
     requireElementById<HTMLElement>(UI_PARENT_ID).appendChild(element);
     uiElements.push(element);
     return element.offsetHeight;

@@ -2,7 +2,7 @@ import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import React, { useEffect, useRef, useState } from "react"
 import { useForceRerender } from "./hooks/useForceRerender";
 import { DOM } from "@/ui/uiUtils";
-import { state } from "@/gameState";
+import { gameState } from "@/gameState";
 import { GameMode, InputAction, UINavDir } from "@/types";
 import { TitleScreenMenuButton, TitleScreenMenuNavMap } from "@/ui/uiNavMap";
 import { bridge } from "./uiBridge";
@@ -128,8 +128,8 @@ export const TitleScreen = () => {
 
   if (!showing) return;
 
-  const showLabelCasualMode = state.gameMode === GameMode.Casual;
-  const showLabelCobra = state.gameMode === GameMode.Cobra;
+  const showLabelCasualMode = gameState.gameMode === GameMode.Casual;
+  const showLabelCobra = gameState.gameMode === GameMode.Cobra;
 
   const handleStartGame = () => {
     if (!active) return;

@@ -1,5 +1,9 @@
 import { UI } from "./ui";
 import { ACCENT_COLOR } from '../constants';
+import { saveDataStore } from "@/stores/SaveDataStore";
+import { gameState } from "@/gameState";
+import { GameMode } from "@/types";
+import { PauseMenuElement } from "./uiNavMap";
 
 export function showGameOverUI(loseMessage: string, uiElements: HTMLElement[]) {
   const yInit = 160;
@@ -11,9 +15,10 @@ export function showGameOverUI(loseMessage: string, uiElements: HTMLElement[]) {
 }
 
 interface ShowPauseMenuCallbacks {
-  unpause: () => void
-  confirmShowTitleScreen: () => void
-  showInGameSettingsMenu: () => void
+  unpause: () => void,
+  confirmShowTitleScreen: () => void,
+  showInGameSettingsMenu: () => void,
+  showWearablesMenu: () => void,
 }
 
 export function showPauseUIPreviewMode(uiElements: HTMLElement[], callbacks: Pick<ShowPauseMenuCallbacks, 'unpause'>) {
@@ -27,19 +32,27 @@ export function showPauseUIPreviewMode(uiElements: HTMLElement[], callbacks: Pic
 }
 
 export function showPauseUI(uiElements: HTMLElement[], callbacks: ShowPauseMenuCallbacks) {
-  const { unpause, confirmShowTitleScreen, showInGameSettingsMenu } = callbacks;
+  const showWearablesMenuButton = true
+    && gameState.gameMode !== GameMode.Arcade
+    && gameState.gameMode !== GameMode.Tutorial
+    && !!saveDataStore.getUnlockedWearablesList().length;
+  const { unpause, confirmShowTitleScreen, showInGameSettingsMenu, showWearablesMenu } = callbacks;
   UI.drawDarkOverlay(uiElements);
-  UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR });
+  UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR, className: 'title-gradient' });
   {
     const button = UI.drawButton("RESUME", 16, 16, unpause, uiElements);
-    button.id = 'pauseButtonResume';
+    button.id = PauseMenuElement.ButtonResume;
   }
   if (confirmShowTitleScreen) {
     const button = UI.drawButton("MAIN MENU", 176, 16, confirmShowTitleScreen, uiElements);
-    button.id = 'pauseButtonMainMenu';
+    button.id = PauseMenuElement.ButtonMainMenu;
+  }
+  if (showWearablesMenuButton && showWearablesMenu) {
+    const button = UI.drawButton("OUTFITS", 184, 56, showWearablesMenu, uiElements);
+    button.id = PauseMenuElement.ButtonWearablesMenu;
   }
   {
     const button = UI.drawButton("SETTINGS", 356, 16, showInGameSettingsMenu, uiElements);
-    button.id = 'pauseButtonSettings';
+    button.id = PauseMenuElement.ButtonSettings;
   }
 }

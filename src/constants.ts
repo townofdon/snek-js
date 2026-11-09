@@ -46,7 +46,7 @@ export const MAP_API_HOST = 'https://dontownsendcreative.com/snek-leaderboard';
 export const MAX_GAIN_MUSIC = 0.6;
 export const DEFAULT_VOLUME_SFX = 1;
 
-export const ACCENT_COLOR = "#FFB41F";
+export const ACCENT_COLOR = "#FFAC7F";
 export const SECONDARY_ACCENT_COLOR = "#15C2CB";
 export const SECONDARY_ACCENT_COLOR_BG = Color("#119DA4").darken(0.4).hex();
 export const GLOBAL_LIGHT_DEFAULT = 1;
@@ -1259,7 +1259,7 @@ export const PICKUP_TYPE_RARITY_MAP: Record<PickupType, number> = Object.values(
     return acc;
   }, {} as Record<PickupType, number>);
 
-export const WEARABLE_TYPE_MAP = {
+export const WEARABLE_TYPE_MAP: Record<WearableFrame, WearableType> = {
   [WearableFrame.None]: WearableType.None,
   [WearableFrame.CowboyHat]: WearableType.Hat,
   [WearableFrame.ChefHat]: WearableType.Hat,
@@ -1268,6 +1268,7 @@ export const WEARABLE_TYPE_MAP = {
   [WearableFrame.Monocle]: WearableType.Eyes,
   [WearableFrame.TechVisor]: WearableType.Eyes,
   [WearableFrame.Glasses]: WearableType.Eyes,
+  [WearableFrame.Aviators]: WearableType.Eyes,
   [WearableFrame.Mustache]: WearableType.Hair,
   [WearableFrame.BanditMask]: WearableType.Eyes,
   [WearableFrame.PirateOutfit]: WearableType.Exclusive,
@@ -1279,11 +1280,12 @@ export const WEARABLE_TYPE_MAP = {
   [WearableFrame.VikingHelmet]: WearableType.Hat,
   [WearableFrame.LuchadoreMaskRed]: WearableType.Exclusive,
   [WearableFrame.LuchadoreMaskBlue]: WearableType.Exclusive,
-  [WearableFrame.MexicanBlanket]: WearableType.Back,
-  [WearableFrame.RoyalCape]: WearableType.Back,
+  [WearableFrame.MexicanBlanket]: WearableType.Threads,
+  [WearableFrame.RoyalCape]: WearableType.Threads,
   [WearableFrame.Crown]: WearableType.Hat,
   [WearableFrame.Cone]: WearableType.Hat,
   [WearableFrame.Crusher]: WearableType.None,
   [WearableFrame.CrusherSeg1]: WearableType.None,
   [WearableFrame.CrusherSeg2]: WearableType.None,
+  [WearableFrame._ThinGlasses]: WearableType.None,
 } satisfies Record<WearableFrame, WearableType>;

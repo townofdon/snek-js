@@ -518,10 +518,12 @@ export enum PauseMenuElement {
   ButtonResume = 'pauseButtonResume',
   ButtonMainMenu = 'pauseButtonMainMenu',
   ButtonSettings = 'pauseButtonSettings',
+  ButtonWearablesMenu = 'pauseButtonWearablesMenu',
   DebugDropdownWarp = 'debug-menu-warp-dropdown',
   DebugDropdownDifficulty = 'debug-menu-difficulty',
   DebugCheckboxEasyExit = 'debug-checkbox-easy-exit',
   DebugCheckboxDisableTransitions = 'debug-checkbox-disable-transitions',
+  Placeholder = '__placeholder__',
 };
 
 const PAUSE_MENU_ELEMENT_ORDER = [
@@ -529,6 +531,11 @@ const PAUSE_MENU_ELEMENT_ORDER = [
     PauseMenuElement.ButtonResume,
     PauseMenuElement.ButtonMainMenu,
     PauseMenuElement.ButtonSettings,
+  ],
+  [
+    PauseMenuElement.Placeholder,
+    PauseMenuElement.ButtonWearablesMenu,
+    PauseMenuElement.Placeholder,
   ],
   [
     PauseMenuElement.DebugDropdownWarp,

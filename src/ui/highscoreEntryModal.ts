@@ -60,7 +60,7 @@ export class HighscoreEntryModal implements UIHandler {
       const formData = new FormData(this.form);
       this.onSubmitName(formData.get('input-highscore-name') as string);
     } catch (err) {
-      console.log(err);
+      console.error(err);
     } finally {
       this.isSubmitting = false;
     }

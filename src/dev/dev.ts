@@ -161,7 +161,7 @@ export const sketch = (p5: P5) => {
 
   const modal = new Modal();
 
-  const uiBindings = new UIBindings(p5, state, settings, saveDataStore, handleInputAction);
+  const uiBindings = new UIBindings(p5, state, settings, outfit, saveDataStore, handleInputAction);
 
   function handleInputAction(action: InputAction, p0?: any) {
     switch (action) {
@@ -175,6 +175,16 @@ export const sketch = (p5: P5) => {
       case InputAction.HideSettingsMenu:
         UI.hideSettingsMenu();
         sfx.play(Sound.doorOpen);
+        break;
+      case InputAction.ShowWearablesMenu:
+        UI.showWearablesMenu();
+        sfx.play(Sound.doorOpen);
+        break;
+      case InputAction.HideWearablesMenu:
+        UI.hideWearablesMenu();
+        sfx.play(Sound.doorOpen);
+        if (!state.isGameStarted) UI.showTitleScreen();
+        if (state.isPaused) uiBindings.onPauseCancelModal();
         break;
       case InputAction.RetryLevel:
         retryLevel();
@@ -198,7 +208,7 @@ export const sketch = (p5: P5) => {
         sfx.play(Sound.eat);
         break;
       default:
-        console.log(`unhandled action: ${action}`);
+        console.warn(`unhandled action: ${action}`);
         break
     }
   }
@@ -275,7 +285,7 @@ export const sketch = (p5: P5) => {
   function onUINavigate(navDir: UINavDir) {
     let handled = false;
     if (!handled) handled = modal.handleUINavigation(navDir);
-    // if (!handled) handled = uiBindings.handleUINavigation(navDir);
+    if (!handled) handled = uiBindings.handleUINavigation(navDir);
     if (handled) {
       sfx.play(Sound.uiBlip, 0.5);
     } else {
@@ -287,14 +297,14 @@ export const sketch = (p5: P5) => {
   function onUIInteract() {
     let handled = false;
     if (!handled) handled = modal.handleUIInteract();
-    // if (!handled) handled = uiBindings.handleUIInteract();
+    if (!handled) handled = uiBindings.handleUIInteract();
     return handled;
   }
 
   function onUICancel() {
     let handled = false;
     if (!handled) handled = modal.handleUICancel();
-    // if (!handled) handled = uiBindings.handleUICancel();
+    if (!handled) handled = uiBindings.handleUICancel();
     return handled;
   }
 
@@ -310,6 +320,10 @@ export const sketch = (p5: P5) => {
       startGame();
       UI.hideStartScreen();
       sfx.play(Sound.doorOpen);
+
+      // TODO: REMOVE
+      state.isPaused = true;
+      UI.showWearablesMenu();
     });
   }
 
@@ -364,7 +378,7 @@ export const sketch = (p5: P5) => {
     coroutines.stopAll();
     modal.hide();
     winLevelScene.reset();
-    resetLevel({ shouldShowTransitions });
+    resetLevel({ shouldShowTransitions, onTriggerWinGame: () => {} });
   }
 
   function onGameOver() {
@@ -380,11 +394,12 @@ export const sketch = (p5: P5) => {
     if (state.isPaused) return;
     if (state.isExitingLevel || state.isExited) return;
     state.isPaused = true;
-    showPauseUIPreviewMode(uiElements, { unpause });
+    // showPauseUIPreviewMode(uiElements, { unpause });
     showPauseUI(uiElements, {
       unpause,
       confirmShowTitleScreen: null,
       showInGameSettingsMenu,
+      showWearablesMenu: () => {},
     })
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(0.07, 750, 0.2), Action.ChangeMusicLowpass, true);
@@ -401,6 +416,7 @@ export const sketch = (p5: P5) => {
     state.isPaused = false;
     clearUI();
     UI.hideSettingsMenu();
+    UI.hideWearablesMenu();
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(1, 750), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(1, 500), Action.FadeMusic, true);

@@ -24,6 +24,8 @@ import {
   DEFAULT_ACTION_IDS_MAP,
   DEFAULT_HELD_ITEMS,
   DEFAULT_OUTFIT,
+  DEFAULT_REPLAY,
+  DEFAULT_SCREEN_SHAKE,
   DEFAULT_STATS,
 } from './defaults';
 import {
@@ -39,7 +41,7 @@ import {
 import {
   getLevelById,
   REPLAY_LEVEL_INDEX,
-  getStartLevel,
+  getFirstLevel,
   getIsStartLevel,
 } from './levels/levelUtils';
 import {
@@ -96,7 +98,7 @@ import { saveDataStore } from './stores/SaveDataStore';
 import { recordSnekalyticsEvent } from './api/snekalytics';
 import { applyGamepadUIActions, resetGamepad, tickGamepad } from './engine/gamepad';
 import { settings, triggerFullscreenChange } from './stores/SettingsStore';
-import { state } from './gameState';
+import { gameState as state } from './gameState';
 import { emitUIEvent } from './ui/uiEvents';
 import { unlockAchievement } from './achievements';
 
@@ -105,17 +107,7 @@ const queryParams = parseUrlQueryParams();
 const stats: Stats = { ...DEFAULT_STATS } satisfies Stats;
 const outfit: Outfit = { ...DEFAULT_OUTFIT };
 const heldItems: HeldItems = { ...DEFAULT_HELD_ITEMS };
-const replay: Replay = {
-  mode: ReplayMode.Disabled,
-  levelIndex: state.levelIndex,
-  levelName: 'no-level',
-  difficulty: { ...DIFFICULTY_MEDIUM },
-  applesToSpawn: [],
-  positions: {},
-  timeCaptureStarted: 'no-date',
-  shouldProceedToNextClip: false,
-  lastFrame: 0,
-} satisfies Replay;
+const replay: Replay = { ...DEFAULT_REPLAY };
 const tutorial: Tutorial = {
   needsMoveControls: false,
   needsRewindControls: false,
@@ -225,7 +217,8 @@ export const sketch = (p5: P5) => {
 
   const modal = new Modal();
 
-  const uiBindings = new UIBindings(p5, state, settings, saveDataStore, handleInputAction);
+  //#region Input Bindings + Actions
+  const uiBindings = new UIBindings(p5, state, settings, outfit, saveDataStore, handleInputAction);
 
   function handleInputAction(action: InputAction, p0?: any) {
     switch (action) {
@@ -240,6 +233,15 @@ export const sketch = (p5: P5) => {
         break;
       case InputAction.HideSettingsMenu:
         UI.hideSettingsMenu();
+        sfx.play(Sound.doorOpen);
+        if (!state.isGameStarted) UI.showTitleScreen();
+        if (state.isPaused) uiBindings.onPauseCancelModal();
+        break;
+      case InputAction.ShowWearablesMenu:
+        showWearablesMenu();
+        break;
+      case InputAction.HideWearablesMenu:
+        UI.hideWearablesMenu();
         sfx.play(Sound.doorOpen);
         if (!state.isGameStarted) UI.showTitleScreen();
         if (state.isPaused) uiBindings.onPauseCancelModal();
@@ -348,6 +350,7 @@ export const sketch = (p5: P5) => {
         break;
     }
   }
+  //#endregion Input Bindings + Actions
 
   /**
    * https://p5js.org/reference/#/p5/preload
@@ -626,16 +629,22 @@ export const sketch = (p5: P5) => {
     tutorial.needsMoveControls = false;
     state.gameMode = data.gameMode;
     state.episode = data.episode;
-    outfit.back = data.outfit?.back || DEFAULT_OUTFIT.back;
+    state.lives = data.gameMode === GameMode.Cobra ? (data.lives ?? MAX_LIVES) : MAX_LIVES;
+    outfit.threads = data.outfit?.threads || DEFAULT_OUTFIT.threads;
     outfit.exclusive = data.outfit?.exclusive || DEFAULT_OUTFIT.exclusive;
     outfit.eyes = data.outfit?.eyes || DEFAULT_OUTFIT.eyes;
     outfit.hair = data.outfit?.hair || DEFAULT_OUTFIT.hair;
     outfit.hat = data.outfit?.hat || DEFAULT_OUTFIT.hat;
     setDifficulty(getDifficultyFromIndex(data.difficulty));
-    setLevel(getLevelById(data.lastLevelId));
-    setLevelIndexFromCurrentLevel();
-    state.lives = data.gameMode === GameMode.Cobra ? (data.lives ?? MAX_LIVES) : MAX_LIVES;
+    const level = getLevelById(data.lastLevelId);
     state.nextLevel = null;
+    setLevel(level);
+    setLevelIndexFromCurrentLevel();
+    if (getIsStartLevel(level)) {
+      if (!state.nextLevel) {
+        state.nextLevel = getFirstLevel(state.gameMode, state.episode);
+      }
+    }
     setStats(data.stats);
     recordSnekalyticsEvent({
       eventType: SNEKALYTICS_EVENT_TYPE.LOAD_GAME,
@@ -654,7 +663,7 @@ export const sketch = (p5: P5) => {
   function newGame(newGameArgs: NewGameArgs) {
     const { levelId, episode, gameMode } = newGameArgs;
     tutorial.needsMoveControls = true;
-    outfit.back = DEFAULT_OUTFIT.back;
+    outfit.threads = DEFAULT_OUTFIT.threads;
     outfit.exclusive = DEFAULT_OUTFIT.exclusive;
     outfit.eyes = DEFAULT_OUTFIT.eyes;
     outfit.hair = DEFAULT_OUTFIT.hair;
@@ -664,13 +673,13 @@ export const sketch = (p5: P5) => {
     state.gameMode = gameMode;
     state.nextLevel = levelId ? getLevelById(levelId) : null;
     if (!state.nextLevel) {
-      state.nextLevel = getStartLevel(state.gameMode, state.episode);
+      state.nextLevel = getFirstLevel(state.gameMode, state.episode);
     }
     setLevel(state.gameMode === GameMode.Cobra ? START_LEVEL_COBRA : START_LEVEL);
     setDifficulty(DIFFICULTY_EASY);
     if (state.gameMode === GameMode.Tutorial) {
       state.nextLevel = null;
-      setLevel(getStartLevel(GameMode.Tutorial, Episode.E1));
+      setLevel(getFirstLevel(GameMode.Tutorial, Episode.E1));
       setDifficulty(DIFFICULTY_MEDIUM);
     }
     setLevelIndexFromCurrentLevel();
@@ -686,6 +695,9 @@ export const sketch = (p5: P5) => {
       score: 0,
       mode: state.gameMode,
     });
+    if (state.gameMode !== GameMode.Arcade && state.gameMode !== GameMode.Tutorial) {
+      saveDataStore.newGame(state.gameMode, getLevel().id, state.episode);
+    }
     startGame();
   }
 
@@ -881,6 +893,7 @@ export const sketch = (p5: P5) => {
       unpause,
       confirmShowTitleScreen,
       showInGameSettingsMenu,
+      showWearablesMenu,
     });
     uiBindings.onPause();
     emitUIEvent(InputAction.Pause, Initiator.UI);
@@ -896,6 +909,7 @@ export const sketch = (p5: P5) => {
     emitUIEvent(InputAction.UnPause, Initiator.UI);
     emitUIEvent(InputAction.ShowInGameUI, Initiator.UI);
     UI.hideSettingsMenu();
+    UI.hideWearablesMenu();
     sfx.play(Sound.unlock, 0.8);
     startAction(changeMusicLowpass(1, 750), Action.ChangeMusicLowpass, true);
     startAction(fadeMusic(1, 500), Action.FadeMusic, true);
@@ -1000,6 +1014,11 @@ export const sketch = (p5: P5) => {
   function showInGameSettingsMenu() {
     sfx.play(Sound.unlock);
     UI.showSettingsMenu();
+  }
+
+  function showWearablesMenu() {
+    sfx.play(Sound.unlock);
+    UI.showWearablesMenu();
   }
 
   let levelsSeen: Record<string, boolean> = {};
@@ -1109,7 +1128,7 @@ export const sketch = (p5: P5) => {
       let next: Level = null;
       if (candidates.length === 0) {
         levelsSeen = {};
-        next = getStartLevel(GameMode.Arcade, Episode.E1);
+        next = getFirstLevel(GameMode.Arcade, Episode.E1);
       } else {
         next = shuffleArray(candidates)[Math.floor(Math.random() * candidates.length)];
       }

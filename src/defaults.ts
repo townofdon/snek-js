@@ -1,4 +1,5 @@
-import { DEFAULT_PORTALS, DIFFICULTY_EASY, MAX_LIVES } from "./constants";
+import P5 from "p5";
+import { DEFAULT_PORTALS, DIFFICULTY_EASY, DIFFICULTY_MEDIUM, MAX_LIVES } from "./constants";
 import { MAIN_TITLE_SCREEN_LEVEL } from "./levels/levelConstants";
 import {
   AppMode,
@@ -16,6 +17,10 @@ import {
   ActionKey,
   Action,
   Stats,
+  SaveSlotData,
+  ScreenShakeState,
+  Replay,
+  ReplayMode,
 } from "./types";
 
 export const DEFAULT_GAME_STATE: GameState = {
@@ -154,15 +159,15 @@ export const DEFAULT_STATS = {
 export const DEFAULT_WEARABLES_UNLOCKED: Record<WearableFrame, boolean> = Object.values(WearableFrame)
   .filter(v => typeof v !== 'string')
   .reduce((acc, wearable) => {
-    acc[wearable] = false;
+    acc[wearable] = true;
     return acc;
-  }, {} as Record<WearableFrame, boolean>) satisfies Record<WearableFrame, boolean>;
+  }, {} as Record<WearableFrame, boolean>);
 
 export const DEFAULT_OUTFIT: Outfit = {
   exclusive: WearableFrame.None,
   hat: WearableFrame.None,
   eyes: WearableFrame.None,
-  back: WearableFrame.None,
+  threads: WearableFrame.None,
   hair: WearableFrame.None,
 } satisfies Outfit;
 
@@ -182,4 +187,36 @@ export const DEFAULT_PICKUP_TYPES: PickupType[] = [
   PickupType.Mushroom,
   PickupType.BreadLoaf,
   PickupType.Cucumber,
-]
+];
+
+export const DEFAULT_SAVE_SLOT_DATA = {
+  lastLevelId: '',
+  lives: MAX_LIVES,
+  episode: Episode.E1,
+  gameMode: GameMode.Normal,
+  difficulty: DIFFICULTY_EASY.index,
+  wearablesUnlocked: { ...DEFAULT_WEARABLES_UNLOCKED },
+  stats: { ...DEFAULT_BASE_STATS },
+  heldItems: { ...DEFAULT_HELD_ITEMS },
+  outfit: { ...DEFAULT_OUTFIT },
+} satisfies SaveSlotData;
+
+export const DEFAULT_SCREEN_SHAKE: ScreenShakeState = {
+  offset: new P5.Vector,
+  timeSinceStarted: Infinity,
+  timeSinceLastStep: Infinity,
+  magnitude: 1,
+  timeScale: 1,
+} satisfies ScreenShakeState;
+
+export const DEFAULT_REPLAY: Replay = {
+  mode: ReplayMode.Disabled,
+  levelIndex: DEFAULT_GAME_STATE.levelIndex,
+  levelName: 'no-level',
+  difficulty: { ...DIFFICULTY_MEDIUM },
+  applesToSpawn: [],
+  positions: {},
+  timeCaptureStarted: 'no-date',
+  shouldProceedToNextClip: false,
+  lastFrame: 0,
+} satisfies Replay;

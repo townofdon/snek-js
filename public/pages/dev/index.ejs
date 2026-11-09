@@ -16,7 +16,10 @@
     <%= htmlWebpackPlugin
       .tags
       .headTags
-      .filter((tag) => tag.attributes?.src?.includes('dev.bundle'))
+      .filter((tag) =>
+        tag.attributes?.src?.includes('dev.bundle') ||
+        /main.*\.css$/.test(tag.attributes?.href)
+      )
       .join('')
     %>
   </head>
@@ -56,6 +59,10 @@
         </div>
 
         <div id="in-game-ui-v2" class="position-absolute fill center">
+          <!-- React UI V2 -->
+        </div>
+
+        <div id="wearables-menu-v2" class="position-absolute fill center">
           <!-- React UI V2 -->
         </div>
 

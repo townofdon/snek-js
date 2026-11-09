@@ -69,11 +69,9 @@ import {
   Tile16Frame,
 } from "@/types";
 import { UI_CANVAS_LEFT, UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
-import { Renderer } from "../renderer";
 import { PALETTE } from "@/palettes";
 import { SpriteRenderer } from "../spriteRenderer";
 import {
-  byCoord,
   checkIsMoving,
   dirToUnitVector,
   getCoordIndex,
@@ -86,7 +84,6 @@ import {
   isNil,
   lerp,
   neighborly,
-  outOfBounds,
   shouldBlinkExpiringPickup,
   toRarity,
   triangle,
@@ -102,8 +99,9 @@ import { WARP_ZONE_02 } from "@/levels/bonusLevels/warpZone02";
 import { WARP_ZONE_03 } from "@/levels/bonusLevels/warpZone03";
 import { Emitters } from "@/collections/emitters";
 import { Particles } from "@/collections/particles";
+import { renderer } from "../renderer";
 
-interface EngineRenderingArgs {
+export interface EngineRenderingArgs {
   p5: P5,
   state: GameState,
   es: EngineState,
@@ -114,7 +112,6 @@ interface EngineRenderingArgs {
   outfit: Outfit,
   heldItems: HeldItems,
   gfxPresentation: P5.Graphics,
-  renderer: Renderer,
   spriteRenderer: SpriteRenderer,
   replay: Replay,
   gradients: Gradients,
@@ -137,7 +134,6 @@ export function engineRendering({
   outfit,
   heldItems,
   gfxPresentation,
-  renderer,
   spriteRenderer,
   replay,
   gradients,
@@ -201,7 +197,9 @@ export function engineRendering({
       gfxFGAction,
       gfxLighting,
       gfxUIRight,
+      renderer.getMainGfx(),
     ].forEach((gfx: P5.Graphics) => {
+      if (!gfx) return;
       // set pixel density for a perf boost. see - https://p5js.org/reference/p5/pixelDensity/
       gfx.pixelDensity(1);
       gfx.noSmooth();
@@ -428,8 +426,8 @@ export function engineRendering({
         if (outfit.eyes && !outfit.exclusive) {
           spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, y, outfit.eyes - 1, rotation);
         }
-        if (outfit.back && !outfit.exclusive) {
-          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, y, outfit.back - 1, rotation);
+        if (outfit.threads && !outfit.exclusive) {
+          spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, y, outfit.threads - 1, rotation);
         }
         if (heldItems.armor > 0) {
           spriteRenderer.drawSprite3x3(gfx, Image.WearablesSheet, wx, y, WearableFrame.Crusher - 1, rotation);

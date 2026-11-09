@@ -24,7 +24,7 @@ export interface TransitionsParams {
   fonts: FontsInstance,
   actions: Coroutines,
   transition: () => Promise<void> | null,
-  onTriggerWinGame?: () => void,
+  onTriggerWinGame: () => void,
   startLogicLoop: () => void,
   stopLogicLoop: () => void,
   renderLoop: (gamepadInputHandled?: any) => void,

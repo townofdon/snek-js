@@ -48,17 +48,17 @@ import { SpriteRenderer } from "./spriteRenderer";
 import { Easing } from "../easing";
 import { getBorderColorVariant } from "@/palettes";
 
-interface RendererConstructorProps {
-  p5: P5
-  fonts: FontsInstance
-  replay: Replay
-  gameState: GameState
-  screenShake: ScreenShakeState
-  spriteRenderer: SpriteRenderer
-  tutorial: Tutorial
+interface RendererInitProps {
+  p5: P5,
+  fonts: FontsInstance,
+  replay: Replay,
+  gameState: GameState,
+  screenShake: ScreenShakeState,
+  spriteRenderer: SpriteRenderer,
+  tutorial: Tutorial,
 }
 
-export class Renderer implements IRenderer {
+class Renderer implements IRenderer {
   private gfxOverride: (P5 | P5.Graphics) = null;
   private p5: P5 = null;
   private fonts: FontsInstance = null;
@@ -78,7 +78,7 @@ export class Renderer implements IRenderer {
 
   private isStaticCached = false;
 
-  constructor(props: RendererConstructorProps) {
+  init = (props: RendererInitProps) => {
     this.p5 = props.p5;
     this.fonts = props.fonts;
     this.replay = props.replay;
@@ -96,8 +96,11 @@ export class Renderer implements IRenderer {
   }
 
   tick = () => {
+    if (!this.p5) return;
     this.elapsed += this.p5.deltaTime;
   }
+
+  initialized = () => !!this.p5;
 
   public setGfxOverride = (gfx: P5.Graphics | null) => {
     this.gfxOverride = gfx;
@@ -116,6 +119,7 @@ export class Renderer implements IRenderer {
   // Static gfx (e.g. barriers) are cached in an OffscreenCanvas and re-drawn if things change (e.g. due to screen shake)
   // See: P5.createGraphics - see: https://p5js.org/reference/#/p5/createGraphics
   drawStaticGraphics = (gfx: P5.Graphics) => {
+    if (!this.p5) return;
     this.p5.image(gfx, 0, 0, DIMENSIONS.x, DIMENSIONS.y);
     this.isStaticCached = true;
     this.spriteRenderer.setIsStaticCached(true);
@@ -134,6 +138,7 @@ export class Renderer implements IRenderer {
   getIsStaticCached = () => this.isStaticCached;
 
   drawBackground = (color: string, graphicsBG: P5.Graphics, graphicsFG: P5.Graphics) => {
+    if (!this.p5) return;
     this.p5.clear(0, 0, 0, 0);
     if (!this.isStaticCached) {
       graphicsBG.background(color);
@@ -159,6 +164,7 @@ export class Renderer implements IRenderer {
   }
 
   private drawGraphicalComponentImpl = (gfx: P5 | P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1, screenshakeMul = 1) => {
+    if (!this.p5) return;
     const offset = -STROKE_SIZE * 0.5;
     const sizeOffset = STROKE_SIZE;
     // destination
@@ -179,9 +185,9 @@ export class Renderer implements IRenderer {
       sy,
       BLOCK_SIZE_X + sizeOffset,
       BLOCK_SIZE_Y + sizeOffset,
-      this.p5.COVER,
-      this.p5.LEFT,
-      this.p5.TOP
+      gfx.COVER,
+      gfx.LEFT,
+      gfx.TOP
     );
     if (alpha !== 1) gfx.tint(255, 255, 255, 255);
   }
@@ -196,6 +202,7 @@ export class Renderer implements IRenderer {
   }
 
   private drawGraphicalComponent1x1Impl = (gfx: P5 | P5.Graphics, component: P5.Graphics, x: number, y: number, alpha = 1, screenshakeMul = 1) => {
+    if (!this.p5) return;
     const offset = -STROKE_SIZE * 0.5;
     const sizeOffset = STROKE_SIZE;
     // destination
@@ -216,9 +223,9 @@ export class Renderer implements IRenderer {
       sy,
       BLOCK_SIZE_X + sizeOffset,
       BLOCK_SIZE_Y + sizeOffset,
-      this.p5.COVER,
-      this.p5.LEFT,
-      this.p5.TOP
+      gfx.COVER,
+      gfx.LEFT,
+      gfx.TOP
     );
     if (alpha !== 1) gfx.tint(255, 255, 255, 255);
   }
@@ -247,6 +254,8 @@ export class Renderer implements IRenderer {
     optimize = false,
     screenshakeMul = 1,
   }: DrawSquareOptions) => {
+    if (!this.p5) return;
+    if (!gfx) return;
     this.p5CachedFill(gfx, background, optimize);
     this.p5CachedStroke(gfx, lineColor, optimize);
     gfx.strokeWeight(strokeSize);
@@ -355,6 +364,7 @@ export class Renderer implements IRenderer {
   }
 
   private drawSquareBorderImpl = (gfx: P5 | P5.Graphics, x: number, y: number, mode: 'light' | 'dark', strokeColor: string, overrideColor = false, screenshakeMul = 1) => {
+    if (!this.p5) return;
     const size = 1;
     const strokeSize = STROKE_SIZE;
     const borderSize = STROKE_SIZE * 0.5;
@@ -414,6 +424,7 @@ export class Renderer implements IRenderer {
   }
 
   private drawXImpl = (gfx: P5 | P5.Graphics, x: number, y: number, color = "#fff", blockDivisions = 5, screenshakeMul = 1) => {
+    if (!this.p5) return;
     const sizeX = (BLOCK_SIZE_X - STROKE_SIZE) / blockDivisions;
     const sizeY = (BLOCK_SIZE_Y - STROKE_SIZE) / blockDivisions;
     this.p5CachedFill(gfx, color);
@@ -443,6 +454,7 @@ export class Renderer implements IRenderer {
   }
 
   private drawBasicRectImpl(gfx: P5 | P5.Graphics, x: number, y: number, w: number, h: number, color: P5.Color) {
+    if (!this.p5) return;
     const borderSize = STROKE_SIZE * 0.5;
     const widthAddLastX = MAP_OFFSET * (x >= GRIDCOUNT_X - 1 ? 1 : 0);
     const heightAddLastY = MAP_OFFSET * (y >= GRIDCOUNT_Y - 1 ? 1 : 0);
@@ -473,7 +485,7 @@ export class Renderer implements IRenderer {
     const py1 = MAP_OFFSET + y1 * BLOCK_SIZE_Y + height * 0.5;
     gfx.stroke(color);
     gfx.strokeWeight(5);
-    gfx.strokeCap(this.p5.SQUARE);
+    gfx.strokeCap(gfx.SQUARE);
     gfx.line(px0, py0, px1, py1);
   }
 
@@ -483,7 +495,7 @@ export class Renderer implements IRenderer {
     gfx.noFill();
     (gfx.drawingContext as CanvasRenderingContext2D).lineDashOffset = dashOffset;
     (gfx.drawingContext as CanvasRenderingContext2D).setLineDash([dashLength]);
-    gfx.strokeCap(this.p5.SQUARE);
+    gfx.strokeCap(gfx.SQUARE);
     gfx.line(x0, y0, x1, y1);
     // reset
     (gfx.drawingContext as CanvasRenderingContext2D).setLineDash([]);
@@ -493,6 +505,7 @@ export class Renderer implements IRenderer {
    * Draw red squares on level to indicate that we are in Record mode
    */
   drawCaptureMode = () => {
+    if (!this.p5) return;
     if (this.replay.mode !== ReplayMode.Capture) return;
     if (this.gameState.gameMode === GameMode.Casual) return;
 
@@ -550,7 +563,7 @@ export class Renderer implements IRenderer {
       gfx.stroke("#000");
       gfx.strokeWeight(2 * 4);
       gfx.textSize(2 * 9.6);
-      gfx.textAlign(this.p5.CENTER, this.p5.CENTER);
+      gfx.textAlign(gfx.CENTER, gfx.CENTER);
       gfx.textFont(this.fonts.variants.zicons);
       gfx.text(arrow.text, tx, ty);
     }
@@ -586,7 +599,7 @@ export class Renderer implements IRenderer {
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
     gfx.textSize(2 * 9.6);
-    gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
+    gfx.textAlign(gfx.LEFT, gfx.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("MOVE", tx, ty);
     // image
@@ -647,7 +660,7 @@ export class Renderer implements IRenderer {
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
     gfx.textSize(2 * 9);
-    gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
+    gfx.textAlign(gfx.LEFT, gfx.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("REWIND", textX, textY);
     // image
@@ -689,7 +702,7 @@ export class Renderer implements IRenderer {
       const ty = MAP_OFFSET + BLOCK_SIZE_Y * (y + 5);
       const imgx = x + 1.4;
       const imgy = y + 0.4;
-      gfx.textAlign(this.p5.CENTER, this.p5.CENTER);
+      gfx.textAlign(gfx.CENTER, gfx.CENTER);
       gfx.text("U-TURN", tx, ty);
       this.spriteRenderer.drawSpritesheetAnim1x1(gfx, Image.ControlsKeyboardTurn, imgx, imgy, this.elapsed, 0, 1, 0);
     } else {
@@ -697,7 +710,7 @@ export class Renderer implements IRenderer {
       const imgy = BLOCK_SIZE_Y * (y + 0.8);
       const tx = MAP_OFFSET + BLOCK_SIZE_X * (x + bannerWidth * 0.5);
       const ty = MAP_OFFSET + BLOCK_SIZE_Y * (y + 3.5);
-      gfx.textAlign(this.p5.CENTER, this.p5.CENTER);
+      gfx.textAlign(gfx.CENTER, gfx.CENTER);
       gfx.text("U-TURN", tx, ty);
       this.spriteRenderer.drawImage(Image.ControlsGamepadTurn, imgx, imgy, gfx);
     }
@@ -726,7 +739,7 @@ export class Renderer implements IRenderer {
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
     gfx.textSize(2 * 9.6);
-    gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
+    gfx.textAlign(gfx.LEFT, gfx.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text("SPRINT", textX, textY);
     // image
@@ -786,7 +799,7 @@ export class Renderer implements IRenderer {
     // gfx.stroke("#111");
     gfx.strokeWeight(2 * 4);
     gfx.textSize(2 * 9.6);
-    gfx.textAlign(this.p5.LEFT, this.p5.CENTER);
+    gfx.textAlign(gfx.LEFT, gfx.CENTER);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text(text, textX, textY);
   }
@@ -841,7 +854,7 @@ export class Renderer implements IRenderer {
     gfx.fill(textcolor);
     gfx.strokeWeight(2 * 4);
     gfx.textSize(2 * 8);
-    gfx.textAlign(this.p5.RIGHT, this.p5.TOP);
+    gfx.textAlign(gfx.RIGHT, gfx.TOP);
     gfx.textFont(this.fonts.variants.miniMood);
     gfx.text(bosstext, textX, textY);
     // draw hp blocks
@@ -945,6 +958,7 @@ export class Renderer implements IRenderer {
   }
 
   drawPortal = (portal: Portal, showDeathColours: boolean, options: DrawSquareOptions, gfx?: P5.Graphics) => {
+    if (!this.p5) return;
     if (!portal) return;
     const delay = portal.index * PORTAL_INDEX_DELAY;
     const t1 = oscilateLinear((this.elapsed + delay) / (PORTAL_FADE_DURATION));
@@ -1000,6 +1014,7 @@ export class Renderer implements IRenderer {
 
   private fpsFrames: number[] = [];
   drawFps = (gfx: P5 | P5.Graphics, gameLoopProcessingTime: number) => {
+    if (!this.p5) return;
     if (!SHOW_FPS) return;
     if (!IS_DEV && !IS_LOCALHOST) return;
 
@@ -1010,7 +1025,7 @@ export class Renderer implements IRenderer {
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 2);
     gfx.textSize(2 * 8);
-    gfx.textAlign(this.p5.LEFT, this.p5.TOP);
+    gfx.textAlign(gfx.LEFT, gfx.TOP);
     gfx.textFont(this.fonts.variants.miniMood);
     if (!this.fpsFrames?.length) {
       this.fpsFrames = new Array<number>(20).map(() => this.p5.frameRate());
@@ -1040,7 +1055,7 @@ export class Renderer implements IRenderer {
     gfx.stroke("#111");
     gfx.strokeWeight(2 * 2);
     gfx.textSize(2 * 8);
-    gfx.textAlign(this.p5.LEFT, this.p5.TOP);
+    gfx.textAlign(gfx.LEFT, gfx.TOP);
     gfx.textFont(this.fonts.variants.miniMood);
     if (!this.perfFrames?.length) {
       this.perfFrames = new Array<number>(20).map(() => gameLoopProcessingTime);
@@ -1092,6 +1107,7 @@ export class Renderer implements IRenderer {
   }
 
   private hydratePortalCachedColors = () => {
+    if (!this.p5) return;
     const p5 = this.p5;
     for (let i: PortalChannel = 0; i <= 9; i++) {
       this.portalCachedColorsFG[i] = [];
@@ -1108,6 +1124,7 @@ export class Renderer implements IRenderer {
   }
 
   private lookupP5CachedColor = (colorLookup: string) => {
+    if (!this.p5) return;
     let color = this.cachedP5Colors[colorLookup];
     if (!color) {
       color = this.p5.color(colorLookup);
@@ -1131,4 +1148,60 @@ export class Renderer implements IRenderer {
       gfx.stroke(lineColor);
     }
   }
+
+  public titleGradient = (gfx: P5 | P5.Graphics, text: string, x: number, y: number) => {
+    const ctx: CanvasRenderingContext2D = gfx.drawingContext;
+    y = y - 8;
+
+    gfx.push();
+    ctx.save();
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    const metrics = ctx.measureText(text);
+    const gradient = ctx.createLinearGradient(
+      0, y - metrics.actualBoundingBoxAscent,
+      0, y + metrics.actualBoundingBoxDescent
+    );
+
+    const stop1 = 0.36;
+    const stop2 = 0.50;
+    const color1 = "rgb(255, 211, 163)";
+    const color2 = "rgb(255, 172, 127)";
+    const color3 = "rgb(255, 135, 102)";
+    gradient.addColorStop(0, color1);
+    gradient.addColorStop(stop1, color1);
+    gradient.addColorStop(stop1, color2);
+    gradient.addColorStop(stop2, color2);
+    gradient.addColorStop(stop2, color3);
+    gradient.addColorStop(1, color3);
+
+    ctx.fillStyle = gradient;
+    ctx.font = getCanvasFont(gfx);
+
+    // Drop shadow
+    ctx.shadowColor = "#405578";
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 2;
+
+    ctx.fillText(text, x, y);
+
+    // restore
+    ctx.shadowColor = "transparent";
+    ctx.shadowOffsetY = 0;
+    ctx.restore();
+    gfx.pop();
+  }
 }
+
+function getCanvasFont(gfx: P5 | P5.Graphics) {
+  const font = gfx.textFont();
+  const size = gfx.textSize();
+  if (font instanceof P5.Font) {
+    return `${size}px "${font.font.names.fontFamily.en}"`;
+  }
+  return `${size}px ${font}`;
+}
+
+export const renderer = new Renderer();

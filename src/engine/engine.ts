@@ -101,7 +101,6 @@ import { LEVEL_99 } from '../levels/ep01/level99';
 import { VARIANT_LEVEL_99 } from '../levels/bonusLevels/variantLevel99';
 import { WinLevelScene } from '../scenes/WinLevelScene';
 import { SpriteRenderer } from './spriteRenderer';
-import { Renderer } from './renderer';
 import { drawLighting, updateLighting } from './lighting';
 import { MusicPlayer } from './musicPlayer';
 import { InputCallbacks, handleKeyPressed, validateMove } from './controls';
@@ -136,6 +135,7 @@ import { damageSurroundingTiles } from './engineComponents/damage';
 import { resetLevelImpl, ResetLevelImplParams } from './engineComponents/resetLevel';
 import { transitions, TransitionsParams } from './engineComponents/transitions';
 import { emitLevelChangedEvent } from '@/ui/uiEvents';
+import { renderer } from './renderer';
 
 interface EngineParams {
   p5: P5,
@@ -391,7 +391,7 @@ export function engine({
 
   const reversibleColorGradient = gradients.addMultiple(SNAKE_REWIND_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
   const invincibleColorGradient = gradients.addMultiple(SNAKE_INVINCIBLE_COLORS.map(c => p5.color(c)), NUM_SNAKE_INVINCIBLE_COLORS);
-  const renderer = new Renderer({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
+  renderer.init({ p5, fonts, replay, gameState: state, screenShake, spriteRenderer, tutorial });
   spriteRenderer.setScreenShake(screenShake);
   //#endregion instantiations
 
@@ -505,7 +505,6 @@ export function engine({
     outfit,
     heldItems,
     gfxPresentation,
-    renderer,
     spriteRenderer,
     replay,
     gradients,
@@ -658,7 +657,7 @@ export function engine({
   //#region RESET LEVEL
   interface ResetLevelParams {
     shouldShowTransitions: boolean,
-    onTriggerWinGame?: () => void,
+    onTriggerWinGame: () => void,
   }
   function resetLevel({ shouldShowTransitions = true, onTriggerWinGame }: ResetLevelParams) {
     apples.reset();
@@ -719,7 +718,8 @@ export function engine({
       startLogicLoop,
       stopLogicLoop,
       renderLoop,
-    } satisfies TransitionsParams)
+      onTriggerWinGame,
+    } satisfies TransitionsParams);
   }
 
   function setColorsFromLevel() {
@@ -883,6 +883,7 @@ export function engine({
   //#region RENDER LOOP
 
   const renderLoop = withErrorReporting((gamepadInputHandled = false) => {
+    if (!renderer.initialized()) return;
     const timeFrameStart = performance.now();
 
     if (!gamepadInputHandled) {
@@ -1026,7 +1027,7 @@ export function engine({
       state.timeSinceInvincibleStart >= es.difficulty.invincibilityTime
     ) {
       updateLighting(p5.deltaTime, globalLight, player.position, es.portals, es.pickupsMap, explosions, fireTiles, state, es, renderer.getElapsed());
-      drawLighting(renderer, gfxLighting);
+      drawLighting(gfxLighting);
     }
 
     if (es.level.renderInstructions) {
@@ -1534,5 +1535,6 @@ export function engine({
     maybeSaveReplayStateToFile,
     onKeyPressed,
     onChangePlayerDirection,
+    renderer,
   };
 }

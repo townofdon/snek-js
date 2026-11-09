@@ -422,7 +422,7 @@ export const sketch = (p5: P5) => {
     modal.hide();
     winLevelScene.reset();
     playSound(Sound.unlock);
-    resetLevel({ shouldShowTransitions });
+    resetLevel({ shouldShowTransitions, onTriggerWinGame: () => {} });
   }
 
   function onGameOver() {

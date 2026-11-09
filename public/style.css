@@ -57,6 +57,11 @@
   --level-progress-meter-size: 16px;
   --level-progress-meter-frames: 5;
 
+  --wearable-icons-src: url('assets/graphics/snek-wearable-icons.png');
+  --wearable-icons-src-inverted: url('assets/graphics/snek-wearable-icons-inverted.png');
+  --wearable-icons-size: 16px;
+  --wearable-icons-frames: 24;
+
   --overworld-icons-src: url('assets/graphics/overworld-icons.png');
   --overworld-icons-size: 16px;
   --overworld-icons-frames: 22;
@@ -390,6 +395,10 @@ canvas {
   text-align: right;
 }
 
+.nomargin, .no-margin {
+  margin: 0;
+}
+
 .overflow-hidden {
   overflow: hidden;
 }
@@ -512,15 +521,28 @@ p {
 .title-gradient {
   --stop-1: 36%;
   --stop-2: 50%;
+  --color1: rgb(255, 211, 163);
+  --color2: rgb(255, 172, 127);
+  --color3: rgb(255, 135, 102);
   color: #ffd3a3;
   -webkit-background-clip: text;
   background-clip: text;
-  background-image: linear-gradient(rgb(255, 211, 163), rgb(255, 211, 163) var(--stop-1), rgb(255, 172, 127) var(--stop-1), rgb(255, 172, 127) var(--stop-2), rgb(255, 135, 102) var(--stop-2), rgb(255, 135, 102) 100%);
+  background-image: linear-gradient(var(--color1), var(--color1) var(--stop-1), var(--color2) var(--stop-1), var(--color2) var(--stop-2), var(--color3) var(--stop-2), var(--color3) 100%);
   /* text-shadow: 0px 2px 0px #405578, 0px 4px 0px #2a2e34!important; */
   text-shadow: none!important;
   filter: drop-shadow(0px 2px 0px #405578);
   /* color: transparent; */
   -webkit-text-fill-color: transparent;
+}
+.title-gradient.green {
+  --stop-1: 34%;
+  --stop-2: 43%;
+  --color1: #dfeded;
+  --color2: #405578;
+  --color3: #99c2db;
+  /* --color1: #78b392;
+  --color2: #ff8766;
+  --color3: #bf2651; */
 }
 
 @keyframes anim-hover {
@@ -567,7 +589,7 @@ p {
   animation-delay: 1.2s;
 }
 
-button.newbutton:disabled, a.newbutton:disabled {
+button.newbutton:disabled, a.newbutton:disabled, button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -1201,6 +1223,121 @@ button.main-menu.back {
   87.5% { background-position-y: calc(-1 * 7 * var(--meter-line-spacing)); }
   100% {  background-position-y: calc(-1 * 0 * var(--meter-line-spacing)); }
 }
+
+
+
+.wearables-menu > .content {
+  transform: none!important;
+  font-size: 1.6em;
+}
+.wearables-menu .wearables-menu-title {
+  font-size: 2em;
+}
+.wearables-menu .outfit-preview-container .canvas-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #dfeded;
+  background: black;
+}
+.wearable-icon {
+  --frame: 1;
+  --ui-arrow-frame: 0;
+  --ui-arrows-margin: 4px;
+
+  /* reset button styles */
+  background-color: inherit!important;
+  color: inherit!important;
+  min-width: 0!important;
+  box-sizing: border-box;
+  position: relative!important;
+  padding: 0px;
+  border-radius: 0;
+  font-size: 9.6px;
+  font-family: 'MiniMOOD', 'VT323', BIOSfontII, monospace;
+  box-shadow: none;
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: pixelated;
+  border: none!important;
+  outline: none!important;
+  box-shadow: none!important;
+
+  display: block;
+  position: relative;
+  width: var(--wearable-icons-size);
+  height: var(--wearable-icons-size);
+  margin: 16px 0;
+  background-image: var(--wearable-icons-src);
+  background-size: calc(var(--wearable-icons-frames) * var(--wearable-icons-size)) var(--wearable-icons-size);
+  background-position: calc(-1 * (var(--frame) - 1) * var(--wearable-icons-size)) 0;
+  transform: scale(2);
+}
+.wearable-icon.active {
+  background-image: var(--wearable-icons-src-inverted);
+}
+.wearable-icon.selected::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-bottom: var(--ui-arrows-margin);
+  margin-left: -3px;
+  transform: scale(3) rotate(90deg);
+  width: var(--ui-arrows-size);
+  height: var(--ui-arrows-size);
+  background-image: var(--ui-arrows-src);
+  background-size: calc(var(--ui-arrows-size) * var(--ui-arrows-frames));
+  background-position: calc(-1 * var(--ui-arrow-frame) * var(--ui-arrows-size)) 0;
+}
+.wearable-icon.selected::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-top: var(--ui-arrows-margin);
+  margin-left: -3px;
+  transform: scale(3) rotate(-90deg);
+  width: var(--ui-arrows-size);
+  height: var(--ui-arrows-size);
+  background-image: var(--ui-arrows-src);
+  background-size: calc(var(--ui-arrows-size) * var(--ui-arrows-frames));
+  background-position: calc(-1 * var(--ui-arrow-frame) * var(--ui-arrows-size)) 0;
+}
+.wearable-icon.none.selected::before {
+  margin-left: -2px;
+}
+.wearable-icon.none.selected::after {
+  margin-left: -2px;
+}
+.wearable-icon.hat { --frame: 1; }
+.wearable-icon.chef { --frame: 2; }
+.wearable-icon.indianajones { --frame: 3; }
+.wearable-icon.sunglasses { --frame: 4; }
+.wearable-icon.monocle { --frame: 5; }
+.wearable-icon.techvisor { --frame: 6; }
+.wearable-icon.glasses { --frame: 7; }
+.wearable-icon.aviators { --frame: 8; }
+.wearable-icon.mustache { --frame: 9; }
+.wearable-icon.bandit { --frame: 10; }
+.wearable-icon.pirate { --frame: 11; }
+.wearable-icon.catears { --frame: 12; }
+.wearable-icon.horns { --frame: 13; }
+.wearable-icon.ninja1 { --frame: 14; }
+.wearable-icon.ninja2 { --frame: 15; }
+.wearable-icon.baseballcap { --frame: 16; }
+.wearable-icon.viking { --frame: 17; }
+.wearable-icon.luchador1 { --frame: 18; }
+.wearable-icon.luchador2 { --frame: 19; }
+.wearable-icon.blanket { --frame: 20; }
+.wearable-icon.robe { --frame: 21; }
+.wearable-icon.crown { --frame: 22; }
+.wearable-icon.trafficcone { --frame: 23; }
+.wearable-icon.none { --frame: 24; }
+
+
 
 
 .settings-menu {

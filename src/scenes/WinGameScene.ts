@@ -6,7 +6,7 @@ import { DIR, FontsInstance, GameMode, GameState, IEnumerator, Image, ISFX, Scen
 import { BaseScene } from "./BaseScene";
 import { Easing } from "../easing";
 import { ACCENT_COLOR, DIMENSIONS, HIGHSCORE_GRADIENT_CYCLE_TIME_MS, NEW_HIGHSCORE_COLORS, SECONDARY_ACCENT_COLOR, SECONDARY_ACCENT_COLOR_BG } from "../constants";
-import { indexToDir } from "../utils";
+import { indexToDir, lerp } from "../utils";
 import { HighScoreEntry, postLeaderboardResult, getLeaderboard, getToken } from "../api/leaderboard";
 // import { HighscoreEntryModal, Modal } from "../ui/ui";
 import { ApiOptions } from "../api/utils/apiUtils";
@@ -15,6 +15,7 @@ import { HighscoreEntryModal } from "../ui/highscoreEntryModal";
 import { Modal } from "../ui/modal";
 import { SpriteRenderer } from "../engine/spriteRenderer";
 import { applyGamepadUIActions } from "../engine/gamepad";
+import { renderer } from "@/engine/renderer";
 
 const formatNumber = formatNumberFn({
   truncate: 0,
@@ -527,7 +528,8 @@ export class WinGameScene extends BaseScene {
     gfx.text(title, ...this.getPosition(0.5, 0.21 + this.state.stageClearY));
     gfx.textSize(TSMOD * 32);
     gfx.fill(color);
-    gfx.text(title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
+    // gfx.text(title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
+    renderer.titleGradient(gfx, title, ...this.getPosition(0.5, 0.2 + this.state.stageClearY));
   }
 
   private drawParagraph = (message: string, yPos: number, color: string = "#fff") => {

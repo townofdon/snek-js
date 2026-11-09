@@ -10,6 +10,7 @@ import { MainMenu } from './MainMenu';
 import { SaveSlotMenu } from './SaveSlotMenu';
 import { GameModeMenu } from './GameModeMenu';
 import { InGameUI } from './InGameUI';
+import { WearablesMenu } from './WearablesMenu';
 
 const requireElementById = (id: string) => {
   const node = document.getElementById(id);
@@ -61,6 +62,13 @@ if (!IS_PREVIEW) {
   createRoot(requireElementById('in-game-ui-v2')).render(
     <React.StrictMode>
       <InGameUI />
+    </React.StrictMode>
+  );
+}
+if (!IS_PREVIEW) {
+  createRoot(requireElementById('wearables-menu-v2')).render(
+    <React.StrictMode>
+      <WearablesMenu />
     </React.StrictMode>
   );
 }

@@ -1,6 +1,18 @@
-import { DIFFICULTY_EASY, MAX_LIVES } from "@/constants";
-import { DEFAULT_HELD_ITEMS, DEFAULT_BASE_STATS, DEFAULT_WEARABLES_UNLOCKED, DEFAULT_OUTFIT } from "@/defaults";
-import { Achievement, DifficultyIndex, Episode, GameMode, LevelCompletion, LevelId, Outfit, SaveData, SaveSlot, SaveSlotData, WearableFrame } from "../types";
+import { IS_DEV, MAX_LIVES } from "@/constants";
+import {
+  Achievement,
+  DifficultyIndex,
+  Episode,
+  GameMode,
+  LevelCompletion,
+  LevelId,
+  Outfit,
+  SaveData,
+  SaveSlot,
+  SaveSlotData,
+  WearableFrame,
+} from "../types";
+import { DEFAULT_OUTFIT, DEFAULT_SAVE_SLOT_DATA } from "@/defaults";
 import { BaseStore } from "./BaseStore";
 
 class SaveDataStoreImpl extends BaseStore<SaveData> {
@@ -70,17 +82,18 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
     this.currentSlot = SaveSlot.Unset;
   }
 
-  public newSaveSlot = (slot: SaveSlot, gameMode: GameMode, levelId: string, episode: Episode) => {
+  public newGame = (gameMode: GameMode, levelId: string, episode: Episode) => {
+    const slot = this.currentSlot;
+    if (!slot) {
+      console.warn(`[SaveDataStore] Save slot is unset: ${slot}`)
+      return;
+    }
     const newSlotData = {
+      ...DEFAULT_SAVE_SLOT_DATA,
       lastLevelId: levelId,
       lives: MAX_LIVES,
       episode,
       gameMode,
-      difficulty: DIFFICULTY_EASY.index,
-      wearablesUnlocked: { ...DEFAULT_WEARABLES_UNLOCKED },
-      stats: { ...DEFAULT_BASE_STATS },
-      heldItems: { ...DEFAULT_HELD_ITEMS },
-      outfit: { ...DEFAULT_OUTFIT },
     } satisfies SaveSlotData;
     this.currentSlot = slot;
     this.setSlot(slot, newSlotData);
@@ -104,6 +117,7 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
     }
     const saveSlotData = this.getSlot(slot);
     const data = {
+      ...DEFAULT_SAVE_SLOT_DATA,
       ...saveSlotData,
       lives: incoming.lives,
       lastLevelId: incoming.lastLevelId,
@@ -157,15 +171,13 @@ class SaveDataStoreImpl extends BaseStore<SaveData> {
   public getUnlockedWearablesList = (): WearableFrame[] => {
     const slot = this.currentSlot;
     if (!slot) {
-      throw new Error(`[SaveDataStore] Save slot is unset: ${slot}`);
+      return [];
     }
     const data = this.getSlot(slot);
     if (!data) {
       return [];
     }
-    return Object.keys(data.wearablesUnlocked)
-      .filter((key: string) => data.wearablesUnlocked[WearableFrame[key]])
-      .map(key => WearableFrame[key] || WearableFrame.None);
+    return unlockedWearablesToList(data.wearablesUnlocked);
   }
 
   public setOutfit = (incoming: Partial<Outfit>) => {
@@ -254,5 +266,85 @@ function newLevelCompletion() {
   } satisfies LevelCompletion;
 }
 
+
+//#region DEV STORE
+class DevSaveDataStore extends SaveDataStoreImpl {
+  private store: SaveData = {
+    isCobraModeUnlocked: true,
+    completion: {},
+    achievements: {},
+    slot1: {
+      ...DEFAULT_SAVE_SLOT_DATA,
+      wearablesUnlocked: {
+        ...DEFAULT_SAVE_SLOT_DATA.wearablesUnlocked,
+        [WearableFrame.Glasses]: true,
+        [WearableFrame.LuchadoreMaskRed]: true,
+        [WearableFrame.Mustache]: true,
+        [WearableFrame.TechVisor]: true,
+        [WearableFrame.Sunglasses]: true,
+        [WearableFrame.IndianaJonesHat]: true,
+        [WearableFrame.Monocle]: true,
+        [WearableFrame.RoyalCape]: true,
+      },
+    },
+    slot2: undefined,
+    slot3: undefined,
+  };
+
+  public get key(): string {
+    return 'dev'
+  }
+  public getSlot: (slot: SaveSlot) => SaveSlotData = (slot) => this.store.slot1;
+  public getIsSlotUsed: (slot: SaveSlot) => boolean = (slot) => true;
+  public setCurrentSaveSlot: (slot: SaveSlot) => void = () => {};
+  public clearCurrentSaveSlot: () => void = () => {};
+  public newGame: (gameMode: GameMode, levelId: string, episode: Episode) => void = (gameMode, levelId, episode) => {
+    this.store.slot1 = { ...DEFAULT_SAVE_SLOT_DATA, gameMode, episode, lastLevelId: levelId };
+  };
+  public resetSaveSlot: (slot: SaveSlot) => void = () => {
+    this.store.slot1 = { ...DEFAULT_SAVE_SLOT_DATA };
+  };
+  public resetCurrentSaveSlot: () => void = () => {
+    this.store.slot1 = { ...DEFAULT_SAVE_SLOT_DATA };
+  };
+  public save: (incoming: Omit<SaveSlotData, "wearablesUnlocked" | "outfit">) => void = (incoming) => {
+    this.store.slot1 = { ...DEFAULT_SAVE_SLOT_DATA, ...this.store.slot1, ...incoming };
+  };
+  public updateLives: (incoming: number) => void = (incoming) => {
+    this.store.slot1 = { ...DEFAULT_SAVE_SLOT_DATA, ...this.store.slot1, lives: incoming };
+  };
+  public unlockWearable: (item: WearableFrame) => void = (item) => {
+    const unlocked = this.store.slot1.wearablesUnlocked;
+    unlocked[item] = true;
+    this.store.slot1 = { ...DEFAULT_SAVE_SLOT_DATA, ...this.store.slot1, wearablesUnlocked: unlocked };
+  };
+  public getUnlockedWearables: () => Partial<Record<WearableFrame, boolean>> = () => this.store.slot1.wearablesUnlocked;
+  public getUnlockedWearablesList: () => WearableFrame[] = () => unlockedWearablesToList(this.store.slot1.wearablesUnlocked);
+  public setOutfit: (incoming: Partial<Outfit>) => void = (incoming) => {
+    const outfit = { ...this.store.slot1.outfit, ...incoming };
+    this.store.slot1 = { ...DEFAULT_SAVE_SLOT_DATA, ...this.store.slot1, outfit };
+  };
+  public getIsCobraModeUnlocked: () => boolean = () => true;
+  public getLevelCompleted: (levelId: LevelId | undefined) => boolean = () => true;
+  public getLevelCompletedByDifficulty: (levelId: LevelId | undefined, difficultyIndex: DifficultyIndex) => boolean = () => true;
+  public getLevelPerfect: (levelId: LevelId | undefined, difficultyIndex: DifficultyIndex) => boolean = () => false;
+  public unlockCobraMode: () => void = () => {};
+  public getAchievements: () => Partial<Record<Achievement, boolean>> = () => ({});
+  public setAchievement: (achievement: Achievement) => void = () => {};
+  public recordLevelCompletion: (levelId: LevelId | undefined, difficultyIndex: DifficultyIndex, perfect: boolean, time: number) => void = () => {};
+  public reset: () => void = () => { this.resetCurrentSaveSlot(); };
+}
+
+
+
+//#region UTILS
+function unlockedWearablesToList(wearablesUnlocked: Record<WearableFrame, boolean>) {
+  return Object.keys(wearablesUnlocked)
+      .map(key => parseInt(key, 10))
+      .filter((key: WearableFrame) => key && !Number.isNaN(key) && wearablesUnlocked[key])
+      .map((key: WearableFrame) => key || WearableFrame.None);
+}
+
+
 export type SaveDataStore = SaveDataStoreImpl;
-export const saveDataStore = new SaveDataStoreImpl();
+export const saveDataStore: SaveDataStore = (IS_DEV && window.location.href.includes('/dev')) ? new DevSaveDataStore() : new SaveDataStoreImpl();

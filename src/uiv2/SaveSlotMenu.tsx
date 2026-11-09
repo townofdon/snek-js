@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react"
 import { GameMode, InputAction, InputType, SaveSlot, SaveSlotData, UINavDir } from "@/types";
-import { getLevelById } from "@/levels/levelUtils";
+import { getIsStartLevel, getLevelById } from "@/levels/levelUtils";
 import { episodeDisplay } from "@/utils";
 import { Slot, SlotContainer } from "./components/Slot";
 import { saveDataStore } from "@/stores/SaveDataStore";
@@ -319,6 +319,7 @@ function SaveDataSlot({
   const episode = slotData?.episode;
   const timePlayedMs = slotData?.stats.totalGameTimeElapsed;
   const level = getLevelById(levelId);
+  const isStartLevel = getIsStartLevel(level);
   const difficulty = slotData?.difficulty || 1;
   const mode = slotData?.gameMode || GameMode.Normal;
   const prefix = mode === GameMode.Casual ? <span className="color-w">Casual&nbsp;</span> : null;
@@ -342,23 +343,33 @@ function SaveDataSlot({
         <span className="save-slot-info">
           <Stack col align="end" noChildMargin gap={10}>
             <Stack className="fullwidth" elem="span" row justify="end" gap={10}>
-              <span className="save-slot-level-name">{level.name}</span>
-              <span className="color-e always">-</span>
-              {difficulty === 1 && (
-                <span className="save-slot-difficulty color-x easy">{prefix}Easy{suffix}</span>
-              )}
-              {difficulty === 2 && (
-                <span className="save-slot-difficulty color-m medium">{prefix}Medium{suffix}</span>
-              )}
-              {difficulty === 3 && (
-                <span className="save-slot-difficulty color-l hard">{prefix}Hard{suffix}</span>
-              )}
-              {difficulty === 4 && (
-                <span className="save-slot-difficulty color-j Ultra">{prefix}Ultra{suffix}</span>
+              {isStartLevel ? (
+                <>
+                  <span className="save-slot-difficulty color-p">Start</span>
+                </>
+              ) : (
+                <>
+                  <span className="save-slot-level-name">{level.name}</span>
+                  <span className="color-e always">-</span>
+                  {difficulty === 1 && (
+                    <span className="save-slot-difficulty color-x easy">{prefix}Easy{suffix}</span>
+                  )}
+                  {difficulty === 2 && (
+                    <span className="save-slot-difficulty color-m medium">{prefix}Medium{suffix}</span>
+                  )}
+                  {difficulty === 3 && (
+                    <span className="save-slot-difficulty color-l hard">{prefix}Hard{suffix}</span>
+                  )}
+                  {difficulty === 4 && (
+                    <span className="save-slot-difficulty color-j Ultra">{prefix}Ultra{suffix}</span>
+                  )}
+                </>
               )}
             </Stack>
             <span className="save-slot-episode">{episodeDisplay(episode)}</span>
-            <span className="save-slot-time-played">{timeDisplay(timePlayedMs)}</span>
+            {!isStartLevel && (
+              <span className="save-slot-time-played">{timeDisplay(timePlayedMs)}</span>
+            )}
           </Stack>
         </span>
         <span className="save-slot-level-preview">

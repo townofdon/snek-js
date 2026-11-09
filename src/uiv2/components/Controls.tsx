@@ -65,7 +65,7 @@ const ButtonRight = ({ inputType, label, style }: ControlsProps) => {
   if (inputType === InputType.Keyboard) {
     return (
       <Stack style={style}>
-        <span className="controls-key right return position-absolute" style={{ right: '100%' }} />
+        <span className="controls-key right position-absolute" style={{ right: '100%' }} />
         <p className="minimood">{label || 'Navigate'}</p>
       </Stack>
     );
@@ -78,8 +78,31 @@ const ButtonRight = ({ inputType, label, style }: ControlsProps) => {
   )
 }
 
+const ButtonMove = ({ inputType, label, style }: ControlsProps) => {
+  const margin = 32;
+  const offsetx = 16;
+  if (inputType === InputType.Keyboard) {
+    return (
+      <Stack style={style}>
+        <span className="controls-key up position-absolute" style={{ right: '100%', marginRight: offsetx + margin, marginBottom: margin * 2 }} />
+        <span className="controls-key left position-absolute" style={{ right: '100%', marginRight: offsetx + margin * 2 }} />
+        <span className="controls-key down position-absolute" style={{ right: '100%', marginRight: offsetx + margin }} />
+        <span className="controls-key right position-absolute" style={{ right: '100%', marginRight: offsetx }} />
+        <p className="minimood">{label || 'Navigate'}</p>
+      </Stack>
+    );
+  }
+  return (
+    <Stack row style={style}>
+      <span className="controls-dpad position-absolute" style={{ right: '100%', marginTop: -2, marginRight: 0 }} />
+      <p className="minimood">{label || 'Navigate'}</p>
+    </Stack>
+  )
+}
+
 export const Controls = {
   ButtonBack,
   ButtonSelect,
   ButtonRight,
+  ButtonMove,
 };

@@ -44,7 +44,6 @@ import {
   MapAnnotation,
   Tile16Frame,
   LightSource,
-  LightPalette,
   LightType,
 } from '../types';
 import { Gradients } from '../collections/gradients';
@@ -53,7 +52,7 @@ import { Emitters } from '../collections/emitters';
 import { PortalParticleSystem2 } from '../engine/particleSystems/PortalParticleSystem2';
 import { PortalVortexParticleSystem2 } from '../engine/particleSystems/PortalVortexParticleSystem2';
 import { SpriteRenderer } from '../engine/spriteRenderer';
-import { Renderer } from '../engine/renderer';
+import { renderer } from '@/engine/renderer';
 import { Fonts } from '../fonts';
 import { PALETTE, getExtendedPalette } from '../palettes';
 import {
@@ -73,7 +72,7 @@ import {
   withFlipx,
 } from "../utils";
 import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
-import { createLightmap, drawLighting, initLighting, updateLighting } from '../engine/lighting';
+import { drawLighting, initLighting, updateLighting } from '../engine/lighting';
 import { AnimationList } from '../collections/animationList';
 import { deepCloneData } from './utils/editorUtils';
 
@@ -349,7 +348,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     const portalVortexParticleSystem = new PortalVortexParticleSystem2(p5, emitters, gradients);
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
-    const renderer = new Renderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
+    renderer.init({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
     const fireTiles = new AnimationList();
     const threats = new AnimationList();
 
@@ -574,7 +573,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       drawAnnotations();
 
       if (options.globalLight < 1) {
-        drawLighting(renderer, p5);
+        drawLighting(p5);
       }
 
       drawEditorSelection();

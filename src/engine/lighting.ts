@@ -6,13 +6,13 @@ import {
   GRIDCOUNT_Y,
   LIGHTMAP_RESOLUTION,
 } from "../constants";
-import { Renderer } from "./renderer";
 import { clamp, getCoordIndex3, lerp, shouldBlinkExpiringPickup } from "../utils";
 import { Easing } from "../easing";
 import { Pickup, PortalChannel, PickupType, EngineState, GameState, ThreatType, LightPalette, LightSource, LightType } from "../types";
 import { AnimationList } from "../collections/animationList";
 import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE } from "@/defaults";
 import { ExtendedSketchData } from "@/editor/editorSketch";
+import { renderer } from "./renderer";
 
 const LIGHTMAP_SIZE = (
   GRIDCOUNT_X * Math.floor(LIGHTMAP_RESOLUTION) *
@@ -176,7 +176,7 @@ interface LightRect {
 }
 const dgrid = new Uint16Array(LIGHTMAP_SIZE).fill(0);
 
-export function drawLighting(renderer: Renderer, gfx: P5 | P5.Graphics) {
+export function drawLighting(gfx: P5 | P5.Graphics) {
   if (!darknessColorLookup) return;
   dgrid.fill(0);
   const coefficient = 1 / LIGHTMAP_RESOLUTION;

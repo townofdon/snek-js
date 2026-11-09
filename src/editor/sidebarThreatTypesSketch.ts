@@ -6,8 +6,6 @@ import {
   Palette,
   ThreatType,
   Image,
-  EditorGraphicalComponents,
-  DrawSquareOptions,
   SpritesheetRange,
   ButtonSheetFrame,
   ThreatWallSpikesFrame,
@@ -15,11 +13,11 @@ import {
   Threat16Frame,
 } from '../types';
 import { SpriteRenderer } from '../engine/spriteRenderer';
-import { Renderer } from '../engine/renderer';
+import { renderer } from '@/engine/renderer';
 import { Fonts } from '../fonts';
 import { getExtendedPalette } from '../palettes';
 import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
-import { ANIMATIONS, BLOCK_SIZE_X, BLOCK_SIZE_Y } from '@/constants';
+import { BLOCK_SIZE_X, BLOCK_SIZE_Y } from '@/constants';
 
 export interface EditorState {
   dirty: boolean,
@@ -61,7 +59,7 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
   const canvasSizeY = BLOCK_SIZE_Y;
 
   const sketch = (p5: P5) => {
-    const { gameState, replay, screenShake, tutorial } = SKETCH_DEFAULTS;
+    const { screenShake } = SKETCH_DEFAULTS;
     const gfx = {
       [ThreatType.None]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.None].current),
       [ThreatType.Mine]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Mine].current),
@@ -77,7 +75,6 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
     } satisfies Record<ThreatType, P5.Graphics>;
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
-    const renderer = new Renderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
 
     /**
      * https://p5js.org/reference/#/p5/preload
@@ -109,6 +106,7 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
      */
     p5.draw = draw;
     function draw() {
+      if (!renderer.initialized()) return;
       if (state.dirty) {
         state.dirty = false;
         state.extendedPalette = getExtendedPalette(options.palette);
