@@ -320,10 +320,6 @@ export const sketch = (p5: P5) => {
       startGame();
       UI.hideStartScreen();
       sfx.play(Sound.doorOpen);
-
-      // TODO: REMOVE
-      state.isPaused = true;
-      UI.showWearablesMenu();
     });
   }
 

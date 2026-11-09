@@ -48,7 +48,7 @@ import { Emitters } from '../../collections/emitters';
 import { PortalParticleSystem2 } from '../particleSystems/PortalParticleSystem2';
 import { PortalVortexParticleSystem2 } from '../particleSystems/PortalVortexParticleSystem2';
 import { SpriteRenderer } from '../spriteRenderer';
-import { renderer } from '../renderer';
+import { newRenderer } from '../renderer';
 import { Fonts } from '../../fonts';
 import { PALETTE, getExtendedPalette } from '../../palettes';
 import {
@@ -123,7 +123,7 @@ export const levelPreviewSketch = (
     const portalVortexParticleSystem = new PortalVortexParticleSystem2(p5, emitters, gradients);
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
-    renderer.init({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial })
+    const renderer = newRenderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
     const fireTiles = new AnimationList();
     const threats = new AnimationList();
 

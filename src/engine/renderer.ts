@@ -58,7 +58,7 @@ interface RendererInitProps {
   tutorial: Tutorial,
 }
 
-class Renderer implements IRenderer {
+class RendererImpl implements IRenderer {
   private gfxOverride: (P5 | P5.Graphics) = null;
   private p5: P5 = null;
   private fonts: FontsInstance = null;
@@ -449,7 +449,7 @@ class Renderer implements IRenderer {
     this.drawBasicRectImpl(gfx, x, y, size, size, color);
   }
 
-  drawBasicRect(...args: Parameters<Renderer['drawBasicRectImpl']>) {
+  drawBasicRect(...args: Parameters<RendererImpl['drawBasicRectImpl']>) {
     this.drawBasicRectImpl(...args)
   }
 
@@ -1204,4 +1204,11 @@ function getCanvasFont(gfx: P5 | P5.Graphics) {
   return `${size}px ${font}`;
 }
 
-export const renderer = new Renderer();
+export const newRenderer = (props: RendererInitProps): Renderer => {
+  const instance = new RendererImpl();
+  instance.init(props);
+  return instance;
+}
+
+export type Renderer = RendererImpl;
+export const renderer = new RendererImpl();

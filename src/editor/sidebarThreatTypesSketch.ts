@@ -13,7 +13,7 @@ import {
   Threat16Frame,
 } from '../types';
 import { SpriteRenderer } from '../engine/spriteRenderer';
-import { renderer } from '@/engine/renderer';
+import { newRenderer } from '@/engine/renderer';
 import { Fonts } from '../fonts';
 import { getExtendedPalette } from '../palettes';
 import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
@@ -59,7 +59,7 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
   const canvasSizeY = BLOCK_SIZE_Y;
 
   const sketch = (p5: P5) => {
-    const { screenShake } = SKETCH_DEFAULTS;
+    const { screenShake, replay, gameState, tutorial } = SKETCH_DEFAULTS;
     const gfx = {
       [ThreatType.None]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.None].current),
       [ThreatType.Mine]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[ThreatType.Mine].current),
@@ -75,6 +75,7 @@ export const sidebarThreatTypesSketch = (container: HTMLElement, canvas: Record<
     } satisfies Record<ThreatType, P5.Graphics>;
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
+    const renderer = newRenderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
 
     /**
      * https://p5js.org/reference/#/p5/preload

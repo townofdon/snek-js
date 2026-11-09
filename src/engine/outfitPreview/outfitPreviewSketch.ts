@@ -9,7 +9,7 @@ import { Gradients } from '../../collections/gradients';
 import { Particles } from '../../collections/particles';
 import { Emitters } from '../../collections/emitters';
 import { SpriteRenderer } from '../spriteRenderer';
-import { renderer } from '../renderer';
+import { newRenderer } from '../renderer';
 import { Fonts } from '../../fonts';
 import { getExtendedPalette, PALETTE } from '../../palettes';
 import { SKETCH_DEFAULTS } from '../../editor/editorConstants';
@@ -41,7 +41,7 @@ export const outfitPreviewSketch = (
   const extendedPalette = getExtendedPalette(PALETTE.plumsea);
 
   const sketch = (p5: P5) => {
-    const { screenShake } = SKETCH_DEFAULTS;
+    const { screenShake, replay, gameState, tutorial } = SKETCH_DEFAULTS;
     const mainGfx: P5.Graphics = p5.createGraphics(OUTFIT_PREVIEW_SIZE_X, OUTFIT_PREVIEW_SIZE_Y);
     const gfx: P5.Graphics = p5.createGraphics(OUTFIT_PREVIEW_SIZE_X, OUTFIT_PREVIEW_SIZE_Y);
     const gradients = new Gradients(p5);
@@ -51,6 +51,7 @@ export const outfitPreviewSketch = (
     const emitters10 = new Emitters(p5, particles10);
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
+    const renderer = newRenderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
 
     const player = {
       position: playerPosition,
@@ -81,6 +82,7 @@ export const outfitPreviewSketch = (
       outfit,
       heldItems: DEFAULT_HELD_ITEMS,
       gfxPresentation: gfx,
+      renderer,
       spriteRenderer,
       replay: DEFAULT_REPLAY,
       gradients: undefined,

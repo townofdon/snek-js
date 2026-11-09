@@ -99,7 +99,7 @@ import { WARP_ZONE_02 } from "@/levels/bonusLevels/warpZone02";
 import { WARP_ZONE_03 } from "@/levels/bonusLevels/warpZone03";
 import { Emitters } from "@/collections/emitters";
 import { Particles } from "@/collections/particles";
-import { renderer } from "../renderer";
+import { Renderer } from "../renderer";
 
 export interface EngineRenderingArgs {
   p5: P5,
@@ -112,6 +112,7 @@ export interface EngineRenderingArgs {
   outfit: Outfit,
   heldItems: HeldItems,
   gfxPresentation: P5.Graphics,
+  renderer: Renderer,
   spriteRenderer: SpriteRenderer,
   replay: Replay,
   gradients: Gradients,
@@ -134,6 +135,7 @@ export function engineRendering({
   outfit,
   heldItems,
   gfxPresentation,
+  renderer,
   spriteRenderer,
   replay,
   gradients,

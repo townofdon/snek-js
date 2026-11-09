@@ -505,6 +505,7 @@ export function engine({
     outfit,
     heldItems,
     gfxPresentation,
+    renderer,
     spriteRenderer,
     replay,
     gradients,

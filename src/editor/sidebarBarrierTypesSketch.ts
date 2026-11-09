@@ -11,7 +11,7 @@ import {
   Tile16Frame,
 } from '../types';
 import { SpriteRenderer } from '../engine/spriteRenderer';
-import { renderer } from '@/engine/renderer';
+import { newRenderer } from '@/engine/renderer';
 import { Fonts } from '../fonts';
 import { getExtendedPalette } from '../palettes';
 import { EDITOR_DEFAULTS, SKETCH_DEFAULTS } from './editorConstants';
@@ -57,7 +57,7 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
   const canvasSizeY = BLOCK_SIZE_Y;
 
   const sketch = (p5: P5) => {
-    const { screenShake } = SKETCH_DEFAULTS;
+    const { screenShake, replay, gameState, tutorial } = SKETCH_DEFAULTS;
     const gfx = {
       [BarrierType.Unset]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Unset].current),
       [BarrierType.Default]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[BarrierType.Default].current),
@@ -108,6 +108,7 @@ export const sidebarBarrierTypesSketch = (container: HTMLElement, canvas: Record
     }
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
+    const renderer = newRenderer({ p5, fonts, replay, gameState, screenShake, spriteRenderer, tutorial });
 
     /**
      * https://p5js.org/reference/#/p5/preload
