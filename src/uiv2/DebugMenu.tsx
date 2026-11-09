@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react"
-import { onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
+import { offDifficultyEvent, onDifficultyEvent, onUIEvent, unsubscribeOnUIEvent } from "@/ui/uiEvents";
 import { useForceRerender } from "./hooks/useForceRerender";
 import { DifficultyIndex, InputAction, Level } from "@/types";
 import { PauseMenuElement, PauseMenuNavMap } from "@/ui/uiNavMap";
@@ -18,7 +18,7 @@ export const DebugMenu = () => {
   const pauseMenuNavMap = useRef<PauseMenuNavMap>(null);
 
   const [selectedLevel, setSelectedLevel] = useState<Level>(LEVEL_01);
-  const [difficulty, setDifficulty] = useState<number>(3);
+  const [difficulty, setDifficulty] = useState<number>(bridge.es.difficulty.index);
 
   const levelsToInclude = [
     ...EDITOR_LEVELS,
@@ -60,10 +60,10 @@ export const DebugMenu = () => {
   }
 
   const handleSetDifficulty = (option: Option) => {
-    const difficulty = parseInt(option.value, 10);
-    if (!Number.isNaN(difficulty)) {
-      setDifficulty(difficulty);
-      bridge.callAction(InputAction.SetDifficulty, difficulty as DifficultyIndex);
+    const newDifficulty = parseInt(option.value, 10);
+    if (!Number.isNaN(newDifficulty)) {
+      setDifficulty(newDifficulty);
+      bridge.callAction(InputAction.SetDifficulty, newDifficulty as DifficultyIndex);
     }
   }
 
@@ -94,6 +94,16 @@ export const DebugMenu = () => {
       unsubscribeOnUIEvent(handleUIEvent);
     }
   }, []);
+
+  useEffect(() => {
+    const onDifficulty = (incoming: DifficultyIndex) => {
+      setDifficulty(incoming);
+    }
+    onDifficultyEvent(onDifficulty);
+    return () => {
+      offDifficultyEvent(onDifficulty);
+    }
+  }, [])
 
   useEffect(() => {
     if (showing) {

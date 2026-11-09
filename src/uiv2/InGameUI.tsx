@@ -5,6 +5,7 @@ import { bridge } from "./uiBridge";
 import { useForceRerender } from "./hooks/useForceRerender";
 import { difficultyDisplay, inverseLerp } from "@/utils";
 import { hasLevelBoss } from "@/levels/levelConstants";
+import { getIsStartLevel } from "@/levels/levelUtils";
 
 const LABEL_COLOR = '#fff';
 const LABEL_COLOR_INVERTED = '#000';
@@ -30,8 +31,10 @@ export const InGameUI = () => {
           forceRerender();
           break;
         case InputAction.ShowInGameUI:
-          setShowing(true);
-          forceRerender();
+          if (!getIsStartLevel(bridge.es.level)) {
+            setShowing(true);
+            forceRerender();
+          }
           break;
         case InputAction.Pause:
           setShowing(false);
@@ -73,6 +76,7 @@ export const InGameUI = () => {
   useEffect(() => {
     const onLevelChanged = (incoming: Level) => {
       setHasBoss(hasLevelBoss(incoming));
+      forceRerender();
     }
     const onLevelName = (incoming: string) => {
       setLevelName(incoming);
@@ -124,6 +128,7 @@ export const InGameUI = () => {
   }, []);
 
   if (!showing) return null;
+  if (getIsStartLevel(bridge.es.level)) return null;
 
   const maxChars = 12;
   const levelNameDisplay = levelName.split(" ").map(word => {

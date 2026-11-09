@@ -136,6 +136,7 @@ import { resetLevelImpl, ResetLevelImplParams } from './engineComponents/resetLe
 import { transitions, TransitionsParams } from './engineComponents/transitions';
 import { emitLevelChangedEvent } from '@/ui/uiEvents';
 import { renderer } from './renderer';
+import { bridge } from '@/uiv2/uiBridge';
 
 interface EngineParams {
   p5: P5,
@@ -200,8 +201,10 @@ export function engine({
   onGameOverArcade,
   onRecordLevelProgress,
 }: EngineParams) {
+  //#region assignments
   const boss: { current: Boss | null } = { current: null };
   const es: EngineState = { ...DEFAULT_ENGINE_STATE };
+  bridge.es = es;
   const loopState: LoopState = {
     interval: null,
     timePrevMs: 0,
@@ -249,6 +252,7 @@ export function engine({
     shouldProceedToNextClip: false,
     lastFrame: 0,
   } satisfies Replay;
+  //#endregion assignments
 
   //#region animation lifecycles
   const onPreyLifetimeExpire = (coord: number) => {

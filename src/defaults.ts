@@ -1,4 +1,3 @@
-import P5 from "p5";
 import { DEFAULT_PORTALS, DIFFICULTY_EASY, DIFFICULTY_MEDIUM, MAX_LIVES } from "./constants";
 import { MAIN_TITLE_SCREEN_LEVEL } from "./levels/levelConstants";
 import {
@@ -18,7 +17,6 @@ import {
   Action,
   Stats,
   SaveSlotData,
-  ScreenShakeState,
   Replay,
   ReplayMode,
 } from "./types";
@@ -200,14 +198,6 @@ export const DEFAULT_SAVE_SLOT_DATA = {
   heldItems: { ...DEFAULT_HELD_ITEMS },
   outfit: { ...DEFAULT_OUTFIT },
 } satisfies SaveSlotData;
-
-export const DEFAULT_SCREEN_SHAKE: ScreenShakeState = {
-  offset: new P5.Vector,
-  timeSinceStarted: Infinity,
-  timeSinceLastStep: Infinity,
-  magnitude: 1,
-  timeScale: 1,
-} satisfies ScreenShakeState;
 
 export const DEFAULT_REPLAY: Replay = {
   mode: ReplayMode.Disabled,
