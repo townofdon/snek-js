@@ -25,7 +25,6 @@ import {
   DEFAULT_HELD_ITEMS,
   DEFAULT_OUTFIT,
   DEFAULT_REPLAY,
-  DEFAULT_SCREEN_SHAKE,
   DEFAULT_STATS,
 } from './defaults';
 import {
