@@ -339,7 +339,7 @@ class DevSaveDataStore extends SaveDataStoreImpl {
 
 //#region UTILS
 function unlockedWearablesToList(wearablesUnlocked: Record<WearableFrame, boolean>) {
-  return Object.keys(wearablesUnlocked)
+  return Object.keys(wearablesUnlocked || {})
       .map(key => parseInt(key, 10))
       .filter((key: WearableFrame) => key && !Number.isNaN(key) && wearablesUnlocked[key])
       .map((key: WearableFrame) => key || WearableFrame.None);

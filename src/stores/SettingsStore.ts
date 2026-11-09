@@ -23,7 +23,7 @@ class SettingsStore extends BaseStore<GameSettings> implements GameSettings {
   };
 
   private set = (incoming: Partial<GameSettings>) => {
-    this.state = { ...this.getStore(), ...incoming };
+    this.state = { ...this.defaultValue, ...this.getStore(), ...incoming };
     this.setStore(this.state);
   };
 

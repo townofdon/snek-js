@@ -37,4 +37,4 @@ export const CheckboxField = forwardRef<HTMLInputElement, CheckboxFieldProps>(({
       )}
     </div>
   );
-})
+});
