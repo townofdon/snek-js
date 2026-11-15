@@ -1422,6 +1422,7 @@ export function floodFillTrapped(
   grid: Record<number, number>,
   out_visited: Record<number, boolean>,
   checkDiagonal: boolean,
+  excludeSelf: boolean
 ): FloodFillTrappedResult {
   let maxSegmentIndex = -1;
   let traversalCount = 0;
@@ -1440,7 +1441,7 @@ export function floodFillTrapped(
     out_visited[current] = true;
     for (let dy = -1; dy <= 1; dy++) {
       for (let dx = -1; dx <= 1; dx++) {
-        if (dx === 0 && dy === 0) {
+        if (excludeSelf && dx === 0 && dy === 0) {
           continue;
         }
         if (!checkDiagonal && dx !== 0 && dy !== 0) {
@@ -1457,10 +1458,10 @@ export function floodFillTrapped(
         if (tile && tile >= 1000 && tile < 2000 && tile - 1000 > maxSegmentIndex) {
           maxSegmentIndex = tile - 1000;
         }
-        if (tile && tile >= 4000 && tile < 5000) {
+        if (tile === 4000) {
           touchesPortal = true;
         }
-        if (tile && tile >= 5000 && tile < 6000) {
+        if (tile === 5000) {
           touchesInvincibility = true;
         }
         if (touchesPortal || touchesInvincibility) {

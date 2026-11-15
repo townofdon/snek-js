@@ -1,7 +1,18 @@
 import type { Vector } from "p5";
 import { DamageType, DIR, GameMode, KeyChannel, ReplayMode, ThreatType } from "@/types";
 import { HURT_STUN_TIME, LUNGE_STEPS, MAX_APPLES_TO_CLEAR, SPEED_LIMIT_ULTRA, START_SNAKE_SIZE } from "@/constants";
-import { analyzeFloodFillTrappedResult, buildTrappedFloodGrid, clamp, dirToUnitVector, findPipeExit, floodFillTrapped, getCoordIndex, getCoordIndex2, getLevelProgress, isBreakableBarrier } from "@/utils";
+import {
+  analyzeFloodFillTrappedResult,
+  buildTrappedFloodGrid,
+  clamp,
+  dirToUnitVector,
+  findPipeExit,
+  floodFillTrapped,
+  getCoordIndex,
+  getCoordIndex2,
+  getLevelProgress,
+  isBreakableBarrier,
+} from "@/utils";
 import { Context } from "./context";
 import { settings } from "@/stores/SettingsStore";
 import { getIsStartLevel } from "@/levels/levelUtils";
@@ -132,7 +143,7 @@ export function checkCollision(ctx: Context, vec: Vector, checkBarricade = true)
   return DamageType.None;
 }
 
-export function isSnakeTrapped(ctx: Context) {
+export function checkSnakeTrapped(ctx: Context) {
   const {
     es,
     state,
@@ -146,14 +157,13 @@ export function isSnakeTrapped(ctx: Context) {
   const visited: Record<number, boolean> = {};
   const grid = buildTrappedFloodGrid((loc) => checkCollision(ctx, loc), ctx, true);
   outer:
-  for (let idx = 0; idx <= Math.min(3, segments.length - 2); idx++) {
+  for (let idx = 0; idx <= Math.min(clamp(state.lives, 2, 3), segments.length - 2); idx++) {
     // skip checking adjacent tiles around player position when their current pos overlaps a collidable tile
     if (hasHit && idx === 0) {
       continue;
     }
     const pos = idx === 0 ? player.position : segments.get(idx - 1);
-    const iterations = clamp(state.lives + 1, 2, 4);
-    for (let i = 0; i < iterations; i++) {
+    for (let i = 0; i < 4; i++) {
       let dir = DIR.UP;
       if (i === 1) dir = DIR.RIGHT;
       if (i === 2) dir = DIR.DOWN;
@@ -163,7 +173,7 @@ export function isSnakeTrapped(ctx: Context) {
         continue;
       }
       if (!test.equals(player.position) && !checkCollision(ctx, test)) {
-        const result = floodFillTrapped(getCoordIndex(test), 10, grid, visited, false);
+        const result = floodFillTrapped(getCoordIndex(test), 10, grid, visited, false, false);
         trapped = analyzeFloodFillTrappedResult(result, segments.length);
         if (trapped && result.maxSegmentIndex > maxSegmentIndex) {
           maxSegmentIndex = result.maxSegmentIndex;

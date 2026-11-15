@@ -76,7 +76,7 @@ import {
   checkCanBreakWalls,
   checkCanBreakWallsWithoutDamage,
   getHasClearedLevel,
-  isSnakeTrapped,
+  checkSnakeTrapped,
   checkRewindAllowed,
   wallBreakableAt,
   checkCollision,
@@ -184,6 +184,7 @@ export function coreLogicLoop(ctx: Context): Context {
   let didDamageEnvironment = false;
   let didApplyArmor = false;
   const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
+  const isSnakeTrapped = checkSnakeTrapped(ctx);
 
   //#region hurt forgiveness
   skip = (false
@@ -647,7 +648,7 @@ export function coreLogicLoop(ctx: Context): Context {
   //#endregion check explosion hit
 
   //#region armor protection
-  if (didHit && heldItems.armor > 0 && !isSnakeTrapped(ctx)) {
+  if (didHit && heldItems.armor > 0 && !isSnakeTrapped) {
     didApplyArmor = true;
     didHit = false; // you saw nothing!
     state.lastHurtBy = DamageType.None;
@@ -722,7 +723,7 @@ export function coreLogicLoop(ctx: Context): Context {
     || state.isDeathIlluminating
     || actionRunning(Action.EpicDeath)
     || state.gameMode === GameMode.Casual
-    || !isSnakeTrapped(ctx)
+    || !isSnakeTrapped
   )
   if (!skip && threats.existsAtCoord(coord, ThreatType.ExplodableBarrel)) {
     skip = true;
@@ -842,7 +843,7 @@ export function coreLogicLoop(ctx: Context): Context {
     const timeNeededUntilNextMove = _getTimeNeededUntilNextMove(ctx);
     if (state.timeSinceLastMove >= timeNeededUntilNextMove) {
       const normalizedSpeed = clamp(es.difficulty.speedLimit / (timeNeededUntilNextMove || 0.001), 0, 1);
-      didMove = _movePlayer(ctx, normalizedSpeed);
+      didMove = _movePlayer(ctx, normalizedSpeed, isSnakeTrapped);
       if (didMove) player.directionToFirstSegment = invertDirection(player.direction);
     } else {
       state.timeSinceLastMove += loopState.deltaTime;

@@ -472,7 +472,8 @@ export function handlePreyTrapped(ctx: Context) {
     if (preyList.existsAtCoord(coord) && !preyList.hasFlagAt(x, y, FLAG_PREY_TRAPPED)) {
       const preyType = preyList.getTypeByCoord(coord);
       const checkDiagonal = preyType !== PreyType.Ant;
-      const result = floodFillTrapped(coord, 7, grid, visited, checkDiagonal);
+      const excludeSelf = true;
+      const result = floodFillTrapped(coord, 7, grid, visited, checkDiagonal, excludeSelf);
       const trapped = !result.didFill && result.maxSegmentIndex >= 0;
       if (trapped) {
         coroutines.start(trapPreyRoutine(ctx, x, y));

@@ -34,6 +34,7 @@ import {
   checkCollision,
   checkInvincible,
   checkRewindAllowed,
+  checkSnakeTrapped,
   wallBreakableAt,
 } from "./logic";
 import { Context } from "./context";
@@ -202,7 +203,7 @@ export function _getTimeNeededUntilNextMove(ctx: Context): number {
   return Math.max(time, es.level.speedLimit || 0);
 }
 
-export function _movePlayer(ctx: Context, normalizedSpeed = 0): boolean {
+export function _movePlayer(ctx: Context, normalizedSpeed: number, isSnakeTrapped: boolean): boolean {
   const {
     es,
     state,
@@ -227,6 +228,7 @@ export function _movePlayer(ctx: Context, normalizedSpeed = 0): boolean {
     state.lungeStepsRemaining = 0;
   }
   const isFirstLungeFrame = state.lungeStepsRemaining === LUNGE_STEPS;
+  const invincible = checkInvincible(ctx);
   // check for queued-up moves
   if (es.moves.length > 0 && !state.isExitingLevel && state.lungeStepsRemaining <= 0) {
     const move = es.moves.shift();
@@ -243,7 +245,6 @@ export function _movePlayer(ctx: Context, normalizedSpeed = 0): boolean {
 
   // calc grace period
   const willHitSomething = checkCollision(ctx, futurePosition) || checkPortalTeleportWillHit(ctx, futurePosition, player.direction);
-  const invincible = checkInvincible(ctx);
   const canAutoRewind = checkRewindAllowed(ctx, invincible);
   const canBreakWallsWithoutDamage = checkCanBreakWallsWithoutDamage(ctx);
   const breakable = (wallBreakableAt(ctx, getCoordIndex(futurePosition)) && canBreakWallsWithoutDamage)
