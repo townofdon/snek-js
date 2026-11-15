@@ -1,5 +1,5 @@
 import P5 from "p5";
-import { DIR, EditorData, MapAnnotation, PipeConnection } from "@/types";
+import { DIR, EditorData, MapAnnotation, PickupType, PipeConnection } from "@/types";
 
 export type SetStateValue<T> = T | ((prev: T) => T)
 
@@ -17,13 +17,17 @@ export enum Tile {
   Nospawn,
   Passable,
   Threat,
-  Invincibility,
-  Reversibility,
-  Armor,
+  Pickup,
   Switch,
   Pipe,
   Annotation,
 }
+
+export type EditorPickupType = (
+  | PickupType.Invincibility
+  | PickupType.Armor
+  | PickupType.Reversibility
+);
 
 export interface EditorMapExtendedData {
     annotations: Record<number, MapAnnotation>,

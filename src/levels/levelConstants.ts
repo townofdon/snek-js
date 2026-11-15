@@ -491,9 +491,7 @@ export const TILE_TO_FLOOD_FILL_TILE: Record<Tile, FloodFillTile> = {
   [Tile.Nospawn]: FloodFillTile.Nospawn,
   [Tile.Passable]: FloodFillTile.Passable,
   [Tile.Threat]: 0, // handled by THREAT_TYPE_TO_FLOOD_FILL_TILE
-  [Tile.Invincibility]: FloodFillTile.PickupInvincibility,
-  [Tile.Reversibility]: FloodFillTile.PickupReversibility,
-  [Tile.Armor]: FloodFillTile.PickupArmor,
+  [Tile.Pickup]: 0, // handled by PICKUP_TYPE_TO_FLOOD_FILL_TILE
   [Tile.Switch]: 0, // handled by SWITCH_TYPE_TO_FLOOD_FILL_TILE
   [Tile.Pipe]: FloodFillTile.Pipe,
   [Tile.Annotation]: 0,
@@ -784,14 +782,6 @@ export const PICKUP_TYPE_TO_TILE_CHAR: Record<PowerupPickup, TILECHAR> = {
   [PickupType.HealthPack]: TILECHAR.HealthPack,
   [PickupType.WeightLossPill]: TILECHAR.WeightLossPill,
 } satisfies Record<PowerupPickup, TILECHAR>;
-
-export const PICKUP_TYPE_TO_TILE: Record<PowerupPickup, Tile> = {
-  [PickupType.Invincibility]: Tile.Invincibility,
-  [PickupType.Reversibility]: Tile.Reversibility,
-  [PickupType.Armor]: Tile.Armor,
-  [PickupType.HealthPack]: 0,
-  [PickupType.WeightLossPill]: 0,
-} satisfies Record<PowerupPickup, Tile>;
 
 type PickupTileChar =
   | TILECHAR.Invincibility

@@ -6,7 +6,7 @@ import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, getRelativeDir, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { EDITOR_DEFAULTS } from "./editorConstants";
-import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, MapAnnotation, PortalChannel, SwitchType, ThreatType } from "../types";
+import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, MapAnnotation, PickupType, PortalChannel, SwitchType, ThreatType } from "../types";
 import { Tile } from "./editorTypes";
 import { useRefState } from "./hooks/useRefState";
 import { useLoadMapData } from "./hooks/useLoadMapData";
@@ -25,54 +25,48 @@ import {
   NoOpCommand,
   SetAnnotationCommand,
   SetAppleCommand,
-  SetArmorCommand,
   SetBarrierCommand,
   SetDecorative1Command,
   SetDecorative2Command,
   SetDoorCommand,
-  SetInvincibilityCommand,
   SetKeyCommand,
   SetLineAnnotationCommand,
   SetLineAppleCommand,
-  SetLineArmorCommand,
   SetLineBarrierCommand,
   SetLineDeco1Command,
   SetLineDeco2Command,
   SetLineDoorCommand,
-  SetLineInvincibilityCommand,
   SetLineKeyCommand,
   SetLineLockCommand,
   SetLineNospawnCommand,
   SetLinePassableCommand,
+  SetLinePickupCommand,
   SetLinePipeCommand,
   SetLinePortalCommand,
-  SetLineReversibilityCommand,
   SetLineSwitchCommand,
   SetLineThreatCommand,
   SetLockCommand,
   SetNospawnCommand,
   SetPassableCommand,
+  SetPickupCommand,
   SetPipeCommand,
   SetPlayerSpawnCommand,
   SetPortalCommand,
   SetRectangleAnnotationCommand,
   SetRectangleAppleCommand,
-  SetRectangleArmorCommand,
   SetRectangleBarrierCommand,
   SetRectangleDeco1Command,
   SetRectangleDeco2Command,
   SetRectangleDoorCommand,
-  SetRectangleInvincibilityCommand,
   SetRectangleKeyCommand,
   SetRectangleLockCommand,
   SetRectangleNospawnCommand,
   SetRectanglePassableCommand,
+  SetRectanglePickupCommand,
   SetRectanglePipeCommand,
   SetRectanglePortalCommand,
-  SetRectangleReversibilityCommand,
   SetRectangleSwitchCommand,
   SetRectangleThreatCommand,
-  SetReversibilityCommand,
   SetSelectedCommand,
   SetSwitchCommand,
   SetThreatCommand,
@@ -95,6 +89,7 @@ import { SidebarMapAnnotations } from "./SidebarAnnotations";
 import { OptionsDialog } from "./OptionsDialog/OptionsDialog";
 
 import * as styles from "./Editor.css";
+import { SidebarPickups } from "./SidebarPickups";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -124,6 +119,7 @@ export const Editor = () => {
   const [tool, toolRef, _setTool] = useRefState(EditorTool.Pencil);
   const [tile, tileRef, _setTile] = useRefState(Tile.Barrier);
   const [annotation, annotationRef, setAnnotation] = useRefState(MapAnnotation.L1);
+  const [pickup, pickupRef, setPickup] = useRefState(PickupType.Invincibility);
   const [barrierType, barrierTypeRef, setBarrierType] = useRefState(BarrierType.Default);
   const [threatType, threatTypeRef, setThreatType] = useRefState(ThreatType.Mine);
   const [switchType, switchTypeRef, setSwitchType] = useRefState(SwitchType.Button);
@@ -230,6 +226,14 @@ export const Editor = () => {
       ];
       const idx = order.indexOf(annotationRef.current);
       setAnnotation(idx >= 0 ? order[(idx + order.length + direction) % order.length] : MapAnnotation.L1);
+    } else if (tileRef.current === Tile.Pickup) {
+      const order: PickupType[] = [
+        PickupType.Invincibility,
+        PickupType.Armor,
+        PickupType.Reversibility,
+      ];
+      const idx = order.indexOf(pickupRef.current);
+      setPickup(idx >= 0 ? order[(idx + order.length + direction) % order.length] : PickupType.Invincibility);
     }
   }
 
@@ -249,9 +253,7 @@ export const Editor = () => {
       Tile.Portal,
       Tile.Spawn,
       Tile.Threat,
-      Tile.Invincibility,
-      Tile.Armor,
-      Tile.Reversibility,
+      Tile.Pickup,
       Tile.Switch,
       Tile.Pipe,
       Tile.Annotation,
@@ -280,12 +282,8 @@ export const Editor = () => {
         return new SetAppleCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
       case Tile.Threat:
         return new SetThreatCommand(coord,dataRef.current, setData, rollbackLastCoordUpdated, threatTypeRef.current);
-      case Tile.Invincibility:
-        return new SetInvincibilityCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
-      case Tile.Reversibility:
-        return new SetReversibilityCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
-      case Tile.Armor:
-        return new SetArmorCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated);
+      case Tile.Pickup:
+        return new SetPickupCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, pickupRef.current);
       case Tile.Barrier:
         return new SetBarrierCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, barrierTypeRef.current);
       case Tile.Door:
@@ -328,12 +326,8 @@ export const Editor = () => {
         return new SetLineAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Threat:
         return new SetLineThreatCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, threatTypeRef.current);
-      case Tile.Invincibility:
-        return new SetLineInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
-      case Tile.Reversibility:
-        return new SetLineReversibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
-      case Tile.Armor:
-        return new SetLineArmorCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Pickup:
+        return new SetLinePickupCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, pickupRef.current);
       case Tile.Barrier:
         return new SetLineBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, barrierTypeRef.current);
       case Tile.Door:
@@ -376,12 +370,8 @@ export const Editor = () => {
         return new SetRectangleAppleCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
       case Tile.Threat:
         return new SetRectangleThreatCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, threatTypeRef.current);
-      case Tile.Invincibility:
-        return new SetRectangleInvincibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
-      case Tile.Reversibility:
-        return new SetRectangleReversibilityCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
-      case Tile.Armor:
-        return new SetRectangleArmorCommand(from, to, dataRef, setData, rollbackLastCoordUpdated);
+      case Tile.Pickup:
+        return new SetRectanglePickupCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, pickupRef.current);
       case Tile.Barrier:
         return new SetRectangleBarrierCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, barrierTypeRef.current);
       case Tile.Door:
@@ -481,6 +471,7 @@ export const Editor = () => {
           barrierTypeRef.current,
           threatTypeRef.current,
           switchTypeRef.current,
+          pickupRef.current,
           dataRef,
           setData,
         );
@@ -870,6 +861,12 @@ export const Editor = () => {
                 <SidebarMapAnnotations
                   activeAnnotation={annotation}
                   setAnnotation={setAnnotation}
+                />
+              }
+              sidebarPickups={
+                <SidebarPickups
+                  activePickup={pickup}
+                  setPickup={setPickup}
                 />
               }
             />

@@ -5,6 +5,7 @@ import {
   EditorDataSlice,
   FloodFillTile,
   KeyChannel,
+  PickupType,
   PortalChannel,
   SwitchType,
   ThreatType,
@@ -26,7 +27,7 @@ import {
   FLOOD_FILL_TILE_TO_PICKUP_TYPE,
   FLOOD_FILL_TILE_TO_SWITCH_TYPE,
   FLOOD_FILL_TILE_TO_THREAT_TYPE,
-  PICKUP_TYPE_TO_TILE,
+  PICKUP_TYPE_TO_FLOOD_FILL_TILE,
   SWITCH_TYPE_TO_FLOOD_FILL_TILE,
   THREAT_TYPE_TO_FLOOD_FILL_TILE,
   TILE_TO_FLOOD_FILL_TILE,
@@ -39,6 +40,7 @@ interface GetTileArgs {
   barrierType?: BarrierType;
   threatType?: ThreatType;
   switchType?: SwitchType,
+  pickupType?: PickupType,
 }
 function getTile({
   tile,
@@ -47,6 +49,7 @@ function getTile({
   barrierType,
   threatType,
   switchType,
+  pickupType,
 }: GetTileArgs): FloodFillTile {
   if (TILE_TO_FLOOD_FILL_TILE[tile]) {
     return TILE_TO_FLOOD_FILL_TILE[tile];
@@ -61,6 +64,9 @@ function getTile({
   }
   if (tile === Tile.Switch && isValidSwitchType(switchType)) {
     return SWITCH_TYPE_TO_FLOOD_FILL_TILE[switchType];
+  }
+  if (tile === Tile.Pickup && isValidPickupType(pickupType)) {
+    return PICKUP_TYPE_TO_FLOOD_FILL_TILE[pickupType];
   }
   if (tile === Tile.Portal && isValidPortalChannel(portalChannel)) {
     switch (portalChannel) {
@@ -135,8 +141,8 @@ function getTileAtLocation(coord: number, data: EditorData): FloodFillTile {
   if (isValidSwitchType(switchType)) {
     return getTile({ tile: Tile.Switch, switchType });
   }
-  if (isValidPickupType(pickupType) && PICKUP_TYPE_TO_TILE[pickupType]) {
-    return getTile({ tile: PICKUP_TYPE_TO_TILE[pickupType] });
+  if (isValidPickupType(pickupType)) {
+    return getTile({ tile: Tile.Pickup, pickupType });
   }
   const portalChannel = data.portalsMap[coord];
   const keyChannel = data.keysMap[coord];
@@ -300,6 +306,7 @@ export function tileFloodFill(
   barrierType: BarrierType,
   threatType: ThreatType,
   switchType: SwitchType,
+  pickupType: PickupType,
   data: EditorData,
 ): EditorData | null {
   const prev = getTileAtLocation(getCoordIndex2(x, y), data);
@@ -310,6 +317,7 @@ export function tileFloodFill(
     barrierType,
     threatType,
     switchType,
+    pickupType,
   });
   const newData = deepCloneData(data);
 

@@ -10,6 +10,7 @@ interface EditorSidebarProps {
   sidebarBarrierTypes: React.ReactNode,
   sidebarThreatTypes: React.ReactNode,
   sidebarAnnotations: React.ReactNode,
+  sidebarPickups: React.ReactNode,
 }
 
 export const EditorSidebar = ({
@@ -19,6 +20,7 @@ export const EditorSidebar = ({
   sidebarBarrierTypes,
   sidebarThreatTypes,
   sidebarAnnotations,
+  sidebarPickups,
 }: EditorSidebarProps) => {
 
   const renderContent = () => {
@@ -36,6 +38,9 @@ export const EditorSidebar = ({
     }
     if (tile === Tile.Annotation) {
       return sidebarAnnotations;
+    }
+    if (tile === Tile.Pickup) {
+      return sidebarPickups;
     }
     return null;
   }

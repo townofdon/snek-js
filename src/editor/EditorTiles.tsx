@@ -28,9 +28,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Portal]: styles.portal,
       [Tile.Spawn]: styles.spawn,
       [Tile.Threat]: styles.threat,
-      [Tile.Invincibility]: styles.invincibility,
-      [Tile.Reversibility]: styles.reversibility,
-      [Tile.Armor]: styles.shield,
+      [Tile.Pickup]: styles.invincibility,
       [Tile.Switch]: styles.switch,
       [Tile.Pipe]: styles.pipe,
       [Tile.Annotation]: styles.annotation,
@@ -49,9 +47,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Portal]: 0,
       [Tile.Spawn]: '~',
       [Tile.Threat]: null,
-      [Tile.Invincibility]: null,
-      [Tile.Reversibility]: null,
-      [Tile.Armor]: null,
+      [Tile.Pickup]: null,
       [Tile.Switch]: null,
       [Tile.Pipe]: null,
       [Tile.Annotation]: null,
@@ -82,9 +78,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       {renderTile(Tile.Portal)}
       {renderTile(Tile.Spawn)}
       {renderTile(Tile.Threat)}
-      {renderTile(Tile.Invincibility)}
-      {renderTile(Tile.Armor)}
-      {renderTile(Tile.Reversibility)}
+      {renderTile(Tile.Pickup)}
       {renderTile(Tile.Switch)}
       {renderTile(Tile.Pipe)}
       {renderTile(Tile.Annotation)}

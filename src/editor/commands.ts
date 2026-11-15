@@ -25,6 +25,7 @@ import {
   inverseLerp,
   isValidBarrierType,
   isValidKeyChannel,
+  isValidPickupType,
   isValidPortalChannel,
   isValidSwitchType,
   isValidThreatType,
@@ -238,38 +239,14 @@ export class SetPipeCommand extends SetElementCommand {
   }
 }
 
-export class SetInvincibilityCommand extends SetElementCommand {
-  public readonly name = 'Draw Invincibility';
-  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+export class SetPickupCommand extends SetElementCommand {
+  public readonly name = 'Draw Pickup';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, pickupType: PickupType) {
     super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.pickupsMap[this.coord] === PickupType.Invincibility) {
+    if (isValidPickupType(data.pickupsMap[this.coord]) && data.pickupsMap[this.coord] === pickupType) {
       this.newData = null;
     } else {
-      this.newData.pickup = PickupType.Invincibility;
-    }
-  }
-}
-
-export class SetReversibilityCommand extends SetElementCommand {
-  public readonly name = 'Draw Reversibility';
-  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
-    super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.pickupsMap[this.coord] === PickupType.Reversibility) {
-      this.newData = null;
-    } else {
-      this.newData.pickup = PickupType.Reversibility;
-    }
-  }
-}
-
-export class SetArmorCommand extends SetElementCommand {
-  public readonly name = 'Draw Armor';
-  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
-    super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.pickupsMap[this.coord] === PickupType.Armor) {
-      this.newData = null;
-    } else {
-      this.newData.pickup = PickupType.Armor;
+      this.newData.pickup = pickupType;
     }
   }
 }
@@ -639,36 +616,17 @@ export class SetLineSwitchCommand extends SetLineCommand {
   };
 }
 
-export class SetLineInvincibilityCommand extends SetLineCommand {
-  public readonly name = 'Draw Invincibility';
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+export class SetLinePickupCommand extends SetLineCommand {
+  public readonly name = 'Draw Pickup';
+  private pickupType: PickupType;
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined, pickupType: PickupType) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
-    this.newData.pickup = PickupType.Invincibility;
+    this.newData.pickup = pickupType;
+    this.pickupType = pickupType;
   }
   protected test = (coord: number) => {
-    return this.dataRef.current.pickupsMap[coord] !== PickupType.Invincibility;
-  };
-}
-
-export class SetLineReversibilityCommand extends SetLineCommand {
-  public readonly name = 'Draw Reversibility';
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
-    super(from, to, data, setData, rollbackLastCoordUpdated);
-    this.newData.pickup = PickupType.Reversibility;
-  }
-  protected test = (coord: number) => {
-    return this.dataRef.current.pickupsMap[coord] !== PickupType.Reversibility;
-  };
-}
-
-export class SetLineArmorCommand extends SetLineCommand {
-  public readonly name = 'Draw Armor';
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
-    super(from, to, data, setData, rollbackLastCoordUpdated);
-    this.newData.pickup = PickupType.Armor;
-  }
-  protected test = (coord: number) => {
-    return this.dataRef.current.pickupsMap[coord] !== PickupType.Armor;
+    return !this.dataRef.current.pickupsMap[coord]
+      || this.dataRef.current.pickupsMap[coord] !== this.pickupType;
   };
 }
 
@@ -956,36 +914,16 @@ export class SetRectangleSwitchCommand extends SetRectangleCommand {
   };
 }
 
-export class SetRectangleInvincibilityCommand extends SetRectangleCommand {
-  public readonly name = 'Draw Invincibility';
-  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+export class SetRectanglePickupCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Pickup';
+  private pickupType: PickupType;
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, pickupType: PickupType) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.newData.pickup = PickupType.Invincibility;
+    this.newData.pickup = pickupType;
+    this.pickupType = pickupType;
   }
   protected test = (coord: number) => {
-    return this.dataRef.current.pickupsMap[coord] !== PickupType.Invincibility;
-  };
-}
-
-export class SetRectangleReversibilityCommand extends SetRectangleCommand {
-  public readonly name = 'Draw Reversibility';
-  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
-    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.newData.pickup = PickupType.Reversibility;
-  }
-  protected test = (coord: number) => {
-    return this.dataRef.current.pickupsMap[coord] !== PickupType.Reversibility;
-  };
-}
-
-export class SetRectangleArmorCommand extends SetRectangleCommand {
-  public readonly name = 'Draw Armor';
-  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
-    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.newData.pickup = PickupType.Armor;
-  }
-  protected test = (coord: number) => {
-    return this.dataRef.current.pickupsMap[coord] !== PickupType.Armor;
+    return !this.dataRef.current.pickupsMap[coord] || this.dataRef.current.pickupsMap[coord] !== this.pickupType;
   };
 }
 
@@ -1315,6 +1253,7 @@ export class FloodFillCommand implements Command {
   private barrierType: BarrierType;
   private threatType: ThreatType;
   private switchType: SwitchType;
+  private pickupType: PickupType;
   private dataRef: React.MutableRefObject<EditorData>;
   private initialData: EditorData;
   private setData: (val: EditorData) => void;
@@ -1328,6 +1267,7 @@ export class FloodFillCommand implements Command {
     barrierType: BarrierType,
     threatType: ThreatType,
     switchType: SwitchType,
+    pickupType: PickupType,
     dataRef: React.MutableRefObject<EditorData>,
     setData: (val: EditorData) => void,
   ) {
@@ -1339,6 +1279,7 @@ export class FloodFillCommand implements Command {
     this.barrierType = barrierType;
     this.threatType = threatType;
     this.switchType = switchType;
+    this.pickupType = pickupType;
     this.dataRef = dataRef;
     this.initialData = dataRef.current;
     this.setData = setData;
@@ -1354,6 +1295,7 @@ export class FloodFillCommand implements Command {
         this.barrierType,
         this.threatType,
         this.switchType,
+        this.pickupType,
         this.dataRef.current
       );
       if (!updates) {
@@ -1380,7 +1322,7 @@ export class FloodFillEmptyCommand extends FloodFillCommand {
     dataRef: React.MutableRefObject<EditorData>,
     setData: (val: EditorData) => void,
   ) {
-    super(Tile.None, x, y, 0, 0, 0, 0, 0, dataRef, setData);
+    super(Tile.None, x, y, 0, 0, 0, 0, 0, 0, dataRef, setData);
   }
 }
 
