@@ -353,10 +353,10 @@ function maybeSpawnOtherPickup(ctx: Context, x: number, y: number): boolean {
   return true;
 }
 
-export function spawnLegendaryItem(ctx: Context, x: number, y: number) {
+export function spawnLegendaryItem(ctx: Context, x: number, y: number, extraLifetime = 0) {
   const { es, apples, pickupOutlines, playSound } = ctx;
   const idx = Math.floor(Math.random() * PICKUP_LEGENDARY_ITEMS.length);
-  const lifetime = getPickupLifetime(PickupRarity.Legendary);
+  const lifetime = getPickupLifetime(PickupRarity.Legendary) + extraLifetime;
   es.pickupsMap[getCoordIndex2(x, y)] = {
     lifetime,
     type: PICKUP_LEGENDARY_ITEMS[idx],

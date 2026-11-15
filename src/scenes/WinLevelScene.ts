@@ -8,6 +8,7 @@ import { UnlockedMusicStore } from "../stores/UnlockedMusicStore";
 import { OST_MODE_TRACKS_NOTIFY_UNLOCK } from "../constants";
 import { getTrackName, shuffleArray } from "../utils";
 import { SpriteRenderer } from "../engine/spriteRenderer";
+import { UI } from "@/ui/ui";
 
 const PHRASES = [
   'tubular!',
@@ -477,6 +478,7 @@ export class WinLevelScene extends BaseScene {
     gfx.strokeWeight(2 * 2);
     gfx.fill('#fff');
     gfx.text(score.toFixed(0).padStart(8, '0'), ...this.getPosition(0.5, this.stageClearY + 0.6));
+    UI.renderScore(Math.floor(score), false);
   }
 
   drawMusicTrackUnlocked = (track: MusicTrack) => {

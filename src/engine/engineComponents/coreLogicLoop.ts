@@ -180,6 +180,7 @@ export function coreLogicLoop(ctx: Context): Context {
 
   let skip = false;
   let didHit = false;
+  let didRebound = false;
   let didDamageEnvironment = false;
   let didApplyArmor = false;
   const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
@@ -229,6 +230,7 @@ export function coreLogicLoop(ctx: Context): Context {
 
     if (isGameOver) {
       reboundSnake(ctx, 2);
+      didRebound = true;
       playSound(Sound.hurt3);
     } else {
       state.lives += 1;
@@ -582,6 +584,7 @@ export function coreLogicLoop(ctx: Context): Context {
         reboundSnake(ctx, 2);
         playSound(Sound.hurtSave);
         didHit = false;
+        didRebound = true;
       } else {
         state.lastHurtBy = DamageType.HitMine;
         didHit = true;  
@@ -661,7 +664,10 @@ export function coreLogicLoop(ctx: Context): Context {
     state.lungeStepsRemaining = 0;
     state.timeSinceArmorProtection = 0;
     state.timeSinceLungeStart = Infinity;
-    reboundSnake(ctx, 3);
+    if (!didRebound) {
+      reboundSnake(ctx, 3);
+      didRebound = true;
+    }
   }
   //#endregion armor protection
 
@@ -780,7 +786,10 @@ export function coreLogicLoop(ctx: Context): Context {
       state.lastHurtBy === DamageType.HitSelf ||
       state.lastHurtBy === DamageType.HitMine
     ) {
-      reboundSnake(ctx, 2);
+      if (!didRebound) {
+        reboundSnake(ctx, 2);
+        didRebound = true;
+      }
     }
     player.directionToFirstSegment = getDirectionSnakeBackward(ctx);
     // if snake will move backwards into itself:

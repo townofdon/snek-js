@@ -71,6 +71,7 @@ import {
   Episode,
   GameMode,
   WearableFrame,
+  Context,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -1390,13 +1391,17 @@ export function makeCheckPreyCollision(es: EngineState, state: GameState, segmen
 }
 
 // Flood-fill Trapped Check
-export function buildTrappedFloodGrid(checkCollision: (location: Vector) => DamageType, segments: ICollection, playerPosition: Vector): Record<number, number> {
+export function buildTrappedFloodGrid(checkCollision: (location: Vector) => DamageType, ctx: Context, checkPlayer: boolean): Record<number, number> {
   const grid: Record<number, number> = {};
   for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
     grid[coord] = 0;
-    if (segments.existsAtCoord(coord)) {
-      grid[coord] = 1000 + segments.getIndexAtCoord(coord);
-    } else if (getCoordIndex(playerPosition) === coord) {
+    if (checkPlayer && ctx.es.portalsMap[coord] && ctx.es.portalsMap[coord].link) {
+      grid[coord] = 4000;
+    } else if (checkPlayer && ctx.es.pickupsMap[coord]?.type === PickupType.Invincibility) {
+      grid[coord] = 5000;
+    } else if (ctx.segments.existsAtCoord(coord)) {
+      grid[coord] = 1000 + ctx.segments.getIndexAtCoord(coord);
+    } else if (getCoordIndex(ctx.player.position) === coord) {
       grid[coord] = 2000;
     } else if (checkCollision(coordToVec(coord))) {
       grid[coord] = 3000;
@@ -1406,6 +1411,8 @@ export function buildTrappedFloodGrid(checkCollision: (location: Vector) => Dama
 }
 interface FloodFillTrappedResult {
   didFill: boolean,
+  touchesPortal: boolean,
+  touchesInvincibility: boolean,
   maxSegmentIndex: number,
   traversalCount: number,
 }
@@ -1413,50 +1420,78 @@ export function floodFillTrapped(
   initialCoord: number,
   maxTraversals: number,
   grid: Record<number, number>,
-  // out var
-  visited: Record<number, boolean>,
+  out_visited: Record<number, boolean>,
+  checkDiagonal: boolean,
 ): FloodFillTrappedResult {
   let maxSegmentIndex = -1;
   let traversalCount = 0;
-  const checkAddCandidate = (x: number, y: number) => {
-    const inBounds = x >= 0 && y >= 0 && x < GRIDCOUNT_X && y < GRIDCOUNT_Y;
-    if (!inBounds) {
-      return;
-    }
-    const tile = grid[getCoordIndex2(x, y)];
-    if (tile && tile >= 1000 && tile < 2000 && tile - 1000 > maxSegmentIndex) {
-      maxSegmentIndex = tile - 1000;
-    }
-    const valid = !visited[getCoordIndex2(x, y)] && !grid[getCoordIndex2(x, y)];
-    if (valid) {
-      traversalCount++;
-      candidates.push(getCoordIndex2(x, y));
-    }
-  };
+  let touchesPortal = false;
+  let touchesInvincibility = false;
   const candidates = [initialCoord];
+  outer:
   for (let i = 0; i < maxTraversals && candidates.length > 0; i++) {
     const current = candidates.pop();
-    const x = getCoordX(current);
-    const y = getCoordY(current);
-    const inBounds = x >= 0 && y >= 0 && x < GRIDCOUNT_X && y < GRIDCOUNT_Y;
+    const cx = getCoordX(current);
+    const cy = getCoordY(current);
+    const inBounds = cx >= 0 && cy >= 0 && cx < GRIDCOUNT_X && cy < GRIDCOUNT_Y;
     if (!inBounds) {
       continue;
     }
-    visited[current] = true;
-    checkAddCandidate(x + 1, y);
-    checkAddCandidate(x - 1, y);
-    checkAddCandidate(x, y + 1);
-    checkAddCandidate(x, y - 1);
+    out_visited[current] = true;
+    for (let dy = -1; dy <= 1; dy++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        if (dx === 0 && dy === 0) {
+          continue;
+        }
+        if (!checkDiagonal && dx !== 0 && dy !== 0) {
+          continue;
+        }
+        const x = cx + dx;
+        const y = cy + dy;
+        const inBounds = x >= 0 && y >= 0 && x < GRIDCOUNT_X && y < GRIDCOUNT_Y;
+        if (!inBounds) {
+          continue;
+        }
+        const coord = getCoordIndex2(x, y);
+        const tile = grid[coord];
+        if (tile && tile >= 1000 && tile < 2000 && tile - 1000 > maxSegmentIndex) {
+          maxSegmentIndex = tile - 1000;
+        }
+        if (tile && tile >= 4000 && tile < 5000) {
+          touchesPortal = true;
+        }
+        if (tile && tile >= 5000 && tile < 6000) {
+          touchesInvincibility = true;
+        }
+        if (touchesPortal || touchesInvincibility) {
+          break outer;
+        }
+        const valid = !out_visited[coord] && (!tile || tile === 4000 || tile === 5000);
+        if (valid) {
+          traversalCount++;
+          candidates.push(coord);
+          out_visited[coord] = true;
+        }
+      }
+    }
   }
   const didFill = traversalCount >= maxTraversals;
   return {
     didFill,
+    touchesPortal,
+    touchesInvincibility,
     maxSegmentIndex,
     traversalCount,
   } satisfies FloodFillTrappedResult;
 }
 export function analyzeFloodFillTrappedResult(result: FloodFillTrappedResult, segmentsLength: number): boolean {
   if (result.didFill) {
+    return false;
+  }
+  if (result.touchesPortal) {
+    return false;
+  }
+  if (result.touchesInvincibility) {
     return false;
   }
   if (result.maxSegmentIndex >= 0 && result.maxSegmentIndex < segmentsLength && segmentsLength - result.maxSegmentIndex < result.traversalCount) {

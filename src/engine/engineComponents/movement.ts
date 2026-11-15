@@ -258,6 +258,10 @@ export function _movePlayer(ctx: Context, normalizedSpeed = 0): boolean {
     startAutoRewind(ctx);
     return false;
   }
+  if (invincible && willHitSomething) {
+    state.timeSinceGraceStarted = 0;
+    return false;
+  }
 
   // apply movement
   moveSegments(ctx);

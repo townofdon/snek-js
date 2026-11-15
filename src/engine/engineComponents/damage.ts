@@ -7,6 +7,7 @@ import {
   Image,
   LaserType,
   Orientation,
+  PreyType,
   RemovalReason,
   ReplayMode,
   SmokeType,
@@ -460,17 +461,19 @@ function* burnPreyRoutine(ctx: Context, x: number, y: number): IEnumerator {
   drawState.shouldDrawApples = true;
 }
 
-export function handlePreyTrapped(ctx: Context, ) {
+export function handlePreyTrapped(ctx: Context) {
   const { preyList, es, state, segments, player, coroutines } = ctx;
   const checkPreyCollision = makeCheckPreyCollision(es, state, segments, player.position);
+  const grid = buildTrappedFloodGrid(checkPreyCollision, ctx, false);
   const visited: Record<number, boolean> = {};
-  const grid = buildTrappedFloodGrid(checkPreyCollision, segments, player.position);
   for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
     const x = getCoordX(coord);
     const y = getCoordY(coord);
     if (preyList.existsAtCoord(coord) && !preyList.hasFlagAt(x, y, FLAG_PREY_TRAPPED)) {
-      const result = floodFillTrapped(coord, 4, grid, visited);
-      const trapped = !result.didFill;
+      const preyType = preyList.getTypeByCoord(coord);
+      const checkDiagonal = preyType !== PreyType.Ant;
+      const result = floodFillTrapped(coord, 7, grid, visited, checkDiagonal);
+      const trapped = !result.didFill && result.maxSegmentIndex >= 0;
       if (trapped) {
         coroutines.start(trapPreyRoutine(ctx, x, y));
       }
@@ -486,7 +489,7 @@ function* trapPreyRoutine(ctx: Context, x: number, y: number): IEnumerator {
   yield* coroutines.waitForTime(250);
   if (!preyList.existsAt(x, y)) return;
   preyList.remove(x, y);
-  spawnLegendaryItem(ctx, x, y);
+  spawnLegendaryItem(ctx, x, y, 5000);
   drawState.shouldDrawActionFG = true;
   drawState.shouldDrawApples = true;
 }
