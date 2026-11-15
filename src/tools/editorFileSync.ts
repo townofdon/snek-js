@@ -45,7 +45,7 @@ import path from 'node:path';
 
   app.post("/write-file", async (req: Request, res: Response) => {
     try {
-      const { annotations, layoutV2 = '', url = '' } = req.body;
+      const { annotations, pipeOverrides, layoutV2 = '', url = '' } = req.body;
       if (!annotations || typeof annotations !== 'object' ) {
         throw new Error(`invalid annotations: ${annotations}`);
       }
@@ -56,10 +56,19 @@ import path from 'node:path';
       content = replaceProperty(content, 'layoutV2', `'${layoutV2}'`);
 
 
-      const annotationsStr = Object.entries(annotations)
+      const annotationsStr = Object.entries(pruneMap(annotations))
+        .filter(([key, value]) => !!key && !!value)
         .map(([key, value]) => `${key}: ${value}`)
         .join(", ");
       content = replaceProperty(content, 'annotations', `{ ${annotationsStr} }`);
+
+      const pipeOverridesStr = Object.entries(pruneMap(pipeOverrides) || {})
+        .filter(([key, value]) => !!key && !!value)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(", ");
+      if (pipeOverridesStr) {
+        content = replaceProperty(content, 'pipeOverrides', `{ ${pipeOverridesStr} }`);
+      }
 
       if (url) {
         if (!/^\/\/ url: <.*>$/gm.test(content)) {
@@ -108,6 +117,9 @@ function replaceProperty(
   } else if (property === 'annotations') {
     type = PropertyType.object;
     suffix = ' satisfies Record<number, MapAnnotation>'
+  } else if (property === 'pipeOverrides') {
+    type = PropertyType.object;
+    suffix = ' satisfies Record<number, PipeConnection>'
   } else {
     throw new Error(`invalid property: ${property}`)
   }
@@ -160,3 +172,12 @@ function findValueEnd(source: string, start: number, type: PropertyType): number
   }
   return -1;
 }
+
+const pruneMap = <T,>(source: Record<number, T>): Record<number, T> => {
+  if (!source) return {};
+  const out: Record<number, T> = {};
+  Object.keys(source).forEach(key => {
+    if (source[key]) out[key] = source[key];
+  });
+  return out;
+};

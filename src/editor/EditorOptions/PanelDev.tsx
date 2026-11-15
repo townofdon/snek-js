@@ -184,6 +184,7 @@ const syncMapToDisk = async (filePath: string, data: EditorData, options: Editor
     const body = {
       path: filePath,
       annotations: data.annotations,
+      pipeOverrides: data.pipeOverrides,
       layoutV2: encoded,
       url: location.href,
     };

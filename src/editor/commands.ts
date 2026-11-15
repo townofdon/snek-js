@@ -229,12 +229,13 @@ export class SetSwitchCommand extends SetElementCommand {
 
 export class SetPipeCommand extends SetElementCommand {
   public readonly name = 'Draw Pipe';
-  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, pipeOverride: PipeConnection) {
     super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.pipesMap[this.coord]) {
+    if (data.pipesMap[this.coord] && data.pipeOverrides[this.coord] === pipeOverride) {
       this.newData = null;
     } else {
       this.newData.pipe = true;
+      this.newData.pipeOverride = pipeOverride || undefined;
     }
   }
 }
@@ -397,19 +398,6 @@ export class SetAnnotationCommand extends SetElementCommand {
     } else {
       this.newData = { ...this.initial };
       this.newData.annotation = annotation;
-    }
-  }
-}
-
-export class SetPipeOverrideCommand extends SetElementCommand {
-  public readonly name = 'Draw Pipe';
-  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, pipeOverride: PipeConnection) {
-    super(coord, data, setData, rollbackLastCoordUpdated);
-    if (data.pipesMap[this.coord] && data.pipeOverrides[this.coord] === pipeOverride) {
-      this.newData = null;
-    } else {
-      this.newData.pipe = true;
-      this.newData.pipeOverride = pipeOverride;
     }
   }
 }
@@ -577,12 +565,15 @@ export class SetLineAppleCommand extends SetLineCommand {
 
 export class SetLinePipeCommand extends SetLineCommand {
   public readonly name = 'Draw Pipe';
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
+  private readonly pipeOverride: PipeConnection;
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined, pipeOverride: PipeConnection) {
     super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.pipeOverride = pipeOverride;
     this.newData.pipe = true;
+    this.newData.pipeOverride = pipeOverride;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.pipesMap[coord];
+    return !this.dataRef.current.pipesMap[coord] || this.dataRef.current.pipeOverrides[coord] !== this.pipeOverride;
   };
 }
 
@@ -792,20 +783,6 @@ export class SetLineAnnotationCommand extends SetLineCommand {
   };
 }
 
-export class SetLinePipeOverrideCommand extends SetLineCommand {
-  public readonly name = 'Draw Pipe';
-  private readonly pipeOverride: PipeConnection;
-  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined, pipeOverride: PipeConnection) {
-    super(from, to, data, setData, rollbackLastCoordUpdated);
-    this.pipeOverride = pipeOverride;
-    this.newData.pipe = true;
-    this.newData.pipeOverride = pipeOverride;
-  }
-  protected test = (coord: number) => {
-    return !this.dataRef.current.pipesMap[coord] || this.dataRef.current.pipeOverrides[coord] !== this.pipeOverride;
-  };
-}
-
 abstract class SetRectangleCommand extends SetBatchElementsCommand {
   public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined) {
     const coords: number[] = [];
@@ -875,12 +852,16 @@ export class SetRectangleAppleCommand extends SetRectangleCommand {
 
 export class SetRectanglePipeCommand extends SetRectangleCommand {
   public readonly name = 'Draw Pipe';
-  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated) {
+  private readonly pipeOverride: PipeConnection;
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, pipeOverride: PipeConnection) {
     super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    pipeOverride ||= undefined;
+    this.pipeOverride = pipeOverride;
     this.newData.pipe = true;
+    this.newData.pipeOverride = pipeOverride;
   }
   protected test = (coord: number) => {
-    return !this.dataRef.current.pipesMap[coord];
+    return !this.dataRef.current.pipesMap[coord] || this.dataRef.current.pipeOverrides[coord] !== this.pipeOverride;
   };
 }
 
@@ -1086,20 +1067,6 @@ export class SetRectangleAnnotationCommand extends SetRectangleCommand {
   }
   protected test = (coord: number) => {
     return this.dataRef.current.annotations[coord] !== this.annotation;
-  };
-}
-
-export class SetRectanglePipeOverrideCommand extends SetRectangleCommand {
-  public readonly name = 'Draw Pipe';
-  private readonly pipeOverride: PipeConnection;
-  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, pipeOverride: PipeConnection) {
-    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
-    this.pipeOverride = pipeOverride;
-    this.newData.pipe = true;
-    this.newData.pipeOverride = pipeOverride;
-  }
-  protected test = (coord: number) => {
-    return !this.dataRef.current.pipesMap[coord] || this.dataRef.current.pipeOverrides[coord] !== this.pipeOverride;
   };
 }
 

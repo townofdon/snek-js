@@ -1,4 +1,4 @@
-import { EditorMapExtendedData, MapSaveData, validMapSaveData } from "../editorTypes";
+import { MapSaveData, validMapSaveData } from "../editorTypes";
 
 
 export const pruneMap = <T,>(source: Record<number, T>): Record<number, T> => {

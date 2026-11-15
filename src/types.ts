@@ -880,9 +880,9 @@ export enum PipeConnection {
   NWE,  // 0b1101
   SWE,  // 0b1110
   NSWE, // 0b1111
-  Island, // special case - no neighbors
   Barrier,
   Door, // TODO: ADD DOOR SPRITE
+  Island, // special case - no neighbors
 }
 
 export enum MapAnnotation {
