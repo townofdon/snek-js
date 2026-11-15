@@ -1188,17 +1188,21 @@ export const validPipeExit = (exitCoord: number, state: GameState, es: EngineSta
   const canMoveUp = mask & FLAG_NORTH && !outOfBounds(x, y - 1) && valid(x, y - 1);
   const canMoveRight = mask & FLAG_EAST && !outOfBounds(x + 1, y) && valid(x + 1, y);
   const canMoveLeft = mask & FLAG_WEST && !outOfBounds(x - 1, y) && valid(x - 1, y);
+  const validOverrideMove = !!(
+    (canMoveDown && override & FLAG_SOUTH) ||
+    (canMoveUp && override & FLAG_NORTH) ||
+    (canMoveRight && override & FLAG_EAST) ||
+    (canMoveLeft && override & FLAG_WEST)
+  );
   switch (connection) {
     case PipeConnection.N:
-      return canMoveDown;
     case PipeConnection.S:
-      return canMoveUp;
+      return validOverrideMove || canMoveUp || canMoveDown;
     case PipeConnection.E:
-      return canMoveLeft;
     case PipeConnection.W:
-      return canMoveRight;
+      return validOverrideMove || canMoveLeft || canMoveRight;
     case PipeConnection.Island:
-      return canMoveDown || canMoveUp;
+      return validOverrideMove || canMoveDown || canMoveUp;
     case PipeConnection.NS:
     case PipeConnection.NW:
     case PipeConnection.SW:
@@ -1210,12 +1214,7 @@ export const validPipeExit = (exitCoord: number, state: GameState, es: EngineSta
     case PipeConnection.NWE:
     case PipeConnection.SWE:
     case PipeConnection.NSWE:
-      return !!(
-        (canMoveDown && override & FLAG_SOUTH) ||
-        (canMoveUp && override & FLAG_NORTH) ||
-        (canMoveRight && override & FLAG_EAST) ||
-        (canMoveLeft && override & FLAG_WEST)
-      );
+      return validOverrideMove;
     default:
       return false;
   }
@@ -1227,11 +1226,15 @@ export const findPipeExit = (entryCoord: number, entryDir: DIR, state: GameState
   const entrance = es.pipesMap[entryCoord];
   const override = es.pipeOverrides[entryCoord];
   if (override) {
+    const validUp = !!(override & FLAG_SOUTH) || override === PipeConnection.S || override === PipeConnection.Island;
+    const validDown = !!(override & FLAG_NORTH) || override === PipeConnection.N || override === PipeConnection.Island;
+    const validRight = !!(override & FLAG_WEST) || override === PipeConnection.E;
+    const validLeft = !!(override & FLAG_EAST) || override === PipeConnection.W;
     const valid = !!(
-      (entryDir === DIR.UP && override & FLAG_SOUTH) ||
-      (entryDir === DIR.DOWN && override & FLAG_NORTH) ||
-      (entryDir === DIR.RIGHT && override & FLAG_WEST) ||
-      (entryDir === DIR.LEFT && override & FLAG_EAST)
+      (entryDir === DIR.UP && validUp) ||
+      (entryDir === DIR.DOWN && validDown) ||
+      (entryDir === DIR.RIGHT && validRight) ||
+      (entryDir === DIR.LEFT && validLeft)
     );
     if (!valid) {
       return false;

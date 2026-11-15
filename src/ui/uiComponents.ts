@@ -9,7 +9,7 @@ export function showGameOverUI(loseMessage: string, uiElements: HTMLElement[]) {
   const yInit = 160;
   const padding = 72;
   UI.drawDarkOverlay(uiElements);
-  UI.drawText('YOU DIED!', '22px', yInit, uiElements, { color: ACCENT_COLOR });
+  UI.drawText('YOU DIED!', '22px', yInit, uiElements, { color: ACCENT_COLOR, className: 'title-gradient' });
   const height = UI.drawText(loseMessage, '9.6px', yInit + padding, uiElements, { width: 300 });
   UI.drawText('[Press any key]', '6px', yInit + padding * 2 - 25 + height, uiElements, { width: 300, color: '#9b976c' })
 }
@@ -24,7 +24,7 @@ interface ShowPauseMenuCallbacks {
 export function showPauseUIPreviewMode(uiElements: HTMLElement[], callbacks: Pick<ShowPauseMenuCallbacks, 'unpause'>) {
   const { unpause } = callbacks;
   UI.drawDarkOverlay(uiElements);
-  UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR });
+  UI.drawText("PAUSED", '24px', 196, uiElements, { color: ACCENT_COLOR, className: 'title-gradient' });
   const button = UI.drawButton("RESUME", 192, 280, unpause, uiElements)
   button.classList.add('minimood', 'focus-invert');
   button.id = 'pauseButtonResume';

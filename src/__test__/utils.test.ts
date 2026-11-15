@@ -465,6 +465,14 @@ describe("Utils", () => {
         { given: [15, 10, DIR.DOWN], expected: [15, 11, DIR.DOWN] },
       ], overrides);
     });
+    it.skip('should debug pipe overrides', () => {
+      const levelData = buildLevel(pipeTestLevel2);
+      const pipesMap: Record<number, PipeConnection> = {};
+      buildPipesMap(levelData.pipes, pipesMap, pipeTestLevel2.pipeOverrides);
+      if (DEBUG) {
+        debugPipesMap(pipesMap);
+      }
+    })
   });
 });
 
@@ -480,3 +488,19 @@ const pipeTestLevel: Level = {
   layout: buildMapLayout(data),
   colors: undefined,
 } satisfies Level;
+
+const pipeTestLevel2: Level = (() => {
+  // url: <http://localhost:3000/snek-js/editor/?data=CmMoKCcnJycnJycnJycnJycnJ1khT1kpZ09RISEpZ08nJydRWlpLJycqY2N8NDY1fFJJR0hUfFVudGl0bGVkIE1hcHwxMjAwMEUyX19WRVYjMTVDMkNCLjExOURBNFMyQzJDNjMuMzMzMzcxV1MxOTE5MzhXLjRCM0Y3Mi41NjQ4ODRiQjQxRmJDODU3YkREOTl8Tk5OVkVFRUVFRTEhKWYnUSEhIU8oTExMTExMTGYgKkwKLi0jRTB8SiBQSyEpKVBQIWcpTFhYTjEtMS0xLU8hIFEqTCFTLjBEMEQxQy5WMXxXLjEzMTMyQVlRZylKKVBaSypMKVBQUF9FM3xiLkZGYygoKmYpIGdKUAFnZmNiX1pZV1ZTUU9OTEtKRS4qKSgnIV8%25253D&id=5085c1c5-851b-4cd4-bae5-8ca1b3a00ec4>
+  const layout = `CmMoKCcnJycnJycnJycnJycnJ1khT1kpZ09RISEpZ08nJydRWlpLJycqY2N8NDY1fFJJR0hUfFVudGl0bGVkIE1hcHwxMjAwMEUyX19WRVYjMTVDMkNCLjExOURBNFMyQzJDNjMuMzMzMzcxV1MxOTE5MzhXLjRCM0Y3Mi41NjQ4ODRiQjQxRmJDODU3YkREOTl8Tk5OVkVFRUVFRTEhKWYnUSEhIU8oTExMTExMTGYgKkwKLi0jRTB8SiBQSyEpKVBQIWcpTFhYTjEtMS0xLU8hIFEqTCFTLjBEMEQxQy5WMXxXLjEzMTMyQVlRZylKKVBaSypMKVBQUF9FM3xiLkZGYygoKmYpIGdKUAFnZmNiX1pZV1ZTUU9OTEtKRS4qKSgnIV8%253D`;
+  const pipeOverrides = { 518: 10, 519: 6, 523: 10, 526: 6, 548: 5, 549: 9, 553: 5, 556: 9, 560: 6, 561: 10, 590: 9, 591: 5, 706: 8, 707: 4, 714: 4, 715: 8, 724: 1, 725: 1, 726: 1, 736: 8, 737: 4, 744: 4, 745: 8, 754: 2, 755: 2, 756: 2, 766: 8, 767: 4, 774: 4, 775: 8 };
+  const [data] = decodeMapData(layout);
+  return {
+    id: "-pipes-test-",
+    name: "pipes-test",
+    timeToClear: 0,
+    applesToClear: 0,
+    pipeOverrides,
+    layout: buildMapLayout(data),
+    colors: undefined,
+  } satisfies Level;
+})()

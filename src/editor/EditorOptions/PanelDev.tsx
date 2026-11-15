@@ -111,12 +111,35 @@ export const PanelDev = ({ data, options, mapId, synced, setData, setOptions, re
     }
   }
 
+  const handleCopyPipeOverrides = () => {
+    const pipeOverridesStr = Object.entries(pruneMap(data?.pipeOverrides))
+        .filter(([key, value]) => !!key && !!value)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(", ");
+    navigator.clipboard.writeText(pipeOverridesStr);
+    toast.success("Copied pipe overrides to clipboard");
+  }
+
+  const hasAnyPipeOverrides = !!Object.values(pruneMap(data?.pipeOverrides)).length;
+
   return (
     <div ref={panelRef}>
       <Stack marginBottom row align="center" justify="spaceBetween">
         <CopyLinkDev />
       </Stack>
       <hr />
+      {hasAnyPipeOverrides && (
+        <>
+          <Stack marginBottom row align="center" justify="spaceBetween">
+            <button onClick={handleCopyPipeOverrides} className={styles.copyDevLinkButton}>
+              <span>
+                Copy Pipe Overrides
+              </span>
+            </button>
+          </Stack>
+          <hr />
+        </>
+      )}
       <div>
         <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleInputFileChange} />
       </div>
