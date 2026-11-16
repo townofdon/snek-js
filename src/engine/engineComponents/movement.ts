@@ -17,9 +17,12 @@ import {
   Sound,
 } from "@/types";
 import {
+  checkCollision,
   checkHasPortalAtLocation,
   checkIsMoving,
   clamp,
+  COLLISION_MASK_ALL,
+  COLLISION_MASK_EXCLUDE_PIPES,
   dirToUnitVector,
   getBestPortalExitDirection,
   getCoordIndex,
@@ -31,10 +34,8 @@ import {
 import {
   canExplodeBarrelAt,
   checkCanBreakWallsWithoutDamage,
-  checkCollision,
   checkInvincible,
   checkRewindAllowed,
-  checkSnakeTrapped,
   wallBreakableAt,
 } from "./logic";
 import { Context } from "./context";
@@ -89,10 +90,10 @@ export function checkPortalTeleportWillHit(ctx: Context, position: Vector, dir: 
     portalLink: portal.link,
     playerDirection: player.direction,
     portalExitMode: es.level.portalExitConfig?.[portal.channel] || portal.exitMode,
-    checkCollision: (location) => checkCollision(ctx, location),
+    checkCollision: (location) => checkCollision(ctx, location, COLLISION_MASK_EXCLUDE_PIPES),
     hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, es.portalsMap),
   });
-  return !!checkCollision(ctx, portal.link.copy().add(dirToUnitVector(newDir)));
+  return !!checkCollision(ctx, portal.link.copy().add(dirToUnitVector(newDir)), COLLISION_MASK_EXCLUDE_PIPES);
 }
 
 export function _updateCurrentMoveSpeed(ctx: Context) {
@@ -244,7 +245,7 @@ export function _movePlayer(ctx: Context, normalizedSpeed: number, isSnakeTrappe
   }
 
   // calc grace period
-  const willHitSomething = checkCollision(ctx, futurePosition) || checkPortalTeleportWillHit(ctx, futurePosition, player.direction);
+  const willHitSomething = checkCollision(ctx, futurePosition, COLLISION_MASK_ALL) || checkPortalTeleportWillHit(ctx, futurePosition, player.direction);
   const canAutoRewind = checkRewindAllowed(ctx, invincible);
   const canBreakWallsWithoutDamage = checkCanBreakWallsWithoutDamage(ctx);
   const breakable = (wallBreakableAt(ctx, getCoordIndex(futurePosition)) && canBreakWallsWithoutDamage)
@@ -270,7 +271,7 @@ export function _movePlayer(ctx: Context, normalizedSpeed: number, isSnakeTrappe
   // extra move on first lunge frame
   if (isFirstLungeFrame
     && !willHitSomething
-    && !checkCollision(ctx, player.position.copy().add(currentMove))
+    && !checkCollision(ctx, player.position.copy().add(currentMove), COLLISION_MASK_ALL)
     && !segments.existsAt(player.position.x, player.position.y)
   ) {
     moveSegments(ctx);

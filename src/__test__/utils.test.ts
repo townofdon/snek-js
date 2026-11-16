@@ -11,9 +11,8 @@ import {
   isOrthogonalDirection,
   isSameDirection,
   rotateSystemAfterPortalTraverse,
-  validPipeExit,
 } from "../utils";
-import { DIR, EngineState, Level, PipeConnection } from "../types";
+import { Context, DIR, EngineState, Level, PipeConnection } from "../types";
 import { Vector } from "p5";
 import { GRIDCOUNT_X, GRIDCOUNT_Y } from "@/constants";
 import { DEFAULT_ENGINE_STATE, DEFAULT_GAME_STATE } from "@/defaults";
@@ -177,13 +176,12 @@ describe("Utils", () => {
     const ANSI_YELLOW = "\x1b[33m";
     console.log('-------------');
     const exits = [];
-    const engineState = { ...DEFAULT_ENGINE_STATE, pipesMap };
     for (let y = 0; y < GRIDCOUNT_Y; y++) {
       let str = '';
       for (let x = 0; x < GRIDCOUNT_X; x++) {
         const connection = pipesMap[getCoordIndex2(x, y)];
         const char = getPipeChar(pipesMap[getCoordIndex2(x, y)]);
-        const exit = validPipeExit(getCoordIndex2(x, y), DEFAULT_GAME_STATE, engineState);
+        const exit = false;
         if (exit) {
           str += ANSI_RED + char + ANSI_RESET;
           exits.push(getCoordIndex2(x, y));
@@ -299,82 +297,6 @@ describe("Utils", () => {
       }
     });
   });
-  describe("validPipeExit", () => {
-    it("should correctly identify pipe exits", () => {
-      const pipes: Vector[] = [
-        new Vector(15, 15),
-        new Vector(14, 15),
-        new Vector(14, 14),
-        new Vector(13, 14),
-        new Vector(15, 14),
-        new Vector(15, 13),
-        new Vector(16, 15),
-        new Vector(17, 15),
-        new Vector(17, 14),
-        new Vector(18, 14),
-        new Vector(17, 16),
-        new Vector(18, 16),
-        new Vector(19, 13),
-        new Vector(19, 14),
-        new Vector(19, 15),
-        new Vector(19, 16),
-        new Vector(19, 17),
-        new Vector(19, 18),
-        new Vector(19, 19),
-        new Vector(19, 20),
-        new Vector(20, 20),
-        new Vector(20, 21),
-        // ---
-        new Vector(10, 3),
-        new Vector(9, 3),
-        new Vector(8, 3),
-        new Vector(8, 4),
-        new Vector(8, 5),
-        new Vector(9, 5),
-        new Vector(10, 5),
-        new Vector(11, 5),
-        new Vector(12, 5),
-        new Vector(13, 5),
-        new Vector(14, 5),
-        new Vector(15, 5),
-        new Vector(16, 5),
-        new Vector(17, 5),
-        new Vector(18, 5),
-        new Vector(19, 5),
-        new Vector(20, 5),
-        new Vector(20, 4),
-        new Vector(20, 3),
-        new Vector(19, 3),
-        new Vector(18, 3),
-        // ---
-        new Vector(3, 27),
-        new Vector(4, 27),
-        new Vector(4, 28),
-        new Vector(3, 28),
-      ];
-      const pipesMap: Record<number, PipeConnection> = {};
-      buildPipesMap(pipes, pipesMap, {});
-      if (DEBUG) {
-        debugPipesMap(pipesMap);
-      }
-      const engineState = { ...DEFAULT_ENGINE_STATE, pipesMap };
-      // assert known valid exits
-      assert(validPipeExit(getCoordIndex2(10, 3), DEFAULT_GAME_STATE, engineState));
-      assert(validPipeExit(getCoordIndex2(18, 3), DEFAULT_GAME_STATE, engineState));
-      assert(validPipeExit(getCoordIndex2(15, 13), DEFAULT_GAME_STATE, engineState));
-      assert(validPipeExit(getCoordIndex2(19, 13), DEFAULT_GAME_STATE, engineState));
-      assert(validPipeExit(getCoordIndex2(13, 14), DEFAULT_GAME_STATE, engineState));
-      assert(validPipeExit(getCoordIndex2(20, 21), DEFAULT_GAME_STATE, engineState));
-      // assert known invalid exits
-      assert(!validPipeExit(getCoordIndex2(21, 21), DEFAULT_GAME_STATE, engineState));
-      assert(!validPipeExit(getCoordIndex2(13, 13), DEFAULT_GAME_STATE, engineState));
-      assert(!validPipeExit(getCoordIndex2(13, 15), DEFAULT_GAME_STATE, engineState));
-      assert(!validPipeExit(getCoordIndex2(14, 14), DEFAULT_GAME_STATE, engineState));
-      assert(!validPipeExit(getCoordIndex2(12, 14), DEFAULT_GAME_STATE, engineState));
-      assert(!validPipeExit(getCoordIndex2(15, 12), DEFAULT_GAME_STATE, engineState));
-      assert(!validPipeExit(getCoordIndex2(15, 14), DEFAULT_GAME_STATE, engineState));
-    });
-  });
   describe('findPipeExit', () => {
     type PipeTest = { given: [number, number, DIR], expected: [number, number, DIR] };
     const runTests = (pipesMap: Record<number, PipeConnection>, tests: PipeTest[], overrides: Record<number, PipeConnection> = {}) => {
@@ -383,7 +305,8 @@ describe("Utils", () => {
       tests.forEach(({ given, expected }, i) => {
         let result: ([number, DIR] | false) = [-1, null];
         try {
-          result = findPipeExit(getCoordIndex2(given[0], given[1]), given[2], DEFAULT_GAME_STATE, engineState);
+          const ctx = { state: DEFAULT_GAME_STATE, es: engineState } as Context;
+          result = findPipeExit(ctx, getCoordIndex2(given[0], given[1]), given[2]);
           assert(result, 'no exit found');
           const [coord, exitDir] = result || [];
           assert.strictEqual(coord, getCoordIndex2(expected[0], expected[1]));

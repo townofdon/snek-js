@@ -4,12 +4,13 @@ import { HURT_STUN_TIME, LUNGE_STEPS, MAX_APPLES_TO_CLEAR, SPEED_LIMIT_ULTRA, ST
 import {
   analyzeFloodFillTrappedResult,
   buildTrappedFloodGrid,
+  checkCollision,
   clamp,
+  COLLISION_MASK_ALL,
+  COLLISION_MASK_EXCLUDE_PIPES,
   dirToUnitVector,
-  findPipeExit,
   floodFillTrapped,
   getCoordIndex,
-  getCoordIndex2,
   getLevelProgress,
   isBreakableBarrier,
 } from "@/utils";
@@ -79,70 +80,6 @@ export function calculateSnakeSize(ctx: Context): number {
   return size + 1;
 }
 
-export function checkCollision(ctx: Context, vec: Vector, checkBarricade = true): DamageType {
-  const {
-    es,
-    state,
-    player,
-    segments,
-  } = ctx;
-  if (state.isExitingLevel) return DamageType.None;
-  if (state.isExited) return DamageType.None;
-  if (state.isGameWon) return DamageType.None;
-  const coord = getCoordIndex(vec);
-  // self
-  const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
-  const rewindingFromArmor = state.isRewinding && state.timeSinceArmorProtection < es.difficulty.invincibilityTime;
-  if (segments.containsCoord(coord) && !invincible && !rewindingFromArmor) {
-    return DamageType.HitSelf;
-  }
-  // clip reality
-  if (es.level.disableWallCollision) return DamageType.None;
-  // door
-  if (es.doorsMap[coord]) {
-    return DamageType.HitDoor;
-  }
-  // barrier
-  const isPassableBarrier = state.isDoorsOpen && es.passablesMap[coord];
-  if (!isPassableBarrier && es.barriersMap[coord]) {
-    return DamageType.HitBarrier;
-  }
-  // lock
-  if (es.locksMap[coord]) {
-    if (es.locksMap[coord].channel === KeyChannel.Yellow && state.hasKeyYellow) return DamageType.None;
-    if (es.locksMap[coord].channel === KeyChannel.Red && state.hasKeyRed) return DamageType.None;
-    if (es.locksMap[coord].channel === KeyChannel.Blue && state.hasKeyBlue) return DamageType.None;
-    return DamageType.HitLock;
-  }
-  // pipe
-  if (es.pipesMap[coord] && !findPipeExit(getCoordIndex(vec), player.direction, state, es)) {
-    return DamageType.HitBarrier;
-  }
-  // threats
-  if (es.threatsMap[coord] === ThreatType.LaserDiode) {
-    return DamageType.HitBarrier;
-  }
-  if (es.threatsMap[coord] === ThreatType.ExplodableBarrel) {
-    return DamageType.HitBarrier;
-  }
-  if (checkBarricade && es.threatsMap[coord] === ThreatType.Barricade && !state.isButtonPressed) {
-    return DamageType.HitBarrier;
-  }
-  if (es.threatsMap[coord] === ThreatType.Spikes && !state.isButtonPressed && !invincible) {
-    return DamageType.SpikePierce;
-  }
-  if (es.threatsMap[coord] === ThreatType.WallSpikes && !state.isButtonPressed && !invincible) {
-    return DamageType.SpikePierce;
-  }
-  if (es.threatsMap[coord] === ThreatType.Saw && !state.isButtonPressed && !invincible) {
-    return DamageType.SawCut;
-  }
-  if (es.threatsMap[coord] === ThreatType.Flamethrower) {
-    return DamageType.HitBarrier;
-  }
-  return DamageType.None;
-}
-
 export function checkSnakeTrapped(ctx: Context) {
   const {
     es,
@@ -151,11 +88,11 @@ export function checkSnakeTrapped(ctx: Context) {
     segments,
   } = ctx;
   if (![DamageType.HitBarrier, DamageType.HitDoor, DamageType.HitSelf, DamageType.HitLock].includes(state.lastHurtBy)) return false;
-  const hasHit = !!checkCollision(ctx, player.position);
+  const hasHit = !!checkCollision(ctx, player.position, COLLISION_MASK_ALL);
   let trapped = true;
   let maxSegmentIndex = -1;
   const visited: Record<number, boolean> = {};
-  const grid = buildTrappedFloodGrid((loc) => checkCollision(ctx, loc), ctx, true);
+  const grid = buildTrappedFloodGrid((loc) => checkCollision(ctx, loc, COLLISION_MASK_EXCLUDE_PIPES), ctx, true);
   outer:
   for (let idx = 0; idx <= Math.min(clamp(state.lives, 2, 3), segments.length - 2); idx++) {
     // skip checking adjacent tiles around player position when their current pos overlaps a collidable tile
@@ -172,7 +109,7 @@ export function checkSnakeTrapped(ctx: Context) {
       if (visited[getCoordIndex(test)]) {
         continue;
       }
-      if (!test.equals(player.position) && !checkCollision(ctx, test)) {
+      if (!test.equals(player.position) && !checkCollision(ctx, test, COLLISION_MASK_EXCLUDE_PIPES)) {
         const result = floodFillTrapped(getCoordIndex(test), 10, grid, visited, false, false);
         trapped = analyzeFloodFillTrappedResult(result, segments.length);
         if (trapped && result.maxSegmentIndex > maxSegmentIndex) {

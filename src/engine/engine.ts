@@ -77,6 +77,8 @@ import {
   isValidThreatType,
   lerp,
   sluggify,
+  checkCollision,
+  COLLISION_MASK_ALL,
   } from "../utils";
 import { VectorList } from "../collections/vectorList";
 import { Gradients } from '../collections/gradients';
@@ -124,7 +126,7 @@ import { AcquirePickupScene, AcquirePickupSceneConstructorArgs } from '@/scenes/
 import { DEFAULT_ENGINE_STATE } from '@/defaults';
 import { checkPortalTeleportWillHit, reboundSnake } from './engineComponents/movement';
 import { engineRendering } from './engineComponents/rendering';
-import { checkCollision, checkRewindAllowed } from './engineComponents/logic';
+import { checkRewindAllowed } from './engineComponents/logic';
 import { allowAchievements, checkAchievementForDeath, checkAchievementForLevelCompletion } from '@/achievements';
 import { Context } from './engineComponents/context';
 import { addPoints, applyMortalRuin, resetStats, setStats, startMoving } from './engineComponents/mutations';
@@ -820,7 +822,7 @@ export function engine({
     const currentMove = dirToUnitVector(dir);
     for (let i = 0; i < numMoves; i++) {
       const futurePosition = pos.add(currentMove);
-      const willHit = !!checkCollision(ctx, futurePosition) || checkPortalTeleportWillHit(ctx, futurePosition, dir);
+      const willHit = !!checkCollision(ctx, futurePosition, COLLISION_MASK_ALL) || checkPortalTeleportWillHit(ctx, futurePosition, dir);
       if (willHit) return true;
     }
     return false;
@@ -968,7 +970,7 @@ export function engine({
     drawPuffs(puffs);
 
     renderer.drawPlayerMoveArrows(p5, player.position, es.moves.length > 0 ? es.moves[0] : player.direction);
-    drawPlayerPlannedMoves(es.portalsMap, (loc) => checkCollision(ctx, loc, true));
+    drawPlayerPlannedMoves(es.portalsMap, (loc) => checkCollision(ctx, loc, COLLISION_MASK_ALL));
 
     for (let i = 0; i < segments.length; i++) {
       drawPlayerSegment(segments.get(i), i);

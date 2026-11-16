@@ -76,6 +76,10 @@ export enum DIR {
   DOWN = 'DOWN',
   LEFT = 'LEFT',
   RIGHT = 'RIGHT',
+  N = 'UP',
+  S = 'DOWN',
+  W = 'LEFT',
+  E = 'RIGHT',
 }
 
 export enum MOVE {

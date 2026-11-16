@@ -34,8 +34,11 @@ import {
 import { getCurrentGamepadSprint } from "../gamepad";
 import {
   byCoord,
+  checkCollision,
   checkHasPortalAtLocation,
   clamp,
+  COLLISION_MASK_ALL,
+  COLLISION_MASK_EXCLUDE_PIPES,
   coordToVec,
   dirToUnitVector,
   findPipeExit,
@@ -79,7 +82,6 @@ import {
   checkSnakeTrapped,
   checkRewindAllowed,
   wallBreakableAt,
-  checkCollision,
 } from "./logic";
 import {
   acquireArmor,
@@ -223,7 +225,7 @@ export function coreLogicLoop(ctx: Context): Context {
     const futurePosition = isGameOver
       ? segments.get(0).copy().add(currentMove)
       : player.position.copy().add(currentMove);
-    const willHitSomething = !!checkCollision(ctx, futurePosition);
+    const willHitSomething = !!checkCollision(ctx, futurePosition, COLLISION_MASK_ALL);
     if (willHitSomething) {
       state.timeSinceHurtForgiveness = 0;
       return;
@@ -460,7 +462,7 @@ export function coreLogicLoop(ctx: Context): Context {
       portalLink: portal.link,
       playerDirection: player.direction,
       portalExitMode: es.level.portalExitConfig?.[portal.channel] || portal.exitMode,
-      checkCollision: (location) => checkCollision(ctx, location),
+      checkCollision: (location) => checkCollision(ctx, location, COLLISION_MASK_EXCLUDE_PIPES),
       hasPortalAtLocation: (location) => checkHasPortalAtLocation(location, es.portalsMap),
     });
     const prevDir = player.direction;
@@ -496,7 +498,7 @@ export function coreLogicLoop(ctx: Context): Context {
     || !pipe
   );
   if (!skip){
-    const result = findPipeExit(getCoordIndex(player.position), player.direction, state, es);
+    const result = findPipeExit(ctx, getCoordIndex(player.position), player.direction);
     if (result) {
       playSound(Sound.warp);
       const [exitCoord, exitDir] = result;
@@ -557,8 +559,7 @@ export function coreLogicLoop(ctx: Context): Context {
     || actionRunning(Action.EpicDeath)
   );
   if (!skip) {
-    const checkBarricade = state.timeSinceLastMove < BUTTON_RELEASE_DAMAGE_DELAY && state.timeSinceButtonPressChanged > BUTTON_RELEASE_DAMAGE_DELAY;
-    const hit = checkCollision(ctx, player.position, checkBarricade);
+    const hit = checkCollision(ctx, player.position, COLLISION_MASK_ALL);
     if (hit) {
       state.lastHurtBy = hit;
       didHit = true;
