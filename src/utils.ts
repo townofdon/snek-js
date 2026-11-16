@@ -1320,22 +1320,42 @@ export const findPipeExit = (ctx: Context, entryCoord: number, entryDir: DIR): (
     }
     // add candidates in reverse order of priority
     const annotation = es.annotations[candidate];
-    if (dir === DIR.N || annotation === MapAnnotation.ForceDirE) {
+    if (annotation === MapAnnotation.ForceDirE) {
       maybeAddCandidate(n, DIR.N);
       maybeAddCandidate(w, DIR.W);
       maybeAddCandidate(s, DIR.S);
       maybeAddCandidate(e, DIR.E);
-    } else if (dir === DIR.S || annotation === MapAnnotation.ForceDirW) {
+    } else if (annotation === MapAnnotation.ForceDirW) {
       maybeAddCandidate(s, DIR.S);
       maybeAddCandidate(e, DIR.E);
       maybeAddCandidate(n, DIR.N);
       maybeAddCandidate(w, DIR.W);
-    } else if (dir === DIR.W || annotation === MapAnnotation.ForceDirN) {
+    } else if (annotation === MapAnnotation.ForceDirN) {
       maybeAddCandidate(w, DIR.W);
       maybeAddCandidate(s, DIR.S);
       maybeAddCandidate(e, DIR.E);
       maybeAddCandidate(n, DIR.N);
-    } else if (dir === DIR.E || annotation === MapAnnotation.ForceDirS) {
+    } else if (annotation === MapAnnotation.ForceDirS) {
+      maybeAddCandidate(e, DIR.E);
+      maybeAddCandidate(n, DIR.N);
+      maybeAddCandidate(w, DIR.W);
+      maybeAddCandidate(s, DIR.S);
+    } else if (dir === DIR.N) {
+      maybeAddCandidate(n, DIR.N);
+      maybeAddCandidate(w, DIR.W);
+      maybeAddCandidate(s, DIR.S);
+      maybeAddCandidate(e, DIR.E);
+    } else if (dir === DIR.S) {
+      maybeAddCandidate(s, DIR.S);
+      maybeAddCandidate(e, DIR.E);
+      maybeAddCandidate(n, DIR.N);
+      maybeAddCandidate(w, DIR.W);
+    } else if (dir === DIR.W) {
+      maybeAddCandidate(w, DIR.W);
+      maybeAddCandidate(s, DIR.S);
+      maybeAddCandidate(e, DIR.E);
+      maybeAddCandidate(n, DIR.N);
+    } else if (dir === DIR.E) {
       maybeAddCandidate(e, DIR.E);
       maybeAddCandidate(n, DIR.N);
       maybeAddCandidate(w, DIR.W);
