@@ -185,6 +185,7 @@ export const levelPreviewSketch = (
         ...deepCloneData(dataFromLevel),
         lasersMap: {},
         pipeConnectionsMap: {},
+        pipeCapsMap: {},
         flamesMap: {},
         illuminationMap: {},
         playerSpawnPosition: dataFromLevel.playerSpawnPosition,
@@ -602,7 +603,7 @@ export const levelPreviewSketch = (
 
     function drawPipe(x: number, y: number, pipeConnection: PipeConnection) {
       // note: frame is 0-indexed
-      const frame = pipeConnection % 17;
+      const frame = pipeConnection % 19;
       if (options.pipeVariant === PipeVariant.Themed1) {
         spriteRenderer.drawSprite1x1(gfx, Image.ThemedPipes1, x, y, frame);
       } else if (options.pipeVariant === PipeVariant.Themed2) {
@@ -610,7 +611,7 @@ export const levelPreviewSketch = (
       } else if (options.pipeVariant === PipeVariant.Themed3) {
         spriteRenderer.drawSprite1x1(gfx, Image.ThemedPipes3, x, y, frame);
       } else {
-        const offset = (Math.max(options.pipeVariant, 1) - 1) * 17;
+        const offset = (Math.max(options.pipeVariant, 1) - 1) * 19;
         spriteRenderer.drawSprite1x1(gfx, Image.PipesSheet, x, y, frame + offset);
       }
     }

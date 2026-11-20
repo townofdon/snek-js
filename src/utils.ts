@@ -14,13 +14,11 @@ import {
   INVINCIBILITY_EXPIRE_FLASH_MS,
   IS_DEV,
   IS_LOCALHOST,
-  LUNGE_STEPS,
   MAX_APPLES_TO_CLEAR,
   PICKUP_EXPIRE_WARN_MS,
   PICKUP_LIFETIME_MS_EPIC,
   PICKUP_LIFETIME_MS_GALACTIC,
   PICKUP_LIFETIME_MS_LEGENDARY,
-  SPEED_LIMIT_ULTRA,
   THREAT_LASER_MAX_SPAN,
 } from "./constants";
 import {
@@ -67,8 +65,6 @@ import {
   FLAG_EAST,
   DamageType,
   MapAnnotation,
-  IVectorList,
-  HeldItems,
   Episode,
   GameMode,
   WearableFrame,
@@ -1189,6 +1185,25 @@ const getPipeIdx = (coord: number, pipesMap: Record<number, PipeConnection>): Pi
   return idx;
 }
 
+const getPipeCapIdx = (coord: number, pipesMap: Record<number, PipeConnection>, pipeOverrides: Record<number, PipeConnection>): PipeConnection => {
+  let connection = 0;
+  const x = getCoordX(coord);
+  const y = getCoordY(coord);
+  const on = y > 0 ? (pipeOverrides[getCoordIndex2(x, y - 1)] || 0) : 0;
+  const os = y < GRIDCOUNT_Y - 1 ? (pipeOverrides[getCoordIndex2(x, y + 1)] || 0) : 0;
+  const ow = x > 0 ? (pipeOverrides[getCoordIndex2(x - 1, y)] || 0) : 0;
+  const oe = x < GRIDCOUNT_X - 1 ? (pipeOverrides[getCoordIndex2(x + 1, y)] || 0) : 0;
+  const n = y > 0 ? pipesMap[getCoordIndex2(x, y - 1)] : PipeConnection.Unset;
+  const s = y < GRIDCOUNT_Y - 1 ? pipesMap[getCoordIndex2(x, y + 1)] : PipeConnection.Unset;
+  const w = x > 0 ? pipesMap[getCoordIndex2(x - 1, y)] : PipeConnection.Unset;
+  const e = x < GRIDCOUNT_X - 1 ? pipesMap[getCoordIndex2(x + 1, y)] : PipeConnection.Unset;
+  if (n > 0 && on < PipeConnection.Barrier && normalizePipeConnection(n) & FLAG_SOUTH) connection += FLAG_NORTH;
+  if (s > 0 && os < PipeConnection.Barrier && normalizePipeConnection(s) & FLAG_NORTH) connection += FLAG_SOUTH;
+  if (w > 0 && ow < PipeConnection.Barrier && normalizePipeConnection(w) & FLAG_EAST) connection += FLAG_WEST;
+  if (e > 0 && oe < PipeConnection.Barrier && normalizePipeConnection(e) & FLAG_WEST) connection += FLAG_EAST;
+  return connection;
+}
+
 export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConnection>, pipeOverrides: Record<number, PipeConnection>) => {
   for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
     pipesMap[coord] = undefined;
@@ -1202,9 +1217,67 @@ export const buildPipesMap = (pipes: Vector[], pipesMap: Record<number, PipeConn
     for (let x = 0; x < GRIDCOUNT_X; x++) {
       const coord = getCoordIndex2(x, y);
       if (!pipesMap[coord]) continue;
-      const idx = pipeOverrides[coord] || getPipeIdx(coord, pipesMap);
+      const connection = getPipeIdx(coord, pipesMap);
+      let override = pipeOverrides[coord];
+      if (override === PipeConnection.Barrier || override === PipeConnection.Door) {
+        if (false
+          || connection === PipeConnection.N
+          || connection === PipeConnection.S
+          || connection === PipeConnection.W
+          || connection === PipeConnection.E
+          || connection === PipeConnection.NS
+          || connection === PipeConnection.WE
+        ) {
+          override = PipeConnection.NSWE;
+        } else {
+          override = 0;
+        }
+      }
+      const idx = override || connection;
       if (!idx) continue;
       pipesMap[coord] = idx;
+    }
+  }
+}
+
+export const buildCappedPipes = (pipeCapsMap: Record<number, PipeConnection>, pipesMap: Record<number, PipeConnection>, pipeOverrides: Record<number, PipeConnection>) => {
+  const seen: Record<number, boolean> = {};
+  for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+    pipeCapsMap[coord] = undefined;
+  }
+  for (let y = 0; y < GRIDCOUNT_Y; y++) {
+    for (let x = 0; x < GRIDCOUNT_X; x++) {
+      const coord = getCoordIndex2(x, y);
+      if (!pipesMap[coord]) continue;
+      if (seen[coord]) continue;
+      if (pipeOverrides[coord] !== PipeConnection.Door && pipeOverrides[coord] !== PipeConnection.Barrier) continue;
+      // set flag on pipe cell
+      pipeCapsMap[coord] = PipeConnection.Barrier;
+      // flood fill out
+      const candidates: number[] = [coord];
+      while (candidates.length) {
+        const current = candidates.pop();
+        if (seen[current]) continue;
+        if (outOfBoundsCoord(current)) continue;
+        seen[current] = true;
+        const x = getCoordX(current);
+        const y = getCoordY(current);
+        const n = getCoordIndex2(x, y - 1);
+        const s = getCoordIndex2(x, y + 1);
+        const w = getCoordIndex2(x - 1, y);
+        const e = getCoordIndex2(x + 1, y);
+        if (!pipesMap[current]) {
+          // set pipe cap
+          const connection = getPipeCapIdx(current, pipesMap, pipeOverrides);
+          if (connection) pipeCapsMap[current] = connection;
+          continue;
+        }
+        pipeCapsMap[current] = PipeConnection.Barrier;
+        if (!seen[n]) candidates.push(n);
+        if (!seen[s]) candidates.push(s);
+        if (!seen[w]) candidates.push(w);
+        if (!seen[e]) candidates.push(e);
+      };
     }
   }
 }
@@ -1223,10 +1296,19 @@ function validPipeMove(ctx: Context, fromCoord: number, toCoord: number): boolea
   if (getManhattanDistance(frx, fry, tox, toy) !== 1) {
     return false;
   }
-  const from = normalizePipeConnection(es.pipeOverrides[fromCoord] || es.pipesMap[fromCoord]) || 0;
-  const to = normalizePipeConnection(es.pipeOverrides[toCoord] || es.pipesMap[toCoord]) || 0;
+  let from = normalizePipeConnection(es.pipeOverrides[fromCoord] || es.pipesMap[fromCoord]) || 0;
+  let to = normalizePipeConnection(es.pipeOverrides[toCoord] || es.pipesMap[toCoord]) || 0;
+  // capped pipe
+  const fromCap = es.pipeCapsMap[fromCoord];
+  const toCap = es.pipeCapsMap[toCoord];
+  if (!state.isDoorsOpen && ((from && fromCap) || (to && toCap))) {
+    return false;
+  }
   // potential exit
   if (!to) {
+    if (from === PipeConnection.Barrier || from === PipeConnection.Door) {
+      from = normalizePipeConnection(es.pipesMap[fromCoord]);
+    };
     const validFrom =  !!(
       (FLAG_NORTH & from && dy === -1) ||
       (FLAG_SOUTH & from && dy === 1) ||
@@ -1244,6 +1326,8 @@ function validPipeMove(ctx: Context, fromCoord: number, toCoord: number): boolea
   if (!state.isDoorsOpen && to === PipeConnection.Door) {
     return false;
   }
+  if (from === PipeConnection.Barrier || from === PipeConnection.Door) from = es.pipesMap[fromCoord];
+  if (to === PipeConnection.Barrier || to === PipeConnection.Door) to = es.pipesMap[toCoord];
   if (FLAG_NORTH & from && FLAG_SOUTH & to) return true;
   if (FLAG_SOUTH & from && FLAG_NORTH & to) return true;
   if (FLAG_WEST & from && FLAG_EAST & to) return true;
@@ -1275,6 +1359,9 @@ export const findPipeExit = (ctx: Context, entryCoord: number, entryDir: DIR): (
   if (!es.pipesMap) return false;
   if (!es.pipesMap[entryCoord]) return false;
   const entrance = normalizePipeConnection(es.pipeOverrides[entryCoord] || es.pipesMap[entryCoord]);
+  if (entrance === PipeConnection.Barrier || entrance === PipeConnection.Door) {
+    return false;
+  }
   const entranceValid = !!(
     (entryDir === DIR.UP && entrance & FLAG_SOUTH) ||
     (entryDir === DIR.DOWN && entrance & FLAG_NORTH) ||

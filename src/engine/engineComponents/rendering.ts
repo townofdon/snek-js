@@ -67,6 +67,11 @@ import {
   SmokeType,
   ThreatWallSpikesFrame,
   Tile16Frame,
+  PipeConnection,
+  FLAG_NORTH,
+  FLAG_SOUTH,
+  FLAG_WEST,
+  FLAG_EAST,
 } from "@/types";
 import { UI_CANVAS_LEFT, UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
 import { PALETTE } from "@/palettes";
@@ -779,18 +784,60 @@ export function engineRendering({
         const x = Math.floor(coord % GRIDCOUNT_X);
         const y = Math.floor(coord / GRIDCOUNT_X);
         // note: frame is 0-indexed
-        const frame = es.pipesMap[coord] % 17;
+        let frame = (es.pipeOverrides[coord] || es.pipesMap[coord]) % 19;
+        if (frame === PipeConnection.Door && state.isDoorsOpen) frame = PipeConnection.DoorOpen;
         if (es.level.pipeVariant === PipeVariant.Themed1) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes1, x, y, frame);
+          // if (frame)
         } else if (es.level.pipeVariant === PipeVariant.Themed2) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes2, x, y, frame);
         } else if (es.level.pipeVariant === PipeVariant.Themed3) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes3, x, y, frame);
         } else {
-          const offset = (Math.max(es.level.pipeVariant || 1, 1) - 1) * 17;
+          const offset = (Math.max(es.level.pipeVariant || 1, 1) - 1) * 19;
           spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, x, y, frame + offset);
         }
       }
+      if (!state.isDoorsOpen && !es.pipesMap[coord] && es.pipeCapsMap[coord]) {
+        let rotation = 0;
+        let flipx = false;
+        if (es.pipeCapsMap[coord] & FLAG_NORTH) {
+          rotation = getRotationFromDirection(DIR.UP);
+        }
+        if (es.pipeCapsMap[coord] & FLAG_SOUTH) {
+          rotation = getRotationFromDirection(DIR.DOWN);
+        }
+        if (es.pipeCapsMap[coord] & FLAG_WEST) {
+          flipx = true;
+        }
+        drawPipeCap(coord, rotation, flipx);
+      }
+    }
+  }
+
+  function drawPipeCap(coord: number, rotation: number, flipx: boolean) {
+    const gfx = gfxFG;
+    const x = Math.floor(coord % GRIDCOUNT_X);
+    const y = Math.floor(coord / GRIDCOUNT_X);
+    // note: frame is 1-indexed
+    if (es.level.pipeVariant === PipeVariant.Themed1) {
+      withFlipx(gfx, x, y, flipx, (tx, ty) => {
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap1, tx, ty, rotation);
+      });
+    } else if (es.level.pipeVariant === PipeVariant.Themed2) {
+      withFlipx(gfx, x, y, flipx, (tx, ty) => {
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap2, tx, ty, rotation);
+      });
+    } else if (es.level.pipeVariant === PipeVariant.Themed3) {
+      withFlipx(gfx, x, y, flipx, (tx, ty) => {
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap3, tx, ty, rotation);
+      });
+    } else {
+      const frame = 134;
+      const offset = Math.max(es.level.pipeVariant || 1, 1) - 1;
+      withFlipx(gfx, x, y, flipx, (tx, ty) => {
+        spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, tx, ty, frame + offset - 1, rotation);
+      });
     }
   }
 

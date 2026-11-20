@@ -361,6 +361,7 @@ export interface EngineState {
   lasersMap: Record<number, LaserCell>,
   switchesMap: Record<number, SwitchType>,
   pipesMap: Record<number, PipeConnection>,
+  pipeCapsMap: Record<number, PipeConnection>,
   flamesMap: Record<number, boolean>,
   illuminationMap: Record<number, number>,
   annotations: Record<number, MapAnnotation>,
@@ -885,7 +886,9 @@ export enum PipeConnection {
   SWE,  // 0b1110
   NSWE, // 0b1111
   Barrier,
-  Door, // TODO: ADD DOOR SPRITE
+  Door,
+  DoorOpen,
+  Cap,
   Island, // special case - no neighbors
 }
 
@@ -1430,6 +1433,9 @@ export enum Image {
   ThemedPipes1 = '__pipes1-rendered-at-runtime__',
   ThemedPipes2 = '__pipes2-rendered-at-runtime__',
   ThemedPipes3 = '__pipes3-rendered-at-runtime__',
+  ThemedPipeCap1 = '__pipecap1-rendered-at-runtime__',
+  ThemedPipeCap2 = '__pipecap2-rendered-at-runtime__',
+  ThemedPipeCap3 = '__pipecap3-rendered-at-runtime__',
   ThemedDoor = '__door-rendered-at-runtime__',
   ThemedDoorAlt = '__door-alt-rendered-at-runtime__',
   ThemedSegmentNE = '__segment-ne-rendered-at-runtime__',
@@ -1530,6 +1536,9 @@ export type ThemedImage =
   | Image.ThemedPipes1
   | Image.ThemedPipes2
   | Image.ThemedPipes3
+  | Image.ThemedPipeCap1
+  | Image.ThemedPipeCap2
+  | Image.ThemedPipeCap3
 ;
 
 // a range of sprites selected from a larger spritesheet

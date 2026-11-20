@@ -45,6 +45,9 @@ import {
   Tile16Frame,
   LightSource,
   LightType,
+  FLAG_NORTH,
+  FLAG_SOUTH,
+  FLAG_WEST,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -56,6 +59,7 @@ import { renderer } from '@/engine/renderer';
 import { Fonts } from '../fonts';
 import { PALETTE, getExtendedPalette } from '../palettes';
 import {
+  buildCappedPipes,
   buildPipesMap,
   coordToVec,
   getCoordIndex2,
@@ -124,6 +128,7 @@ export interface EditorSketchReturn {
 export interface ExtendedSketchData extends EditorData {
   lasersMap: Record<number, LaserCell>,
   pipeConnectionsMap: Record<number, PipeConnection>,
+  pipeCapsMap: Record<number, PipeConnection>,
   flamesMap: Record<number, boolean>,
   illuminationMap: Record<number, number>,
   lightSources: Record<number, LightSource>,
@@ -135,6 +140,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
     ...deepCloneData(EDITOR_DEFAULTS.data),
     lasersMap: {},
     pipeConnectionsMap: {},
+    pipeCapsMap: {},
     flamesMap: {},
     illuminationMap: {},
     playerSpawnPosition: EDITOR_DEFAULTS.data.playerSpawnPosition.copy(),
@@ -444,6 +450,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         startPortalParticles();
         const pipes: Vector[] = Object.entries(data.pipesMap).filter(([_, val]) => !!val).map(([key]) => coordToVec(Number(key)));
         buildPipesMap(pipes, data.pipeConnectionsMap, data.pipeOverrides);
+        buildCappedPipes(data.pipeCapsMap, data.pipeConnectionsMap, data.pipeOverrides);
       }
       renderElements();
     }
@@ -539,7 +546,10 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           }
 
           if (data.pipeConnectionsMap[coord]) {
-            drawPipe(x, y, data.pipeConnectionsMap[coord]);
+            drawPipe(x, y, data.pipeOverrides[coord] || data.pipeConnectionsMap[coord]);
+          }
+          if (!data.pipeConnectionsMap[coord] && data.pipeCapsMap[coord]) {
+            drawPipeCap(x, y);
           }
 
           if (data.switchesMap[coord]) {
@@ -1078,7 +1088,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
     function drawPipe(x: number, y: number, pipeConnection: PipeConnection, isStatic = true) {
       // note: frame is 0-indexed
-      const frame = pipeConnection % 17;
+      const frame = pipeConnection % 19;
       if (isStatic) {
         if (options.pipeVariant === PipeVariant.Themed1) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes1, x, y, frame);
@@ -1087,7 +1097,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         } else if (options.pipeVariant === PipeVariant.Themed3) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes3, x, y, frame);
         } else {
-          const offset = (Math.max(options.pipeVariant, 1) - 1) * 17;
+          const offset = (Math.max(options.pipeVariant, 1) - 1) * 19;
           spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, x, y, frame + offset);
         }
       } else {
@@ -1098,9 +1108,46 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         } else if (options.pipeVariant === PipeVariant.Themed3) {
           spriteRenderer.drawSprite1x1(p5, Image.ThemedPipes3, x, y, frame);
         } else {
-          const offset = (Math.max(options.pipeVariant, 1) - 1) * 17;
+          const offset = (Math.max(options.pipeVariant, 1) - 1) * 19;
           spriteRenderer.drawSprite1x1(p5, Image.PipesSheet, x, y, frame + offset);
         }
+      }
+    }
+
+    function drawPipeCap(x, y) {
+      const coord = getCoordIndex2(x, y);
+      let rotation = 0;
+      let flipx = false;
+      if (data.pipeCapsMap[coord] & FLAG_NORTH) {
+        flipx = true;
+        rotation = getRotationFromDirection(DIR.UP);
+      }
+      if (data.pipeCapsMap[coord] & FLAG_SOUTH) {
+        rotation = getRotationFromDirection(DIR.DOWN);
+      }
+      if (data.pipeCapsMap[coord] & FLAG_WEST) {
+        flipx = true;
+      }
+      // note: frame is 1-indexed
+      const frame = 134;
+      const themedFrame = 139;
+      if (options.pipeVariant === PipeVariant.Themed1) {
+        withFlipx(gfx, x, y, flipx, (tx, ty) => {
+          spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap1, tx, ty, rotation);
+        });
+      } else if (options.pipeVariant === PipeVariant.Themed2) {
+        withFlipx(gfx, x, y, flipx, (tx, ty) => {
+          spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap2, tx, ty, rotation);
+        });
+      } else if (options.pipeVariant === PipeVariant.Themed3) {
+        withFlipx(gfx, x, y, flipx, (tx, ty) => {
+          spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap3, tx, ty, rotation);
+        });
+      } else {
+        const offset = Math.max(options.pipeVariant || 1, 1) - 1;
+        withFlipx(gfx, x, y, flipx, (tx, ty) => {
+          spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, tx, ty, frame + offset - 1, rotation);
+        });
       }
     }
 

@@ -67,6 +67,8 @@ export const sidebarPipesSketch = (container: HTMLElement, canvas: Record<PipeCo
       [PipeConnection.N]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[PipeConnection.N].current),
       [PipeConnection.S]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[PipeConnection.S].current),
       [PipeConnection.NS]: p5.createGraphics(canvasSizeX, canvasSizeY, p5.P2D, canvas[PipeConnection.NS].current),
+      [PipeConnection.DoorOpen]: null,
+      [PipeConnection.Cap]: null,
     } satisfies Record<PipeConnection, P5.Graphics>;
     const fonts = new Fonts(p5);
     const spriteRenderer = new SpriteRenderer({ p5, screenShake });
@@ -106,22 +108,23 @@ export const sidebarPipesSketch = (container: HTMLElement, canvas: Record<PipeCo
         spriteRenderer.setThemedAppleImage(extendedPalette);
         spriteRenderer.setThemedBorderImages(extendedPalette);
         spriteRenderer.setThemedDoorImage(extendedPalette);
-        Object.keys(gfx).map(Number).forEach((key: PipeConnection) => {
-          gfx[key].clear(0, 0, 0, 0);
-        });
+        Object.keys(gfx).map(Number)
+          .filter((key: PipeConnection) => (false
+            && key !== PipeConnection.DoorOpen
+            && key !== PipeConnection.Cap
+          ))
+          .forEach((key: PipeConnection) => {
+            gfx[key].clear(0, 0, 0, 0);
+          });
         renderElements();
       }
       renderer.tick();
     }
 
     function renderElements() {
-      const x = 0;
-      const y = 0;
-      // drawPipe(gfx[PipeConnection.Unset])
       [
         PipeConnection.Barrier,
-        // TODO: ADD DOOR PIPE SPRITE
-        // PipeConnection.Door,
+        PipeConnection.Door,
         PipeConnection.N,
         PipeConnection.S,
         PipeConnection.NS,
@@ -144,7 +147,7 @@ export const sidebarPipesSketch = (container: HTMLElement, canvas: Record<PipeCo
 
     function drawPipe(pipeGfx: P5.Graphics, x: number, y: number, pipeConnection: PipeConnection) {
       // note: frame is 0-indexed
-      const frame = (pipeConnection + 17 - 1) % 17 + 1;
+      const frame = pipeConnection % 19;
       if (state.pipeVariant === PipeVariant.Themed1) {
         spriteRenderer.drawSprite1x1Static(pipeGfx, Image.ThemedPipes1, x, y, frame);
       } else if (state.pipeVariant === PipeVariant.Themed2) {
@@ -152,7 +155,7 @@ export const sidebarPipesSketch = (container: HTMLElement, canvas: Record<PipeCo
       } else if (state.pipeVariant === PipeVariant.Themed3) {
         spriteRenderer.drawSprite1x1Static(pipeGfx, Image.ThemedPipes3, x, y, frame);
       } else {
-        const offset = (Math.max(state.pipeVariant, 1) - 1) * 17;
+        const offset = (Math.max(state.pipeVariant, 1) - 1) * 19;
         spriteRenderer.drawSprite1x1Static(pipeGfx, Image.PipesSheet, x, y, frame + offset);
       }
     }

@@ -37,6 +37,8 @@ export const SidebarPipes = ({ activePipe, options, setPipe }: SidebarPipesProps
     [PipeConnection.Island]: useRef<HTMLCanvasElement>(null),
     [PipeConnection.Barrier]: useRef<HTMLCanvasElement>(null),
     [PipeConnection.Door]: useRef<HTMLCanvasElement>(null),
+    [PipeConnection.DoorOpen]: null,
+    [PipeConnection.Cap]: null,
   } satisfies Record<PipeConnection, React.MutableRefObject<HTMLCanvasElement>>;
 
   useLayoutEffect(() => {
@@ -73,6 +75,8 @@ export const SidebarPipes = ({ activePipe, options, setPipe }: SidebarPipesProps
       [PipeConnection.SWE]: "17",
       [PipeConnection.NSWE]: "18",
       [PipeConnection.Island]: "19",
+      [PipeConnection.DoorOpen]: "",
+      [PipeConnection.Cap]: "",
     } satisfies Record<PipeConnection, string>)[pipe];
     const color = pipe === activePipe ? '#ffffff' : '#444';
     return (
@@ -118,18 +122,18 @@ export const SidebarPipes = ({ activePipe, options, setPipe }: SidebarPipesProps
           {renderButton(PipeConnection.Door)}
           {renderButton(PipeConnection.N)}
           {renderButton(PipeConnection.S)}
-          {renderButton(PipeConnection.NS)}
           {renderButton(PipeConnection.W)}
-          {renderButton(PipeConnection.NW)}
-          {renderButton(PipeConnection.SW)}
-          {renderButton(PipeConnection.NSW)}
           {renderButton(PipeConnection.E)}
-          {renderButton(PipeConnection.NE)}
-          {renderButton(PipeConnection.SE)}
-          {renderButton(PipeConnection.NSE)}
+          {renderButton(PipeConnection.NS)}
           {renderButton(PipeConnection.WE)}
+          {renderButton(PipeConnection.NW)}
+          {renderButton(PipeConnection.NE)}
+          {renderButton(PipeConnection.SW)}
+          {renderButton(PipeConnection.SE)}
           {renderButton(PipeConnection.NWE)}
           {renderButton(PipeConnection.SWE)}
+          {renderButton(PipeConnection.NSW)}
+          {renderButton(PipeConnection.NSE)}
           {renderButton(PipeConnection.NSWE)}
         </div>
       </Stack>
@@ -158,6 +162,8 @@ const pickupLabel = (annotation: PipeConnection) => {
     [PipeConnection.Barrier]: "Barrier Junction",
     [PipeConnection.Door]: "Door Junction",
     [PipeConnection.Island]: "Island",
+    [PipeConnection.DoorOpen]: "",
+    [PipeConnection.Cap]: "",
   } satisfies Record<PipeConnection, string>)[annotation];
   return tooltipText || 'Unknown';
 }

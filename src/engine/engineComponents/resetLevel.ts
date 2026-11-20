@@ -1,7 +1,7 @@
 import { DEFAULT_PORTALS, GLOBAL_LIGHT_DEFAULT, GRIDCOUNT_X, GRIDCOUNT_Y, MAX_LIVES, NUM_APPLES_START, PICKUP_LIFETIME_MS, START_SNAKE_SIZE } from "@/constants";
 import { DEFAULT_GAME_STATE } from "@/defaults";
 import { BarrierType, Boss, Context, DamageType, DIR, GameMode, Image, LevelType, LightSource, LightType, MusicTrack, PickupType, PortalChannel, PreyType, ReplayMode, ScreenShakeState, SpritesheetRange, ThreatType } from "@/types";
-import { buildPipesMap, getCoordIndex, getCoordIndex2, invertDirection, recalculateFlamesMap, recalculateLasersMap } from "@/utils";
+import { buildCappedPipes, buildPipesMap, getCoordIndex, getCoordIndex2, invertDirection, recalculateFlamesMap, recalculateLasersMap } from "@/utils";
 import { spawnApple } from "./spawning";
 import { buildMapLayout, decodeMapData } from "@/editor/utils/editorUtils";
 import { getExtendedPalette, PALETTE } from "@/palettes";
@@ -269,6 +269,7 @@ export function resetLevelImpl(ctx: Context, params: ResetLevelImplParams) {
   });
 
   buildPipesMap(levelData.pipes, es.pipesMap, es.pipeOverrides);
+  buildCappedPipes(es.pipeCapsMap, es.pipesMap, es.pipeOverrides);
 
   // add initial threats
   for (let i = 0; i < levelData.threats.length; i++) {
