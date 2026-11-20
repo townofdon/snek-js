@@ -263,14 +263,14 @@ export class TheTechnician extends BaseBoss {
           const blink = Math.floor(elapsed / 100) % 2 === 0;
           if (blink) this.p5.push();
           if (blink) this.p5.tint(0, 0, 0, 255);
-          this.spriteRenderer.drawSprite1x1(this.p5, Image.BossTechnician, x, y, 3, 0, 1, shakeMul);
+          this.spriteRenderer.drawSprite1x1(this.p5, Image.BossTechnician, x, y, 4, 0, 1, shakeMul);
           if (blink) this.p5.pop();
         } else {
           // invalid
           this.spriteRenderer.drawImage1x1(this.p5, Image.__TEST__, x, y, 0, 1, 0);
         }
       } else if (this.stateMachine === BossStateMachine.Dying) {
-        this.spriteRenderer.drawSprite1x1(this.p5, Image.BossTechnician, x, y, 3, 0, 1, 0);
+        this.spriteRenderer.drawSprite1x1(this.p5, Image.BossTechnician, x, y, 4, 0, 1, 0);
       } else if (this.stateMachine === BossStateMachine.Fighting || this.stateMachine === BossStateMachine.Intro) {
         const angry = this.isFinalPhase() && this.loopState.timeScale > 0;
         const t = triangle(((elapsed - this.timeSinceLastPhaseStart) / (1200 / 2)) % 2);
