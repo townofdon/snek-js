@@ -1250,7 +1250,7 @@ export const buildCappedPipes = (pipeCapsMap: Record<number, PipeConnection>, pi
       const coord = getCoordIndex2(x, y);
       if (!pipesMap[coord]) continue;
       if (seen[coord]) continue;
-      if (pipeOverrides[coord] !== PipeConnection.Door && pipeOverrides[coord] !== PipeConnection.Barrier) continue;
+      if (pipeOverrides[coord] !== PipeConnection.Door) continue;
       // set flag on pipe cell
       pipeCapsMap[coord] = PipeConnection.Barrier;
       // flood fill out
