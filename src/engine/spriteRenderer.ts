@@ -536,17 +536,17 @@ export class SpriteRenderer implements ISpriteRenderer {
     this.drawSpritesheetAnim1x1(...args);
   }
 
-  public drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1, screenshakeMul = 0.5) => {
+  public drawSprite1x1 = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1, screenshakeMul = 0.5, offsetx = 0, offsety = 0) => {
     if (!ANIMATIONS[image]) {
       throw new Error(`no animation data found for image "${image}"`);
     }
     const { frames } = ANIMATIONS[image];
-    this.drawImage1x1(gfx, image, x, y, rotation, alpha, screenshakeMul, frame, frames);
+    this.drawImage1x1(gfx, image, x, y, rotation, alpha, screenshakeMul, frame, frames, offsetx, offsety);
   }
 
-  public drawSprite1x1Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1, screenshakeMul = 0.5) => {
+  public drawSprite1x1Static = (gfx: P5 | P5.Graphics, image: SpritesheetImage, x: number, y: number, frame = 0, rotation = 0, alpha = 1, screenshakeMul = 0.5, offsetx = 0, offsety = 0) => {
     if (this.isStaticCached) return;
-    this.drawSprite1x1(gfx, image, x, y, frame, rotation, alpha, screenshakeMul);
+    this.drawSprite1x1(gfx, image, x, y, frame, rotation, alpha, screenshakeMul, offsetx, offsety);
   }
 
   public drawImage1x1Static = (...args: Parameters<SpriteRenderer['drawImage1x1']>) => {
@@ -564,6 +564,8 @@ export class SpriteRenderer implements ISpriteRenderer {
     screenshakeMul = 1,
     frame = 0,
     frames = 1,
+    offsetx = 0,
+    offsety = 0,
   ) => {
     if (!frames) throw new Error(`frames cannot be zero. val=${frames},img=${image}`);
     const loaded = this.images[image];
@@ -585,8 +587,8 @@ export class SpriteRenderer implements ISpriteRenderer {
     gfx.push();
     gfx.noSmooth();
     gfx.translate(
-      posx,
-      posy,
+      posx + offsetx,
+      posy + offsety,
     );
     if (rotation) {
       gfx.translate(

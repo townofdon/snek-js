@@ -784,7 +784,9 @@ export function engineRendering({
         const x = Math.floor(coord % GRIDCOUNT_X);
         const y = Math.floor(coord / GRIDCOUNT_X);
         // note: frame is 0-indexed
-        let frame = (es.pipeOverrides[coord] || es.pipesMap[coord]) % 19;
+        const pipeConnection = (es.pipeOverrides[coord] || es.pipesMap[coord]);
+        let frame = pipeConnection % 19;
+        if (pipeConnection === PipeConnection.Island) frame = 0;
         if (frame === PipeConnection.Door && state.isDoorsOpen) frame = PipeConnection.DoorOpen;
         if (es.level.pipeVariant === PipeVariant.Themed1) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes1, x, y, frame);
@@ -801,7 +803,9 @@ export function engineRendering({
       if (!state.isDoorsOpen && !es.pipesMap[coord] && es.pipeCapsMap[coord]) {
         let rotation = 0;
         let flipx = false;
+        let offsetx = 0;
         if (es.pipeCapsMap[coord] & FLAG_NORTH) {
+          flipx = true;
           rotation = getRotationFromDirection(DIR.UP);
         }
         if (es.pipeCapsMap[coord] & FLAG_SOUTH) {
@@ -810,33 +814,34 @@ export function engineRendering({
         if (es.pipeCapsMap[coord] & FLAG_WEST) {
           flipx = true;
         }
-        drawPipeCap(coord, rotation, flipx);
+        drawPipeCap(coord, rotation, flipx, offsetx);
       }
     }
   }
 
-  function drawPipeCap(coord: number, rotation: number, flipx: boolean) {
+  function drawPipeCap(coord: number, rotation: number, flipx: boolean, offsetx: number) {
     const gfx = gfxFG;
     const x = Math.floor(coord % GRIDCOUNT_X);
     const y = Math.floor(coord / GRIDCOUNT_X);
+    const ssm = 0.5;
     // note: frame is 1-indexed
     if (es.level.pipeVariant === PipeVariant.Themed1) {
       withFlipx(gfx, x, y, flipx, (tx, ty) => {
-        spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap1, tx, ty, rotation);
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap1, tx, ty, rotation, 1, ssm, 0, 1, offsetx);
       });
     } else if (es.level.pipeVariant === PipeVariant.Themed2) {
       withFlipx(gfx, x, y, flipx, (tx, ty) => {
-        spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap2, tx, ty, rotation);
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap2, tx, ty, rotation, 1, ssm, 0, 1, offsetx);
       });
     } else if (es.level.pipeVariant === PipeVariant.Themed3) {
       withFlipx(gfx, x, y, flipx, (tx, ty) => {
-        spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap3, tx, ty, rotation);
+        spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap3, tx, ty, rotation, 1, ssm, 0, 1, offsetx);
       });
     } else {
       const frame = 134;
       const offset = Math.max(es.level.pipeVariant || 1, 1) - 1;
       withFlipx(gfx, x, y, flipx, (tx, ty) => {
-        spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, tx, ty, frame + offset - 1, rotation);
+        spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, tx, ty, frame + offset - 1, rotation, 1, ssm, offsetx);
       });
     }
   }

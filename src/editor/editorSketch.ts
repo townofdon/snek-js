@@ -1088,7 +1088,8 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
 
     function drawPipe(x: number, y: number, pipeConnection: PipeConnection, isStatic = true) {
       // note: frame is 0-indexed
-      const frame = pipeConnection % 19;
+      let frame = pipeConnection % 19;
+      if (pipeConnection === PipeConnection.Island) frame = 0;
       if (isStatic) {
         if (options.pipeVariant === PipeVariant.Themed1) {
           spriteRenderer.drawSprite1x1Static(gfx, Image.ThemedPipes1, x, y, frame);
@@ -1118,8 +1119,10 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       const coord = getCoordIndex2(x, y);
       let rotation = 0;
       let flipx = false;
+      let offsetx = 0;
       if (data.pipeCapsMap[coord] & FLAG_NORTH) {
         flipx = true;
+        offsetx = -2;
         rotation = getRotationFromDirection(DIR.UP);
       }
       if (data.pipeCapsMap[coord] & FLAG_SOUTH) {
@@ -1130,23 +1133,22 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
       }
       // note: frame is 1-indexed
       const frame = 134;
-      const themedFrame = 139;
       if (options.pipeVariant === PipeVariant.Themed1) {
         withFlipx(gfx, x, y, flipx, (tx, ty) => {
-          spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap1, tx, ty, rotation);
+          spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap1, tx, ty, rotation, 1, 0.5, 0, 1, offsetx);
         });
       } else if (options.pipeVariant === PipeVariant.Themed2) {
         withFlipx(gfx, x, y, flipx, (tx, ty) => {
-          spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap2, tx, ty, rotation);
+          spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap2, tx, ty, rotation, 1, 0.5, 0, 1, offsetx);
         });
       } else if (options.pipeVariant === PipeVariant.Themed3) {
         withFlipx(gfx, x, y, flipx, (tx, ty) => {
-          spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap3, tx, ty, rotation);
+          spriteRenderer.drawImage1x1(gfx, Image.ThemedPipeCap3, tx, ty, rotation, 1, 0.5, 0, 1, offsetx);
         });
       } else {
         const offset = Math.max(options.pipeVariant || 1, 1) - 1;
         withFlipx(gfx, x, y, flipx, (tx, ty) => {
-          spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, tx, ty, frame + offset - 1, rotation);
+          spriteRenderer.drawSprite1x1Static(gfx, Image.PipesSheet, tx, ty, frame + offset - 1, rotation, 1, 0.5, offsetx);
         });
       }
     }

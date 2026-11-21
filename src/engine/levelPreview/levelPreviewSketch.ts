@@ -603,7 +603,8 @@ export const levelPreviewSketch = (
 
     function drawPipe(x: number, y: number, pipeConnection: PipeConnection) {
       // note: frame is 0-indexed
-      const frame = pipeConnection % 19;
+      let frame = pipeConnection % 19;
+      if (pipeConnection === PipeConnection.Island) frame = 0;
       if (options.pipeVariant === PipeVariant.Themed1) {
         spriteRenderer.drawSprite1x1(gfx, Image.ThemedPipes1, x, y, frame);
       } else if (options.pipeVariant === PipeVariant.Themed2) {

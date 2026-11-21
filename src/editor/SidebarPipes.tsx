@@ -120,6 +120,7 @@ export const SidebarPipes = ({ activePipe, options, setPipe }: SidebarPipesProps
           {renderButton(PipeConnection.Unset)}
           {renderButton(PipeConnection.Barrier)}
           {renderButton(PipeConnection.Door)}
+          {renderButton(PipeConnection.Island)}
           {renderButton(PipeConnection.N)}
           {renderButton(PipeConnection.S)}
           {renderButton(PipeConnection.W)}
@@ -161,7 +162,7 @@ const pickupLabel = (annotation: PipeConnection) => {
     [PipeConnection.NSWE]: "Junction NSWE",
     [PipeConnection.Barrier]: "Barrier Junction",
     [PipeConnection.Door]: "Door Junction",
-    [PipeConnection.Island]: "Island",
+    [PipeConnection.Island]: "Island - NS",
     [PipeConnection.DoorOpen]: "",
     [PipeConnection.Cap]: "",
   } satisfies Record<PipeConnection, string>)[annotation];

@@ -108,14 +108,28 @@ export const sidebarPipesSketch = (container: HTMLElement, canvas: Record<PipeCo
         spriteRenderer.setThemedAppleImage(extendedPalette);
         spriteRenderer.setThemedBorderImages(extendedPalette);
         spriteRenderer.setThemedDoorImage(extendedPalette);
-        Object.keys(gfx).map(Number)
-          .filter((key: PipeConnection) => (false
-            && key !== PipeConnection.DoorOpen
-            && key !== PipeConnection.Cap
-          ))
-          .forEach((key: PipeConnection) => {
-            gfx[key].clear(0, 0, 0, 0);
-          });
+        [
+          PipeConnection.Barrier,
+          PipeConnection.Door,
+          PipeConnection.N,
+          PipeConnection.S,
+          PipeConnection.NS,
+          PipeConnection.W,
+          PipeConnection.NW,
+          PipeConnection.SW,
+          PipeConnection.NSW,
+          PipeConnection.E,
+          PipeConnection.NE,
+          PipeConnection.SE,
+          PipeConnection.NSE,
+          PipeConnection.WE,
+          PipeConnection.NWE,
+          PipeConnection.SWE,
+          PipeConnection.NSWE,
+          PipeConnection.Island,
+        ].forEach((key: PipeConnection) => {
+          gfx[key].clear(0, 0, 0, 0);
+        });
         renderElements();
       }
       renderer.tick();
@@ -140,6 +154,7 @@ export const sidebarPipesSketch = (container: HTMLElement, canvas: Record<PipeCo
         PipeConnection.NWE,
         PipeConnection.SWE,
         PipeConnection.NSWE,
+        PipeConnection.Island,
       ].forEach(pipe => {
         drawPipe(gfx[pipe], 0, 0, pipe);
       });
@@ -147,7 +162,8 @@ export const sidebarPipesSketch = (container: HTMLElement, canvas: Record<PipeCo
 
     function drawPipe(pipeGfx: P5.Graphics, x: number, y: number, pipeConnection: PipeConnection) {
       // note: frame is 0-indexed
-      const frame = pipeConnection % 19;
+      let frame = pipeConnection % 19;
+      if (pipeConnection === PipeConnection.Island) frame = 0;
       if (state.pipeVariant === PipeVariant.Themed1) {
         spriteRenderer.drawSprite1x1Static(pipeGfx, Image.ThemedPipes1, x, y, frame);
       } else if (state.pipeVariant === PipeVariant.Themed2) {

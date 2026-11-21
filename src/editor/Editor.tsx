@@ -241,6 +241,7 @@ export const Editor = () => {
         PipeConnection.Unset,
         PipeConnection.Barrier,
         PipeConnection.Door,
+        PipeConnection.Island,
         PipeConnection.N,
         PipeConnection.S,
         PipeConnection.W,
