@@ -48,6 +48,8 @@ import {
   FLAG_NORTH,
   FLAG_SOUTH,
   FLAG_WEST,
+  PushableType,
+  PushableFrame,
 } from '../types';
 import { Gradients } from '../collections/gradients';
 import { Particles } from '../collections/particles';
@@ -225,6 +227,7 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         case 'pipesMap':
         case 'annotations':
         case 'pipeOverrides':
+        case 'pushables':
           if (getIsDiff(key)) {
             // @ts-ignore
             data[key] = { ...incoming[key] };
@@ -560,6 +563,10 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
             drawPickup(x, y, data.pickupsMap[coord]);
           }
 
+          if (data.pushables[coord]) {
+            drawPushable(x, y, data.pushables[coord]);
+          }
+
           if (hasSegmentAt(x, y)) {
             renderer.drawGraphicalComponentStatic(gfx, graphicalComponents.snakeSegment, x, y, snakeAlpha);
           }
@@ -669,6 +676,9 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
           }
           if (data.pickupsMap[coord]) {
             drawPickup(tx, ty, data.pickupsMap[coord], false);
+          }
+          if (data.pushables[coord]) {
+            drawPushable(tx, ty, data.pushables[coord], false);
           }
           if (isValidPortalChannel(data.portalsMap[coord])) {
             const portalChannel = data.portalsMap[coord];
@@ -1182,6 +1192,46 @@ export const editorSketch = (container: HTMLElement, canvas: React.MutableRefObj
         case PickupType.HealthPack:
         case PickupType.WeightLossPill:
         default:
+          break;
+      }
+    }
+
+    function drawPushable(x: number, y: number, pushable: PushableType, isStatic = true) {
+      const pgfx = isStatic ? gfx : p5;
+      switch (pushable) {
+        case PushableType.Box1:
+          spriteRenderer.drawSprite1x1(pgfx, Image.PushableSheet, x, y, PushableFrame.Box1 - 1);
+          break;
+        case PushableType.Box1B:
+          spriteRenderer.drawSprite1x1(pgfx, Image.PushableSheet, x, y, PushableFrame.Box1B - 1);
+          break;
+        case PushableType.Box2:
+          spriteRenderer.drawSprite1x1(pgfx, Image.PushableSheet, x, y, PushableFrame.Box2 - 1);
+          break;
+        case PushableType.Box2B:
+          spriteRenderer.drawSprite1x1(pgfx, Image.PushableSheet, x, y, PushableFrame.Box2B - 1);
+          break;
+        case PushableType.Box2R:
+          spriteRenderer.drawSprite1x1(pgfx, Image.PushableSheet, x, y, PushableFrame.Box2R - 1);
+          break;
+        case PushableType.MirrorNE:
+          spriteRenderer.drawSprite1x1(pgfx, Image.PushableSheet, x, y, PushableFrame.MirrorWood - 1);
+          break;
+        case PushableType.MirrorNW:
+          withFlipx(pgfx, x, y, true, (tx, ty) => {
+            spriteRenderer.drawSprite1x1(pgfx, Image.PushableSheet, tx, ty, PushableFrame.MirrorWood - 1);
+          });
+          break;
+        case PushableType.MirrorSE:
+          withFlipx(pgfx, x, y, true, (tx, ty) => {
+            spriteRenderer.drawSprite1x1(pgfx, Image.PushableSheet, tx, ty, PushableFrame.MirrorWood - 1, getRotationFromDirection(DIR.LEFT));
+          });
+          break;
+        case PushableType.MirrorSW:
+          spriteRenderer.drawSprite1x1(pgfx, Image.PushableSheet, x, y, PushableFrame.MirrorWood - 1, getRotationFromDirection(DIR.LEFT));
+          break;
+        case PushableType.Yuzu:
+          spriteRenderer.drawSpritesheetAnim1x1(pgfx, SpritesheetRange.Yuzu , x, y, renderer.getElapsed());
           break;
       }
     }

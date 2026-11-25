@@ -69,6 +69,8 @@ import {
   GameMode,
   WearableFrame,
   Context,
+  PushableType,
+  PUSHABLE_TYPE_MAX,
 } from "./types";
 import { ExtendedSketchData } from "./editor/editorSketch";
 
@@ -580,6 +582,11 @@ export const isValidBarrierType = (barrierType: number): barrierType is BarrierT
 export const isValidPickupType = (pickupType: number): pickupType is PickupType => {
   if (pickupType === null || pickupType === undefined) return false;
   return Number.isInteger(pickupType) && pickupType > 0 && pickupType < PICKUP_TYPE_MAX;
+}
+
+export const isValidPushableType = (pushable: number): pushable is PushableType => {
+  if (pushable === null || pushable === undefined) return false;
+  return Number.isInteger(pushable) && pushable > 0 && pushable < PUSHABLE_TYPE_MAX;
 }
 
 export const isValidThreatType = (threatType: number): threatType is ThreatType => {
@@ -1114,7 +1121,7 @@ export function checkCollision(ctx: Context, vec: Vector, mask: number): DamageT
   // self
   const invincible = state.timeSinceInvincibleStart < es.difficulty.invincibilityTime;
   const rewindingFromArmor = state.isRewinding && state.timeSinceArmorProtection < es.difficulty.invincibilityTime;
-  if (segments.containsCoord(coord) && !invincible && !rewindingFromArmor) {
+  if (segments?.containsCoord(coord) && !invincible && !rewindingFromArmor) {
     return DamageType.HitSelf;
   }
   // clip reality

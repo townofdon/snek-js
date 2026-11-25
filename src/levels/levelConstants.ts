@@ -5,6 +5,7 @@ import {
   Level,
   MapAnnotation,
   PickupType,
+  PushableType,
   SwitchType,
   ThreatType,
 } from "../types";
@@ -448,6 +449,7 @@ export enum TILECHAR {
   ElectricCoil = "S",
   Button = "?",
   Pipe = "P",
+  Pushable = "|",
   PlayerSpawn = "O",
   // available chars: |")
 }
@@ -494,6 +496,7 @@ export const TILE_TO_FLOOD_FILL_TILE: Record<Tile, FloodFillTile> = {
   [Tile.Pickup]: 0, // handled by PICKUP_TYPE_TO_FLOOD_FILL_TILE
   [Tile.Switch]: 0, // handled by SWITCH_TYPE_TO_FLOOD_FILL_TILE
   [Tile.Pipe]: FloodFillTile.Pipe,
+  [Tile.Pushable]: 0, // handled by PUSHABLE_TYPE_TO_FLOOD_FILL_TILE
   [Tile.Annotation]: 0,
 } satisfies Record<Tile, FloodFillTile>;
 
@@ -766,6 +769,16 @@ export const FLOOD_FILL_TILE_TO_BARRIER_TYPE: Record<
   [FloodFillTile.SwitchButton]: 0,
   [FloodFillTile.Pipe]: 0,
   [FloodFillTile.ThreatElectricCoil]: 0,
+  [FloodFillTile.PushableBox1]: 0,
+  [FloodFillTile.PushableBox1B]: 0,
+  [FloodFillTile.PushableBox2]: 0,
+  [FloodFillTile.PushableBox2B]: 0,
+  [FloodFillTile.PushableBox2R]: 0,
+  [FloodFillTile.PushableMirrorNE]: 0,
+  [FloodFillTile.PushableMirrorNW]: 0,
+  [FloodFillTile.PushableMirrorSE]: 0,
+  [FloodFillTile.PushableMirrorSW]: 0,
+  [FloodFillTile.PushableYuzu]: 0,
 } satisfies Record<FloodFillTile, BarrierType>;
 
 type PowerupPickup =
@@ -945,3 +958,45 @@ export const FLOOD_FILL_TILE_TO_SWITCH_TYPE: Record<
   [FloodFillTile.None]: SwitchType.None,
   [FloodFillTile.SwitchButton]: SwitchType.Button,
 } satisfies Record<SwitchFloodFillTile, SwitchType>;
+
+type PushableFloodFillTile = (
+  | FloodFillTile.PushableBox1
+  | FloodFillTile.PushableBox1B
+  | FloodFillTile.PushableBox2
+  | FloodFillTile.PushableBox2B
+  | FloodFillTile.PushableBox2R
+  | FloodFillTile.PushableMirrorNE
+  | FloodFillTile.PushableMirrorNW
+  | FloodFillTile.PushableMirrorSE
+  | FloodFillTile.PushableMirrorSW
+  | FloodFillTile.PushableYuzu
+);
+
+export const PUSHABLE_TYPE_TO_FLOOD_FILL_TILE: Record<PushableType, FloodFillTile> =
+  {
+    [PushableType.None]: FloodFillTile.None,
+    [PushableType.Box1]: FloodFillTile.PushableBox1,
+    [PushableType.Box1B]: FloodFillTile.PushableBox1B,
+    [PushableType.Box2]: FloodFillTile.PushableBox2,
+    [PushableType.Box2B]: FloodFillTile.PushableBox2B,
+    [PushableType.Box2R]: FloodFillTile.PushableBox2R,
+    [PushableType.MirrorNE]: FloodFillTile.PushableMirrorNE,
+    [PushableType.MirrorNW]: FloodFillTile.PushableMirrorNW,
+    [PushableType.MirrorSE]: FloodFillTile.PushableMirrorSE,
+    [PushableType.MirrorSW]: FloodFillTile.PushableMirrorSW,
+    [PushableType.Yuzu]: FloodFillTile.PushableYuzu,
+  } satisfies Record<PushableType, FloodFillTile>;
+
+export const FLOOD_FILL_TILE_TO_PUSHABLE_TYPE: Record<PushableFloodFillTile, PushableType> =
+  {
+    [FloodFillTile.PushableBox1]: PushableType.Box1,
+    [FloodFillTile.PushableBox1B]: PushableType.Box1B,
+    [FloodFillTile.PushableBox2]: PushableType.Box2,
+    [FloodFillTile.PushableBox2B]: PushableType.Box2B,
+    [FloodFillTile.PushableBox2R]: PushableType.Box2R,
+    [FloodFillTile.PushableMirrorNE]: PushableType.MirrorNE,
+    [FloodFillTile.PushableMirrorNW]: PushableType.MirrorNW,
+    [FloodFillTile.PushableMirrorSE]: PushableType.MirrorSE,
+    [FloodFillTile.PushableMirrorSW]: PushableType.MirrorSW,
+    [FloodFillTile.PushableYuzu]: PushableType.Yuzu,
+  } satisfies Record<PushableFloodFillTile, PushableType>;

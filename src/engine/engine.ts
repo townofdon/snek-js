@@ -500,6 +500,7 @@ export function engine({
     drawParticles,
     drawPointsText,
     drawPortals,
+    drawPushables,
   } = engineRendering({
     p5,
     state,
@@ -939,6 +940,7 @@ export function engine({
     drawBarriers();
     drawDoors(doorsOpening);
     drawPipes();
+    drawPushables();
 
     for (let i = 0; i < es.keys.length; i++) {
       drawKey(es.keys[i])

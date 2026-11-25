@@ -1,5 +1,5 @@
 import P5 from "p5";
-import { DIR, EditorData, MapAnnotation, PickupType, PipeConnection } from "@/types";
+import { DIR, EditorData, MapAnnotation, PickupType, PipeConnection, PushableType } from "@/types";
 
 export type SetStateValue<T> = T | ((prev: T) => T)
 
@@ -20,6 +20,7 @@ export enum Tile {
   Pickup,
   Switch,
   Pipe,
+  Pushable,
   Annotation,
 }
 
@@ -30,9 +31,10 @@ export type EditorPickupType = (
 );
 
 export interface EditorMapExtendedData {
-    annotations: Record<number, MapAnnotation>,
-    pipeOverrides: Record<number, PipeConnection>,
-    localFilePath: string,
+  annotations: Record<number, MapAnnotation>,
+  pipeOverrides: Record<number, PipeConnection>,
+  pushables: Record<number, PushableType>,
+  localFilePath: string,
 }
 
 export interface MapSaveData {
@@ -64,25 +66,26 @@ export const validEditorData = (data: any): data is EditorData => {
   if (typeof data !== 'object') return false;
   const invalidFields = [];
   const sampleEditorData = {
-        applesMap: {},
-        threatsMap: {},
-        pickupsMap: {},
-        barriersMap: {},
-        decoratives1Map: {},
-        decoratives2Map: {},
-        doorsMap: {},
-        keysMap: {},
-        locksMap: {},
-        nospawnsMap: {},
-        passablesMap: {},
-        portalsMap: {},
-        switchesMap: {},
-        pipesMap: {},
-        annotations: {},
-        pipeOverrides: {},
-        playerSpawnPosition: new P5.Vector(15, 15),
-        startDirection: DIR.RIGHT,
-        localFilePath: '',
+      applesMap: {},
+      threatsMap: {},
+      pickupsMap: {},
+      pushables: {},
+      barriersMap: {},
+      decoratives1Map: {},
+      decoratives2Map: {},
+      doorsMap: {},
+      keysMap: {},
+      locksMap: {},
+      nospawnsMap: {},
+      passablesMap: {},
+      portalsMap: {},
+      switchesMap: {},
+      pipesMap: {},
+      annotations: {},
+      pipeOverrides: {},
+      playerSpawnPosition: new P5.Vector(15, 15),
+      startDirection: DIR.RIGHT,
+      localFilePath: '',
   } satisfies EditorData;
   Object.keys(sampleEditorData).forEach(key => {
     if (typeof data[key] !== typeof sampleEditorData[key]) {

@@ -11,6 +11,7 @@ import {
   MusicTrack,
   PickupType,
   PortalChannel,
+  PushableFrame,
   SpritesheetImage,
   SpritesheetRange,
   Threat16Frame,
@@ -615,6 +616,18 @@ export const ANIMATIONS: Record<SpritesheetImage, AnimationData> & Record<Sprite
     frameWidth: 16,
     frameHeight: 16,
   },
+  [Image.PushableSheet]: {
+    frames: 13,
+    timePerFrame: 300,
+    frameWidth: 16,
+    frameHeight: 16,
+  },
+  [SpritesheetRange.Yuzu]: {
+    src: Image.PushableSheet,
+    offset: PushableFrame.Yuzu1 - 1,
+    frames: 2,
+    timePerFrame: 300,
+  } satisfies AnimationDataForRange,
   [SpritesheetRange.None]: {
     src: Image.SegmentsSheet,
     offset: 0,

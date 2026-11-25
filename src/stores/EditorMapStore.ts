@@ -17,6 +17,7 @@ class EditorMapMetadataStore extends BaseStore<EditorMapExtendedData> {
     const extendedData = {
       annotations: pruneMap(raw?.annotations),
       pipeOverrides: pruneMap(raw?.pipeOverrides),
+      pushables: pruneMap(raw?.pushables),
       localFilePath: raw?.localFilePath || '',
     } satisfies EditorMapExtendedData;
     return { ...extendedData };
@@ -28,6 +29,7 @@ class EditorMapMetadataStore extends BaseStore<EditorMapExtendedData> {
     const extendedData = {
       annotations: pruneMap({ ...incoming.annotations }),
       pipeOverrides: pruneMap({ ...incoming.pipeOverrides }),
+      pushables: pruneMap({ ...incoming.pushables }),
       localFilePath: incoming?.localFilePath || '',
     } satisfies EditorMapExtendedData;
     this.setStore(extendedData);

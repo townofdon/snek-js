@@ -333,6 +333,22 @@ export interface LightSource {
   type: LightType,
 }
 
+export enum PushableType {
+  None = 0,
+  Box1,
+  Box1B,
+  Box2,
+  Box2B,
+  Box2R,
+  MirrorNE,
+  MirrorNW,
+  MirrorSE,
+  MirrorSW,
+  Yuzu,
+}
+
+export const PUSHABLE_TYPE_MAX = Math.max(...Object.values(PushableType).filter(v => typeof v === 'number')) + 1;
+
 export interface EngineState {
   level: Level,
   difficulty: Difficulty,
@@ -368,6 +384,7 @@ export interface EngineState {
   pipeOverrides: Record<number, PipeConnection>,
   snekDamage: Record<number, DamageType>,
   lightSources: Record<number, LightSource>,
+  pushables: Record<number, PushableType>,
 }
 
 export interface Outfit {
@@ -650,6 +667,7 @@ export interface Level{
   deathLocations?: Record<number, boolean>,
   annotations?: Record<number, MapAnnotation>,
   pipeOverrides?: Record<number, PipeConnection>,
+  pushables?: Record<number, PushableType>,
 }
 
 export enum BossStateMachine {
@@ -1055,6 +1073,16 @@ export enum FloodFillTile {
   PickupWeightLossPill,
   SwitchButton,
   Pipe,
+  PushableBox1,
+  PushableBox1B,
+  PushableBox2,
+  PushableBox2B,
+  PushableBox2R,
+  PushableMirrorNE,
+  PushableMirrorNW,
+  PushableMirrorSE,
+  PushableMirrorSW,
+  PushableYuzu,
 };
 
 export enum Initiator {
@@ -1168,6 +1196,7 @@ export interface EditorData {
   threatsMap: Record<number, Maybe<ThreatType>>,
   switchesMap: Record<number, Maybe<SwitchType>>,
   pipesMap: Record<number, Maybe<boolean>>,
+  pushables: Record<number, Maybe<PushableType>>,
   pickupsMap: Record<number, PickupType>,
   barriersMap: Record<number, Maybe<BarrierType>>,
   decoratives1Map: Record<number, Maybe<boolean>>,
@@ -1192,6 +1221,7 @@ export interface EditorDataSlice {
   switch: Maybe<SwitchType>,
   pipe: Maybe<boolean>,
   pickup: Maybe<PickupType>,
+  pushable: Maybe<PushableType>,
   barrier: Maybe<BarrierType>,
   deco1: Maybe<boolean>,
   deco2: Maybe<boolean>,
@@ -1511,6 +1541,7 @@ export enum Image {
   BossTechnician = 'snek-boss-technician.png',
   BossHealthbar = 'snek-boss-healthbar.png',
   WarningLight = 'snek-warning-light.png',
+  PushableSheet = 'snek-box.png',
 }
 
 export type ThemedImage =
@@ -1579,6 +1610,7 @@ export enum SpritesheetRange {
   BossHPDissolve,
   BossHPEmpty,
   WarningLightOn,
+  Yuzu,
 }
 export const SPRITESHEET_RANGE_MAX = Math.max(...Object.values(SpritesheetRange).filter(v => typeof v === 'number')) + 1;
 
@@ -1633,6 +1665,7 @@ export type SpritesheetImage =
   | Image.BossHealthbar
   | Image.ControlsKeyboardTurn
   | Image.WarningLight
+  | Image.PushableSheet
 ;
 
 export enum Threat48Frame {
@@ -1892,6 +1925,20 @@ export enum BossComponentFrame {
   TileCircuitWeak3,
   TileCircuitHit0,
   TileCircuitHit1,
+}
+
+export enum PushableFrame {
+  None = 0,
+  Box1,
+  Box1B,
+  Box2,
+  Box2B,
+  Box2R,
+  _unused_mirror_1,
+  MirrorWood,
+  MirrorMetal,
+  Yuzu1,
+  Yuzu2,
 }
 
 export enum WearableType {

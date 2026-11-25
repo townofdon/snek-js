@@ -72,6 +72,8 @@ import {
   FLAG_SOUTH,
   FLAG_WEST,
   FLAG_EAST,
+  PushableType,
+  PushableFrame,
 } from "@/types";
 import { UI_CANVAS_LEFT, UI_CANVAS_RIGHT, UI_PARENT_ID } from "@/ui/ui";
 import { PALETTE } from "@/palettes";
@@ -1733,6 +1735,53 @@ export function engineRendering({
     }
   }
 
+  function drawPushables() {
+    const gfx = gfxFGAction;
+    for (let y = 0; y < GRIDCOUNT_Y; y++) {
+      for (let x = 0; x < GRIDCOUNT_X; x++) {
+        const coord = getCoordIndex2(x, y);
+        if (es.pushables[coord]) {
+          switch (es.pushables[coord]) {
+            case PushableType.Box1:
+              spriteRenderer.drawSprite1x1(gfx, Image.PushableSheet, x, y, PushableFrame.Box1 - 1);
+              break;
+            case PushableType.Box1B:
+              spriteRenderer.drawSprite1x1(gfx, Image.PushableSheet, x, y, PushableFrame.Box1B - 1);
+              break;
+            case PushableType.Box2:
+              spriteRenderer.drawSprite1x1(gfx, Image.PushableSheet, x, y, PushableFrame.Box2 - 1);
+              break;
+            case PushableType.Box2B:
+              spriteRenderer.drawSprite1x1(gfx, Image.PushableSheet, x, y, PushableFrame.Box2B - 1);
+              break;
+            case PushableType.Box2R:
+              spriteRenderer.drawSprite1x1(gfx, Image.PushableSheet, x, y, PushableFrame.Box2R - 1);
+              break;
+            case PushableType.MirrorNE:
+              spriteRenderer.drawSprite1x1(gfx, Image.PushableSheet, x, y, PushableFrame.MirrorWood - 1);
+              break;
+            case PushableType.MirrorNW:
+              withFlipx(gfx, x, y, true, (tx, ty) => {
+                spriteRenderer.drawSprite1x1(gfx, Image.PushableSheet, tx, ty, PushableFrame.MirrorWood - 1);
+              });
+              break;
+            case PushableType.MirrorSE:
+              withFlipx(gfx, x, y, true, (tx, ty) => {
+                spriteRenderer.drawSprite1x1(gfx, Image.PushableSheet, tx, ty, PushableFrame.MirrorWood - 1, getRotationFromDirection(DIR.LEFT));
+              });
+              break;
+            case PushableType.MirrorSW:
+              spriteRenderer.drawSprite1x1(gfx, Image.PushableSheet, x, y, PushableFrame.MirrorWood - 1, getRotationFromDirection(DIR.LEFT));
+              break;
+            case PushableType.Yuzu:
+              spriteRenderer.drawSpritesheetAnim1x1(gfx, SpritesheetRange.Yuzu , x, y, renderer.getElapsed());
+              break;
+          }
+        }
+      }
+    }
+  }
+
   return {
     gfxBG,
     gfxExitLights,
@@ -1775,5 +1824,6 @@ export function engineRendering({
     drawParticles,
     drawPointsText,
     drawPortals,
+    drawPushables,
   };
 }

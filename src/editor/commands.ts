@@ -15,6 +15,7 @@ import {
   PipeConnection,
   PipeVariant,
   PortalChannel,
+  PushableType,
   SwitchType,
   ThreatType,
 } from "../types";
@@ -98,6 +99,7 @@ abstract class SetElementCommand implements Command {
       pipe: data.pipesMap[this.coord],
       annotation: data.annotations[this.coord],
       pipeOverride: data.pipeOverrides[this.coord],
+      pushable: data.pushables[this.coord],
     } satisfies EditorDataSlice;
     this.newData = {
       ...EDITOR_DEFAULTS.dataSlice,
@@ -147,6 +149,7 @@ export class SetPlayerSpawnCommand extends SetElementCommand {
         threat: data.threatsMap[coord],
         annotation: data.annotations[coord],
         pipeOverride: data.pipeOverrides[coord],
+        pushable: data.pushables[coord],
         startDirection: data.startDirection,
       } satisfies EditorDataSlice;
     }
@@ -236,6 +239,18 @@ export class SetPipeCommand extends SetElementCommand {
     } else {
       this.newData.pipe = true;
       this.newData.pipeOverride = pipeOverride || undefined;
+    }
+  }
+}
+
+export class SetPushableCommand extends SetElementCommand {
+  public readonly name = 'Draw Pushable';
+  public constructor(coord: number, data: EditorData, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, pushable: PushableType) {
+    super(coord, data, setData, rollbackLastCoordUpdated);
+    if (data.pushables[this.coord] && data.pushables[this.coord] === pushable) {
+      this.newData = null;
+    } else {
+      this.newData.pushable = pushable;
     }
   }
 }
@@ -577,6 +592,20 @@ export class SetLinePipeCommand extends SetLineCommand {
   };
 }
 
+export class SetLinePushableCommand extends SetLineCommand {
+  public readonly name = 'Draw Pushable';
+  private readonly pushable: PushableType;
+  public constructor(from: number, to: number, data: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated | undefined, pushable: PushableType) {
+    super(from, to, data, setData, rollbackLastCoordUpdated);
+    this.pushable = pushable;
+    this.newData.pipe = true;
+    this.newData.pushable = pushable;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.pushables[coord] || this.dataRef.current.pushables[coord] !== this.pushable;
+  };
+}
+
 export class SetLineThreatCommand extends SetLineCommand {
   public readonly name = 'Draw Threat';
   private threatType: ThreatType;
@@ -862,6 +891,20 @@ export class SetRectanglePipeCommand extends SetRectangleCommand {
   }
   protected test = (coord: number) => {
     return !this.dataRef.current.pipesMap[coord] || this.dataRef.current.pipeOverrides[coord] !== this.pipeOverride;
+  };
+}
+
+export class SetRectanglePushableCommand extends SetRectangleCommand {
+  public readonly name = 'Draw Pushable';
+  private readonly pushable: PushableType;
+  public constructor(from: number, to: number, dataRef: React.MutableRefObject<EditorData>, setData: SetData, rollbackLastCoordUpdated: RollbackLastCoordUpdated, pushable: PushableType) {
+    super(from, to, dataRef, setData, rollbackLastCoordUpdated);
+    pushable ||= undefined;
+    this.pushable = pushable;
+    this.newData.pushable = pushable;
+  }
+  protected test = (coord: number) => {
+    return !this.dataRef.current.pushables[coord] || this.dataRef.current.pushables[coord] !== this.pushable;
   };
 }
 
@@ -1221,6 +1264,7 @@ export class FloodFillCommand implements Command {
   private threatType: ThreatType;
   private switchType: SwitchType;
   private pickupType: PickupType;
+  private pushable: PushableType;
   private dataRef: React.MutableRefObject<EditorData>;
   private initialData: EditorData;
   private setData: (val: EditorData) => void;
@@ -1235,6 +1279,7 @@ export class FloodFillCommand implements Command {
     threatType: ThreatType,
     switchType: SwitchType,
     pickupType: PickupType,
+    pushable: PushableType,
     dataRef: React.MutableRefObject<EditorData>,
     setData: (val: EditorData) => void,
   ) {
@@ -1247,6 +1292,7 @@ export class FloodFillCommand implements Command {
     this.threatType = threatType;
     this.switchType = switchType;
     this.pickupType = pickupType;
+    this.pushable = pushable;
     this.dataRef = dataRef;
     this.initialData = dataRef.current;
     this.setData = setData;
@@ -1263,6 +1309,7 @@ export class FloodFillCommand implements Command {
         this.threatType,
         this.switchType,
         this.pickupType,
+        this.pushable,
         this.dataRef.current
       );
       if (!updates) {
@@ -1289,7 +1336,7 @@ export class FloodFillEmptyCommand extends FloodFillCommand {
     dataRef: React.MutableRefObject<EditorData>,
     setData: (val: EditorData) => void,
   ) {
-    super(Tile.None, x, y, 0, 0, 0, 0, 0, 0, dataRef, setData);
+    super(Tile.None, x, y, 0, 0, 0, 0, 0, 0, 0, dataRef, setData);
   }
 }
 

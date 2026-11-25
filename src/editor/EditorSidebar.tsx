@@ -12,6 +12,7 @@ interface EditorSidebarProps {
   sidebarAnnotations: React.ReactNode,
   sidebarPickups: React.ReactNode,
   sidebarPipes: React.ReactNode,
+  sidebarPushables: React.ReactNode,
 }
 
 export const EditorSidebar = ({
@@ -23,6 +24,7 @@ export const EditorSidebar = ({
   sidebarAnnotations,
   sidebarPickups,
   sidebarPipes,
+  sidebarPushables,
 }: EditorSidebarProps) => {
 
   const renderContent = () => {
@@ -46,6 +48,9 @@ export const EditorSidebar = ({
     }
     if (tile === Tile.Pipe) {
       return sidebarPipes;
+    }
+    if (tile === Tile.Pushable) {
+      return sidebarPushables;
     }
     return null;
   }

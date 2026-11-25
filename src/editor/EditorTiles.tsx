@@ -1,4 +1,4 @@
-import React, { act } from "react";
+import React from "react";
 import cx from 'classnames';
 
 import { Tile } from "./editorTypes";
@@ -31,6 +31,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Pickup]: styles.invincibility,
       [Tile.Switch]: styles.switch,
       [Tile.Pipe]: styles.pipe,
+      [Tile.Pushable]: styles.pushable,
       [Tile.Annotation]: styles.annotation,
     } satisfies Record<Tile, any>)[tile]
     const tileShortcut = ({
@@ -50,6 +51,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       [Tile.Pickup]: null,
       [Tile.Switch]: null,
       [Tile.Pipe]: null,
+      [Tile.Pushable]: null,
       [Tile.Annotation]: null,
     } satisfies Record<Tile, any>)[tile]
     return (
@@ -81,6 +83,7 @@ export const EditorTiles = ({ activeTile, setTile }: EditorTilesProps) => {
       {renderTile(Tile.Pickup)}
       {renderTile(Tile.Switch)}
       {renderTile(Tile.Pipe)}
+      {renderTile(Tile.Pushable)}
       {renderTile(Tile.Annotation)}
     </div>
   )

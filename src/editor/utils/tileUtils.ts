@@ -19,6 +19,7 @@ export const getTileLabel = (tile: Tile): string | null => {
     [Tile.Switch]: 'button',
     [Tile.Pipe]: 'pipe',
     [Tile.Annotation]: 'annotation',
+    [Tile.Pushable]: 'pushables',
   } satisfies Record<Tile, string>)[tile];
 }
 
@@ -41,5 +42,6 @@ export const getTileExplanation = (tile: Tile): string => {
     [Tile.Switch]: 'switch threats & obstacles on/off',
     [Tile.Pipe]: 'industrial pipe, also used for passage',
     [Tile.Annotation]: 'annotation markers (dev-only)',
+    [Tile.Pushable]: 'items the player can push around',
   } satisfies Record<Tile, string>)[tile];
 }

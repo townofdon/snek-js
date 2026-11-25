@@ -60,7 +60,7 @@ export const sidebarPickupsSketch = (container: HTMLElement, canvas: Record<Edit
     p5.setup = setup;
     function setup() {
       // create 1x1 canvas - p5 creates a default canvas and we don't need it.
-      p5.createCanvas(1, 1, p5.P2D).id("sidebar-annotations-canvas");
+      p5.createCanvas(1, 1, p5.P2D).id("sidebar-pickups-canvas");
       renderer.reset();
     }
 

@@ -93,6 +93,7 @@ export class SpriteRenderer implements ISpriteRenderer {
     [Image.PipesSheet]: null,
     [Image.PickupsSheet]: null,
     [Image.Pickups2Sheet]: null,
+    [Image.PushableSheet]: null,
     [Image.WearablesSheet]: null,
     [Image.DoorLightSheet]: null,
     [Image.DoorOpenSheet]: null,
@@ -355,6 +356,7 @@ export class SpriteRenderer implements ISpriteRenderer {
       this.loadImage(Image.PipesSheet);
       this.loadImage(Image.PickupsSheet);
       this.loadImage(Image.Pickups2Sheet);
+      this.loadImage(Image.PushableSheet);
       this.loadImage(Image.WearablesSheet);
       this.loadImage(Image.DoorLightSheet);
       this.loadImage(Image.DoorOpenSheet);

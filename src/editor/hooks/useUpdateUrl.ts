@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { v4 as uuid } from 'uuid';
 
 import { EditorData, EditorOptions } from "../../types";
 import { encodeMapData } from "../utils/editorUtils";
@@ -14,8 +15,9 @@ interface UseUpdateUrlArgs {
   options: EditorOptions,
   synced: boolean,
   setSynced: React.Dispatch<React.SetStateAction<boolean>>,
+  setMapId: (id: string) => void;
 }
-export const useUpdateUrl = ({ initialized, data, mapId, options, synced, setSynced, }: UseUpdateUrlArgs) => {
+export const useUpdateUrl = ({ initialized, data, mapId, options, synced, setSynced, setMapId }: UseUpdateUrlArgs) => {
   const timeout = useRef<NodeJS.Timeout | null>(null);
   const touched = useRef(false);
 
@@ -26,12 +28,15 @@ export const useUpdateUrl = ({ initialized, data, mapId, options, synced, setSyn
     setSynced(false);
     clearTimeout(timeout.current);
     timeout.current = setTimeout(() => {
+      const needsMapId = !mapId;
+      mapId ||= uuid();
+      if (needsMapId) {
+        setMapId(mapId);
+      }
       setUrl(mapId, data, options);
       setSynced(true);
       touched.current = true;
-      if (mapId) {
-        editorMapMetadataStore.set(mapId, data);
-      }
+      editorMapMetadataStore.set(mapId, data);
     }, UPDATE_URL_DELAY);
   }, [initialized, data, mapId, options]);
 

@@ -6,7 +6,7 @@ import { Operation, EditorTool } from "./editorSketch";
 import { clamp, getCoordIndex2, getRelativeDir, isValidPortalChannel } from "../utils";
 import { DIMENSIONS, GRIDCOUNT_X, GRIDCOUNT_Y } from "../constants";
 import { EDITOR_DEFAULTS } from "./editorConstants";
-import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, MapAnnotation, PickupType, PipeConnection, PortalChannel, SwitchType, ThreatType } from "../types";
+import { BARRIER_TYPE_MAX, BarrierType, DifficultyIndex, DIR, EditorData, EditorOptions, KeyChannel, MapAnnotation, PickupType, PipeConnection, PortalChannel, PushableType, SwitchType, ThreatType } from "../types";
 import { Tile } from "./editorTypes";
 import { useRefState } from "./hooks/useRefState";
 import { useLoadMapData } from "./hooks/useLoadMapData";
@@ -43,6 +43,7 @@ import {
   SetLinePickupCommand,
   SetLinePipeCommand,
   SetLinePortalCommand,
+  SetLinePushableCommand,
   SetLineSwitchCommand,
   SetLineThreatCommand,
   SetLockCommand,
@@ -52,6 +53,7 @@ import {
   SetPipeCommand,
   SetPlayerSpawnCommand,
   SetPortalCommand,
+  SetPushableCommand,
   SetRectangleAnnotationCommand,
   SetRectangleAppleCommand,
   SetRectangleBarrierCommand,
@@ -65,6 +67,7 @@ import {
   SetRectanglePickupCommand,
   SetRectanglePipeCommand,
   SetRectanglePortalCommand,
+  SetRectanglePushableCommand,
   SetRectangleSwitchCommand,
   SetRectangleThreatCommand,
   SetSelectedCommand,
@@ -91,6 +94,7 @@ import { OptionsDialog } from "./OptionsDialog/OptionsDialog";
 import * as styles from "./Editor.css";
 import { SidebarPickups } from "./SidebarPickups";
 import { SidebarPipes } from "./SidebarPipes";
+import { SidebarPushables } from "./SidebarPushables";
 
 interface LocalState {
   isMouseInsideMap: boolean,
@@ -122,6 +126,7 @@ export const Editor = () => {
   const [annotation, annotationRef, setAnnotation] = useRefState(MapAnnotation.L1);
   const [pickup, pickupRef, setPickup] = useRefState(PickupType.Invincibility);
   const [pipe, pipeRef, setPipe] = useRefState(PipeConnection.Unset);
+  const [pushable, pushableRef, setPushable] = useRefState(PushableType.Box1);
   const [barrierType, barrierTypeRef, setBarrierType] = useRefState(BarrierType.Default);
   const [threatType, threatTypeRef, setThreatType] = useRefState(ThreatType.Mine);
   const [switchType, switchTypeRef, setSwitchType] = useRefState(SwitchType.Button);
@@ -133,7 +138,7 @@ export const Editor = () => {
   const anySelected = Object.keys(selected).some(key => !!selected[key]);
 
   useLoadMapData({ setData, setOptions, setMapId, setPastCommands, setFutureCommands, setInitialized });
-  const isSynced = useUpdateUrl({ initialized, data, mapId, options, synced, setSynced });
+  const isSynced = useUpdateUrl({ initialized, data, mapId, options, synced, setSynced, setMapId });
 
   const setTool = (incoming: EditorTool) => {
     if (
@@ -260,6 +265,21 @@ export const Editor = () => {
       ];
       const idx = order.indexOf(pipeRef.current);
       setPipe(idx >= 0 ? order[(idx + order.length + direction) % order.length] : PipeConnection.Unset);
+    } else if (tileRef.current === Tile.Pushable) {
+      const order: PushableType[] = [
+        PushableType.Box1,
+        PushableType.Box1B,
+        PushableType.Box2,
+        PushableType.Box2B,
+        PushableType.Box2R,
+        PushableType.MirrorNE,
+        PushableType.MirrorNW,
+        PushableType.MirrorSE,
+        PushableType.MirrorSW,
+        PushableType.Yuzu,
+      ];
+      const idx = order.indexOf(pushableRef.current);
+      setPushable(idx >= 0 ? order[(idx + order.length + direction) % order.length] : PushableType.Box1);
     }
   }
 
@@ -282,6 +302,7 @@ export const Editor = () => {
       Tile.Pickup,
       Tile.Switch,
       Tile.Pipe,
+      Tile.Pushable,
       Tile.Annotation,
     ];
     const idx = order.indexOf(tileRef.current ?? Tile.None);
@@ -334,6 +355,8 @@ export const Editor = () => {
         return new SetSwitchCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, switchTypeRef.current);
       case Tile.Pipe:
         return new SetPipeCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, pipeRef.current);
+      case Tile.Pushable:
+        return new SetPushableCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, pushableRef.current);
       case Tile.Annotation:
         return new SetAnnotationCommand(coord, dataRef.current, setData, rollbackLastCoordUpdated, annotationRef.current);
       case Tile.None:
@@ -378,6 +401,8 @@ export const Editor = () => {
         return new SetLineSwitchCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, switchTypeRef.current);
       case Tile.Pipe:
         return new SetLinePipeCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, pipeRef.current);
+      case Tile.Pushable:
+        return new SetLinePushableCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, pushableRef.current);
       case Tile.Annotation:
         return new SetLineAnnotationCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, annotationRef.current);
       case Tile.None:
@@ -422,6 +447,8 @@ export const Editor = () => {
         return new SetRectangleSwitchCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, switchTypeRef.current);
       case Tile.Pipe:
         return new SetRectanglePipeCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, pipeRef.current);
+      case Tile.Pushable:
+        return new SetRectanglePushableCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, pushableRef.current);
       case Tile.Annotation:
         return new SetRectangleAnnotationCommand(from, to, dataRef, setData, rollbackLastCoordUpdated, annotationRef.current);
       case Tile.None:
@@ -498,6 +525,7 @@ export const Editor = () => {
           threatTypeRef.current,
           switchTypeRef.current,
           pickupRef.current,
+          pushableRef.current,
           dataRef,
           setData,
         );
@@ -900,6 +928,12 @@ export const Editor = () => {
                   activePipe={pipe}
                   options={options}
                   setPipe={setPipe}
+                />
+              }
+              sidebarPushables={
+                <SidebarPushables
+                  activePushable={pushable}
+                  setPushable={setPushable}
                 />
               }
             />

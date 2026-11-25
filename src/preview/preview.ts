@@ -525,6 +525,7 @@ async function loadLevel(queryData: string, loadMapImage = false, editorData: Ed
       pipeVariant: options.pipeVariant,
       annotations: data.annotations,
       pipeOverrides: data.pipeOverrides,
+      pushables: data.pushables,
     };
 
     level.current = loaded;

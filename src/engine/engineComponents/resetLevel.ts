@@ -135,6 +135,8 @@ export function resetLevelImpl(ctx: Context, params: ResetLevelImplParams) {
       es.lasersMap[getCoordIndex2(x, y)] = undefined;
       es.switchesMap[getCoordIndex2(x, y)] = undefined;
       es.pipesMap[getCoordIndex2(x, y)] = undefined;
+      es.pipeCapsMap[getCoordIndex2(x, y)] = undefined;
+      es.pushables[getCoordIndex2(x, y)] = undefined;
       es.flamesMap[getCoordIndex2(x, y)] = undefined;
       es.illuminationMap[getCoordIndex2(x, y)] = undefined;
       es.lightSources[getCoordIndex2(x, y)] = undefined;
@@ -221,6 +223,7 @@ export function resetLevelImpl(ctx: Context, params: ResetLevelImplParams) {
   es.locksMap = levelData.locksMap;
   es.diffSelectMap = levelData.diffSelectMap;
   es.pipeOverrides = es.level.pipeOverrides || {};
+  es.pushables = es.level.pushables || {};
   es.annotations = es.level.annotations || {};
   es.snekDamage = {};
 

@@ -7,6 +7,7 @@ import {
   KeyChannel,
   PickupType,
   PortalChannel,
+  PushableType,
   SwitchType,
   ThreatType,
 } from "../../types";
@@ -17,6 +18,7 @@ import {
   isValidKeyChannel,
   isValidPickupType,
   isValidPortalChannel,
+  isValidPushableType,
   isValidSwitchType,
   isValidThreatType,
 } from "../../utils";
@@ -25,9 +27,11 @@ import {
   BARRIER_TYPE_TO_FLOOD_FILL_TILE,
   FLOOD_FILL_TILE_TO_BARRIER_TYPE,
   FLOOD_FILL_TILE_TO_PICKUP_TYPE,
+  FLOOD_FILL_TILE_TO_PUSHABLE_TYPE,
   FLOOD_FILL_TILE_TO_SWITCH_TYPE,
   FLOOD_FILL_TILE_TO_THREAT_TYPE,
   PICKUP_TYPE_TO_FLOOD_FILL_TILE,
+  PUSHABLE_TYPE_TO_FLOOD_FILL_TILE,
   SWITCH_TYPE_TO_FLOOD_FILL_TILE,
   THREAT_TYPE_TO_FLOOD_FILL_TILE,
   TILE_TO_FLOOD_FILL_TILE,
@@ -41,6 +45,7 @@ interface GetTileArgs {
   threatType?: ThreatType;
   switchType?: SwitchType,
   pickupType?: PickupType,
+  pushable?: PushableType,
 }
 function getTile({
   tile,
@@ -50,6 +55,7 @@ function getTile({
   threatType,
   switchType,
   pickupType,
+  pushable,
 }: GetTileArgs): FloodFillTile {
   if (TILE_TO_FLOOD_FILL_TILE[tile]) {
     return TILE_TO_FLOOD_FILL_TILE[tile];
@@ -67,6 +73,9 @@ function getTile({
   }
   if (tile === Tile.Pickup && isValidPickupType(pickupType)) {
     return PICKUP_TYPE_TO_FLOOD_FILL_TILE[pickupType];
+  }
+  if (tile === Tile.Pushable && isValidPushableType(pushable)) {
+    return PUSHABLE_TYPE_TO_FLOOD_FILL_TILE[pushable];
   }
   if (tile === Tile.Portal && isValidPortalChannel(portalChannel)) {
     switch (portalChannel) {
@@ -174,6 +183,7 @@ function commitTile(
     switch: undefined,
     pipe: undefined,
     pickup: undefined,
+    pushable: undefined,
     barrier: undefined,
     deco1: undefined,
     deco2: undefined,
@@ -196,6 +206,8 @@ function commitTile(
     slice.threat = FLOOD_FILL_TILE_TO_THREAT_TYPE[tile];
   } else if (FLOOD_FILL_TILE_TO_SWITCH_TYPE[tile]) {
     slice.switch = FLOOD_FILL_TILE_TO_SWITCH_TYPE[tile];
+  } else if (FLOOD_FILL_TILE_TO_PUSHABLE_TYPE[tile]) {
+    slice.pushable = FLOOD_FILL_TILE_TO_PUSHABLE_TYPE[tile];
   } else {
     switch (tile) {
       case FloodFillTile.None:
@@ -307,6 +319,7 @@ export function tileFloodFill(
   threatType: ThreatType,
   switchType: SwitchType,
   pickupType: PickupType,
+  pushable: PushableType,
   data: EditorData,
 ): EditorData | null {
   const prev = getTileAtLocation(getCoordIndex2(x, y), data);
@@ -318,6 +331,7 @@ export function tileFloodFill(
     threatType,
     switchType,
     pickupType,
+    pushable,
   });
   const newData = deepCloneData(data);
 
