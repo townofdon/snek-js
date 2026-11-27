@@ -140,10 +140,10 @@ export const PanelStats = ({ isPreviewShowing, options, setOptions, loadLevel }:
       <SliderWithInput
         label="Time to clear (s)"
         name="timeToClear"
-        value={options.timeToClear}
-        onChange={(val) => setOptions({ ...options, timeToClear: val })}
+        value={Math.floor(options.timeToClear / 1000)}
+        onChange={(val) => setOptions({ ...options, timeToClear: val * 1000 })}
         min={1}
-        max={5 * 60 * 1000}
+        max={10 * 60}
       />
       <SliderWithInput
         label="Start snek size"

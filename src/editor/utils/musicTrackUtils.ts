@@ -37,7 +37,8 @@ export const musicTrackIndexMap: Record<MusicTrack, number> = {
   [MusicTrack.slime_monsterdance]: 26,
   [MusicTrack.slime_exitmusic]: 27,
   [MusicTrack.slime_rollcredits]: 28,
-} as const;
+  [MusicTrack.whimsey]: 29,
+} satisfies Record<MusicTrack, number>;
 
 export const musicTrackFadeoutOverride: Partial<Record<MusicTrack, number>> = {
   [MusicTrack.champion]: toTime({ minutes: 1, seconds: 12 }),
@@ -55,6 +56,7 @@ export const musicTrackFadeoutOverride: Partial<Record<MusicTrack, number>> = {
   [MusicTrack.backrooms]: toTime({ minutes: 0, seconds: 27 }),
   [MusicTrack.reconstitute]: toTime({ minutes: 3, seconds: 18 }),
   [MusicTrack.ascension]: toTime({ minutes: 2, seconds: 51 }),
+  [MusicTrack.whimsey]: toTime({ minutes: 2, seconds: 6 }),
 } as const;
 
 export function indexToMusicTrack(index: number): MusicTrack {

@@ -361,6 +361,7 @@ export const CAMPAIGN_TRACKS: MusicTrack[] = [
   MusicTrack.reconstitute,
   MusicTrack.ascension,
   MusicTrack.moneymaker,
+  MusicTrack.whimsey,
   MusicTrack.overture,
 ];
 export const OST_MODE_TRACKS: MusicTrack[] = [

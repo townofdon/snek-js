@@ -54,6 +54,7 @@ export class MusicPlayer implements IMusicPlayer {
     [MusicTrack.ascension]: false,
     [MusicTrack.backrooms]: false,
     [MusicTrack.slyguy]: false,
+    [MusicTrack.whimsey]: false,
     [MusicTrack.overture]: false,
     [MusicTrack.drone]: false,
     [MusicTrack.slime_dangerman]: false,

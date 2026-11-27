@@ -418,6 +418,8 @@ export function getTrackName(track?: MusicTrack) {
       return "SC_Unlikely Foe";
     case MusicTrack.slime_rollcredits:
       return "SC_Roll Credits";
+    case MusicTrack.whimsey:
+      return "Whimsey";
     default:
       return "Unknown";
   }

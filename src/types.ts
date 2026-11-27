@@ -1404,6 +1404,7 @@ export enum MusicTrack {
   backrooms = '20-dillema.wav',
   slyguy = '21-slyguy.wav',
   overture = '22-snek-overture.wav',
+  whimsey = '31-whimsey.mp3',
   drone = '00-drone.wav',
   full_simpleTime = '01-simpletime5-full.wav',
   full_transient = '03-transient-4-FULL.wav',
