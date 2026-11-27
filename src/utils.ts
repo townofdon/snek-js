@@ -1305,8 +1305,8 @@ function validPipeMove(ctx: Context, fromCoord: number, toCoord: number): boolea
   if (getManhattanDistance(frx, fry, tox, toy) !== 1) {
     return false;
   }
-  let from = normalizePipeConnection(es.pipeOverrides[fromCoord] || es.pipesMap[fromCoord]) || 0;
-  let to = normalizePipeConnection(es.pipeOverrides[toCoord] || es.pipesMap[toCoord]) || 0;
+  let from = normalizePipeConnection(es.pipeOverrides[fromCoord] || es.pipesMap[fromCoord]) || PipeConnection.Unset;
+  let to = normalizePipeConnection(es.pipeOverrides[toCoord] || es.pipesMap[toCoord]) || PipeConnection.Unset;
   // capped pipe
   const fromCap = es.pipeCapsMap[fromCoord];
   const toCap = es.pipeCapsMap[toCoord];
@@ -1329,14 +1329,14 @@ function validPipeMove(ctx: Context, fromCoord: number, toCoord: number): boolea
   if (!from || !to) {
     return false;
   }
-  if (to === PipeConnection.Barrier) {
+  if (from === PipeConnection.Barrier || to === PipeConnection.Barrier) {
     return false;
   }
   if (!state.isDoorsOpen && to === PipeConnection.Door) {
     return false;
   }
-  if (from === PipeConnection.Barrier || from === PipeConnection.Door) from = es.pipesMap[fromCoord];
-  if (to === PipeConnection.Barrier || to === PipeConnection.Door) to = es.pipesMap[toCoord];
+  if (from === PipeConnection.Door) from = es.pipesMap[fromCoord];
+  if (to === PipeConnection.Door) to = es.pipesMap[toCoord];
   if (FLAG_NORTH & from && FLAG_SOUTH & to) return true;
   if (FLAG_SOUTH & from && FLAG_NORTH & to) return true;
   if (FLAG_WEST & from && FLAG_EAST & to) return true;

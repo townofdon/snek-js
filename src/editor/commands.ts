@@ -176,6 +176,7 @@ export class DeleteElementCommand extends SetElementCommand {
       !data.switchesMap[this.coord] &&
       !data.annotations[this.coord] &&
       !data.pipeOverrides[this.coord] &&
+      !data.pushables[this.coord] &&
       !isValidPortalChannel(data.portalsMap[this.coord])
     ) {
       this.newData = null;

@@ -87,7 +87,6 @@ export function checkSnakeTrapped(ctx: Context) {
     player,
     segments,
   } = ctx;
-  if (![DamageType.HitBarrier, DamageType.HitDoor, DamageType.HitSelf, DamageType.HitLock].includes(state.lastHurtBy)) return false;
   const hasHit = !!checkCollision(ctx, player.position, COLLISION_MASK_ALL);
   let trapped = true;
   let maxSegmentIndex = -1;
