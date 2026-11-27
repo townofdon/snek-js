@@ -1313,6 +1313,9 @@ function validPipeMove(ctx: Context, fromCoord: number, toCoord: number): boolea
   if (!state.isDoorsOpen && ((from && fromCap) || (to && toCap))) {
     return false;
   }
+  if (!from) {
+    return false;
+  }
   // potential exit
   if (!to) {
     if (from === PipeConnection.Barrier || from === PipeConnection.Door) {
@@ -1326,9 +1329,6 @@ function validPipeMove(ctx: Context, fromCoord: number, toCoord: number): boolea
     );
     return (validFrom && !checkCollision(ctx, coordToVec(toCoord), COLLISION_MASK_EXCLUDE_PIPES));
   }
-  if (!from || !to) {
-    return false;
-  }
   if (from === PipeConnection.Barrier || to === PipeConnection.Barrier) {
     return false;
   }
@@ -1337,10 +1337,10 @@ function validPipeMove(ctx: Context, fromCoord: number, toCoord: number): boolea
   }
   if (from === PipeConnection.Door) from = es.pipesMap[fromCoord];
   if (to === PipeConnection.Door) to = es.pipesMap[toCoord];
-  if (FLAG_NORTH & from && FLAG_SOUTH & to) return true;
-  if (FLAG_SOUTH & from && FLAG_NORTH & to) return true;
-  if (FLAG_WEST & from && FLAG_EAST & to) return true;
-  if (FLAG_EAST & from && FLAG_WEST & to) return true;
+  if (dy === -1 && FLAG_NORTH & from && FLAG_SOUTH & to) return true;
+  if (dy === 1 && FLAG_SOUTH & from && FLAG_NORTH & to) return true;
+  if (dx === -1 && FLAG_WEST & from && FLAG_EAST & to) return true;
+  if (dx === 1 && FLAG_EAST & from && FLAG_WEST & to) return true;
   return false;
 }
 
