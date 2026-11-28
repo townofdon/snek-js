@@ -25,6 +25,22 @@ export function anySwitchPressed(ctx: Context): boolean {
   return false;
 }
 
+export function checkSwitchPressedAtPlayerPosition(ctx: Context): boolean {
+  const {
+    es,
+    state,
+    player,
+  } = ctx;
+  if ((state.isExitingLevel || state.isExited)) {
+    return false;
+  }
+  for (let coord = 0; coord < GRIDCOUNT_X * GRIDCOUNT_Y; coord++) {
+    if (!es.switchesMap[coord]) continue;
+    if (getCoordIndex(player.position) === coord) return true;
+  }
+  return false;
+}
+
 export function handleSwitches(ctx: Context) {
   const {
     es,
@@ -32,6 +48,7 @@ export function handleSwitches(ctx: Context) {
     drawState,
     segments,
     threats,
+    player,
     playSound,
   } = ctx;
   const pressed = anySwitchPressed(ctx);
@@ -51,6 +68,8 @@ export function handleSwitches(ctx: Context) {
     }
     playSound(Sound.switch, 0.9);
     drawState.shouldDrawActionFG = true;
+  } else if (pressed && state.isButtonPressed && player.didMoveLastFrame && checkSwitchPressedAtPlayerPosition(ctx) && state.timeSinceButtonPressChanged > 600) {
+    playSound(Sound.switch2, 0.9);
   } else if (!pressed && state.isButtonPressed) {
     state.isButtonPressed = false;
     state.timeSinceButtonPressChanged = 0;

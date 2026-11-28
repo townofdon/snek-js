@@ -27,6 +27,7 @@ export class SFX implements ISFX {
     acquireEpicItem2: null,
     acquireLegendaryItem: null,
     alarm: null,
+    alarm2: null,
     burn: null,
     death: null,
     doorOpen: null,
@@ -43,6 +44,8 @@ export class SFX implements ISFX {
     moveStart: null,
     pickup: null,
     pickupInvincibility: null,
+    pipe: null,
+    push: null,
     rewindLoop: null,
     shieldSpawn: null,
     spawnPickup: null,
@@ -50,6 +53,7 @@ export class SFX implements ISFX {
     step1: null,
     step2: null,
     switch: null,
+    switch2: null,
     switchOff: null,
     uiBlip: null,
     uiChip: null,
@@ -126,6 +130,7 @@ export class SFX implements ISFX {
       this.sounds.acquireEpicItem2 = await loadSound('acquire-epic-item-2.wav');
       this.sounds.acquireLegendaryItem = await loadSound('acquire-legendary.wav');
       this.sounds.alarm = await loadSound('alarm.wav');
+      this.sounds.alarm2 = await loadSound('alarm2.wav');
       this.sounds.burn = await loadSound('burn-loop.wav');
       this.sounds.death = await loadSound('death.wav');
       this.sounds.doorOpen = await loadSound('door-open.wav');
@@ -142,6 +147,8 @@ export class SFX implements ISFX {
       this.sounds.moveStart = await loadSound('move-start.wav');
       this.sounds.pickup = await loadSound('pickup.wav');
       this.sounds.pickupInvincibility = await loadSound('pickup-invincibility.wav');
+      this.sounds.pipe = await loadSound('pipe.wav');
+      this.sounds.push = await loadSound('push.wav');
       this.sounds.rewindLoop = await loadSound('rewind-loop.wav');
       this.sounds.shieldSpawn = await loadSound('shield-spawn.wav');
       this.sounds.spawnPickup = await loadSound('spawn-pickup.wav');
@@ -149,6 +156,7 @@ export class SFX implements ISFX {
       this.sounds.step1 = await loadSound('step-1.wav');
       this.sounds.step2 = await loadSound('step-2.wav');
       this.sounds.switch = await loadSound('switch.wav');
+      this.sounds.switch2 = await loadSound('switch2.wav');
       this.sounds.switchOff = await loadSound('switch-off.wav');
       this.sounds.uiBlip = await loadSound('ui-blip.wav');
       this.sounds.uiChip = await loadSound('ui-chip.wav');

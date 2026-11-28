@@ -337,6 +337,7 @@ export class TheTechnician extends BaseBoss {
     this.gameState.timeSinceInvincibleStart = Infinity;
     coroutines.stop(this.threatSpawner);
     coroutines.stop(this.powerupSpawner);
+    this.sfx.stop(Sound.alarm2);
     // give other scripts one stack frame to react to new state machine status
     yield null;
 
@@ -419,6 +420,7 @@ export class TheTechnician extends BaseBoss {
     const prevTimeScale = this.loopState.timeScale;
     this.loopState.timeScale = 0;
     this.coroutines.stop(this.threatSpawner);
+    this.sfx.stop(Sound.alarm2);
 
     let explosionCoords = [];
     let bossCoord = -1;
@@ -556,6 +558,7 @@ export class TheTechnician extends BaseBoss {
           es.barriersMap[coord] = BarrierType.Default;
           es.barriers.push({ vec: coordToVec(coord), type: BarrierType.Default });
         }
+        threats.bulkAddFlag(ThreatFlag.NoDamage);
         threats.remove(x, y, RemovalReason.Explode);
         recalculateLasersMap(es, threats);
         yield* coroutines.waitForTime(interval);
@@ -764,12 +767,14 @@ export class TheTechnician extends BaseBoss {
 
   private * lightRoutine() {
     this.gameState.lightsOn = true;
+    this.sfx.playLoop(Sound.alarm2);
     while (this.stateMachine === BossStateMachine.Fighting) {
       const elapsed = this.gameState.actualTimeElapsed;
       const t = triangle(((elapsed - this.timeSinceLastPhaseStart) / (3000 / 2)) % 2);
       this.gameState.globalLightOverride = lerp(1, 0.1, Easing.inOutCubic(t));
       yield null;
     }
+    this.sfx.stop(Sound.alarm2);
   }
 
   private spawnLaserDiode(x: number, y: number) {

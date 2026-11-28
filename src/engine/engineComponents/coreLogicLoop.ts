@@ -500,7 +500,7 @@ export function coreLogicLoop(ctx: Context): Context {
   if (!skip){
     const result = findPipeExit(ctx, getCoordIndex(player.position), player.direction);
     if (result) {
-      playSound(Sound.warp);
+      playSound(Sound.pipe);
       const [exitCoord, exitDir] = result;
       const newPosition = coordToVec(exitCoord);
       player.position.set(newPosition);
@@ -829,6 +829,7 @@ export function coreLogicLoop(ctx: Context): Context {
     startScreenShake();
     maybeGameOver();
     playSound(Sound.death);
+    sfx.stop(Sound.alarm2);
     return;
   }
   //#endregion snek death
@@ -855,6 +856,7 @@ export function coreLogicLoop(ctx: Context): Context {
       stats.totalLevelTimeElapsed += loopState.deltaTime;
     }
   }
+  player.didMoveLastFrame = didMove;
   //#endregion movement
 
   //#region rewind

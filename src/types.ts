@@ -98,6 +98,7 @@ export enum MOVE {
 
 export interface PlayerState {
   position: Vector,
+  didMoveLastFrame: boolean,
   direction: DIR,
   directionToFirstSegment: DIR,
   directionLastHit: DIR,
@@ -1319,6 +1320,7 @@ export enum Sound {
   acquireEpicItem2 = 'acquireEpicItem2',
   acquireLegendaryItem = 'acquireLegendaryItem',
   alarm = 'alarm',
+  alarm2 = 'alarm2',
   burn = 'burn',
   death = 'death',
   doorOpen = 'doorOpen',
@@ -1335,6 +1337,8 @@ export enum Sound {
   moveStart = 'moveStart',
   pickup = 'pickup',
   pickupInvincibility = 'pickupInvincibility',
+  pipe = 'pipe',
+  push = 'push',
   rewindLoop = 'rewindLoop',
   shieldSpawn = 'shieldSpawn',
   spawnPickup = 'spawnPickup',
@@ -1342,6 +1346,7 @@ export enum Sound {
   step2 = 'step2',
   stab = 'stab',
   switch = 'switch',
+  switch2 = 'switch2',
   switchOff = 'switchOff',
   uiBlip = 'uiBlip',
   uiChip = 'uiChip',
